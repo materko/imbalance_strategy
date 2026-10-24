@@ -195,6 +195,8 @@ class HubJobRequest(BaseModel):
     note: str = ""
     version: str | None = None
     max_seconds: float | None = None
+    plan_total: int | None = None
+    plan_done: int | None = None
 
 
 class HubOptions(BaseModel):
@@ -204,6 +206,9 @@ class HubOptions(BaseModel):
     max_wait_minutes: float | None = None
     max_runtime_minutes: float | None = None
     cores: int | str | None = None
+    #: voliteľný plán: koľko výpočtov ide zadávateľ dať spolu a koľko už má hotových
+    plan_total: int | None = None
+    plan_done: int | None = None
 
 
 class HubRunRequest(RunRequest, HubOptions):

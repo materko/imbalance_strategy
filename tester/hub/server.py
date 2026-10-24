@@ -129,6 +129,10 @@ class SubmitRequest(BaseModel):
     note: str = ""
     version: str | None = None
     max_seconds: float | None = None
+    #: Voliteľný plán zadávateľa (`plans.py`): `plan_total` = koľko výpočtov ide dať spolu,
+    #: `plan_done` = koľko už má hotových (aj mimo hubu). Kto dáva pár behov, neposiela nič.
+    plan_total: int | None = None
+    plan_done: int | None = None
 
 
 def create_hub_app(state: HubState | None = None, live_store: LiveStore | None = None,
@@ -269,11 +273,16 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
             return state.submit(kind=req.kind, payload=req.payload, submitter=req.submitter,
                                 cores=req.cores, queue=req.queue, max_wait_seconds=req.max_wait_seconds,
                                 estimate_seconds=req.estimate_seconds, note=req.note,
-                                version=req.version, max_seconds=req.max_seconds)
+                                version=req.version, max_seconds=req.max_seconds,
+                                plan_total=req.plan_total, plan_done=req.plan_done)
         except NoCapacity as exc:
             raise HTTPException(409, exc.detail())
         except ValueError as exc:
             raise HTTPException(422, str(exc))
+
+    @app.get("/api/plans")
+    def plans(who: str = Depends(auth)):
+        return state.list_plans()
 
     @app.get("/api/jobs")
     def jobs(live: bool = False, submitter: str | None = None, who: str = Depends(auth)):

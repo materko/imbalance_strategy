@@ -94,14 +94,17 @@ def _remote_submit(args: argparse.Namespace, params: dict, settings: dict, note:
     payload = {"params": params, "settings": settings, "note": note, "user": user or None}
     telo = {"kind": kind, "payload": payload, "cores": cores, "queue": bool(queue),
             "max_wait_seconds": max_wait, "estimate_seconds": odhad, "note": note,
-            "version": verzia or None, "max_seconds": max_seconds}
+            "version": verzia or None, "max_seconds": max_seconds,
+            "plan_total": getattr(args, "plan_total", None),
+            "plan_done": getattr(args, "plan_done", None)}
     try:
         if _webapp_hub_ready(args.url):
             job = api(args.url, "/api/hub/jobs", telo)
         else:
             job = client.submit(kind, payload, cores=cores, queue=bool(queue),
                                 max_wait_seconds=max_wait, estimate_seconds=odhad, note=note,
-                                version=verzia or None, max_seconds=max_seconds)
+                                version=verzia or None, max_seconds=max_seconds,
+                                plan_total=telo["plan_total"], plan_done=telo["plan_done"])
             stav = hub_config.load_state()
             stav.sent[job["id"]] = {"kind": kind, "note": note, "created": job.get("created"),
                                     "status": job.get("status"), "run_ids": [], "error": None}

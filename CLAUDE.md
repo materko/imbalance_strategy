@@ -93,7 +93,9 @@ Bez obmedzení. Platia len konvencie repozitára:
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.
 - Viac strojov: jeden hub (`python -m tester.hub serve`, verejná adresa, token), agenti
   s `tester/agent.json` (webapp alebo `python -m tester.hub agent`), zadanie `cli run
-  --remote [--queue --max-wait MIN]` — [docs/HUB.md](docs/HUB.md). Hub nepozná stratégie
+  --remote [--queue --max-wait MIN]` — [docs/HUB.md](docs/HUB.md). Veľkú dávku na hub
+  zadávaj s `--plan-total N [--plan-done M]` (koľko výpočtov spolu bude, koľko je hotových),
+  keď to aspoň zhruba vieš — karta Hub ukáže, kedy dobehne; pár behov bez toho. Hub nepozná stratégie
   menom, nesie `params` + `settings` behu; výsledok je adresár behu, ktorý sa vráti do
   histórie zadávateľa. Vlastný kód v procese hubu = plugin `tester/hub/plugins/<meno>/` (strážca strojov,
   kalendár ForexFactory); hub ho nepozná menom, plugin vidí len `PluginContext` — docs/HUB.md, „Pluginy“.
@@ -125,7 +127,8 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    emulátoru. Celý postup testovania: [tester/AI_TESTING.md](tester/AI_TESTING.md).
 1. **Backtesty spúšťaj len cez `python -m tester.webapp.cli run …`** (alebo cez webapp
    v prehliadači). Holý `freqtrade backtesting` výsledok do histórie webapp **nezapíše**
-   a tester ho neuvidí.
+   a tester ho neuvidí. Veľkú dávku na hube (`--remote`) zadávaj s `--plan-total N [--plan-done M]`
+   (koľko výpočtov spolu, koľko hotových) — karta Hub ukáže, kedy dobehne; pár behov bez toho.
 2. **Vždy `--timeframe-detail 1m`** — CLI aj webapp ho majú zapnutý, nevypínaj ho
    (`--no-detail` len na rýchly hrubý odhad, do záverov nie). Stratégiu nikdy nespúšťaj
    na 1m grafe: limity `*MaxBars` sú v baroch.

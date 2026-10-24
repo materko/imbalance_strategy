@@ -7,6 +7,7 @@ Rovnaký beh na inom commite dá iné čísla, takže výpočet nesie **verziu k
 - `has_version(c)` — je commit `c` v histórii HEAD? (`git merge-base --is-ancestor`),
 - `pull()`         — `git fetch` + `rebase --autostash origin/main`, to isté, čo Pull vo webapp
                      (`tester.webapp.gitsync`),
+- `versus_main(vs)`— o koľko commitov je každá verzia za `origin/main` (karta Hub, agenti),
 - `dirty_code()`   — necommitnuté zmeny v kóde (nie v histórii behov): taký klon posiela
                      verziu, ktorá jeho kód nepopisuje, a CLI na to upozorní.
 
@@ -21,7 +22,7 @@ from typing import Any
 
 from tradebot.core.paths import REPO
 
-__all__ = ["version", "has_version", "is_ancestor", "on_remote", "pull", "dirty_code"]
+__all__ = ["version", "has_version", "is_ancestor", "on_remote", "versus_main", "pull", "dirty_code"]
 
 #: Čo sa nepovažuje za kód: história behov, profily a analytiky testera idú cez Push.
 _DATA_PREFIXES = ("tester/runs/", "tester/profiles/", "tester/analytics/", "data_archive/", "docs/")
@@ -80,6 +81,32 @@ def on_remote(commit: str | None, fetch: bool = True) -> bool | None:
             return None
         return _git("merge-base", "--is-ancestor", commit, f"origin/{br}").returncode == 0
     except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def versus_main(versions: list[str], fetch: bool = True) -> dict[str, Any] | None:
+    """Ako sú `versions` (commity agentov) na tom voči `origin/<vetva>`: `{"main": krátky commit,
+    "versions": {verzia: {"behind": n, "ahead": m}}}` — `behind` = koľko commitov z main nemá,
+    `ahead` = koľko jeho commitov v main nie je (nepushnuté). Verzia, ktorú tento klon nepozná,
+    má `None`. `None` celé = nevedno (mimo gitu, bez `origin`)."""
+    from tradebot.core.env import getenv
+
+    br = getenv("GIT_BRANCH", "").strip() or "main"
+    ref = f"origin/{br}"
+    try:
+        if fetch:
+            _git("fetch", "--quiet", "origin", br)
+        r = _git("rev-parse", "--short", "--verify", "--quiet", ref)
+        if r.returncode != 0:
+            return None
+        out: dict[str, Any] = {"main": r.stdout.strip(), "versions": {}}
+        for v in dict.fromkeys(x for x in versions if x):
+            za = _git("rev-list", "--count", f"{v}..{ref}")
+            pred = _git("rev-list", "--count", f"{ref}..{v}")
+            out["versions"][v] = ({"behind": int(za.stdout), "ahead": int(pred.stdout)}
+                                  if za.returncode == 0 and pred.returncode == 0 else None)
+        return out
+    except (OSError, subprocess.SubprocessError, ValueError):
         return None
 
 

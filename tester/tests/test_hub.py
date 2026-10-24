@@ -321,6 +321,58 @@ def test_overview_queue_eta_from_last_hour_throughput(hub):
     assert t["per_hour"] == pytest.approx(2) and t["left"] == 4 and t["eta_seconds"] == pytest.approx(7200)
 
 
+def test_plan_from_job_fields_counts_done_and_eta(hub):
+    """Plán ide len cez voliteľné polia zadania: spolu / hotových z nahláseného a z hubu, odhad."""
+    state, clock = hub
+    _reg(state)
+    jobs = [state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True,
+                         plan_total=10, plan_done=3)]
+    jobs += [state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+             for _ in range(2)]                        # ďalšie už bez polí: patria do plánu
+    p = state.overview()["plans"][0]
+    assert (p["submitter"], p["total"], p["done"], p["left"], p["submitted"]) == ("lap", 10, 3, 7, 3)
+    for job in jobs:                                   # tri hotové na hube za 30 min
+        if state.job(job["id"])["status"] != "assigned":
+            continue
+        state.heartbeat("srv", {"instance": "i1", "jobs": [{"id": job["id"], "status": "running"}]})
+        clock.t += 600
+        state.result(job["id"], b"PK", status="done", agent="srv")
+    p = state.overview()["plans"][0]
+    hotove = p["done_hub"]
+    assert hotove >= 1 and p["done"] == max(3, hotove) and p["rate_from"] == "plan"
+    assert p["eta_seconds"] == pytest.approx(p["left"] * 3600 / p["per_hour"])
+    # nahlásené hotových sa dá zvýšiť ďalším zadaním (aj mimo hubu)
+    _reg(state)  # posun hodín by inak agenta odhlásil
+    state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True, plan_done=10)
+    p = state.overview()["plans"][0]
+    assert p["left"] == 0 and p["eta_seconds"] == 0.0
+    # plán prežije reštart hubu a hotový po čase zmizne
+    znova = HubState(state.root, token="tajne", clock=clock)
+    assert znova.overview()["plans"][0]["submitter"] == "lap"
+    clock.t += 3 * 86400
+    assert znova.list_plans() == []
+
+
+def test_plan_fields_go_through_http_submit(hub_api):
+    from tester.hub.client import HubClient
+
+    c, state, _ = hub_api
+    _reg(state)
+    client = HubClient(FakeHttp(c, "tajne"), "lap")
+    job = client.submit("backtest", _payload(), queue=True, plan_total=50, plan_done=5)
+    assert state.job(job["id"])["plan"] is True
+    p = c.get("/api/plans", headers={"Authorization": "Bearer tajne"}).json()[0]
+    assert (p["total"], p["done"], p["left"]) == (50, 5, 45)
+
+
+def test_job_without_plan_fields_makes_no_plan(hub):
+    """Pár behov bez polí plánu = žiadny plán."""
+    state, _ = hub
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    assert state.overview()["plans"] == [] and state.job(job["id"])["plan"] is False
+
+
 def test_overview_shows_hub_version_and_pending_update(tmp_path: Path):
     from tester.hub.update import Updater
 
@@ -1921,6 +1973,32 @@ def test_event_log(tmp_path: Path):
     assert len(riadky) == 8 and json.loads(riadky[0])["event"] == "agent_online"
     znovu = HubState(tmp_path / "hub", token="t", clock=clock)
     assert len(znovu.events(limit=100)) == 8
+
+
+def test_gitcode_versus_main_counts_commits_behind_and_ahead(tmp_path: Path, monkeypatch):
+    import subprocess
+    from tester.hub import gitcode
+
+    def git(cwd, *a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=cwd,
+                              capture_output=True, text=True, check=True).stdout.strip()
+
+    origin, klon = tmp_path / "origin.git", tmp_path / "klon"
+    git(tmp_path, "init", "--bare", "-b", "main", str(origin))
+    git(tmp_path, "clone", str(origin), str(klon))
+    def commit(msg):
+        (klon / "f.txt").write_text(msg, encoding="utf-8")
+        git(klon, "add", "f.txt"); git(klon, "commit", "-m", msg)
+        return git(klon, "rev-parse", "--short", "HEAD")
+    stary = commit("a")
+    commit("b"); novy = commit("c")
+    git(klon, "push", "origin", "HEAD:main")
+    lokalny = commit("d")                              # nepushnutý
+    monkeypatch.setattr(gitcode, "REPO", klon)
+    r = gitcode.versus_main([stary, novy, lokalny, "deadbee", ""], fetch=True)
+    assert r["main"] == novy
+    assert r["versions"] == {stary: {"behind": 2, "ahead": 0}, novy: {"behind": 0, "ahead": 0},
+                             lokalny: {"behind": 0, "ahead": 1}, "deadbee": None}
 
 
 def test_gitcode_pull_can_be_disabled(monkeypatch):

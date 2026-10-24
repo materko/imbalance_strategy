@@ -36,6 +36,12 @@ def _remote_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--max-runtime", dest="max_runtime", type=float,
                    help="s --remote: strop na čas behu v minútach; po ňom agent beh zabije "
                         "(default trojnásobok odhadu, najmenej 10 min)")
+    p.add_argument("--plan-total", dest="plan_total", type=int,
+                   help="s --remote, voliteľné (len keď ideš dať veľa): koľko výpočtov dáš spolu, aj tie, "
+                        "čo ešte nie sú zadané — karta Hub ukáže, koľko zostáva a kedy to dobehne")
+    p.add_argument("--plan-done", dest="plan_done", type=int,
+                   help="s --remote, voliteľné: koľko z plánu už je hotových (aj mimo hubu); hub berie "
+                        "väčšie z nahláseného a z toho, čo napočítal sám")
 
 
 def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:

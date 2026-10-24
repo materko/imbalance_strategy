@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import threading
+import time
 from typing import Any
 from urllib.parse import quote
 
@@ -13,6 +15,9 @@ from tradebot.strategies import get_spec
 
 from .common import clean_user
 from .context import AppContext
+
+#: Ako často sa `git fetch` pre stav kódu agentov (karta Hub) obnovuje.
+CODE_STATUS_SECONDS = 120.0
 from .models import (
     HubJobRequest, HubOptions, HubRunRequest, HubHyperoptRequest, HubAcceptRequest,
     HubConfigRequest, HubTokenRequest,
@@ -125,6 +130,36 @@ def build(ctx: AppContext) -> APIRouter:
         hub_config.AGENT_CONFIG.unlink(missing_ok=True)
         return hub_status()
 
+    # Ako sú agenti na tom voči origin/main — `git fetch` trvá, preto na pozadí a z cache:
+    # prvé načítanie karty Hub nečaká, čipy pribudnú pri ďalšom obnovení (každých 10 s).
+    kod: dict[str, Any] = {"at": 0.0, "data": None, "busy": False}
+    kod_lock = threading.Lock()
+
+    def _code_status(versions: list[str]) -> dict[str, Any] | None:
+        from ...hub import gitcode
+
+        now = time.monotonic()
+        with kod_lock:
+            data = kod["data"]
+            nove = data is None or any(v not in data["versions"] for v in versions if v)
+            stare = now - kod["at"] > CODE_STATUS_SECONDS
+            if (nove or stare) and not kod["busy"]:
+                kod["busy"] = True
+
+                def obnov() -> None:
+                    try:
+                        d = gitcode.versus_main(versions, fetch=stare)
+                    finally:
+                        with kod_lock:
+                            kod["busy"] = False
+                    with kod_lock:
+                        kod["data"] = d
+                        if stare:
+                            kod["at"] = time.monotonic()
+
+                threading.Thread(target=obnov, name="hub-code-status", daemon=True).start()
+        return data
+
     @router.get("/api/hub")
     def hub_status():
         """Konfigurácia agenta, jeho stav a (keď smie posielať) prehľad hubu."""
@@ -140,10 +175,12 @@ def build(ctx: AppContext) -> APIRouter:
                 out["hub"] = HubClient.from_config(cfg).status()
             except Exception as exc:  # noqa: BLE001 - hub mimo nesmie zhodiť stav webapp
                 out["error"] = f"{type(exc).__name__}: {exc}"
+            else:
+                out["hub"]["code"] = _code_status([a.get("version") or "" for a in out["hub"]["agents"]])
         return out
 
     def _hub_send(kind: str, payload: dict[str, Any], *, cores, queue, max_wait_seconds,
-                  estimate_seconds, note, version, max_seconds) -> dict[str, Any]:
+                  estimate_seconds, note, version, max_seconds, plan_total=None, plan_done=None) -> dict[str, Any]:
         from ...hub import gitcode
         from ...hub.client import HubError, NoCapacityError
 
@@ -152,7 +189,7 @@ def build(ctx: AppContext) -> APIRouter:
             job = client.submit(kind, payload, cores=cores, queue=queue,
                                 max_wait_seconds=max_wait_seconds, estimate_seconds=estimate_seconds,
                                 note=note, version=version or gitcode.version() or None,
-                                max_seconds=max_seconds)
+                                max_seconds=max_seconds, plan_total=plan_total, plan_done=plan_done)
         except NoCapacityError as exc:
             raise HTTPException(409, exc.detail)
         except HubError as exc:
@@ -169,7 +206,8 @@ def build(ctx: AppContext) -> APIRouter:
         """Hotový payload (CLI): pošle sa tak, ako prišiel."""
         return _hub_send(req.kind, req.payload, cores=req.cores, queue=req.queue,
                          max_wait_seconds=req.max_wait_seconds, estimate_seconds=req.estimate_seconds,
-                         note=req.note, version=req.version, max_seconds=req.max_seconds)
+                         note=req.note, version=req.version, max_seconds=req.max_seconds,
+                         plan_total=req.plan_total, plan_done=req.plan_done)
 
     def _hub_form(req: HubOptions, kind: str, params: dict[str, Any], settings: dict[str, Any],
                   note: str, user: str) -> dict[str, Any]:
@@ -181,7 +219,8 @@ def build(ctx: AppContext) -> APIRouter:
         return _hub_send(kind, payload, cores=req.cores, queue=req.queue,
                          max_wait_seconds=req.max_wait_minutes * 60 if req.max_wait_minutes else None,
                          estimate_seconds=odhad, note=note, version=None,
-                         max_seconds=req.max_runtime_minutes * 60 if req.max_runtime_minutes else None)
+                         max_seconds=req.max_runtime_minutes * 60 if req.max_runtime_minutes else None,
+                         plan_total=req.plan_total, plan_done=req.plan_done)
 
     @router.post("/api/hub/runs")
     def hub_run(req: HubRunRequest):

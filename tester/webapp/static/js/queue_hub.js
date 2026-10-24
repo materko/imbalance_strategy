@@ -62,7 +62,10 @@ const hubChecked = () => !!$("#hub-run")?.checked;
 
 function hubOptions() {
   const w = $("#hub-maxwait").value;
-  return { queue: $("#hub-queue").checked, max_wait_minutes: w === "" ? null : Number(w) };
+  const cislo = id => { const v = $(id).value; return v === "" ? null : Number(v); };
+  return { queue: $("#hub-queue").checked, max_wait_minutes: w === "" ? null : Number(w),
+           plan_total: cislo("#hub-plan-total"),
+           plan_done: cislo("#hub-plan-done") };
 }
 
 /** Trvanie výpočtu (s) — sekundy, minúty, hodiny. */
@@ -145,6 +148,29 @@ function renderHubQueueEta(t) {
     el.textContent = `dobehne o ~${fmtLong(t.eta_seconds)} (${cas}) · ${rychlost}`; el.className = "chip";
   }
   el.title = `${t.left} živých výpočtov pri rýchlosti hubu za poslednú hodinu (${rychlost}, zlyhané sa nerátajú)`;
+}
+
+/** Plány zadávateľov (voliteľné polia pri zadaní na hub): koľko zostáva a kedy to dobehne. */
+function renderHubPlans(plans) {
+  const box = $("#hub-plans");
+  box.hidden = !plans || !plans.length;
+  if (box.hidden) return;
+  box.querySelector("tbody").innerHTML = plans.map(p => {
+    let kedy = "–";
+    if (p.left === 0) kedy = '<span class="chip ok">hotový</span>';
+    else if (p.eta_seconds !== null && p.eta_seconds !== undefined) {
+      const cas = new Date(Date.now() + p.eta_seconds * 1000)
+        .toLocaleString("sk-SK", { weekday: "short", hour: "2-digit", minute: "2-digit" });
+      kedy = `~${fmtLong(p.eta_seconds)} (${cas})`;
+    } else if (p.left === null) kedy = '<span class="muted" title="zadávateľ neuviedol, koľko výpočtov plán má">? (bez „spolu")</span>';
+    const tempo = `${Math.round(p.per_hour)} hotových/h ${p.rate_from === "plan" ? "v tomto pláne" : "celý hub (plán za hodinu nič nedokončil)"}`;
+    const hotove = `hub ${p.done_hub}${p.done_reported !== null ? `, nahlásené ${p.done_reported}` : ""}${p.failed ? `, zlyhalo ${p.failed}` : ""}`;
+    return `<tr class="plain" title="plán od ${esc(p.created || "")}, zadaných na hub ${p.submitted}">
+      <td><b>${esc(p.submitter)}</b></td><td>${esc(p.kind || "")}</td>
+      <td class="num" title="${esc(hotove)}">${p.done}</td><td class="num">${p.total ?? "?"}</td>
+      <td class="num">${p.left ?? "?"}</td><td class="num">${p.live}</td>
+      <td title="${esc(tempo)}">${kedy}</td></tr>`;
+  }).join("");
 }
 
 /** Pri štarte: keď je klon agentom hubu, ukáže sa karta Hub a prepínač „na hube" pri behu. */
@@ -260,6 +286,17 @@ async function removeHubConfig() {
 }
 
 // Druh stroja (docs/HUB.md „Druhy agentov“): webapp a headless počítací počítajú, live len obchoduje.
+/** Je agent na poslednom `main`? (`hub.code` počíta webapp z `git fetch` na pozadí.) */
+function hubCodeChip(ver, code) {
+  if (!ver || !code) return "";
+  const s = code.versions[ver];
+  if (s === undefined) return "";
+  if (s === null) return `<span class="chip warn" title="commit ${esc(ver)} tento klon nepozná — agent stojí na nepushnutom kóde, alebo si sprav Pull">?</span>`;
+  if (s.ahead) return `<span class="chip warn" title="${s.ahead} commitov agenta nie je v main (nepushnuté)${s.behind ? `, ${s.behind} z main nemá` : ""}">mimo main</span>`;
+  if (!s.behind) return `<span class="chip ok" title="na poslednom main (${esc(code.main)})">aktuálny</span>`;
+  return `<span class="chip bad" title="main je ${esc(code.main)} — agentovi chýba ${s.behind} commitov; ⟳ ho aktualizuje">−${s.behind}</span>`;
+}
+
 /** Tlačidlo „pull + reštart" agenta a stav posledného pokynu (live stroj má vlastné nasadenie). */
 function hubUpdateCell(a) {
   if (a.role === "live" || !a.online) return "";
@@ -366,7 +403,7 @@ async function renderHub() {
     $("#hub-agents tbody").innerHTML = hub.agents.map(a => `<tr class="plain">
       <td><b>${esc(a.name)}</b> ${hubKind(a)}</td>
       <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}${a.updating ? ' <span class="chip warn" title="agent ťahá kód (git pull) — dovtedy nič nové nedostane">ťahá kód</span>' : ""}</td>
-      <td>${esc(a.version || "–")}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
+      <td>${esc(a.version || "–")} ${hubCodeChip(a.version, hub.code)}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
       <td>${a.accept ? "áno" : "nie"}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${a.accept_request ? "áno" : "nie"}` : ""}</td>
       <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td>
       <td>${hubUpdateCell(a)}${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");
@@ -397,6 +434,7 @@ OK = áno (premenovaný stroj ho pod starým menom `
     }
     $("#hub-jobs-count").textContent = `${hub.queued} vo fronte · ${hub.running} počíta`;
     renderHubQueueEta(hub.throughput);
+    renderHubPlans(hub.plans);
     const zive = new Set(["queued", "assigned", "running", "cancelling"]);
     $("#hub-jobs tbody").innerHTML = jobs.map(j => {
       const s = j.summary || {};

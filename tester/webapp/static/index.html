@@ -153,6 +153,8 @@
             <input type="checkbox" id="hub-run"> na hube</label>
           <label class="inline small" title="Keď nikto nie je voľný, výpočet počká vo fronte hubu."><input type="checkbox" id="hub-queue" checked> čakať vo fronte</label>
           <label class="inline small" title="Najviac toľko minút čakania podľa odhadu hubu, inak odmietne.">najviac <input id="hub-maxwait" type="number" min="0" step="5" placeholder="min"> min</label>
+          <label class="inline small" title="Voliteľné, len keď ideš dať veľa výpočtov: koľko ich dáš spolu (aj tie, čo ešte nie sú zadané) — karta Hub ukáže, koľko zostáva a kedy to dobehne.">plán: spolu <input id="hub-plan-total" type="number" min="0" step="1" style="width:6em"></label>
+          <label class="inline small" title="Voliteľné: koľko z plánu už je hotových (aj mimo hubu).">hotových <input id="hub-plan-done" type="number" min="0" step="1" style="width:6em"></label>
           <span id="hub-run-info" class="muted small"></span>
         </div>
         <div class="run-caption">Pripravené? Výsledok nájdeš v histórii.</div>
@@ -359,6 +361,9 @@
   <div class="card">
     <h2>Výpočty <span id="hub-jobs-count" class="chip"></span> <span id="hub-jobs-eta" class="chip" hidden></span>
       <label class="inline small" style="margin-left:12px"><input type="checkbox" id="hub-jobs-all"> aj hotové</label></h2>
+    <div id="hub-plans" class="scroll" hidden><table class="runs"><thead><tr>
+      <th>plán zadal</th><th>druh</th><th class="num">hotových</th><th class="num">spolu</th>
+      <th class="num">zostáva</th><th class="num">počíta</th><th>dobehne</th></tr></thead><tbody></tbody></table></div>
     <div class="scroll"><table id="hub-jobs" class="runs"><thead><tr>
       <th>výpočet</th><th>druh</th><th>stav</th><th>agent</th><th>zadal</th><th>kód</th>
       <th class="num">postup</th><th>zostáva</th><th>čo</th><th></th></tr></thead><tbody></tbody></table></div>

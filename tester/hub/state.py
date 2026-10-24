@@ -20,6 +20,7 @@ from . import protocol as P
 from .config import DEFAULT_HEARTBEAT, ROLE_COMPUTE, ROLE_LIVE
 from .config import normalize_role as _role
 from .events import EVENTS_KEEP, EventsMixin, _iso
+from .plans import PlansMixin
 from .stats import StatsMixin, _ts
 from .tokens import ADMIN, TokensMixin
 
@@ -60,7 +61,7 @@ class JobGone(Exception):
     """Výpočet hub vybavil a zo zoznamu už zahodil (`KEEP_FINISHED`) — zadávateľ výsledok má."""
 
 
-class HubState(TokensMixin, EventsMixin, StatsMixin):
+class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
     def __init__(self, root: Path | None = None, token: str | None = None, *,
                  heartbeat_seconds: int = DEFAULT_HEARTBEAT, agent_timeout: float = DEFAULT_AGENT_TIMEOUT,
                  clock: Callable[[], float] = time.time, version: str | None = None,
@@ -86,6 +87,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         self.order: list[str] = []
         #: ID vybavených výpočtov, ktoré už zo zoznamu vypadli (najstaršie prvé, `KEEP_FORGOTTEN`)
         self.forgotten: list[str] = []
+        #: Plány zadávateľov („idem dať N výpočtov", `plans.PlansMixin`)
+        self.plans: dict[str, dict[str, Any]] = {}
         self._lock = threading.RLock()
         self.root.mkdir(parents=True, exist_ok=True)
         (self.root / "results").mkdir(exist_ok=True)
@@ -123,6 +126,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         self.jobs = dict(data.get("jobs") or {})
         self.order = [i for i in (data.get("order") or []) if i in self.jobs]
         self.forgotten = [str(i) for i in (data.get("forgotten") or [])][-KEEP_FORGOTTEN:]
+        self.plans = dict(data.get("plans") or {})
         for name in self.agents:
             self.agents[name]["online"] = False  # kým sa znova neohlási
         self._seed_stats()
@@ -131,7 +135,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         tmp = self.state_file.with_suffix(".tmp")
         with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
             json.dump({"agents": self.agents, "jobs": self.jobs, "order": self.order,
-                       "forgotten": self.forgotten},
+                       "forgotten": self.forgotten, "plans": self.plans},
                       fh, ensure_ascii=False, indent=1, default=str)
         os.replace(tmp, self.state_file)
 
@@ -596,7 +600,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
     def submit(self, *, kind: str, payload: dict[str, Any], submitter: str, cores: int | str | None = None,
                queue: bool = False, max_wait_seconds: float | None = None,
                estimate_seconds: float | None = None, note: str = "",
-               version: str | None = None, max_seconds: float | None = None) -> dict[str, Any]:
+               version: str | None = None, max_seconds: float | None = None,
+               plan_total: int | None = None, plan_done: int | None = None) -> dict[str, Any]:
         if kind not in P.KINDS:
             raise ValueError(f"neznámy druh výpočtu {kind!r}; známe: {', '.join(P.KINDS)}")
         if not isinstance(payload, dict) or "params" not in payload or "settings" not in payload:
@@ -634,9 +639,12 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                 "finished_at": None, "agent": None, "progress": None, "eta_seconds": None,
                 "elapsed_seconds": None, "run_id": None, "run_ids": [], "error": None,
                 "attempts": 0, "missed": 0, "has_result": False, "collected": False,
-                "cancelled_by": None,
+                "cancelled_by": None, "plan": False,
             }
+            if plan_total is not None or plan_done is not None:
+                self._set_plan(submitter, kind, plan_total, plan_done)
             self.jobs[job["id"]] = job
+            self._plan_submitted(job)
             self.order.append(job["id"])
             self.log("job_submitted", job=job["id"], kind=kind, submitter=submitter, cores=demand,
                      queue=bool(queue), version=version, note=note[:120] if note else None)
@@ -723,6 +731,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         if run_ids:
             job["run_ids"] = list(run_ids)
         self._count_stats(job)
+        self._plan_finished(job, status)
         self.log("job_finished", job=job["id"], status=status, agent=job.get("agent"),
                  submitter=job.get("submitter"), error=error, run_ids=list(run_ids or []) or None)
 
@@ -875,6 +884,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
     def overview(self) -> dict[str, Any]:
         with self._lock:
             self._sweep()
+            self._prune_plans()
             zive = [j for j in self.jobs.values() if j["status"] in P.LIVE_STATES]
             return {
                 "agents": [self._agent_public(a) for a in self.agents.values()],
@@ -884,6 +894,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                 "jobs": [self._job_public(j) for j in zive],
                 # rýchlosť za poslednú hodinu a kedy pri nej dobehne všetko živé
                 "throughput": self._queue_eta(len(zive)),
+                # plány zadávateľov: koľko ešte zostáva a kedy to pri rýchlosti dobehne
+                "plans": [self._plan_public(p) for p in self.plans.values()],
                 "heartbeat_seconds": self.heartbeat_seconds,
                 # commit, na ktorom hub beží, a či čaká na reštart na novší (samoaktualizácia)
                 "version": self.version or None,

@@ -491,6 +491,23 @@ PY -m tester.webapp.cli sweep --remote --param rrRatio=2:6:1 --profile … --tim
 PY -m tester.webapp.cli checkup --remote --strategy ibs --profile …      # päť okien na piatich agentoch
 ```
 
+**Plán (voliteľné).** Hub vidí len to, čo už dostal — hľadanie, ktoré posiela výpočty
+postupne, by nevedelo povedať, kedy skončí. Kto ide dať **veľa** výpočtov, pripíše pri zadaní
+`--plan-total N` (koľko ich dá spolu, aj tie, čo ešte nie sú zadané) a voliteľne `--plan-done M`
+(koľko už má hotových, aj mimo hubu); vo formulári pri „na hube" polia **plán: spolu /
+hotových**. Kto dáva pár behov, nepíše nič. Žiadne meno ani extra rozhranie: plán patrí
+zadávateľovi a hub doň započíta každý jeho ďalší výpočet (hotových = väčšie z nahláseného
+a napočítaného; `--plan-done` stačí poslať, keď sa zmení). Karta Hub nad výpočtami ukáže
+tabuľku plánov: hotových / spolu / zostáva / počíta a **kedy to dobehne** pri rýchlosti plánu
+za poslednú hodinu (inak celého hubu). Hotový plán zmizne po 2 dňoch, neobnovovaný po 14;
+nové `--plan-total` po hotovom začne nový (`tester/hub/plans.py`). **AI, ktorá zadáva veľkú
+dávku na hub, plán pripíše**, keď aspoň zhruba vie, koľko výpočtov bude — aby sa dalo
+plánovať, čo pôjde po nej.
+
+```bash
+PY -m tester.webapp.cli run --remote --queue --plan-total 20000 --plan-done 300 --profile … --note "…"
+```
+
 ## Webapp
 
 Karta **Hub** má hore **Nastavenie**: meno agenta, adresa hubu, token, koľko behov naraz,
