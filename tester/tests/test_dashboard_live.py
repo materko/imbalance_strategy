@@ -91,3 +91,36 @@ def test_missing_mirror_and_names(tmp_path: Path) -> None:
     assert setting_id("vwapadxnet", "SMERNICE_CS_VWAP_ADX_Pullback_2") == "vwapadx-2"
     assert setting_id("ibsentrynet", r"TradeBot\profiles\x\PRESIEL_SMERNICAMI_IBS_Entry_Zone_CS_1.json") == "ibsentry-1"
     assert setting_id("ibsnet", "multicharts_mnq_3m") is None
+
+
+def bar(seq: int, t: int, o: float, h: float, l: float, c: float) -> dict:
+    return {"seq": seq, "t": t, "k": "bar", "bt": t - 3 * MIN, "o": o, "h": h, "l": l, "c": c, "v": 10.0, "ready": True, "mb": 0}
+
+
+def test_obchod_bez_zatvorenia_v_telemetrii_nie_je_otvoreny(tmp_path: Path) -> None:
+    """16. 10. 2026 NT VWAP ORB: reštart platformy, zatvorenie neprišlo — neskorší vstup alebo prechod SL / TP ho vyradí."""
+    path = tmp_path / "mirror.sqlite"
+    st = LiveStore(path)
+    st.ingest("nas", INST, "s1", [hello(1, T0), entry(2, T0 + 10 * MIN, "orb:1", -1, 200.0, 210.0, 190.0),
+                                  fill(3, T0 + 11 * MIN, "orb:1", "in", 200.0, 1.0)])
+    st.ingest("nas", INST, "s2", [hello(1, T0 + 60 * MIN, "s2"), entry(2, T0 + 70 * MIN, "orb:2", -1, 195.0, 205.0, 185.0),
+                                  fill(3, T0 + 71 * MIN, "orb:2", "in", 195.0, 1.0)])
+    st.close()
+    (inst,) = build_live(path, now_ms=T0 + 80 * MIN)["instances"]
+    assert [o["id"] for o in inst["open"]] == ["orb:2"]
+    assert any("orb:1" in n["text"] and n["level"] == "warn" for n in inst["notes"])
+    assert inst["trades"] == []
+
+    path2 = tmp_path / "m2.sqlite"
+    st = LiveStore(path2)
+    st.ingest("nas", INST, "s1", [hello(1, T0), entry(2, T0 + 10 * MIN, "orb:1", -1, 200.0, 210.0, 190.0),
+                                  fill(3, T0 + 11 * MIN, "orb:1", "in", 200.0, 1.0),
+                                  bar(4, T0 + 15 * MIN, 199.0, 200.0, 195.0, 196.0)])
+    st.close()
+    (inst,) = build_live(path2, now_ms=T0 + 20 * MIN)["instances"]
+    assert [o["id"] for o in inst["open"]] == ["orb:1"]            # SL ani TP nepadli — stále otvorený
+    st = LiveStore(path2)
+    st.ingest("nas", INST, "s1", [bar(5, T0 + 30 * MIN, 196.0, 197.0, 189.0, 190.0)])   # TP 190 prejdený
+    st.close()
+    (inst,) = build_live(path2, now_ms=T0 + 35 * MIN)["instances"]
+    assert inst["open"] == []

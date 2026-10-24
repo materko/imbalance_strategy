@@ -165,6 +165,31 @@ def _instance(db: sqlite3.Connection, inst: dict[str, Any], now_ms: int) -> dict
             del open_[oid]
             trades.append(tr)
 
+    # Otvorený obchod, ktorého zatvorenie do telemetrie neprišlo (napr. reštart platformy 16. 10. 2026 — NT VWAP ORB),
+    # nie je otvorený, keď (a) tá istá inštancia neskôr vstúpila do ďalšieho obchodu (vždy len jedna pozícia) alebo
+    # (b) cena po vstupe prešla jeho SL alebo TP. Do štatistík nejde (výstup nepoznáme), ukáže sa vo varovaniach.
+    lost: list[tuple[dict[str, Any], str]] = []
+    for oid, tr in list(open_.items()):
+        later = [t for t in open_.values() if t is not tr and t["open_ms"] > tr["open_ms"]] + \
+                [t for t in trades if t["open_ms"] > tr["open_ms"]]
+        why = ""
+        if later:
+            why = "neskôr vstúpila do ďalšieho obchodu"
+        elif tr["dir"] and (tr["sl"] is not None or tr["tp"] is not None):
+            for (body,) in db.execute("SELECT body FROM events WHERE instance = ? AND kind = 'bar' AND t > ?", (iid, tr["open_ms"] + 60_000)):
+                b = json.loads(body)
+                if int(b.get("bt") or 0) <= tr["open_ms"]:
+                    continue
+                hi, lo = float(b.get("h") or 0), float(b.get("l") or 0)
+                sl, tp = tr["sl"], tr["tp"]
+                if tr["dir"] > 0 and ((sl is not None and lo <= sl) or (tp is not None and hi >= tp)) or \
+                   tr["dir"] < 0 and ((sl is not None and hi >= sl) or (tp is not None and lo <= tp)):
+                    why = "cena po vstupe prešla SL alebo TP"
+                    break
+        if why:
+            lost.append((tr, why))
+            del open_[oid]
+
     def finish(tr: dict[str, Any], closed: bool) -> dict[str, Any]:
         entry = tr["in_val"] / tr["in_qty"] if tr["in_qty"] else None
         out = {"id": tr["id"], "open": _iso(tr["open_ms"]), "signal": _iso(tr["signal_ms"]),
@@ -220,7 +245,11 @@ def _instance(db: sqlite3.Connection, inst: dict[str, Any], now_ms: int) -> dict
         "trades": closed, "open": [finish(t, False) for t in open_.values()],
         "signals": signals[-MAX_SIGNALS:],
         "notes": [{"t": _iso(ev["t"]), "level": ev.get("level", ""), "text": ev.get("text", "")}
-                  for _, ev in notes[-MAX_NOTES:]],
+                  for _, ev in notes[-MAX_NOTES:]] +
+                 [{"t": _iso(tr["open_ms"]), "level": "warn",
+                   "text": f"Obchod {tr['id']} ({'long' if tr['dir'] > 0 else 'short'} {round(tr['in_val'] / tr['in_qty'], 2)}) nemá v telemetrii "
+                           f"zatvorenie, ale {why} — nie je medzi otvorenými ani v štatistike (pravdepodobne zatvorený pri reštarte platformy)."}
+                  for tr, why in lost],
     }
 
 
