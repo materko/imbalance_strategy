@@ -300,6 +300,27 @@ def test_agent_stats_count_done_runs_and_average_times(hub, tmp_path: Path):
     assert znova.overview()["agents"][0]["stats"] == st
 
 
+def test_overview_queue_eta_from_last_hour_throughput(hub):
+    state, clock = hub
+    _reg(state)
+    assert state.overview()["throughput"]["eta_seconds"] == 0.0  # prázdna fronta
+    jobs = [state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True) for _ in range(6)]
+    assert state.overview()["throughput"]["eta_seconds"] is None  # zatiaľ nič hotové
+    hotove = 0
+    for job in jobs:
+        if state.job(job["id"])["status"] != "assigned":
+            continue
+        state.heartbeat("srv", {"instance": "i1", "jobs": [{"id": job["id"], "status": "running"}]})
+        clock.t += 600
+        state.result(job["id"], b"PK", status="done", agent="srv")
+        hotove += 1
+        if hotove == 2:
+            break
+    t = state.overview()["throughput"]
+    # 2 hotové za hodinu, 4 zostávajú → ~2 h
+    assert t["per_hour"] == pytest.approx(2) and t["left"] == 4 and t["eta_seconds"] == pytest.approx(7200)
+
+
 def test_overview_shows_hub_version_and_pending_update(tmp_path: Path):
     from tester.hub.update import Updater
 

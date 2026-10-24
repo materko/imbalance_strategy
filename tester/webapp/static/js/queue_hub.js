@@ -124,6 +124,29 @@ function fmtEta(s) {
   return `${Math.round(s / 60)} min`;
 }
 
+/** Dlhé trvanie fronty — minúty, hodiny, dni. */
+function fmtLong(s) {
+  if (s < 5400) return fmtEta(s);
+  if (s < 2 * 86400) return `${(s / 3600).toFixed(1)} h`;
+  return `${(s / 86400).toFixed(1)} dňa`;
+}
+
+/** Kedy dobehne fronta pri rýchlosti z poslednej hodiny (hub zo staršieho kódu ju nedáva). */
+function renderHubQueueEta(t) {
+  const el = $("#hub-jobs-eta");
+  el.hidden = !t || !t.left;
+  if (el.hidden) return;
+  const rychlost = `${Math.round(t.per_hour)} hotových/h`;
+  if (t.eta_seconds === null || t.eta_seconds === undefined) {
+    el.textContent = `dobehne: ? (za poslednú hodinu nič hotové)`; el.className = "chip warn";
+  } else {
+    const kedy = new Date(Date.now() + t.eta_seconds * 1000);
+    const cas = kedy.toLocaleString("sk-SK", { weekday: "short", hour: "2-digit", minute: "2-digit" });
+    el.textContent = `dobehne o ~${fmtLong(t.eta_seconds)} (${cas}) · ${rychlost}`; el.className = "chip";
+  }
+  el.title = `${t.left} živých výpočtov pri rýchlosti hubu za poslednú hodinu (${rychlost}, zlyhané sa nerátajú)`;
+}
+
 /** Pri štarte: keď je klon agentom hubu, ukáže sa karta Hub a prepínač „na hube" pri behu. */
 async function hubSetup() {
   let h;
@@ -352,6 +375,7 @@ OK = áno (premenovaný stroj ho pod starým menom `
       try { jobs = await api("/api/hub/jobs?live=false"); } catch (e) { /* ostane živý zoznam */ }
     }
     $("#hub-jobs-count").textContent = `${hub.queued} vo fronte · ${hub.running} počíta`;
+    renderHubQueueEta(hub.throughput);
     const zive = new Set(["queued", "assigned", "running", "cancelling"]);
     $("#hub-jobs tbody").innerHTML = jobs.map(j => {
       const s = j.summary || {};

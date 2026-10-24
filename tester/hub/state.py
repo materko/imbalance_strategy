@@ -822,6 +822,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                 "queued": sum(1 for j in zive if j["status"] == "queued"),
                 "running": sum(1 for j in zive if j["status"] in ("assigned", "running", "cancelling")),
                 "jobs": [self._job_public(j) for j in zive],
+                # rýchlosť za poslednú hodinu a kedy pri nej dobehne všetko živé
+                "throughput": self._queue_eta(len(zive)),
                 "heartbeat_seconds": self.heartbeat_seconds,
                 # commit, na ktorom hub beží, a či čaká na reštart na novší (samoaktualizácia)
                 "version": self.version or None,

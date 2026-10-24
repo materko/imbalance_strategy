@@ -15,6 +15,8 @@ from . import protocol as P
 
 #: Okno „posledný deň" v sekundách (kĺzavých 24 h, nie kalendárny deň).
 DAY_SECONDS = 24 * 3600
+#: Okno, z ktorého sa berie aktuálna rýchlosť hubu pre odhad dobehnutia fronty.
+RATE_SECONDS = 3600
 
 
 def _ts(iso: str | None) -> float | None:
@@ -101,3 +103,14 @@ class StatsMixin:
         out["done"] = sum(out[k]["done"] for k in P.KINDS)
         out["day_done"] = len(dnes)
         return out
+
+    def _queue_eta(self, left: int) -> dict[str, Any]:
+        """Odhad, kedy dobehne fronta pri aktuálnej rýchlosti: hotové výpočty všetkých agentov
+        za poslednú hodinu (`RATE_SECONDS`) → za koľko sa spraví `left` živých výpočtov.
+        Zlyhané sa do rýchlosti nerátajú — padnú hneď a rýchlosť by nafúkli."""
+        hranica = self.clock() - RATE_SECONDS
+        hotove = sum(1 for a in self.agents.values()
+                     for r in (a.get("stats") or {}).get("recent") or [] if r[0] >= hranica)
+        za_hodinu = hotove * 3600 / RATE_SECONDS
+        return {"left": left, "per_hour": za_hodinu, "window_seconds": RATE_SECONDS,
+                "eta_seconds": left * 3600 / za_hodinu if za_hodinu and left else (0.0 if not left else None)}
