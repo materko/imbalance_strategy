@@ -224,7 +224,8 @@
 .lv-minis{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .lv-mini{border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-width:0}
 .lv-mini .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
-.chart-box.xs{height:110px;margin-top:6px}
+.chart-box.xs{height:120px;margin-top:6px}
+.lv-mini{background:linear-gradient(180deg,rgba(255,255,255,.025),transparent 60%)}
 .pie-wrap{display:grid;grid-template-columns:minmax(180px,260px) 1fr;gap:18px;align-items:center}
 .pie-box{position:relative;height:240px}
 .pie-list{width:100%;border-collapse:collapse;font-size:13px}
@@ -1605,6 +1606,30 @@
     $("lv-prev").disabled = LV.page === 0; $("lv-next").disabled = LV.page >= pages - 1;
     Array.prototype.forEach.call($("lv-view").querySelectorAll("button"), function (b) { b.className = b.getAttribute("data-v") === LV.log ? "on" : ""; });
   }
+  // Plocha pod krivkou s prechodom farby (používateľ 24. 10. 2026: „krajšie grafy“): nad nulou farba krivky / zelená,
+  // pod nulou červená, smerom k nule priehľadnejšia.
+  function rgba(c, a) {
+    c = String(c || "").trim();
+    if (c[0] === "#") { var h = c.slice(1); if (h.length === 3) h = h.replace(/./g, "$&$&");
+      return "rgba(" + parseInt(h.slice(0, 2), 16) + "," + parseInt(h.slice(2, 4), 16) + "," + parseInt(h.slice(4, 6), 16) + "," + a + ")"; }
+    var m = c.match(/rgba?\(([^)]+)\)/); if (m) { var v = m[1].split(",").slice(0, 3).join(","); return "rgba(" + v + "," + a + ")"; }
+    return c;
+  }
+  function zeroFill(upColor, downColor, strength) {
+    var k = strength || 0.35;
+    function grad(up) {
+      return function (ctx) {
+        var ch = ctx.chart, area = ch.chartArea; if (!area) return null;
+        var y0 = ch.scales.y.getPixelForValue(0), g;
+        y0 = Math.max(area.top, Math.min(area.bottom, y0));
+        if (up) { g = ch.ctx.createLinearGradient(0, area.top, 0, y0); g.addColorStop(0, rgba(upColor, k)); g.addColorStop(1, rgba(upColor, 0.02)); }
+        else { g = ch.ctx.createLinearGradient(0, y0, 0, area.bottom); g.addColorStop(0, rgba(downColor, 0.02)); g.addColorStop(1, rgba(downColor, k)); }
+        return g;
+      };
+    }
+    return { target: "origin", above: grad(true), below: grad(false) };
+  }
+  function lastPoint(n, r) { return function (ctx) { return ctx.dataIndex === n - 1 ? r : 0; }; }
   function lvPlatforms(list) {
     var out = [];
     list.forEach(function (x) { var p = lvPlat(x); if ((x.trades || []).length && out.indexOf(p) < 0) out.push(p); });
@@ -1634,8 +1659,12 @@
       var k = plats.indexOf(lvPlat(list[o.i])); pcum[k] += o.t.pnl || 0;
       plats.forEach(function (p, j) { pdata[j].push(pcum[j]); });
     });
-    var ds = plats.map(function (p, k) { return { label: p + " spolu", data: pdata[k], borderColor: cssVar(DV_COLORS[k % 8]), borderWidth: 2, pointRadius: 0, stepped: true, fill: false }; });
-    ds.push({ label: "Spolu", data: sum, borderColor: cssVar("--sum"), borderWidth: 2.5, pointRadius: 0, stepped: true, fill: false });
+    var ds = plats.map(function (p, k) { return { label: p + " spolu", data: pdata[k], borderColor: rgba(cssVar(DV_COLORS[k % 8]), 0.9), borderWidth: 1.8,
+      pointRadius: 0, pointHoverRadius: 4, stepped: true, fill: false, borderDash: [] }; });
+    ds.push({ label: "Spolu", data: sum, borderColor: cssVar("--sum"), borderWidth: 3, pointRadius: lastPoint(sum.length, 4), pointBackgroundColor: cssVar("--sum"),
+      pointHoverRadius: 5, stepped: true, fill: zeroFill(cssVar("--pos"), cssVar("--neg"), 0.32), order: 9 });
+    o.scales.y.grid.color = rgba(cssVar("--grid") || "#334155", 0.45);
+    o.plugins.tooltip.padding = 10; o.plugins.tooltip.cornerRadius = 8; o.plugins.tooltip.boxPadding = 4;
     charts.push(new Chart($("lv-eq"), { type: "line", plugins: [guidePlugin], data: { labels: labels, datasets: ds }, options: o }));
     // pod ním: každá stratégia vo vlastnom malom grafe (vlastná mierka)
     list.forEach(function (x, i) {
@@ -1650,7 +1679,12 @@
       m.scales.y.ticks.maxTicksLimit = 3;
       m.plugins.tooltip.callbacks = { title: function (it) { return lvTime(lab[it[0].dataIndex]); }, label: function (it) { return money(it.raw, 0); } };
       m.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
-      charts.push(new Chart(el, { type: "line", plugins: [guidePlugin], data: { labels: lab, datasets: [{ data: val, borderColor: cssVar(DV_COLORS[i % 8]), borderWidth: 2, pointRadius: 2, stepped: true, fill: false }] }, options: m }));
+      var col = cssVar(DV_COLORS[i % 8]);
+      m.scales.y.grid.color = rgba(cssVar("--grid") || "#334155", 0.35);
+      m.layout = { padding: { right: 6, top: 4 } };
+      charts.push(new Chart(el, { type: "line", plugins: [guidePlugin], data: { labels: lab, datasets: [{ data: val, borderColor: col, borderWidth: 2.2,
+        pointRadius: lastPoint(val.length, 3.5), pointBackgroundColor: col, pointHoverRadius: 4, stepped: true,
+        fill: zeroFill(col, cssVar("--neg"), 0.38) }] }, options: m }));
     });
     pieChart("lv-pie", lvPieItems(list));
   }
