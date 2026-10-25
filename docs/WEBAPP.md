@@ -695,7 +695,7 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 
 `tester/webapp/`: `param_meta.py` (popisy parametrov z `tradebot/strategies/<key>/params.py`, `param_metadata(spec)`),
 `store.py` (behy a vyhľadávanie),
-`runner.py` (fronta a pracovné vlákna; hyperopt ako druh behu v `hyperopt_job.py` — s engine Emulátor MultiCharts natívne v C#, `tester.native_hyperopt`), `market.py`
+HTTP API (všetko, čo robí stránka, s príkladmi): [API.md](API.md). `runner.py` (fronta a pracovné vlákna; hyperopt ako druh behu v `hyperopt_job.py` — s engine Emulátor MultiCharts natívne v C#, `tester.native_hyperopt`), `market.py`
 (inštrument páru, pravidlá trhu, ponuka párov), `command.py` (príkaz Freqtradu, dočasný profil),
 `results.py` (spracovanie zipu, emulátor MultiCharts), `repo_profiles.py` (profily z repozitára), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,

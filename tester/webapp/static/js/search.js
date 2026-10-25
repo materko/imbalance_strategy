@@ -27,6 +27,8 @@ function resetSweepForStrategy() {
   $("#sweep-rows").innerHTML = "";
   addSweepRow();
   restoreSweep();
+  // natívne voľby hyperoptu závisia od stratégie (má C# jadro?)
+  if (isHyper()) loadHyperMeta().then(setupNativeOptions);
 }
 
 /** Naplní ponuku predošlých mriežok — sweep sa dá otvoriť aj o týždeň. */
@@ -89,6 +91,7 @@ async function setSearchMode(mode) {
   $("#sweep-result").innerHTML = "";
   $("#sweep-cancel").hidden = true;
   if (mode === "hyper") await loadHyperMeta();
+  setupNativeOptions(mode === "hyper" ? state.hyperMeta : null);
   $("#search-hint").textContent =
     mode === "hyper" ? (state.hyperMeta.note || "Hľadá v rozsahu a učí sa. Víťaz sa preverí na piatich oknách.")
     : mode === "matrix" ? "Že myšlienka drží aj mimo trhu, na ktorom sa ladila, je najsilnejší dôkaz kvality, aký sa z histórie dá dostať."

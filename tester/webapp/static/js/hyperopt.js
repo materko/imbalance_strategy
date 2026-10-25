@@ -18,6 +18,7 @@ async function startHyperopt() {
       epochs: Number($("#hyper-epochs").value) || 200,
       verify: $("#hyper-verify").checked,
       sampler: $("#hyper-sampler").value || "tpe",
+      ...nativeBody(),
     };
     if (hubChecked()) {
       const job = await api("/api/hub/hyperopts", { method: "POST", body: JSON.stringify({ ...body, ...hubOptions() }) });
@@ -40,6 +41,81 @@ async function startHyperopt() {
   } finally {
     refreshSweep();
   }
+}
+
+/** Voľby natívneho hyperoptu z formulára — server ich odmietne, keď engine nie je emulátor MultiCharts. */
+function nativeBody() {
+  if ($("#hyper-native").hidden) return {};
+  const windows = $$("#hyper-windows input:checked").map(i => i.value);
+  return {
+    mode: $("#hyper-mode").value,
+    windows: windows.length ? windows : null,
+    aggregate: $("#hyper-aggregate").value,
+    select: $("#hyper-select").value,
+    anchored: $("#hyper-anchored").checked,
+    objectives: $$(".hyper-obj:checked").map(i => i.value),
+  };
+}
+
+/** Ukáže natívne voľby, keď ich stratégia vie (C# jadro), a naplní referenčné okná. */
+function setupNativeOptions(meta) {
+  const box = $("#hyper-native");
+  if (!box) return;
+  box.hidden = !(meta && meta.native) || searchMode !== "hyper";
+  const host = $("#hyper-windows");
+  if (host && !host.dataset.ready && meta && meta.windows) {
+    host.innerHTML = meta.windows.map(w => `<label class="inline small"><input type="checkbox" value="${esc(w)}"> `
+      + `${esc(w.slice(0, 4))}/${esc(w.slice(11, 13))}</label>`).join("");
+    host.dataset.ready = "1";
+  }
+}
+
+/** Ďalšie epochy natívneho hyperoptu — nový záznam so starými aj novými epochami. */
+async function continueHyperopt(id) {
+  const n = Number(($("#hyper-continue-n") || {}).value) || 200;
+  try {
+    const r = await api(`/api/hyperopts/${id}/continue`, { method: "POST", body: JSON.stringify({ epochs: n, user: currentUser() }) });
+    hyper.id = r.id;
+    try { localStorage.setItem(hyperKey(), r.id); } catch (e) { /* súkromné okno */ }
+    $("#sweep-status").textContent = `pokračovanie vo fronte: +${r.epochs} epoch k ${r.previous}`;
+    pollQueue();
+    pollHyper();
+    loadSweepHistory();
+  } catch (e) {
+    $("#sweep-status").textContent = e.message;
+  }
+}
+
+/** Walk-forward: foldy, ich test na nevidenom okne a verdikt. */
+function walkForwardHtml(wf) {
+  const rows = (wf.folds || []).map(f => {
+    const r = f.result || {};
+    const params = f.params ? Object.entries(f.params).map(([k, v]) => `${k}=${fmtVal(v)}`).join(", ") : "—";
+    return `<tr class="${(f.edge || 0) > 0 ? "" : "out"}"><td>${f.fold + 1}</td><td>${esc((f.train || []).join(" + "))}</td>`
+      + `<td>${esc(f.test)}</td><td>${f.train_score == null ? "—" : fmt(f.train_score, 4)}</td>`
+      + `<td>${r.trades ?? "—"}</td><td>${fmt(r.break_even_pct, 4)}</td><td>${f.edge == null ? "—" : fmt(f.edge, 4)}</td>`
+      + `<td class="muted small">${esc(params)}</td></tr>`;
+  }).join("");
+  const trieda = wf.verdict.startsWith("WALK-FORWARD DRZI") ? "good"
+    : (wf.verdict.startsWith("WALK-FORWARD NEDRZI") ? "bad" : "unsure");
+  return `<div class="ch-box"><div class="ch-head"><h3>Walk-forward${wf.anchored ? " (rastúce okno)" : ""}</h3></div>
+    <p class="an-note">Každý fold ladí na ľavom okne a víťaza zmeria na pravom, ktoré optimalizátor nevidel.
+      „Nad poplatkom" = break-even mínus poplatok behu.</p>
+    <table class="mx-table ho-wf-table"><thead><tr><th>fold</th><th>ladené</th><th>test</th><th>ladené skóre</th>
+      <th>obch.</th><th>test break-even</th><th>nad poplatkom</th><th>parametre</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="verdict ${trieda}">${esc(wf.verdict)}</div></div>`;
+}
+
+/** Výber víťaza podľa okolia: kandidáti a priemer ich susedov. */
+function plateauSelectHtml(info) {
+  const rows = (info.candidates || []).map(c => `<tr class="${c.epoch === info.chosen ? "best" : ""}">`
+    + `<td>${c.epoch}</td><td>${fmt(-c.loss, 4)}</td><td>${fmt(-c.robust, 4)}</td><td>${fmt(-c.worst, 4)}</td>`
+    + `<td>${c.neighbours}</td></tr>`).join("");
+  return `<div class="ch-box"><div class="ch-head"><h3>Výber podľa okolia</h3></div>
+    <p class="an-note">Z najlepších epoch vyhrala tá, ktorej susedia (±1 krok na každom parametri) držia v priemere
+      najlepšie${info.chosen !== info.best_epoch ? ` — nie najlepšia epocha ${info.best_epoch}, tá stojí na užšej špičke` : ""}.</p>
+    <table class="mx-table"><thead><tr><th>epocha</th><th>skóre</th><th>priemer s okolím</th><th>najhorší sused</th>
+      <th>susedov</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 /** Slovencina pocita inak nez anglictina: 1 parameter, 2-4 parametre, 5+ parametrov. */
@@ -108,13 +184,18 @@ function renderHyper(r) {
   if (r.zero_trades) casti_html.push(`<div class="warnbox">${esc(r.zero_trades)}</div>`);
 
   if ((r.epochs || []).length) {
-    const head = [...r.params, "obch.", "PnL %", "WR %", "DD %", "skóre"];
+    const okna = (r.hyperopt.windows && !r.hyperopt.walk_forward) ? r.hyperopt.windows : [];
+    const pareto = !!(r.hyperopt.pareto || []).length;
+    const head = [...r.params, "obch.", "PnL %", "WR %", "DD %", "skóre",
+      ...okna.map(w => `BE ${w.slice(0, 4)}/${w.slice(11, 13)}`), ...(pareto ? ["Pareto"] : [])];
     const rows = r.epochs.slice(0, 20).map((e, i) => {
-      const cls = !e.usable ? "out" : (i === 0 ? "best" : "");
+      const cls = !e.usable ? "out" : (e.is_best ? "best" : (i === 0 && !r.hyperopt.plateau_select ? "best" : ""));
       const cells = [
         ...r.params.map(n => esc(fmtVal(e.params["hp_" + n]))),
         e.trades ?? "—", fmt(e.pnl_pct, 2), fmt(e.winrate, 1),
         fmt(e.max_drawdown_pct, 2), fmt(-e.loss, 4),
+        ...okna.map(w => fmt(((e.windows || {})[w] || {}).break_even_pct, 4)),
+        ...(pareto ? [e.pareto ? '<span class="ho-pareto" title="na Pareto hranici">◆</span>' : ""] : []),
       ];
       const title = e.usable ? "" : "mimo mantinelov (počet obchodov alebo drawdown)";
       return `<tr class="${cls}" title="${esc(title)}">` + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
@@ -125,8 +206,17 @@ function renderHyper(r) {
 
   if (r.overrides) {
     const zoznam = Object.entries(r.overrides).map(([k, v]) => `${k} = ${esc(fmtVal(v))}`).join(", ");
-    casti_html.push(`<p class="mode-hint">Najlepšia epocha: ${zoznam}</p>`);
+    const kto = r.hyperopt.walk_forward ? "Parametre posledného foldu"
+      : (r.hyperopt.plateau_select ? "Víťaz podľa okolia" : "Najlepšia epocha");
+    casti_html.push(`<p class="mode-hint">${kto}: ${zoznam}</p>`);
   }
+  if ((r.hyperopt.pareto || []).length) {
+    casti_html.push(`<p class="an-note">Pareto hranica: ${r.hyperopt.pareto.length} epoch (◆) — `
+      + `ciele ${esc([r.hyperopt.goal, ...(r.hyperopt.objectives || [])].join(", "))}. Víťaz je najlepší v prvom, `
+      + "ostatné body hranice sú kompromisy na výber.</p>");
+  }
+  if (r.hyperopt.plateau_select) casti_html.push(plateauSelectHtml(r.hyperopt.plateau_select));
+  if (r.hyperopt.walk_forward) casti_html.push(walkForwardHtml(r.hyperopt.walk_forward));
 
   if ((r.verify || []).length) {
     const rows = r.verify.map(v => {
@@ -146,8 +236,16 @@ function renderHyper(r) {
       : (r.verdict.startsWith("PRETRENOVANE") ? "bad" : "unsure");
     casti_html.push(`<div class="verdict ${trieda}">${esc(r.verdict)}</div>`);
   }
-  casti_html.push(plateauHtml(r));
+  if (!r.hyperopt.walk_forward) casti_html.push(plateauHtml(r));
+  if (r.hyperopt.native && r.status === "done" && !r.hyperopt.walk_forward) {
+    casti_html.push(`<p class="an-note"><button id="hyper-continue" class="ghost small" type="button"
+        title="Tie isté zadanie, štúdia začne s epochami tohto hľadania. Výsledok je nový záznam so všetkými epochami.">
+        Pokračovať</button> o <input id="hyper-continue-n" type="number" min="1" max="5000" step="50" value="200"
+        style="width:5.5em"> epoch</p>`);
+  }
   box.innerHTML = casti_html.join("");
+  const dalej = $("#hyper-continue");
+  if (dalej) dalej.onclick = () => continueHyperopt(r.id);
   for (const tr of $$("#sweep-result tr[data-run]")) {
     tr.onclick = () => openPoint(tr.dataset.run);
   }

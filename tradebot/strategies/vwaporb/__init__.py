@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from ..base import StrategySpec
+from .hyperopt import VwapOrbHyperopt
 from .config import CONFIG_DIR, EntryTiming, ExitMode, VwapOrbConfig, VwapRule
 from .engine import VwapOrbEngine
 from .meta import (FEATURES, INTENTIONAL_DEFAULT_DIFFS, KIND_TITLES, LAYERS, PARAM_NOTES,
@@ -48,6 +49,7 @@ SPEC = StrategySpec(
     multicharts_template="VwapOrb_Signal.py",
     fixed_size_field="legacyPineSizing",
     risk_field="riskDollar",
+    hyperopt_cls=VwapOrbHyperopt,
     informative_tfs=None,
     htf_feeder=None,
     logic_of="orb",  # range, stop, cieľ aj koniec seansy sú z ORB; vlastná je podmienka VWAP

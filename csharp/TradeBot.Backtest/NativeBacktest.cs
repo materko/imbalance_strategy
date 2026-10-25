@@ -20,6 +20,8 @@ namespace TradeBot.Backtest
                 Candles c;
                 if (!Cache.TryGetValue(path, out c))
                 {
+                    // pracovny proces zije dlho a striedaju sa v nom trhy - viac ako styri subory nedrzi
+                    if (Cache.Count >= 4) { Cache.Clear(); Prepared.Clear(); }
                     c = Feather.ReadCandles(path);
                     Cache[path] = c;
                 }
@@ -30,7 +32,7 @@ namespace TradeBot.Backtest
         public static void ClearCache() { lock (Gate) { Cache.Clear(); Prepared.Clear(); } }
 
         private static readonly Dictionary<string, EmuData> Prepared = new Dictionary<string, EmuData>();
-        private const int PreparedMax = 8;
+        private const int PreparedMax = 16;
 
         /// <summary>Data pre graf a okno, pripravene raz za proces (hyperopt: tie iste pre kazdu epochu;
         /// overenie: jedno na kazde referencne okno). Kluc je subor, TF a okno.</summary>
@@ -128,6 +130,9 @@ namespace TradeBot.Backtest
             w.Key("first_close").Value(double.IsNaN(r.FirstClose) ? (double?)null : r.FirstClose);
             w.Key("last_close").Value(double.IsNaN(r.LastClose) ? (double?)null : r.LastClose);
             w.Key("log").Value(r.Log);
+            w.Key("daily").BeginArray();
+            foreach (KeyValuePair<long, double> d in r.Daily) w.BeginArray().Value(d.Key).Value(d.Value).EndArray();
+            w.EndArray();
             w.Key("trades").BeginArray();
             foreach (EmuTrade t in r.Trades)
             {

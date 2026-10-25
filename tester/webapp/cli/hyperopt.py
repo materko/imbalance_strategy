@@ -32,9 +32,10 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     # epocha nula obchodov a hyperopt beží zbytočne.
     from ... import matrix as mx
 
-    male = mx.wallet_check([settings["pair"]], float(settings.get("wallet") or 0),
-                           timeframe=settings.get("timeframe") or "3m",
-                           timerange=settings["timerange"])
+    natively = settings.get("engine") == engines.MULTICHARTS
+    male = {} if natively else mx.wallet_check([settings["pair"]], float(settings.get("wallet") or 0),
+                                               timeframe=settings.get("timeframe") or "3m",
+                                               timerange=settings["timerange"])
     if male:
         nominal = male[settings["pair"]]
         cislo = lambda v: f"{v:,.0f}".replace(",", " ")  # noqa: E731
@@ -43,11 +44,22 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
             f"mala: jeden kontrakt ~{cislo(nominal)}, kazdy vstup by bol odmietnuty a vsetky "
             f"epochy by mali nula obchodov. Pridaj --wallet {nominal * 2:.0f} "
             f"(break-even od penazenky nezavisi).")
-    if settings.get("engine") != engines.FREQTRADE:
-        raise SystemExit("hyperopt bezi len na engine Freqtrade (emulator MultiCharts "
-                         "optimalizator nema)")
+    if natively:
+        from tradebot.strategies import get_spec
+
+        if getattr(get_spec(args.strategy).engine_factory, "csharp_key", None) is None:
+            raise SystemExit(f"hyperopt na emulatore MultiCharts vie len strategia s C# jadrom (natívne); "
+                             f"{args.strategy} lad cez Freqtrade (--engine freqtrade)")
+    elif settings.get("engine") != engines.FREQTRADE:
+        raise SystemExit(f"hyperopt nevie engine {settings.get('engine')!r}")
 
     space = ho.suggested(args.strategy) if args.suggested else {}
+    if getattr(args, "continue_from", None) and not args.param and not args.suggested:
+        # pokračovanie: priestor z pôvodného hyperoptu, aby sa epochy dali vložiť do štúdie
+        povodny = (RunStore().get(args.continue_from) or {}).get("settings", {}).get("hyperopt") or {}
+        space = dict(povodny.get("knobs") or {})
+        if not space:
+            raise SystemExit(f"hyperopt {args.continue_from} v historii nie je")
     for item in args.param or []:
         if "=" not in item:
             raise SystemExit(f"--param chce NAZOV=HODNOTY, dostal {item!r}")
@@ -80,14 +92,32 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     if args.jobs:
         zadanie["jobs"] = int(args.jobs)
     # Na emulatore MultiCharts epochy pocita C# jadro strategie (tester.native_hyperopt), nie Freqtrade
-    if settings.get("engine") == "multicharts":
-        from tradebot.strategies import get_spec
+    if natively:
+        from ...hyperopt import REFERENCE_WINDOWS
+        from ...native_hyperopt import OBJECTIVES
 
-        if getattr(get_spec(args.strategy).engine_factory, "csharp_key", None) is None:
-            raise SystemExit(f"hyperopt na emulatore MultiCharts vie len strategia s C# jadrom; "
-                             f"{args.strategy} lad cez Freqtrade (--engine freqtrade)")
-        zadanie.update(native=True, sampler=args.sampler)
-        print(f"  natívne v C# (emulator MultiCharts), sampler {args.sampler}")
+        okna = ([] if not args.windows else list(REFERENCE_WINDOWS) if args.windows.strip() == "ref"
+                else [w.strip() for w in args.windows.split(",") if w.strip()])
+        ciele = [o.strip() for o in (args.objectives or "").split(",") if o.strip() and o.strip() != args.goal]
+        for o in ciele:
+            if o not in OBJECTIVES:
+                raise SystemExit(f"neznamy ciel {o!r}; zname: {', '.join(OBJECTIVES)}")
+        zadanie.update(native=True, sampler=args.sampler, windows=okna or None, aggregate=args.aggregate,
+                       objectives=ciele or None, select=args.select,
+                       mode="walkforward" if args.walk_forward else "search", anchored=bool(args.anchored),
+                       continue_from=args.continue_from)
+        if args.continue_from:
+            # pokračovanie na hube: agent pôvodný záznam nemá, epochy idú so zadaním
+            if args.remote:
+                zadanie["warm"] = RunStore().extra(args.continue_from, "epochs.json") or []
+        print(f"  natívne v C# (emulator MultiCharts), sampler {args.sampler}"
+              + (f", {len(okna)} okien ({args.aggregate})" if len(okna) > 1 else "")
+              + (f", ciele {', '.join(ciele)}" if ciele else "") + (", vyber podla okolia" if args.select == "plateau" else "")
+              + (", walk-forward" + (" anchored" if args.anchored else "") if args.walk_forward else "")
+              + (f", pokracovanie {args.continue_from}" if args.continue_from else ""))
+    elif any([args.windows, args.objectives, args.select != "best", args.walk_forward, args.continue_from]):
+        raise SystemExit("--windows/--objectives/--select/--walk-forward/--continue vie len natívny hyperopt: "
+                         "--engine multicharts a strategia s C# jadrom")
     popis = ", ".join(f"{k}={v}" for k, v in space.items())
     note = f"hyperopt {popis}" + (f" — {args.note}" if args.note else "")
     user = args.user or getenv("USER") or ""
@@ -114,7 +144,10 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
         telo = {"params": params, "space": space, "goal": args.goal, "max_dd": args.max_dd,
                 "min_trades": args.min_trades, "epochs": int(args.epochs), "seed": args.seed,
                 "verify": not args.no_verify, "note": args.note or "", "user": user or None,
-                "sampler": args.sampler,
+                "sampler": args.sampler, "windows": zadanie.get("windows"), "aggregate": zadanie.get("aggregate") or "min",
+                "objectives": zadanie.get("objectives"), "select": zadanie.get("select") or "best",
+                "mode": zadanie.get("mode") or "search", "anchored": bool(zadanie.get("anchored")),
+                "continue_from": zadanie.get("continue_from"),
                 **{k: settings.get(k) for k in ("strategy", "pair", "timeframe", "timerange",
                                                 "fee", "wallet", "timeframe_detail", "engine",
                                                 "exchange", "profile", "ai")}}

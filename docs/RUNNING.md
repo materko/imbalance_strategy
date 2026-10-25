@@ -14,6 +14,7 @@ nemiešalo, čo platí pre ktorú:
 | **dáta: odkiaľ sú, archív, Dukascopy import, nový symbol** | [DATA.md](DATA.md) |
 | **testovať z CLI (aj pre AI)** | [../tester/AI_TESTING.md](../tester/AI_TESTING.md) |
 | **počítať na viac strojoch** (hub, agenti, `run --remote`, Docker pre hub a agenta) | [HUB.md](HUB.md) |
+| **volať webapp zo skriptu alebo z AI** (behy, sweep, hyperopt, natívne behy bez histórie) | [API.md](API.md) |
 | **pridať ďalšiu stratégiu** | [STRATEGIE.md](STRATEGIE.md) |
 | **zistiť, čo tá stratégia je** (analytika, posudok) | [ANALYTIKA.md](ANALYTIKA.md) |
 | **ako je to postavené a prečo** | [ARCHITECTURE_port.md](ARCHITECTURE_port.md) |

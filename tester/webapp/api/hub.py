@@ -251,6 +251,9 @@ def build(ctx: AppContext) -> APIRouter:
             raise HTTPException(422, str(exc))
         base = run_settings(req)
         settings = {**base, "hyperopt": hyperopt_settings(req, base)}
+        if settings["hyperopt"].get("continue_from"):
+            # agent pôvodný záznam v histórii nemá - epochy idú so zadaním
+            settings["hyperopt"]["warm"] = store.extra(settings["hyperopt"]["continue_from"], "epochs.json") or []
         popis = ", ".join(f"{k}={v}" for k, v in req.space.items())
         note = f"hyperopt {popis}" + (f" — {req.note}" if req.note else "")
         return _hub_form(req, "hyperopt", req.params, settings, note, clean_user(req.user))

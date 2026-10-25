@@ -131,10 +131,13 @@ class HyperoptJobMixin:
         self._verify_winner(job, plan, vitaz)
 
     def _run_native_hyperopt(self, job: Job, instrument: str, profile: Path, t0: float, plan) -> None:
-        """Hyperopt C# strategie na emulatore MultiCharts: Optuna v tomto procese, epochy v C# na vsetkych jadrach.
+        """Hyperopt C# strategie na emulatore MultiCharts: Optuna v tomto procese, epochy v C# na pracovnych procesoch.
 
         Zaznam behu ma ten isty tvar ako hyperopt cez Freqtrade (epochy v `epochs.json`, vitaz
-        a `overrides` v `settings.hyperopt`), overovacie behy su obycajne behy emulatora.
+        a `overrides` v `settings.hyperopt`), overovacie behy su obycajne behy emulatora. Navyse
+        (`settings.hyperopt`): `windows` + `aggregate` (kriterium cez viac okien), `objectives`
+        (viac cielov, Pareto), `select` (`plateau` = vitaz podla okolia), `mode="walkforward"`
+        (+ `anchored`), `continue_from` / `warm` (pokracovanie predosleho hladania).
         """
         from .. import hyperopt as ho
         from .. import native_hyperopt as nh
@@ -146,13 +149,20 @@ class HyperoptJobMixin:
         sampler = zadanie.get("sampler") or "tpe"
         fee = float(settings.get("fee") or 0.0)
         wallet = float(settings.get("wallet") or 10000)
+        okna = list(zadanie.get("windows") or []) or [settings["timerange"]]
+        walk = zadanie.get("mode") == "walkforward"
+        if walk and len(okna) < 2:
+            okna = list(ho.REFERENCE_WINDOWS)
+        celkom = spolu * (len(okna) - 1) if walk else spolu
+        popis = (f"walk-forward {len(okna) - 1} foldov" if walk else
+                 (f"{len(okna)} okien ({zadanie.get('aggregate') or 'min'})" if len(okna) > 1 else settings["timerange"]))
         job.log_lines.append(f"$ natívny hyperopt {plan.strategy} {settings['pair']} {settings.get('timeframe')} "
-                             f"{settings['timerange']}: {spolu} epoch, sampler {sampler} (C# emulátor MultiCharts)")
+                             f"{popis}: {celkom} epoch, sampler {sampler} (C# emulátor MultiCharts)")
         start = time.time()
-        job.progress = ho.eta(0, spolu, start, None, 0, start)
+        job.progress = ho.eta(0, celkom, start, None, 0, start)
         stav = {"prva_kedy": None, "prva": 0}
 
-        def _priebeh(hotovo: int, celkom: int) -> None:
+        def _priebeh(hotovo: int, _spolu: int) -> None:
             teraz = time.time()
             if stav["prva_kedy"] is None:
                 stav["prva_kedy"], stav["prva"] = teraz, hotovo
@@ -163,13 +173,25 @@ class HyperoptJobMixin:
             if len(job.log_lines) > 5000:
                 del job.log_lines[:1000]
 
+        warm = None
+        if zadanie.get("continue_from"):
+            warm = self.store.extra(zadanie["continue_from"], "epochs.json") or zadanie.get("warm") or []
+            if not warm:
+                _log(f"POZOR: hyperopt {zadanie['continue_from']} nemá uložené epochy - hľadá sa odznova")
+        hladanie = wf = None
         try:
             runner = nh.NativeRunner(plan.strategy, INSTRUMENTS[instrument],
                                      timeframe_minutes(settings.get("timeframe") or "3m"), fee,
                                      int(zadanie.get("jobs") or 0))
-            hladanie = nh.run_search(runner, plan, str(profile), settings["timerange"], epochs=spolu,
-                                     sampler=sampler, seed=zadanie.get("seed"), wallet=wallet, log=_log,
-                                     should_stop=lambda: job.cancel_requested, on_progress=_priebeh)
+            spolocne = dict(sampler=sampler, seed=zadanie.get("seed"), wallet=wallet, log=_log,
+                            aggregate_how=zadanie.get("aggregate") or "min", select=zadanie.get("select") or "best",
+                            should_stop=lambda: job.cancel_requested, on_progress=_priebeh)
+            if walk:
+                wf = nh.walk_forward(runner, plan, str(profile), okna, epochs=spolu,
+                                     anchored=bool(zadanie.get("anchored")), **spolocne)
+            else:
+                hladanie = nh.run_search(runner, plan, str(profile), okna[-1], epochs=spolu, windows=okna,
+                                         objectives=zadanie.get("objectives") or None, warm=warm, **spolocne)
         except (ValueError, FileNotFoundError) as exc:
             job.status = "failed"
             job.error = str(exc)
@@ -184,6 +206,20 @@ class HyperoptJobMixin:
             self._persist(job, None, duration)
             return
 
+        zadanie = {k: v for k, v in zadanie.items() if k != "warm"}   # epochy nesie epochs.json, nie settings
+        if wf is not None:
+            _log(f"hotovo: {len(wf.epochs)} epoch za {wf.seconds:.1f} s - {wf.verdict}")
+            job.status = "done"
+            job.settings = {**settings, "hyperopt": {
+                **zadanie, "native": True, "sampler": sampler, "windows": okna,
+                "epochs_done": len(wf.epochs), "best": None,
+                "overrides": wf.last, "results_file": None,
+                "walk_forward": {"folds": wf.folds, "verdict": wf.verdict, "anchored": bool(zadanie.get("anchored"))},
+            }}
+            self._persist(job, None, duration)
+            self.store.save_extra(job.id, "epochs.json", [e.to_dict() for e in wf.epochs])
+            return   # walk-forward má overenie v sebe: každé testovacie okno optimalizátor nevidel
+
         epochs, vitaz = hladanie.epochs, hladanie.best
         _log(f"hotovo: {len(epochs)} epoch ({hladanie.distinct} roznych backtestov) za {hladanie.seconds:.1f} s")
         job.status = "done"
@@ -191,11 +227,14 @@ class HyperoptJobMixin:
             **zadanie,
             "native": True,
             "sampler": sampler,
+            "windows": okna if len(okna) > 1 else None,
             "epochs_done": len(epochs),
             "distinct": hladanie.distinct,
             "best": vitaz.to_dict() if vitaz else None,
             "overrides": ho.overrides(plan, vitaz.params) if vitaz else None,
             "results_file": None,
+            "pareto": hladanie.pareto or None,
+            "plateau_select": hladanie.plateau,
         }}
         self._persist(job, None, duration)
         self.store.save_extra(job.id, "epochs.json", [e.to_dict() for e in epochs])
@@ -208,13 +247,14 @@ class HyperoptJobMixin:
         from .. import hyperopt as ho
 
         najdene = ho.overrides(plan, vitaz.params)
-        ladene = job.settings["timerange"]
-        okna = [ladene] + [w for w in ho.REFERENCE_WINDOWS if w != ladene]
+        # natívny hyperopt ladí aj na viacerých oknách naraz - všetky sú „ladené"
+        ladene_okna = list((job.settings.get("hyperopt") or {}).get("windows") or []) or [job.settings["timerange"]]
+        okna = ladene_okna + [w for w in ho.REFERENCE_WINDOWS if w not in ladene_okna]
         popis = ", ".join(f"{k}={v}" for k, v in najdene.items())
         for okno in okna:
             settings = {k: v for k, v in job.settings.items() if k != "hyperopt"}
             settings["timerange"] = okno
-            settings["hyperopt_run"] = {"id": job.id, "values": najdene, "tuned": okno == ladene,
+            settings["hyperopt_run"] = {"id": job.id, "values": najdene, "tuned": okno in ladene_okna,
                                         "goal": plan.goal}
             try:
                 self.submit({**job.params, **najdene}, settings,

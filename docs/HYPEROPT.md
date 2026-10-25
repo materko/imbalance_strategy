@@ -268,6 +268,18 @@ PY -m tester.native_hyperopt --strategy tksnet --instrument mnq_databento \
 - **Meranie (25. 10. 2026, Core Ultra 9 275HX, 24 jadier):** IBSNet, BTCUSDT.P 3m, rok 2025/26, `rrRatio` +
   `slLookback`, 48 epoch: Freqtrade hyperopt (most do C#, 1m detail) **136 s** (2,8 s/epocha), natívne
   **5,9 s** vrátane štartu procesov (~23×); 480 epoch natívne 31 s. Python emulátor na jednom jadre 7,6 s/epocha.
+- **Proti pretrénovaniu (len natívne):**
+  - `--windows ref --aggregate min` — kritérium cez viac okien: epocha = beh na každom okne, skóre = najhoršie
+    okno (alebo `median`, `mean`); tabuľka ukáže break-even po oknách,
+  - `--select plateau` — víťaz s najlepším okolím: z piatich najlepších epoch tá, ktorej susedia (±1 krok
+    na každom parametri, ako `tester.plateau`) držia v priemere najlepšie,
+  - `--walk-forward` (`--anchored`) — ladí na okne N, meria na N+1; verdikt `WALK-FORWARD DRZI / NEJASNE / NEDRZI`,
+  - `--objectives drawdown,trades` (sampler `nsga2`/`tpe`) — viac cieľov naraz, Pareto hranica (◆ v tabuľke).
+- **Pokračovanie:** `--continue <id>` / tlačidlo **Pokračovať** — staré epochy sa vložia do štúdie, nový záznam
+  nesie staré aj nové.
+- **Body celkov natívne:** sweep, matica, okolie víťaza a overenie hyperoptu C# stratégie na emulátore počíta
+  pracovný proces C# (`tester.native.run_record`) — súhrn = Python emulátor, len bez kresieb (bod ich nemá).
+- **Bez histórie:** `POST /api/native/backtests` — body × okná, súhrn ako v histórii ([API.md](API.md)).
 - **Priebeh:** po každej dávke `hotovo/spolu`, tempo (epoch/s) a odhad zvyšku — v logu (CLI aj webapp),
   v karte hyperoptu vo webapp a na hube (agent ho číta z toho istého riadku logu).
 - **Samplery:** `tpe` (bayesovský, predvolený), `cmaes` (evolučná stratégia, len čísla), `nsga2`

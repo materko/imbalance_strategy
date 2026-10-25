@@ -159,6 +159,11 @@ def seconds_per_epoch(history: Iterable[dict[str, Any]], settings: dict[str, Any
     return float(statistics.median(hodnoty)) if hodnoty else None
 
 
+#: päť referenčných okien (tester.hyperopt) - walk-forward bez zadaných okien ich berie všetky
+REFERENCE_WINDOWS = ("20211001-20221001", "20221001-20231001", "20231001-20241001",
+                     "20240904-20250904", "20250904-20260904")
+
+
 def estimate_seconds(settings: dict[str, Any], history: Iterable[dict[str, Any]],
                      cores: int = 1) -> float:
     """Koľko výpočet asi potrvá **na tomto stroji** (história je jeho vlastná).
@@ -174,6 +179,13 @@ def estimate_seconds(settings: dict[str, Any], history: Iterable[dict[str, Any]]
         return STARTUP_SECONDS + okno
     z = settings.get("hyperopt") or {}
     epochs = int(z.get("epochs") or 200)
+    if _is_native(settings):
+        # natívne: epocha = beh na každom okne kritéria; walk-forward = epochy na každý fold
+        okien = len(z.get("windows") or []) or 1
+        if z.get("mode") == "walkforward":
+            epochs *= max(1, (okien if okien > 1 else len(REFERENCE_WINDOWS)) - 1)
+        else:
+            epochs *= okien
     per_epoch = seconds_per_epoch(history, settings)
     if per_epoch is None:
         # epocha beží v tom istom procese (bez štartu), rozdelená medzi jadrá

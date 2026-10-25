@@ -10,6 +10,7 @@ from pathlib import Path
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from ..base import StrategySpec
+from .hyperopt import OrbHyperopt
 
 #: Zdrojové skripty stratégie (Pine) — pri nej, aby bol balík sebestačný.
 SOURCES = Path(__file__).resolve().parent / "docs" / "sources"
@@ -52,6 +53,7 @@ SPEC = StrategySpec(
     multicharts_template="ORB_Signal.py",
     fixed_size_field="legacyPineSizing",
     risk_field="riskDollar",
+    hyperopt_cls=OrbHyperopt,
     informative_tfs=None,
     htf_feeder=None,
 )

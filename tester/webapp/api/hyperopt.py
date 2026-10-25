@@ -13,7 +13,7 @@ from ..batches import strip_tag
 from ..store import strategy_of
 from .common import clean_user, plateau_note, goal_note, hyperopt_settings
 from .context import AppContext
-from .models import HyperoptRequest
+from .models import HyperoptContinueRequest, HyperoptRequest
 from .settings import run_settings
 from ...native_hyperopt import SAMPLERS
 
@@ -173,6 +173,35 @@ def build(ctx: AppContext) -> APIRouter:
             log_text = ""
         return {**ho.detail(rec, epochs, overenia, log_text),
                 "plateau": _plateau_of(run_id, zadanie)}
+
+    @router.post("/api/hyperopts/{run_id}/continue")
+    def hyperopt_continue(run_id: str, req: HyperoptContinueRequest):
+        """Ďalšie epochy natívneho hyperoptu: to isté zadanie, štúdia začne s epochami pôvodného.
+
+        Výsledok je nový záznam (pôvodný ostáva, ako bol) so všetkými epochami — starými aj novými —
+        a vlastným overením víťaza.
+        """
+        rec = store.get(run_id)
+        zadanie = ((rec or {}).get("settings") or {}).get("hyperopt") or {}
+        if not zadanie.get("knobs"):
+            raise HTTPException(404, "taký hyperopt v histórii nie je")
+        if not zadanie.get("native"):
+            raise HTTPException(422, "pokračovať sa dá len v natívnom hyperopte (emulátor MultiCharts)")
+        if zadanie.get("mode") == "walkforward":
+            raise HTTPException(422, "walk-forward sa nepredlžuje — pusti nový s viac epochami na fold")
+        if not store.extra(run_id, "epochs.json"):
+            raise HTTPException(422, "hyperopt nemá uložené epochy")
+        nove = {k: zadanie.get(k) for k in ("knobs", "goal", "max_dd", "min_trades", "verify", "native",
+                                            "sampler", "windows", "aggregate", "objectives", "select", "mode")}
+        nove.update(epochs=req.epochs, seed=req.seed, continue_from=run_id)
+        settings = {**{k: v for k, v in rec["settings"].items() if k != "hyperopt"}, "hyperopt": nove}
+        note = f"pokračovanie {run_id}" + (f" — {req.note}" if req.note else (f" — {rec.get('note')}" if rec.get("note") else ""))
+        try:
+            job = runner.submit(rec.get("params") or {}, settings, note=note, user=clean_user(req.user))
+        except (ConfigError, ValueError) as exc:
+            raise HTTPException(422, str(exc))
+        return {"id": job.id, "continue_from": run_id, "epochs": req.epochs,
+                "previous": len(store.extra(run_id, "epochs.json") or [])}
 
     @router.post("/api/hyperopts/{run_id}/plateau")
     def hyperopt_plateau(run_id: str):

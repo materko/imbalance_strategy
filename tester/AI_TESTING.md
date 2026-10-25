@@ -215,7 +215,7 @@ bežala.
 Parametre, ktoré rozbijú paritu s TradingView (sizing, STATE timeouty), sú označené
 a sweep na ne upozorní; zakázané nie sú — ak ich chceš ladiť vedome, ladia sa.
 
-## 8. Hyperopt (len engine Freqtrade)
+## 8. Hyperopt
 
 Tie isté `--param` ako sweep, len sa v rozsahu **hľadá** namiesto prechádzania. Zadanie sa
 nepíše dvakrát: `2:8:0.5` je pre sweep 13 hodnôt, pre hyperopt rozsah, v ktorom hľadá.
@@ -251,6 +251,86 @@ hyperopt **nenahrádza** ani neodhalí jeho pretrénovanie; sú to dve rôzne ot
 
 Ako sa nastavujú hranice, ako pridať hyperopt k novej stratégii a čo sa deje vnútri:
 [docs/HYPEROPT.md](../docs/HYPEROPT.md).
+
+### Pre AI: hľadaj parametre týmto, nepíš vlastný optimalizátor
+
+Keď máš nájsť parametre stratégie, **použi hyperopt (alebo sweep) repozitára**. Nepíš vlastný
+for-cyklus cez `cli run`, vlastný genetický algoritmus, `scipy.optimize`, náhodné hľadanie ani
+skript, ktorý púšťa `freqtrade backtesting` a číta zipy. Všetko to tu už je, je to rýchlejšie
+a hlavne je to **merané rovnako ako zvyšok repozitára** — vlastný algoritmus by dal čísla, ktoré
+sa s históriou, sweepom ani verdiktom nedajú porovnať.
+
+Čo dostaneš zadarmo a vlastný skript to mať nebude:
+
+| | |
+|---|---|
+| **kritérium** | `--goal break_even|profit|winrate|drawdown` + mantinely `--max-dd`, `--min-trades` (za rok, prepočíta sa na okno) — tie isté čísla, aké ukazuje história (`summary_money`) a podľa akých radí sweep |
+| **priestor** | rozsahy z `CONSTRAINTS` configu (Pine), typy z dataclass, väzby medzi parametrami opraví stratégia (`hyperopt_cls.constrain`); `--suggested` = priestor, ktorý na stratégii prežil out-of-sample |
+| **parita** | epocha je ten istý backtest ako obyčajný beh: Freqtrade, alebo emulátor MultiCharts v C#, ktorého obchody sú bit po bite ako Python emulátor (`tester/tests/test_csharp_backtest.py`) |
+| **overenie** | víťaz sa sám pustí na piatich referenčných oknách a dostane verdikt `VITAZ PREZIL` / `NEJASNE` / `PRETRENOVANE`; okolie víťaza (§8a) jedným príkazom |
+| **algoritmy** | natívne (C#) Optuna: `--sampler tpe` (bayesovský), `cmaes` (evolučná stratégia), `nsga2` (genetický), `qmc` (pokrytie priestoru), `random`; Freqtrade má svoj. „Skúsim evolučný algoritmus" = `--sampler cmaes` alebo `nsga2`, nie nový kód |
+| **proti pretrénovaniu** | natívne: `--windows ref --aggregate min` (epocha = beh na každom okne, skóre = najhoršie okno), `--select plateau` (víťaz s najlepším okolím, nie ostrá špička), `--walk-forward` (ladí na N, meria na N+1), `--objectives drawdown,trades` (Pareto namiesto jedného čísla s pokutami) |
+| **pokračovanie** | natívne: `--continue <hyperopt_id>` / `POST /api/hyperopts/<id>/continue` — staré epochy sa vložia do štúdie, nehľadá sa odznova |
+| **rýchlosť** | natívne: epochy počítajú pracovné procesy C# na všetkých jadrách, opakované body mriežky sa nepočítajú znova. IBSNet, rok BTC 3m: 48 epoch **5,9 s** natívne vs 136 s cez Freqtrade; Python emulátor po jednom behu 7,6 s na epochu |
+| **história, hub, priebeh** | záznam v histórii (epochy, víťaz, overovacie behy), `--remote` na hub, `--seeds N` (ten istý hyperopt s N seedmi naraz a porovnanie víťazov), priebeh `hotovo/spolu`, tempo a odhad zvyšku v logu aj na hube |
+
+**Ktorú cestu zvoliť:**
+
+| situácia | čo spustiť |
+|---|---|
+| 1–2 parametre, chceš vidieť tvar | sweep (§7) — body C# stratégie na emulátore počíta C# sám |
+| stratégia s C# jadrom (`…net`, `…neteod`), fill model NT8/MT5 | `cli hyperopt --engine multicharts --sampler tpe …` (natívne v C#) |
+| chceš parametre, ktoré držia vo viacerých rokoch | `… --engine multicharts --windows ref --aggregate min --select plateau` |
+| chceš vedieť, ako by dopadlo pravidelné preladenie | `… --engine multicharts --walk-forward` (verdikt `WALK-FORWARD DRZI/NEJASNE/NEDRZI`) |
+| zisk vs drawdown vs počet obchodov naraz | `… --engine multicharts --objectives drawdown,trades --sampler nsga2` |
+| krypto fill model / stratégia bez C# jadra | `cli hyperopt …` (Freqtrade) |
+| veľa behov hneď, bez zápisu do histórie (overenie hypotézy) | `POST /api/native/backtests` (body × okná, súhrn ako v histórii) alebo `PY -m tester.native_hyperopt … --out x.json` |
+| hľadanie dobehlo, chceš viac epoch | `cli hyperopt --engine multicharts --continue <id> --epochs 400` |
+| drží optimum? | `cli plateau <hyperopt_id>` (§8a), `--seeds 4 --remote`, `cli matrix` (§8e) |
+
+```bash
+# C# stratégia na emulátore MultiCharts — epochy v C#, víťaz overený na piatich oknách
+PY -m tester.webapp.cli hyperopt --strategy tksnet --pair MNQ/USD --engine multicharts --timeframe 3m    --param loLevel=10:40:5 --param hiLevel=60:90:5 --param rrRatio=0.5:2:0.25    --sampler nsga2 --epochs 400 --timerange 20240904-20250904 --note "TKS: hladanie urovni"
+```
+
+**HTTP API webapp** (to isté, čo robí formulár a CLI; webapp beží na `http://127.0.0.1:8765`; celý manuál
+s poliami a príkladmi je [docs/API.md](../docs/API.md), schéma `http://127.0.0.1:8765/openapi.json`):
+
+| | |
+|---|---|
+| `GET /api/hyperopt/meta?strategy=<kľúč>` | odporúčaný priestor, varovania, referenčné okná, `native` (má C# jadro), `samplers` |
+| `POST /api/hyperopts` | zaradí hyperopt: telo ako `/api/runs` (`params`, `strategy`, `pair`, `engine`, `timeframe`, `timerange`, `fee`, `wallet`, `profile`, `note`, `user`) + `space` (`{"rrRatio": "2:8:0.5"}`), `goal`, `max_dd`, `min_trades`, `epochs`, `seed`, `verify`, `sampler`; natívne aj `windows`, `aggregate`, `objectives`, `select`, `mode` (`walkforward`), `anchored`, `continue_from` |
+| `POST /api/hyperopts/<id>/continue` | natívny hyperopt: `{"epochs": 200}` ďalších epoch, nový záznam so starými aj novými |
+| `POST /api/native/backtests` | body × okná natívne, **bez histórie**: `{"strategy", "pair", "points": [{"rrRatio": 1.5}, …], "windows": [...]}` → súhrn každého behu (tie isté čísla ako v histórii) |
+| `GET /api/native/status` | pracovné procesy C# a stratégie, ktoré vedia bežať natívne |
+| `GET /api/hyperopts/<id>` | stav, `progress` (`done`, `total`, `eta_s`, `s_per_epoch`), epochy, víťaz (`overrides`), overovacie behy, `verdict` |
+| `GET /api/hyperopts?strategy=<kľúč>` | hyperopty z histórie |
+| `POST /api/hyperopts/<id>/plateau` | zaradí susedov víťaza (okolie) |
+| `POST /api/queue/<id>/cancel` | zruší bežiaci hyperopt |
+| `POST /api/hub/hyperopts` | to isté zadanie na hub (+ voľby hubu) |
+
+**Python stavebnice**, keď naozaj potrebuješ vlastný postup: `tester.native.NativeRunner` (dávka configov ×
+okien → obchody, pracovné procesy C# — `run_many`), `tester.native.summary_of` (súhrn ako história),
+`tester.native_hyperopt.run_search` (Optuna ask/tell s kritériom plánu, okná, ciele, okolie, pokračovanie),
+`walk_forward`, `verify` (parametre na referenčných oknách), `loss_of` / `objective_of` (kritérium).
+Walk-forward, kritérium cez okná aj výber podľa okolia už existujú — nepíš ich znova. Skladaj z nich,
+nepíš vlastný backtest ani skóre.
+
+**Ako čítať výsledok:** skóre = −`loss`; `loss` ≥ 1000 = mimo mantinelov. Pri kritériu cez okná je skóre
+najhoršieho okna (`aggregate=min`), stĺpce `BE <rok>` ukážu každé okno. Výber podľa okolia vyhrá bod, ktorého
+susedia držia — keď sa líši od najlepšej epochy, najlepšia stála na špičke. Rozhoduje verdikt mimo ladených
+okien (alebo walk-forward), nie skóre ladeného okna.
+
+**Čo nerobiť:**
+
+- Nepočítaj skóre sám z `trades.json` — vyjde iné číslo než break-even v histórii (zaokrúhlenie,
+  poplatok, objem). Kritérium je `loss_of` / `TradebotPlanLoss`.
+- Neporovnávaj skóre natívneho hyperoptu so skóre Freqtrade hyperoptu — iný fill model.
+- Nevyhlasuj víťaza z ladeného okna. Rozhoduje verdikt po oknách a okolie; `loss` nad 1000
+  znamená epochu mimo mantinelov, nie výsledok.
+- Keď chýba kritérium alebo sampler, doplň ho do repozitára (kritérium na troch miestach:
+  `tester/sweep.py` `GOALS`, `TradebotPlanLoss`, `tester.native_hyperopt.loss_of`; sampler do
+  `SAMPLERS`) — nie bokom do jednorazového skriptu.
 
 ## 8a. Okolie víťaza hyperoptu
 

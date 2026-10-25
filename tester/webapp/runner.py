@@ -300,7 +300,20 @@ class BacktestRunner(HyperoptJobMixin):
         """
         chart_tmp = TMP_PROFILES / f"{job.id}.chart.json.gz"
         chart_out = chart_tmp if batch_tag(job.settings) is None else None
-        if self.mc_isolated:
+        from .. import native
+
+        out = None
+        if native.can_run(job.settings):
+            # Bod celku (sweep, matica, okolie, overenie víťaza) C# stratégie: kresby netreba, tak ho spočíta
+            # pracovný proces C# - rádovo rýchlejšie, obchody aj súhrn sú tie isté (test_native_hyperopt.py)
+            try:
+                out = native.run_record(job.params, job.settings, profile, log=lambda s: job.log_lines.append(s))
+            except Exception as exc:  # noqa: BLE001 - natívny beh nesmie zhodiť bod, Python emulátor ho dorobí
+                job.log_lines.append(f"POZOR: natívny beh zlyhal ({exc}), počítam Python emulátorom")
+                out = None
+        if out is not None:
+            pass
+        elif self.mc_isolated:
             out = self._multicharts_subprocess(job, profile, chart_out)
         else:
             out = run_multicharts(

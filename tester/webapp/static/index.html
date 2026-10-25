@@ -228,6 +228,44 @@
                 <option value="random">náhodný</option>
               </select>
             </label>
+            <fieldset class="span2 hyper-only hyper-native" id="hyper-native" hidden>
+              <legend title="Epochy počíta C# jadro stratégie na emulátore MultiCharts — zlomok sekundy na epochu, preto sa oplatí viac, než len jedno okno.">Natívne (engine Emulátor MultiCharts, stratégie …net)</legend>
+              <div class="hyper-native-grid">
+                <label class="field">Režim
+                  <select id="hyper-mode" title="Hľadanie = jedno hľadanie a overenie víťaza na piatich oknách. Walk-forward = ladí na okne N, meria na N+1, posúva sa — každé testovacie okno optimalizátor nevidel.">
+                    <option value="search">hľadanie</option>
+                    <option value="walkforward">walk-forward</option>
+                  </select>
+                </label>
+                <label class="field">Okná spolu
+                  <select id="hyper-aggregate" title="Ako zložiť skóre z viacerých okien kritéria. Najhoršie okno bráni pretrénovaniu najtvrdšie.">
+                    <option value="min">najhoršie okno</option>
+                    <option value="median">medián</option>
+                    <option value="mean">priemer</option>
+                  </select>
+                </label>
+                <label class="field">Víťaz
+                  <select id="hyper-select" title="Najlepšie okolie: z piatich najlepších epoch tá, ktorej susedia (±1 krok na každom parametri) držia v priemere najlepšie — stred plató, nie ostrá špička.">
+                    <option value="best">najlepšia epocha</option>
+                    <option value="plateau">najlepšie okolie (plató)</option>
+                  </select>
+                </label>
+                <label class="field inline-check" title="Walk-forward: ladiť na všetkých oknách do N (rastúce okno), nie len na N.">
+                  <input type="checkbox" id="hyper-anchored"><span>Rastúce okno (anchored)</span>
+                </label>
+              </div>
+              <div class="hyper-windows" title="Okná kritéria: epocha = beh na každom zaškrtnutom okne, skóre podľa „Okná spolu“. Nič zaškrtnuté = len obdobie z formulára. Pri walk-forward sú to okná za sebou (nič = päť referenčných).">
+                <span class="muted small">Okná kritéria:</span>
+                <span id="hyper-windows"></span>
+              </div>
+              <div class="hyper-objectives" title="Ďalšie ciele popri kritériu „Vybrať podľa“: výsledok je aj Pareto hranica — epochy, ktoré nikto neprebije vo všetkých cieľoch naraz. Vyžaduje sampler NSGA-II alebo TPE.">
+                <span class="muted small">Ďalšie ciele (Pareto):</span>
+                <label class="inline small"><input type="checkbox" class="hyper-obj" value="drawdown"> drawdown</label>
+                <label class="inline small"><input type="checkbox" class="hyper-obj" value="trades"> počet obchodov</label>
+                <label class="inline small"><input type="checkbox" class="hyper-obj" value="winrate"> winrate</label>
+                <label class="inline small"><input type="checkbox" class="hyper-obj" value="profit"> zisk</label>
+              </div>
+            </fieldset>
             <label class="field hyper-only inline-check" hidden>
               <input type="checkbox" id="hyper-verify" checked>
               <span title="Víťaz sa pustí na piatich referenčných oknách. Bez toho výsledok o stratégii nič nepovie — hyperopt našiel optimum práve ladeného okna.">Overiť na 5 oknách</span>

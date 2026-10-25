@@ -244,6 +244,14 @@ class Epoch:
     max_drawdown_pct: float | None
     profit_factor: float | None
     is_best: bool = False
+    #: natívny hyperopt s kritériom cez viac okien: `okno -> {trades, pnl_pct, …, loss}`
+    windows: dict[str, Any] | None = None
+    #: viac cieľov naraz: hodnota každého cieľa (menej je lepšie), prvá je kritérium plánu
+    values: list[float] | None = None
+    #: epocha leží na Pareto hranici (nikto ju neprebije vo všetkých cieľoch naraz)
+    pareto: bool = False
+    #: walk-forward: poradie foldu (0 = prvé ladené okno)
+    fold: int | None = None
 
     @property
     def usable(self) -> bool:
@@ -254,7 +262,11 @@ class Epoch:
         return {"epoch": self.number, "loss": self.loss, "params": dict(self.params),
                 "trades": self.trades, "pnl_pct": self.pnl_pct, "winrate": self.winrate,
                 "max_drawdown_pct": self.max_drawdown_pct, "profit_factor": self.profit_factor,
-                "usable": self.usable, "is_best": self.is_best}
+                "usable": self.usable, "is_best": self.is_best,
+                **({"windows": self.windows} if self.windows else {}),
+                **({"values": self.values} if self.values else {}),
+                **({"pareto": True} if self.pareto else {}),
+                **({"fold": self.fold} if self.fold is not None else {})}
 
 
 def _metric(m: dict[str, Any], key: str, factor: float = 1.0) -> float | None:
@@ -300,7 +312,8 @@ def epochs_from_dicts(rows: Iterable[dict[str, Any]]) -> list[Epoch]:
             params=dict(row.get("params") or {}), trades=int(row.get("trades") or 0),
             pnl_pct=row.get("pnl_pct"), winrate=row.get("winrate"),
             max_drawdown_pct=row.get("max_drawdown_pct"), profit_factor=row.get("profit_factor"),
-            is_best=bool(row.get("is_best")),
+            is_best=bool(row.get("is_best")), windows=row.get("windows"), values=row.get("values"),
+            pareto=bool(row.get("pareto")), fold=row.get("fold"),
         ))
     return out
 
@@ -390,7 +403,7 @@ def edge_of(record: dict[str, Any]) -> float | None:
     return float(be) - fee
 
 
-def verdict(records: list[dict[str, Any]], tuned: str) -> str:
+def verdict(records: list[dict[str, Any]], tuned: "str | Iterable[str]") -> str:
     """Jedna veta o tom, či víťaz prežil aj mimo ladeného okna.
 
     Toto je to, na čo sa hyperopt naráža: optimum ladeného okna nie je dobrá stratégia.
@@ -398,7 +411,8 @@ def verdict(records: list[dict[str, Any]], tuned: str) -> str:
     lebo je jediné, ktoré optimalizátor videl. Znamienko je break-even **nad poplatkom**
     behu (`edge_of`), nie nad nulou.
     """
-    ostatne = [r for r in records if (r.get("settings", {}).get("timerange")) != tuned]
+    ladene = {tuned} if isinstance(tuned, str) else set(tuned)   # natívny hyperopt ladí aj na viacerých oknách
+    ostatne = [r for r in records if (r.get("settings", {}).get("timerange")) not in ladene]
     hotove = [r for r in ostatne if r.get("status") == "done"]
     if not hotove:
         return "Overovacie behy nedobehli — bez nich sa vysledok hodnotit neda."
@@ -407,14 +421,20 @@ def verdict(records: list[dict[str, Any]], tuned: str) -> str:
               if (edge_of(r) or 0) > 0
               and ((r.get("result") or {}).get("trades") or 0) > 0]
     n, k = len(hotove), len(kladne)
+    viac = len(ladene) > 1
+    mimo = "ladenych" if viac else "ladeneho"
     if k == n:
         return (f"VITAZ PREZIL: break-even je nad poplatkom vo vsetkych {n} oknach mimo "
-                "ladeneho. To je najlepsie, co sa da o najdenych parametroch povedat.")
+                f"{mimo}. To je najlepsie, co sa da o najdenych parametroch povedat.")
     if k == 0:
+        if viac:
+            return (f"PRETRENOVANE: break-even je nad poplatkom len na {len(ladene)} ladenych oknach, v {n} "
+                    "ostatnych nie. Optimalizator nasiel tvar TYCH okien, nie strategiu - "
+                    "parametre nepouzivaj.")
         return (f"PRETRENOVANE: break-even je nad poplatkom len na ladenom okne, v {n} "
                 "ostatnych nie. Optimalizator nasiel tvar TOHO okna, nie strategiu - "
                 "parametre nepouzivaj.")
-    return (f"NEJASNE: break-even je nad poplatkom v {k} z {n} okien mimo ladeneho. "
+    return (f"NEJASNE: break-even je nad poplatkom v {k} z {n} okien mimo {mimo}. "
             "Pozri znamienko po rokoch, nie sucet; jedno dobre okno nestaci.")
 
 
@@ -556,5 +576,5 @@ def detail(record: dict[str, Any], epochs: Iterable[dict[str, Any]],
             "result": {k: (r.get("result") or {}).get(k) for k in
                        ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct")},
         } for r in overenia],
-        "verdict": verdict(overenia, nast.get("timerange")) if overenia else "",
+        "verdict": verdict(overenia, zadanie.get("windows") or nast.get("timerange")) if overenia else "",
     }

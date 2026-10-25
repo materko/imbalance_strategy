@@ -20,6 +20,7 @@ from tradebot.adapters.csharp.engine import csharp_engine_factory
 from tradebot.core.paths import CSHARP_DIR
 
 from ..base import StrategySpec
+from ..vwaporb.hyperopt import VwapOrbHyperopt
 from .config import CONFIG_DIR, VwapOrbNetConfig
 from .meta import FEATURES, INERT_INPUTS, INTENTIONAL_DEFAULT_DIFFS, KIND_TITLES, LAYERS, PARAM_NOTES, REMOVED_INPUTS
 from .params import GROUPS, PARAMS
@@ -55,6 +56,7 @@ SPEC = StrategySpec(
     multicharts_template="VwapOrbNet_Signal.py",
     fixed_size_field="legacyPineSizing",
     risk_field="riskDollar",
+    hyperopt_cls=VwapOrbHyperopt,
     informative_tfs=None,
     htf_feeder=None,
 )

@@ -19,6 +19,7 @@ from tradebot.adapters.csharp.engine import csharp_engine_factory
 from tradebot.core.paths import CSHARP_DIR
 
 from ..base import StrategySpec
+from ..orb.hyperopt import OrbHyperopt
 from .config import CONFIG_DIR, ORBNetConfig
 from .meta import FEATURES, KIND_TITLES, LAYERS, PARAM_NOTES
 from .params import GROUPS, PARAMS
@@ -48,6 +49,7 @@ SPEC = StrategySpec(
     multicharts_template="ORBNet_Signal.py",
     fixed_size_field="legacyPineSizing",
     risk_field="riskDollar",
+    hyperopt_cls=OrbHyperopt,
     informative_tfs=None,
     htf_feeder=None,
 )

@@ -44,6 +44,8 @@ namespace TradeBot.Backtest
         public double FirstClose = double.NaN, LastClose = double.NaN;
         public int Ambiguous;
         public string Log = "";
+        /// <summary>Close posledneho baru kazdeho dna UTC (zaciatok dna v ms) - krivka trhu v suhrne behu.</summary>
+        public SortedDictionary<long, double> Daily = new SortedDictionary<long, double>();
     }
 
     /// <summary>Order, ktory ma tento bar lezat na trhu (Python `LiveOrder`).</summary>
@@ -521,6 +523,7 @@ namespace TradeBot.Backtest
 
                 if (double.IsNaN(res.FirstClose)) res.FirstClose = bar.Close;
                 res.LastClose = bar.Close;
+                res.Daily[CandleOps.FloorDiv(bar.Time, 86400000L) * 86400000L] = bar.Close;
             }
 
             if (open != null)   // koniec dat s otvorenou poziciou -> zavriet na poslednom close

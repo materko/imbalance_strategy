@@ -140,6 +140,40 @@ class HyperoptRequest(RunRequest):
     seed: int | None = Field(None, description="random-state optimalizátora, na zopakovateľný beh")
     verify: bool = Field(True, description="pustiť víťaza na referenčných oknách")
     sampler: str = Field("tpe", description="natívny hyperopt (emulátor MultiCharts): tpe, cmaes, nsga2, random, qmc")
+    # ---- len natívny hyperopt (emulátor MultiCharts, stratégia s C# jadrom) ---- #
+    windows: list[str] | None = Field(None, description="okná kritéria (YYYYMMDD-YYYYMMDD); bez nich len timerange")
+    aggregate: str = Field("min", description="skóre z viacerých okien: min = najhoršie okno, median, mean")
+    objectives: list[str] | None = Field(None, description="ďalšie ciele ku goal (Pareto): break_even, profit, "
+                                                           "winrate, drawdown, trades")
+    select: str = Field("best", description="víťaz: best = najlepšia epocha, plateau = najlepšie okolie")
+    mode: str = Field("search", description="search = hľadanie, walkforward = ladí na okne N, meria na N+1")
+    anchored: bool = Field(False, description="walk-forward: ladiť na všetkých oknách do N, nie len na N")
+    continue_from: str | None = Field(None, description="id hyperoptu, ktorého epochy sa vložia a hľadá sa ďalej")
+
+
+class HyperoptContinueRequest(BaseModel):
+    """Pokračovanie natívneho hyperoptu: tie isté zadanie, ďalšie epochy."""
+
+    epochs: int = Field(200, ge=1, le=5000, description="koľko epoch pridať")
+    seed: int | None = Field(None, description="seed sampleru pokračovania")
+    note: str = ""
+    user: str | None = Field(None, max_length=80)
+
+
+class NativeBacktestRequest(BaseModel):
+    """Dávka natívnych backtestov bez zápisu do histórie — body × okná, súhrn ako v histórii."""
+
+    strategy: str = Field(..., description="stratégia s C# jadrom (ibsnet, orbnet, tksnet, …)")
+    pair: str = Field(..., description="pár z ponuky webapp (MNQ/USD, NAS100/USD, BTC/USDT:USDT, …)")
+    timeframe: str | None = Field(None, description="TF grafu; bez neho default stratégie")
+    windows: list[str] | None = Field(None, description="okná YYYYMMDD-YYYYMMDD; bez nich päť referenčných")
+    profile: str | None = Field(None, description="profil stratégie (meno alebo cesta); bez neho default")
+    params: dict[str, Any] | None = Field(None, description="celé parametre (ako formulár); prebijú profil")
+    points: list[dict[str, Any]] = Field(default_factory=lambda: [{}], max_length=5000,
+                                         description="zmeny parametrov, každá je jeden bod; [{}] = len základ")
+    fee: float | None = Field(None, description="poplatok na stranu ako podiel; bez neho náklad trhu")
+    wallet: float = 10000
+    trades: bool = Field(False, description="vrátiť aj obchody každého behu")
 
 
 class MatrixRequest(RunRequest):
