@@ -12,7 +12,11 @@ csharp/TradeBot.Strategies/<Meno>/    stratégia v C# — trieda s [TradeBotEngi
 csharp/TradeBot.Host/                 TradeBot.Host.exe — engine ako proces (stdio most, Mono)
 csharp/TradeBot.Backtest/             natívny backtest v C# (len v TradeBot.dll, do NinjaTradera nejde):
                                       Feather.ReadCandles — feather z data/ a data_archive/ (Arrow IPC + LZ4,
-                                      bez NuGet; ZSTD a feather v1 odmietne), zhoda s pyarrow v test_csharp_feather.py
+                                      bez NuGet; ZSTD a feather v1 odmietne), zhoda s pyarrow v test_csharp_feather.py;
+                                      CandleOps = resample_ohlcv, McEmulator = emulátor MultiCharts (MCRunner + emulate,
+                                      seeding, HTF feeder), NativeBacktest.RunFileJson — vstup z Pythonu; obchody
+                                      bit po bite ako Python emulátor (test_csharp_backtest.py,
+                                      python -m tester.compare.csharp_backtest), rok 3m za 0,15–0,9 s
         │
         ├── tradebot/adapters/ninjatrader/TradeBotStrategy.cs   adaptér NinjaTrader (NinjaScript, managed ordery)
         │       └── deploy/ninjatrader/<Meno>.cs                šablóna stratégie pre graf (3 riadky)
