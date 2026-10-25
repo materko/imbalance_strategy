@@ -1,0 +1,536 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261025-134038-659b4d",
+ "strategy": "orbnet",
+ "created": "2026-10-25T13:40:40+00:00",
+ "user": "claude",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 0,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "sessionMode": "both",
+   "nyStartH": 9,
+   "nyStartM": 30,
+   "nyRangeMinutes": 15,
+   "nyEndH": 15,
+   "nyEndM": 55,
+   "lonStartH": 8,
+   "lonStartM": 0,
+   "lonRangeMinutes": 15,
+   "lonEndH": 16,
+   "lonEndM": 30,
+   "tradeDirection": "Long only",
+   "entryMode": "close",
+   "breakBufferAtr": 0.05,
+   "retestMaxBars": 10,
+   "entryWindowMinutes": 90,
+   "maxTradesPerDay": 1,
+   "minRangePct": 0.15,
+   "maxRangePct": 1.5,
+   "useVolumeFilter": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "minClosePosPct": 50,
+   "weekdaysOnly": true,
+   "emaLen": 200,
+   "emaFilter": false,
+   "emaRangeFilter": false,
+   "emaExit": false,
+   "slMode": "opposite",
+   "slRangePct": 50,
+   "atrLen": 14,
+   "slAtrMult": 1.0,
+   "slBufferAtr": 0.1,
+   "tpMode": "rr",
+   "rrRatio": 0.5,
+   "measuredMult": 1,
+   "tpAtrMult": 2.0,
+   "enableTrailing": false,
+   "trailActivationR": 1,
+   "trailOffsetR": 0.5,
+   "closeAtSessionEnd": true,
+   "riskDollar": 100,
+   "showRange": true,
+   "showLevels": true,
+   "showEma": false,
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": false,
+   "minSlDistance": 0.0,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "orbnet",
+   "exchange": null,
+   "pair": "NAS100/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20240904-20250904",
+   "fee": 0.0001,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": "nas100_dukascopy_3m",
+   "instrument": "nas100_dukascopy"
+  }
+ },
+ "points": [
+  {
+   "run": "20261025-134040-8e49a1",
+   "status": "done",
+   "created": "2026-10-25T13:40:40+00:00",
+   "started": "2026-10-25T13:40:43+00:00",
+   "finished": "2026-10-25T13:40:46+00:00",
+   "user": "claude",
+   "note": "hyperopt 20261025-134038-659b4d: rrRatio=0.5, tradeDirection=Long only — hyperopt rrRatio=0.5:4:0.25, tradeDirection=Both,Long only — test natívneho hyperoptu z webapp",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "tradeDirection": "Long only"
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20211001-20221001"
+   },
+   "result": {
+    "trades": 273,
+    "wins": 182,
+    "losses": 91,
+    "draws": 0,
+    "winrate": 66.67,
+    "pnl_abs": -1747.68,
+    "pnl_pct": -17.477,
+    "profit_factor": 0.816,
+    "max_drawdown_abs": 2249.73,
+    "max_drawdown_pct": 21.826,
+    "starting_balance": 10000.0,
+    "final_balance": 8252.32,
+    "gross_abs": -714.16,
+    "volume_abs": 10335148.78,
+    "break_even_pct": -0.0069,
+    "exits": {
+     "take_profit": {
+      "n": 180,
+      "pnl_abs": 7685.54
+     },
+     "stop_loss": {
+      "n": 86,
+      "pnl_abs": -9301.64
+     },
+     "session_end": {
+      "n": 7,
+      "pnl_abs": -131.58
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 166,
+      "to_i": 175,
+      "start": "2022-05-24T08:12:00+00:00",
+      "end": "2022-06-02T14:13:00+00:00",
+      "pnl_abs": 482.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 149,
+      "to_i": 153,
+      "start": "2022-04-29T08:03:00+00:00",
+      "end": "2022-05-03T14:46:00+00:00",
+      "pnl_abs": -646.69,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -25.123,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:12:00+00:00",
+    "holding_avg": "1:12:00",
+    "bars": 114663,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 3.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.026548336089449658,
+    "hi": 0.010476128396190342,
+    "trades": 273,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261025-134040-8f6312",
+   "status": "done",
+   "created": "2026-10-25T13:40:40+00:00",
+   "started": "2026-10-25T13:40:53+00:00",
+   "finished": "2026-10-25T13:40:56+00:00",
+   "user": "claude",
+   "note": "hyperopt 20261025-134038-659b4d: rrRatio=0.5, tradeDirection=Long only — hyperopt rrRatio=0.5:4:0.25, tradeDirection=Both,Long only — test natívneho hyperoptu z webapp",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "tradeDirection": "Long only"
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 226,
+    "wins": 150,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 66.37,
+    "pnl_abs": -893.13,
+    "pnl_pct": -8.931,
+    "profit_factor": 0.906,
+    "max_drawdown_abs": 1786.67,
+    "max_drawdown_pct": 17.321,
+    "starting_balance": 10000.0,
+    "final_balance": 9106.87,
+    "gross_abs": 359.63,
+    "volume_abs": 12527627.92,
+    "break_even_pct": 0.0029,
+    "exits": {
+     "take_profit": {
+      "n": 146,
+      "pnl_abs": 8457.77
+     },
+     "stop_loss": {
+      "n": 72,
+      "pnl_abs": -9147.66
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": -203.25
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 102,
+      "to_i": 112,
+      "start": "2026-02-27T15:03:00+00:00",
+      "end": "2026-03-10T15:01:00+00:00",
+      "pnl_abs": 740.42,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 42,
+      "to_i": 45,
+      "start": "2025-11-20T08:45:00+00:00",
+      "end": "2025-11-24T09:22:00+00:00",
+      "pnl_abs": -382.58,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.85,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "1:14:00",
+    "bars": 113599,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 3.0
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.018041559592365513,
+    "hi": 0.021721466353489764,
+    "trades": 226,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261025-134040-9dff99",
+   "status": "done",
+   "created": "2026-10-25T13:40:40+00:00",
+   "started": "2026-10-25T13:40:49+00:00",
+   "finished": "2026-10-25T13:40:53+00:00",
+   "user": "claude",
+   "note": "hyperopt 20261025-134038-659b4d: rrRatio=0.5, tradeDirection=Long only — hyperopt rrRatio=0.5:4:0.25, tradeDirection=Both,Long only — test natívneho hyperoptu z webapp",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "tradeDirection": "Long only"
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 195,
+    "wins": 129,
+    "losses": 66,
+    "draws": 0,
+    "winrate": 66.15,
+    "pnl_abs": -1129.7,
+    "pnl_pct": -11.297,
+    "profit_factor": 0.807,
+    "max_drawdown_abs": 1744.53,
+    "max_drawdown_pct": 16.757,
+    "starting_balance": 10000.0,
+    "final_balance": 8870.3,
+    "gross_abs": -231.55,
+    "volume_abs": 8981497.42,
+    "break_even_pct": -0.0026,
+    "exits": {
+     "take_profit": {
+      "n": 128,
+      "pnl_abs": 4729.7
+     },
+     "stop_loss": {
+      "n": 63,
+      "pnl_abs": -5755.44
+     },
+     "session_end": {
+      "n": 4,
+      "pnl_abs": -103.95
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 50,
+      "to_i": 58,
+      "start": "2024-01-08T14:48:00+00:00",
+      "end": "2024-01-25T08:45:00+00:00",
+      "pnl_abs": 318.5,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 93,
+      "to_i": 96,
+      "start": "2024-04-08T07:18:00+00:00",
+      "end": "2024-04-12T14:07:00+00:00",
+      "pnl_abs": -223.58,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.119,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:01:00",
+    "bars": 113860,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 3.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.01841385034706882,
+    "hi": 0.012361778577985514,
+    "trades": 195,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261025-134040-ba8433",
+   "status": "done",
+   "created": "2026-10-25T13:40:40+00:00",
+   "started": "2026-10-25T13:40:46+00:00",
+   "finished": "2026-10-25T13:40:49+00:00",
+   "user": "claude",
+   "note": "hyperopt 20261025-134038-659b4d: rrRatio=0.5, tradeDirection=Long only — hyperopt rrRatio=0.5:4:0.25, tradeDirection=Both,Long only — test natívneho hyperoptu z webapp",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "tradeDirection": "Long only"
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 226,
+    "wins": 144,
+    "losses": 82,
+    "draws": 0,
+    "winrate": 63.72,
+    "pnl_abs": -1205.21,
+    "pnl_pct": -12.052,
+    "profit_factor": 0.817,
+    "max_drawdown_abs": 1967.53,
+    "max_drawdown_pct": 18.768,
+    "starting_balance": 10000.0,
+    "final_balance": 8794.79,
+    "gross_abs": -252.57,
+    "volume_abs": 9526350.6,
+    "break_even_pct": -0.0027,
+    "exits": {
+     "take_profit": {
+      "n": 142,
+      "pnl_abs": 5369.75
+     },
+     "stop_loss": {
+      "n": 76,
+      "pnl_abs": -6346.71
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": -228.24
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 204,
+      "to_i": 212,
+      "start": "2023-08-22T07:21:00+00:00",
+      "end": "2023-09-07T19:57:00+00:00",
+      "pnl_abs": 285.85,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 75,
+      "to_i": 78,
+      "start": "2023-01-17T09:06:00+00:00",
+      "end": "2023-01-19T08:53:00+00:00",
+      "pnl_abs": -288.0,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 34.766,
+    "backtest_start": "2022-10-02T22:00:00+00:00",
+    "backtest_end": "2023-09-29T20:12:00+00:00",
+    "holding_avg": "1:21:00",
+    "bars": 113710,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 3.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.016171246654690566,
+    "hi": 0.011414125785508959,
+    "trades": 226,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261025-134040-c0a80a",
+   "status": "done",
+   "created": "2026-10-25T13:40:40+00:00",
+   "started": "2026-10-25T13:40:40+00:00",
+   "finished": "2026-10-25T13:40:43+00:00",
+   "user": "claude",
+   "note": "hyperopt 20261025-134038-659b4d: rrRatio=0.5, tradeDirection=Long only — hyperopt rrRatio=0.5:4:0.25, tradeDirection=Both,Long only — test natívneho hyperoptu z webapp",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "tradeDirection": "Long only"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 213,
+    "wins": 162,
+    "losses": 51,
+    "draws": 0,
+    "winrate": 76.06,
+    "pnl_abs": 1515.52,
+    "pnl_pct": 15.155,
+    "profit_factor": 1.278,
+    "max_drawdown_abs": 809.16,
+    "max_drawdown_pct": 7.161,
+    "starting_balance": 10000.0,
+    "final_balance": 11515.52,
+    "gross_abs": 2570.72,
+    "volume_abs": 10551952.79,
+    "break_even_pct": 0.0244,
+    "exits": {
+     "take_profit": {
+      "n": 161,
+      "pnl_abs": 6923.58
+     },
+     "stop_loss": {
+      "n": 49,
+      "pnl_abs": -5400.17
+     },
+     "session_end": {
+      "n": 3,
+      "pnl_abs": -7.89
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 16,
+      "from_i": 76,
+      "to_i": 91,
+      "start": "2025-01-27T14:48:00+00:00",
+      "end": "2025-02-14T15:57:00+00:00",
+      "pnl_abs": 817.91,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 101,
+      "to_i": 103,
+      "start": "2025-03-07T14:54:00+00:00",
+      "end": "2025-03-11T14:04:00+00:00",
+      "pnl_abs": -521.51,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.655,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:57:00+00:00",
+    "holding_avg": "1:15:00",
+    "bars": 113680,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 3.1
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.007182640834968329,
+    "hi": 0.041019447532743634,
+    "trades": 213,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-10-25T13:40:56+00:00"
+}

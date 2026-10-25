@@ -91,7 +91,7 @@ strop). Každý výpočet žiada `cores`:
 | výpočet | žiada | prečo |
 |---|---|---|
 | backtest | 1 | Freqtrade s 1m detailom vyťaží jedno jadro |
-| hyperopt | `all` (alebo `jobs`) | epochy idú cez joblib na všetky jadrá |
+| hyperopt | `all` (alebo `jobs`) | epochy idú cez joblib na všetky jadrá; na emulátore MultiCharts (C# stratégie) ich počíta C# na vláknach (`tester.native_hyperopt`) |
 | beh s AI vrstvou | `all` | FreqAI trénuje na všetkých jadrách |
 
 Backtest sa zmestí vedľa iných backtestov; hyperopt chce prázdny stroj a kým beží, nič
@@ -104,7 +104,8 @@ zaberá sloty rovnako. Pravidlá sú v [`tester/hub/protocol.py`](../tester/hub/
 Agent pri každom heartbeate pošle **postup** a **odhad zvyšku** každého výpočtu:
 
 - pred štartom z vlastnej histórie behov — medián sekúnd na deň okna (backtest) alebo
-  sekúnd na epochu (hyperopt); bez histórie ~30 s na rok s 1m detailom,
+  sekúnd na epochu (hyperopt); bez histórie ~30 s na rok s 1m detailom (natívny hyperopt
+  na emulátore MultiCharts ~0,6 s na rok a jadro, s vlastnou históriou oddelenou od Freqtradu),
 - počas behu u hyperoptu z počtu hotových epoch (Freqtrade ich priebežne zapisuje do
   `.fthypt`; bez terminálu priebeh na obrazovku nevypisuje), po dobehnutí ladenia z
   overovacích behov víťaza (postup 80–100 %), u backtestu odpočtom od odhadu — po

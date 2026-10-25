@@ -262,6 +262,9 @@ def build_parser(description: str) -> argparse.ArgumentParser:
                    help="s --remote: ten istý hyperopt s toľkými seedmi naraz (od --seed alebo 1) "
                         "a porovnanie víťazov — zhoda seedov je silnejší dôkaz než viac epoch")
     p.add_argument("--jobs", type=int, help="koľko epoch paralelne (default všetky jadrá)")
+    p.add_argument("--sampler", choices=("tpe", "cmaes", "nsga2", "random", "qmc"), default="tpe",
+                   help="s --engine multicharts (C# stratégie, epochy počíta C#): TPE, CMA-ES, NSGA-II, "
+                        "náhodný, QMC; Freqtrade si sampler volí sám")
     p.add_argument("--no-verify", action="store_true",
                    help="nespúšťať víťaza na ďalších referenčných oknách (do záverov to nepatrí)")
     _run_args(p)

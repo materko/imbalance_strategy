@@ -11,10 +11,11 @@ from tradebot.strategies import STRATEGIES, get_spec
 
 from ..batches import strip_tag
 from ..store import strategy_of
-from .common import clean_user, plateau_note, goal_note
+from .common import clean_user, plateau_note, goal_note, hyperopt_settings
 from .context import AppContext
 from .models import HyperoptRequest
 from .settings import run_settings
+from ...native_hyperopt import SAMPLERS
 
 
 def build(ctx: AppContext) -> APIRouter:
@@ -38,7 +39,10 @@ def build(ctx: AppContext) -> APIRouter:
                 "suggested": ho.suggested(strategy),
                 "warn": dict(ho.knowledge(get_spec(strategy)).WARN),
                 "windows": list(ho.REFERENCE_WINDOWS),
-                "default_epochs": ho.DEFAULT_EPOCHS}
+                "default_epochs": ho.DEFAULT_EPOCHS,
+                # emulátor MultiCharts: epochy počíta C# jadro stratégie (tester.native_hyperopt)
+                "native": getattr(get_spec(strategy).engine_factory, "csharp_key", None) is not None,
+                "samplers": list(SAMPLERS)}
 
     @router.post("/api/hyperopts")
     def hyperopt_start(req: HyperoptRequest):
@@ -58,13 +62,14 @@ def build(ctx: AppContext) -> APIRouter:
             raise HTTPException(422, str(exc))
 
         base = run_settings(req)
+        zadanie = hyperopt_settings(req, base)
         # Dvesto epoch s peňaženkou, do ktorej sa nezmestí ani jeden kontrakt, je dvesto
         # riadkov núl: engine dá signály a Freqtrade každý vstup odmietne. Break-even od
         # peňaženky nezávisí, takže ju zvýšiť sa smie — a treba to povedať skôr, než to beží.
         from ... import matrix as mx
 
-        male = mx.wallet_check([req.pair], float(req.wallet or 0), timeframe=req.timeframe,
-                               timerange=req.timerange)
+        male = {} if zadanie["native"] else mx.wallet_check(
+            [req.pair], float(req.wallet or 0), timeframe=req.timeframe, timerange=req.timerange)
         if male:
             nominal = male[req.pair]
             cislo = lambda v: f"{v:,.0f}".replace(",", " ")  # noqa: E731
@@ -73,18 +78,14 @@ def build(ctx: AppContext) -> APIRouter:
                 f"~{cislo(nominal)}, takže Freqtrade odmietne každý vstup a všetky epochy by mali "
                 f"nula obchodov. Zvýš peňaženku aspoň na {cislo(nominal * 2)} — break-even od nej "
                 f"nezávisí."))
-        settings = {**base, "hyperopt": {
-            "knobs": dict(req.space), "goal": req.goal, "max_dd": req.max_dd,
-            "min_trades": req.min_trades, "epochs": req.epochs, "seed": req.seed,
-            "verify": req.verify,
-        }}
+        settings = {**base, "hyperopt": zadanie}
         popis = ", ".join(f"{k}={v}" for k, v in req.space.items())
         note = f"hyperopt {popis}" + (f" — {req.note}" if req.note else "")
         try:
             job = runner.submit(req.params, settings, note=note, user=clean_user(req.user))
         except (ConfigError, ValueError) as exc:
             raise HTTPException(422, str(exc))
-        return {"id": job.id, "epochs": req.epochs, "goal": req.goal,
+        return {"id": job.id, "epochs": req.epochs, "goal": req.goal, "native": zadanie["native"],
                 "goal_note": goal_note(req.goal, req.max_dd, req.min_trades),
                 "warn": ho.warnings_for(req.space, req.strategy),
                 "knobs": {k.name: (list(k.choices) if k.choices is not None

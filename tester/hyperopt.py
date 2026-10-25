@@ -503,6 +503,18 @@ def zero_trades_note(epochs: Iterable[dict[str, Any]], log_text: str = "",
             f"Pusti najprv obyčajný beh s tým istým zadaním; ak má obchody, problém je v rozsahoch.")
 
 
+def _distinct(epochs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Prvá epocha s každou kombináciou parametrov (poradie sa zachová)."""
+    seen: set[str] = set()
+    out = []
+    for e in epochs:
+        key = json.dumps(e.get("params") or {}, sort_keys=True, default=str)
+        if key not in seen:
+            seen.add(key)
+            out.append(e)
+    return out
+
+
 def detail(record: dict[str, Any], epochs: Iterable[dict[str, Any]],
            verifications: Iterable[dict[str, Any]], log_text: str = "") -> dict[str, Any]:
     """Detail hyperoptu — jeden tvar pre webapp endpoint aj CLI, aby sa nerozišli.
@@ -532,7 +544,8 @@ def detail(record: dict[str, Any], epochs: Iterable[dict[str, Any]],
         "goal_note": sweep_mod.describe(zadanie.get("goal") or "break_even",
                                         zadanie.get("max_dd"), zadanie.get("min_trades")),
         "params": list(zadanie.get("knobs") or {}),
-        "epochs": sorted(epochs, key=lambda e: (not e.get("usable"), e.get("loss", 0)))[:60],
+        # Ten istý bod mriežky sampler navrhne viackrát a dá ten istý výsledok - v tabuľke len raz.
+        "epochs": _distinct(sorted(epochs, key=lambda e: (not e.get("usable"), e.get("loss", 0))))[:60],
         "best": zadanie.get("best"),
         "overrides": zadanie.get("overrides"),
         "verify": [{

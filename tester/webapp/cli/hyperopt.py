@@ -79,6 +79,15 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
                "verify": not args.no_verify}
     if args.jobs:
         zadanie["jobs"] = int(args.jobs)
+    # Na emulatore MultiCharts epochy pocita C# jadro strategie (tester.native_hyperopt), nie Freqtrade
+    if settings.get("engine") == "multicharts":
+        from tradebot.strategies import get_spec
+
+        if getattr(get_spec(args.strategy).engine_factory, "csharp_key", None) is None:
+            raise SystemExit(f"hyperopt na emulatore MultiCharts vie len strategia s C# jadrom; "
+                             f"{args.strategy} lad cez Freqtrade (--engine freqtrade)")
+        zadanie.update(native=True, sampler=args.sampler)
+        print(f"  natívne v C# (emulator MultiCharts), sampler {args.sampler}")
     popis = ", ".join(f"{k}={v}" for k, v in space.items())
     note = f"hyperopt {popis}" + (f" — {args.note}" if args.note else "")
     user = args.user or getenv("USER") or ""
@@ -105,6 +114,7 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
         telo = {"params": params, "space": space, "goal": args.goal, "max_dd": args.max_dd,
                 "min_trades": args.min_trades, "epochs": int(args.epochs), "seed": args.seed,
                 "verify": not args.no_verify, "note": args.note or "", "user": user or None,
+                "sampler": args.sampler,
                 **{k: settings.get(k) for k in ("strategy", "pair", "timeframe", "timerange",
                                                 "fee", "wallet", "timeframe_detail", "engine",
                                                 "exchange", "profile", "ai")}}

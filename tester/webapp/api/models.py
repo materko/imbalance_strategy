@@ -139,6 +139,7 @@ class HyperoptRequest(RunRequest):
     epochs: int = Field(200, ge=1, le=5000, description="koľko konfigurácií vyskúšať")
     seed: int | None = Field(None, description="random-state optimalizátora, na zopakovateľný beh")
     verify: bool = Field(True, description="pustiť víťaza na referenčných oknách")
+    sampler: str = Field("tpe", description="natívny hyperopt (emulátor MultiCharts): tpe, cmaes, nsga2, random, qmc")
 
 
 class MatrixRequest(RunRequest):

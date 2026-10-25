@@ -219,6 +219,15 @@
               <input type="number" id="hyper-epochs" step="10" min="1" max="5000" value="200"
                      title="Koľko konfigurácií vyskúšať. Každá je celý backtest ladeného okna.">
             </label>
+            <label class="field hyper-only" hidden>Sampler (emulátor MC)
+              <select id="hyper-sampler" title="Len pre engine Emulátor MultiCharts: epochy tam počíta C# jadro stratégie (stratégie …net) na všetkých jadrách. Freqtrade hyperopt si sampler volí sám.">
+                <option value="tpe">TPE (bayesovský)</option>
+                <option value="cmaes">CMA-ES (evolučný)</option>
+                <option value="nsga2">NSGA-II (genetický)</option>
+                <option value="qmc">QMC (pokrytie priestoru)</option>
+                <option value="random">náhodný</option>
+              </select>
+            </label>
             <label class="field hyper-only inline-check" hidden>
               <input type="checkbox" id="hyper-verify" checked>
               <span title="Víťaz sa pustí na piatich referenčných oknách. Bez toho výsledok o stratégii nič nepovie — hyperopt našiel optimum práve ladeného okna.">Overiť na 5 oknách</span>

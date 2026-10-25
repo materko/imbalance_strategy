@@ -1,0 +1,7 @@
+$ natívny hyperopt orbnet NAS100/USD 3m 20240904-20250904: 120 epoch, sampler tpe (C# emulátor MultiCharts)
+  24/120 epoch (15 roznych), 41.6/s, najlepsie skore 0.0178 (epocha 18)
+  48/120 epoch (23 roznych), 60.6/s, najlepsie skore 0.0244 (epocha 35)
+  72/120 epoch (28 roznych), 69.6/s, najlepsie skore 0.0244 (epocha 35)
+  96/120 epoch (30 roznych), 78.1/s, najlepsie skore 0.0244 (epocha 35)
+  120/120 epoch (30 roznych), 95.8/s, najlepsie skore 0.0244 (epocha 35)
+hotovo: 120 epoch (30 roznych backtestov) za 1.3 s

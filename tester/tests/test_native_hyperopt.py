@@ -87,3 +87,53 @@ def test_loss_follows_plan_loss_rules():
     assert loss_of(s, plan, year) == pytest.approx(-0.03 + UNUSABLE + 3.0)
     assert loss_of(None, plan, year) == UNUSABLE
     assert loss_of({**s, "break_even_pct": None}, build_plan({"rrRatio": "1:3:0.5"}, strategy="orbnet"), year) == UNUSABLE
+
+
+def test_webapp_queue_runs_native_hyperopt_into_history(runner, tmp_path, monkeypatch):
+    """Hyperopt s engine `multicharts` ide vo fronte webapp natívne: epochy v C#, záznam ako pri Freqtrade."""
+    from tester.webapp import runner as runner_mod
+    from tester.webapp.store import RunStore, make_run_id
+
+    monkeypatch.setattr("tester.webapp.command.TMP_PROFILES", tmp_path / "profiles")
+    monkeypatch.setattr("tester.webapp.runner.TMP_PROFILES", tmp_path / "profiles")
+    store = RunStore(tmp_path / "runs")
+    br = runner_mod.BacktestRunner(store)
+    zaradene = []
+    monkeypatch.setattr(br, "submit", lambda params, settings, **kw: zaradene.append((params, settings, kw)))
+    params = runner_mod.default_params("nas100_dukascopy_3m", strategy="orbnet", engine="multicharts")[0]
+    settings = {"strategy": "orbnet", "pair": "NAS100/USD", "engine": "multicharts", "timeframe": "3m",
+                "timerange": WINDOW, "fee": FEE, "wallet": 10000.0, "timeframe_detail": "1m",
+                "profile": "nas100_dukascopy_3m",
+                "hyperopt": {"knobs": {"rrRatio": "0.5:4:0.25", "tradeDirection": "Both,Long only"},
+                             "goal": "break_even", "max_dd": None, "min_trades": None, "epochs": 12,
+                             "seed": 5, "verify": True, "native": True, "sampler": "nsga2", "jobs": 4}}
+    job = runner_mod.Job(id=make_run_id(params, settings), params=params, settings=settings, note="test", user="t")
+    br._run(job)
+
+    assert job.status == "done", job.error
+    rec = store.get(job.id)
+    z = rec["settings"]["hyperopt"]
+    assert z["native"] and z["sampler"] == "nsga2" and z["epochs_done"] == 12 and z["best"]["is_best"]
+    assert set(z["overrides"]) == {"rrRatio", "tradeDirection"}
+    assert len(store.extra(job.id, "epochs.json")) == 12
+    assert "natívny hyperopt orbnet" in store.log(job.id)
+    # víťaz ide na referenčné okná ako obyčajné behy emulátora (ladené okno prvé)
+    okna = [s["timerange"] for _p, s, _kw in zaradene]
+    assert okna[0] == WINDOW and len(okna) == 6
+    assert all(s["engine"] == "multicharts" and "hyperopt" not in s and s["hyperopt_run"]["id"] == job.id
+               for _p, s, _kw in zaradene)
+
+
+def test_hub_estimate_knows_native_epochs_are_fast():
+    """Hub plánuje podľa odhadu: natívna epocha (C#) nesmie dostať čas Freqtrade epochy ani jeho históriu."""
+    from tester.hub import protocol as P
+
+    zaklad = {"timerange": "20240904-20250904", "timeframe_detail": "1m",
+              "hyperopt": {"knobs": {"rrRatio": "1:3:0.5"}, "epochs": 400, "verify": False}}
+    native = {**zaklad, "engine": "multicharts"}
+    freqtrade = {**zaklad, "engine": "freqtrade"}
+    assert P.estimate_seconds(native, [], cores=8) < P.estimate_seconds(freqtrade, [], cores=8) / 10
+    stary = {"id": "1", "status": "done", "result": {"duration_s": 4000.0},
+             "settings": {**freqtrade, "hyperopt": {**freqtrade["hyperopt"], "epochs_done": 400}}}
+    assert P.seconds_per_epoch([stary], freqtrade) == 10.0
+    assert P.seconds_per_epoch([stary], native) is None      # Freqtrade história natívny odhad nekazí

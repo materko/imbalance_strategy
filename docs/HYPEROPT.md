@@ -270,7 +270,12 @@ PY -m tester.native_hyperopt --strategy tksnet --instrument mnq_databento \
 - **Zhoda:** obchody C# = Python emulátor (`tester/tests/test_csharp_backtest.py`), dávka na vláknach =
   behy po jednom = súhrn webapp (`tester/tests/test_native_hyperopt.py`).
 
-Zatiaľ len CLI: výsledok nejde do histórie webapp ani na hub (víťaza treba spustiť ako obyčajný beh).
+**Vo webapp a na hube** je to ten istý hyperopt: Nový beh → Hľadať parametre → Hľadať optimalizátorom,
+engine **Emulátor MultiCharts** a stratégia s C# jadrom; formulár ponúkne sampler. Výsledok je záznam
+v histórii ako pri Freqtrade (epochy, víťaz, overovacie behy emulátora na piatich oknách, okolie víťaza),
+s príznakom `settings.hyperopt.native`. Z CLI cez webapp/hub: `cli hyperopt --engine multicharts --sampler
+nsga2 …` (aj `--remote`). Agent hubu potrebuje to isté ako C# stratégie cez most — pythonnet (na macOS/Linuxe
+s Mono); stdio hostiteľ `TradeBot.Host.exe` natívny backtest nepozná.
 
 ## Prečo hyperopt nie je odpoveď na všetko
 

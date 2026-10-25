@@ -17,6 +17,7 @@ async function startHyperopt() {
       min_trades: $("#sweep-mintrades").value === "" ? null : Number($("#sweep-mintrades").value),
       epochs: Number($("#hyper-epochs").value) || 200,
       verify: $("#hyper-verify").checked,
+      sampler: $("#hyper-sampler").value || "tpe",
     };
     if (hubChecked()) {
       const job = await api("/api/hub/hyperopts", { method: "POST", body: JSON.stringify({ ...body, ...hubOptions() }) });
@@ -96,7 +97,10 @@ function renderHyper(r) {
   // Zadanie nech je vidiet vzdy - bez neho sa tabulka nul neda ani len zacat riesit.
   const st = r.settings || {};
   casti_html.push(`<p class="an-note">${esc(st.pair || "")} ${esc(st.timeframe || "")} · ${esc(st.timerange || "")}`
-    + ` · peňaženka ${esc(String(st.wallet ?? ""))} · profil ${esc(st.profile || "Pine defaulty")}</p>`);
+    + ` · peňaženka ${esc(String(st.wallet ?? ""))} · profil ${esc(st.profile || "Pine defaulty")}`
+    + (r.hyperopt.native ? ` · natívne v C# (emulátor MultiCharts), sampler ${esc(r.hyperopt.sampler || "tpe")}`
+      + (r.hyperopt.distinct ? `, ${r.hyperopt.distinct} rôznych backtestov` : "") : "")
+    + `</p>`);
   if (r.zero_trades) casti_html.push(`<div class="warnbox">${esc(r.zero_trades)}</div>`);
 
   if ((r.epochs || []).length) {

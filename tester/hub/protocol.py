@@ -51,6 +51,8 @@ STARTUP_SECONDS = 10.0
 #: Keď história nič nepovie: rok backtestu s 1m detailom je ~30 s (`app.SECONDS_PER_YEAR`),
 #: z toho štart je STARTUP_SECONDS.
 FALLBACK_SECONDS_PER_DAY = 20.0 / 365.0
+#: Epocha natívneho hyperoptu (C# emulátor MultiCharts): rok 3m za 0,15–0,9 s na jadro.
+NATIVE_SECONDS_PER_DAY = 0.6 / 365.0
 #: Bez 1m detailu je beh rádovo rýchlejší.
 FALLBACK_SECONDS_PER_DAY_NO_DETAIL = 4.0 / 365.0
 #: AI vrstva trénuje walk-forward — rádovo pomalšie než holý backtest.
@@ -100,6 +102,11 @@ def _has_detail(settings: dict[str, Any]) -> bool:
     return bool(settings.get("timeframe_detail"))
 
 
+def _is_native(settings: dict[str, Any]) -> bool:
+    """Hyperopt na emulátore MultiCharts počíta C# (`tester.native_hyperopt`) — rádovo rýchlejšie epochy."""
+    return settings.get("engine") == "multicharts"
+
+
 def _has_ai(settings: dict[str, Any]) -> bool:
     return bool((settings.get("ai") or {}).get("enabled"))
 
@@ -143,6 +150,8 @@ def seconds_per_epoch(history: Iterable[dict[str, Any]], settings: dict[str, Any
         z = s.get("hyperopt") or {}
         if rec.get("status") != "done" or not z.get("knobs") or _has_detail(s) != _has_detail(settings):
             continue
+        if _is_native(s) != _is_native(settings):
+            continue
         dur = (rec.get("result") or {}).get("duration_s")
         if dur and z.get("epochs_done"):
             hodnoty.append(float(dur) / float(z["epochs_done"]))
@@ -168,7 +177,8 @@ def estimate_seconds(settings: dict[str, Any], history: Iterable[dict[str, Any]]
     per_epoch = seconds_per_epoch(history, settings)
     if per_epoch is None:
         # epocha beží v tom istom procese (bez štartu), rozdelená medzi jadrá
-        per_epoch = okno / max(1, int(z.get("jobs") or cores or 1))
+        za_den = NATIVE_SECONDS_PER_DAY if _is_native(settings) else per_day
+        per_epoch = max(days, 1.0) * za_den / max(1, int(z.get("jobs") or cores or 1))
     overenie = (REFERENCE_VERIFY_RUNS * (STARTUP_SECONDS + 365.0 * per_day)
                 if z.get("verify", True) else 0.0)
     return STARTUP_SECONDS + epochs * per_epoch + overenie

@@ -219,8 +219,13 @@ class Search:
 
 def run_search(runner: NativeRunner, plan: Plan, profile: str | None, timerange: str, *, epochs: int = 200,
                sampler: str = "tpe", batch: int | None = None, seed: int | None = None, wallet: float = 10000,
-               log: Callable[[str], None] = print) -> Search:
-    """Optuna ask/tell po dávkach: sampler navrhne `batch` epoch, C# ich spočíta naraz, späť ide loss."""
+               log: Callable[[str], None] = print, should_stop: Callable[[], bool] | None = None,
+               on_progress: Callable[[int, int], None] | None = None) -> Search:
+    """Optuna ask/tell po dávkach: sampler navrhne `batch` epoch, C# ich spočíta naraz, späť ide loss.
+
+    `should_stop` sa pýta medzi dávkami (zrušenie z webapp), `on_progress(hotovo, spolu)` po každej
+    dávke (priebeh a odhad vo fronte).
+    """
     import optuna
 
     optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -235,6 +240,9 @@ def run_search(runner: NativeRunner, plan: Plan, profile: str | None, timerange:
     seen: dict[str, dict[str, Any] | None] = {}
     t0 = time.perf_counter()
     while len(found) < epochs:
+        if should_stop is not None and should_stop():
+            log("zrusene")
+            break
         trials = [study.ask() for _ in range(min(batch, epochs - len(found)))]
         params = [_suggest(t, plan) for t in trials]
         configs: list[str | None] = []
@@ -257,6 +265,8 @@ def run_search(runner: NativeRunner, plan: Plan, profile: str | None, timerange:
                                pnl_pct=(s or {}).get("pnl_pct"), winrate=(s or {}).get("winrate"),
                                max_drawdown_pct=(s or {}).get("max_drawdown_pct"),
                                profit_factor=(s or {}).get("profit_factor")))
+        if on_progress is not None:
+            on_progress(len(found), epochs)
         best = min((e for e in found if e.usable), key=lambda e: e.loss, default=None)
         rate = len(found) / (time.perf_counter() - t0)
         log(f"  {len(found)}/{epochs} epoch ({len(seen)} roznych), {rate:.1f}/s"

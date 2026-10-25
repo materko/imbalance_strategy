@@ -112,3 +112,31 @@ def default_timerange(pairs: list[dict[str, Any]]) -> str:
     end = datetime.strptime(to, "%Y-%m-%d")
     start = end - timedelta(days=365)
     return f"{start:%Y%m%d}-{end:%Y%m%d}"
+
+
+def hyperopt_settings(req: Any, base: dict[str, Any]) -> dict[str, Any]:
+    """`settings.hyperopt` zo zadania formulára — to isté pre lokálnu frontu aj hub.
+
+    Na emulátore MultiCharts Freqtrade nebeží; epochy tam počíta C# jadro stratégie
+    (`tester.native_hyperopt`), takže stratégia bez neho sa tam ladiť nedá.
+    """
+    from fastapi import HTTPException
+
+    from tradebot.strategies import get_spec
+
+    from ... import engines
+    from ...native_hyperopt import SAMPLERS
+
+    sampler = getattr(req, "sampler", None) or "tpe"
+    if sampler not in SAMPLERS:
+        raise HTTPException(422, f"neznámy sampler {sampler!r}; známe: {', '.join(SAMPLERS)}")
+    native = base.get("engine") == engines.MULTICHARTS
+    if native and getattr(get_spec(req.strategy).engine_factory, "csharp_key", None) is None:
+        raise HTTPException(422, (
+            f"hyperopt na emulátore MultiCharts vie len stratégia s C# jadrom (napr. {req.strategy}net); "
+            f"{req.strategy} sa dá ladiť cez Freqtrade"))
+    return {
+        "knobs": dict(req.space), "goal": req.goal, "max_dd": req.max_dd,
+        "min_trades": req.min_trades, "epochs": req.epochs, "seed": req.seed,
+        "verify": req.verify, "native": native, "sampler": sampler if native else None,
+    }

@@ -36,6 +36,10 @@ class HyperoptJobMixin:
                              goal=zadanie.get("goal") or "break_even",
                              max_dd=zadanie.get("max_dd"), min_trades=zadanie.get("min_trades"),
                              note=job.note)
+        # Na emulatore MultiCharts nebezi Freqtrade vobec - epochy pocita C# (tester.native_hyperopt)
+        if settings.get("engine") == engines.MULTICHARTS:
+            self._run_native_hyperopt(job, instrument, profile, t0, plan)
+            return
         plan_file = ho.plan_path(job.id, plan)
         inst = INSTRUMENTS[instrument]
         cmd = ho.command(
@@ -122,6 +126,79 @@ class HyperoptJobMixin:
         # Zaznam behu drzi vsetky epochy zvlast - do zoznamu historie by nesadli.
         self.store.save_extra(job.id, "epochs.json", [e.to_dict() for e in epochs])
 
+        if vitaz is None or not zadanie.get("verify", True):
+            return
+        self._verify_winner(job, plan, vitaz)
+
+    def _run_native_hyperopt(self, job: Job, instrument: str, profile: Path, t0: float, plan) -> None:
+        """Hyperopt C# strategie na emulatore MultiCharts: Optuna v tomto procese, epochy v C# na vsetkych jadrach.
+
+        Zaznam behu ma ten isty tvar ako hyperopt cez Freqtrade (epochy v `epochs.json`, vitaz
+        a `overrides` v `settings.hyperopt`), overovacie behy su obycajne behy emulatora.
+        """
+        from .. import hyperopt as ho
+        from .. import native_hyperopt as nh
+        from tradebot.core.candles import timeframe_minutes
+
+        settings = job.settings
+        zadanie = settings["hyperopt"]
+        spolu = int(zadanie.get("epochs") or ho.DEFAULT_EPOCHS)
+        sampler = zadanie.get("sampler") or "tpe"
+        fee = float(settings.get("fee") or 0.0)
+        wallet = float(settings.get("wallet") or 10000)
+        job.log_lines.append(f"$ natívny hyperopt {plan.strategy} {settings['pair']} {settings.get('timeframe')} "
+                             f"{settings['timerange']}: {spolu} epoch, sampler {sampler} (C# emulátor MultiCharts)")
+        start = time.time()
+        job.progress = ho.eta(0, spolu, start, None, 0, start)
+        stav = {"prva_kedy": None, "prva": 0}
+
+        def _priebeh(hotovo: int, celkom: int) -> None:
+            teraz = time.time()
+            if stav["prva_kedy"] is None:
+                stav["prva_kedy"], stav["prva"] = teraz, hotovo
+            job.progress = ho.eta(hotovo, celkom, start, stav["prva_kedy"], stav["prva"], teraz, teraz)
+
+        def _log(line: str) -> None:
+            job.log_lines.append(line)
+            if len(job.log_lines) > 5000:
+                del job.log_lines[:1000]
+
+        try:
+            runner = nh.NativeRunner(plan.strategy, INSTRUMENTS[instrument],
+                                     timeframe_minutes(settings.get("timeframe") or "3m"), fee,
+                                     int(zadanie.get("jobs") or 0))
+            hladanie = nh.run_search(runner, plan, str(profile), settings["timerange"], epochs=spolu,
+                                     sampler=sampler, seed=zadanie.get("seed"), wallet=wallet, log=_log,
+                                     should_stop=lambda: job.cancel_requested, on_progress=_priebeh)
+        except (ValueError, FileNotFoundError) as exc:
+            job.status = "failed"
+            job.error = str(exc)
+            job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            self._persist(job, None, round(time.time() - t0, 1))
+            return
+        job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        duration = round(time.time() - t0, 1)
+        if job.cancel_requested:
+            job.status = "failed"
+            job.error = "zrušené používateľom"
+            self._persist(job, None, duration)
+            return
+
+        epochs, vitaz = hladanie.epochs, hladanie.best
+        _log(f"hotovo: {len(epochs)} epoch ({hladanie.distinct} roznych backtestov) za {hladanie.seconds:.1f} s")
+        job.status = "done"
+        job.settings = {**settings, "hyperopt": {
+            **zadanie,
+            "native": True,
+            "sampler": sampler,
+            "epochs_done": len(epochs),
+            "distinct": hladanie.distinct,
+            "best": vitaz.to_dict() if vitaz else None,
+            "overrides": ho.overrides(plan, vitaz.params) if vitaz else None,
+            "results_file": None,
+        }}
+        self._persist(job, None, duration)
+        self.store.save_extra(job.id, "epochs.json", [e.to_dict() for e in epochs])
         if vitaz is None or not zadanie.get("verify", True):
             return
         self._verify_winner(job, plan, vitaz)

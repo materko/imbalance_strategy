@@ -13,7 +13,7 @@ from fastapi import APIRouter, HTTPException
 from tradebot.core.config import ConfigError
 from tradebot.strategies import get_spec
 
-from .common import clean_user
+from .common import clean_user, hyperopt_settings
 from .context import AppContext
 
 #: Ako často sa `git fetch` pre stav kódu agentov (karta Hub) obnovuje.
@@ -249,11 +249,8 @@ def build(ctx: AppContext) -> APIRouter:
                           max_dd=req.max_dd, min_trades=req.min_trades, note=req.note)
         except ValueError as exc:
             raise HTTPException(422, str(exc))
-        settings = {**run_settings(req), "hyperopt": {
-            "knobs": dict(req.space), "goal": req.goal, "max_dd": req.max_dd,
-            "min_trades": req.min_trades, "epochs": req.epochs, "seed": req.seed,
-            "verify": req.verify,
-        }}
+        base = run_settings(req)
+        settings = {**base, "hyperopt": hyperopt_settings(req, base)}
         popis = ", ".join(f"{k}={v}" for k, v in req.space.items())
         note = f"hyperopt {popis}" + (f" — {req.note}" if req.note else "")
         return _hub_form(req, "hyperopt", req.params, settings, note, clean_user(req.user))
