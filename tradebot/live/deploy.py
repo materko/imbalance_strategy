@@ -198,16 +198,50 @@ def _slug(text: str) -> str:
     return s or "ucet"
 
 
+def ticks_to_points(strategy: str, config: dict[str, Any], instrument_key: str | None) -> dict[str, Any]:
+    """Prahy v tickoch (`SizeSpec` s jednotkou ``ticks``) prepočíta na body nástroja, na ktorom bol profil ladený.
+
+    25. 10. 2026: IBS EZ ladená na MNQ (tick 0,25) bežala na MT5 US100.cash (tick 0,01) s `imbMaxDistTicks` 40 a
+    `state2ConfirmTicks` 6 — jadro násobí ticky tickom nástroja, na ktorom beží, takže z 10 a 1,5 bodu bolo 0,4 a
+    0,06 bodu a na CFD obchodovala iná stratégia, než aká prešla testom. V bodoch je config nezávislý od ticku
+    platformy (NQ ↔ US100, ES ↔ US500, MGC ↔ XAU majú tie isté body); na nástroji ladenia sa nič nemení.
+    Bez známeho nástroja ladenia ostane config bez zmeny."""
+    from tradebot.core.types import INSTRUMENTS
+    from tradebot.strategies import get_spec
+
+    inst = INSTRUMENTS.get(instrument_key or "")
+    if inst is None:
+        return config
+    size_fields = getattr(get_spec(strategy).config_cls, "SIZE_FIELDS", {}) or {}
+    out = dict(config)
+    for name, unit in size_fields.items():
+        if name not in out:
+            continue
+        raw = out[name]
+        default_unit = getattr(unit, "value", unit)
+        if isinstance(raw, dict) and raw.get("unit") == "ticks":
+            out[name] = {"value": round(float(raw["value"]) * inst.tick_size, 10), "unit": "abs"}
+        elif isinstance(raw, (int, float)) and not isinstance(raw, bool) and default_unit == "ticks":
+            out[name] = {"value": round(float(raw) * inst.tick_size, 10), "unit": "abs"}
+    out["_instrument"] = instrument_key
+    return out
+
+
 def _default_resolver(strategy: str, profile: str) -> dict[str, Any]:
-    """Config z profilu stratégie: cez webapp (aj vlastné profily testera), inak z repozitára."""
+    """Config z profilu stratégie: cez webapp (aj vlastné profily testera), inak z repozitára; prahy v tickoch
+    v bodoch nástroja ladenia (`ticks_to_points`)."""
     try:
         from tester.webapp.repo_profiles import default_params  # type: ignore[import-not-found]
 
-        return default_params(profile, strategy)[0]
+        cfg, key = default_params(profile, strategy)
+        return ticks_to_points(strategy, cfg, key)
     except ImportError:
         from tradebot.core.config import load_profile
+        from tradebot.core.types import INSTRUMENTS
 
-        return load_profile(profile, strategy=strategy)[0].to_dict()
+        cfg, inst = load_profile(profile, strategy=strategy)
+        key = next((k for k, v in INSTRUMENTS.items() if v is inst), None)
+        return ticks_to_points(strategy, cfg.to_dict(), key)
 
 
 class DeployStore:

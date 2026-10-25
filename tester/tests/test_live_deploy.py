@@ -535,3 +535,16 @@ def test_instance_sa_prepocita_pri_starte_storu(tmp_path: Path):
         c.execute("UPDATE deployments SET instance = ? WHERE id = ?", ("ninjatrader_Sim101_MNQ-12-26_3m_ibsnet", d["id"]))
     st2 = DeployStore(tmp_path / "live.sqlite")
     assert st2.deployment(d["id"])["instance"] == "ninjatrader_Sim101_MNQ_3m_ibsnet"
+
+
+def test_nasadenie_prepocita_prahy_v_tickoch_na_body_nastroja_ladenia():
+    """25. 10. 2026: profil z MNQ (tick 0,25) na MT5 US100.cash (tick 0,01) — ticky sa pri nasadení prepočítajú na body."""
+    from tradebot.live.deploy import ticks_to_points
+    cfg = {"imbMaxDistTicks": 40.0, "state2ConfirmTicks": {"value": 6.0, "unit": "ticks"}, "pbMinRangePoints": 4.0,
+           "minImbSizePoints": {"value": 0.3, "unit": "atr"}, "rrRatio": 0.5}
+    out = ticks_to_points("ibsentrynet", cfg, "mnq_databento")
+    assert out["imbMaxDistTicks"] == {"value": 10.0, "unit": "abs"}
+    assert out["state2ConfirmTicks"] == {"value": 1.5, "unit": "abs"}
+    assert out["pbMinRangePoints"] == 4.0 and out["minImbSizePoints"] == {"value": 0.3, "unit": "atr"}
+    assert out["_instrument"] == "mnq_databento"
+    assert ticks_to_points("ibsentrynet", cfg, None) is cfg      # bez nástroja ladenia bez zmeny
