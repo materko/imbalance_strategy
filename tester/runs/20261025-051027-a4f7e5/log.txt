@@ -1,0 +1,33 @@
+$ emulator MultiCharts ES 3m 20211001-20260904 (ES_USD-1m.feather)
+emulacia MultiCharts: 581436 barov 3m, 1743722 1m, 0 HTF
+  20000/581436 barov, 25 obchodov
+  40000/581436 barov, 50 obchodov
+  60000/581436 barov, 79 obchodov
+  80000/581436 barov, 109 obchodov
+  100000/581436 barov, 133 obchodov
+  120000/581436 barov, 159 obchodov
+  140000/581436 barov, 187 obchodov
+  160000/581436 barov, 207 obchodov
+  180000/581436 barov, 235 obchodov
+  200000/581436 barov, 256 obchodov
+  220000/581436 barov, 281 obchodov
+  240000/581436 barov, 311 obchodov
+  260000/581436 barov, 337 obchodov
+  280000/581436 barov, 368 obchodov
+  300000/581436 barov, 395 obchodov
+  320000/581436 barov, 417 obchodov
+  340000/581436 barov, 442 obchodov
+  360000/581436 barov, 473 obchodov
+  380000/581436 barov, 500 obchodov
+  400000/581436 barov, 527 obchodov
+  420000/581436 barov, 551 obchodov
+  440000/581436 barov, 576 obchodov
+  460000/581436 barov, 597 obchodov
+  480000/581436 barov, 623 obchodov
+  500000/581436 barov, 650 obchodov
+  520000/581436 barov, 680 obchodov
+  540000/581436 barov, 708 obchodov
+  560000/581436 barov, 734 obchodov
+  580000/581436 barov, 764 obchodov
+hotovo: 764 obchodov, nerozhodnutelnych minut 0
+kresby: {'nv_range': 1270, 'nv_poc': 1270, 'nv_va': 2540, 'tp_box': 1095, 'sl_box': 1095, 'nv_entry': 1095}

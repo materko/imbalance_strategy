@@ -1,0 +1,34 @@
+$ emulator MultiCharts ES 3m 20211001-20260904 (ES_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter volatility ATR 14 / 100 barov @3m 156/156
+emulacia MultiCharts: 581436 barov 3m, 1743722 1m, 0 HTF
+  20000/581436 barov, 25 obchodov
+  40000/581436 barov, 50 obchodov
+  60000/581436 barov, 79 obchodov
+  80000/581436 barov, 109 obchodov
+  100000/581436 barov, 132 obchodov
+  120000/581436 barov, 158 obchodov
+  140000/581436 barov, 186 obchodov
+  160000/581436 barov, 205 obchodov
+  180000/581436 barov, 232 obchodov
+  200000/581436 barov, 253 obchodov
+  220000/581436 barov, 277 obchodov
+  240000/581436 barov, 307 obchodov
+  260000/581436 barov, 332 obchodov
+  280000/581436 barov, 362 obchodov
+  300000/581436 barov, 388 obchodov
+  320000/581436 barov, 410 obchodov
+  340000/581436 barov, 435 obchodov
+  360000/581436 barov, 466 obchodov
+  380000/581436 barov, 493 obchodov
+  400000/581436 barov, 520 obchodov
+  420000/581436 barov, 544 obchodov
+  440000/581436 barov, 569 obchodov
+  460000/581436 barov, 590 obchodov
+  480000/581436 barov, 615 obchodov
+  500000/581436 barov, 641 obchodov
+  520000/581436 barov, 671 obchodov
+  540000/581436 barov, 698 obchodov
+  560000/581436 barov, 723 obchodov
+  580000/581436 barov, 753 obchodov
+hotovo: 753 obchodov, nerozhodnutelnych minut 1
+kresby: {'nv_range': 1270, 'nv_poc': 1270, 'nv_va': 2540, 'tp_box': 1081, 'sl_box': 1081, 'nv_entry': 1081}

@@ -1,0 +1,34 @@
+$ emulator MultiCharts XAU 3m 20211001-20260904 (XAU_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: swingy 6m @6m 84/84
+emulacia MultiCharts: 581796 barov 3m, 1744199 1m, 0 HTF
+  20000/581796 barov, 24 obchodov
+  40000/581796 barov, 47 obchodov
+  60000/581796 barov, 74 obchodov
+  80000/581796 barov, 104 obchodov
+  100000/581796 barov, 134 obchodov
+  120000/581796 barov, 160 obchodov
+  140000/581796 barov, 186 obchodov
+  160000/581796 barov, 216 obchodov
+  180000/581796 barov, 251 obchodov
+  200000/581796 barov, 284 obchodov
+  220000/581796 barov, 306 obchodov
+  240000/581796 barov, 334 obchodov
+  260000/581796 barov, 357 obchodov
+  280000/581796 barov, 385 obchodov
+  300000/581796 barov, 410 obchodov
+  320000/581796 barov, 445 obchodov
+  340000/581796 barov, 478 obchodov
+  360000/581796 barov, 505 obchodov
+  380000/581796 barov, 539 obchodov
+  400000/581796 barov, 574 obchodov
+  420000/581796 barov, 606 obchodov
+  440000/581796 barov, 634 obchodov
+  460000/581796 barov, 659 obchodov
+  480000/581796 barov, 690 obchodov
+  500000/581796 barov, 728 obchodov
+  520000/581796 barov, 756 obchodov
+  540000/581796 barov, 784 obchodov
+  560000/581796 barov, 805 obchodov
+  580000/581796 barov, 843 obchodov
+hotovo: 846 obchodov, nerozhodnutelnych minut 1
+kresby: {'fib_entry': 846, 'fib_leg': 1000, 'fib_level': 5000}
