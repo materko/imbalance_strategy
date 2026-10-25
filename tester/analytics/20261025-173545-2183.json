@@ -1,0 +1,2335 @@
+{
+ "id": "20261025-173545-2183",
+ "created": "2026-10-25T17:35:45.146457+00:00",
+ "seq": 12,
+ "strategy": "orbnet",
+ "config_key": "4d59322cd1",
+ "market": "MNQ/USD|3m",
+ "profile": "NINJA_ORB_3m_20obchodov",
+ "timeranges": [
+  "20211001-20221001",
+  "20221001-20231001",
+  "20231001-20241001",
+  "20240904-20250904",
+  "20250904-20260904"
+ ],
+ "timeframes": [
+  "3m"
+ ],
+ "note": "",
+ "user": "IBS",
+ "run_ids": [
+  "20261025-173448-6ac66c",
+  "20261025-173448-02c3f3",
+  "20261025-173448-37e027",
+  "20261025-173448-73d3c1",
+  "20261025-173448-7b5edd"
+ ],
+ "pairs": [
+  "MNQ/USD"
+ ],
+ "trades": 2369,
+ "break_even_pct": 0.0058,
+ "winrate": 44.74,
+ "headline": "Najhorsia skupina je 'žiadna' vlastnosti 'Makro udalosť v ten deň': 2087 obchodov (88.1 %), break-even 0.0039 % oproti 0.0058 % celku. Bez nej by break-even bol 0.0199 % (+0.0141). Je to ale VACSINA obchodov, takze to nie je filter, ale nastavenie: hladaj parameter, ktory tuto vlastnost riadi.",
+ "numbers": "f3fa39b5",
+ "posudok": "",
+ "posudok_stamp": "",
+ "posudok_at": "",
+ "posudok_user": "",
+ "report": {
+  "trades": 2369,
+  "break_even_pct": 0.0058,
+  "winrate": 44.74,
+  "pnl_abs": 6525.37,
+  "splits": [
+   {
+    "feature": "cal_event",
+    "title": "Makro udalosť v ten deň",
+    "unit": "",
+    "note": "Deň rozhodnutia Fedu, inflácie alebo zamestnanosti v USA. Dátumy sú odpísané z federalreserve.gov a bls.gov, nie odvodené pravidlom — a keďže sa vedia dopredu, filtrovať sa podľa nich dá.",
+    "param": null,
+    "best_impact": 0.0141,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "žiadna",
+      "trades": 2087,
+      "share_pct": 88.1,
+      "winrate": 44.66,
+      "break_even_pct": 0.0039,
+      "pnl_abs": 2842.59,
+      "without_pct": 0.0199,
+      "impact": 0.0141
+     },
+     {
+      "label": "FOMC",
+      "trades": 61,
+      "share_pct": 2.6,
+      "winrate": 42.62,
+      "break_even_pct": 0.0096,
+      "pnl_abs": 327.75,
+      "without_pct": 0.0058,
+      "impact": 0
+     },
+     {
+      "label": "NFP",
+      "trades": 116,
+      "share_pct": 4.9,
+      "winrate": 44.83,
+      "break_even_pct": 0.0227,
+      "pnl_abs": 1829.68,
+      "without_pct": 0.0049,
+      "impact": -0.0009
+     },
+     {
+      "label": "CPI",
+      "trades": 104,
+      "share_pct": 4.4,
+      "winrate": 47.12,
+      "break_even_pct": 0.0229,
+      "pnl_abs": 1518.96,
+      "without_pct": 0.0051,
+      "impact": -0.0007
+     }
+    ]
+   },
+   {
+    "feature": "cal_event_window",
+    "title": "Pred vyhlásením, alebo po ňom",
+    "unit": "",
+    "note": "Rozdiel medzi vstupom pred vyhlásením a po ňom je celý rozdiel medzi hazardom a obchodovaním na už známej informácii.",
+    "param": null,
+    "best_impact": 0.0141,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "bez udalosti",
+      "trades": 2087,
+      "share_pct": 88.1,
+      "winrate": 44.66,
+      "break_even_pct": 0.0039,
+      "pnl_abs": 2842.59,
+      "without_pct": 0.0199,
+      "impact": 0.0141
+     },
+     {
+      "label": "pred vyhlásením",
+      "trades": 145,
+      "share_pct": 6.1,
+      "winrate": 42.07,
+      "break_even_pct": 0.0195,
+      "pnl_abs": 1804.9,
+      "without_pct": 0.005,
+      "impact": -0.0008
+     },
+     {
+      "label": "po vyhlásení",
+      "trades": 137,
+      "share_pct": 5.8,
+      "winrate": 48.91,
+      "break_even_pct": 0.0204,
+      "pnl_abs": 1877.88,
+      "without_pct": 0.0049,
+      "impact": -0.0009
+     }
+    ]
+   },
+   {
+    "feature": "regime_trend",
+    "title": "Trend alebo rozsah",
+    "unit": "",
+    "note": "Efektivita pohybu za posledných 50 barov: 1 je priamka, 0 pílka okolo jednej úrovne. Prerazenie v rozsahu je falošné častejšie než v trende — a toto je číslo, ktorým sa to dá odfiltrovať.",
+    "param": null,
+    "best_impact": 0.0095,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "0.1499 – 0.252",
+      "trades": 591,
+      "share_pct": 24.9,
+      "winrate": 40.1,
+      "break_even_pct": -0.0224,
+      "pnl_abs": -10619.7,
+      "without_pct": 0.0153,
+      "impact": 0.0095
+     },
+     {
+      "label": "do 0.0742",
+      "trades": 593,
+      "share_pct": 25,
+      "winrate": 40.64,
+      "break_even_pct": -0.0202,
+      "pnl_abs": -9485.56,
+      "without_pct": 0.0143,
+      "impact": 0.0085
+     },
+     {
+      "label": "0.0742 – 0.1499",
+      "trades": 593,
+      "share_pct": 25,
+      "winrate": 47.05,
+      "break_even_pct": 0.0167,
+      "pnl_abs": 6351.53,
+      "without_pct": 0.0022,
+      "impact": -0.0036
+     },
+     {
+      "label": "nad 0.252",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 51.18,
+      "break_even_pct": 0.0484,
+      "pnl_abs": 20279.1,
+      "without_pct": -0.0085,
+      "impact": -0.0143
+     }
+    ]
+   },
+   {
+    "feature": "cal_session",
+    "title": "Sviatok na burze v USA",
+    "unit": "",
+    "note": "Keď je Wall Street zavretá, likvidita zmizne aj tam, kde sa obchoduje ďalej (krypto, CFD). Sviatky sa počítajú pravidlom, platia pre každý rok.",
+    "param": null,
+    "best_impact": 0.007,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "sviatok v USA (Deň prezidentov)",
+      "trades": 8,
+      "share_pct": 0.3,
+      "winrate": 25,
+      "break_even_pct": -0.0279,
+      "pnl_abs": -191.77,
+      "without_pct": 0.006,
+      "impact": 0.0002
+     },
+     {
+      "label": "deň po sviatku",
+      "trades": 66,
+      "share_pct": 2.8,
+      "winrate": 48.48,
+      "break_even_pct": 0.0003,
+      "pnl_abs": -88.2,
+      "without_pct": 0.006,
+      "impact": 0.0002
+     },
+     {
+      "label": "bežný deň",
+      "trades": 2227,
+      "share_pct": 94,
+      "winrate": 44.59,
+      "break_even_pct": 0.0054,
+      "pnl_abs": 5373.67,
+      "without_pct": 0.0128,
+      "impact": 0.007
+     },
+     {
+      "label": "deň pred sviatkom",
+      "trades": 28,
+      "share_pct": 1.2,
+      "winrate": 53.57,
+      "break_even_pct": 0.0748,
+      "pnl_abs": 1758.58,
+      "without_pct": 0.0049,
+      "impact": -0.0009
+     }
+    ]
+   },
+   {
+    "feature": "weekday",
+    "title": "Deň v týždni",
+    "unit": "",
+    "note": "Pondelkové otvorenie a piatkové zatváranie majú iný charakter.",
+    "param": null,
+    "best_impact": 0.0052,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "pondelok",
+      "trades": 446,
+      "share_pct": 18.8,
+      "winrate": 39.46,
+      "break_even_pct": -0.0166,
+      "pnl_abs": -6029.1,
+      "without_pct": 0.011,
+      "impact": 0.0052
+     },
+     {
+      "label": "streda",
+      "trades": 469,
+      "share_pct": 19.8,
+      "winrate": 43.92,
+      "break_even_pct": -0.0082,
+      "pnl_abs": -3507.64,
+      "without_pct": 0.0093,
+      "impact": 0.0035
+     },
+     {
+      "label": "utorok",
+      "trades": 483,
+      "share_pct": 20.4,
+      "winrate": 45.55,
+      "break_even_pct": 0.0111,
+      "pnl_abs": 3201.83,
+      "without_pct": 0.0045,
+      "impact": -0.0013
+     },
+     {
+      "label": "piatok",
+      "trades": 489,
+      "share_pct": 20.6,
+      "winrate": 47.03,
+      "break_even_pct": 0.0147,
+      "pnl_abs": 4486.21,
+      "without_pct": 0.0036,
+      "impact": -0.0022
+     },
+     {
+      "label": "štvrtok",
+      "trades": 482,
+      "share_pct": 20.3,
+      "winrate": 47.3,
+      "break_even_pct": 0.0257,
+      "pnl_abs": 8374.06,
+      "without_pct": 0.0007,
+      "impact": -0.0051
+     }
+    ]
+   },
+   {
+    "feature": "regime_pos",
+    "title": "Kde v rozsahu, v smere obchodu",
+    "unit": "",
+    "note": "1 = cena už došla na koniec rozsahu v smere obchodu (long na vrchu, short na spodku), 0 = na opačnom konci. V smere obchodu preto, že surová poloha sa pri polovici shortov vyruší — pre short je spodok to isté, čo pre long vrch.",
+    "param": null,
+    "best_impact": 0.0052,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "0.8217 – 0.9318",
+      "trades": 594,
+      "share_pct": 25.1,
+      "winrate": 42.42,
+      "break_even_pct": -0.0098,
+      "pnl_abs": -5119.51,
+      "without_pct": 0.011,
+      "impact": 0.0052
+     },
+     {
+      "label": "do 0.8217",
+      "trades": 593,
+      "share_pct": 25,
+      "winrate": 44.18,
+      "break_even_pct": 0.0079,
+      "pnl_abs": 2491.74,
+      "without_pct": 0.0052,
+      "impact": -0.0006
+     },
+     {
+      "label": "0.9318 – 0.9714",
+      "trades": 591,
+      "share_pct": 24.9,
+      "winrate": 45.52,
+      "break_even_pct": 0.011,
+      "pnl_abs": 3852.86,
+      "without_pct": 0.0041,
+      "impact": -0.0017
+     },
+     {
+      "label": "nad 0.9714",
+      "trades": 591,
+      "share_pct": 24.9,
+      "winrate": 46.87,
+      "break_even_pct": 0.0142,
+      "pnl_abs": 5300.27,
+      "without_pct": 0.003,
+      "impact": -0.0028
+     }
+    ]
+   },
+   {
+    "feature": "day_of_month",
+    "title": "Deň v mesiaci",
+    "unit": "",
+    "note": "Larryho Williamsa preslávilo hľadanie tendencií v kalendári — začiatok mesiaca býva iný než koniec (výplaty, rebalansovanie fondov). Je to zároveň klasická pasca na preoptimalizovanie: rozdiel medzi 3. a 17. dňom vyzerá presvedčivo, kým sa neoverí po oknách.",
+    "param": null,
+    "best_impact": 0.0038,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "nad 23",
+      "trades": 558,
+      "share_pct": 23.6,
+      "winrate": 42.83,
+      "break_even_pct": -0.0062,
+      "pnl_abs": -3403.31,
+      "without_pct": 0.0096,
+      "impact": 0.0038
+     },
+     {
+      "label": "16 – 23",
+      "trades": 548,
+      "share_pct": 23.1,
+      "winrate": 44.34,
+      "break_even_pct": -0.0022,
+      "pnl_abs": -1727.48,
+      "without_pct": 0.0083,
+      "impact": 0.0025
+     },
+     {
+      "label": "do 8",
+      "trades": 638,
+      "share_pct": 26.9,
+      "winrate": 45.14,
+      "break_even_pct": 0.0129,
+      "pnl_abs": 5055.9,
+      "without_pct": 0.0032,
+      "impact": -0.0026
+     },
+     {
+      "label": "8 – 16",
+      "trades": 625,
+      "share_pct": 26.4,
+      "winrate": 46.4,
+      "break_even_pct": 0.0166,
+      "pnl_abs": 6600.25,
+      "without_pct": 0.002,
+      "impact": -0.0038
+     }
+    ]
+   },
+   {
+    "feature": "hour",
+    "title": "Hodina vstupu (UTC)",
+    "unit": "h",
+    "note": "Rozdelenie po hodinách ukáže, či edge nesie jedna seansa. Na IBS to tak bolo — celý edge bol v NY seanse.",
+    "param": null,
+    "best_impact": 0.0031,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "nad 14 h",
+      "trades": 309,
+      "share_pct": 13,
+      "winrate": 47.25,
+      "break_even_pct": -0.0049,
+      "pnl_abs": -1549.14,
+      "without_pct": 0.0074,
+      "impact": 0.0016
+     },
+     {
+      "label": "do 8 h",
+      "trades": 772,
+      "share_pct": 32.6,
+      "winrate": 39.9,
+      "break_even_pct": -0.0008,
+      "pnl_abs": -1598.35,
+      "without_pct": 0.0089,
+      "impact": 0.0031
+     },
+     {
+      "label": "13 h – 14 h",
+      "trades": 740,
+      "share_pct": 31.2,
+      "winrate": 47.16,
+      "break_even_pct": 0.0103,
+      "pnl_abs": 4522.7,
+      "without_pct": 0.0038,
+      "impact": -0.002
+     },
+     {
+      "label": "8 h – 13 h",
+      "trades": 548,
+      "share_pct": 23.1,
+      "winrate": 46.9,
+      "break_even_pct": 0.0147,
+      "pnl_abs": 5150.16,
+      "without_pct": 0.0031,
+      "impact": -0.0027
+     }
+    ]
+   },
+   {
+    "feature": "sl_pct",
+    "title": "Vzdialenosť stopu",
+    "unit": "%",
+    "note": "Poplatok je percento z nominálu, zisk rastie s R — tesné stopy majú najhorší pomer edge k poplatku. Gate je `minSlDistance`.",
+    "param": null,
+    "best_impact": 0.003,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "0.4647 % – 0.6986 %",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 45.61,
+      "break_even_pct": -0.003,
+      "pnl_abs": -2188.07,
+      "without_pct": 0.0088,
+      "impact": 0.003
+     },
+     {
+      "label": "do 0.3065 %",
+      "trades": 593,
+      "share_pct": 25,
+      "winrate": 42.66,
+      "break_even_pct": 0.004,
+      "pnl_abs": 933.76,
+      "without_pct": 0.0065,
+      "impact": 0.0007
+     },
+     {
+      "label": "nad 0.6986 %",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 46.96,
+      "break_even_pct": 0.0097,
+      "pnl_abs": 3058.36,
+      "without_pct": 0.0047,
+      "impact": -0.0011
+     },
+     {
+      "label": "0.3065 % – 0.4647 %",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 43.75,
+      "break_even_pct": 0.013,
+      "pnl_abs": 4721.32,
+      "without_pct": 0.0035,
+      "impact": -0.0023
+     }
+    ]
+   },
+   {
+    "feature": "month_of_year",
+    "title": "Kalendárny mesiac",
+    "unit": "",
+    "note": "Sezónnosť naprieč rokmi — nie „marec 2023“, ale „marec vôbec“. Pri piatich rokoch je to päť pozorovaní na mesiac, takže to skôr ukazuje smer na overenie než hotový záver.",
+    "param": null,
+    "best_impact": 0.0029,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "06",
+      "trades": 185,
+      "share_pct": 7.8,
+      "winrate": 40.54,
+      "break_even_pct": -0.0254,
+      "pnl_abs": -3981.48,
+      "without_pct": 0.0087,
+      "impact": 0.0029
+     },
+     {
+      "label": "11",
+      "trades": 178,
+      "share_pct": 7.5,
+      "winrate": 42.7,
+      "break_even_pct": -0.0146,
+      "pnl_abs": -2116.16,
+      "without_pct": 0.0075,
+      "impact": 0.0017
+     },
+     {
+      "label": "07",
+      "trades": 205,
+      "share_pct": 8.7,
+      "winrate": 40,
+      "break_even_pct": -0.0133,
+      "pnl_abs": -2576.06,
+      "without_pct": 0.0079,
+      "impact": 0.0021
+     },
+     {
+      "label": "05",
+      "trades": 211,
+      "share_pct": 8.9,
+      "winrate": 40.28,
+      "break_even_pct": -0.0128,
+      "pnl_abs": -2310.41,
+      "without_pct": 0.0077,
+      "impact": 0.0019
+     },
+     {
+      "label": "01",
+      "trades": 197,
+      "share_pct": 8.3,
+      "winrate": 44.67,
+      "break_even_pct": -0.0076,
+      "pnl_abs": -1378.3,
+      "without_pct": 0.007,
+      "impact": 0.0012
+     },
+     {
+      "label": "09",
+      "trades": 159,
+      "share_pct": 6.7,
+      "winrate": 45.28,
+      "break_even_pct": -0.0009,
+      "pnl_abs": -341.13,
+      "without_pct": 0.0063,
+      "impact": 0.0005
+     },
+     {
+      "label": "08",
+      "trades": 228,
+      "share_pct": 9.6,
+      "winrate": 46.93,
+      "break_even_pct": 0.0109,
+      "pnl_abs": 1525.86,
+      "without_pct": 0.0053,
+      "impact": -0.0005
+     },
+     {
+      "label": "12",
+      "trades": 178,
+      "share_pct": 7.5,
+      "winrate": 47.75,
+      "break_even_pct": 0.0161,
+      "pnl_abs": 1773.38,
+      "without_pct": 0.005,
+      "impact": -0.0008
+     },
+     {
+      "label": "03",
+      "trades": 236,
+      "share_pct": 10,
+      "winrate": 48.73,
+      "break_even_pct": 0.0282,
+      "pnl_abs": 4352.06,
+      "without_pct": 0.0035,
+      "impact": -0.0023
+     },
+     {
+      "label": "04",
+      "trades": 195,
+      "share_pct": 8.2,
+      "winrate": 42.56,
+      "break_even_pct": 0.0297,
+      "pnl_abs": 3812.82,
+      "without_pct": 0.0038,
+      "impact": -0.002
+     },
+     {
+      "label": "02",
+      "trades": 191,
+      "share_pct": 8.1,
+      "winrate": 47.64,
+      "break_even_pct": 0.03,
+      "pnl_abs": 3843.47,
+      "without_pct": 0.0038,
+      "impact": -0.002
+     },
+     {
+      "label": "10",
+      "trades": 206,
+      "share_pct": 8.7,
+      "winrate": 49.03,
+      "break_even_pct": 0.0303,
+      "pnl_abs": 3921.31,
+      "without_pct": 0.0037,
+      "impact": -0.0021
+     }
+    ]
+   },
+   {
+    "feature": "regime_vol",
+    "title": "Volatilita voči normálu",
+    "unit": "",
+    "note": "ATR pri vstupe delené mediánom ATR za predošlý týždeň. 1,0 je bežný stav, 2,0 dvojnásobne rozkolísaný. Náhrada za „pozri sa na VIX“, ktorá funguje na každom trhu.",
+    "param": null,
+    "best_impact": 0.0024,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "do 1.27",
+      "trades": 594,
+      "share_pct": 25.1,
+      "winrate": 41.41,
+      "break_even_pct": -0.0012,
+      "pnl_abs": -1417.64,
+      "without_pct": 0.0082,
+      "impact": 0.0024
+     },
+     {
+      "label": "nad 2.66",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 45.27,
+      "break_even_pct": 0.0005,
+      "pnl_abs": -704.31,
+      "without_pct": 0.0076,
+      "impact": 0.0018
+     },
+     {
+      "label": "2.021 – 2.66",
+      "trades": 590,
+      "share_pct": 24.9,
+      "winrate": 46.61,
+      "break_even_pct": 0.0089,
+      "pnl_abs": 2979.5,
+      "without_pct": 0.0048,
+      "impact": -0.001
+     },
+     {
+      "label": "1.27 – 2.021",
+      "trades": 593,
+      "share_pct": 25,
+      "winrate": 45.7,
+      "break_even_pct": 0.0147,
+      "pnl_abs": 5667.82,
+      "without_pct": 0.0028,
+      "impact": -0.003
+     }
+    ]
+   },
+   {
+    "feature": "rr_planned",
+    "title": "Plánovaný RR",
+    "unit": "R",
+    "note": "Skutočný pomer TP k SL obchodu. Keď vysoké RR nezarába, je `rrRatio` nad optimom.",
+    "param": "rrRatio",
+    "best_impact": 0.0023,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "nad 1.51 R",
+      "trades": 330,
+      "share_pct": 13.9,
+      "winrate": 40,
+      "break_even_pct": -0.009,
+      "pnl_abs": -2603.43,
+      "without_pct": 0.0081,
+      "impact": 0.0023
+     },
+     {
+      "label": "do 1.49 R",
+      "trades": 745,
+      "share_pct": 31.4,
+      "winrate": 44.43,
+      "break_even_pct": 0.0031,
+      "pnl_abs": 511.08,
+      "without_pct": 0.007,
+      "impact": 0.0012
+     },
+     {
+      "label": "1.5 R – 1.51 R",
+      "trades": 427,
+      "share_pct": 18,
+      "winrate": 45.43,
+      "break_even_pct": 0.0037,
+      "pnl_abs": 521.07,
+      "without_pct": 0.0063,
+      "impact": 0.0005
+     },
+     {
+      "label": "1.49 R – 1.5 R",
+      "trades": 867,
+      "share_pct": 36.6,
+      "winrate": 46.48,
+      "break_even_pct": 0.0144,
+      "pnl_abs": 8096.64,
+      "without_pct": 0.0007,
+      "impact": -0.0051
+     }
+    ]
+   },
+   {
+    "feature": "month",
+    "title": "Mesiac",
+    "unit": "",
+    "note": "Režim trhu. Keď je edge len v dvoch mesiacoch z dvanástich, je to o režime, nie o parametroch.",
+    "param": null,
+    "best_impact": 0.0021,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "2025-06",
+      "trades": 29,
+      "share_pct": 1.2,
+      "winrate": 24.14,
+      "break_even_pct": -0.1144,
+      "pnl_abs": -2961.95,
+      "without_pct": 0.0076,
+      "impact": 0.0018
+     },
+     {
+      "label": "2025-11",
+      "trades": 37,
+      "share_pct": 1.6,
+      "winrate": 29.73,
+      "break_even_pct": -0.0635,
+      "pnl_abs": -2411.15,
+      "without_pct": 0.0074,
+      "impact": 0.0016
+     },
+     {
+      "label": "2024-09",
+      "trades": 47,
+      "share_pct": 2,
+      "winrate": 31.91,
+      "break_even_pct": -0.0592,
+      "pnl_abs": -2254.6,
+      "without_pct": 0.0073,
+      "impact": 0.0015
+     },
+     {
+      "label": "2022-02",
+      "trades": 43,
+      "share_pct": 1.8,
+      "winrate": 39.53,
+      "break_even_pct": -0.0577,
+      "pnl_abs": -1498.4,
+      "without_pct": 0.0068,
+      "impact": 0.001
+     },
+     {
+      "label": "2024-01",
+      "trades": 30,
+      "share_pct": 1.3,
+      "winrate": 33.33,
+      "break_even_pct": -0.0554,
+      "pnl_abs": -1175.76,
+      "without_pct": 0.0066,
+      "impact": 0.0008
+     },
+     {
+      "label": "2024-02",
+      "trades": 32,
+      "share_pct": 1.4,
+      "winrate": 40.62,
+      "break_even_pct": -0.0519,
+      "pnl_abs": -1228.02,
+      "without_pct": 0.0066,
+      "impact": 0.0008
+     },
+     {
+      "label": "2026-07",
+      "trades": 57,
+      "share_pct": 2.4,
+      "winrate": 33.33,
+      "break_even_pct": -0.0452,
+      "pnl_abs": -3099.41,
+      "without_pct": 0.0079,
+      "impact": 0.0021
+     },
+     {
+      "label": "2024-11",
+      "trades": 29,
+      "share_pct": 1.2,
+      "winrate": 37.93,
+      "break_even_pct": -0.0415,
+      "pnl_abs": -1041.98,
+      "without_pct": 0.0065,
+      "impact": 0.0007
+     },
+     {
+      "label": "2024-08",
+      "trades": 52,
+      "share_pct": 2.2,
+      "winrate": 36.54,
+      "break_even_pct": -0.0355,
+      "pnl_abs": -1487.3,
+      "without_pct": 0.0068,
+      "impact": 0.001
+     },
+     {
+      "label": "2023-05",
+      "trades": 39,
+      "share_pct": 1.6,
+      "winrate": 35.9,
+      "break_even_pct": -0.0324,
+      "pnl_abs": -767.82,
+      "without_pct": 0.0063,
+      "impact": 0.0005
+     },
+     {
+      "label": "2022-09",
+      "trades": 50,
+      "share_pct": 2.1,
+      "winrate": 40,
+      "break_even_pct": -0.0291,
+      "pnl_abs": -776.74,
+      "without_pct": 0.0063,
+      "impact": 0.0005
+     },
+     {
+      "label": "2023-07",
+      "trades": 24,
+      "share_pct": 1,
+      "winrate": 29.17,
+      "break_even_pct": -0.0277,
+      "pnl_abs": -455.55,
+      "without_pct": 0.0061,
+      "impact": 0.0003
+     },
+     {
+      "label": "2022-07",
+      "trades": 51,
+      "share_pct": 2.2,
+      "winrate": 37.25,
+      "break_even_pct": -0.0272,
+      "pnl_abs": -780.97,
+      "without_pct": 0.0064,
+      "impact": 0.0006
+     },
+     {
+      "label": "2025-05",
+      "trades": 46,
+      "share_pct": 1.9,
+      "winrate": 36.96,
+      "break_even_pct": -0.0254,
+      "pnl_abs": -1041.64,
+      "without_pct": 0.0066,
+      "impact": 0.0008
+     },
+     {
+      "label": "2023-01",
+      "trades": 48,
+      "share_pct": 2,
+      "winrate": 45.83,
+      "break_even_pct": -0.0249,
+      "pnl_abs": -677.84,
+      "without_pct": 0.0063,
+      "impact": 0.0005
+     },
+     {
+      "label": "2026-06",
+      "trades": 44,
+      "share_pct": 1.9,
+      "winrate": 43.18,
+      "break_even_pct": -0.0216,
+      "pnl_abs": -1213.65,
+      "without_pct": 0.0067,
+      "impact": 0.0009
+     },
+     {
+      "label": "2024-05",
+      "trades": 33,
+      "share_pct": 1.4,
+      "winrate": 39.39,
+      "break_even_pct": -0.0198,
+      "pnl_abs": -530.19,
+      "without_pct": 0.0062,
+      "impact": 0.0004
+     },
+     {
+      "label": "2025-01",
+      "trades": 34,
+      "share_pct": 1.4,
+      "winrate": 47.06,
+      "break_even_pct": -0.0163,
+      "pnl_abs": -525.42,
+      "without_pct": 0.0062,
+      "impact": 0.0004
+     },
+     {
+      "label": "2022-04",
+      "trades": 50,
+      "share_pct": 2.1,
+      "winrate": 36,
+      "break_even_pct": -0.0141,
+      "pnl_abs": -472.1,
+      "without_pct": 0.0062,
+      "impact": 0.0004
+     },
+     {
+      "label": "2026-05",
+      "trades": 37,
+      "share_pct": 1.6,
+      "winrate": 40.54,
+      "break_even_pct": -0.0115,
+      "pnl_abs": -557.98,
+      "without_pct": 0.0063,
+      "impact": 0.0005
+     },
+     {
+      "label": "2023-04",
+      "trades": 33,
+      "share_pct": 1.4,
+      "winrate": 39.39,
+      "break_even_pct": -0.0092,
+      "pnl_abs": -221.97,
+      "without_pct": 0.006,
+      "impact": 0.0002
+     },
+     {
+      "label": "2024-10",
+      "trades": 48,
+      "share_pct": 2,
+      "winrate": 43.75,
+      "break_even_pct": -0.0087,
+      "pnl_abs": -407.32,
+      "without_pct": 0.0062,
+      "impact": 0.0004
+     },
+     {
+      "label": "2023-06",
+      "trades": 33,
+      "share_pct": 1.4,
+      "winrate": 39.39,
+      "break_even_pct": -0.0061,
+      "pnl_abs": -188.04,
+      "without_pct": 0.006,
+      "impact": 0.0002
+     },
+     {
+      "label": "2024-03",
+      "trades": 31,
+      "share_pct": 1.3,
+      "winrate": 41.94,
+      "break_even_pct": -0.0022,
+      "pnl_abs": -97.92,
+      "without_pct": 0.006,
+      "impact": 0.0002
+     },
+     {
+      "label": "2021-11",
+      "trades": 35,
+      "share_pct": 1.5,
+      "winrate": 48.57,
+      "break_even_pct": 0,
+      "pnl_abs": -62.37,
+      "without_pct": 0.0059,
+      "impact": 0.0001
+     },
+     {
+      "label": "2022-01",
+      "trades": 48,
+      "share_pct": 2,
+      "winrate": 41.67,
+      "break_even_pct": 0.0009,
+      "pnl_abs": -51.32,
+      "without_pct": 0.0059,
+      "impact": 0.0001
+     },
+     {
+      "label": "2022-06",
+      "trades": 50,
+      "share_pct": 2.1,
+      "winrate": 44,
+      "break_even_pct": 0.0014,
+      "pnl_abs": -30.57,
+      "without_pct": 0.0059,
+      "impact": 0.0001
+     },
+     {
+      "label": "2025-12",
+      "trades": 31,
+      "share_pct": 1.3,
+      "winrate": 45.16,
+      "break_even_pct": 0.0026,
+      "pnl_abs": 35.85,
+      "without_pct": 0.0059,
+      "impact": 0.0001
+     },
+     {
+      "label": "2026-08",
+      "trades": 34,
+      "share_pct": 1.4,
+      "winrate": 44.12,
+      "break_even_pct": 0.0028,
+      "pnl_abs": 51.94,
+      "without_pct": 0.0059,
+      "impact": 0.0001
+     },
+     {
+      "label": "2023-02",
+      "trades": 44,
+      "share_pct": 1.9,
+      "winrate": 47.73,
+      "break_even_pct": 0.0086,
+      "pnl_abs": 124.01,
+      "without_pct": 0.0058,
+      "impact": 0
+     },
+     {
+      "label": "2023-12",
+      "trades": 27,
+      "share_pct": 1.1,
+      "winrate": 51.85,
+      "break_even_pct": 0.0093,
+      "pnl_abs": 129.02,
+      "without_pct": 0.0058,
+      "impact": 0
+     },
+     {
+      "label": "2022-08",
+      "trades": 60,
+      "share_pct": 2.5,
+      "winrate": 48.33,
+      "break_even_pct": 0.0118,
+      "pnl_abs": 296.84,
+      "without_pct": 0.0057,
+      "impact": -0.0001
+     },
+     {
+      "label": "2025-03",
+      "trades": 46,
+      "share_pct": 1.9,
+      "winrate": 47.83,
+      "break_even_pct": 0.0121,
+      "pnl_abs": 379.76,
+      "without_pct": 0.0057,
+      "impact": -0.0001
+     },
+     {
+      "label": "2021-12",
+      "trades": 41,
+      "share_pct": 1.7,
+      "winrate": 48.78,
+      "break_even_pct": 0.0141,
+      "pnl_abs": 301.36,
+      "without_pct": 0.0057,
+      "impact": -0.0001
+     },
+     {
+      "label": "2024-12",
+      "trades": 30,
+      "share_pct": 1.3,
+      "winrate": 50,
+      "break_even_pct": 0.0151,
+      "pnl_abs": 345.26,
+      "without_pct": 0.0057,
+      "impact": -0.0001
+     },
+     {
+      "label": "2025-07",
+      "trades": 30,
+      "share_pct": 1.3,
+      "winrate": 53.33,
+      "break_even_pct": 0.0152,
+      "pnl_abs": 372.12,
+      "without_pct": 0.0057,
+      "impact": -0.0001
+     },
+     {
+      "label": "2025-09",
+      "trades": 26,
+      "share_pct": 1.1,
+      "winrate": 50,
+      "break_even_pct": 0.0159,
+      "pnl_abs": 362.15,
+      "without_pct": 0.0057,
+      "impact": -0.0001
+     },
+     {
+      "label": "2024-06",
+      "trades": 29,
+      "share_pct": 1.2,
+      "winrate": 48.28,
+      "break_even_pct": 0.0203,
+      "pnl_abs": 412.73,
+      "without_pct": 0.0057,
+      "impact": -0.0001
+     },
+     {
+      "label": "2022-05",
+      "trades": 56,
+      "share_pct": 2.4,
+      "winrate": 46.43,
+      "break_even_pct": 0.0239,
+      "pnl_abs": 587.23,
+      "without_pct": 0.0056,
+      "impact": -0.0002
+     },
+     {
+      "label": "2026-04",
+      "trades": 30,
+      "share_pct": 1.3,
+      "winrate": 53.33,
+      "break_even_pct": 0.0251,
+      "pnl_abs": 733.75,
+      "without_pct": 0.0055,
+      "impact": -0.0003
+     },
+     {
+      "label": "2021-10",
+      "trades": 34,
+      "share_pct": 1.4,
+      "winrate": 52.94,
+      "break_even_pct": 0.0265,
+      "pnl_abs": 484.55,
+      "without_pct": 0.0056,
+      "impact": -0.0002
+     },
+     {
+      "label": "2026-01",
+      "trades": 37,
+      "share_pct": 1.6,
+      "winrate": 54.05,
+      "break_even_pct": 0.0291,
+      "pnl_abs": 1052.05,
+      "without_pct": 0.0053,
+      "impact": -0.0005
+     },
+     {
+      "label": "2023-11",
+      "trades": 23,
+      "share_pct": 1,
+      "winrate": 52.17,
+      "break_even_pct": 0.0298,
+      "pnl_abs": 398.83,
+      "without_pct": 0.0056,
+      "impact": -0.0002
+     },
+     {
+      "label": "2023-08",
+      "trades": 49,
+      "share_pct": 2.1,
+      "winrate": 48.98,
+      "break_even_pct": 0.0325,
+      "pnl_abs": 881.97,
+      "without_pct": 0.0054,
+      "impact": -0.0004
+     },
+     {
+      "label": "2024-04",
+      "trades": 33,
+      "share_pct": 1.4,
+      "winrate": 45.45,
+      "break_even_pct": 0.0343,
+      "pnl_abs": 762.55,
+      "without_pct": 0.0055,
+      "impact": -0.0003
+     },
+     {
+      "label": "2022-03",
+      "trades": 57,
+      "share_pct": 2.4,
+      "winrate": 47.37,
+      "break_even_pct": 0.0371,
+      "pnl_abs": 1111.04,
+      "without_pct": 0.0053,
+      "impact": -0.0005
+     },
+     {
+      "label": "2023-10",
+      "trades": 45,
+      "share_pct": 1.9,
+      "winrate": 51.11,
+      "break_even_pct": 0.0373,
+      "pnl_abs": 938.44,
+      "without_pct": 0.0054,
+      "impact": -0.0004
+     },
+     {
+      "label": "2023-03",
+      "trades": 54,
+      "share_pct": 2.3,
+      "winrate": 50,
+      "break_even_pct": 0.0376,
+      "pnl_abs": 969.39,
+      "without_pct": 0.0053,
+      "impact": -0.0005
+     },
+     {
+      "label": "2022-11",
+      "trades": 54,
+      "share_pct": 2.3,
+      "winrate": 46.3,
+      "break_even_pct": 0.0386,
+      "pnl_abs": 1000.52,
+      "without_pct": 0.0053,
+      "impact": -0.0005
+     },
+     {
+      "label": "2022-12",
+      "trades": 49,
+      "share_pct": 2.1,
+      "winrate": 44.9,
+      "break_even_pct": 0.0409,
+      "pnl_abs": 961.89,
+      "without_pct": 0.0053,
+      "impact": -0.0005
+     },
+     {
+      "label": "2024-07",
+      "trades": 43,
+      "share_pct": 1.8,
+      "winrate": 48.84,
+      "break_even_pct": 0.0426,
+      "pnl_abs": 1387.76,
+      "without_pct": 0.0051,
+      "impact": -0.0007
+     },
+     {
+      "label": "2026-03",
+      "trades": 48,
+      "share_pct": 2,
+      "winrate": 54.17,
+      "break_even_pct": 0.0437,
+      "pnl_abs": 1989.79,
+      "without_pct": 0.0048,
+      "impact": -0.001
+     },
+     {
+      "label": "2025-10",
+      "trades": 31,
+      "share_pct": 1.3,
+      "winrate": 54.84,
+      "break_even_pct": 0.0564,
+      "pnl_abs": 1717.43,
+      "without_pct": 0.0049,
+      "impact": -0.0009
+     },
+     {
+      "label": "2022-10",
+      "trades": 48,
+      "share_pct": 2,
+      "winrate": 45.83,
+      "break_even_pct": 0.0579,
+      "pnl_abs": 1188.19,
+      "without_pct": 0.0052,
+      "impact": -0.0006
+     },
+     {
+      "label": "2025-08",
+      "trades": 33,
+      "share_pct": 1.4,
+      "winrate": 60.61,
+      "break_even_pct": 0.0593,
+      "pnl_abs": 1782.42,
+      "without_pct": 0.0049,
+      "impact": -0.0009
+     },
+     {
+      "label": "2023-09",
+      "trades": 29,
+      "share_pct": 1.2,
+      "winrate": 62.07,
+      "break_even_pct": 0.0605,
+      "pnl_abs": 1017.52,
+      "without_pct": 0.0053,
+      "impact": -0.0005
+     },
+     {
+      "label": "2026-02",
+      "trades": 42,
+      "share_pct": 1.8,
+      "winrate": 52.38,
+      "break_even_pct": 0.0761,
+      "pnl_abs": 3135.68,
+      "without_pct": 0.0041,
+      "impact": -0.0017
+     },
+     {
+      "label": "2025-04",
+      "trades": 49,
+      "share_pct": 2.1,
+      "winrate": 42.86,
+      "break_even_pct": 0.0835,
+      "pnl_abs": 3010.59,
+      "without_pct": 0.0042,
+      "impact": -0.0016
+     },
+     {
+      "label": "2025-02",
+      "trades": 30,
+      "share_pct": 1.3,
+      "winrate": 60,
+      "break_even_pct": 0.1292,
+      "pnl_abs": 3310.2,
+      "without_pct": 0.004,
+      "impact": -0.0018
+     }
+    ]
+   },
+   {
+    "feature": "direction",
+    "title": "Smer",
+    "unit": "",
+    "note": "Jedna strana môže niesť celý edge. Vtedy má zmysel `tradeDirection`, nie ladenie prahov.",
+    "param": "tradeDirection",
+    "best_impact": 0.0017,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "long",
+      "trades": 1175,
+      "share_pct": 49.6,
+      "winrate": 46.21,
+      "break_even_pct": 0.0042,
+      "pnl_abs": 1853.33,
+      "without_pct": 0.0075,
+      "impact": 0.0017
+     },
+     {
+      "label": "short",
+      "trades": 1194,
+      "share_pct": 50.4,
+      "winrate": 43.3,
+      "break_even_pct": 0.0075,
+      "pnl_abs": 4672.03,
+      "without_pct": 0.0042,
+      "impact": -0.0016
+     }
+    ]
+   },
+   {
+    "feature": "regime_align",
+    "title": "S trendom, alebo proti",
+    "unit": "",
+    "note": "Smer obchodu voči sklonu posledných 50 barov. Klasické „neobchoduj proti trendu“ sa dá overiť práve týmto rozdelením.",
+    "param": null,
+    "best_impact": 0.0012,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "proti trendu",
+      "trades": 424,
+      "share_pct": 17.9,
+      "winrate": 43.63,
+      "break_even_pct": 0.0004,
+      "pnl_abs": -511.16,
+      "without_pct": 0.007,
+      "impact": 0.0012
+     },
+     {
+      "label": "s trendom",
+      "trades": 1945,
+      "share_pct": 82.1,
+      "winrate": 44.99,
+      "break_even_pct": 0.007,
+      "pnl_abs": 7036.52,
+      "without_pct": 0.0004,
+      "impact": -0.0054
+     }
+    ]
+   }
+  ],
+  "descriptive": [
+   {
+    "feature": "exit_reason",
+    "title": "Dôvod výstupu",
+    "unit": "",
+    "note": "Ktorým výstupom obchody končia a ktorý z nich zarába. `session_end` je výstup na čas, nie na plán — ak práve tie kazia výsledok, je to o nastavení okna, nie o vstupoch.",
+    "param": null,
+    "best_impact": 0.2181,
+    "at_entry": false,
+    "buckets": [
+     {
+      "label": "stop_loss",
+      "trades": 1127,
+      "share_pct": 47.6,
+      "winrate": 0,
+      "break_even_pct": -0.2386,
+      "pnl_abs": -196457.23,
+      "without_pct": 0.2239,
+      "impact": 0.2181
+     },
+     {
+      "label": "session_end",
+      "trades": 538,
+      "share_pct": 22.7,
+      "winrate": 66.17,
+      "break_even_pct": 0.0885,
+      "pnl_abs": 35422.16,
+      "without_pct": -0.0198,
+      "impact": -0.0256
+     },
+     {
+      "label": "take_profit",
+      "trades": 704,
+      "share_pct": 29.7,
+      "winrate": 100,
+      "break_even_pct": 0.3337,
+      "pnl_abs": 167560.43,
+      "without_pct": -0.1293,
+      "impact": -0.1351
+     }
+    ]
+   },
+   {
+    "feature": "mae_pct",
+    "title": "Ako hlboko šiel proti nám",
+    "unit": "%",
+    "note": "Obchody, ktoré hneď idú proti nám, končia zle častejšie — a je to vidieť už pár sviečok po vstupe, teda vopred.",
+    "param": null,
+    "best_impact": 0.0827,
+    "at_entry": false,
+    "buckets": [
+     {
+      "label": "nad 0.5447 %",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 12.67,
+      "break_even_pct": -0.2659,
+      "pnl_abs": -108194.23,
+      "without_pct": 0.0885,
+      "impact": 0.0827
+     },
+     {
+      "label": "0.3213 % – 0.5447 %",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 27.36,
+      "break_even_pct": -0.0483,
+      "pnl_abs": -21432.36,
+      "without_pct": 0.0235,
+      "impact": 0.0177
+     },
+     {
+      "label": "0.1726 % – 0.3213 %",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 41.39,
+      "break_even_pct": 0.0434,
+      "pnl_abs": 18749.27,
+      "without_pct": -0.0075,
+      "impact": -0.0133
+     },
+     {
+      "label": "do 0.1726 %",
+      "trades": 593,
+      "share_pct": 25,
+      "winrate": 97.47,
+      "break_even_pct": 0.2637,
+      "pnl_abs": 117402.69,
+      "without_pct": -0.0844,
+      "impact": -0.0902
+     }
+    ]
+   },
+   {
+    "feature": "mfe_pct",
+    "title": "Ako ďaleko šiel v náš prospech",
+    "unit": "%",
+    "note": "Keď je MFE vysoké a zisk nie, výstup je nastavený zle (TP ďaleko, trailing skoro).",
+    "param": null,
+    "best_impact": 0.0739,
+    "at_entry": false,
+    "buckets": [
+     {
+      "label": "do 0.1516 %",
+      "trades": 594,
+      "share_pct": 25.1,
+      "winrate": 0.84,
+      "break_even_pct": -0.2067,
+      "pnl_abs": -93150.45,
+      "without_pct": 0.0797,
+      "impact": 0.0739
+     },
+     {
+      "label": "0.1516 % – 0.3582 %",
+      "trades": 591,
+      "share_pct": 24.9,
+      "winrate": 25.38,
+      "break_even_pct": -0.1277,
+      "pnl_abs": -56701.74,
+      "without_pct": 0.0509,
+      "impact": 0.0451
+     },
+     {
+      "label": "0.3582 % – 0.6404 %",
+      "trades": 593,
+      "share_pct": 25,
+      "winrate": 65.77,
+      "break_even_pct": 0.0551,
+      "pnl_abs": 23447.42,
+      "without_pct": -0.011,
+      "impact": -0.0168
+     },
+     {
+      "label": "nad 0.6404 %",
+      "trades": 591,
+      "share_pct": 24.9,
+      "winrate": 87.14,
+      "break_even_pct": 0.3293,
+      "pnl_abs": 132930.13,
+      "without_pct": -0.0933,
+      "impact": -0.0991
+     }
+    ]
+   },
+   {
+    "feature": "duration_min",
+    "title": "Dĺžka obchodu",
+    "unit": "min",
+    "note": "Veľmi krátke obchody sú často šum na vstupe; veľmi dlhé držia kapitál.",
+    "param": null,
+    "best_impact": 0.0268,
+    "at_entry": false,
+    "buckets": [
+     {
+      "label": "do 57 min",
+      "trades": 599,
+      "share_pct": 25.3,
+      "winrate": 29.55,
+      "break_even_pct": -0.0734,
+      "pnl_abs": -32991.91,
+      "without_pct": 0.0326,
+      "impact": 0.0268
+     },
+     {
+      "label": "57 min – 180 min",
+      "trades": 590,
+      "share_pct": 24.9,
+      "winrate": 40,
+      "break_even_pct": -0.0169,
+      "pnl_abs": -8084.71,
+      "without_pct": 0.0133,
+      "impact": 0.0075
+     },
+     {
+      "label": "180 min – 324 min",
+      "trades": 592,
+      "share_pct": 25,
+      "winrate": 48.48,
+      "break_even_pct": 0.0298,
+      "pnl_abs": 12031.06,
+      "without_pct": -0.0022,
+      "impact": -0.008
+     },
+     {
+      "label": "nad 324 min",
+      "trades": 588,
+      "share_pct": 24.8,
+      "winrate": 61.22,
+      "break_even_pct": 0.0836,
+      "pnl_abs": 35570.91,
+      "without_pct": -0.0203,
+      "impact": -0.0261
+     }
+    ]
+   }
+  ],
+  "tunable": [
+   "rrRatio",
+   "tradeDirection"
+  ],
+  "streaks": {
+   "win": {
+    "n": 8,
+    "start": "2022-11-15T09:03:00+00:00",
+    "end": "2022-11-17T18:00:00+00:00",
+    "pnl_abs": 1134.7,
+    "count": 2,
+    "trades": [
+     {
+      "open_date": "2022-11-15T09:03:00+00:00",
+      "close_date": "2022-11-15T12:26:00+00:00",
+      "profit_abs": 77.6285,
+      "profit_ratio": 0.003274,
+      "exit_reason": "take_profit"
+     },
+     {
+      "open_date": "2022-11-15T14:48:00+00:00",
+      "close_date": "2022-11-15T18:22:00+00:00",
+      "profit_abs": 214.6212,
+      "profit_ratio": 0.008947,
+      "exit_reason": "take_profit"
+     },
+     {
+      "open_date": "2022-11-16T08:33:00+00:00",
+      "close_date": "2022-11-16T09:31:00+00:00",
+      "profit_abs": 123.246,
+      "profit_ratio": 0.002581,
+      "exit_reason": "take_profit"
+     },
+     {
+      "open_date": "2022-11-16T09:33:00+00:00",
+      "close_date": "2022-11-16T13:56:00+00:00",
+      "profit_abs": 148.6289,
+      "profit_ratio": 0.006239,
+      "exit_reason": "take_profit"
+     },
+     {
+      "open_date": "2022-11-16T14:48:00+00:00",
+      "close_date": "2022-11-16T20:57:00+00:00",
+      "profit_abs": 59.1424,
+      "profit_ratio": 0.002512,
+      "exit_reason": "session_end"
+     },
+     {
+      "open_date": "2022-11-17T08:30:00+00:00",
+      "close_date": "2022-11-17T09:07:00+00:00",
+      "profit_abs": 75.1398,
+      "profit_ratio": 0.003185,
+      "exit_reason": "take_profit"
+     },
+     {
+      "open_date": "2022-11-17T09:15:00+00:00",
+      "close_date": "2022-11-17T10:52:00+00:00",
+      "profit_abs": 175.6466,
+      "profit_ratio": 0.007466,
+      "exit_reason": "take_profit"
+     },
+     {
+      "open_date": "2022-11-17T14:48:00+00:00",
+      "close_date": "2022-11-17T18:00:00+00:00",
+      "profit_abs": 260.6496,
+      "profit_ratio": 0.011208,
+      "exit_reason": "take_profit"
+     }
+    ]
+   },
+   "loss": {
+    "n": 9,
+    "start": "2022-09-01T07:30:00+00:00",
+    "end": "2022-09-06T10:25:00+00:00",
+    "pnl_abs": -1346.36,
+    "count": 1,
+    "trades": [
+     {
+      "open_date": "2022-09-01T07:30:00+00:00",
+      "close_date": "2022-09-01T11:08:00+00:00",
+      "profit_abs": -89.8108,
+      "profit_ratio": -0.0037,
+      "exit_reason": "stop_loss"
+     },
+     {
+      "open_date": "2022-09-01T14:03:00+00:00",
+      "close_date": "2022-09-01T19:08:00+00:00",
+      "profit_abs": -211.3124,
+      "profit_ratio": -0.008716,
+      "exit_reason": "stop_loss"
+     },
+     {
+      "open_date": "2022-09-02T07:18:00+00:00",
+      "close_date": "2022-09-02T12:30:00+00:00",
+      "profit_abs": -110.3248,
+      "profit_ratio": -0.004499,
+      "exit_reason": "stop_loss"
+     },
+     {
+      "open_date": "2022-09-02T14:06:00+00:00",
+      "close_date": "2022-09-02T14:30:00+00:00",
+      "profit_abs": -273.8314,
+      "profit_ratio": -0.011147,
+      "exit_reason": "stop_loss"
+     },
+     {
+      "open_date": "2022-09-02T14:33:00+00:00",
+      "close_date": "2022-09-02T16:33:00+00:00",
+      "profit_abs": -298.3327,
+      "profit_ratio": -0.011994,
+      "exit_reason": "stop_loss"
+     },
+     {
+      "open_date": "2022-09-05T07:24:00+00:00",
+      "close_date": "2022-09-05T13:38:00+00:00",
+      "profit_abs": -89.8066,
+      "profit_ratio": -0.003712,
+      "exit_reason": "stop_loss"
+     },
+     {
+      "open_date": "2022-09-05T14:21:00+00:00",
+      "close_date": "2022-09-05T22:00:00+00:00",
+      "profit_abs": -50.3079,
+      "profit_ratio": -0.002071,
+      "exit_reason": "session_end"
+     },
+     {
+      "open_date": "2022-09-06T07:24:00+00:00",
+      "close_date": "2022-09-06T08:07:00+00:00",
+      "profit_abs": -111.3162,
+      "profit_ratio": -0.004548,
+      "exit_reason": "stop_loss"
+     },
+     {
+      "open_date": "2022-09-06T08:09:00+00:00",
+      "close_date": "2022-09-06T10:25:00+00:00",
+      "profit_abs": -111.3155,
+      "profit_ratio": -0.004571,
+      "exit_reason": "stop_loss"
+     }
+    ]
+   }
+  },
+  "headline": "Najhorsia skupina je 'žiadna' vlastnosti 'Makro udalosť v ten deň': 2087 obchodov (88.1 %), break-even 0.0039 % oproti 0.0058 % celku. Bez nej by break-even bol 0.0199 % (+0.0141). Je to ale VACSINA obchodov, takze to nie je filter, ale nastavenie: hladaj parameter, ktory tuto vlastnost riadi.",
+  "runs": [
+   {
+    "id": "20261025-173448-6ac66c",
+    "pair": "MNQ/USD",
+    "timeframe": "3m",
+    "timerange": "20211001-20221001",
+    "trades": 575,
+    "profile": "NINJA_ORB_3m_20obchodov",
+    "note": "analytika: NINJA_ORB_3m_20obchodov · okno 20211001-20221001"
+   },
+   {
+    "id": "20261025-173448-02c3f3",
+    "pair": "MNQ/USD",
+    "timeframe": "3m",
+    "timerange": "20221001-20231001",
+    "trades": 504,
+    "profile": "NINJA_ORB_3m_20obchodov",
+    "note": "analytika: NINJA_ORB_3m_20obchodov · okno 20221001-20231001"
+   },
+   {
+    "id": "20261025-173448-37e027",
+    "pair": "MNQ/USD",
+    "timeframe": "3m",
+    "timerange": "20231001-20241001",
+    "trades": 425,
+    "profile": "NINJA_ORB_3m_20obchodov",
+    "note": "analytika: NINJA_ORB_3m_20obchodov · okno 20231001-20241001"
+   },
+   {
+    "id": "20261025-173448-73d3c1",
+    "pair": "MNQ/USD",
+    "timeframe": "3m",
+    "timerange": "20240904-20250904",
+    "trades": 449,
+    "profile": "NINJA_ORB_3m_20obchodov",
+    "note": "analytika: NINJA_ORB_3m_20obchodov · okno 20240904-20250904"
+   },
+   {
+    "id": "20261025-173448-7b5edd",
+    "pair": "MNQ/USD",
+    "timeframe": "3m",
+    "timerange": "20250904-20260904",
+    "trades": 457,
+    "profile": "NINJA_ORB_3m_20obchodov",
+    "note": "analytika: NINJA_ORB_3m_20obchodov · okno 20250904-20260904"
+   }
+  ],
+  "pairs": [
+   "MNQ/USD"
+  ],
+  "timeframes": [
+   "3m"
+  ],
+  "duplicates": 41,
+  "mixed_pairs": false,
+  "mixed_timeframes": false,
+  "config": {
+   "runs": 5,
+   "profiles": [
+    "NINJA_ORB_3m_20obchodov"
+   ],
+   "differing": {},
+   "mixed": false,
+   "severity": "ok",
+   "note": "všetky behy majú tú istú konfiguráciu: NINJA_ORB_3m_20obchodov"
+  },
+  "strategy": "orbnet",
+  "character": {
+   "trades": 2369,
+   "winrate": 44.74,
+   "payoff": 1.272,
+   "expectancy_pct": 0.0087,
+   "median_bars": 60,
+   "trades_per_day": 1.32,
+   "skew": 0.552,
+   "pre_entry_atr": 1.607,
+   "momentum_share": 93.5,
+   "heat_ratio": 1.019,
+   "exits": {
+    "stop_loss": 47.6,
+    "take_profit": 29.7,
+    "session_end": 22.7
+   },
+   "archetype": "breakout",
+   "confidence": "priemerná",
+   "evidence": [
+    "vstup po pohybe v smere obchodu (+1.61 ATR za 5 barov)",
+    "medián držania 60 barov grafu",
+    "winrate 44.74 %, payoff 1.272",
+    "1.32 obchodov za deň",
+    "šikmosť výnosov +0.552"
+   ],
+   "title": "Prerazenie (breakout)",
+   "signature": "Vstup po pohybe v smere obchodu, nízky winrate, vysoký payoff, krátke držanie.",
+   "normal": "Dlhé série strát sú normálne — platí sa nimi za tie prerazenia, ktoré vyjdú. Winrate pod 40 % je pri tomto type v poriadku.",
+   "watch": "Falošné prerazenia v úzkom rozsahu. Filter na veľkosť pohybu a na to, či je trh vôbec v rozsahu, býva silnejšia páka než čokoľvek na výstupe.",
+   "tune": "Prahy vstupu (aká veľká musí byť sviečka/pohyb) a RR. Nie winrate — ten sa dá zvýšiť len skrátením TP, a tým sa stratégia pokazí."
+  },
+  "archetypes": [
+   {
+    "key": "breakout",
+    "title": "Prerazenie (breakout)",
+    "signature": "Vstup po pohybe v smere obchodu, nízky winrate, vysoký payoff, krátke držanie.",
+    "normal": "Dlhé série strát sú normálne — platí sa nimi za tie prerazenia, ktoré vyjdú. Winrate pod 40 % je pri tomto type v poriadku.",
+    "watch": "Falošné prerazenia v úzkom rozsahu. Filter na veľkosť pohybu a na to, či je trh vôbec v rozsahu, býva silnejšia páka než čokoľvek na výstupe.",
+    "tune": "Prahy vstupu (aká veľká musí byť sviečka/pohyb) a RR. Nie winrate — ten sa dá zvýšiť len skrátením TP, a tým sa stratégia pokazí."
+   },
+   {
+    "key": "trend",
+    "title": "Trendová (momentum)",
+    "signature": "Vstup v smere pohybu, dlhé držanie, nízky winrate, veľmi vysoký payoff — výsledok nesie málo obchodov.",
+    "normal": "Mesiace bez zisku a potom jeden obchod, ktorý vyrovná rok. Rovná krivka kapitálu sa od tohto typu čakať nedá.",
+    "watch": "Vyhodnotenie na krátkom okne. Keď výsledok nesie päť obchodov z dvesto, jedno okno nehovorí nič — a Monte Carlo interval bude široký.",
+    "tune": "Trailing a to, ako dlho sa obchod drží. Skrátenie TP tento typ zabije."
+   },
+   {
+    "key": "reversion",
+    "title": "Protitrendová (mean reversion)",
+    "signature": "Vstup proti poslednému pohybu, vysoký winrate, nízky payoff, krátke držanie.",
+    "normal": "Winrate nad 60 % a payoff pod 1 je pri tomto type v poriadku — zarába sa frekvenciou, nie veľkosťou.",
+    "watch": "Jedna strata môže zmazať mesiac. Stop je tu dôležitejší než vstup a `maxLossDollar` aj drawdown limit majú väčší význam než pri ostatných typoch.",
+    "tune": "Stop a filter režimu (v trende protitrendová stratégia dostáva rany). Ladiť RR nahor väčšinou len zníži winrate a nič nepridá."
+   },
+   {
+    "key": "scalp",
+    "title": "Scalping",
+    "signature": "Veľa obchodov, veľmi krátke držanie, payoff blízko 1, winrate blízko 50 %.",
+    "normal": "Edge na obchod je rádovo taký veľký ako poplatok. Break-even poplatok je tu jediné číslo, ktoré niečo znamená.",
+    "watch": "Poplatky a slippage rozhodujú o všetkom. Beh s `--fee 0` je pri tomto type úplne bezcenný.",
+    "tune": "Break-even poplatok, nie PnL. A počet obchodov — menej lepších je zvyčajne viac."
+   },
+   {
+    "key": "pattern",
+    "title": "Formácia / štruktúra",
+    "signature": "Vstup na konkrétnej konfigurácii, nie na pohybe — predchádzajúci pohyb nie je systematicky ani v smere, ani proti.",
+    "normal": "Zmes: časť obchodov sa chová ako prerazenie, časť ako návrat. Priemer preto o jednotlivom obchode nehovorí veľa.",
+    "watch": "Práve pri tomto type sa najviac oplatí rozdeliť obchody na skupiny (`tester.analytics`) — priemer skrýva dve rôzne populácie.",
+    "tune": "Podmienky vstupu (ktoré modely/formácie zapnuté) a potom až výstup."
+   },
+   {
+    "key": "swing",
+    "title": "Swingová",
+    "signature": "Málo obchodov, držanie v dňoch, payoff nad 1.",
+    "normal": "Desiatky obchodov za rok. Štatistika je nutne slabá a intervaly široké.",
+    "watch": "Málo obchodov = ľahké pretrénovanie. Hyperopt tu prefituje najrýchlejšie.",
+    "tune": "Skôr výber trhu a obdobia než jednotlivé prahy."
+   }
+  ],
+  "portfolio": {
+   "duplicates": [
+    {
+     "a": "20261025-173448-37e027",
+     "b": "20261025-173448-73d3c1",
+     "what": "MNQ/USD 20231001-20241001 x 20240904-20250904"
+    }
+   ],
+   "members": [
+    {
+     "id": "20261025-173448-6ac66c",
+     "label": "MNQ/USD 3m 20211001-20221001",
+     "pair": "MNQ/USD",
+     "timeframe": "3m",
+     "timerange": "20211001-20221001",
+     "trades": 575,
+     "first": "",
+     "last": ""
+    },
+    {
+     "id": "20261025-173448-02c3f3",
+     "label": "MNQ/USD 3m 20221001-20231001",
+     "pair": "MNQ/USD",
+     "timeframe": "3m",
+     "timerange": "20221001-20231001",
+     "trades": 504,
+     "first": "",
+     "last": ""
+    },
+    {
+     "id": "20261025-173448-37e027",
+     "label": "MNQ/USD 3m 20231001-20241001",
+     "pair": "MNQ/USD",
+     "timeframe": "3m",
+     "timerange": "20231001-20241001",
+     "trades": 425,
+     "first": "",
+     "last": ""
+    },
+    {
+     "id": "20261025-173448-73d3c1",
+     "label": "MNQ/USD 3m 20240904-20250904",
+     "pair": "MNQ/USD",
+     "timeframe": "3m",
+     "timerange": "20240904-20250904",
+     "trades": 449,
+     "first": "",
+     "last": ""
+    },
+    {
+     "id": "20261025-173448-7b5edd",
+     "label": "MNQ/USD 3m 20250904-20260904",
+     "pair": "MNQ/USD",
+     "timeframe": "3m",
+     "timerange": "20250904-20260904",
+     "trades": 457,
+     "first": "",
+     "last": ""
+    }
+   ],
+   "trades": 2410,
+   "account": 10000,
+   "risks": [
+    {
+     "risk_pct": 0.25,
+     "return_pct": 7.63,
+     "max_drawdown_pct": 10.55,
+     "trades": 2410,
+     "ruin": false,
+     "skipped": 0,
+     "cagr_pct": 1.5,
+     "final": 10763.05
+    },
+    {
+     "risk_pct": 0.5,
+     "return_pct": 13.73,
+     "max_drawdown_pct": 20.29,
+     "trades": 2410,
+     "ruin": false,
+     "skipped": 0,
+     "cagr_pct": 2.65,
+     "final": 11372.56
+    },
+    {
+     "risk_pct": 1,
+     "return_pct": 20.15,
+     "max_drawdown_pct": 37.41,
+     "trades": 2410,
+     "ruin": false,
+     "skipped": 0,
+     "cagr_pct": 3.8,
+     "final": 12015.21
+    },
+    {
+     "risk_pct": 2,
+     "return_pct": 7.65,
+     "max_drawdown_pct": 63.1,
+     "trades": 2410,
+     "ruin": false,
+     "skipped": 0,
+     "cagr_pct": 1.51,
+     "final": 10765.41
+    },
+    {
+     "risk_pct": 3,
+     "return_pct": -27.92,
+     "max_drawdown_pct": 79.93,
+     "trades": 2410,
+     "ruin": false,
+     "skipped": 0,
+     "cagr_pct": -6.43,
+     "final": 7208.35
+    }
+   ],
+   "by_year": [
+    {
+     "year": "2021",
+     "return_pct": 9.35,
+     "trades": 110,
+     "final": 10934.78
+    },
+    {
+     "year": "2022",
+     "return_pct": 0.12,
+     "trades": 616,
+     "final": 10948.22
+    },
+    {
+     "year": "2023",
+     "return_pct": 15.52,
+     "trades": 448,
+     "final": 12647.54
+    },
+    {
+     "year": "2024",
+     "return_pct": -28.6,
+     "trades": 478,
+     "final": 9030.84
+    },
+    {
+     "year": "2025",
+     "return_pct": 10.92,
+     "trades": 422,
+     "final": 10017.09
+    },
+    {
+     "year": "2026",
+     "return_pct": 19.95,
+     "trades": 336,
+     "final": 12015.21
+    }
+   ],
+   "correlations": {
+    "matrix": {
+     "MNQ/USD 3m 20211001-20221001": {
+      "MNQ/USD 3m 20211001-20221001": 1,
+      "MNQ/USD 3m 20221001-20231001": null,
+      "MNQ/USD 3m 20231001-20241001": null,
+      "MNQ/USD 3m 20240904-20250904": null,
+      "MNQ/USD 3m 20250904-20260904": null
+     },
+     "MNQ/USD 3m 20221001-20231001": {
+      "MNQ/USD 3m 20211001-20221001": null,
+      "MNQ/USD 3m 20221001-20231001": 1,
+      "MNQ/USD 3m 20231001-20241001": null,
+      "MNQ/USD 3m 20240904-20250904": null,
+      "MNQ/USD 3m 20250904-20260904": null
+     },
+     "MNQ/USD 3m 20231001-20241001": {
+      "MNQ/USD 3m 20211001-20221001": null,
+      "MNQ/USD 3m 20221001-20231001": null,
+      "MNQ/USD 3m 20231001-20241001": 1,
+      "MNQ/USD 3m 20240904-20250904": null,
+      "MNQ/USD 3m 20250904-20260904": null
+     },
+     "MNQ/USD 3m 20240904-20250904": {
+      "MNQ/USD 3m 20211001-20221001": null,
+      "MNQ/USD 3m 20221001-20231001": null,
+      "MNQ/USD 3m 20231001-20241001": null,
+      "MNQ/USD 3m 20240904-20250904": 1,
+      "MNQ/USD 3m 20250904-20260904": null
+     },
+     "MNQ/USD 3m 20250904-20260904": {
+      "MNQ/USD 3m 20211001-20221001": null,
+      "MNQ/USD 3m 20221001-20231001": null,
+      "MNQ/USD 3m 20231001-20241001": null,
+      "MNQ/USD 3m 20240904-20250904": null,
+      "MNQ/USD 3m 20250904-20260904": 1
+     }
+    },
+    "pairs": [],
+    "mean": null,
+    "max": null,
+    "compared": 0,
+    "high": 0,
+    "high_share": null,
+    "min_months": 6,
+    "skipped": 10
+   },
+   "verdict": "TO NIE JE PORTFOLIO: 1 dvojic behov pokryva TEN ISTY trh v tom istom case (napr. MNQ/USD 20231001-20241001 x 20240904-20250904). Su to alternativy jednej veci, nie clenovia portfolia - to iste obdobie sa v sucte zapocitalo viackrat. Vyber behy z roznych trhov (matica trhov) alebo z roznych strategii."
+  },
+  "decay": {
+   "trades": 2369,
+   "whole_break_even": 0.0058,
+   "lo": -0.015339112245669348,
+   "hi": 0.026326035983580104,
+   "median": 0.005312314083470052,
+   "sd": 0.012628198391477188,
+   "slope": -0.00011,
+   "verdict": "DRZI",
+   "note": "DRZI: posledné obdobie (2025-06 - 2026-09) je na 56. percentile, teda v medziach -0.0153 až +0.0263 %, ktoré tá istá stratégia vyrobí sama od seba. Úpadok v dátach vidieť nie je.",
+   "periods": [
+    {
+     "label": "2021-10 - 2022-12",
+     "start": "2021-10-01T07:21:00+00:00",
+     "end": "2022-12-24T21:15:45+00:00",
+     "trades": 718,
+     "break_even_pct": 0.008,
+     "winrate": 44.15,
+     "per_month": 48.68,
+     "percentile": 54.6
+    },
+    {
+     "label": "2022-12 - 2024-03",
+     "start": "2022-12-24T21:15:45+00:00",
+     "end": "2024-03-18T11:10:30+00:00",
+     "trades": 539,
+     "break_even_pct": 0.0036,
+     "winrate": 45.64,
+     "per_month": 36.54,
+     "percentile": 41.6
+    },
+    {
+     "label": "2024-03 - 2025-06",
+     "start": "2024-03-18T11:10:30+00:00",
+     "end": "2025-06-11T01:05:15+00:00",
+     "trades": 567,
+     "break_even_pct": 0.0031,
+     "winrate": 42.68,
+     "per_month": 38.44,
+     "percentile": 43.8
+    },
+    {
+     "label": "2025-06 - 2026-09",
+     "start": "2025-06-11T01:05:15+00:00",
+     "end": "2026-09-03T15:00:00+00:00",
+     "trades": 545,
+     "break_even_pct": 0.0078,
+     "winrate": 46.79,
+     "per_month": 36.95,
+     "percentile": 56.5
+    }
+   ]
+  },
+  "synthetic": {
+   "profile": "NINJA_ORB_3m_20obchodov",
+   "rows": [
+    {
+     "timerange": "20211001-20221001",
+     "real": {
+      "run_id": "20261025-173448-6ac66c",
+      "trades": 575,
+      "break_even_pct": -0.0001,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20261025-173448-30b552",
+      "trades": 269,
+      "break_even_pct": 0.0164,
+      "signals": null,
+      "fill_pct": null
+     }
+    },
+    {
+     "timerange": "20221001-20231001",
+     "real": {
+      "run_id": "20261025-173448-02c3f3",
+      "trades": 504,
+      "break_even_pct": 0.017,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20261025-173448-f992eb",
+      "trades": 250,
+      "break_even_pct": -0.0147,
+      "signals": null,
+      "fill_pct": null
+     }
+    },
+    {
+     "timerange": "20231001-20241001",
+     "real": {
+      "run_id": "20261025-173448-37e027",
+      "trades": 425,
+      "break_even_pct": -0.0069,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20261025-173448-96a7dd",
+      "trades": 278,
+      "break_even_pct": -0.0085,
+      "signals": null,
+      "fill_pct": null
+     }
+    },
+    {
+     "timerange": "20240904-20250904",
+     "real": {
+      "run_id": "20261025-173448-73d3c1",
+      "trades": 449,
+      "break_even_pct": 0.0048,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20261025-173448-643566",
+      "trades": 245,
+      "break_even_pct": -0.0146,
+      "signals": null,
+      "fill_pct": null
+     }
+    },
+    {
+     "timerange": "20250904-20260904",
+     "real": {
+      "run_id": "20261025-173448-7b5edd",
+      "trades": 457,
+      "break_even_pct": 0.0069,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20261025-173448-35f453",
+      "trades": 241,
+      "break_even_pct": 0.0094,
+      "signals": null,
+      "fill_pct": null
+     }
+    }
+   ],
+   "missing": [],
+   "pairs": [
+    "SYNTH-MNQ/USD"
+   ],
+   "command": "python -m tester.webapp.cli run --profile NINJA_ORB_3m_20obchodov --pair SYNTH-MNQ/USD --timerange <okno> --note \"synteticky trh\"",
+   "windows": 5,
+   "real_median": 0.0048,
+   "synth_median": -0.0085,
+   "real_positive": 3,
+   "synth_positive": 2,
+   "real_fill": null,
+   "synth_fill": null,
+   "severity": "ok",
+   "verdict": "ENGINE OK: na premiešanom trhu edge nie je — kladný v 2 z 5 okien, medián -0.0085 % oproti +0.0048 % na skutočnom trhu. To, čo stratégia nameria, teda nevyrába backtest sám od seba."
+  },
+  "nulltest": {
+   "nulls": {
+    "anytime": {
+     "metric": "break_even_pct",
+     "observed": 0.0061,
+     "trades": 2369,
+     "iterations": 600,
+     "null": "anytime",
+     "mean": 0.000427,
+     "sd": 0.004523,
+     "percentile": 89.83,
+     "sigma": 1.25,
+     "lo": -0.007292,
+     "hi": 0.007862,
+     "note": "",
+     "verdict": "Naznak, ale nie dokaz (1.2 sigma, percentil 89.8). Take rozdiely nahoda robi bezne.",
+     "null_note": "vstupy kedykoľvek v okne"
+    },
+    "session": {
+     "metric": "break_even_pct",
+     "observed": 0.0061,
+     "trades": 2369,
+     "iterations": 600,
+     "null": "session",
+     "mean": 0.000609,
+     "sd": 0.00559,
+     "percentile": 82.67,
+     "sigma": 0.98,
+     "lo": -0.008425,
+     "hi": 0.009213,
+     "note": "",
+     "verdict": "Neodlisitelne od nahody (+1.0 sigma, percentil 82.7). Vyber vstupu k vysledku nepridava nic, co by sa nedalo dostat aj hodom mincou.",
+     "null_note": "vstupy v tých istých hodinách, v akých obchoduje stratégia"
+    }
+   },
+   "note": "Obe náhody dávajú podobný výsledok, takže edge nie je len o výbere času — je v tom, na čom stratégia vstupuje."
+  },
+  "by_market": [
+   {
+    "key": "MNQ/USD|3m",
+    "pair": "MNQ/USD",
+    "timeframe": "3m",
+    "windows": {
+     "20211001-20221001": {
+      "run_id": "20261025-173448-6ac66c",
+      "trades": 575,
+      "edge": -0.0027950787861365147,
+      "pnl_pct": -8.915
+     },
+     "20221001-20231001": {
+      "run_id": "20261025-173448-02c3f3",
+      "trades": 504,
+      "edge": 0.014112886151477242,
+      "pnl_pct": 38.323
+     },
+     "20231001-20241001": {
+      "run_id": "20261025-173448-37e027",
+      "trades": 425,
+      "edge": -0.008966628089608995,
+      "pnl_pct": -27.445
+     },
+     "20240904-20250904": {
+      "run_id": "20261025-173448-73d3c1",
+      "trades": 449,
+      "edge": 0.0030369741775484534,
+      "pnl_pct": 11.238
+     },
+     "20250904-20260904": {
+      "run_id": "20261025-173448-7b5edd",
+      "trades": 457,
+      "edge": 0.005441338467821927,
+      "pnl_pct": 26.836
+     }
+    },
+    "trades": 2410,
+    "positive": 3,
+    "done_ref": 5
+   }
+  ],
+  "reference_windows": [
+   "20211001-20221001",
+   "20221001-20231001",
+   "20231001-20241001",
+   "20240904-20250904",
+   "20250904-20260904"
+  ]
+ }
+}

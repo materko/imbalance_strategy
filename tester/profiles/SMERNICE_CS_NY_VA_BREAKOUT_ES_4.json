@@ -1,0 +1,22 @@
+{
+  "useCloseTime": false,
+  "rrRatio": 0.5,
+  "slBufferTicks": 8,
+  "confirmCloses": 1,
+  "entryMode": "retest",
+  "allowLong": true,
+  "trendFilter": "off",
+  "profileRows": 30,
+  "valueAreaPct": 70.0,
+  "useVwap": false,
+  "retestBars": 10,
+  "trendEmaLen": 50,
+  "trendTF": 60,
+  "volFilter": "off",
+  "entryEndH": 11,
+  "_strategy": "nyvaesnet",
+  "_instrument": "es_databento",
+  "_timeframe": "3m",
+  "_title": "NY VA ES 4 C# · RR 0,5 · PF 1,37 · WR 73 % · 153 obch/rok · ES 3m · max DD 8 253 $ · posl. rok PF 1,32",
+  "_source_profile": "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_4.json"
+}
