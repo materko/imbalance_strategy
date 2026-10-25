@@ -111,7 +111,7 @@ Freqtrade a graf webapp).
 | `fill` | `ft` (čas exekúcie ms UTC), `id` (id vstupu), `side` `in`/`out`, `exit` (meno výstupu: NT `Stop loss`/`Profit target`/`tb_close`/`tb_session_end`, MT5 `sltp`/`close`; pri `in` prázdne), `price`, `qty`, `ready` | vyplnenie u brokera (adaptér, nie engine) |
 | `stat` | `stats` (objekt: `Engine.Stats()` + `adapter_*` počítadlá) | pri ukončení |
 | `note` | `text`, `level` (`info`/`warn`/`error`) | varovania adaptéra (neskorý bar, chyba spoolu…) |
-| `hb` | `bars` (barov v session), `lb` (čas posledného baru, 0 = žiadny), `mode` (posledný `control`, keď bol) | **ping** každých 60 s z časovača `LiveSpool` (mimo Strategy Testera/Analyzera), aj keď bary nechodia; **nečísluje `seq`** (nesie posledné pridelené) |
+| `hb` | `bars` (barov v session), `lb` (čas posledného baru, 0 = žiadny), `mode` (posledný `control`, keď bol), `pos` / `pos_px` / `pos_of` (pozícia u brokera — nižšie, keď ju adaptér hlási) | **ping** každých 60 s z časovača `LiveSpool` (mimo Strategy Testera/Analyzera), aj keď bary nechodia; **nečísluje `seq`** (nesie posledné pridelené) |
 | `bye` | `reason` | ukončenie stratégie (posledný riadok súboru, keď sa stihne) |
 
 Príklad:
@@ -142,6 +142,14 @@ posledné pridelené `seq` a `LiveStore` z pingov behu drží **jeden riadok** (
 aj `gaps` ho nevidia): novší ping ho zmaže a vloží znova s novým `rowid` — zrkadlo ho tak dostane cez
 `export` ako každú inú udalosť, starší alebo opakovaný ping nezmení nič. Stav inštancie nesie
 `last_hb` a `hb` (telo posledného pingu) a `last_t` sa posúva aj pingom.
+
+**Pozícia u brokera** (`pos`, `pos_px`, `pos_of`): odhad pozície z fillov nevie, čo sa stalo mimo telemetrie (reštart
+platformy, ručné zatvorenie, výstup, ktorý nikto nenahlásil — 16. 10. 2026 NT VWAP ORB ukazoval −1 ešte dni po tom,
+čo stop u brokera zavrel pozíciu). Adaptér preto volá `LiveSpool.Broker(qty, avgPrice, scope)` (MT5
+`StaticHost.SpoolBroker`) so skutočnou pozíciou z platformy: podpísané množstvo (+ long, − short, 0 flat), priemerná
+cena a `pos_of` = `account` (NinjaTrader AddOn: celý účet na inštrumente, aj iné inštancie) alebo `magic` (MT5 EA: len
+pozície s jeho magic). Ide do každého `hb`, pri zmene sa `hb` napíše hneď (v Testeri nie). Webapp ju na karte Live
+ukáže ako „u brokera“ a pri nezhode s odhadom (pri `account` so súčtom odhadov inštancií toho účtu a symbolu) dá ≠.
 
 **Živá / trh zatvorený / ticho** (`tradebot.live.store.liveness`, to isté v `live.js` `liveState`,
 v Telegrame `/status`, v nasadeniach `live.state`): inštancia, ktorá pinguje (posledný `hb` nie je
@@ -247,7 +255,7 @@ Webapp (`tester/webapp/api/live.py`, `static/js/live.js`, karta **Live**): `Live
 každý tik, ktorý niečo uložil, zdvihne `version` zrkadla a zobudí čakajúcich (`wait_for_change`).
 `GET /api/live` (inštancie + stav zrkadla + `cursor`), `GET /api/live/{id}/sessions`,
 `GET /api/live/{id}/snapshot?bars=&session=` (nesie `cursor` zrkadla pred čítaním),
-`GET /api/live/{id}/events?…&session=`, a **`GET /api/live/stream?after=`** — SSE
+`GET /api/live/{id}/events?…&session=`, `GET /api/live/{id}/lost` (vstupy bez zatvorenia, ktoré už nebežia), a **`GET /api/live/stream?after=`** — SSE
 (`text/event-stream`): hneď `{"type":"instances", instances, mirror, now, deploy, cursor}` a po
 každej zmene zrkadla `{"type":"events", instance, rows:[{id, session, seq, event}]}` po inštanciách
 + znova `instances`; bez zmeny každých 15 s komentár (keepalive). Stránka pri otvorení karty

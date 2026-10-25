@@ -58,6 +58,10 @@ namespace TradeBot.Core
         private long _bars;
         private long _lastBarMs;
         private string _mode = "";
+        // pozicia u brokera (`Broker`) - ide do kazdeho `hb`
+        private bool _brokerKnown;
+        private double _brokerQty, _brokerPrice;
+        private string _brokerScope = "";
         private System.Threading.Timer _timer;
         private int _heartbeatMs = DefaultHeartbeatMs;
 
@@ -447,11 +451,34 @@ namespace TradeBot.Core
                     JsonWriter w = Begin("hb");
                     w.Key("bars").Value(_bars).Key("lb").Value(_lastBarMs);
                     if (_mode.Length > 0) w.Key("mode").Value(_mode);
+                    if (_brokerKnown) w.Key("pos").Value(_brokerQty).Key("pos_px").Value(_brokerPrice).Key("pos_of").Value(_brokerScope);
                     End(w);
                     _writer.Flush();
                 }
             }
             catch (Exception e) { Break(e); }
+        }
+
+        /// <summary>Pozicia u brokera na instrumente: podpisane mnozstvo (+ long, - short, 0 flat), priemerna cena
+        /// a cia je (`account` = cely ucet na instrumente, aj ine instancie; `magic` = len tento EA). Ide do kazdeho
+        /// `hb` (`pos`, `pos_px`, `pos_of`); pri zmene sa `hb` napise hned. Adapter ju vola casto - zapise sa len zmena.
+        /// Nie je to odhad z fillov: webapp z nej vidi, ci pozicia u brokera naozaj je.</summary>
+        public void Broker(double qty, double avgPrice, string scope)
+        {
+            bool changed;
+            try
+            {
+                lock (_gate)
+                {
+                    if (Off()) return;
+                    scope = scope ?? "";
+                    // v Testeri sa ping nepise (ani casovacom) - pozicia sa len zapamata
+                    changed = !_tester && (!_brokerKnown || qty != _brokerQty || avgPrice != _brokerPrice || scope != _brokerScope);
+                    _brokerKnown = true; _brokerQty = qty; _brokerPrice = avgPrice; _brokerScope = scope;
+                }
+            }
+            catch (Exception e) { Break(e); return; }
+            if (changed) Heartbeat();
         }
 
         /// <summary>`Engine.Stats()` + pocitadla adaptera - pri ukonceni, pred `Close`.</summary>

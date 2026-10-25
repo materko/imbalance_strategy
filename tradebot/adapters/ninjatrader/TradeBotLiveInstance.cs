@@ -121,6 +121,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             public bool CloseSent;
             /// <summary>Kedy prisiel prvy fill vstupu (UTC) - pozicia uctu sa obnovi o chvilu neskor.</summary>
             public DateTime FilledAt;
+            /// <summary>Cas prveho fillu vstupu a odoslania vstupu (ms UTC) - po restarte od nich hlada exekucie uctu.</summary>
+            public long FilledMs, SentMs;
         }
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -188,6 +190,11 @@ namespace NinjaTrader.NinjaScript.AddOns
         private bool _pendingLogged;
         private int _controlEvents;
         private DateTime _controlChecked = DateTime.MinValue;
+
+        // pamat obchodov cez restart (docs/NINJATRADER.md, "Restart s otvorenymi obchodmi")
+        private string _statePath;
+        private string _stateText;
+        private bool _stateWarned;
 
         public LiveInstance(LiveDeployment deployment)
         {
@@ -272,6 +279,9 @@ namespace NinjaTrader.NinjaScript.AddOns
                     catch (Exception e) { Note("error", "kontrola pozicie uctu - " + e.Message); }
                     try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
                     catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
+                    SaveState();
+                    try { if (_live) SpoolBroker(); }
+                    catch (Exception e) { Log("pozicia uctu do telemetrie - " + e.Message); }
                     if ((DateTime.UtcNow - lastControl).TotalSeconds >= ControlPeriodSeconds)
                     {
                         lastControl = DateTime.UtcNow;
@@ -343,6 +353,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             _instrumentName = _inst.MasterInstrument.Name;
             _stepMs = d.Tf * 60000L;
             _instance = TB.LiveSpool.InstanceId("ninjatrader", _account.Name, _instrumentName, d.Tf, d.Strategy);
+            _statePath = Path.Combine(TradeBotLiveAddOn.StateDir, _instance + ".json");
 
             try
             {
@@ -382,6 +393,9 @@ namespace NinjaTrader.NinjaScript.AddOns
             _account.ExecutionUpdate += _executionHandler;
 
             Replay();
+            try { RestoreState(); }
+            catch (Exception e) { Note("error", "prevzatie obchodov spred restartu zlyhalo - " + e); }
+            SaveState();
             return true;
         }
 
@@ -710,15 +724,36 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// <summary>Pozicia uctu na instrumente (aj cudzia - napr. z predosleho behu alebo z grafu).</summary>
         private int AccountPosition()
         {
+            double price;
+            return AccountPosition(out price);
+        }
+
+        private int AccountPosition(out double avgPrice)
+        {
+            avgPrice = 0;
             try
             {
                 lock (_account.Positions)
                     foreach (Position p in _account.Positions)
                         if (p.Instrument != null && p.Instrument.FullName == _inst.FullName)
+                        {
+                            avgPrice = p.AveragePrice;
                             return p.MarketPosition == MarketPosition.Long ? p.Quantity : (p.MarketPosition == MarketPosition.Short ? -p.Quantity : 0);
+                        }
             }
             catch (Exception e) { Log("Positions: " + e.Message); }
             return 0;
+        }
+
+        /// <summary>Pozicia uctu na instrumente do pingu `hb` - webapp z nej vidi, ci pozicia u brokera naozaj je
+        /// (`account`: cely ucet, aj ine instancie na tom istom instrumente). Spool zapise len zmenu.</summary>
+        private void SpoolBroker()
+        {
+            if (_spool == null || _account == null || _inst == null) return;
+            double price;
+            int qty = AccountPosition(out price);
+            _spool.Broker(qty, qty != 0 ? price : 0.0, "account");
+            SpoolCheck();
         }
 
         private static string ExitName(string suffix)
@@ -793,6 +828,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 else if (intent.OrderType == TB.OrderType.Stop) order = Create(action, OrderType.StopMarket, qty, 0, Tick(plan.Entry), "", id);
                 else order = Create(action, OrderType.Limit, qty, Tick(plan.Entry), 0, "", id);
                 t.Entry = order;
+                t.SentMs = (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds);
                 _account.Submit(new Order[] { order });
                 Log("ENTRY " + id + " " + intent.OrderType + " @" + plan.Entry + " SL " + plan.StopLoss + " TP " + plan.TakeProfit + " qty " + qty);
             }
@@ -1087,7 +1123,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 // vyplnenie vstupu
                 if (t.Entry != null && !ReferenceEquals(t.Entry, o)) return;
-                if (!t.Filled) t.FilledAt = DateTime.UtcNow;
+                if (!t.Filled) { t.FilledAt = DateTime.UtcNow; t.FilledMs = execMs; }
                 t.Filled = true;
                 t.Parked = false;
                 t.OpenQty += qty;
@@ -1118,17 +1154,19 @@ namespace NinjaTrader.NinjaScript.AddOns
             _orders.Remove(id);
             ReleaseParked();
 
-            // Pine `dailyWinsCount`: vyhra = uzavrety obchod so ziskom > 0; zavretie koncom seansy / close sa nepocita
+            CountWin(t.Intent.Plan, suffix, price, execMs);
+        }
+
+        /// <summary>Pine `dailyWinsCount`: vyhra = uzavrety obchod so ziskom > 0; zavretie koncom seansy / close sa nepocita.</summary>
+        private void CountWin(TB.TradePlan plan, string suffix, double price, long execMs)
+        {
             if (suffix != "sl" && suffix != "tp") return;
-            TB.TradePlan plan = t.Intent.Plan;
             double move = plan.Direction == TB.Direction.Long ? price - plan.Entry : plan.Entry - price;
-            if (move > 0)
-            {
-                string day = UtcDay(execMs);
-                int wins;
-                _dailyWins.TryGetValue(day, out wins);
-                _dailyWins[day] = wins + 1;
-            }
+            if (move <= 0) return;
+            string day = UtcDay(execMs);
+            int wins;
+            _dailyWins.TryGetValue(day, out wins);
+            _dailyWins[day] = wins + 1;
         }
 
         // ------------------------------------------------------------------ //
@@ -1305,6 +1343,258 @@ namespace NinjaTrader.NinjaScript.AddOns
         }
 
         // ------------------------------------------------------------------ //
+        // Pamat obchodov cez restart (docs/NINJATRADER.md, "Restart s otvorenymi obchodmi") - zrkadlo MT5 RestoreState
+        // ------------------------------------------------------------------ //
+        // AddOn sa restartuje pri zmene deploy.json, aktualizacii kodu, restarte NinjaTradera alebo Windows. Pozicia
+        // ostava na ucte aj so svojimi SL/TP (GTC), ale bez pamate by ich novy beh nepoznal: ich fill by bral ako cudzi,
+        // telemetria by vystup nikdy nedostala a trailing ani koniec seansy by na poziciu nesiahli (16. 10. 2026: VWAP
+        // ORB short na MNQ, ktoreho stop sa vyplnil az 21. 10. pod inym behom). Stav sa preto pise pri kazdej zmene a po
+        // starte sa zladi s uctom - zdroj pravdy je ucet, stav dodava plan (vstup, TP, trailing), ktory na ucte nie je.
+
+        /// <summary>Obsah stavu: plan a stav sledovanych vstupov, denny limit vyhier a posledny bar.</summary>
+        private string StateJson()
+        {
+            TB.JsonWriter w = new TB.JsonWriter();
+            w.BeginObject().Key("v").Value(1).Key("instance").Value(_instance).Key("strategy").Value(Deployment.Strategy)
+             .Key("profile").Value(_controlProfile ?? "").Key("bar_ms").Value(_lastBarMs);
+            w.Key("wins").BeginObject();
+            foreach (KeyValuePair<string, int> kv in _dailyWins) w.Key(kv.Key).Value(kv.Value);
+            w.EndObject().Key("wins_seen").BeginObject();
+            foreach (KeyValuePair<string, int> kv in _dailyWinsSeen) w.Key(kv.Key).Value(kv.Value);
+            w.EndObject().Key("orders").BeginArray();
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+            {
+                Tracked t = kv.Value;
+                TB.TradePlan plan = t.Intent != null ? t.Intent.Plan : null;
+                if (plan == null) continue;
+                if (t.Filled ? t.OpenQty <= 0 : (t.Parked || !Alive(t.Entry))) continue;   // odlozeny vstup u brokera nie je
+                w.BeginObject().Key("id").Value(kv.Key).Key("ot").Value(t.Intent.OrderType.ToString())
+                 .Key("filled").Value(t.Filled).Key("filled_ms").Value(t.FilledMs).Key("sent_ms").Value(t.SentMs)
+                 .Key("open_qty").Value(t.OpenQty).Key("dir").Value((int)plan.Direction).Key("entry").Value(plan.Entry)
+                 .Key("sl").Value(plan.StopLoss).Key("tp").Value(plan.TakeProfit).Key("qty").Value(plan.Qty)
+                 .Key("sd").Value(plan.SlDistance);
+                // trailing len zakladny (aktivacia + odstup); potomok s vlastnym stopom (stop na VWAP) sa po restarte nevie
+                if (plan.Trailing != null && plan.Trailing.GetType() == typeof(TB.TrailingPlan))
+                    w.Key("trail").BeginObject().Key("act").Value(plan.Trailing.ActivationPriceDistance)
+                     .Key("off").Value(plan.Trailing.OffsetPriceDistance).Key("act_t").Value(plan.Trailing.ActivationTicks)
+                     .Key("off_t").Value(plan.Trailing.OffsetTicks).EndObject();
+                else w.Key("trail").Null();
+                w.Key("extreme").Value(t.Extreme).Key("last_stop").Value(t.LastStop).EndObject();
+            }
+            return w.EndArray().EndObject().ToString();
+        }
+
+        /// <summary>Zapise stav, ked sa zmenil (atomicky: tmp + presun). Chyba instanciu nezhodi - zaloguje sa raz.</summary>
+        private void SaveState()
+        {
+            if (!_live || _statePath == null || _engine == null) return;
+            string text;
+            try { text = StateJson(); }
+            catch (Exception e) { Log("stav: " + e.Message); return; }
+            if (text == _stateText) return;
+            try
+            {
+                Directory.CreateDirectory(TradeBotLiveAddOn.StateDir);
+                string tmp = _statePath + ".tmp";
+                File.WriteAllText(tmp, text);
+                if (File.Exists(_statePath)) File.Replace(tmp, _statePath, null);
+                else File.Move(tmp, _statePath);
+                _stateText = text;
+                _stateWarned = false;
+            }
+            catch (Exception e)
+            {
+                if (_stateWarned) return;
+                _stateWarned = true;
+                Note("warn", "stav obchodov sa neda zapisat do " + _statePath + " (" + e.Message + ") - po restarte ich instancia neprevezme");
+            }
+        }
+
+        private List<Order> WorkingOrders()
+        {
+            List<Order> list = new List<Order>();
+            lock (_account.Orders)
+                foreach (Order o in _account.Orders)
+                    if (o.Instrument != null && o.Instrument.FullName == _inst.FullName && Alive(o)) list.Add(o);
+            return list;
+        }
+
+        private List<Execution> AccountExecutions()
+        {
+            List<Execution> list = new List<Execution>();
+            lock (_account.Executions)
+                foreach (Execution x in _account.Executions)
+                    if (x.Instrument != null && x.Instrument.FullName == _inst.FullName && !string.IsNullOrEmpty(x.Name)) list.Add(x);
+            list.Sort(delegate(Execution a, Execution b) { return a.Time.CompareTo(b.Time); });
+            return list;
+        }
+
+        private static Order Named(List<Order> orders, string name)
+        {
+            foreach (Order o in orders) if (o.Name == name) return o;
+            return null;
+        }
+
+        private static TB.OrderIntent IntentFrom(string id, Dictionary<string, object> s)
+        {
+            TB.Direction dir = TB.Json.GetDouble(s, "dir", 1) < 0 ? TB.Direction.Short : TB.Direction.Long;
+            TB.TrailingPlan trail = null;
+            Dictionary<string, object> tr = TB.Json.Get(s, "trail") as Dictionary<string, object>;
+            if (tr != null)
+                trail = new TB.TrailingPlan(TB.Json.GetDouble(tr, "act", 0), TB.Json.GetDouble(tr, "off", 0),
+                                            TB.Json.GetDouble(tr, "act_t", 0), TB.Json.GetDouble(tr, "off_t", 0));
+            TB.TradePlan plan = new TB.TradePlan(dir, TB.Json.GetDouble(s, "entry", 0), TB.Json.GetDouble(s, "sl", 0),
+                                                 TB.Json.GetDouble(s, "tp", 0), TB.Json.GetDouble(s, "qty", 1), TB.Json.GetDouble(s, "sd", 0), trail);
+            TB.OrderIntent intent = new TB.OrderIntent(TB.OrderAction.Entry, id, 0, "prevzaty po restarte");
+            intent.Direction = dir;
+            intent.Plan = plan;
+            string ot = TB.Json.GetString(s, "ot", "Market");
+            intent.OrderType = ot == "Limit" ? TB.OrderType.Limit : (ot == "Stop" ? TB.OrderType.Stop : TB.OrderType.Market);
+            return intent;
+        }
+
+        private static void ReadCounts(Dictionary<string, object> root, string key, Dictionary<string, int> into)
+        {
+            Dictionary<string, object> d = TB.Json.Get(root, key) as Dictionary<string, object>;
+            if (d == null) return;
+            foreach (KeyValuePair<string, object> kv in d) into[kv.Key] = TB.Json.ToInt(kv.Value);
+        }
+
+        /// <summary>Trailing: najlepsia cena z barov grafu, ktore presli od `fromMs` (otvorenie baru, ms UTC).</summary>
+        private double? CatchUpExtreme(TB.TradePlan plan, double? extreme, long fromMs)
+        {
+            if (plan.Trailing == null || _chart == null) return extreme;
+            bool isLong = plan.Direction == TB.Direction.Long;
+            double best = extreme.HasValue ? extreme.Value : plan.Entry;
+            lock (_chart.Gate)
+                foreach (Candle c in _chart.Bars)
+                    if (c != null && ToMs(c.Time) - _stepMs >= fromMs) best = isLong ? Math.Max(best, c.High) : Math.Min(best, c.Low);
+            return best;
+        }
+
+        /// <summary>
+        /// Po predhistorii: stav spred restartu zladit s uctom. Pozicia stale bezi, ked na ucte ziju jej SL/TP
+        /// (`&lt;id&gt;:sl`, `&lt;id&gt;:tp`, OCO) - prevezme sa s planom zo stavu. Co sa pocas vypadku vyplnilo (vstup s menom id,
+        /// vystup `&lt;id&gt;:*`), je v exekuciach uctu: ide do spoolu ako fill a SL/TP so ziskom do denneho limitu. Vstup
+        /// vyplneny pocas vypadku dostane SL/TP. Cakajuci vstup zo stavu sa u brokera zrusi - engine po predhistorii
+        /// o nom nevie a platny vstup posle znova. Ine ordery a pozicie na instrumente (ine instancie, Chart Trader)
+        /// sa nemenia.
+        /// </summary>
+        private void RestoreState()
+        {
+            if (_statePath == null || !File.Exists(_statePath)) return;
+            Dictionary<string, object> root;
+            try { root = TB.Json.ParseObject(File.ReadAllText(_statePath)); }
+            catch (Exception e)
+            {
+                Note("warn", "stav " + _statePath + " sa neda precitat (" + e.Message + ") - obchody spred restartu sa neprevezmu");
+                return;
+            }
+            if (TB.Json.GetString(root, "instance", "") != _instance) return;
+            long savedBarMs = (long)TB.Json.GetDouble(root, "bar_ms", 0);
+            ReadCounts(root, "wins", _dailyWins);
+            ReadCounts(root, "wins_seen", _dailyWinsSeen);
+            List<object> saved = TB.Json.Get(root, "orders") as List<object>;
+            if (saved == null || saved.Count == 0) return;
+
+            List<Order> working = WorkingOrders();
+            List<Execution> execs = AccountExecutions();
+            int adopted = 0, filledAway = 0, closedAway = 0, cancelled = 0, lost = 0;
+            foreach (object item in saved)
+            {
+                Dictionary<string, object> s = item as Dictionary<string, object>;
+                string id = s != null ? TB.Json.GetString(s, "id", "") : "";
+                if (id.Length == 0) continue;
+                TB.OrderIntent intent = IntentFrom(id, s);
+                TB.TradePlan plan = intent.Plan;
+                bool filled = TB.Json.GetBool(s, "filled", false);
+                long inMs = (long)TB.Json.GetDouble(s, filled ? "filled_ms" : "sent_ms", 0);
+                int inQty = filled ? (int)Math.Round(TB.Json.GetDouble(s, "open_qty", 0)) : 0;
+                if (!filled)
+                {
+                    // cakajuci vstup: zvysok u brokera zrusit; co sa z neho vyplnilo pocas vypadku, sa prevezme
+                    Order entry = Named(working, id);
+                    if (entry != null) { CancelOrder(entry); cancelled++; }
+                    double value = 0;
+                    long firstMs = 0;
+                    foreach (Execution x in execs)
+                    {
+                        long ms = ToMs(x.Time);
+                        if (x.Name != id || ms < inMs - 1000) continue;
+                        if (firstMs == 0) firstMs = ms;
+                        inQty += x.Quantity;
+                        value += x.Price * x.Quantity;
+                        if (_spool != null) { _spool.Fill(ms, id, true, "", x.Price, x.Quantity, true); SpoolCheck(); }
+                    }
+                    if (inQty == 0) continue;
+                    inMs = firstMs;
+                    filledAway++;
+                    Log("RESTORE " + id + ": vstup sa vyplnil pocas vypadku x" + inQty + " @" + (value / inQty));
+                }
+                // vystupy, ktore prebehli pocas vypadku
+                int outQty = 0;
+                foreach (Execution x in execs)
+                {
+                    long ms = ToMs(x.Time);
+                    if (!x.Name.StartsWith(id + ":", StringComparison.Ordinal) || ms < inMs - 1000) continue;
+                    string suffix = x.Name.Substring(id.Length + 1);
+                    outQty += x.Quantity;
+                    Log("RESTORE " + id + ": vystup pocas vypadku " + ExitName(suffix) + " @" + x.Price + " x" + x.Quantity);
+                    if (_spool != null) { _spool.Fill(ms, id, false, ExitName(suffix), x.Price, x.Quantity, true); SpoolCheck(); }
+                    CountWin(plan, suffix, x.Price, ms);
+                }
+                Order sl = Named(working, id + ":sl"), tp = Named(working, id + ":tp");
+                int open = inQty - outQty;
+                if (open <= 0)
+                {
+                    closedAway++;
+                    if (sl != null) CancelOrder(sl);   // OCO by ich zrusilo samo; keby nie, nech neotvoria novu poziciu
+                    if (tp != null) CancelOrder(tp);
+                    continue;
+                }
+                if (sl == null && tp == null && outQty == 0)
+                {
+                    // ani SL/TP na ucte, ani vystup v exekuciach (NinjaTrader bol dole, exekucie spred pripojenia nema;
+                    // vstup vyplneny pocas vypadku SL/TP este nema a mohol ho niekto zavriet rucne): pozicia uctu
+                    // rozhodne, ci obchod este bezi - inak by nove SL/TP na flat ucte otvorili poziciu
+                    int pos = AccountPosition();
+                    if (Math.Sign(pos) != (int)plan.Direction || Math.Abs(pos) < open)
+                    {
+                        lost++;
+                        Note("warn", "vstup " + id + " (" + (plan.Direction == TB.Direction.Long ? "long" : "short") + " x" + open
+                             + ") spred restartu na ucte uz nie je a vystup sa v exekuciach nenasiel - neprebera sa (vystup len v historii uctu)");
+                        continue;
+                    }
+                }
+                Tracked t = new Tracked();
+                t.Intent = intent;
+                t.Filled = true;
+                t.OpenQty = open;
+                t.FilledMs = inMs;
+                t.FilledAt = DateTime.UtcNow.AddMinutes(-1);   // ReconcileExternal smie hned (vyplneny davno)
+                object ex = TB.Json.Get(s, "extreme");
+                double? extreme = filled && ex != null ? TB.Json.ToDouble(ex) : (double?)null;
+                t.Extreme = CatchUpExtreme(plan, extreme, filled && savedBarMs > 0 ? savedBarMs : inMs);
+                t.LastStop = sl != null && sl.StopPrice > 0 ? sl.StopPrice : TB.Json.GetDouble(s, "last_stop", plan.StopLoss);
+                _orders[id] = t;
+                if (sl != null && tp != null && sl.Quantity == open && tp.Quantity == open) { t.Sl = sl; t.Tp = tp; }
+                else
+                {
+                    // chyba jeden z vystupov alebo nesedi objem: polozit dvojicu znova
+                    if (sl != null) CancelOrder(sl);
+                    if (tp != null) CancelOrder(tp);
+                    EnsureExits(id, t);
+                }
+                adopted++;
+                Log("RESTORE " + id + ": prevzaty " + (plan.Direction == TB.Direction.Long ? "long" : "short") + " x" + open
+                    + " vstup " + plan.Entry + " SL " + t.LastStop + " TP " + plan.TakeProfit + (plan.Trailing != null ? " s trailingom" : ""));
+            }
+            if (adopted + filledAway + closedAway + cancelled + lost == 0) return;
+            Note("info", "po restarte prevzatych " + adopted + " pozicii (" + filledAway + " vyplnenych pocas vypadku), " + closedAway
+                 + " skoncilo pocas vypadku (vystup z exekucii uctu), " + cancelled + " cakajucich vstupov zrusenych, " + lost + " sa nedalo dohladat");
+        }
+
+        // ------------------------------------------------------------------ //
         // Koniec
         // ------------------------------------------------------------------ //
 
@@ -1348,6 +1638,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 }
             }
             catch (Exception e) { Log("rusenie vstupov: " + e.Message); }
+            SaveState();   // otvorene pozicie s planom pre dalsi beh
             DisposeSeries(_chart);
             DisposeSeries(_htfSeries);
             if (_m1Series != _chart) DisposeSeries(_m1Series);

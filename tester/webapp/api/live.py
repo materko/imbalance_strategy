@@ -35,6 +35,7 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+import sqlite3
 import threading
 import time
 from pathlib import Path
@@ -44,6 +45,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from tester.dashboard.live import trades_of
 from tradebot.core.config import ConfigError
 from tradebot.core.paths import LIVE_CURSOR_WEBAPP, LIVE_MIRROR, LIVE_MIRROR_CURSOR
 from tradebot.live.deploy import DEFAULT_MODE
@@ -834,6 +836,20 @@ def build(ctx: AppContext) -> APIRouter:
             raise HTTPException(404, f"inštancia {instance!r} v zrkadle nie je")
         snap["cursor"] = kurzor
         return snap
+
+    @router.get("/api/live/{instance}/lost")
+    def live_lost(instance: str):
+        """Vstupy bez zatvorenia v telemetrii, ktoré už nebežia (reštart platformy) — `id -> prečo`. Tabuľka Live
+        ich nepočíta do pozície; pravidlo je to isté ako na stránke výsledkov (`tester.dashboard.live.trades_of`)."""
+        path = mirror.store.path
+        if not path.exists():
+            return {"lost": {}}
+        db = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            lost = trades_of(db, instance)["lost"]
+        finally:
+            db.close()
+        return {"lost": {tr["id"]: why for tr, why in lost}}
 
     @router.get("/api/live/{instance}/events")
     def live_events(instance: str, after: int = 0, kinds: str = "", limit: int = Query(1000, ge=1, le=10000),

@@ -122,6 +122,22 @@ def _second_session(t0: int = 1_790_000_000_000 + 600_000) -> list[dict]:
     ]
 
 
+def test_api_lost_vstup_bez_zatvorenia_po_restarte(live_app):
+    """Vstup L-4711 (long, TP 20150) nemá v telemetrii výstup; kým ho cena nedosiahla, je otvorený, keď nový beh
+    platformy ukáže bar nad TP, tabuľka Live ho do pozície nepočíta — to isté pravidlo ako stránka výsledkov."""
+    c, mirror = live_app
+    t0 = 1_790_000_000_000
+    st = LiveStore(mirror.mirror_path)
+    st.ingest("agent-x", INSTANCE, "a1b2c3d4", _events() + [_bye(6, t0 + 120_000)])
+    assert c.get(f"/api/live/{INSTANCE}/lost").json() == {"lost": {}}
+    assert c.get("/api/live/neexistuje/lost").json() == {"lost": {}}
+
+    h = _hello("ffffffff", 1, t0 + 600_000)
+    st.ingest("agent-x", INSTANCE, "ffffffff", [h, {"seq": 2, "t": t0 + 600_001, "k": "bar", "bt": t0 + 420_000, "o": 20140.0,
+                                                    "h": 20155.0, "l": 20138.0, "c": 20150.0, "v": 10, "ready": True, "mb": 1}])
+    assert c.get(f"/api/live/{INSTANCE}/lost").json() == {"lost": {"L-4711": "cena po vstupe prešla SL alebo TP"}}
+
+
 def test_api_behy_a_snapshot_so_session(live_app):
     """Dva behy jednej inštancie v zrkadle: `/sessions` ich vymenuje (najnovší prvý, živý bez `bye`),
     snapshot/events so `session=` dajú len ten beh; bez `session` ako doteraz naprieč behmi."""

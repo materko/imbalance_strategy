@@ -52,6 +52,8 @@ namespace NinjaTrader.NinjaScript.AddOns
         public static string ProfilesDir { get { return Path.Combine(TradeBotDir, "profiles"); } }
         public static string SpoolDir { get { return Path.Combine(TradeBotDir, "spool"); } }
         public static string ControlDir { get { return Path.Combine(TradeBotDir, "control"); } }
+        /// <summary>Stav obchodov instancii pre prevzatie po restarte (`state\&lt;instancia&gt;.json`).</summary>
+        public static string StateDir { get { return Path.Combine(TradeBotDir, "state"); } }
         public static string DeployPath { get { return Path.Combine(TradeBotDir, "deploy.json"); } }
 
         protected override void OnStateChange()

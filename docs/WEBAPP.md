@@ -597,7 +597,10 @@ po zápise).
 Tabuľka inštancií (`<platforma>_<účet>_<symbol>_<tf>m_<stratégia>`): stav (**živá** = ping `hb` alebo
 udalosť do 3 min, bez pingov do 3 barov TF; **trh zatvorený** = pinguje, ale bary nechodia;
 **ticho** = platforma spadla alebo zamrzla — docs/LIVE.md, „Ping“), platforma, účet, symbol, TF, stratégia, profil, stroj, agent, vek
-posledného baru, odhad pozície (vstupy − výstupy z fillov podľa id, smer z orderu) a počet
+posledného baru, odhad pozície (vstupy − výstupy z fillov podľa id, smer z orderu; vstup bez zatvorenia, ktorý už
+nebeží — neskôr ďalší vstup, alebo cena prešla jeho SL / TP, `/api/live/<inštancia>/lost` —, sa nepočíta a ukáže
+sa ako „?“ s dôvodom), pozícia **u brokera** z pingu platformy (`hb.pos`, docs/LIVE.md „Ping“; ≠ pri nezhode s odhadom,
+— pri staršom kóde AddOnu / EA) a počet
 fillov za dnešný deň UTC. Klik otvorí detail: Plotly sviečky z posledných 500 barov, kresby
 enginu zlúčené podľa `id` (tie isté vrstvy a štýly ako graf behu — `objectTraces` z
 `chart.js`), vyplnenia ako značky (▲ long, ▼ short, × výstup), tabuľky posledných orderov a
@@ -614,7 +617,7 @@ beh sa už neobnovuje, živý áno.
 
 API: `GET /api/live` (inštancie + stav zrkadla + `deploy` = či je hub nastavený a či webapp má
 admin token), `GET /api/live/{id}/sessions`, `GET /api/live/{id}/snapshot?bars=&session=`,
-`GET /api/live/{id}/events?after=&kinds=&limit=&session=` — `tester/webapp/api/live.py`, stránka
+`GET /api/live/{id}/events?after=&kinds=&limit=&session=`, `GET /api/live/{id}/lost` — `tester/webapp/api/live.py`, stránka
 `static/js/live.js`.
 
 ### Účty a nasadenia (fáza 2b)

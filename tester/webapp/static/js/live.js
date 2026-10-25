@@ -333,21 +333,66 @@ async function loadLiveFills(id) {
     if (ev.k === "fill") f.fills.push(ev);
     else if (ev.k === "order" && ev.a === "entry") f.dirs[ev.id] = Number(ev.dir ?? (ev.p && ev.p.dir) ?? 1) || 1;
   }
+  // vstupy bez zatvorenia, ktoré už nebežia — server pozná aj bary (cena prešla SL / TP), ako stránka výsledkov
+  try { f.lost = (await api(`/api/live/${encodeURIComponent(id)}/lost`)).lost || {}; } catch (e) { f.lost = f.lost || {}; }
   return f;
 }
 
-/** Odhad pozície z fillov: za každé id vstupy − výstupy (v množstve) × smer vstupu z orderu. */
+/** Odhad pozície z fillov: za každé id vstupy − výstupy (v množstve) × smer vstupu z orderu. Vstup bez
+ *  zatvorenia v telemetrii (reštart platformy), ktorý už nebeží — inštancia neskôr vstúpila do ďalšieho
+ *  obchodu (vždy len jedna pozícia) alebo podľa servera cena prešla jeho SL / TP —, sa nepočíta: je v `lost`. */
 function livePosition(f) {
   if (!f || !f.fills.length) return null;
-  const net = {};
-  for (const x of f.fills) net[x.id] = (net[x.id] || 0) + (x.side === "in" ? 1 : -1) * Number(x.qty || 0);
-  let qty = 0; const open = [];
+  const net = {}, firstIn = {};
+  let lastIn = 0;
+  for (const x of f.fills) {
+    net[x.id] = (net[x.id] || 0) + (x.side === "in" ? 1 : -1) * Number(x.qty || 0);
+    if (x.side !== "in") continue;
+    const ft = Number(x.ft || x.t || 0);
+    if (!(x.id in firstIn)) firstIn[x.id] = ft;
+    lastIn = Math.max(lastIn, ft);
+  }
+  let qty = 0; const open = [], lost = [];
   for (const [id, q] of Object.entries(net)) {
     if (Math.abs(q) < 1e-9) continue;
-    const dir = f.dirs[id] || 1;
-    qty += q * dir; open.push(`${id} ${q * dir > 0 ? "long" : "short"} ${Math.abs(q)}`);
+    const dir = f.dirs[id] || 1, side = `${id} ${q * dir > 0 ? "long" : "short"} ${Math.abs(q)}`;
+    const why = (f.lost || {})[id] || (q > 0 && firstIn[id] < lastIn ? "neskôr vstúpila do ďalšieho obchodu" : "");
+    if (why) { lost.push(`${side} bez zatvorenia v telemetrii (${why}) — do pozície sa nepočíta`); continue; }
+    qty += q * dir; open.push(side);
   }
-  return { qty, open };
+  return { qty, open, lost };
+}
+
+/** Pozícia u brokera z posledného pingu `hb` (`pos`, `pos_px`, `pos_of`) a s čím ju porovnať: pri `account`
+ *  (NinjaTrader — celý účet na inštrumente) so súčtom odhadov všetkých inštancií toho účtu a symbolu, pri `magic`
+ *  (MT5 — len tento EA) s odhadom inštancie. `null`, keď platforma pozíciu nehlási (starší kód). */
+function liveBroker(inst) {
+  const hb = inst.hb || {};
+  if (typeof hb.pos !== "number") return null;
+  const same = hb.pos_of === "account"
+    ? lv.instances.filter(i => i.platform === inst.platform && i.account === inst.account && i.symbol === inst.symbol)
+    : [inst];
+  let expected = 0;
+  for (const i of same) { const p = livePosition(lv.fills[i.id]); expected += p ? p.qty : 0; }
+  return { qty: hb.pos, price: hb.pos_px, scope: hb.pos_of, t: hb.t, expected, shared: same.length > 1 };
+}
+
+function liveBrokerText(b) {
+  if (b === null) return `<span class="muted" title="platforma pozíciu účtu do telemetrie nehlási (starší kód AddOnu / EA)">—</span>`;
+  const n = b.qty > 0 ? `+${b.qty}` : String(b.qty);
+  const kde = b.scope === "account" ? `celý účet na inštrumente${b.shared ? " (aj iné inštancie)" : ""}` : "pozície tohto EA (magic)";
+  const tip = `${kde}${b.qty ? ` @${b.price}` : ""}, ping ${b.t ? liveAge(b.t, lv.now) : "—"}`;
+  const zle = Math.abs(b.qty - b.expected) > 1e-9;
+  return `<span title="${esc(tip)}">${n}</span>` + (zle
+    ? ` <span class="chip bad" title="${esc(`odhad z fillov dáva ${b.expected > 0 ? "+" : ""}${b.expected}, u brokera je ${n} — výstup alebo vstup do telemetrie neprišiel`)}">≠</span>`
+    : "");
+}
+
+/** Pozícia do tabuľky a karty: číslo, pri vstupe bez zatvorenia s výstrahou. */
+function livePosText(pos) {
+  if (pos === null) return "—";
+  const n = pos.qty > 0 ? `+${pos.qty}` : String(pos.qty);
+  return pos.lost.length ? `${n} <span class="chip warn" title="${esc(pos.lost.join("\n"))}">?</span>` : n;
 }
 
 function liveFillsToday(f) {
@@ -384,13 +429,14 @@ function renderLiveList() {
   $("#live-table tbody").innerHTML = list.map(i => {
     const f = lv.fills[i.id];
     const pos = livePosition(f);
-    const posTxt = pos === null ? "—" : (pos.qty > 0 ? `+${pos.qty}` : String(pos.qty));
+    const posTxt = livePosText(pos);
     return `<tr data-live="${esc(i.id)}" class="${i.id === lv.selected ? "hl" : ""}">
       <td>${liveStatusChip(i)}</td><td>${esc(i.platform || "—")}</td><td>${esc(i.account || "—")}</td>
       <td><b>${esc(i.symbol || "—")}</b></td><td>${i.tf ? i.tf + "m" : "—"}</td><td>${esc(i.strategy || "—")}</td>
       <td>${esc(i.profile || "—")}</td><td>${esc(i.host || "—")}</td><td>${esc(i.agent || "—")}</td>
       <td title="${i.last_bar_ms ? utc(i.last_bar_ms) + " UTC (otvorenie baru)" : ""}">${i.last_bar_ms ? `${liveAge(i.last_bar_ms, lv.now)} <span class="muted">${utc(i.last_bar_ms).slice(5, 16)}</span>` : "—"}</td>
-      <td class="num" title="${pos ? esc(pos.open.join(", ")) : "žiadne vyplnenia"}">${posTxt}</td>
+      <td class="num" title="${pos ? esc(pos.open.join(", ") || "flat") : "žiadne vyplnenia"}">${posTxt}</td>
+      <td class="num">${liveBrokerText(liveBroker(i))}</td>
       <td class="num">${liveFillsToday(f)}</td></tr>`;
   }).join("");
   for (const tr of $$("#live-table tbody tr")) tr.onclick = () => openLiveDetail(tr.dataset.live);
@@ -463,7 +509,8 @@ function renderLiveCards(snap) {
     card("posledný bar", last ? liveAge(last.bt, lv.now) : "—", last ? utc(last.bt) + " UTC" : "bez barov"),
     card("posledná udalosť", liveAge(inst.last_t, lv.now), inst.last_t ? utc(inst.last_t) + " UTC" : ""),
     card("engine", last ? (last.ready ? "obchoduje" : "prehráva") : "—", last ? `bias ${last.mb ?? "—"}${last.cs ? " · koniec seansy" : ""}` : ""),
-    card("pozícia", pos === null ? "—" : (pos.qty > 0 ? `+${pos.qty}` : String(pos.qty)), pos && pos.open.length ? pos.open.join(", ") : "odhad z fillov"),
+    card("pozícia", livePosText(pos), esc(pos && (pos.open.length || pos.lost.length) ? [...pos.open, ...pos.lost].join(", ") : "odhad z fillov")),
+    card("u brokera", liveBrokerText(liveBroker(inst)), "z platformy (ping hb)"),
     card("fills dnes", String(liveFillsToday(f)), f ? `${f.fills.length} spolu v zrkadle` : ""),
     card(snap.session ? "barov v behu" : "barov v okne", String(bars.length), `${snap.orders.length} orderov · ${snap.draw.length} kresieb`),
   ];

@@ -399,8 +399,8 @@ aj `deploy/agent/install-agent.ps1`, a keď na stroji predsa chýba, agent si ju
 - Bez grafu, bez kreslenia; Playback Connection nie je podporovaný (čas z `Globals.Now` a `BarsRequest`
   na Playback neoverené).
 - Seedované indikátory (Supertrend/ADX na vlastnom TF) sa nesejú — rozbehnú sa na histórii grafu ako v Strategy.
-- Pozícia z predošlého behu / z grafu sa neprevezme: AddOn ju len rešpektuje (žiadny druhý vstup, engine ju vidí),
-  jej SL/TP ostávajú na účte, trailing pre ňu nepokračuje.
+- Vlastnú pozíciu z predošlého behu AddOn **prevezme** (nižšie „Reštart s otvorenými obchodmi“); cudziu (z grafu,
+  Chart Trader, iná inštancia) len rešpektuje — žiadny druhý vstup, engine ju vidí, nič na nej nemení.
 - Dve inštancie tej istej stratégie na tom istom účte a inštrumente (iný TF) by si mohli pomiešať mená
   orderov (id z enginu sa môžu zhodovať) — nerob to.
 - Ako v každom živom adaptéri: dve limitky vyplnené v tej istej sekunde, skôr než príde zrušenie, dajú dve pozície.
@@ -420,6 +420,37 @@ späť do `deploy.json` → nová inštancia do 5 s (`hello`, `paused`, BarsRequ
 na Sim101 — Simulated Data Feed sa v okne testu hýbal o 2 body a engine žiadny vstup neposlal; cesta
 `CreateOrder/Submit/OCO/ExecutionUpdate` je napísaná podľa PoC (tam market order na Sim101 prešiel), ale prvý živý fill
 z AddOnu ešte čaká.
+
+#### Reštart s otvorenými obchodmi
+
+AddOn inštanciu reštartuje pri zmene `deploy.json`, aktualizácii kódu, reštarte NinjaTradera alebo Windows. Pozícia
+ostáva na účte aj so svojimi SL/TP (GTC ordery `<id>:sl` / `<id>:tp`), ale nový beh by o nej bez pamäte nevedel: fill
+jej stopu by bral ako cudzí, telemetria by výstup nikdy nedostala a trailing ani koniec seansy by na ňu nesiahli
+(16. 10. 2026: VWAP ORB short na MNQ, ktorého stop sa vyplnil až 21. 10. pod iným behom — webapp ukazovala −1).
+Ako MT5 (`RestoreState`, [MT5.md](MT5.md)) preto inštancia píše pri každej zmene (fill, vstup, trailing, nový bar)
+stav do `Documents\NinjaTrader 8\TradeBot\state\<inštancia>.json` (atomicky tmp + presun, nezmenený sa neprepisuje):
+sledované vstupy s plánom (smer, vstup, SL, TP, plánovaný počet, `sd`, trailing — aktivácia a odstup, extrém,
+posledný stop), čas odoslania a vyplnenia, otvorený objem, posledný spracovaný bar a denný limit výhier.
+
+Po štarte (**po** predhistórii, ktorá beží bez obchodov) ho `RestoreState` zladí s účtom — zdroj pravdy je účet, stav
+dodá plán, ktorý na účte nie je:
+
+- **SL/TP na účte žijú** → pozícia beží: prevezme sa s plánom zo stavu, SL z orderu na účte (trailing pred reštartom),
+  extrém trailingu dobehne bary, ktoré počas výpadku prešli. Chýba jeden z dvojice alebo nesedí objem → položí sa znova.
+- **výstup počas výpadku** (exekúcia účtu s menom `<id>:*` po vyplnení) → ide do spoolu ako `fill` (`Stop loss` /
+  `Profit target` / `tb_*`) s cenou a časom z exekúcie, SL/TP so ziskom do denného limitu výhier.
+- **vstup vyplnený počas výpadku** (exekúcia s menom `<id>`) → `fill` vstupu; keď ho pozícia účtu ešte nesie, prevezme
+  sa a dostane SL/TP (na flat účte by nové SL/TP otvorili pozíciu); zvyšok
+  čakajúceho vstupu sa zruší. Čakajúci vstup bez vyplnenia sa u brokera zruší — engine po predhistórii o ňom nevie
+  a platný vstup pošle znova.
+- **ani SL/TP, ani exekúcia** (NinjaTrader bol dole a exekúcie spred pripojenia nemá) → rozhodne pozícia účtu: v smere
+  obchodu a aspoň s jeho objemom sa prevezme (a dostane SL/TP), inak sa zapíše `warn`, že výstup je len v histórii účtu.
+
+Súhrn ide do telemetrie ako `note` („po reštarte prevzatých N pozícií …“). Iné ordery a pozície na inštrumente sa
+nemenia. Trailing s vlastným stopom (potomok `TrailingPlan`, napr. stop na VWAP) sa do stavu nezapíše — prevzatá
+pozícia má potom pevný stop. Webapp na karte Live vstup bez zatvorenia, ktorý už nebeží (neskôr ďalší vstup, cena
+prešla SL / TP), do pozície nepočíta — rovnako ako stránka výsledkov (`tester.dashboard.live.trades_of`).
+**Neoverené naživo**: preložené proti NinjaTrader 8, ale reštart s otvorenou pozíciou na Sim účte ešte nebežal.
 
 **Signály sú rovnaké, fill model nie** — to platí pre každú platformu. Strategy Analyzer plní limitku
 podľa svojho *Order fill resolution*; pre porovnateľné čísla nastav *High* s 1-minútovou sériou (to je

@@ -396,3 +396,28 @@ def test_ping_hb_necisluje_seq_a_v_testeri_nie_je(static_host, tmp_path):
     assert sum(e["k"] == "hb" for e in zive) >= 2 and all(e["seq"] == 1 for e in zive if e["k"] == "hb")
     assert zive[-1]["k"] == "bye" and zive[-1]["seq"] == 2               # hello 1, bye 2 — pingy nečíslujú
     assert '"k":"hb"' not in open(tst.Path, encoding="utf-8").read()     # v Testeri žiadny ping
+
+
+def test_pozicia_u_brokera_ide_do_pingu_len_pri_zmene(static_host, tmp_path):
+    """`SpoolBroker` (MT5 EA, v NinjaTrader AddOne `LiveSpool.Broker`): pozícia u brokera ide do `hb` (`pos`,
+    `pos_px`, `pos_of`) — nová hneď, rovnaká znova nie; ďalší ping (časovač) ju nesie tiež. Webapp z nej vidí,
+    či pozícia u brokera naozaj je, nie len odhad z fillov."""
+    from tradebot.live import schema
+
+    h = static_host.Create("ibsnet", "{}", _INST, 3)
+    assert h > 0, static_host.LastError()
+    try:
+        assert static_host.SpoolBroker(h, -1.0, 29445.5, "magic") == 0          # bez spoolu no-op
+        assert static_host.SpoolOpen(h, str(tmp_path), "mt5", "5012345-Demo Server", "NAS100.cash", "p", False) == 1, \
+            static_host.LastError()
+        path = static_host.SpoolPath(h)
+        assert static_host.SpoolBroker(h, -1.0, 29445.5, "magic") == 1, static_host.LastError()
+        assert static_host.SpoolBroker(h, -1.0, 29445.5, "magic") == 1          # bez zmeny: žiadny nový riadok
+        assert static_host.SpoolBroker(h, 0.0, 0.0, "magic") == 1
+        assert static_host.SpoolHeartbeat(h) == 1
+        assert static_host.SpoolClose(h, "deinit") == 1
+    finally:
+        static_host.Destroy(h)
+
+    hb = [schema.parse_line(x) for x in open(path, encoding="utf-8").read().splitlines() if '"k":"hb"' in x]
+    assert [(e["pos"], e["pos_px"], e["pos_of"]) for e in hb] == [(-1.0, 29445.5, "magic"), (0.0, 0.0, "magic"), (0.0, 0.0, "magic")]

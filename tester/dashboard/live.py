@@ -99,13 +99,12 @@ def _rows(db: sqlite3.Connection, instance: str, kinds: tuple[str, ...]) -> list
     return [(r[0], json.loads(r[1])) for r in db.execute(q, (instance, *kinds))]
 
 
-def _instance(db: sqlite3.Connection, inst: dict[str, Any], now_ms: int) -> dict[str, Any]:
-    iid = inst["id"]
-    hello = json.loads(inst["hello"] or "{}")
-    pv = float(((hello.get("instrument") or {}).get("point_value")) or 1.0)
+def trades_of(db: sqlite3.Connection, iid: str) -> dict[str, Any]:
+    """Obchody inštancie z fillov: `open` (id -> otvorený), `trades` (zatvorené), `lost` (otvorené bez zatvorenia
+    v telemetrii, ktoré už nebežia — `(obchod, prečo)`), `orphans` (výstupy bez vstupu) a zámery vstupu
+    (`entries`, `cancels`, `filled_keys`) pre signály. To isté číta stránka výsledkov aj tabuľka Live vo webapp."""
     orders = _rows(db, iid, ("order",))
     fills = _rows(db, iid, ("fill",))
-    notes = _rows(db, iid, ("note",))
 
     # zámery vstupu naživo: (session, id) -> udalosť; posledný zámer s daným id pre párovanie fillov
     entries: dict[tuple[str, str], dict[str, Any]] = {}
@@ -190,6 +189,18 @@ def _instance(db: sqlite3.Connection, inst: dict[str, Any], now_ms: int) -> dict
         if why:
             lost.append((tr, why))
             del open_[oid]
+    return {"open": open_, "trades": trades, "lost": lost, "orphans": orphans,
+            "entries": entries, "cancels": cancels, "filled_keys": filled_keys}
+
+
+def _instance(db: sqlite3.Connection, inst: dict[str, Any], now_ms: int) -> dict[str, Any]:
+    iid = inst["id"]
+    hello = json.loads(inst["hello"] or "{}")
+    pv = float(((hello.get("instrument") or {}).get("point_value")) or 1.0)
+    notes = _rows(db, iid, ("note",))
+    pairs = trades_of(db, iid)
+    open_, trades, lost, orphans = pairs["open"], pairs["trades"], pairs["lost"], pairs["orphans"]
+    entries, cancels, filled_keys = pairs["entries"], pairs["cancels"], pairs["filled_keys"]
 
     def finish(tr: dict[str, Any], closed: bool) -> dict[str, Any]:
         entry = tr["in_val"] / tr["in_qty"] if tr["in_qty"] else None

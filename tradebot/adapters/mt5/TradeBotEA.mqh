@@ -367,6 +367,7 @@ int OnInit()
    g_stateOn = g_controlOn;
    if(g_stateOn && InpRestoreState) RestoreState();
    SaveState();
+   SpoolBrokerPosition();
    if(g_controlOn)
       Print("TradeBot control: instancia ", g_instance, ", subor Common\\Files\\", g_controlPath, g_controlMtime >= 0 ? " (existuje)" : " (nie je)",
             ", rezim ", g_mode, " (", source, ")", g_mode == "enabled" ? "" : " - nove vstupy sa neposielaju");
@@ -575,6 +576,25 @@ void SpoolFill(datetime dealTime, string id, bool entry, string exitName, double
      { Print(EngineError("SpoolFill (telemetria vypnuta)")); g_spool = false; }
   }
 
+/// Pozicia u brokera do pingu `hb`: pozicie s magic tohto EA na symbole (netto loty, vazena priemerna cena).
+/// Spool zapise len zmenu - webapp z nej vidi, ci pozicia u brokera naozaj je, nie len odhad z fillov.
+void SpoolBrokerPosition()
+  {
+   if(!g_spool) return;
+   double qty = 0, value = 0, volume = 0;
+   for(int p = 0; p < PositionsTotal(); p++)
+     {
+      ulong ticket = PositionGetTicket(p);
+      if(ticket == 0 || PositionGetString(POSITION_SYMBOL) != _Symbol || PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
+      double v = PositionGetDouble(POSITION_VOLUME);
+      qty += PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY ? v : -v;
+      value += v * PositionGetDouble(POSITION_PRICE_OPEN);
+      volume += v;
+     }
+   if(StaticHost::SpoolBroker(g_engine, qty, volume > 0 ? value / volume : 0.0, "magic") < 0)
+     { Print(EngineError("SpoolBroker (telemetria vypnuta)")); g_spool = false; }
+  }
+
 /// Posun SL/TP pracujuceho orderu adapterom (trailing): riadok `order` s `a:"modify"`; 0 = nemenene (null).
 void SpoolModify(long barMs, string id, double sl, double tp, string reason, bool ready)
   {
@@ -594,6 +614,7 @@ void OnTimer()
      }
    CheckTradeAllowed();
    if(!MQLInfoInteger(MQL_TESTER)) RefreshGmtOffset();
+   if(g_engine > 0) SpoolBrokerPosition();
    if(g_controlOn) CheckControl();
    else EventKillTimer();
   }
@@ -694,6 +715,7 @@ void OnTick()
   {
    if(g_engine <= 0) return;
    SpoolMinutes();
+   SpoolBrokerPosition();
    datetime open0 = iTime(_Symbol, PERIOD_CURRENT, 0);
    if(open0 == 0 || open0 <= g_lastChart) return;
    // Vsetko uzavrete od posledneho spracovaneho baru (bezne jeden bar; po vypadku tikov viac). Berie sa
