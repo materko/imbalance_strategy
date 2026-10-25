@@ -116,7 +116,7 @@ function dvDayPart(map) {
 }
 
 function dvCompute() {
-  const parts = dv.items.map((it, i) => {
+  return dvComputeParts(dv.items.map((it, i) => {
     const src = dv.trades[dvKey(it)], m = +it.mult || 1;
     const inside = src.trades.filter(t => t[0].slice(0, 10) >= DV_FROM && t[0].slice(0, 10) < DV_TO);
     const trades = inside.map(t => ({ i, open: t[0], close: t[1], dir: t[2] === "S" ? "short" : "long",
@@ -124,7 +124,12 @@ function dvCompute() {
     const daily = {};
     for (const t of trades) daily[t.day] = (daily[t.day] || 0) + t.pnl;
     return { i, it, src, mult: m, trades, daily, name: it.name || it.label, outside: src.trades.length - inside.length };
-  });
+  }));
+}
+
+/** Zlúčenie častí `{i (poradie), c (farba, inak i), name, trades [{i, open, close, dir, entry, exit, pnl, reason}], daily {deň: pnl}}`
+ *  — to isté pre Diverzifikáciu (behy z histórie) aj kartu Naživo (obchody u brokera v $ alebo R). */
+function dvComputeParts(parts) {
   const byClose = (a, b) => (a.close < b.close ? -1 : a.close > b.close ? 1 : 0);
   const all = parts.flatMap(p => p.trades).sort(byClose);
   const days = {};
@@ -162,7 +167,7 @@ function dvCompute() {
   return {
     parts: parts.map(p => {
       let cum = 0;
-      return { ...p, total: dvStats(p.trades.map(t => t.pnl)), yearly: yearly(p.trades), days: dvDayPart(p.daily),
+      return { ...p, c: p.c ?? p.i, total: dvStats(p.trades.map(t => t.pnl)), yearly: yearly(p.trades), days: dvDayPart(p.daily),
                equity: Object.keys(p.daily).sort().map(d => [d, (cum += p.daily[d])]),
                reasons: ["take_profit", "stop_loss"].map(r => { const x = p.trades.filter(t => t.reason === r); return [r, x.length, x.reduce((s, t) => s + t.pnl, 0)]; }),
                dirs: ["long", "short"].map(d => [d, dvStats(p.trades.filter(t => t.dir === d).map(t => t.pnl))]) };
@@ -410,57 +415,7 @@ function dvRenderOut() {
     if (any) h += row + `<td class="${dvCls(tot)}">${dvMoney(tot)}</td></tr>`;
   }
   h += `</tbody></table></div><p class="hint">Intenzita farby podľa veľkosti sumy.</p></div>`;
-  // dni
-  const dayCard = (title, d, sw) => `<div class="card"><h2>${sw}${esc(title)}</h2><dl class="dv-kv">
-      <dt>Obchodných dní</dt><dd>${d.days}</dd><dt>Dni v zisku</dt><dd>${dvNum(d.winPct, 1)} %</dd>
-      <dt>Priemerný deň</dt><dd>${dvMoney(d.avg)}</dd><dt>Medián dňa</dt><dd>${dvMoney(d.median)}</dd>
-      <dt>Priemerný ziskový / stratový deň</dt><dd>${dvMoney(d.avgWin)} / ${dvMoney(d.avgLoss)}</dd>
-      <dt>Najviac stratových dní po sebe</dt><dd>${d.lossStreak}</dd><dt>Mesiace v zisku</dt><dd>${dvNum(d.monthsPos, 1)} %</dd>
-      <dt>Najhorší mesiac</dt><dd>${d.worstMonth ? d.worstMonth[0] + " " + dvMoney(d.worstMonth[1]) : "—"}</dd>
-      <dt>Najlepší mesiac</dt><dd>${d.bestMonth ? d.bestMonth[0] + " " + dvMoney(d.bestMonth[1]) : "—"}</dd>
-      <dt>Najhorší deň</dt><dd>${d.worstDay ? dvDate(d.worstDay[0]) + " " + dvMoney(d.worstDay[1]) : "—"}</dd>
-      <dt>Najlepší deň</dt><dd>${d.bestDay ? dvDate(d.bestDay[0]) + " " + dvMoney(d.bestDay[1]) : "—"}</dd></dl></div>`;
-  h += `<h2 class="dv-section">Dni</h2><div class="dv-cards">${P.map(p => dayCard(p.name, p.days, dvSw(p.i))).join("")}${multi ? dayCard("Spolu", R.days, "") : ""}</div>`;
-  h += `<div class="card"><h2>Dni v týždni</h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Deň</th>` +
-    P.map(p => `<th>${dvSw(p.i)}${esc(p.name)}</th><th>dni v zisku</th>`).join("") + (multi ? "<th>Spolu</th>" : "") + "</tr></thead><tbody>";
-  for (const w of [0, 1, 2, 3, 4, 6]) {
-    let tr = `<tr><td class="l">${DV_WD[w]}${w === 6 ? " (večer)" : ""}</td>`, any = false;
-    for (const p of P) {
-      const v = p.days.weekday[w];
-      if (v && v.length) {
-        any = true; const s2 = v.reduce((a, b) => a + b, 0);
-        tr += `<td class="${dvCls(s2)}">${dvMoney(s2)}</td><td>${dvNum(100 * v.filter(x => x > 0).length / v.length, 1)} %</td>`;
-      } else tr += `<td class="hint">—</td><td class="hint">—</td>`;
-    }
-    if (multi) { const cv = R.days.weekday[w] || [], cs = cv.reduce((a, b) => a + b, 0); tr += `<td class="${dvCls(cs)}">${cv.length ? dvMoney(cs) : "—"}</td>`; }
-    if (any) h += tr + "</tr>";
-  }
-  h += "</tbody></table></div></div>";
-  // obchody
-  h += `<h2 class="dv-section">Obchody</h2><div class="dv-cards">` + P.map(p => {
-    const t = p.total;
-    return `<div class="card"><h2>${dvSw(p.i)}${esc(p.name)}</h2><dl class="dv-kv">
-      <dt>Obchodov</dt><dd>${t.n}</dd><dt>Priemerný obchod</dt><dd>${dvMoney(t.avg, 1)}</dd><dt>Priemerný zisk / strata</dt><dd>${dvMoney(t.avgWin)} / ${dvMoney(t.avgLoss)}</dd>
-      <dt>Najviac výhier / strát po sebe</dt><dd>${t.winStreak} / ${t.lossStreak}</dd>` +
-      p.reasons.map(r => `<dt>${r[0] === "take_profit" ? "Take profit" : "Stop loss"}</dt><dd>${r[1]} · ${dvMoney(r[2])}</dd>`).join("") +
-      p.dirs.filter(d => d[1].n).map(d => `<dt>${d[0] === "long" ? "Long" : "Short"} (${d[1].n}), PF</dt><dd>${dvPf(d[1].pf)} · ${dvMoney(d[1].pnl)}</dd>`).join("") +
-      `<dt>Najlepší / najhorší obchod</dt><dd>${dvMoney(t.best)} / ${dvMoney(t.worst)}</dd></dl></div>`;
-  }).join("") + "</div>";
-  const hrs = Object.keys(R.hours).map(Number).sort((a, b) => a - b);
-  h += `<div class="card"><h2>Hodina vstupu (New York)</h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Hodina</th>` +
-    P.map(p => `<th>${dvSw(p.i)}${esc(p.name)}</th><th>PF</th><th>zisk</th>`).join("") + "</tr></thead><tbody>" +
-    hrs.map(hh => `<tr><td class="l">${String(hh).padStart(2, "0")}:00</td>` + P.map(p => {
-      const v = R.hours[hh][p.i];
-      if (!v) return `<td class="hint">—</td><td class="hint">—</td><td class="hint">—</td>`;
-      const s3 = dvStats(v);
-      return `<td>${s3.n}</td><td class="${dvPfCls(s3.pf)}">${dvPf(s3.pf)}</td><td class="${dvCls(s3.pnl)}">${dvMoney(s3.pnl)}</td>`;
-    }).join("") + "</tr>").join("") +
-    `</tbody></table></div><p class="hint">Riadok je len pre hodinu, v ktorej obchoduje aspoň jedno nastavenie.</p></div>`;
-  if (R.corr.length) {
-    h += `<div class="card"><h2>Korelácia denných výsledkov</h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Dvojica</th><th>Spoločných dní</th><th>Korelácia</th><th>Dni, keď obe prerobili</th></tr></thead><tbody>` +
-      R.corr.map(c => `<tr><td class="l">${dvSw(c.a)}${esc(P[c.a].name)} × ${dvSw(c.b)}${esc(P[c.b].name)}</td><td>${c.common}</td><td class="${c.r != null && c.r >= 0.5 ? "neg" : ""}">${c.r == null ? "—" : dvNum(c.r, 2)}</td><td>${c.both}</td></tr>`).join("") +
-      `</tbody></table></div><p class="hint">Korelácia blízko 0 = nastavenia sa navzájom nehýbu (dobrá diverzifikácia), blízko 1 = správajú sa ako jedna väčšia pozícia.</p></div>`;
-  }
+  h += dvDaysHtml(R, P) + dvWeekdayHtml(R, P) + dvTradeCardsHtml(P) + dvHoursHtml(R, P) + dvCorrHtml(R, P);
   h += dvAuditHtml(R);
   // denník
   // Denník je zbalený - bežne ho nikto nečíta, je to na dohľadanie konkrétneho obchodu či dňa.
@@ -473,6 +428,69 @@ function dvRenderOut() {
   $("#dv-out").innerHTML = h;
   dvCharts();
   dvBindLog();
+}
+
+// Sekcie spoločné s kartou Naživo; fm = formát hodnoty (doláre, alebo R na karte Naživo), farba = p.c.
+function dvDayCard(title, d, sw, fm = dvMoney) {
+  return `<div class="card"><h2>${sw}${esc(title)}</h2><dl class="dv-kv">
+      <dt>Obchodných dní</dt><dd>${d.days}</dd><dt>Dni v zisku</dt><dd>${dvNum(d.winPct, 1)} %</dd>
+      <dt>Priemerný deň</dt><dd>${fm(d.avg)}</dd><dt>Medián dňa</dt><dd>${fm(d.median)}</dd>
+      <dt>Priemerný ziskový / stratový deň</dt><dd>${fm(d.avgWin)} / ${fm(d.avgLoss)}</dd>
+      <dt>Najviac stratových dní po sebe</dt><dd>${d.lossStreak}</dd><dt>Mesiace v zisku</dt><dd>${dvNum(d.monthsPos, 1)} %</dd>
+      <dt>Najhorší mesiac</dt><dd>${d.worstMonth ? d.worstMonth[0] + " " + fm(d.worstMonth[1]) : "—"}</dd>
+      <dt>Najlepší mesiac</dt><dd>${d.bestMonth ? d.bestMonth[0] + " " + fm(d.bestMonth[1]) : "—"}</dd>
+      <dt>Najhorší deň</dt><dd>${d.worstDay ? dvDate(d.worstDay[0]) + " " + fm(d.worstDay[1]) : "—"}</dd>
+      <dt>Najlepší deň</dt><dd>${d.bestDay ? dvDate(d.bestDay[0]) + " " + fm(d.bestDay[1]) : "—"}</dd></dl></div>`;
+}
+function dvDaysHtml(R, P, fm = dvMoney) {
+  return `<h2 class="dv-section">Dni</h2><div class="dv-cards">${P.map(p => dvDayCard(p.name, p.days, dvSw(p.c), fm)).join("")}${P.length > 1 ? dvDayCard("Spolu", R.days, "", fm) : ""}</div>`;
+}
+function dvWeekdayHtml(R, P, fm = dvMoney) {
+  const multi = P.length > 1;
+  let h = `<div class="card"><h2>Dni v týždni</h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Deň</th>` +
+    P.map(p => `<th>${dvSw(p.c)}${esc(p.name)}</th><th>dni v zisku</th>`).join("") + (multi ? "<th>Spolu</th>" : "") + "</tr></thead><tbody>";
+  for (const w of [0, 1, 2, 3, 4, 6]) {
+    let tr = `<tr><td class="l">${DV_WD[w]}${w === 6 ? " (večer)" : ""}</td>`, any = false;
+    for (const p of P) {
+      const v = p.days.weekday[w];
+      if (v && v.length) {
+        any = true; const s2 = v.reduce((a, b) => a + b, 0);
+        tr += `<td class="${dvCls(s2)}">${fm(s2)}</td><td>${dvNum(100 * v.filter(x => x > 0).length / v.length, 1)} %</td>`;
+      } else tr += `<td class="hint">—</td><td class="hint">—</td>`;
+    }
+    if (multi) { const cv = R.days.weekday[w] || [], cs = cv.reduce((a, b) => a + b, 0); tr += `<td class="${dvCls(cs)}">${cv.length ? fm(cs) : "—"}</td>`; }
+    if (any) h += tr + "</tr>";
+  }
+  return h + "</tbody></table></div></div>";
+}
+function dvTradeCardsHtml(P, fm = dvMoney) {
+  return `<h2 class="dv-section">Obchody</h2><div class="dv-cards">` + P.map(p => {
+    const t = p.total;
+    return `<div class="card"><h2>${dvSw(p.c)}${esc(p.name)}</h2><dl class="dv-kv">
+      <dt>Obchodov</dt><dd>${t.n}</dd><dt>Priemerný obchod</dt><dd>${fm(t.avg, 1)}</dd><dt>Priemerný zisk / strata</dt><dd>${fm(t.avgWin)} / ${fm(t.avgLoss)}</dd>
+      <dt>Najviac výhier / strát po sebe</dt><dd>${t.winStreak} / ${t.lossStreak}</dd>` +
+      p.reasons.map(r => `<dt>${r[0] === "take_profit" ? "Take profit" : "Stop loss"}</dt><dd>${r[1]} · ${fm(r[2])}</dd>`).join("") +
+      p.dirs.filter(d => d[1].n).map(d => `<dt>${d[0] === "long" ? "Long" : "Short"} (${d[1].n}), PF</dt><dd>${dvPf(d[1].pf)} · ${fm(d[1].pnl)}</dd>`).join("") +
+      `<dt>Najlepší / najhorší obchod</dt><dd>${fm(t.best)} / ${fm(t.worst)}</dd></dl></div>`;
+  }).join("") + "</div>";
+}
+function dvHoursHtml(R, P, fm = dvMoney) {
+  const hrs = Object.keys(R.hours).map(Number).sort((a, b) => a - b);
+  return `<div class="card"><h2>Hodina vstupu (New York)</h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Hodina</th>` +
+    P.map(p => `<th>${dvSw(p.c)}${esc(p.name)}</th><th>PF</th><th>zisk</th>`).join("") + "</tr></thead><tbody>" +
+    hrs.map(hh => `<tr><td class="l">${String(hh).padStart(2, "0")}:00</td>` + P.map(p => {
+      const v = R.hours[hh][p.i];
+      if (!v) return `<td class="hint">—</td><td class="hint">—</td><td class="hint">—</td>`;
+      const s3 = dvStats(v);
+      return `<td>${s3.n}</td><td class="${dvPfCls(s3.pf)}">${dvPf(s3.pf)}</td><td class="${dvCls(s3.pnl)}">${fm(s3.pnl)}</td>`;
+    }).join("") + "</tr>").join("") +
+    `</tbody></table></div><p class="hint">Riadok je len pre hodinu, v ktorej obchoduje aspoň jedno nastavenie.</p></div>`;
+}
+function dvCorrHtml(R, P, note = "") {
+  if (!R.corr.length) return "";
+  return `<div class="card"><h2>Korelácia denných výsledkov</h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Dvojica</th><th>Spoločných dní</th><th>Korelácia</th><th>Dni, keď obe prerobili</th></tr></thead><tbody>` +
+    R.corr.map(c => `<tr><td class="l">${dvSw(P[c.a].c)}${esc(P[c.a].name)} × ${dvSw(P[c.b].c)}${esc(P[c.b].name)}</td><td>${c.common}</td><td class="${c.r != null && c.r >= 0.5 ? "neg" : ""}">${c.r == null ? "—" : dvNum(c.r, 2)}</td><td>${c.both}</td></tr>`).join("") +
+    `</tbody></table></div><p class="hint">Korelácia blízko 0 = nastavenia sa navzájom nehýbu (dobrá diverzifikácia), blízko 1 = správajú sa ako jedna väčšia pozícia.${note ? " " + note : ""}</p></div>`;
 }
 
 function dvCharts() {

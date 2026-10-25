@@ -1539,3 +1539,29 @@ def test_diversify_trades_zlucia_okna_bez_duplicit_a_s_jednym_poplatkom(tmp_path
     assert out["trades"][1][2] == "S" and out["trades"][1][6] == "take_profit" and out["trades"][1][7] == "2025-01-07"
     assert out["trades"][0][0] == "2024-09-10T14:00:00Z"
     assert c.get("/api/diversify/trades?runs=20990101-000000-ffffff").status_code == 404
+
+
+def test_diversify_live_vrati_obchody_zo_zrkadla_webapp(tmp_path: Path):
+    """Karta Naživo číta to isté zrkadlo ako karta Live (`app.state.live_mirror`) a vráti sekciu `live`
+    stránky výsledkov — obchod s plánovanou cenou a stopom pre kvalitu plnenia."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.tests.test_dashboard_live import INST, MIN, T0, entry, fill, hello
+    from tester.webapp import app as app_mod
+    from tradebot.live.store import LiveStore
+
+    mirror = tmp_path / "mirror.sqlite"
+    st = LiveStore(mirror)
+    st.ingest("nas", INST, "s1", [hello(1, T0), entry(2, T0 + 10 * MIN, "orb:2", 1, 100.0, 90.0, 105.0),
+                                  fill(3, T0 + 11 * MIN, "orb:2", "in", 100.25, 2.0),
+                                  fill(4, T0 + 20 * MIN, "orb:2", "out", 105.0, 2.0, "Profit target")])
+    st.close()
+    app = app_mod.create_app(RunStore(tmp_path / "runs"))
+    app.state.live_mirror.mirror_path = mirror
+    c = TestClient(app)
+
+    (inst,) = c.get("/api/diversify/live?fresh=1").json()["instances"]
+    (t,) = inst["trades"]
+    assert inst["profile"] == "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1" and inst["engine"] == "vwaporbnet"
+    assert (t["entry"], t["plan"], t["sd"], t["reason"]) == (100.25, 100.0, 10.0, "take_profit")

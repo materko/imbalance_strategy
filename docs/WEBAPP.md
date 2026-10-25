@@ -538,6 +538,35 @@ korelácie dvojíc, kontrola dát (z ktorých behov, čo sa zahodilo, prekryté 
 a denník obchodov a dní s filtrom. Deň je dátum zatvorenia v UTC, ako na stránke
 výsledkov. Výber si stránka pamätá v prehliadači.
 
+## Karta Naživo
+
+Stratégie nasadené naživo (NinjaTrader, MetaTrader 5) ako jedno portfólio — tie isté rozbory
+ako Diverzifikácia (spoločný výpočet `dvComputeParts` a sekcie z `diversify.js`), len zo
+skutočných vyplnení u brokera. Dáta: `GET /api/diversify/live` = sekcia `live` stránky výsledkov
+(`tester/dashboard/live.py`) zo zrkadla karty Live, 30 s cache (`?fresh=1` = hneď, tlačidlo
+**Obnoviť**). Hore výber inštancií a jednotka **$ / R** (R = zisk vo veľkostiach stopu, porovnateľné
+medzi MNQ a US100.cash), pamätá si ich prehliadač.
+
+- **Súhrn** po inštanciách a spolu (obchody, WR, PF, zisk, R, max. prepad, obchody za týždeň,
+  vyplnené signály) a **Čo z toho vyplýva** (signál bez vyplnenia, zastavená/tichá inštancia,
+  výsledok pod pásmom testu, prepad väčší ako v teste, sklz, pomalé plnenie, rovnaké signály
+  na dvoch platformách, korelácia, prepad spolu).
+- **Naživo vs. test**: k inštancii sa nájde beh v histórii s tým istým profilom (C# port aj
+  Python predloha a súbory rannej kontroly; meno sa porovnáva bez `PRESIEL_SMERNICAMI_`,
+  `SMERNICE_`, `CS_`, `_SL…` a dátumu; presne ten istý súbor má prednosť pri ≥ 150 obchodoch,
+  trh radšej MNQ a ten istý TF). WR, PF a obchody za týždeň naživo / v teste a **pásmo**: z
+  obchodov testu (posledný rok, ak ich je ≥ 40, inak celý) sa 2000-krát (pevné semienko)
+  vytiahne toľko obchodov, koľko je naživo — pásmo 5 – 95 %, percentil, prepad naživo proti
+  najhoršiemu v teste a graf cesty naživo v pásme. Všetko v **bodoch indexu**, aby sa MNQ aj
+  US100.cash dali porovnať bez ohľadu na veľkosť kontraktu.
+- Krivka zisku (stĺpce = deň spolu, krivky = súčet inštancií a spolu), kapitál a prepad spolu,
+  podiel na zisku.
+- **Kvalita plnenia**: sklz vstupu proti plánovanej cene enginu, sklz na stope a TP, čo plnenia
+  stáli v $ a R a oneskorenie Market príkazu od odoslania po vyplnenie.
+- Dni, dni v týždni, obchody, hodina vstupu (New York), korelácia (od 11 spoločných dní) a
+  denník obchodov, signálov, otvorených pozícií a varovaní; staré inštancie (7 dní bez obchodu
+  a správy) zbalené dole. Časy sú miestne, deň = miestny deň zatvorenia, zisk hrubý bez poplatkov.
+
 ## Karta Live
 
 Telemetria zo **spustených** stratégií s C# jadrom (NinjaTrader 8, MetaTrader 5) — čítanie

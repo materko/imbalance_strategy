@@ -13,6 +13,8 @@ function showView(name) {
   $("#view-analytics").hidden = name !== "analytics";
   $("#view-diversify").hidden = name !== "diversify";
   if (name === "diversify") loadDiversify();
+  $("#view-livediv").hidden = name !== "livediv";
+  if (name === "livediv") loadLiveDiv();
   $("#view-hub").hidden = name !== "hub";
   $("#view-live").hidden = name !== "live";
   if (name === "hub") loadHub(); else if (state.hubTimer) { clearTimeout(state.hubTimer); state.hubTimer = null; }
@@ -51,6 +53,7 @@ async function init() {
   hubSetup();
   liveSetup();
   setupDiversify();
+  setupLiveDiv();
 
   $$(".tabs button").forEach(b => b.onclick = () => showView(b.dataset.view));
   $("#run").onclick = submitRun;

@@ -1,7 +1,11 @@
-"""Diverzifikácia: obchody vybraných nastavení pre spoločný prepočet (`/api/diversify`)."""
+"""Diverzifikácia: obchody vybraných nastavení pre spoločný prepočet (`/api/diversify`) a obchody
+živých stratégií pre kartu Naživo (`/api/diversify/live`)."""
 
 from __future__ import annotations
 
+import threading
+import time
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
@@ -85,4 +89,29 @@ def build(ctx: AppContext) -> APIRouter:
         ids = [r.strip() for r in runs.split(",") if r.strip()]
         return setting_trades(store, ids)
 
+    # Karta Naživo: tá istá sekcia `live` ako na stránke výsledkov (tester/dashboard/live.py) zo zrkadla
+    # webapp. Čítanie zrkadla trvá ~1 s, preto krátka cache — karta sa otvára a prepína často.
+    cache: dict[str, Any] = {"t": 0.0, "data": None}
+    lock = threading.Lock()
+
+    def _mirror_path() -> Path:
+        from tradebot.core.paths import LIVE_MIRROR
+
+        mirror = getattr(ctx.app.state, "live_mirror", None)
+        return Path(getattr(mirror, "mirror_path", None) or LIVE_MIRROR)
+
+    @router.get("/api/diversify/live")
+    def diversify_live(fresh: bool = False):
+        """Inštancie naživo s obchodmi, otvorenými pozíciami, signálmi a varovaniami (formát sekcie `live`
+        v tester/dashboard/README.md). Párovanie s behmi v histórii a celý prepočet robí stránka."""
+        from tester.dashboard.live import build_live
+
+        with lock:
+            if fresh or cache["data"] is None or time.monotonic() - cache["t"] > LIVE_CACHE_S:
+                cache["data"], cache["t"] = build_live(_mirror_path()), time.monotonic()
+            return cache["data"]
+
     return router
+
+
+LIVE_CACHE_S = 30.0
