@@ -32,6 +32,7 @@ nastav_vyber() {
     git -C "$DIR" sparse-checkout set --no-cone --stdin <<'PRAVIDLA'
 /*
 !/data_archive/**
+!/data_live/**
 !/csharp/**
 !/tester/runs/**
 !/tester/archive/**

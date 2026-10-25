@@ -25,6 +25,9 @@ PLATFORMS = ("ninjatrader", "mt5")
 REQUIRED: dict[str, tuple[str, ...]] = {
     "hello": ("schema", "platform", "account", "symbol", "tf", "strategy", "session"),
     "bar": ("bt", "o", "h", "l", "c", "v", "ready"),
+    #: Uzavretý 1m bar symbolu (nezávisle od TF grafu, po štarte aj `MinuteBackfill` minút späť) — z neho
+    #: je sklad živých sviečok `data_live` (`tester.livedata`) a simulácia živého obdobia s 1m detailom.
+    "m1": ("bt", "o", "h", "l", "c", "v"),
     #: `a` entry/cancel/close sú zámery enginu (`OrderIntent.WriteJson`); `modify` je adaptér
     #: (posun SL/TP na pracujúcom ordere, napr. trailing): `p{sl,tp}` (null = nemenené), `r` dôvod.
     "order": ("bt", "ready", "a", "id"),

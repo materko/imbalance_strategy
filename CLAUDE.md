@@ -59,7 +59,10 @@ Bez obmedzení. Platia len konvencie repozitára:
   zvyšok podľa [`tester/timeframes.json`](tester/timeframes.json) dopočíta `tester.timeframes`
   z 1m pri štarte webapp a čo aj tak chýba, si poskladá stratégia sama
   (`TradebotStrategyBase.ensure_timeframe`, len v backteste/hyperopte) — nič stiahnuté sa
-  neprepíše a dopočítané do archívu nejde.
+  neprepíše a dopočítané do archívu nejde. Sviečky (aj 1m `m1`) a obchody zo stratégií naživo drží
+  hub (plugin `livedata`) a uzavreté mesiace raz za mesiac pushne oddelene do `data_live/`; webapp
+  si zvyšok berie z hubu (`tester.livedata`) a `data_live/` nepushuje; so stiahnutými ich spája až čítanie
+  (`tester.livesim`, Diverzifikácia → Živé behy) — [docs/DATA.md §D](docs/DATA.md).
   Freqtrade beží len na TF, ktoré pozná jeho burza (2m a 4m sú preto len pre emulátor).
   Surový export spracuje importér zdroja — `tester.dukas_import` pre Dukascopy CFD
   (obal `./dukas-import.sh`, `.\dukas-import.ps1`) a `tester.bento_import` pre Databento

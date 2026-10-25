@@ -68,6 +68,8 @@ MIRROR_INTERVAL = 2.0
 #: (dávky jedného behu z dvoch súborov spoolu môžu prísť v opačnom poradí — to nie je strata).
 GAP_CHECK_SECONDS = 60.0
 GAP_GRACE_SECONDS = 60.0
+#: Živé dáta mimo gitu (`tester.livedata`: z hubu, bez hubu zo zrkadla) najviac raz za toľko sekúnd.
+LIVEDATA_SECONDS = 300.0
 #: SSE: komentár každých toľko sekúnd, nech proxy a prehliadač spojenie nezavrú.
 SSE_KEEPALIVE = 15.0
 #: SSE: ako dlho generátor čaká na zmenu zrkadla, než skontroluje odpojenie klienta.
@@ -111,7 +113,8 @@ class LiveMirror:
                  local_cursor: Path = LIVE_CURSOR_WEBAPP,
                  hub_factory: Callable[[], tuple[Any, Any] | None] = _default_hub,
                  reader_factory: Callable[[Path], Any | None] = _default_reader,
-                 interval: float = MIRROR_INTERVAL, clock: Callable[[], float] = time.time) -> None:
+                 interval: float = MIRROR_INTERVAL, clock: Callable[[], float] = time.time,
+                 export_live_data: bool = False) -> None:
         self.mirror_path = Path(mirror_path)
         self.cursor_path = Path(cursor_path)
         self.local_cursor = Path(local_cursor)
@@ -140,6 +143,11 @@ class LiveMirror:
         self.gaps_checked: float | None = None
         self._gap_seen: dict[tuple[str, str, int], float] = {}
         self._changed = threading.Condition()
+        #: Živé dáta, ktoré ešte nie sú v gite, do `LIVE_DATA_HUB` raz za `LIVEDATA_SECONDS`; testy to vypínajú.
+        self.export_live_data = export_live_data
+        self.livedata_at = 0.0
+        self.livedata: dict[str, Any] | None = None
+        self._livedata_thread: threading.Thread | None = None
 
     # -- poslucháči (SSE) ------------------------------------------------------ #
 
@@ -282,6 +290,7 @@ class LiveMirror:
         errors: list[str] = []
         agent_name = "local"
         transport: Any | None = None
+        hub: tuple[Any, Any] | None = None
         try:
             hub = self.hub_factory()
             if hub is not None:
@@ -312,11 +321,28 @@ class LiveMirror:
                 self.check_gaps(transport if self.hub_url else None)
             except Exception as exc:  # noqa: BLE001 - kontrola dier nesmie zastaviť zrkadlo
                 errors.append(f"diery: {type(exc).__name__}: {_short(exc)}")
+        if self.export_live_data and self.clock() - self.livedata_at >= LIVEDATA_SECONDS \
+                and not (self._livedata_thread and self._livedata_thread.is_alive()):
+            # vo vlastnom vlákne: sťahovanie z hubu aj prvý export veľkého zrkadla trvajú a zrkadlo nesmie stáť
+            self.livedata_at = self.clock()
+            http = hub[1] if self.hub_url and hub is not None else None
+            self._livedata_thread = threading.Thread(target=self._live_data, args=(http,), name="live-data", daemon=True)
+            self._livedata_thread.start()
         if errors:
             self.last_error = "; ".join(errors)
         else:
             self.last_error = None
             self.last_ok = self.clock()
+
+    def _live_data(self, http: Any | None) -> None:
+        """Živé dáta, ktoré ešte nie sú v gite (`LIVE_DATA_HUB`): s hubom to, čo drží hub (`sync_hub`), bez
+        hubu export vlastného zrkadla (lokálny spool)."""
+        from tester import livedata
+
+        try:
+            self.livedata = livedata.sync_hub(http) if http is not None else livedata.export(self.mirror_path)
+        except Exception as exc:  # noqa: BLE001 - živé dáta nesmú zhodiť webapp
+            self.livedata = {"error": f"{type(exc).__name__}: {_short(exc)}"}
 
     # -- vlákno ---------------------------------------------------------------- #
 
@@ -455,7 +481,10 @@ def build(ctx: AppContext) -> APIRouter:
     router = APIRouter()
     app = ctx.app
 
-    mirror = LiveMirror(LIVE_MIRROR, LIVE_MIRROR_CURSOR, local_cursor=LIVE_CURSOR_WEBAPP)
+    from tester import livedata
+
+    mirror = LiveMirror(LIVE_MIRROR, LIVE_MIRROR_CURSOR, local_cursor=LIVE_CURSOR_WEBAPP,
+                        export_live_data=livedata.enabled())
     app.state.live_mirror = mirror
 
     def start_live_mirror() -> LiveMirror:

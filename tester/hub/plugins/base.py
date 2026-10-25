@@ -174,6 +174,15 @@ class HubPlugin:
         """Pohľad ako HTML pre Telegram (`<b>`, `<i>`, `<code>`; volajúci escapuje). Neznámy = `KeyError`."""
         raise KeyError(name)
 
+    def files(self) -> list[dict[str, Any]] | None:
+        """Súbory na stiahnutie cez `GET /api/plugins/<meno>/files` (`[{"path" (relatívna k `files_root`), …}]`);
+        `None` = plugin súbory neponúka. Hub vydá len to, čo je v zozname."""
+        return None
+
+    def files_root(self) -> Path | None:
+        """Adresár, voči ktorému sú cesty z `files()`."""
+        return None
+
     def teardown(self) -> None:
         pass
 

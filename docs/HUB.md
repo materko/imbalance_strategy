@@ -548,6 +548,7 @@ v registry. Plugin = balík `tester/hub/plugins/<meno>/`, ktorý vystaví `PLUGI
 |---|---|
 | `watchdog` | stroje s aktívnym nasadením, ktoré sa neozvali / znova hlásia, a ostatné pluginy, keď sa nenačítali, padajú dlhšie ako 5 min, visia alebo samy hlásia `problem` (docs/LIVE.md, „Strážca (hub)“) |
 | `ff_calendar` | červené (High impact) správy z kalendára ForexFactory → upozornenie do Telegramu pred udalosťou |
+| `livedata` | živé dáta stratégií (sviečky vrátane 1m, obchody) zo `live.sqlite` do mesačných feather; uzavreté mesiace raz za mesiac push do gitu (`data_live/`), zvyšok ponúka webapp (docs/DATA.md §D) |
 
 **Kontrakt.** `PluginHost` dá každému pluginu vlastné vlákno a volá `tick()` každých `interval`
 sekúnd; výnimka hub nezhodí, zapíše sa do stavu (`errors`, `error_since`, `last_error`) a ohlási ju
@@ -562,7 +563,8 @@ sekúnd; výnimka hub nezhodí, zapíše sa do stavu (`errors`, `error_since`, `
 | `ctx.hub` | stav hubu (agenti, nasadenia) — len na čítanie |
 | `ctx.plugins()` | stav všetkých pluginov (pre strážcu) |
 
-Voliteľne `status()` (čo ukázať; kľúč `problem` = text pre strážcu), `cli(argv)` (príkaz na stroji
+Voliteľne `files()` + `files_root()` (súbory na stiahnutie cez `GET /api/plugins/<meno>/files[/<cesta>]` —
+hub vydá len to, čo je v zozname a leží pod `files_root`), `status()` (čo ukázať; kľúč `problem` = text pre strážcu), `cli(argv)` (príkaz na stroji
 hubu), `views()` + `view(meno)` (pohľady pre Telegram agenta: meno → text gombíka a HTML pohľadu —
 agent ich ukáže v klávesnici, docs/LIVE.md, „Príkazy (agent)“), `teardown()`, `max_tick` (dlhší tick = visí),
 `default_enabled`.
@@ -571,6 +573,36 @@ agent ich ukáže v klávesnici, docs/LIVE.md, „Príkazy (agent)“), `teardow
 python -m tester.hub plugins            # stav bežiaceho hubu cez API (GET /api/plugins)
 python -m tester.hub plugins --local    # čo je na disku stroja hubu
 python -m tester.hub plugin ff_calendar --fetch     # príkaz pluginu; v kontajneri cez docker compose exec hub …
+```
+
+### Živé dáta (`livedata`)
+
+Každých 5 minút prepíše sklad telemetrie hubu (`live.sqlite`) do `hub_data/plugins/livedata/data_live/`
+(`tester.livedata`: mesačné feather sviečok — aj 1m `m1` — a obchodov, popisy inštancií; docs/DATA.md §D).
+
+- **Push do gitu**: od `push_day`. dňa mesiaca (UTC, predvolene 2.) idú súbory **uzavretých** mesiacov a popisy
+  inštancií do `data_live/` na `branch`. Z vlastného klonu `hub_data/plugins/livedata/repo` (plytký, partial,
+  sparse len `data_live/`), nie z klonu, z ktorého hub beží — ten si `update` tvrdo prepisuje. Predbehnutý push
+  (iný commit) sa zopakuje. Commit vznikne len pri zmene obsahu; zlyhaný push sa skúša každú hodinu a po dni ho
+  ohlási strážca.
+- **Webapp** si cez `GET /api/plugins/livedata/files` stiahne súbory, ktorých obsah v gite ešte nie je.
+
+`hub_data/plugins/livedata/config.json`:
+
+```json
+{"remote": "https://x-access-token:<token>@github.com/materko/imbalance_strategy.git",
+ "branch": "main", "push_day": 2, "author": "TradeBot hub <hub@tradebot.local>"}
+```
+
+`remote` (s tokenom, ktorý smie pushovať — GitHub fine-grained token s *Contents: write* len na tento
+repozitár) môže prísť aj z env `TRADEBOT_LIVEDATA_REMOTE`; bez neho plugin dáta drží a ponúka webapp, ale
+nepushuje. Token sa do logu ani chýb nedostane (`***`). Image hubu potrebuje pandas a pyarrow
+(`Dockerfile.hub`) — **po tejto zmene raz `up -d --build`**.
+
+```bash
+python -m tester.hub plugin livedata            # čo je mimo gitu, čo čaká na push, posledný commit
+python -m tester.hub plugin livedata --export   # export hneď
+python -m tester.hub plugin livedata --push     # push uzavretých mesiacov hneď (aj pred push_day)
 ```
 
 ### Kalendár ForexFactory (`ff_calendar`)

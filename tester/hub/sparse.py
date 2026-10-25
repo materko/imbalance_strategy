@@ -40,7 +40,8 @@ BALLAST = ("/tester/runs/**", "/tester/archive/**", "/tester/analytics/**",
            "/tester/sweeps/**", "/projekty/**")
 
 #: Hub nepočíta nič — nepotrebuje ani archív, ani behy, ani C# jadro.
-HUB_RULES = ("/*", "!/data_archive/**", "!/csharp/**", *(f"!{p}" for p in BALLAST))
+#: Ani živé dáta v gite: tie pushuje vlastný plugin `livedata` z vlastného stromu a vlastného klonu.
+HUB_RULES = ("/*", "!/data_archive/**", "!/data_live/**", "!/csharp/**", *(f"!{p}" for p in BALLAST))
 
 
 def _git(*args: str, repo: str | None = None) -> subprocess.CompletedProcess:

@@ -23,6 +23,8 @@
 // Verzia 3: `SpoolOpenSlot`/`InstanceIdSlot` - slot nasadenia v id instancie (viac nasadeni tej istej strategie
 // na tom istom ucte, symbole a TF s roznymi profilmi, docs/MT5.md). Nove mena, nie pretazenie: MQL5 aj reflexia
 // v testoch hladaju metodu podla mena.
+//
+// Verzia 4: `SpoolMinute` - uzavrety 1m bar symbolu (`m1`) do telemetrie, z ktoreho sa sklada sklad zivych sviecok.
 using System;
 using System.Collections.Generic;
 using TradeBot.Core;
@@ -57,7 +59,7 @@ public static class StaticHost
     }
 
     /// <summary>Verzia fasady - hostitel si ju overi, kym zacne (zmena kontraktu = ina verzia).</summary>
-    public static int Version() { return 3; }
+    public static int Version() { return 4; }
 
     /// <summary>Kluce C# strategii v tejto assembly, oddelene ciarkou.</summary>
     public static string Strategies()
@@ -242,6 +244,20 @@ public static class StaticHost
             Slot s = Get(handle);
             if (s.Spool == null || s.Host.LastBar == null) return 0;
             s.Spool.Bar(s.Host.LastBar, s.Host.LastOutput, ready, s.Host.LastBias);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Uzavrety 1m bar symbolu (cas otvorenia v ms UTC) - riadok `m1`. 1 ok, 0 bez spoolu, -1 chyba.</summary>
+    public static int SpoolMinute(int handle, long barMs, double open, double high, double low, double close, double volume)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Minute(barMs, open, high, low, close, volume);
             if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
             return 1;
         }

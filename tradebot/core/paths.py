@@ -43,7 +43,7 @@ from .env import getenv
 
 __all__ = [
     "REPO",
-    "DATA", "DATA_ARCHIVE", "TESTER_ARCHIVE", "TESTER_DATA", "DERIVED_MANIFEST",
+    "DATA", "DATA_ARCHIVE", "LIVE_DATA", "LIVE_CANDLES", "LIVE_TRADES", "LIVE_INSTANCES", "TESTER_ARCHIVE", "TESTER_DATA", "DERIVED_MANIFEST",
     "QUOTEMANAGER_DATA", "NINJATRADER_DATA",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR", "NINJATRADER_DIR", "MT5_DIR",
@@ -52,7 +52,7 @@ __all__ = [
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE", "HUB_DELIVERED",
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
-    "LIVE_SECRETS", "LIVE_APPLY_STATE", "LIVE_MT5_DIR",
+    "LIVE_SECRETS", "LIVE_APPLY_STATE", "LIVE_MT5_DIR", "LIVE_DATA_CURSOR", "LIVE_DATA_HUB",
     "TELEGRAM_CONFIG", "TELEGRAM_STATE", "TELEGRAM_CURSOR", "LIVE_JOURNAL", "LIVE_JOURNAL_STATE",
     "LIVE_JOURNAL_CURSOR", "HUB_TELEGRAM_CONFIG", "HUB_TELEGRAM_STATE",
     "HUB_PLUGINS_DIR",
@@ -81,6 +81,19 @@ NINJATRADER_DATA = DATA / "ninjatrader"
 #: už nezmení, takže jeho blob v histórii existuje raz; celý súbor by pribudol pri každom
 #: sťahovaní znova.
 DATA_ARCHIVE = REPO / "data_archive"
+#: Dáta zo stratégií, ktoré bežali naživo (NinjaTrader, MT5): sviečky a skutočné obchody z live telemetrie
+#: (`tester.livedata`, docs/DATA.md „Živé dáta“). Drží ich hub (plugin `livedata`) a **uzavreté mesiace**
+#: raz za mesiac pushne sem do gitu — **oddelene** od stiahnutých: nič odtiaľto nejde do `data/` ani do
+#: `data_archive/` a stiahnuté sa nikdy neprepíše. Spája ich až čítanie (`tester.livesim`): stiahnuté po
+#: začiatok živého behu, odtiaľ to, čo stratégia naozaj videla.
+LIVE_DATA = Path(getenv("LIVE_DATA") or REPO / "data_live")
+#: `<platforma>/<symbol>/<tf>-<YYYY-MM>.feather` — 1m z `m1`, TF grafu z `bar`; mesiac na súbor, nech sa
+#: uzavretý mesiac v gite už nemení.
+LIVE_CANDLES = LIVE_DATA / "candles"
+#: `<inštancia>/<YYYY-MM>.feather` — obchody u brokera (vyplnenia spárované podľa id orderu), mesiac zatvorenia.
+LIVE_TRADES = LIVE_DATA / "trades"
+#: `<inštancia>.json` — kto to bol: platforma, účet, symbol, TF, stratégia, behy s profilmi a ich config.
+LIVE_INSTANCES = LIVE_DATA / "instances"
 
 # -- Integrácia s platformami ----------------------------------------------- #
 
@@ -191,6 +204,11 @@ LIVE_JOURNAL = LIVE_DIR / "journal.jsonl"
 LIVE_JOURNAL_STATE = LIVE_DIR / "journal_state.json"
 #: Kurzor denníka do spoolu, nezávislý od shippera aj od správ Telegramu.
 LIVE_JOURNAL_CURSOR = LIVE_DIR / "journal_cursor.json"
+#: Kurzor exportu živých dát zo zrkadla do `LIVE_DATA` (posledné `events.id`, ktoré už je v sviečkach).
+LIVE_DATA_CURSOR = LIVE_DIR / "livedata_cursor.json"
+#: Živé dáta z hubu, ktoré ešte nie sú v gite (bežiaci mesiac, mesiac pred pushom) — ten istý tvar ako
+#: `LIVE_DATA`; čítanie dá oba korene dokopy. Bez hubu sem webapp exportuje vlastné zrkadlo.
+LIVE_DATA_HUB = LIVE_DIR / "data_live_hub"
 #: Telegram na hube (pre všetky pluginy hubu) — vedľa stavu hubu, gitignored; ten istý tvar ako na agentovi.
 HUB_TELEGRAM_CONFIG = HUB_DIR / "telegram.json"
 #: Starý stav strážcu hubu (agent offline/online); prvý štart pluginu `watchdog` ho prevezme.

@@ -6,6 +6,7 @@ Dva stromy a jedno pravidlo medzi nimi:
 data_archive/tester/<zdroj>/<trh>/  po rokoch, LEN z burzy alebo z raw exportu   v gite
 data/tester/<zdroj>/<trh>/          sklad sviečok: zložené z archívu + dopočítané  gitignored
 data/quotemanager/<zdroj>/          ASCII export na import do QuoteManagera        gitignored
+data_live/                          sviečky a obchody zo stratégií naživo (§D)    v gite (push z hubu)
 ```
 
 **Do `data_archive/` ide výhradne to, čo naozaj prišlo z burzy alebo z raw dát** — píše doň
@@ -424,3 +425,58 @@ PY -m tester.compare.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
 detekčný TF skladá z 1m v pamäti a vyplnenie rozhoduje po 1m sviečkach. Fill model je
 naivný a poplatky nepočíta — je to na porovnanie zoznamu obchodov so študiou
 v MultiCharts, nie na PnL.
+
+---
+
+## D. Živé dáta: sviečky a obchody zo stratégií, ktoré bežali naživo
+
+Stratégie nasadené v NinjaTraderi a MetaTraderi 5 posielajú cez live telemetriu ([LIVE.md](LIVE.md)) bary
+grafu, **1m bary symbolu** (`m1`, nezávisle od TF grafu, po štarte aj 3 dni späť) a vyplnenia u brokera.
+**Drží ich hub** (plugin `livedata`, [HUB.md „Pluginy“](HUB.md)): `tester.livedata` prepisuje jeho sklad
+telemetrie (`live.sqlite`) do stromu v tvare `data_live/` — **oddelene od stiahnutých dát**: nič odtiaľ nejde
+do `data/` ani do `data_archive/` a stiahnuté sa tým nikdy neprepíše.
+
+```
+data_live/candles/<platforma>/<symbol>/1m-<YYYY-MM>.feather    z `m1` (stĺpce ako Freqtrade: date UTC, OHLCV)
+data_live/candles/<platforma>/<symbol>/<tf>-<YYYY-MM>.feather  bary grafu z `bar` (aj staršie behy bez `m1`)
+data_live/trades/<inštancia>/<YYYY-MM>.feather                 obchody u brokera s profilom behu (mesiac zatvorenia)
+data_live/instances/<inštancia>.json                           platforma, účet, symbol, TF, behy, config profilov
+```
+
+| kde | čo | kto píše |
+|---|---|---|
+| hub `hub_data/plugins/livedata/data_live/` | všetko, každých 5 min zo `live.sqlite` | plugin `livedata` |
+| repozitár `data_live/` (v gite) | **uzavreté mesiace** — push raz za mesiac, od `push_day`. dňa (2.) | plugin `livedata`, vlastný klon |
+| webapp `tester/live/data_live_hub/` (gitignored) | čo hub ešte nepushol: bežiaci mesiac, mesiac pred pushom | webapp z hubu (`sync_hub`) |
+
+- Mesiac na súbor: uzavretý mesiac sa už nemení, takže jeho blob je v gite raz. Neskoro doručené dáta za už
+  pushnutý mesiac (agent bol offline) pushne hub pri ďalšom kole znova; commit vznikne len pri zmene obsahu.
+- Viac inštancií na tom istom symbole sa zlúči podľa času; čo už v súbore je, **vyhráva** (bar po reštarte
+  sa zopakuje pri prehrávaní predhistórie). Obchody a behy, ktoré zo skladu vypadnú, v súboroch ostanú.
+- Behy zo Strategy Testera / Analyzera (`hello.tester`) sa vynechajú.
+- **Webapp** číta `data_live/` z gitu (po Pull) a každých 5 minút si od hubu stiahne súbory, ktorých obsah
+  v gite ešte nie je (`GET /api/plugins/livedata/files`). Čítanie dá oba korene dokopy, súbor z hubu má
+  prednosť. Stiahnutý súbor zmaže až vtedy, keď ho má git s tým istým obsahom — medzi pushom hubu a Pull
+  nič nechýba. Webapp `data_live/` **nepushuje** (Push vo webapp ho nechá tak). Bez hubu webapp exportuje
+  vlastné zrkadlo do `tester/live/data_live_hub/` (`TRADEBOT_LIVE_EXPORT=0` to vypne).
+
+```bash
+PY -m tester.livedata sync        # webapp: z hubu, čo ešte nie je v gite
+PY -m tester.livedata status      # inštancie, obchody, rozsah sviečok (git + hub)
+PY -m tester.livedata export --mirror <sklad> --root <adresár>   # sklad telemetrie -> strom data_live
+PY -m tester.livesim <inštancia> --pair MNQ/USD   # hranica, zdroje sviečok, simulácia vs. naživo
+```
+
+**Spojenie so stiahnutými dátami** robí až čítanie (`tester.livesim`, karta Diverzifikácia → Živé behy).
+Hranica je začiatok prvého živého behu s profilom; po baroch TF grafu platí:
+
+| | 1. | 2. | 3. |
+|---|---|---|---|
+| pred hranicou | stiahnuté 1m | živé 1m | živý bar grafu |
+| za hranicou | živé 1m | živý bar grafu | stiahnuté 1m |
+
+Zdroje sa v jednom bare grafu nemiešajú (objem ani 1m detail by inak nesedeli). Kde živý beh nemá 1m
+(staršie verzie adaptérov), simulácia ide po baroch grafu bez 1m detailu a stránka to povie. Trh stiahnutých
+dát sa vyberie podľa symbolu živého behu (`US100.cash` → `NAS100/USD` z Dukascopy, `MNQ` → `MNQ/USD`
+z Databento), inak pár nastavenia. Vyšší TF sa skladá výhradne cez `tradebot/core/candles.py`.
+

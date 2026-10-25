@@ -429,7 +429,8 @@ nedotknutý). Vlastný terminál sa nemení — na zmenu nasadenie odstrániť a
 **Slot** (`slot`, pole „Slot“ pri nasadení, len MT5): krátke meno (písmená, číslice, pomlčka, najviac 16 znakov)
 pridané na koniec id inštancie. Bez neho hub druhé nasadenie tej istej stratégie na tom istom účte, symbole a
 TF odmietne (a v chybe slot poradí). Nasadenie bez slotu má id ako doteraz. Driver dá slot EA ako input
-`InpSlot`; EA ho pridá do id (`StaticHost::InstanceIdSlot`/`SpoolOpenSlot`, fasáda verzie 3). Rovnaký profil
+`InpSlot`; EA ho pridá do id (`StaticHost::InstanceIdSlot`/`SpoolOpenSlot`, fasáda od verzie 3; verzia 4 pridala
+`SpoolMinute` — 1m bary do telemetrie, EA a DLL sa preto inštalujú spolu). Rovnaký profil
 dvakrát nemá zmysel (tie isté signály = dvojnásobná pozícia s dvojnásobnými poplatkami) — na to je veľkosť
 v profile. Slot sa nemení (je to identita inštancie).
 

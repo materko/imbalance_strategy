@@ -77,7 +77,7 @@ def _instrument_json(inst) -> str:
 
 
 def test_verzia_strategie_a_chyba_bez_vynimky(static_host):
-    assert static_host.Version() == 3      # docs/LIVE.md: Spool* (2), slot v id inštancie (3); EA kontroluje 3
+    assert static_host.Version() == 4      # docs/LIVE.md: Spool* (2), slot v id inštancie (3), SpoolMinute (4); EA kontroluje 4
     assert {"ibsnet", "orbnet"} <= set(static_host.Strategies().split(","))
     # chyba nesmie letieť cez hranicu .NET -> MQL5 ako výnimka: -1 a text v LastError
     inst = '{"symbol":"X","venue":"mt5","tick_size":0.25,"point_value":2.0,"qty_step":1,"min_qty":1}'
@@ -231,6 +231,34 @@ def test_spool_zapise_platne_udalosti(static_host, tmp_path):
     stat = next(e for e in events if e["k"] == "stat")
     assert isinstance(stat["stats"], dict) and "max_daily_wins" in stat["stats"]
     assert all(isinstance(e["t"], int) and e["t"] > 1_700_000_000_000 for e in events)
+
+
+def test_spool_minute_m1(static_host, tmp_path):
+    """1m bary symbolu (`SpoolMinute`, docs/LIVE.md): platný riadok `m1` s časom otvorenia a OHLCV, číslovaný
+    `seq` bez diery; bez spoolu no-op (0), do `bars` pingu sa nepočíta."""
+    from tradebot.live import schema
+
+    h = static_host.Create("ibsnet", "{}", _INST, 3)
+    assert h > 0, static_host.LastError()
+    try:
+        assert static_host.SpoolMinute(h, 1_790_000_000_000, 1.0, 2.0, 0.5, 1.5, 7.0) == 0
+        assert static_host.SpoolOpen(h, str(tmp_path), "mt5", "acc", "NAS100", "p", False) == 1, static_host.LastError()
+        path = static_host.SpoolPath(h)
+        for i in range(3):
+            assert static_host.SpoolMinute(h, 1_790_000_000_000 + i * 60_000, 20000.0 + i, 20002.0 + i, 19999.0 + i,
+                                           20001.0 + i, 10.0 + i) == 1, static_host.LastError()
+        assert static_host.SpoolClose(h, "deinit") == 1
+    finally:
+        static_host.Destroy(h)
+    instance = schema.instance_id("mt5", "acc", "NAS100", 3, "ibsnet")
+    lines = (tmp_path / instance / path.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]).read_text(encoding="utf-8").splitlines()
+    events = [schema.parse_line(line) for line in lines]
+    assert [e["seq"] for e in events] == list(range(1, len(events) + 1))
+    m1 = [e for e in events if e["k"] == "m1"]
+    assert [(e["bt"], e["o"], e["h"], e["l"], e["c"], e["v"]) for e in m1] == [
+        (1_790_000_000_000 + i * 60_000, 20000.0 + i, 20002.0 + i, 19999.0 + i, 20001.0 + i, 10.0 + i) for i in range(3)]
+    with pytest.raises(schema.SchemaError):
+        schema.validate({"seq": 1, "t": 1, "k": "m1", "bt": 1, "o": 1, "h": 1, "l": 1, "c": 1})   # bez v
 
 
 def test_control_instancia_a_udalost(static_host, tmp_path):

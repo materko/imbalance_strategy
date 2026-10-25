@@ -181,6 +181,29 @@ class PluginHost:
             raise KeyError(f"{plugin}/{name}")
         return str(s.plugin.view(name))
 
+    def files(self, plugin: str) -> list[dict[str, Any]]:
+        """Súbory, ktoré plugin ponúka na stiahnutie (`HubPlugin.files`); neznámy / vypnutý / bez súborov = `KeyError`."""
+        s = self.slots.get(plugin)
+        if s is None or s.plugin is None or not self.enabled(plugin):
+            raise KeyError(plugin)
+        listing = s.plugin.files()
+        if listing is None:
+            raise KeyError(plugin)
+        return list(listing)
+
+    def file_path(self, plugin: str, rel: str) -> Path:
+        """Cesta k ponúkanému súboru — len to, čo je v `files()` a leží pod `files_root()`; inak `KeyError`."""
+        s = self.slots.get(plugin)
+        if s is None or s.plugin is None or not self.enabled(plugin):
+            raise KeyError(plugin)
+        root = s.plugin.files_root()
+        if root is None or rel not in {str(f.get("path")) for f in (s.plugin.files() or [])}:
+            raise KeyError(rel)
+        path = (Path(root) / rel).resolve()
+        if Path(root).resolve() not in path.parents or not path.is_file():
+            raise KeyError(rel)
+        return path
+
     def get(self, name: str) -> HubPlugin | None:
         s = self.slots.get(name)
         return s.plugin if s else None

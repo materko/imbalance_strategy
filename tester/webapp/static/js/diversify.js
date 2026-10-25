@@ -9,6 +9,11 @@
 // z ručne vyrobeného JSON, ale z histórie: nastavenie a trh z /api/analytics/configs,
 // obchody jeho behov z /api/diversify/trades (bez duplicít z prekrývajúcich sa okien).
 // Všetko ostatné sa počíta tu - násobok veľkosti sa mení bez nového dopytu.
+//
+// Živé behy (`data_live`, aj stratégie, ktoré už nebežia) s tým istým profilom ako nastavenie sa
+// pripoja za históriu: /api/diversify/livedata ich vymenuje, /api/diversify/livedata/view dá hranicu
+// (odkiaľ sú dáta zo živého behu), sviečky pred ňou a za ňou, skutočné obchody a simuláciu toho obdobia.
+// Do súhrnov a rozborov nevstupujú - tie ostávajú čisto z backtestu.
 
 const DV_KEY = "tradebot.diversify";
 const DV_MAX = 8;
@@ -28,6 +33,8 @@ const dv = {
   open: {},
   all: false,           // aj stratégie a nastavenia, ktoré smernicou neprešli
   result: null,
+  livedata: null,       // /api/diversify/livedata
+  live: {},             // instance|profil|pár -> odpoveď /api/diversify/livedata/view
   log: { view: "tr", item: "", year: "", res: "", page: 0, sort: null, dir: 1 },
 };
 
@@ -320,6 +327,7 @@ async function dvRun() {
       dv.trades[dvKey(it)] = await api(`/api/diversify/trades?runs=${encodeURIComponent(dvKey(it))}`);
       progress(`Načítavam obchody z histórie… ${++done} / ${steps}`);
     }));
+    await dvLoadLive(progress);
     progress("Počítam roky, mesiace, dni a korelácie…");
     await new Promise(r => setTimeout(r, 30));   // nech sa text vykreslí pred výpočtom
     dv.log = { view: "tr", item: "", year: "", res: "", page: 0, sort: null, dir: 1 };
@@ -392,6 +400,7 @@ function dvRenderOut() {
   if (multi) h += `<div class="card"><h2>Čo z toho vyplýva</h2>${dvFindings(R)}</div>`;
   h += `<div class="card"><h2>Krivka kapitálu <span class="hint">kumulatívny PnL podľa dní; žltá čiara = začiatok odloženého roka</span></h2><div id="dv-eq" class="dv-chart"></div></div>`;
   if (multi) h += `<div class="card"><h2>Spolu: kapitál a prepad</h2><div id="dv-dd" class="dv-chart sm"></div></div>`;
+  h += dvLiveHtml();
   // po rokoch
   h += `<div class="card"><h2>Po rokoch</h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Rok</th><th class="l">Nastavenie</th><th>Obch.</th><th>WR</th><th>PF</th><th>Zisk</th><th>Max. DD</th><th>Priem. zisk</th><th>Priem. strata</th><th>Séria strát</th></tr></thead><tbody>`;
   const yRow = (y, name, r, cl = "") => `<tr class="${cl}"><td class="l">${y}</td><td class="l">${name}</td><td>${r.n}</td><td>${dvNum(r.wr, 1)} %</td><td class="${dvPfCls(r.pf)}">${dvPf(r.pf)}</td><td class="${dvCls(r.pnl)}">${dvMoney(r.pnl)}</td><td>${dvMoney(-r.dd)}</td><td>${dvMoney(r.avgWin)}</td><td>${dvMoney(r.avgLoss)}</td><td>${r.lossStreak}</td></tr>`;
@@ -507,9 +516,16 @@ function dvCharts() {
   const cfg = { displaylogo: false, responsive: true };
   const traces = P.map(p => ({ type: "scatter", mode: "lines", name: p.name, x: p.equity.map(e => e[0]), y: p.equity.map(e => e[1]),
                                line: { color: dvColor(p.i), width: 1.8, shape: "hv" }, hovertemplate: "%{y:,.0f} $" }));
+  const live = dvLiveEquity(P);
+  traces.push(...live.traces);
   if (multi) traces.push({ type: "scatter", mode: "lines", name: "Spolu", x: R.equity.map(e => e[0]), y: R.equity.map(e => e[1]),
                            line: { color: isDarkTheme() ? "#e6edf0" : "#142c36", width: 2.6, shape: "hv" }, hovertemplate: "%{y:,.0f} $" });
-  Plotly.newPlot("dv-eq", traces, layout({ height: 420 }), cfg);
+  // so živými behmi sa os dá prepnúť na posledné mesiace — živé obdobie je na päťročnej osi len pár pixelov
+  const xaxis = live.first ? { showgrid: false, rangeselector: { x: 0, y: -0.12, yanchor: "top", buttons: [
+    { count: 3, label: "3 mes.", step: "month", stepmode: "backward" }, { count: 1, label: "1 rok", step: "year", stepmode: "backward" },
+    { step: "all", label: "všetko" }] } } : { showgrid: false };
+  Plotly.newPlot("dv-eq", traces, layout({ height: live.first ? 460 : 420, shapes: [oos, ...live.shapes], annotations: live.annotations, xaxis,
+                                           margin: { l: 10, r: 60, t: 10, b: live.first ? 60 : 30 } }), cfg);
   if (multi && $("#dv-dd")) {
     let peak = 0;
     const x = R.equity.map(e => e[0]), eq = R.equity.map(e => e[1]), dd = eq.map(v => { peak = Math.max(peak, v); return v - peak; });
@@ -518,6 +534,7 @@ function dvCharts() {
       { type: "scatter", mode: "lines", name: "prepad", x, y: dd, line: { color: RED, width: 1 }, fill: "tozeroy", fillcolor: "rgba(242,54,69,0.15)", hovertemplate: "%{y:,.0f} $" },
     ], layout({ height: 260 }), cfg);
   }
+  dvLiveCharts(layout, cfg);
 }
 
 function dvLogRows() {
@@ -568,4 +585,197 @@ function dvBindLog() {
   $("#dv-prev").onclick = () => { L.page--; dvRenderLog(); };
   $("#dv-next").onclick = () => { L.page++; dvRenderLog(); };
   dvRenderLog();
+}
+
+// ------------------------------------------------------------ živé behy --- //
+
+/** Nastavenie položky výberu (profil kvôli párovaniu so živým behom) a páry jeho trhov (stiahnuté dáta pred
+ *  hranicou — server vyberie ten, čo sedí so symbolom živého behu, vybraný trh je prvý). */
+function dvItemSetting(it) {
+  const n = (dv.configs[it.strategy] || []).find(x => x.key === it.setting);
+  const m = n && n.markets.find(x => x.key === it.market);
+  const pairs = n ? [...new Set([m && m.pair, ...n.markets.map(x => x.pair)].filter(Boolean))].join(",") : "";
+  return { n, m, pairs };
+}
+
+/** Živé behy nastavenia: ten istý profil (C# port aj Python predloha, varianty účtu `_SL500`, `nzNorm`). */
+function dvLiveRuns(it) {
+  const { n } = dvItemSetting(it);
+  if (!n || !dv.livedata) return [];
+  const want = nzNorm(n.profile), base = it.strategy.replace(/net(eod)?$/, "");
+  return dv.livedata.runs.filter(r => nzNorm(r.profile) === want
+    && [r.engine, r.strategy].some(k => k === it.strategy || String(k).replace(/net(eod)?$/, "") === base));
+}
+function dvLiveKey(r, pair) { return `${r.instance}|${r.profile}|${pair || ""}`; }
+
+async function dvLoadLive(progress) {
+  try {
+    dv.livedata = await api("/api/diversify/livedata");
+  } catch (_) {
+    dv.livedata = { runs: [] };   // bez živých dát je Diverzifikácia taká ako doteraz
+    return;
+  }
+  const todo = [];
+  for (const it of dv.items) {
+    const { pairs } = dvItemSetting(it);
+    for (const r of dvLiveRuns(it)) if (!dv.live[dvLiveKey(r, pairs)]) todo.push([r, pairs]);
+  }
+  let done = 0;
+  for (const [r, pair] of todo) {
+    progress(`Živé behy: skutočné obchody a simulácia… ${done} / ${todo.length}`);
+    const q = new URLSearchParams({ instance: r.instance, profile: r.profile });
+    if (pair) q.set("pair", pair);
+    try { dv.live[dvLiveKey(r, pair)] = await api(`/api/diversify/livedata/view?${q}`); }
+    catch (e) { dv.live[dvLiveKey(r, pair)] = { error: e.message, real: [], sim: [] }; }
+    done++;
+  }
+}
+
+/** Živé behy výsledku: [{p (časť výsledku), r (beh), v (pohľad), k (poradie)}]. */
+function dvLiveList(P) {
+  const out = [];
+  for (const p of P) {
+    const { pairs } = dvItemSetting(p.it);
+    for (const r of dvLiveRuns(p.it)) {
+      const v = dv.live[dvLiveKey(r, pairs)];
+      if (v) out.push({ p, r, v, k: out.length });
+    }
+  }
+  return out;
+}
+
+function dvPlat(r) { return r.platform === "ninjatrader" ? "NT8" : r.platform === "mt5" ? "MT5" : r.platform; }
+
+/** Krivka kapitálu: za koncom backtestu skutočné obchody (plná čiara) a simulácia (prerušovaná), zvislá čiara
+ *  na hranici živého behu. Doláre u brokera, bez násobku nastavenia. */
+function dvLiveEquity(P) {
+  const traces = [], shapes = [], annotations = [], legend = new Set();
+  let first = null;
+  for (const L of dvLiveList(P)) {
+    const { p, r, v } = L;
+    if (!v.boundary) continue;
+    const day = v.boundary.slice(0, 10), base = p.equity.length ? p.equity[p.equity.length - 1][1] : 0;
+    const curve = (trs, name, dash) => {
+      const daily = {};
+      for (const t of trs) if (t.close && t.pnl != null) daily[t.close.slice(0, 10)] = (daily[t.close.slice(0, 10)] || 0) + t.pnl;
+      let eq = base;
+      const pts = [[day, base], ...Object.keys(daily).sort().map(d => [d, (eq += daily[d])])];
+      // v legende jedna položka na nastavenie a druh (živých behov môže byť viac: NT8, MT5, profil účtu)
+      const group = `${p.i}|${name}`;
+      traces.push({ type: "scatter", mode: "lines", name: `${p.name} · ${name}`, legendgroup: group, showlegend: !legend.has(group),
+                    x: pts.map(e => e[0]), y: pts.map(e => e[1]),
+                    line: { color: dvColor(p.i), width: dash ? 1.6 : 2.6, dash: dash ? "dash" : "solid", shape: "hv" },
+                    hovertemplate: `${esc(dvPlat(r))} ${esc(r.profile)}: %{y:,.0f} $<extra>${esc(p.name)} · ${name}</extra>` });
+      legend.add(group);
+    };
+    curve(v.real || [], "naživo", false);
+    if (v.match) curve(v.sim || [], "simulácia", true);
+    if (first == null || day < first) first = day;
+  }
+  if (first) {
+    shapes.push({ type: "line", xref: "x", yref: "paper", x0: first, x1: first, y0: 0, y1: 1, line: { color: "#e8590c", width: 1.5 } });
+    annotations.push({ x: first, y: 1, xref: "x", yref: "paper", text: "odtiaľto živý beh →", showarrow: false, xanchor: "right",
+                       yanchor: "top", font: { size: 11, color: "#e8590c" } });
+  }
+  return { traces, shapes, annotations, first };
+}
+
+function dvLiveRow(name, trs) {
+  const st = dvStats(trs.filter(t => t.pnl != null).map(t => t.pnl));
+  const rs = trs.filter(t => t.r != null).map(t => t.r);
+  return `<tr><td class="l">${name}</td><td>${st.n}</td><td>${dvNum(st.wr, 1)} %</td><td class="${dvPfCls(st.pf)}">${dvPf(st.pf)}</td>
+    <td class="${dvCls(st.pnl)}">${dvMoney(st.pnl)}</td><td>${dvMoney(-st.dd)}</td><td>${rs.length ? dvNum(rs.reduce((a, b) => a + b, 0), 2) + " R" : "—"}</td></tr>`;
+}
+
+function dvLiveTradesHtml(v) {
+  const M = v.match;
+  if (!M) return "";
+  const px = x => (x == null ? "—" : dvNum(x, 2));
+  const rows = [
+    ...M.pairs.map(q => ({ at: v.real[q.real].open, r: v.real[q.real], s: v.sim[q.sim], q })),
+    ...M.only_real.map(i => ({ at: v.real[i].open, r: v.real[i] })),
+    ...M.only_sim.map(i => ({ at: v.sim[i].open, s: v.sim[i] })),
+  ].sort((a, b) => (a.at < b.at ? -1 : 1));
+  const side = x => (x ? `<td class="l">${dvDateTime(x.open)}</td><td class="l">${x.dir === "long" ? "L" : "S"}</td><td>${px(x.entry)}</td><td>${px(x.exit)}</td><td class="l hint">${esc(x.reason || "")}</td><td class="${dvCls(x.pnl)}">${dvMoney(x.pnl)}</td>`
+                       : `<td class="l hint" colspan="6">—</td>`);
+  const diff = x => (x.q ? `<td>${x.q.d_entry != null ? dvNum(x.q.d_entry, 2) : "—"}</td><td class="${dvCls(x.q.d_pnl)}">${dvMoney(x.q.d_pnl)}</td>`
+                         : `<td class="l hint" colspan="2">${x.r ? "len naživo" : "len v simulácii"}</td>`);
+  return `<details><summary class="hint">Obchody naživo a v simulácii (${rows.length}) — rozbaľ</summary><div class="table-wrap"><table class="dv-table">
+    <thead><tr><th colspan="6">Naživo (u brokera)</th><th colspan="6">Simulácia</th><th colspan="2">Rozdiel</th></tr>
+    <tr><th class="l">Vstup (NY)</th><th class="l">Smer</th><th>Cena</th><th>Výstup</th><th class="l">Dôvod</th><th>Zisk</th>
+        <th class="l">Vstup (NY)</th><th class="l">Smer</th><th>Cena</th><th>Výstup</th><th class="l">Dôvod</th><th>Zisk</th><th>Vstup b.</th><th>Zisk</th></tr></thead><tbody>
+    ${rows.map(x => `<tr>${side(x.r)}${side(x.s)}${diff(x)}</tr>`).join("")}
+    </tbody></table></div><p class="hint">Rozdiel vstupu v bodoch v prospech živého obchodu (+ = lepšia cena než simulácia).</p></details>`;
+}
+
+function dvLiveHtml() {
+  const list = dvLiveList(dv.result.parts);
+  if (!list.length) {
+    return dv.livedata && dv.livedata.runs.length
+      ? `<div class="card"><h2>Živé behy</h2><p class="hint">Vybrané nastavenia nemajú živý beh s tým istým profilom (v data_live je ${dv.livedata.runs.length} živých behov).</p></div>` : "";
+  }
+  let h = `<div class="card"><h2>Živé behy <span class="hint">stratégie, ktoré bežali naživo (data_live): skutočné obchody a simulácia toho istého obdobia</span></h2>
+    <p class="hint">Na grafe je pred oranžovou čiarou história — sivé sviečky sú stiahnuté dáta, modré živé dáta spred štartu behu (keď stiahnuté končia skôr) —, za ňou sviečky zo živého behu. Plné značky sú skutočné vstupy a výstupy u brokera,
+      prázdne oranžové simulácia: ten istý engine, config a inštrument cez emulátor MultiCharts nad tými istými sviečkami. Zisk je hrubý (bez poplatkov),
+      do súhrnov a rozborov vyššie nevstupuje.</p></div>`;
+  for (const L of list) {
+    const { p, r, v, k } = L, M = v.match, src = v.sources || {};
+    const pm = M ? M.pairs : [];
+    const avg = f => { const x = pm.map(f).filter(z => z != null); return x.length ? x.reduce((a, b) => a + b, 0) / x.length : null; };
+    h += `<div class="card"><h2>${dvSw(p.i)}${esc(p.name)} <span class="hint">${esc(dvPlat(r))} · ${esc(r.account)} · ${esc(r.symbol)} ${r.tf}m · ${esc(r.profile)}</span></h2>`;
+    if (v.error) { h += `<p class="neg">${esc(v.error)}</p></div>`; continue; }
+    h += `<p class="hint">Živý beh od ${v.boundary ? dvDateTime(v.boundary) : "—"} do ${v.end ? dvDateTime(v.end) : "—"} (NY)${v.history && v.history.pair ? ` · história ${esc(pairShort(v.history.pair))}` : ""}
+        · bary grafu za hranicou: ${dvNum(src.live_1m || 0)} s 1m zo živého behu, ${dvNum(src.live_chart || 0)} len bar grafu, ${dvNum(src.official || 0)} doplnené zo stiahnutých</p>
+      ${(v.notes || []).map(n => `<p class="hint">⚠ ${esc(n)}</p>`).join("")}
+      <div class="table-wrap"><table class="dv-table"><thead><tr><th class="l"></th><th>Obch.</th><th>WR</th><th>PF</th><th>Zisk</th><th>Max. DD</th><th>Spolu R</th></tr></thead><tbody>
+        ${dvLiveRow("Naživo (u brokera)", v.real || [])}${dvLiveRow("Simulácia", v.sim || [])}</tbody></table></div>
+      ${M ? `<p>Spárované <b>${M.pairs.length}</b> · len naživo <b>${M.only_real.length}</b> · len v simulácii <b>${M.only_sim.length}</b>${pm.length
+        ? ` · priemerný rozdiel vstupu ${dvNum(avg(q => q.d_entry), 2)} b. · zisku ${dvMoney(avg(q => q.d_pnl))} na obchod · rovnaký výstup ${dvNum(100 * pm.filter(q => q.same_exit).length / pm.length, 0)} %` : ""}</p>` : ""}
+      <div id="dv-lv-${k}" class="dv-chart"></div>${dvLiveTradesHtml(v)}</div>`;
+  }
+  return h;
+}
+
+function dvLiveCharts(layout, cfg) {
+  if (!dv.result) return;
+  for (const L of dvLiveList(dv.result.parts)) {
+    const { p, v, k } = L, el = $(`#dv-lv-${k}`);
+    if (!el || !v.chart) continue;
+    const C = v.chart, traces = [];
+    const candles = (bars, name, up, down) => ({
+      type: "candlestick", name, x: bars.map(b => b[0]), open: bars.map(b => b[1]), high: bars.map(b => b[2]),
+      low: bars.map(b => b[3]), close: bars.map(b => b[4]), increasing: { line: { color: up, width: 1 } },
+      decreasing: { line: { color: down, width: 1 } }, hoverinfo: "x+y" });
+    if (C.before.length) traces.push(candles(C.before, "história (stiahnuté)", "#8fa3ad", "#5c6f78"));
+    if ((C.before_live || []).length) traces.push(candles(C.before_live, "živé dáta pred behom", "#74c0fc", "#4263eb"));
+    if (C.after.length) traces.push(candles(C.after, "živý beh", GREEN, RED));
+    const marks = (trs, name, filled, color) => {
+      const pts = [];
+      for (const t of trs) {
+        if (t.open && t.entry != null) pts.push([t.open, t.entry, t.dir === "long" ? "triangle-up" : "triangle-down", `${name}: vstup ${t.dir}`]);
+        if (t.close && t.exit != null) pts.push([t.close, t.exit, "x-thin", `${name}: výstup ${t.reason || ""} ${dvMoney(t.pnl)}`]);
+      }
+      if (!pts.length) return;
+      traces.push({ type: "scatter", mode: "markers", name, x: pts.map(q => q[0]), y: pts.map(q => q[1]), text: pts.map(q => q[3]),
+                    hovertemplate: "%{text}<br>%{y:,.2f}<extra></extra>",
+                    marker: { symbol: pts.map(q => q[2] + (filled || q[2] === "x-thin" ? "" : "-open")), size: filled ? 11 : 14,
+                              color, line: { width: 2, color } } });
+    };
+    // obchody backtestu v okne grafu pred hranicou (keď história siaha až sem)
+    const first = [C.before, C.before_live || []].filter(x => x.length).map(x => x[0][0]).sort()[0] || v.boundary;
+    const bt = ((dv.trades[dvKey(p.it)] || {}).trades || []).filter(t => t[0] >= first && t[0] < v.boundary)
+      .map(t => ({ open: t[0], close: t[1], dir: t[2] === "S" ? "short" : "long", entry: t[3], exit: t[4], reason: t[6], pnl: t[5] }));
+    marks(bt, "backtest", true, "#8fa3ad");
+    marks(v.real || [], "naživo", true, dvColor(p.i));
+    marks(v.sim || [], "simulácia", false, "#e8590c");
+    const end = v.end || (C.after.length ? C.after[C.after.length - 1][0] : v.boundary);
+    Plotly.newPlot(el, traces, layout({
+      height: 460, hovermode: "closest",
+      xaxis: { showgrid: false, rangeslider: { visible: false }, type: "date" }, yaxis: { side: "right", zeroline: false },
+      shapes: [{ type: "rect", xref: "x", yref: "paper", x0: v.boundary, x1: end, y0: 0, y1: 1, fillcolor: "rgba(232,89,12,0.06)", line: { width: 0 } },
+               { type: "line", xref: "x", yref: "paper", x0: v.boundary, x1: v.boundary, y0: 0, y1: 1, line: { color: "#e8590c", width: 2 } }],
+      annotations: [{ x: v.boundary, y: 1, xref: "x", yref: "paper", text: "← história · živý beh →", showarrow: false, yanchor: "bottom",
+                      font: { size: 11, color: "#e8590c" } }],
+    }), cfg);
+  }
 }

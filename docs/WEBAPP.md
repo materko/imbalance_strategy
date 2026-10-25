@@ -538,6 +538,22 @@ korelácie dvojíc, kontrola dát (z ktorých behov, čo sa zahodilo, prekryté 
 a denník obchodov a dní s filtrom. Deň je dátum zatvorenia v UTC, ako na stránke
 výsledkov. Výber si stránka pamätá v prehliadači.
 
+**Živé behy.** Keď má nastavenie v živých dátach ([DATA.md §D](DATA.md): `data_live/` z gitu + čo hub ešte
+nepushol) živý beh s tým istým profilom
+(rovnaké párovanie mena ako Live diverzifikácia, aj stratégie, ktoré už nebežia; každý profil inštancie
+je samostatný beh), Prepočítať ho pripojí: `GET /api/diversify/livedata` vymenuje behy,
+`GET /api/diversify/livedata/view?instance=&profile=&pair=` (`tester.livesim`) dá hranicu, sviečky,
+skutočné obchody, simuláciu a párovanie. Na krivke kapitálu pokračuje za backtestom plná čiara (naživo,
+doláre u brokera bez násobku) a prerušovaná (simulácia), oranžová čiara značí, odkiaľ je živý beh;
+os sa dá prepnúť na 3 mesiace. Pre každý živý beh je karta: obdobie, odkiaľ sú sviečky za hranicou
+(1m zo živého behu / len bar grafu / doplnené zo stiahnutých) a varovania, naživo vs. simulácia (obchody,
+WR, PF, zisk, prepad, R), spárované / len naživo / len v simulácii s rozdielom vstupu a zisku, **graf
+sviečok** — pred hranicou sivé stiahnuté a modré živé dáta spred štartu behu, za ňou podfarbený živý beh;
+plné značky sú skutočné vstupy (▲▼) a výstupy (×), prázdne oranžové simulácia — a tabuľka obchodov
+vedľa seba. Simulácia: ten istý engine, config a inštrument zo živého behu (`hello`) cez emulátor
+MultiCharts, rozbeh 10 dní pred hranicou, obchody otvorené od hranice. Do súhrnov a rozborov nad tým
+živé behy nevstupujú.
+
 ## Karta Live diverzifikácia
 
 Stratégie nasadené naživo (NinjaTrader, MetaTrader 5) ako jedno portfólio — tie isté rozbory

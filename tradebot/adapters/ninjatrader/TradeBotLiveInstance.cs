@@ -151,6 +151,10 @@ namespace NinjaTrader.NinjaScript.AddOns
         private TB.IHtfFeeder _htf;
         private Series _chart;
         private Series _htfSeries;
+        /// <summary>1m bary symbolu do telemetrie (`m1`); pri 1m grafe je to `_chart`.</summary>
+        private Series _m1Series;
+        /// <summary>Kolko 1m barov (od indexu 0) uz je v spoole - vlastny pocitadlo, `Fed` patri engine-u.</summary>
+        private int _m1Spooled;
         private int _maxDailyWins;
         private long _stepMs;
         private readonly Dictionary<string, Tracked> _orders = new Dictionary<string, Tracked>();
@@ -368,6 +372,9 @@ namespace NinjaTrader.NinjaScript.AddOns
                 _htfSeries = RequestSeries(_htf.TfMinutes, HtfBarsBack(_chart.Tf, _htf.TfMinutes, _engine.RequiredHistory * 2 + 5));
                 if (_htfSeries == null) return false;
             }
+            // 1m bary do telemetrie (sklad zivych sviecok, docs/LIVE.md) - bez nich obchoduje dalej
+            _m1Series = d.Tf == 1 ? _chart : RequestSeries(1, TB.LiveSpool.MinuteBackfill);
+            if (_m1Series == null) Log("1m bary do telemetrie nebudu (BarsRequest 1m zlyhal)");
 
             _orderHandler = OnOrderUpdate;
             _executionHandler = OnExecutionUpdate;
@@ -445,6 +452,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             _spool = new TB.LiveSpool(TradeBotLiveAddOn.SpoolDir, "ninjatrader", _account.Name, _instrumentName, Deployment.Tf,
                                       Deployment.Strategy, profile, false, _config, InstrumentSpec());
             SpoolCheck();
+            _m1Spooled = 0;   // novy beh dostane predhistoriu 1m znova
         }
 
         // ------------------------------------------------------------------ //
@@ -573,6 +581,22 @@ namespace NinjaTrader.NinjaScript.AddOns
                 _chart.Fed++;
                 OnChartBar(c, _chart.Fed - 1, now);
             }
+            SpoolMinutes(now);
+        }
+
+        /// <summary>Uzavrete 1m bary, ktore v spoole este nie su (`m1`); predhistoria najviac `MinuteBackfill` minut.</summary>
+        private void SpoolMinutes(DateTime now)
+        {
+            if (_m1Series == null || _spool == null) return;
+            while (!_stopRequested)
+            {
+                Candle c = ClosedAt(_m1Series, _m1Spooled, now);
+                if (c == null) break;
+                _m1Spooled++;
+                if ((now - c.Time).TotalMinutes > TB.LiveSpool.MinuteBackfill) continue;   // 1m graf ma historie viac
+                _spool.Minute(ToMs(c.Time) - 60000L, c.Open, c.High, c.Low, c.Close, c.Volume);
+            }
+            SpoolCheck();
         }
 
         private void FeedHtfUpTo(DateTime chartClose, DateTime now)
@@ -1326,6 +1350,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             catch (Exception e) { Log("rusenie vstupov: " + e.Message); }
             DisposeSeries(_chart);
             DisposeSeries(_htfSeries);
+            if (_m1Series != _chart) DisposeSeries(_m1Series);
             if (_spool != null)
             {
                 try { WriteStats(); _spool.Close(reason); } catch (Exception) { }

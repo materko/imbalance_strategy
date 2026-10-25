@@ -1,5 +1,6 @@
-"""Diverzifikácia: obchody vybraných nastavení pre spoločný prepočet (`/api/diversify`) a obchody
-živých stratégií pre kartu Naživo (`/api/diversify/live`)."""
+"""Diverzifikácia: obchody vybraných nastavení pre spoločný prepočet (`/api/diversify`), obchody
+živých stratégií pre kartu Naživo (`/api/diversify/live`) a živé behy zo skladu `data_live` k nastaveniam
+(`/api/diversify/livedata`: skutočné obchody, sviečky za hranicou živého behu a simulácia toho obdobia)."""
 
 from __future__ import annotations
 
@@ -110,6 +111,41 @@ def build(ctx: AppContext) -> APIRouter:
             if fresh or cache["data"] is None or time.monotonic() - cache["t"] > LIVE_CACHE_S:
                 cache["data"], cache["t"] = build_live(_mirror_path()), time.monotonic()
             return cache["data"]
+
+    @router.get("/api/diversify/livedata")
+    def diversify_livedata():
+        """Živé behy v `data_live` (aj stratégie, ktoré už nebežia): jeden riadok na inštanciu × profil
+        s obdobím a počtom skutočných obchodov. Párovanie s nastavením robí stránka (meno profilu)."""
+        from tester import livedata
+
+        runs = []
+        for inst in livedata.instances():
+            trades = livedata.trades(inst["id"])
+            by_profile: dict[str, list[dict[str, Any]]] = {}
+            for s in inst.get("sessions") or []:
+                by_profile.setdefault(s.get("profile") or "", []).append(s)
+            for profile, ses in by_profile.items():
+                if profile not in (inst.get("configs") or {}):
+                    continue
+                runs.append({"instance": inst["id"], "profile": profile, "platform": inst["platform"],
+                             "account": inst["account"], "symbol": inst["symbol"], "tf": inst["tf"],
+                             "engine": inst["engine"], "strategy": inst["strategy"],
+                             "start": min((x["start"] for x in ses if x.get("start")), default=None),
+                             "end": max(((x.get("end") or x["start"]) for x in ses if x.get("start")), default=None),
+                             "trades": sum(1 for t in trades if t.get("profile") == profile)})
+        return {"runs": runs}
+
+    @router.get("/api/diversify/livedata/view")
+    def diversify_livedata_view(instance: str = Query(..., min_length=1), profile: str | None = None,
+                                pair: str | None = None):
+        """Živý beh k nastaveniu: hranica (odkiaľ sú dáta zo živého behu), sviečky pred ňou (stiahnuté)
+        a za ňou (živé), skutočné obchody, simulácia toho istého obdobia a ich párovanie (`tester.livesim`)."""
+        from tester import livesim
+
+        try:
+            return livesim.live_view(instance, profile=profile, pair=pair)
+        except KeyError as exc:
+            raise HTTPException(404, str(exc)) from None
 
     return router
 

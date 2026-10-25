@@ -645,6 +645,17 @@ namespace NinjaTrader.NinjaScript.Strategies
             return ToMs(Times[series][0]) - tfMs;
         }
 
+        /// <summary>1m bar symbolu do telemetrie (`m1`, docs/LIVE.md) z jemnej serie na plnenie (alebo z 1m grafu);
+        /// z historie grafu len poslednych `MinuteBackfill` minut - viac sklad zivych sviecok nepotrebuje.</summary>
+        private void SpoolMinute(int series)
+        {
+            if (_spool == null) return;
+            long open = BarOpenMs(series, 60000L);
+            if (State == State.Historical && ToMs(NinjaTrader.Core.Globals.Now) - open > TB.LiveSpool.MinuteBackfill * 60000L) return;
+            _spool.Minute(open, Opens[series][0], Highs[series][0], Lows[series][0], Closes[series][0], Volumes[series][0]);
+            SpoolCheck();
+        }
+
         private static string UtcDay(long ms)
         {
             return Epoch.AddMilliseconds(ms).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -666,7 +677,9 @@ namespace NinjaTrader.NinjaScript.Strategies
                                      Lows[_htfSeries][0], Closes[_htfSeries][0], Volumes[_htfSeries][0]));
                 return;
             }
+            if (BarsInProgress == _fillSeries && _fillSeries > 0 && FillDetailMinutes == 1) { SpoolMinute(_fillSeries); return; }
             if (BarsInProgress != 0) return;
+            if (_chartTfMinutes == 1) SpoolMinute(0);
 
             TB.Bar bar = new TB.Bar(BarOpenMs(0, _stepMs), Open[0], High[0], Low[0], Close[0], Volume[0]);
             if (_chartBars++ == 0) _firstBarMs = bar.Time;

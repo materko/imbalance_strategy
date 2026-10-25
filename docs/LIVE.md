@@ -103,6 +103,7 @@ Freqtrade a graf webapp).
 |---|---|---|
 | `hello` | `schema`, `platform` (`ninjatrader`/`mt5`), `account`, `symbol`, `tf` (min), `strategy` (kľúč enginu), `profile` (názov/cesta), `session`, `host` (meno stroja), `tester` (bool), `config` (celý config enginu), `instrument` (InstrumentSpec ako JSON mostu) | prvý riadok každého súboru session (pri rotácii dňa sa zopakuje) |
 | `bar` | `bt,o,h,l,c,v`, `ready` (bool — engine smie obchodovať), `mb` (bias), `cs` (bool, koniec seansy, len keď true) | každý uzavretý bar grafu, aj pri prehrávaní predhistórie (`ready:false`) |
+| `m1` | `bt,o,h,l,c,v` | uzavretý **1m bar symbolu** nezávisle od TF grafu (`LiveSpool.Minute`); po štarte aj predhistória `MinuteBackfill` = 3 dni. NT8 stratégia z jemnej série na plnenie (`FillDetailMinutes = 1`), AddOn z vlastného 1m `BarsRequest`, MT5 EA z `CopyRates(PERIOD_M1)` (`StaticHost.SpoolMinute`, fasáda verzie 4). Z nich je sklad živých sviečok `data_live` ([DATA.md §D](DATA.md)) |
 | `order` | `bt`, `ready` + polia `OrderIntent.WriteJson` (`a` entry/cancel/close, `id`, `src`, `dir`, `ot`, `r`, `p{dir,e,sl,tp,q,sd,tr}`) | zámer enginu, jeden riadok na zámer |
 | `order` (`a: "modify"`) | `bt`, `ready`, `a: "modify"`, `id` (id vstupu), `p{sl,tp}` (nová hodnota alebo `null` = nemenené), `r` (`trailing` / iný dôvod) | adaptér (nie engine) posunul SL/TP pracujúceho orderu — každý posun trailingu; SL/TP pri vstupe nesie už plán, ten sa nehlási |
 | `event` | `bt` + `StateEvent.WriteJson` (`ts,z,f,to,r`) | prechod stavu zóny |
@@ -710,5 +711,9 @@ sa / padá N min / visí N min / <problém, ktorý plugin sám hlási>` a `🟢 
 - `tester/tests/test_hub.py` — `/api/live/*` cez TestClient, práva tokenov; agent preberá
   `heartbeat_seconds` hubu a strážca spoolu zobudí odosielanie.
 - `tester/tests/test_mt5_static_host.py` — `Spool*` cez reflexiu: súbor vznikne, `hello`+`bar`+`fill`
-  +`order/modify` sú platné podľa `schema.validate`, `Version() == 3`, slot v id inštancie (`InstanceIdSlot`, `SpoolOpenSlot`).
+  +`order/modify` sú platné podľa `schema.validate`, `Version() == 4`, slot v id inštancie (`InstanceIdSlot`, `SpoolOpenSlot`),
+  1m bary `SpoolMinute` (`m1`).
+- `tester/tests/test_livedata.py` — export skladu do `data_live` (1m aj bary grafu, behy z Testera von, nič sa
+  neprepíše), čítanie git + hub, `sync_hub`, plugin hubu `livedata` (ponuka mimo gitu, mesačný push do
+  lokálneho bare repa), súbory pluginu cez API, poradie zdrojov sviečok okolo hranice, párovanie, API webapp.
 - `python -m tradebot.adapters.ninjatrader check` a `python -m tradebot.adapters.mt5 check` prekladajú.

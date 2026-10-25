@@ -4,8 +4,8 @@
 #   docker build -f docker/Dockerfile.hub -t tradebot-hub .
 #
 # Hub nič nepočíta: drží agentov, frontu, zipy výsledkov a log udalostí. Potrebuje
-# len FastAPI a `tester.hub` (+ `tradebot.core.paths`, kde sú cesty); image je malý
-# a arm64 ho utiahne.
+# FastAPI a `tester.hub` (+ `tradebot.core.paths`, kde sú cesty); pandas a pyarrow len pre
+# plugin `livedata` (živé dáta do feather a mesačný push do gitu). Image je malý a arm64 ho utiahne.
 #
 # **Kód beží z klonu vo volume `/srv/tradebot`**, nie z toho v image — inak by sa hub
 # nemal ako aktualizovať a každá zmena by chcela rebuild na stroji hubu. Klon vyrobí
@@ -26,7 +26,7 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir "fastapi>=0.110" "uvicorn>=0.27"
+    && pip install --no-cache-dir "fastapi>=0.110" "uvicorn>=0.27" "pandas>=2.0" "pyarrow>=14"
 
 COPY pyproject.toml ./
 COPY tradebot/ ./tradebot/

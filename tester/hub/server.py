@@ -398,6 +398,28 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
         except KeyError:
             raise HTTPException(404, f"pohľad {name}/{view} nepoznám") from None
 
+    @app.get("/api/plugins/{name}/files")
+    def plugin_files(name: str, who: str = Depends(auth)):
+        """Súbory, ktoré plugin ponúka (napr. `livedata`: živé dáta, ktoré ešte nie sú v gite)."""
+        host = state.plugins
+        if host is None:
+            raise HTTPException(404, "hub nemá pluginy")
+        try:
+            return {"files": host.files(name)}
+        except KeyError:
+            raise HTTPException(404, f"plugin {name} súbory neponúka") from None
+
+    @app.get("/api/plugins/{name}/files/{rel:path}")
+    def plugin_file(name: str, rel: str, who: str = Depends(auth)):
+        host = state.plugins
+        if host is None:
+            raise HTTPException(404, "hub nemá pluginy")
+        try:
+            path = host.file_path(name, rel)
+        except KeyError:
+            raise HTTPException(404, f"{name}: súbor {rel} hub neponúka") from None
+        return FileResponse(path, media_type="application/octet-stream")
+
     # -- live telemetria (docs/LIVE.md) --------------------------------------- #
 
     add_live_routes(app, state, live_store, auth, own)

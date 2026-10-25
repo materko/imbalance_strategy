@@ -76,6 +76,7 @@ long             g_firstBarMs  = 0, g_lastBarMs = 0;
 int              g_maxDailyWins = 0;
 int              g_export      = INVALID_HANDLE;
 bool             g_spool       = false;       // live telemetria otvorena (StaticHost::SpoolOpen)
+datetime         g_lastM1      = 0;           // cas otvorenia posledneho 1m baru v telemetrii (server), 0 = este ziadny
 bool             g_hedging     = false;
 bool             g_replaying   = false;       // prehravanie predhistorie pri starte (bez obchodov)
 int              g_tradeAllowed = -1;         // posledny zisteny stav povolenia obchodovat (-1 = este nezistene)
@@ -317,8 +318,8 @@ int OnInit()
    RefreshGmtOffset();   // pred predhistoriou: casy barov idu do engine-u v UTC
    g_hedging = AccountInfoInteger(ACCOUNT_MARGIN_MODE) == ACCOUNT_MARGIN_MODE_RETAIL_HEDGING;
 
-   if(StaticHost::Version() != 3)
-     { Print("TradeBot: ina verzia fasady TradeBot.dll (cakam 3, docs/MT5.md), preinstaluj: python -m tradebot.adapters.mt5 install"); return INIT_FAILED; }
+   if(StaticHost::Version() != 4)
+     { Print("TradeBot: ina verzia fasady TradeBot.dll (cakam 4, docs/MT5.md), preinstaluj: python -m tradebot.adapters.mt5 install"); return INIT_FAILED; }
 
    // Ovladanie na dialku: id instancie je zname este pred engine-om (rovnake polia ako spool), control subor
    // moze uz pri starte urcit rezim a profil - chybajuci subor = enabled + InpProfile (docs/LIVE.md, faza 2).
@@ -358,6 +359,7 @@ int OnInit()
    if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);   // zvysky z predoslej instancie EA
    if(InpScreenshotFile != "") { ChartSetInteger(0, CHART_SCALE, 2); ChartSetInteger(0, CHART_SHOW_GRID, false); }   // pred kreslenim: pozadia popiskov sa pocitaju z mierky
    ReplayHistory();
+   SpoolMinutes();
    // od teraz kazdy riadok spoolu hned na disk (nazivo); tester si flushuje po davkach
    if(g_spool && !MQLInfoInteger(MQL_TESTER) && StaticHost::SpoolRealtime(g_engine, true) < 0) Print(EngineError("SpoolRealtime"));
    SpoolControl(g_mode, g_profile, source);
@@ -525,7 +527,7 @@ bool RebuildEngine(string spec)
    StaticHost::Destroy(g_engine);
    ArrayResize(g_orders, 0);
    g_winsDay = 0; g_winsCount = 0; g_winsSeenDay = 0; g_winsSeen = 0; g_limitLoggedDay = 0; g_staleLogged = 0;
-   g_chartBars = 0; g_htfBars = 0; g_lastChart = 0; g_lastHtf = 0; g_firstBarMs = 0; g_lastBarMs = 0;
+   g_chartBars = 0; g_htfBars = 0; g_lastChart = 0; g_lastHtf = 0; g_firstBarMs = 0; g_lastBarMs = 0; g_lastM1 = 0;
    g_profile = spec;
    AdoptEngine(h);
    if(InpExportSignals) OpenExport();
@@ -533,6 +535,7 @@ bool RebuildEngine(string spec)
    PrintEngineInfo(path);
    if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);
    ReplayHistory();
+   SpoolMinutes();
    if(g_spool && !MQLInfoInteger(MQL_TESTER) && StaticHost::SpoolRealtime(g_engine, true) < 0) Print(EngineError("SpoolRealtime"));
    Print("TradeBot control: profil zmeneny na ", spec, " (Common\\Files\\", path, "), engine postaveny nanovo, predhistoria prehrana");
    SaveState();
@@ -690,6 +693,7 @@ void ReplayHistory()
 void OnTick()
   {
    if(g_engine <= 0) return;
+   SpoolMinutes();
    datetime open0 = iTime(_Symbol, PERIOD_CURRENT, 0);
    if(open0 == 0 || open0 <= g_lastChart) return;
    // Vsetko uzavrete od posledneho spracovaneho baru (bezne jeden bar; po vypadku tikov viac). Berie sa
@@ -719,6 +723,28 @@ void OnTick()
   }
 
 MqlRates g_lastRates;   // posledny spracovany bar grafu - pre FinalDrawings
+
+//+------------------------------------------------------------------+
+//| 1m bary symbolu do telemetrie (`m1`, docs/LIVE.md) - nezavisle od TF grafu; sklad zivych sviecok   |
+//| (data_live) z nich sklada graf a simulaciu ziveho obdobia s 1m detailom. Prvy raz aj 3 dni spat.   |
+//+------------------------------------------------------------------+
+void SpoolMinutes()
+  {
+   if(!g_spool) return;
+   datetime open0 = iTime(_Symbol, PERIOD_M1, 0);
+   if(open0 == 0 || open0 - 60 <= g_lastM1) return;   // posledny uzavrety 1m bar uz v telemetrii je
+   int k = g_lastM1 == 0 ? 4320 : (int)MathMin(4320, (open0 - g_lastM1) / 60);   // LiveSpool.MinuteBackfill
+   MqlRates m[];
+   int n = CopyRates(_Symbol, PERIOD_M1, 1, k, m);   // index 1 = posledny uzavrety; pole je od najstarsieho
+   for(int i = 0; i < n; i++)
+     {
+      if(m[i].time <= g_lastM1 || m[i].time >= open0) continue;
+      bool real = m[i].real_volume > 0;
+      if(StaticHost::SpoolMinute(g_engine, ToMs(m[i].time), m[i].open, m[i].high, m[i].low, m[i].close, BarVolume(m[i], real)) < 0)
+        { Print(EngineError("SpoolMinute (telemetria vypnuta)")); g_spool = false; return; }
+      g_lastM1 = m[i].time;
+     }
+  }
 
 void FeedHtf(const MqlRates &r)
   {

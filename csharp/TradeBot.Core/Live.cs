@@ -34,6 +34,8 @@ namespace TradeBot.Core
         public const int FlushEvery = 200;
         /// <summary>Predvoleny interval pingu `hb` (ms).</summary>
         public const int DefaultHeartbeatMs = 60000;
+        /// <summary>Kolko minut 1m barov (`m1`) spred startu adapter posle pri prehravani predhistorie (3 dni).</summary>
+        public const int MinuteBackfill = 3 * 1440;
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -318,6 +320,25 @@ namespace TradeBot.Core
                         WriteDrawings(w, output.Drawings);
                         End(w);
                     }
+                }
+            }
+            catch (Exception e) { Break(e); }
+        }
+
+        /// <summary>Uzavrety 1m bar symbolu (`m1`), nezavisle od TF grafu - z neho sa sklada sklad zivych
+        /// sviecok (`data_live`, docs/LIVE.md) a simulacia ziveho obdobia s 1m detailom. Do `bars` pingu sa
+        /// nepocita; po starte ide aj predhistoria `MinuteBackfill` minut (diery po vypadku sa tak doplnia).</summary>
+        public void Minute(long barMs, double open, double high, double low, double close, double volume)
+        {
+            try
+            {
+                lock (_gate)
+                {
+                    if (Off()) return;
+                    JsonWriter w = Begin("m1");
+                    w.Key("bt").Value(barMs).Key("o").Value(open).Key("h").Value(high).Key("l").Value(low);
+                    w.Key("c").Value(close).Key("v").Value(volume);
+                    End(w);
                 }
             }
             catch (Exception e) { Break(e); }
