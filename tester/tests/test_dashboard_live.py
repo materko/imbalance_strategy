@@ -64,6 +64,8 @@ def test_trades_signals_and_status(tmp_path: Path) -> None:
     assert (t1["dir"], t1["entry"], t1["exit"], t1["qty"], t1["reason"]) == ("long", 100.25, 105.0, 2.0, "take_profit")
     assert t1["pnl"] == round((105.0 - 100.25) * 2 * 2.0, 2) and t1["sl"] == 90.0
     assert t1["r"] == round(4.75 / 10.0, 3)
+    assert (t1["plan"], t1["sd"]) == (100.0, 10.0)            # sklz vstupu 0,25 b, oneskorenie 1 min
+    assert t1["sent"] < t1["open"]
     assert (t2["dir"], t2["pnl"], t2["reason"], t2["r"]) == ("short", -20.0, "stop_loss", -1.0)
     assert [o["id"] for o in inst["open"]] == ["orb:5"]
     assert inst["orphan_fills"] == 1

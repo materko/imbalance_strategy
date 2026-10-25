@@ -149,7 +149,8 @@ def _instance(db: sqlite3.Connection, inst: dict[str, Any], now_ms: int) -> dict
                 tr = open_[oid] = {"id": oid, "open_ms": ft, "dir": int(order.get("dir") or plan.get("dir") or 0),
                                    "in_qty": 0.0, "in_val": 0.0, "out_qty": 0.0, "out_val": 0.0, "reason": "",
                                    "sl": plan.get("sl"), "tp": plan.get("tp"), "sd": plan.get("sd"),
-                                   "signal_ms": order.get("bt"), "order_type": order.get("ot")}
+                                   "signal_ms": order.get("bt"), "order_type": order.get("ot"),
+                                   "plan_e": plan.get("e"), "sent_ms": order.get("t")}
             tr["in_qty"] += qty
             tr["in_val"] += qty * price
             continue
@@ -195,7 +196,9 @@ def _instance(db: sqlite3.Connection, inst: dict[str, Any], now_ms: int) -> dict
         out = {"id": tr["id"], "open": _iso(tr["open_ms"]), "signal": _iso(tr["signal_ms"]),
                "dir": "long" if tr["dir"] > 0 else "short" if tr["dir"] < 0 else "?",
                "entry": round(entry, 6) if entry is not None else None, "qty": round(tr["in_qty"], 6),
-               "sl": tr["sl"], "tp": tr["tp"], "order_type": tr["order_type"]}
+               "sl": tr["sl"], "tp": tr["tp"], "order_type": tr["order_type"],
+               # na kvalitu plnenia: plánovaná cena vstupu, čas odoslania príkazu a vzdialenosť stopu (1 R v bodoch)
+               "plan": tr["plan_e"], "sent": _iso(tr["sent_ms"]), "sd": tr["sd"]}
         if closed:
             exit_ = tr["out_val"] / tr["out_qty"]
             pts = (exit_ - entry) * tr["dir"] if tr["dir"] else None

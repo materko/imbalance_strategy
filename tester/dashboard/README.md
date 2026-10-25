@@ -41,6 +41,14 @@ krivka z `equity`. Hodnoty `is`, `oos`, `years` a `plateau_min` sa iba zobrazuj�
   obchodov, signálov, otvorených pozícií a varovaní platformy. Časy sú v miestnom čase prehliadača; zisk je
   hrubý (bez poplatkov), MT5 CFD má inú veľkosť kontraktu, preto sa porovnávajú WR, PF a R. Inštancie bez
   obchodu a bez správy viac ako 7 dní sú zbalené dole.
+  Je to Diverzifikácia nad živými obchodmi: výber inštancií a jednotka **$ / R** hore (pamätá si ich `localStorage`)
+  platia pre celú stránku a inštancie idú cez ten istý výpočet (`dvComputeParts`) — prepad spolu, dni, dni v týždni,
+  hodina vstupu (New York), obchody, korelácia denných výsledkov (od 11 spoločných dní) a koláč podielu na zisku.
+  Navyše **pásmo naživo vs. test**: z obchodov testu toho istého nastavenia (posledný rok, ak ich je ≥ 40, inak celý
+  test) sa 2000-krát (pevné semienko) vytiahne toľko obchodov, koľko je naživo, a ukáže sa pásmo 5 – 95 %, percentil
+  živého výsledku, prepad naživo proti najhoršiemu v teste a graf cesty naživo v pásme — v **bodoch indexu**, aby sa
+  MNQ aj US100.cash dali porovnať bez ohľadu na veľkosť kontraktu. A **kvalita plnenia**: sklz vstupu proti plánovanej
+  cene enginu, sklz na stope a TP, čo plnenia stáli v $ a R a oneskorenie Market príkazov od odoslania po vyplnenie.
 
 Adresy sú v hashi: `#/`, `#/s/<key stratégie>`, `#/d/<id nastavenia>`, `#/div`, `#/live` — dajú sa poslať ako odkaz.
 
@@ -130,7 +138,8 @@ Bez kľúča `live` karta povie, že dáta ešte nie sú.
     "symbol": "MNQ", "tf": 3, "point_value": 2.0, "status": "beží",   // beží | ticho (>30 min bez správy) | zastavená (bye)
     "stale": false, "since": "…Z", "last_event": "…Z", "last_bar": "…Z", "orphan_fills": 0,
     "trades": [{"id": "orb:ny:5081", "open": "…Z", "close": "…Z", "signal": "…Z", "dir": "long", "entry": 0, "exit": 0,
-                "qty": 1, "sl": 0, "tp": 0, "order_type": "Market", "reason": "take_profit", "pts": 0, "pnl": 0, "r": 0.5}],
+                "qty": 1, "sl": 0, "tp": 0, "order_type": "Market", "reason": "take_profit", "pts": 0, "pnl": 0, "r": 0.5,
+                "plan": 0, "sent": "…Z", "sd": 0}],   // plánovaná cena vstupu, odoslanie príkazu, 1 R v bodoch (kvalita plnenia)
     "open": [{"id": "…", "open": "…Z", "dir": "short", "entry": 0, "qty": 1, "sl": 0, "tp": 0}],
     "signals": [{"t": "…Z", "id": "…", "dir": "long", "type": "Market", "entry": 0, "sl": 0, "tp": 0, "qty": 1,
                  "why": "…", "result": "vyplnený"}],   // vyplnený | zrušený: <dôvod> | čaká | bez vyplnenia

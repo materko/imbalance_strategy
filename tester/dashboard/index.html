@@ -231,7 +231,18 @@
 .pie-list{width:100%;border-collapse:collapse;font-size:13px}
 .pie-list td{padding:4px 6px;border-bottom:1px solid var(--line, rgba(127,127,127,.15))}
 .pie-list td.r{text-align:right;white-space:nowrap}
+/* na telefóne sa dlhé mená v koláči zalomia namiesto pretečenia stránky do strany */
+.pie-wrap>*{min-width:0}
+.pie-list td{white-space:normal;overflow-wrap:anywhere}
+.pie-list td.r{white-space:nowrap}
+.dv-filters,.dv-filters label{min-width:0;max-width:100%}
+.dv-filters label{grid-template-columns:minmax(0,1fr)}
+.dv-filters select{max-width:100%;min-width:0}
 @media (max-width:640px){.pie-wrap{grid-template-columns:1fr}.pie-box{height:200px}}
+.lv-pick{display:flex;flex-wrap:wrap;gap:8px}
+.lv-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:5px 12px 5px 8px;font-size:13px;cursor:pointer;background:var(--surface-2)}
+.lv-chip input{margin:0}
+.lv-chip:has(input:not(:checked)){opacity:.5;background:transparent}
 </style>
 </head>
 <body>
@@ -1074,7 +1085,7 @@
   }
 
   function dvCompute() {
-    var parts = dv.items.map(function (it, i) {
+    return dvComputeParts(dv.items.map(function (it, i) {
       var f = findSetting(it.id), m = +it.mult || 1;
       var trades = (f.st.trades || []).map(function (t) {
         return { i: i, open: t.open, close: t.close, dir: t.dir, entry: t.entry, exit: t.exit, reason: t.reason, pnl: (+t.pnl) * m };
@@ -1082,7 +1093,11 @@
       var daily = {};
       (f.st.daily || []).forEach(function (d) { daily[d[0]] = (daily[d[0]] || 0) + (+d[1]) * m; });
       return { i: i, f: f, mult: m, trades: trades, daily: daily, name: dvShort(f) };
-    });
+    }));
+  }
+  // Zlúčenie častí {i (poradie), c (farba, inak i), name, trades [{i, open, close, dir, reason, pnl}], daily {deň: pnl}} —
+  // to isté pre Diverzifikáciu (nastavenia z testu) aj Live (inštancie naživo, pnl v $ alebo v R).
+  function dvComputeParts(parts) {
     var all = [].concat.apply([], parts.map(function (p) { return p.trades; })).sort(function (a, b) { return a.close < b.close ? -1 : a.close > b.close ? 1 : 0; });
     var days = {};
     parts.forEach(function (p) { Object.keys(p.daily).forEach(function (d) { days[d] = (days[d] || 0) + p.daily[d]; }); });
@@ -1146,7 +1161,7 @@
     return {
       parts: parts.map(function (p) {
         var cum = 0, keys = Object.keys(p.daily).sort();
-        return { i: p.i, f: p.f, name: p.name, mult: p.mult, trades: p.trades, daily: p.daily,
+        return { i: p.i, c: p.c == null ? p.i : p.c, f: p.f, x: p.x, name: p.name, mult: p.mult, trades: p.trades, daily: p.daily,
                  total: dvStats(p.trades.map(function (t) { return t.pnl; })), yearly: yearly(p.trades), days: dayPart(p.daily),
                  equity: keys.map(function (d) { cum += p.daily[d]; return [d, cum]; }),
                  reasons: ["take_profit", "stop_loss"].map(function (r) { var x = p.trades.filter(function (t) { return t.reason === r; }); return [r, x.length, x.reduce(function (s, t) { return s + t.pnl; }, 0)]; }),
@@ -1259,54 +1274,7 @@
       if (any) h += row + '<td class="' + cls(tot) + '">' + money(tot) + "</td></tr>";
     }
     h += "</tbody></table></div></div>";
-    // dni
-    function dayCard(title, d, sw) {
-      return '<div class="card"><h2>' + sw + esc(title) + '</h2><dl class="dv-kv">' +
-        "<dt>Obchodných dní</dt><dd>" + d.days + "</dd><dt>Dni v zisku</dt><dd>" + num(d.winPct, 1) + " %</dd>" +
-        "<dt>Priemerný deň</dt><dd>" + money(d.avg) + "</dd><dt>Medián dňa</dt><dd>" + money(d.median) + "</dd>" +
-        "<dt>Priemerný ziskový / stratový deň</dt><dd>" + money(d.avgWin) + " / " + money(d.avgLoss) + "</dd>" +
-        "<dt>Najviac stratových dní po sebe</dt><dd>" + d.lossStreak + "</dd><dt>Mesiace v zisku</dt><dd>" + num(d.monthsPos, 1) + " %</dd>" +
-        "<dt>Najhorší mesiac</dt><dd>" + (d.worstMonth ? d.worstMonth[0] + " " + money(d.worstMonth[1]) : "—") + "</dd>" +
-        "<dt>Najlepší mesiac</dt><dd>" + (d.bestMonth ? d.bestMonth[0] + " " + money(d.bestMonth[1]) : "—") + "</dd>" +
-        "<dt>Najhorší deň</dt><dd>" + (d.worstDay ? fmtDate(d.worstDay[0]) + " " + money(d.worstDay[1]) : "—") + "</dd>" +
-        "<dt>Najlepší deň</dt><dd>" + (d.bestDay ? fmtDate(d.bestDay[0]) + " " + money(d.bestDay[1]) : "—") + "</dd></dl></div>";
-    }
-    h += '<h2 class="section">Dni</h2><div class="grid cards">' + P.map(function (p) { return dayCard(p.name, p.days, dvSw(p.i)); }).join("") +
-      (P.length > 1 ? dayCard("Spolu", R.days, "") : "") + "</div>";
-    h += '<div class="card section"><h2>Dni v týždni</h2><div class="table-wrap"><table><thead><tr><th class="l">Deň</th>' +
-      P.map(function (p) { return "<th>" + dvSw(p.i) + esc(p.name) + "</th><th>dni v zisku</th>"; }).join("") + (P.length > 1 ? "<th>Spolu</th>" : "") + "</tr></thead><tbody>";
-    [0, 1, 2, 3, 4, 6].forEach(function (w) {
-      var tr = '<tr><td class="l">' + DV_WD[w] + (w === 6 ? " (večer)" : "") + "</td>", any = false;
-      P.forEach(function (p) { var v = p.days.weekday[w];
-        if (v && v.length) { any = true; var s2 = v.reduce(function (a, b) { return a + b; }, 0); tr += '<td class="' + cls(s2) + '">' + money(s2) + "</td><td>" + num(100 * v.filter(function (x) { return x > 0; }).length / v.length, 1) + " %</td>"; }
-        else tr += '<td class="muted">—</td><td class="muted">—</td>'; });
-      if (P.length > 1) { var cv = R.days.weekday[w] || [], cs = cv.reduce(function (a, b) { return a + b; }, 0); tr += '<td class="' + cls(cs) + '">' + (cv.length ? money(cs) : "—") + "</td>"; }
-      if (any) h += tr + "</tr>";
-    });
-    h += "</tbody></table></div></div>";
-    // obchody
-    h += '<h2 class="section">Obchody</h2><div class="grid cards">' + P.map(function (p) {
-      var t = p.total;
-      return '<div class="card"><h2>' + dvSw(p.i) + esc(p.name) + '</h2><dl class="dv-kv">' +
-        "<dt>Obchodov</dt><dd>" + t.n + "</dd><dt>Priemerný zisk / strata</dt><dd>" + money(t.avgWin) + " / " + money(t.avgLoss) + "</dd>" +
-        "<dt>Najviac výhier / strát po sebe</dt><dd>" + t.winStreak + " / " + t.lossStreak + "</dd>" +
-        p.reasons.map(function (r) { return "<dt>" + (r[0] === "take_profit" ? "Take profit" : "Stop loss") + "</dt><dd>" + r[1] + " · " + money(r[2]) + "</dd>"; }).join("") +
-        p.dirs.filter(function (d) { return d[1].n; }).map(function (d) { return "<dt>" + (d[0] === "long" ? "Long" : "Short") + " (" + d[1].n + "), PF</dt><dd>" + pfFmt(d[1].pf) + " · " + money(d[1].pnl) + "</dd>"; }).join("") +
-        "<dt>Najlepší / najhorší obchod</dt><dd>" + money(t.best) + " / " + money(t.worst) + "</dd></dl></div>";
-    }).join("") + "</div>";
-    var hrs = Object.keys(R.hours).map(Number).sort(function (a, b) { return a - b; });
-    h += '<div class="card section"><h2>Hodina vstupu (New York)</h2><div class="table-wrap"><table><thead><tr><th class="l">Hodina</th>' +
-      P.map(function (p) { return "<th>" + dvSw(p.i) + esc(p.name) + "</th><th>PF</th><th>zisk</th>"; }).join("") + "</tr></thead><tbody>" +
-      hrs.map(function (hh) {
-        return '<tr><td class="l">' + String(hh).padStart(2, "0") + ":00</td>" + P.map(function (p) { var v = R.hours[hh][p.i];
-          if (!v) return '<td class="muted">—</td><td class="muted">—</td><td class="muted">—</td>';
-          var s3 = dvStats(v); return "<td>" + s3.n + '</td><td class="' + pfCls(s3.pf) + '">' + pfFmt(s3.pf) + '</td><td class="' + cls(s3.pnl) + '">' + money(s3.pnl) + "</td>"; }).join("") + "</tr>";
-      }).join("") + "</tbody></table></div></div>";
-    if (R.corr.length) {
-      h += '<div class="card section"><h2>Korelácia denných výsledkov</h2><div class="table-wrap"><table><thead><tr><th class="l">Dvojica</th><th>Spoločných dní</th><th>Korelácia</th><th>Dni, keď obe prerobili</th></tr></thead><tbody>' +
-        R.corr.map(function (c) { return '<tr><td class="l">' + dvSw(c.a) + esc(P[c.a].name) + " × " + dvSw(c.b) + esc(P[c.b].name) + "</td><td>" + c.common + '</td><td class="' + (c.r != null && c.r >= 0.5 ? "neg" : "") + '">' + (c.r == null ? "—" : num(c.r, 2)) + "</td><td>" + c.both + "</td></tr>"; }).join("") +
-        '</tbody></table></div><p class="muted" style="margin:10px 0 0">Korelácia blízko 0 = nastavenia sa navzájom nehýbu (dobrá diverzifikácia), blízko 1 = správajú sa ako jedna väčšia pozícia.</p></div>';
-    }
+    h += dvDaysSection(R, P, money) + dvWeekdaySection(R, P, money) + dvTradeCards(P, money) + dvHoursSection(R, P, money) + dvCorrSection(R, P);
     // denník
     h += '<div class="card section"><div class="row"><h2>Denník</h2><div class="seg" id="dv-view"><button data-v="tr">Obchody</button><button data-v="dy">Dni</button></div></div>' +
       '<div class="dv-filters"><label>Nastavenie <select id="dv-f-item"><option value="">všetky</option>' + P.map(function (p) { return '<option value="' + p.i + '">' + esc(p.name) + "</option>"; }).join("") + "</select></label>" +
@@ -1318,8 +1286,65 @@
     dvBindLog();
   }
 
+  // Spoločné sekcie Diverzifikácie a Live: fm = formát hodnoty (money pre $, lvFmtR pre R).
+  function dvDayCard(title, d, sw, fm) {
+    return '<div class="card"><h2>' + sw + esc(title) + '</h2><dl class="dv-kv">' +
+      "<dt>Obchodných dní</dt><dd>" + d.days + "</dd><dt>Dni v zisku</dt><dd>" + num(d.winPct, 1) + " %</dd>" +
+      "<dt>Priemerný deň</dt><dd>" + fm(d.avg) + "</dd><dt>Medián dňa</dt><dd>" + fm(d.median) + "</dd>" +
+      "<dt>Priemerný ziskový / stratový deň</dt><dd>" + fm(d.avgWin) + " / " + fm(d.avgLoss) + "</dd>" +
+      "<dt>Najviac stratových dní po sebe</dt><dd>" + d.lossStreak + "</dd><dt>Mesiace v zisku</dt><dd>" + num(d.monthsPos, 1) + " %</dd>" +
+      "<dt>Najhorší mesiac</dt><dd>" + (d.worstMonth ? d.worstMonth[0] + " " + fm(d.worstMonth[1]) : "—") + "</dd>" +
+      "<dt>Najlepší mesiac</dt><dd>" + (d.bestMonth ? d.bestMonth[0] + " " + fm(d.bestMonth[1]) : "—") + "</dd>" +
+      "<dt>Najhorší deň</dt><dd>" + (d.worstDay ? fmtDate(d.worstDay[0]) + " " + fm(d.worstDay[1]) : "—") + "</dd>" +
+      "<dt>Najlepší deň</dt><dd>" + (d.bestDay ? fmtDate(d.bestDay[0]) + " " + fm(d.bestDay[1]) : "—") + "</dd></dl></div>";
+  }
+  function dvDaysSection(R, P, fm) {
+    return '<h2 class="section">Dni</h2><div class="grid cards">' + P.map(function (p) { return dvDayCard(p.name, p.days, dvSw(p.c), fm); }).join("") +
+      (P.length > 1 ? dvDayCard("Spolu", R.days, "", fm) : "") + "</div>";
+  }
+  function dvWeekdaySection(R, P, fm) {
+    var h = '<div class="card section"><h2>Dni v týždni</h2><div class="table-wrap"><table><thead><tr><th class="l">Deň</th>' +
+      P.map(function (p) { return "<th>" + dvSw(p.c) + esc(p.name) + "</th><th>dni v zisku</th>"; }).join("") + (P.length > 1 ? "<th>Spolu</th>" : "") + "</tr></thead><tbody>";
+    [0, 1, 2, 3, 4, 6].forEach(function (w) {
+      var tr = '<tr><td class="l">' + DV_WD[w] + (w === 6 ? " (večer)" : "") + "</td>", any = false;
+      P.forEach(function (p) { var v = p.days.weekday[w];
+        if (v && v.length) { any = true; var s2 = v.reduce(function (a, b) { return a + b; }, 0); tr += '<td class="' + cls(s2) + '">' + fm(s2) + "</td><td>" + num(100 * v.filter(function (x) { return x > 0; }).length / v.length, 1) + " %</td>"; }
+        else tr += '<td class="muted">—</td><td class="muted">—</td>'; });
+      if (P.length > 1) { var cv = R.days.weekday[w] || [], cs = cv.reduce(function (a, b) { return a + b; }, 0); tr += '<td class="' + cls(cs) + '">' + (cv.length ? fm(cs) : "—") + "</td>"; }
+      if (any) h += tr + "</tr>";
+    });
+    return h + "</tbody></table></div></div>";
+  }
+  function dvTradeCards(P, fm) {
+    return '<h2 class="section">Obchody</h2><div class="grid cards">' + P.map(function (p) {
+      var t = p.total;
+      return '<div class="card"><h2>' + dvSw(p.c) + esc(p.name) + '</h2><dl class="dv-kv">' +
+        "<dt>Obchodov</dt><dd>" + t.n + "</dd><dt>Priemerný zisk / strata</dt><dd>" + fm(t.avgWin) + " / " + fm(t.avgLoss) + "</dd>" +
+        "<dt>Najviac výhier / strát po sebe</dt><dd>" + t.winStreak + " / " + t.lossStreak + "</dd>" +
+        p.reasons.map(function (r) { return "<dt>" + (r[0] === "take_profit" ? "Take profit" : "Stop loss") + "</dt><dd>" + r[1] + " · " + fm(r[2]) + "</dd>"; }).join("") +
+        p.dirs.filter(function (d) { return d[1].n; }).map(function (d) { return "<dt>" + (d[0] === "long" ? "Long" : "Short") + " (" + d[1].n + "), PF</dt><dd>" + pfFmt(d[1].pf) + " · " + fm(d[1].pnl) + "</dd>"; }).join("") +
+        "<dt>Najlepší / najhorší obchod</dt><dd>" + fm(t.best) + " / " + fm(t.worst) + "</dd></dl></div>";
+    }).join("") + "</div>";
+  }
+  function dvHoursSection(R, P, fm) {
+    var hrs = Object.keys(R.hours).map(Number).sort(function (a, b) { return a - b; });
+    return '<div class="card section"><h2>Hodina vstupu (New York)</h2><div class="table-wrap"><table><thead><tr><th class="l">Hodina</th>' +
+      P.map(function (p) { return "<th>" + dvSw(p.c) + esc(p.name) + "</th><th>PF</th><th>zisk</th>"; }).join("") + "</tr></thead><tbody>" +
+      hrs.map(function (hh) {
+        return '<tr><td class="l">' + String(hh).padStart(2, "0") + ":00</td>" + P.map(function (p) { var v = R.hours[hh][p.i];
+          if (!v) return '<td class="muted">—</td><td class="muted">—</td><td class="muted">—</td>';
+          var s3 = dvStats(v); return "<td>" + s3.n + '</td><td class="' + pfCls(s3.pf) + '">' + pfFmt(s3.pf) + '</td><td class="' + cls(s3.pnl) + '">' + fm(s3.pnl) + "</td>"; }).join("") + "</tr>";
+      }).join("") + "</tbody></table></div></div>";
+  }
+  function dvCorrSection(R, P, note) {
+    if (!R.corr.length) return "";
+    return '<div class="card section"><h2>Korelácia denných výsledkov</h2><div class="table-wrap"><table><thead><tr><th class="l">Dvojica</th><th>Spoločných dní</th><th>Korelácia</th><th>Dni, keď obe prerobili</th></tr></thead><tbody>' +
+      R.corr.map(function (c) { return '<tr><td class="l">' + dvSw(P[c.a].c) + esc(P[c.a].name) + " × " + dvSw(P[c.b].c) + esc(P[c.b].name) + "</td><td>" + c.common + '</td><td class="' + (c.r != null && c.r >= 0.5 ? "neg" : "") + '">' + (c.r == null ? "—" : num(c.r, 2)) + "</td><td>" + c.both + "</td></tr>"; }).join("") +
+      '</tbody></table></div><p class="muted" style="margin:10px 0 0">Korelácia blízko 0 = nastavenia sa navzájom nehýbu (dobrá diverzifikácia), blízko 1 = správajú sa ako jedna väčšia pozícia.' + (note ? " " + note : "") + "</p></div>";
+  }
+
   function dvPieItems(P) {
-    return P.map(function (p) { return { name: p.name, value: p.total.pnl, color: DV_COLORS[p.i % 8] }; });
+    return P.map(function (p) { return { name: p.name, value: p.total.pnl, color: DV_COLORS[p.c % 8] }; });
   }
   function dvCharts() {
     var R = dv.result, P = R.parts;
@@ -1435,7 +1460,7 @@
   }
 
   // ---------- Live: stratégie nasadené naživo (DATA.live z tester/dashboard/live.py) ----------
-  var LV = { log: "tr", page: 0, inst: "" };
+  var LV = { log: "tr", page: 0, inst: "", unit: "$", off: {}, band: "", R: null };
   var PLATFORM = { ninjatrader: "NinjaTrader", mt5: "MT5" };
   function lvTime(iso) {
     if (!iso) return "—";
@@ -1454,7 +1479,31 @@
     return '<span class="badge ' + c + '">' + esc(x.status) + "</span>";
   }
   function lvReason(r) { return r === "take_profit" ? "take profit" : r === "stop_loss" ? "stop loss" : esc(r || "—"); }
-  function lvActive() { return ((DATA.live && DATA.live.instances) || []).filter(function (x) { return !x.stale; }); }
+  // Inštancie, ktoré nie sú staré; _c = stála farba (poradie medzi aktívnymi), aby sa pri výbere nemenila.
+  function lvActive() {
+    var a = ((DATA.live && DATA.live.instances) || []).filter(function (x) { return !x.stale; });
+    a.forEach(function (x, i) { x._c = i; });
+    return a;
+  }
+  // Výber inštancií a jednotka ($ / R) ako v Diverzifikácii; pamätá si ich prehliadač.
+  var LV_KEY = "dashboard-live";
+  function lvLoad() {
+    if (lvLoad._done) return; lvLoad._done = true;
+    try { var s = JSON.parse(localStorage.getItem(LV_KEY) || "null"); if (s) { LV.off = s.off || {}; LV.unit = s.unit === "R" ? "R" : "$"; } } catch (e) {}
+  }
+  function lvSave() { try { localStorage.setItem(LV_KEY, JSON.stringify({ off: LV.off, unit: LV.unit })); } catch (e) {} }
+  function lvList() { return lvActive().filter(function (x) { return !LV.off[x.id]; }); }
+  // R obchodu: z telemetrie, inak body / vzdialenosť stopu (staršie dáta)
+  function lvR(t) {
+    if (t.r != null) return +t.r;
+    var sd = t.sd || (t.sl != null && t.entry != null ? Math.abs(t.entry - t.sl) : 0);
+    return sd && t.pts != null ? t.pts / sd : null;
+  }
+  function lvV(t) { return LV.unit === "R" ? (lvR(t) || 0) : (+t.pnl || 0); }
+  function lvFmtR(v) { return v == null || !isFinite(v) ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf2.format(Math.abs(v)) + " R"; }
+  function lvFm() { return LV.unit === "R" ? lvFmtR : function (v) { return money(v); }; }
+  function lvCompact(v) { return LV.unit === "R" ? (v > 0 ? "+" : v < 0 ? "−" : "") + nf1.format(Math.abs(v)) + " R" : compact(v); }
+  function lvPts(v) { return v == null || !isFinite(v) ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf1.format(Math.abs(v)) + " b"; }
   function lvExpect(x) {
     var f = x.setting && findSetting(x.setting);
     if (!f) return null;
@@ -1466,10 +1515,84 @@
   function lvWeeks(x) { var a = Date.parse(x.since), b = Date.parse(DATA.live.generated); return isFinite(a) && isFinite(b) ? Math.max((b - a) / 6048e5, 1 / 7) : null; }
   function lvAllTrades(list) {
     var out = [];
-    list.forEach(function (x, i) { (x.trades || []).forEach(function (t) { out.push({ t: t, x: x, i: i }); }); });
+    list.forEach(function (x) { (x.trades || []).forEach(function (t) { out.push({ t: t, x: x, i: x._c }); }); });
     return out.sort(function (a, b) { return a.t.close < b.t.close ? -1 : 1; });
   }
-  function lvFindings(list) {
+
+  // ---------- naživo vs. test: pásmo z Monte Carlo ----------
+  // Body (nie $): MNQ aj US100.cash idú po tom istom indexe, takže body z backtestu (MNQ) sa dajú priamo porovnať
+  // s bodmi naživo na oboch platformách bez ohľadu na veľkosť kontraktu. Zo zisku testu sa náhodne ťahá toľko
+  // obchodov, koľko ich je naživo (2000-krát, s pevným semienkom, aby sa čísla pri obnovení nehýbali).
+  var LV_BAND = {};
+  function lvRng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function lvHash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h; }
+  function lvMaxDd(arr) { var eq = 0, pk = 0, dd = 0; arr.forEach(function (v) { eq += v; if (eq > pk) pk = eq; if (pk - eq > dd) dd = pk - eq; }); return dd; }
+  function lvBand(x) {
+    var f = x.setting && findSetting(x.setting);
+    if (!f) return null;
+    var live = (x.trades || []).filter(function (t) { return t.pts != null; }).sort(function (a, b) { return a.close < b.close ? -1 : 1; }).map(function (t) { return +t.pts; });
+    var key = x.id + ":" + live.length;
+    if (LV_BAND[key]) return LV_BAND[key];
+    var bt = (f.st.trades || []).filter(function (t) { return t.entry != null && t.exit != null; })
+      .map(function (t) { return { open: t.open, pts: (t.exit - t.entry) * (t.dir === "short" ? -1 : 1) }; });
+    var last = bt.filter(function (t) { return t.open.slice(0, 10) >= OOS_START; });
+    var src = last.length >= 40 ? last : bt, pts = src.map(function (t) { return t.pts; });
+    var n = live.length, K = Math.max(n, 20), S = 2000, rnd = lvRng(lvHash(x.id));
+    var res = { n: n, label: f.st.label, src: last.length >= 40 ? "posledný rok testu" : "celý test", btN: pts.length,
+                sum: live.reduce(function (a, v) { return a + v; }, 0), dd: lvMaxDd(live), btDd: lvMaxDd(pts),
+                btAvg: pts.length ? pts.reduce(function (a, v) { return a + v; }, 0) / pts.length : null, steps: [] };
+    if (pts.length < 20) { res.noData = true; return (LV_BAND[key] = res); }
+    var cols = []; for (var k = 0; k <= K; k++) cols.push(new Float64Array(S));
+    var below = 0, eqN = 0, ddWorse = 0;
+    for (var s = 0; s < S; s++) {
+      var c = 0, pk = 0, dd = 0;
+      for (k = 1; k <= K; k++) {
+        c += pts[Math.floor(rnd() * pts.length)];
+        cols[k][s] = c;
+        if (k <= n) { if (c > pk) pk = c; if (pk - c > dd) dd = pk - c; }
+      }
+      if (n) { var v = cols[n][s]; if (v < res.sum) below++; else if (v === res.sum) eqN++; if (dd >= res.dd) ddWorse++; }
+    }
+    function q(arr, p) { return arr[Math.min(arr.length - 1, Math.floor(p * arr.length))]; }
+    for (k = 0; k <= K; k++) { var a = Array.prototype.slice.call(cols[k]).sort(function (x1, x2) { return x1 - x2; }); res.steps.push([q(a, 0.05), q(a, 0.5), q(a, 0.95)]); }
+    if (n) { res.pct = 100 * (below + eqN / 2) / S; res.ddWorse = 100 * ddWorse / S; res.lo = res.steps[n][0]; res.mid = res.steps[n][1]; res.hi = res.steps[n][2]; }
+    return (LV_BAND[key] = res);
+  }
+  function lvVerdict(b) {
+    if (!b || b.noData) return ["", "bez testu"];
+    if (b.n < 5) return ["", "málo obchodov"];
+    if (b.pct < 5) return ["neg", "pod pásmom"];
+    if (b.pct < 20) return ["warn", "spodok pásma"];
+    if (b.pct > 95) return ["pos", "nad pásmom"];
+    return ["pos", "v pásme"];
+  }
+
+  // ---------- kvalita plnenia ----------
+  // Sklz = o koľko horšia cena ako plán enginu (kladný = horšie): vstup proti plánovanej cene príkazu, výstup na stope
+  // proti SL, na take profite proti TP. Oneskorenie = od odoslania Market príkazu po vyplnenie u brokera.
+  function lvFill(x) {
+    var pv = +x.point_value || 1, out = { n: 0, ent: [], stop: [], tp: [], usd: 0, r: 0, lat: [], types: {} };
+    (x.trades || []).forEach(function (t) {
+      if (t.plan == null || t.entry == null) return;
+      var g = t.dir === "short" ? -1 : 1, q = +t.qty || 0, sd = t.sd || (t.sl != null ? Math.abs(t.entry - t.sl) : 0);
+      var es = (t.entry - t.plan) * g, xs = null;
+      if (t.reason === "stop_loss" && t.sl != null && t.exit != null) { xs = (t.sl - t.exit) * g; out.stop.push(xs); }
+      else if (t.reason === "take_profit" && t.tp != null && t.exit != null) { xs = (t.tp - t.exit) * g; out.tp.push(xs); }
+      out.n++; out.ent.push(es);
+      out.usd += (es + (xs || 0)) * q * pv;
+      if (sd) out.r += (es + (xs || 0)) / sd;
+      if (t.order_type) out.types[t.order_type] = 1;
+      var a = Date.parse(t.sent), b = Date.parse(t.open);
+      // limitka čaká na cenu zámerne — oneskorenie má zmysel len pri Market príkaze
+      if (isFinite(a) && isFinite(b) && /market/i.test(t.order_type || "")) out.lat.push(Math.max(0, (b - a) / 1000));
+    });
+    return out;
+  }
+  function lvAvg(a) { return a.length ? a.reduce(function (s, v) { return s + v; }, 0) / a.length : null; }
+  function lvMedian(a) { if (!a.length) return null; var s = a.slice().sort(function (x, y) { return x - y; }), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+  function lvSecs(v) { return v == null ? "—" : v < 60 ? nf1.format(v) + " s" : nf1.format(v / 60) + " min"; }
+
+  function lvFindings(list, R) {
     var out = [];
     list.forEach(function (x) {
       var miss = (x.signals || []).filter(function (s) { return s.result === "bez vyplnenia"; });
@@ -1477,7 +1600,21 @@
         " bez vyplnenia u brokera (posledný " + lvTime(miss[miss.length - 1].t) + "). Skontroluj terminál a log platformy."]);
       if (x.orphan_fills) out.push(["warn", esc(lvName(x)) + " na " + esc(lvPlat(x)) + ": " + x.orphan_fills + " výstup(y) bez zaznamenaného vstupu — obchod mohol začať pred zapnutím telemetrie."]);
       if (x.status !== "beží") out.push([x.status === "zastavená" ? "neg" : "warn", esc(lvName(x)) + " na " + esc(lvPlat(x)) + " " + (x.status === "zastavená" ? "je zastavená" : "neposlala nič od " + lvTime(x.last_event)) + "."]);
+      // pásmo testu
+      var b = lvBand(x), v = lvVerdict(b);
+      if (b && !b.noData && b.n >= 5 && (v[0] === "neg" || v[0] === "warn"))
+        out.push([v[0], esc(lvName(x)) + " na " + esc(lvPlat(x)) + ": " + b.n + " obchodov naživo " + lvPts(b.sum) + ", test pri rovnakom počte čaká " + lvPts(b.lo) + " až " + lvPts(b.hi) +
+          " (medián " + lvPts(b.mid) + ") — horšie dopadlo len " + num(b.pct, 0) + " % náhodných výberov z testu." + (v[0] === "neg" ? " Over, či beží rovnako ako v teste (nastavenie, dáta, plnenia)." : "")]);
+      if (b && !b.noData && b.n >= 3 && b.btDd && b.dd > b.btDd) out.push(["neg", esc(lvName(x)) + " na " + esc(lvPlat(x)) + ": prepad naživo " + lvPts(-b.dd) + " je väčší ako najhorší prepad v teste (" + lvPts(-b.btDd) + ")."]);
+      // plnenia
+      var F = lvFill(x), ea = lvAvg(F.ent), sd = lvAvg((x.trades || []).map(function (t) { return t.sd || 0; }).filter(Boolean));
+      if (F.n >= 3 && ea != null && sd && ea / sd > 0.05) out.push(["warn", esc(lvName(x)) + " na " + esc(lvPlat(x)) + ": priemerný sklz vstupu " + lvPts(ea) + " (" + lvFmtR(ea / sd) + " na obchod), plnenia spolu " + money(-F.usd) + " oproti plánu."]);
+      var lm = lvMedian(F.lat);
+      if (lm != null && lm > 5) out.push(["warn", esc(lvName(x)) + " na " + esc(lvPlat(x)) + ": od odoslania Market príkazu po vyplnenie prejde v mediáne " + lvSecs(lm) + "."]);
     });
+    // stratégie v pásme spolu do jedného riadku
+    var ok = list.filter(function (x) { var b = lvBand(x); return b && !b.noData && b.n >= 5 && lvVerdict(b)[0] === "pos"; });
+    if (ok.length) out.push(["pos", "V pásme testu alebo nad ním (pri rovnakom počte obchodov): " + ok.map(function (x) { return esc(lvName(x)) + " · " + esc(lvPlat(x)) + " " + num(lvBand(x).pct, 0) + ". percentil"; }).join(", ") + "."]);
     // tá istá stratégia na dvoch platformách: má rovnaké signály?
     var bySet = {};
     list.forEach(function (x) { if (x.setting) (bySet[x.setting] = bySet[x.setting] || []).push(x); });
@@ -1492,52 +1629,129 @@
       if (n) out.push([both === n ? "pos" : "warn", esc(lvName(g[0])) + ": " + g.map(lvPlat).join(" a ") + " — " + both + " z " + n + " signálov od " + lvTime(from) + " (odkedy bežia obe) majú obe platformy v tej istej sviečke" +
         (both === n ? "." : " (rozdiel môže byť v dátach brokera: CFD vs. futures, iné sviečky).")]);
     });
+    // spolu ako portfólio (ten istý výpočet ako Diverzifikácia)
+    if (R && R.parts.length > 1) {
+      var P = R.parts, fm = lvFm(), rs = R.corr.filter(function (c) { return c.r != null; });
+      if (!rs.length) out.push(["info", "Korelácia denných výsledkov sa počíta od 11 spoločných obchodných dní dvojice; zatiaľ ich má najviac " + Math.max.apply(null, R.corr.map(function (c) { return c.common; }).concat([0])) + "."]);
+      else {
+        var hi = rs.filter(function (c) { return c.r >= 0.5; });
+        out.push(hi.length ? ["warn", "Niektoré stratégie sa naživo hýbu spolu (korelácia ≥ 0,5): " + hi.map(function (c) { return esc(P[c.a].name) + " × " + esc(P[c.b].name) + " " + num(c.r, 2); }).join(", ") + ". Ich súčet sa správa skôr ako väčšia pozícia."]
+          : ["pos", "Korelácia denných výsledkov naživo je nízka (najviac " + num(Math.max.apply(null, rs.map(function (c) { return c.r; })), 2) + "), stratégie sa navzájom vyrovnávajú."]);
+      }
+      var sumDd = P.reduce(function (s, p) { return s + p.total.dd; }, 0);
+      if (sumDd > 0) out.push(["info", "Prepad spolu " + fm(-R.total.dd) + " oproti súčtu samostatných prepadov " + fm(-sumDd) + " — " + (R.total.dd < sumDd ? "prepady neprišli naraz." : "prepady prišli naraz.")]);
+      out.push(["info", "Najhorší deň spolu " + (R.days.worstDay ? fmtDate(R.days.worstDay[0]) + " " + fm(R.days.worstDay[1]) : "—") + ", najviac stratových dní po sebe " + R.days.lossStreak + ", naraz v trhu najviac " + R.maxConcurrent + " pozície."]);
+    }
     var tr = lvAllTrades(list);
-    if (tr.length < 20) out.push(["info", "Uzavretých obchodov je zatiaľ " + tr.length + ". Porovnanie s testom (WR, PF) začne mať zmysel od ~20 – 30 obchodov na stratégiu; dovtedy sleduj hlavne to, či signály a vyplnenia sedia."]);
+    if (tr.length < 20) out.push(["info", "Uzavretých obchodov je zatiaľ " + tr.length + ". WR a PF sú pri tak málo obchodoch náhodné; pásmo testu (vyššie) už malý počet zohľadňuje — sleduj hlavne to a či signály a vyplnenia sedia."]);
     return out;
   }
   // ---------- koláč „podiel na zisku“ (používateľ 24. 10. 2026: kto robí najväčšie percento zisku) ----------
   // Koláč je len zo stratégií v zisku (strata sa do koláča nedá nakresliť); stratové sú v zozname pod ním.
-  function pieCard(id, title, items, note) {
+  function pieCard(id, title, items, note, fm) {
+    fm = fm || function (v) { return money(v); };
     var pos = items.filter(function (x) { return x.value > 0; }).sort(function (a, b) { return b.value - a.value; });
     var neg = items.filter(function (x) { return x.value <= 0; }).sort(function (a, b) { return a.value - b.value; });
     var tot = pos.reduce(function (a, x) { return a + x.value; }, 0);
     if (!items.length) return "";
     var rows = pos.map(function (x) { return '<tr><td><i class="sw" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;background:' + cssVar(x.color) + '"></i>' + esc(x.name) +
-      '</td><td class="r"><b>' + num(100 * x.value / tot, 1) + ' %</b></td><td class="r pos">' + money(x.value) + "</td></tr>"; }).join("") +
+      '</td><td class="r"><b>' + num(100 * x.value / tot, 1) + ' %</b></td><td class="r pos">' + fm(x.value) + "</td></tr>"; }).join("") +
       neg.map(function (x) { return '<tr><td class="muted"><i class="sw" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;background:' + cssVar(x.color) + '"></i>' + esc(x.name) +
-      '</td><td class="r muted">v strate</td><td class="r ' + cls(x.value) + '">' + money(x.value) + "</td></tr>"; }).join("");
+      '</td><td class="r muted">v strate</td><td class="r ' + cls(x.value) + '">' + fm(x.value) + "</td></tr>"; }).join("");
     return '<div class="card section"><div class="row"><h2>' + title + '</h2>' + (note ? '<span class="muted">' + note + "</span>" : "") + "</div>" +
       (pos.length ? '<div class="pie-wrap"><div class="pie-box"><canvas id="' + id + '"></canvas></div><table class="pie-list"><tbody>' + rows + "</tbody></table></div>"
                   : '<p class="muted">Zatiaľ žiadna stratégia v zisku.</p><table class="pie-list"><tbody>' + rows + "</tbody></table>") + "</div>";
   }
-  function pieChart(id, items) {
+  function pieChart(id, items, fm) {
+    fm = fm || function (v) { return money(v, 0); };
     var el = $(id); if (!el || !hasChart()) return;
     var pos = items.filter(function (x) { return x.value > 0; }).sort(function (a, b) { return b.value - a.value; });
     var tot = pos.reduce(function (a, x) { return a + x.value; }, 0);
     charts.push(new Chart(el, { type: "doughnut", data: { labels: pos.map(function (x) { return x.name; }),
       datasets: [{ data: pos.map(function (x) { return x.value; }), backgroundColor: pos.map(function (x) { return cssVar(x.color); }), borderColor: cssVar("--bg") || "#0b1220", borderWidth: 2 }] },
       options: { responsive: true, maintainAspectRatio: false, cutout: "55%", plugins: { legend: { display: false },
-        tooltip: { callbacks: { label: function (it) { return it.label + ": " + num(100 * it.raw / tot, 1) + " % · " + money(it.raw, 0); } } } } } }));
+        tooltip: { callbacks: { label: function (it) { return it.label + ": " + num(100 * it.raw / tot, 1) + " % · " + fm(it.raw); } } } } } }));
   }
   function lvPieItems(list) {
-    return list.map(function (x, i) { var t = x.trades || []; if (!t.length) return null;
-      return { name: lvName(x) + " · " + lvPlat(x), value: t.reduce(function (a, o) { return a + (o.pnl || 0); }, 0), color: DV_COLORS[i % 8] }; }).filter(Boolean);
+    return list.map(function (x) { var t = x.trades || []; if (!t.length) return null;
+      return { name: lvName(x) + " · " + lvPlat(x), value: t.reduce(function (a, o) { return a + lvV(o); }, 0), color: DV_COLORS[x._c % 8] }; }).filter(Boolean);
+  }
+  // Inštancie ako časti pre dvComputeParts (pnl v zvolenej jednotke, deň = miestny deň zatvorenia)
+  function lvCompute(list) {
+    var parts = list.filter(function (x) { return (x.trades || []).length; }).map(function (x, k) {
+      var trades = x.trades.map(function (t) { return { i: k, open: t.open, close: t.close, dir: t.dir, entry: t.entry, exit: t.exit, reason: t.reason, pnl: lvV(t) }; })
+        .sort(function (a, b) { return a.open < b.open ? -1 : a.open > b.open ? 1 : 0; });
+      var daily = {};
+      trades.forEach(function (t) { var d = lvDayKey(t.close); daily[d] = (daily[d] || 0) + t.pnl; });
+      return { i: k, c: x._c, x: x, mult: 1, trades: trades, daily: daily, name: lvName(x) + " · " + (PLATFORM[x.platform] || x.platform) };
+    });
+    return parts.length ? dvComputeParts(parts) : null;
+  }
+  function lvBandSection(list) {
+    var rows = list.map(function (x) {
+      var b = lvBand(x), v = lvVerdict(b);
+      if (!b) return '<tr><td class="l">' + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td colspan="6" class="l muted">nastavenie nie je na stránke — nie je s čím porovnať</td></tr>';
+      return '<tr><td class="l">' + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + "</small></td><td>" + b.n + '</td><td class="' + cls(b.sum) + '">' + (b.n ? lvPts(b.sum) : "—") + "</td>" +
+        '<td class="muted">' + (b.noData || !b.n ? "—" : lvPts(b.lo) + " · <b>" + lvPts(b.mid) + "</b> · " + lvPts(b.hi)) + "</td><td>" + (b.pct == null ? "—" : num(b.pct, 0) + ". perc.") + "</td>" +
+        "<td>" + (b.n ? lvPts(-b.dd) + ' <small class="muted">/ ' + lvPts(-b.btDd) + (b.btDd ? " · " + num(100 * b.dd / b.btDd, 0) + " %" : "") + "</small>" : "—") + "</td>" +
+        '<td class="l"><span class="badge ' + v[0] + '">' + v[1] + "</span></td></tr>";
+    }).join("");
+    var withBand = list.filter(function (x) { var b = lvBand(x); return b && !b.noData; });
+    if (!LV.band || !withBand.some(function (x) { return x.id === LV.band; })) LV.band = withBand.length ? withBand[0].id : "";
+    return '<div class="card section"><div class="row"><h2>Naživo vs. test — pásmo</h2><span class="muted">v bodoch indexu, rovnaký počet obchodov</span></div>' +
+      '<div class="table-wrap"><table><thead><tr><th class="l">Stratégia</th><th>Obch.</th><th>Naživo</th><th>Test: 5 % · medián · 95 %</th><th>Percentil</th><th>Prepad naživo / najhorší v teste</th><th class="l">Verdikt</th></tr></thead><tbody>' +
+      (rows || '<tr><td class="l muted" colspan="7">—</td></tr>') + "</tbody></table></div>" +
+      (withBand.length ? '<div class="row" style="margin-top:14px"><h3 style="margin:0">Cesta naživo v pásme testu</h3><div class="dv-filters" style="margin:0"><select id="lv-band-inst" aria-label="Stratégia v grafe pásma">' +
+        withBand.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === LV.band ? " selected" : "") + ">" + esc(lvName(x) + " · " + lvPlat(x)) + "</option>"; }).join("") + "</select></div></div>" +
+        '<div class="chart-box sm"><canvas id="lv-band"></canvas></div>' : "") +
+      '<p class="muted" style="font-size:12px;margin:10px 0 0">Z obchodov testu toho istého nastavenia (posledný rok, ak ich je aspoň 40, inak celý test) sa 2000-krát náhodne vytiahne toľko obchodov, koľko je ich naživo. ' +
+      "Pásmo 5 – 95 % ukazuje, kam padne 90 % takých výberov; percentil hovorí, koľko percent z nich dopadlo horšie ako živý účet. Body sú spoločná miera pre MNQ aj US100.cash (ten istý index), bez ohľadu na veľkosť kontraktu.</p></div>";
+  }
+  function lvFillSection(list) {
+    var any = false;
+    var rows = list.map(function (x) {
+      var F = lvFill(x), n = (x.trades || []).length;
+      if (!n) return "";
+      if (!F.n) return '<tr><td class="l">' + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td>0 / ' + n + '</td><td colspan="5" class="l muted">bez plánovanej ceny (staršie dáta telemetrie)</td></tr>';
+      any = true;
+      return '<tr><td class="l">' + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + "</small><br><small class=\"muted\">" + esc(Object.keys(F.types).join(", ")) + "</small></td><td>" + F.n + " / " + n + "</td>" +
+        '<td class="' + cls(-(lvAvg(F.ent) || 0)) + '">' + lvPts(lvAvg(F.ent)) + "</td>" +
+        '<td class="' + cls(-(lvAvg(F.stop) || 0)) + '">' + (F.stop.length ? lvPts(lvAvg(F.stop)) + ' <small class="muted">(' + F.stop.length + ")</small>" : "—") + "</td>" +
+        '<td class="' + cls(-(lvAvg(F.tp) || 0)) + '">' + (F.tp.length ? lvPts(lvAvg(F.tp)) + ' <small class="muted">(' + F.tp.length + ")</small>" : "—") + "</td>" +
+        '<td class="' + cls(-F.usd) + '">' + money(-F.usd) + ' <small class="muted">' + lvFmtR(-F.r) + "</small></td>" +
+        "<td>" + lvSecs(lvMedian(F.lat)) + ' <small class="muted">/ ' + lvSecs(F.lat.length ? Math.max.apply(null, F.lat) : null) + "</small></td></tr>";
+    }).join("");
+    if (!rows) return "";
+    return '<div class="card section"><div class="row"><h2>Kvalita plnenia</h2><span class="muted">sklz = horšia cena ako plán enginu</span></div>' +
+      '<div class="table-wrap"><table><thead><tr><th class="l">Stratégia</th><th>Obch. s plánom</th><th>Sklz vstupu (priem.)</th><th>Sklz na stope</th><th>Sklz na TP</th><th>Plnenia vs. plán</th><th>Oneskorenie Market medián / max.</th></tr></thead><tbody>' +
+      rows + "</tbody></table></div>" +
+      '<p class="muted" style="font-size:12px;margin:10px 0 0">Kladný sklz (červený) = horšia cena: vstup proti cene, ktorú engine plánoval pri signáli, výstup na stope proti SL a na take profite proti TP. ' +
+      "„Plnenia vs. plán“ = súčet sklzov × množstvo × hodnota bodu (a v R voči stopu); mínus = plnenia stáli peniaze, plus = lepšie ceny ako plán. Oneskorenie = od odoslania Market príkazu po vyplnenie u brokera (limitka čaká na cenu zámerne)." + (any ? "" : " Plánovaná cena príde do dát stránky pri najbližšom generovaní (live.py).") + "</p></div>";
+  }
+  function lvSelector(all) {
+    return '<div class="card section"><div class="row"><h2>Ktoré stratégie</h2><div class="seg" id="lv-unit" role="group" aria-label="Jednotka"><button data-u="$"' + (LV.unit === "$" ? ' class="on"' : "") + '>$</button><button data-u="R"' + (LV.unit === "R" ? ' class="on"' : "") + ">R</button></div></div>" +
+      '<div class="lv-pick">' + all.map(function (x) {
+        return '<label class="lv-chip"><input type="checkbox" data-inst="' + esc(x.id) + '"' + (LV.off[x.id] ? "" : " checked") + ">" + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + "</small></label>";
+      }).join("") + "</div>" +
+      '<p class="muted" style="font-size:12px;margin:10px 0 0">Výber platí pre celú stránku. $ = skutočný zisk u brokera (MT5 CFD má inú veľkosť kontraktu ako MNQ); R = zisk vo veľkostiach stopu — porovnateľné medzi stratégiami aj platformami.</p></div>';
   }
   function viewLive() {
     var L = DATA.live;
     if (!L) return "<h1>Live</h1><div class=\"msg\">V tejto verzii stránky ešte nie sú dáta zo živých stratégií. Pridajú sa pri najbližšom rannom generovaní (Mac mini, <code>tester/dashboard/live.py</code>).</div>";
-    var list = lvActive(), stale = (L.instances || []).filter(function (x) { return x.stale; });
+    lvLoad();
+    var all = lvActive(), list = lvList(), stale = (L.instances || []).filter(function (x) { return x.stale; });
     var tr = lvAllTrades(list), S = calcStats(tr.map(function (o) { return o.t; }));
-    var rSum = tr.reduce(function (s, o) { return s + (o.t.r || 0); }, 0);
+    var rSum = tr.reduce(function (s, o) { return s + (lvR(o.t) || 0); }, 0);
     var sig = [].concat.apply([], list.map(function (x) { return x.signals || []; }));
     var filled = sig.filter(function (s) { return s.result === "vyplnený"; }).length;
     var openN = list.reduce(function (s, x) { return s + (x.open || []).length; }, 0);
+    var R = lvCompute(list), fm = lvFm();
+    LV.R = R;
     function tile(l, v, c) { return '<div class="tile"><span>' + l + '</span><b class="' + (c || "") + '">' + v + "</b></div>"; }
-    var rows = list.map(function (x, i) {
+    var rows = list.map(function (x) {
       var st = calcStats(x.trades || []), e = lvExpect(x), w = lvWeeks(x), xs = x.signals || [];
-      var rs = (x.trades || []).reduce(function (s, t) { return s + (t.r || 0); }, 0);
-      return "<tr><td class=\"l\">" + dvSw(i) + esc(lvName(x)) + '<br><small class="muted">' + esc(x.profile) + "</small></td>" +
+      var rs = (x.trades || []).reduce(function (s, t) { return s + (lvR(t) || 0); }, 0);
+      return "<tr><td class=\"l\">" + dvSw(x._c) + esc(lvName(x)) + '<br><small class="muted">' + esc(x.profile) + "</small></td>" +
         '<td class="l">' + esc(lvPlat(x)) + '<br><small class="muted">' + esc(x.account) + "</small></td><td class=\"l\">" + lvStatus(x) + '<br><small class="muted">od ' + lvDate(x.since) + "</small></td>" +
         "<td>" + st.n + (x.open && x.open.length ? ' <small class="muted">+' + x.open.length + " otv.</small>" : "") + "</td><td>" + (st.n ? num(st.winrate, 0) + " %" : "—") +
         '</td><td class="' + pfCls(st.pf) + '">' + (st.n ? pfFmt(st.pf) : "—") + '</td><td class="' + cls(st.net) + '">' + money(st.net) + '</td><td class="' + cls(rs) + '">' + (st.n ? num(rs, 2) + " R" : "—") +
@@ -1545,28 +1759,35 @@
         '<td class="l muted">' + (e ? "WR " + num(e.wr, 0) + " % · PF " + pfFmt(e.pf) + " · " + num(e.perWeek, 1) + "/týž." : "—") + "</td>" +
         "<td>" + xs.filter(function (s) { return s.result === "vyplnený"; }).length + " / " + xs.length + "</td></tr>";
     }).join("");
-    var finds = lvFindings(list).map(function (f) { return '<li><span class="badge ' + (f[0] === "info" ? "" : f[0]) + '">' + (f[0] === "pos" ? "OK" : f[0] === "neg" ? "Pozor" : f[0] === "warn" ? "Sleduj" : "Info") + "</span><span>" + f[1] + "</span></li>"; }).join("");
+    var finds = lvFindings(list, R).map(function (f) { return '<li><span class="badge ' + (f[0] === "info" ? "" : f[0]) + '">' + (f[0] === "pos" ? "OK" : f[0] === "neg" ? "Pozor" : f[0] === "warn" ? "Sleduj" : "Info") + "</span><span>" + f[1] + "</span></li>"; }).join("");
     var opts = list.map(function (x, i) { return '<option value="' + i + '">' + esc(lvName(x) + " · " + lvPlat(x)) + "</option>"; }).join("");
+    var P = R ? R.parts : [];
     return "<h1>Live</h1>" +
       '<p class="sub">Stratégie nasadené naživo (NinjaTrader, MetaTrader 5): skutočné vyplnenia u brokera, zisk hrubý bez poplatkov. Časy sú v tvojom miestnom čase. Stav k ' + lvTime(L.generated) + ".</p>" +
-      (list.length ? "" : '<div class="msg">Žiadna živá inštancia. ' + (L.error ? esc(L.error) : "") + "</div>") +
+      (all.length ? lvSelector(all) : "") +
+      (list.length ? "" : '<div class="msg">' + (all.length ? "Nie je vybraná žiadna stratégia." : "Žiadna živá inštancia. " + (L.error ? esc(L.error) : "")) + "</div>") +
       '<div class="grid tiles">' + tile("Uzavreté obchody", S.n) + tile("Win rate", S.n ? num(S.winrate, 1) + " %" : "—") + tile("Profit factor", S.n ? pfFmt(S.pf) : "—", pfCls(S.n ? S.pf : null)) +
       tile("Zisk spolu", money(S.net), cls(S.net)) + tile("Spolu v R", S.n ? num(rSum, 2) + " R" : "—", cls(rSum)) + tile("Otvorené pozície", openN) +
-      tile("Signály vyplnené", filled + " / " + sig.length) + "</div>" +
+      tile("Signály vyplnené", filled + " / " + sig.length) + (R && P.length > 1 ? tile("Max. prepad spolu", fm(-R.total.dd), R.total.dd ? "neg" : "") : "") + "</div>" +
       '<div class="card section"><h2>Zistenia</h2><ul class="dv-find">' + finds + "</ul></div>" +
       '<div class="card section"><h2>Stratégie naživo vs. test</h2><div class="table-wrap"><table><thead><tr><th class="l">Stratégia</th><th class="l">Platforma</th><th class="l">Stav</th><th>Obch.</th><th>WR</th><th>PF</th><th>Zisk</th><th>R</th><th>Obch./týž.</th><th class="l">Test (posledný rok)</th><th>Signály vypl.</th></tr></thead><tbody>' +
       (rows || '<tr><td class="l muted" colspan="11">—</td></tr>') + "</tbody></table></div>" +
       '<p class="muted" style="font-size:12px;margin:10px 0 0">Test = to isté nastavenie v backteste na MNQ (posledný rok 9/2025 – 9/2026). MT5 (FTMO US100.cash) je CFD s inou veľkosťou kontraktu, preto sa jeho zisk v $ nedá porovnať 1:1 — porovnávaj WR, PF a R.</p></div>' +
+      (list.length ? lvBandSection(list) : "") +
       // používateľ 22. 10. 2026: jeden graf s 9 čiarami bol neprehľadný → hore súčet a platformy, pod ním malý graf každej stratégie
-      '<div class="card section"><div class="row"><h2>Krivka zisku naživo</h2><span class="muted">stĺpce = zisk za deň, krivky = súčet</span></div>' + (tr.length ? '<div class="chart-box"><canvas id="lv-eq"></canvas></div><div class="legend">' +
+      '<div class="card section"><div class="row"><h2>Krivka zisku naživo</h2><span class="muted">stĺpce = zisk za deň, krivky = súčet' + (LV.unit === "R" ? " · v R" : "") + "</span></div>" + (tr.length ? '<div class="chart-box"><canvas id="lv-eq"></canvas></div><div class="legend">' +
         '<span><i style="background:' + cssVar("--pos") + '"></i><i style="background:' + cssVar("--neg") + ';margin-left:-4px"></i>Zisk dňa</span><span><i style="background:' + cssVar("--sum") + '"></i>Spolu</span>' + lvPlatforms(list).map(function (p, k) { return '<span><i style="background:' + cssVar(DV_COLORS[k % 8]) + '"></i>' + esc(p) + " spolu</span>"; }).join("") + "</div>" +
-        '<h3 style="margin:16px 0 8px">Jednotlivé stratégie</h3><div class="lv-minis">' + list.map(function (x, i) {
+        '<h3 style="margin:16px 0 8px">Jednotlivé stratégie</h3><div class="lv-minis">' + list.map(function (x) {
           var t = x.trades || []; if (!t.length) return "";
-          var net = t.reduce(function (a, o) { return a + (o.pnl || 0); }, 0), r = t.reduce(function (a, o) { return a + (o.r || 0); }, 0);
-          return '<div class="lv-mini"><div class="row"><b>' + dvSw(i) + esc(lvName(x)) + '</b><span class="' + cls(net) + '">' + money(net) + " · " + num(r, 1) + " R</span></div>" +
-            '<div class="muted" style="font-size:12px">' + esc(lvPlat(x)) + " · " + t.length + ' obch.</div><div class="chart-box xs"><canvas id="lv-mini-' + i + '"></canvas></div></div>';
+          var net = t.reduce(function (a, o) { return a + (o.pnl || 0); }, 0), r = t.reduce(function (a, o) { return a + (lvR(o) || 0); }, 0);
+          return '<div class="lv-mini"><div class="row"><b>' + dvSw(x._c) + esc(lvName(x)) + '</b><span class="' + cls(net) + '">' + money(net) + " · " + num(r, 1) + " R</span></div>" +
+            '<div class="muted" style="font-size:12px">' + esc(lvPlat(x)) + " · " + t.length + ' obch.</div><div class="chart-box xs"><canvas id="lv-mini-' + x._c + '"></canvas></div></div>';
         }).join("") + "</div>" : '<p class="muted">Zatiaľ žiadny uzavretý obchod.</p>') + "</div>" +
-      (tr.length ? pieCard("lv-pie", "Podiel na zisku naživo", lvPieItems(list), "z čistého zisku stratégií v pluse") : "") +
+      (R && P.length > 1 ? '<div class="card section"><div class="row"><h2>Spolu: kapitál a prepad</h2><span class="muted">podľa dní' + (LV.unit === "R" ? " · v R" : "") + '</span></div><div class="chart-box sm"><canvas id="lv-dd"></canvas></div></div>' : "") +
+      (tr.length ? pieCard("lv-pie", "Podiel na zisku naživo", lvPieItems(list), LV.unit === "R" ? "zo súčtu R stratégií v pluse" : "z čistého zisku stratégií v pluse", fm) : "") +
+      (list.length ? lvFillSection(list) : "") +
+      (R ? dvDaysSection(R, P, fm) + dvWeekdaySection(R, P, fm) + dvTradeCards(P, fm) + dvHoursSection(R, P, fm) +
+        dvCorrSection(R, P, "Naživo sa počíta od 11 spoločných obchodných dní dvojice.") : "") +
       '<div class="card section"><div class="row"><h2>Denník</h2><div class="seg" id="lv-view"><button data-v="tr">Obchody</button><button data-v="sig">Signály</button><button data-v="open">Otvorené</button><button data-v="note">Varovania</button></div></div>' +
       '<div class="dv-filters"><label>Stratégia<select id="lv-f-inst"><option value="">všetky</option>' + opts + "</select></label></div>" +
       '<div class="table-wrap"><table id="lv-log"></table></div><div class="pager"><span id="lv-info"></span><button class="btn" id="lv-prev">‹</button><button class="btn" id="lv-next">›</button></div></div>' +
@@ -1575,26 +1796,26 @@
         "</tbody></table></div></details>" : "");
   }
   function lvRenderLog() {
-    var list = lvActive(), n = 50, rows, head;
+    var list = lvList(), n = 50, rows, head;
     var pick = LV.inst === "" ? list.map(function (x, i) { return i; }) : [+LV.inst];
     function each(fn) { var out = []; pick.forEach(function (i) { var x = list[i]; if (x) fn(x, i, out); }); return out; }
     if (LV.log === "tr") {
       head = '<th class="l">Otvorenie</th><th class="l">Zatvorenie</th><th class="l">Stratégia</th><th class="l">Smer</th><th>Množ.</th><th>Vstup</th><th>Výstup</th><th>SL</th><th>TP</th><th class="l">Dôvod</th><th>R</th><th>PnL</th>';
-      rows = each(function (x, i, out) { (x.trades || []).forEach(function (t) { out.push({ k: t.close, h: '<td class="l">' + lvTime(t.open) + '</td><td class="l">' + lvTime(t.close) + '</td><td class="l">' + dvSw(i) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + "</small></td>" +
+      rows = each(function (x, i, out) { (x.trades || []).forEach(function (t) { out.push({ k: t.close, h: '<td class="l">' + lvTime(t.open) + '</td><td class="l">' + lvTime(t.close) + '</td><td class="l">' + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + "</small></td>" +
         '<td class="l">' + t.dir + "</td><td>" + num(t.qty, t.qty % 1 ? 2 : 0) + "</td><td>" + num(t.entry, 2) + "</td><td>" + num(t.exit, 2) + "</td><td>" + num(t.sl, 2) + "</td><td>" + num(t.tp, 2) + '</td><td class="l">' + lvReason(t.reason) +
         '</td><td class="' + cls(t.r) + '">' + (t.r == null ? "—" : num(t.r, 2)) + '</td><td class="' + cls(t.pnl) + '">' + money(t.pnl, 2) + "</td>" }); }); });
     } else if (LV.log === "sig") {
       head = '<th class="l">Signál (sviečka)</th><th class="l">Stratégia</th><th class="l">Smer</th><th class="l">Typ</th><th>Vstup</th><th>SL</th><th>TP</th><th>Množ.</th><th class="l">Výsledok</th>';
       rows = each(function (x, i, out) { (x.signals || []).forEach(function (s) {
         var c = s.result === "vyplnený" ? "pos" : s.result === "bez vyplnenia" ? "neg" : s.result === "čaká" ? "warn" : "";
-        out.push({ k: s.t, h: '<td class="l">' + lvTime(s.t) + '</td><td class="l">' + dvSw(i) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l">' + s.dir + '</td><td class="l">' + esc(s.type) + "</td><td>" + num(s.entry, 2) + "</td><td>" + num(s.sl, 2) + "</td><td>" + num(s.tp, 2) +
+        out.push({ k: s.t, h: '<td class="l">' + lvTime(s.t) + '</td><td class="l">' + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l">' + s.dir + '</td><td class="l">' + esc(s.type) + "</td><td>" + num(s.entry, 2) + "</td><td>" + num(s.sl, 2) + "</td><td>" + num(s.tp, 2) +
           "</td><td>" + (s.qty == null ? "—" : num(s.qty, s.qty % 1 ? 2 : 0)) + '</td><td class="l"><span class="badge ' + c + '">' + esc(s.result) + "</span></td>" }); }); });
     } else if (LV.log === "open") {
       head = '<th class="l">Otvorenie</th><th class="l">Stratégia</th><th class="l">Smer</th><th>Množ.</th><th>Vstup</th><th>SL</th><th>TP</th>';
-      rows = each(function (x, i, out) { (x.open || []).forEach(function (t) { out.push({ k: t.open, h: '<td class="l">' + lvTime(t.open) + '</td><td class="l">' + dvSw(i) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l">' + t.dir + "</td><td>" + num(t.qty, t.qty % 1 ? 2 : 0) + "</td><td>" + num(t.entry, 2) + "</td><td>" + num(t.sl, 2) + "</td><td>" + num(t.tp, 2) + "</td>" }); }); });
+      rows = each(function (x, i, out) { (x.open || []).forEach(function (t) { out.push({ k: t.open, h: '<td class="l">' + lvTime(t.open) + '</td><td class="l">' + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l">' + t.dir + "</td><td>" + num(t.qty, t.qty % 1 ? 2 : 0) + "</td><td>" + num(t.entry, 2) + "</td><td>" + num(t.sl, 2) + "</td><td>" + num(t.tp, 2) + "</td>" }); }); });
     } else {
       head = '<th class="l">Čas</th><th class="l">Stratégia</th><th class="l">Text</th>';
-      rows = each(function (x, i, out) { (x.notes || []).forEach(function (m) { out.push({ k: m.t, h: '<td class="l">' + lvTime(m.t) + '</td><td class="l">' + dvSw(i) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l" style="white-space:normal">' + esc(m.text) + "</td>" }); }); });
+      rows = each(function (x, i, out) { (x.notes || []).forEach(function (m) { out.push({ k: m.t, h: '<td class="l">' + lvTime(m.t) + '</td><td class="l">' + dvSw(x._c) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l" style="white-space:normal">' + esc(m.text) + "</td>" }); }); });
     }
     rows.sort(function (a, b) { return a.k < b.k ? 1 : -1; });
     var pages = Math.max(1, Math.ceil(rows.length / n));
@@ -1655,23 +1876,25 @@
     return vals.map(function (v) { return rgba(cssVar(v >= 0 ? "--pos" : "--neg"), 0.55); });
   }
   function lvCharts() {
-    var list = lvActive(), tr = lvAllTrades(list);
+    var list = lvList(), tr = lvAllTrades(list), fm = lvFm();
+    lvBandChart();
     if (!tr.length || !$("lv-eq")) return;
-    if (!hasChart()) { chartFallback("lv-eq"); return; }
+    if (!hasChart()) { chartFallback("lv-eq"); chartFallback("lv-dd"); return; }
     // hore: dni — stĺpec = zisk dňa spolu, krivky = súčet a súčet každej platformy ku koncu dňa
     var plats = lvPlatforms(list), days = [], day = {}, pday = plats.map(function () { return {}; });
     tr.forEach(function (o) {
-      var k = lvDayKey(o.t.close), p = plats.indexOf(lvPlat(list[o.i]));
+      var k = lvDayKey(o.t.close), p = plats.indexOf(lvPlat(o.x)), v = lvV(o.t);
       if (!(k in day)) { day[k] = 0; days.push(k); }
-      day[k] += o.t.pnl || 0;
-      pday[p][k] = (pday[p][k] || 0) + (o.t.pnl || 0);
+      day[k] += v;
+      pday[p][k] = (pday[p][k] || 0) + v;
     });
     days.sort();
     var bars = days.map(function (k) { return Math.round(day[k] * 100) / 100; }), tot = 0;
     var sum = days.map(function (k) { tot += day[k]; return Math.round(tot * 100) / 100; });
     var pl = plats.map(function (p, j) { var c = 0; return days.map(function (k) { c += pday[j][k] || 0; return Math.round(c * 100) / 100; }); });
     var o = comboOpts(function (v) { return days[v] ? lvDayLabel(days[v]) : ""; });
-    o.plugins.tooltip.callbacks = { title: function (it) { return lvDayLabel(days[it[0].dataIndex]); }, label: function (it) { return it.dataset.label + " " + money(it.raw, 0); } };
+    o.scales.y.ticks.callback = lvCompact;
+    o.plugins.tooltip.callbacks = { title: function (it) { return lvDayLabel(days[it[0].dataIndex]); }, label: function (it) { return it.dataset.label + " " + fm(it.raw); } };
     o.scales.yb.display = false;
     var ds = [{ type: "bar", label: "Zisk dňa", data: bars, yAxisID: "y", backgroundColor: barColors(bars), borderRadius: 4, maxBarThickness: 34, order: 10 }];
     plats.forEach(function (p, k) {
@@ -1683,24 +1906,73 @@
               pointRadius: 4.5, pointHoverRadius: 6, pointBackgroundColor: cssVar("--sum"), pointBorderColor: cssVar("--bg") || "#0b1220", pointBorderWidth: 1.5, fill: false, order: 1 });
     charts.push(new Chart($("lv-eq"), { type: "bar", plugins: [guidePlugin], data: { labels: days, datasets: ds }, options: o }));
     // pod ním: každá stratégia — stĺpec = obchod, krivka = súčet
-    list.forEach(function (x, i) {
-      var t = (x.trades || []).slice().sort(function (a, b) { return a.close < b.close ? -1 : 1; }), el = $("lv-mini-" + i);
+    list.forEach(function (x) {
+      var t = (x.trades || []).slice().sort(function (a, b) { return a.close < b.close ? -1 : 1; }), el = $("lv-mini-" + x._c);
       if (!t.length || !el) return;
-      var c = 0, lab = t.map(function (q) { return q.close; }), pnl = t.map(function (q) { return q.pnl || 0; }), val = pnl.map(function (v) { c += v; return c; });
-      var col = cssVar(DV_COLORS[i % 8]), m = comboOpts(function () { return ""; });
+      var c = 0, lab = t.map(function (q) { return q.close; }), pnl = t.map(lvV), val = pnl.map(function (v) { c += v; return c; });
+      var col = cssVar(DV_COLORS[x._c % 8]), m = comboOpts(function () { return ""; });
       m.scales.x.display = false;
+      m.scales.y.ticks.callback = lvCompact;
       m.scales.y.ticks.maxTicksLimit = 3; m.scales.yb.ticks.maxTicksLimit = 3; m.scales.yb.display = false;
-      m.plugins.tooltip.callbacks = { title: function (it) { return lvTime(lab[it[0].dataIndex]); }, label: function (it) { return (it.datasetIndex ? "súčet " : "obchod ") + money(it.raw, 0); } };
+      m.plugins.tooltip.callbacks = { title: function (it) { return lvTime(lab[it[0].dataIndex]); }, label: function (it) { return (it.datasetIndex ? "súčet " : "obchod ") + fm(it.raw); } };
       charts.push(new Chart(el, { type: "bar", plugins: [guidePlugin], data: { labels: lab, datasets: [
         { type: "bar", data: pnl, yAxisID: "y", backgroundColor: barColors(pnl), borderRadius: 3, maxBarThickness: 18, order: 10 },
         { type: "line", data: val, yAxisID: "y", borderColor: col, backgroundColor: col, borderWidth: 2.2, tension: 0.35, pointRadius: 3, pointHoverRadius: 4,
           pointBackgroundColor: col, fill: false, order: 1 }] }, options: m }));
     });
-    pieChart("lv-pie", lvPieItems(list));
+    // spolu: kapitál a prepad podľa dní (z toho istého výpočtu ako Diverzifikácia)
+    var R = LV.R;
+    if (R && R.parts.length > 1 && $("lv-dd")) {
+      var peak = 0, eqv = R.equity.map(function (e) { return e[1]; }), ddv = eqv.map(function (v) { if (v > peak) peak = v; return v - peak; });
+      var dl = R.equity.map(function (e) { return e[0]; });
+      var o2 = baseOpts();
+      o2.scales.x.ticks.callback = function (v) { return dl[v] ? lvDayLabel(dl[v]) : ""; };
+      o2.scales.y.ticks.callback = lvCompact;
+      o2.plugins.tooltip.callbacks = { title: function (it) { return lvDayLabel(dl[it[0].dataIndex]); }, label: function (it) { return (it.datasetIndex ? "prepad " : "kapitál ") + fm(it.raw); } };
+      o2.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
+      charts.push(new Chart($("lv-dd"), { type: "line", plugins: [guidePlugin], data: { labels: dl, datasets: [
+        { data: eqv, borderColor: cssVar("--accent"), borderWidth: 2, pointRadius: 3, tension: 0.2, fill: false },
+        { data: ddv, borderColor: cssVar("--neg"), borderWidth: 1, pointRadius: 0, fill: "origin", backgroundColor: cssVar("--neg-bg"), tension: 0 }] }, options: o2 }));
+    }
+    pieChart("lv-pie", lvPieItems(list), fm);
+  }
+  // pásmo testu (5 – 95 %, medián) a cesta naživo po obchodoch, v bodoch
+  var lvBandCh = null;
+  function lvBandChart() {
+    var el = $("lv-band"); if (!el) return;
+    if (!hasChart()) { chartFallback("lv-band"); return; }
+    var x = lvList().filter(function (q) { return q.id === LV.band; })[0], b = x && lvBand(x);
+    if (!b || b.noData) return;
+    if (lvBandCh) { var j = charts.indexOf(lvBandCh); if (j >= 0) charts.splice(j, 1); lvBandCh.destroy(); }
+    var labels = b.steps.map(function (s, k) { return k; }), c = 0;
+    var live = [0].concat((x.trades || []).filter(function (t) { return t.pts != null; }).sort(function (a, b2) { return a.close < b2.close ? -1 : 1; }).map(function (t) { c += +t.pts; return c; }));
+    var band = cssVar("--accent"), col = cssVar(DV_COLORS[x._c % 8]);
+    var o = baseOpts();
+    o.scales.x.ticks.callback = function (v) { return v % 5 ? "" : String(v); };
+    o.scales.x.title = { display: true, text: "obchod č.", color: cssVar("--muted") };
+    o.scales.y.ticks.callback = function (v) { return compact(v) + " b"; };
+    o.plugins.tooltip.callbacks = { title: function (it) { return "po " + it[0].label + ". obchode"; }, label: function (it) { return it.dataset.label + " " + lvPts(it.raw); } };
+    o.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
+    lvBandCh = new Chart(el, { type: "line", plugins: [guidePlugin], data: { labels: labels, datasets: [
+      { label: "test 95 %", data: b.steps.map(function (s) { return s[2]; }), borderColor: rgba(band, 0.35), borderWidth: 1, pointRadius: 0, fill: false, tension: 0.2 },
+      { label: "test 5 %", data: b.steps.map(function (s) { return s[0]; }), borderColor: rgba(band, 0.35), borderWidth: 1, pointRadius: 0, fill: "-1", backgroundColor: rgba(band, 0.12), tension: 0.2 },
+      { label: "test medián", data: b.steps.map(function (s) { return s[1]; }), borderColor: rgba(band, 0.8), borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, fill: false, tension: 0.2 },
+      { label: "naživo", data: live, borderColor: col, backgroundColor: col, borderWidth: 2.5, pointRadius: 3, fill: false, tension: 0 }] }, options: o });
+    charts.push(lvBandCh);
+  }
+  function lvRerender() {
+    var y = window.scrollY;
+    destroyCharts(); lvBandCh = null; $("app").innerHTML = viewLive(); mountLive(); window.scrollTo(0, y);
   }
   function mountLive() {
     if (!DATA.live) return;
+    lvBandCh = null;
     lvCharts();
+    Array.prototype.forEach.call($("app").querySelectorAll("[data-inst]"), function (cb) {
+      cb.addEventListener("change", function () { var id = cb.getAttribute("data-inst"); if (cb.checked) delete LV.off[id]; else LV.off[id] = 1; LV.inst = ""; lvSave(); lvRerender(); });
+    });
+    if ($("lv-unit")) $("lv-unit").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b || b.getAttribute("data-u") === LV.unit) return; LV.unit = b.getAttribute("data-u"); lvSave(); lvRerender(); });
+    if ($("lv-band-inst")) $("lv-band-inst").addEventListener("change", function (e) { LV.band = e.target.value; lvBandChart(); });
     $("lv-view").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; LV.log = b.getAttribute("data-v"); LV.page = 0; lvRenderLog(); });
     $("lv-f-inst").value = LV.inst;
     $("lv-f-inst").addEventListener("change", function (e) { LV.inst = e.target.value; LV.page = 0; lvRenderLog(); });
