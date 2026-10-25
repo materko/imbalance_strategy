@@ -1,4 +1,4 @@
-/* TradeBot Backtester — Naživo: ako sa darí stratégiám nasadeným naživo (Diverzifikácia nad obchodmi u brokera). */
+/* TradeBot Backtester — Live diverzifikácia (karta „Naživo“ v kóde): ako sa darí stratégiám nasadeným naživo (Diverzifikácia nad obchodmi u brokera). */
 "use strict";
 
 // --------------------------------------------------------------------------- //
@@ -258,7 +258,7 @@ function nzSummaryHtml(list, R) {
   const row = (x, p) => {
     const t = x.trades || [], st = dvStats(t.map(nzV)), rs = t.reduce((s, o) => s + (nzR(o) || 0), 0), xs = x.signals || [];
     const weeks = Math.max((Date.parse(nz.data.generated) - Date.parse(x.since)) / 6048e5, 1 / 7);
-    return `<tr><td class="l">${dvSw(x._c)}${esc(x.name)}<br><small class="hint">${esc(x.profile)}</small></td>
+    return `<tr><td class="l nz-wrap">${dvSw(x._c)}${esc(x.name)}<br><small class="hint">${esc(x.profile)}</small></td>
       <td class="l">${esc(nzPlat(x))}<br><small class="hint">${esc(x.account)}</small></td><td class="l">${nzStatus(x)}<br><small class="hint">od ${dvDate(nzDayKey(x.since))}</small></td>
       <td>${st.n}${(x.open || []).length ? ` <small class="hint">+${x.open.length} otv.</small>` : ""}</td><td>${st.n ? dvNum(st.wr) + " %" : "—"}</td>
       <td class="${dvPfCls(st.pf)}">${st.n ? dvPf(st.pf) : "—"}</td><td class="${dvCls(st.pnl)}">${fm(st.pnl)}</td><td class="${dvCls(rs)}">${st.n ? nzFmtR(rs) : "—"}</td>
@@ -284,22 +284,22 @@ function nzVsTestHtml(list) {
     const b = nzBand(x), v = nzVerdict(b), st = dvStats((x.trades || []).map(t => +t.pnl || 0));
     const weeks = Math.max((Date.parse(nz.data.generated) - Date.parse(x.since)) / 6048e5, 1 / 7);
     const same = nzStem(x.profile) === bt.match.profile;
-    return `<tr><td class="l">${name}</td>
-      <td class="l">${esc(bt.match.title)}<br><small class="hint">${esc(bt.match.profile)}${same ? "" : ` (naživo ${esc(x.profile)})`} · ${esc(pairShort(bt.match.market.pair))} ${esc(bt.match.market.timeframe)} · ${b ? b.src + ", " + b.btN + " obch." : ""}</small></td>
+    return `<tr><td class="l nz-wrap">${name}</td>
+      <td class="l nz-wrap" title="profil v histórii: ${esc(bt.match.profile)}${same ? "" : `\nprofil naživo: ${esc(x.profile)}`}">${esc(String(bt.match.title).split(" · ")[0])}${same ? "" : ` <span class="hint">≈</span>`}<br><small class="hint">${esc(pairShort(bt.match.market.pair))} ${esc(bt.match.market.timeframe)} · ${b ? b.src + ", " + b.btN + " obch." : ""}</small></td>
       <td>${st.n ? dvNum(st.wr) : "—"} / ${dvNum(b && b.wr)} %</td><td>${st.n ? dvPf(st.pf) : "—"} / ${dvPf(b && b.pf)}</td><td>${dvNum(st.n / weeks, 1)} / ${dvNum(b && b.perWeek, 1)}</td>
       <td class="${dvCls(b && b.sum)}">${b && b.n ? nzPts(b.sum) : "—"}</td>
-      <td class="hint">${!b || b.noData || !b.n ? "—" : `${nzPts(b.lo)} · <b>${nzPts(b.mid)}</b> · ${nzPts(b.hi)}`}</td><td>${b && b.pct != null ? dvNum(b.pct) + ". perc." : "—"}</td>
-      <td>${b && b.n ? `${nzPts(-b.dd)} <small class="hint">/ ${nzPts(-b.btDd)}${b.btDd ? " · " + dvNum(100 * b.dd / b.btDd) + " %" : ""}</small>` : "—"}</td>
+      <td>${!b || b.noData || !b.n ? "—" : `${nzPts(b.mid)}<br><small class="hint">${nzPts(b.lo)} … ${nzPts(b.hi)}</small>`}</td><td>${b && b.pct != null ? dvNum(b.pct) + ". perc." : "—"}</td>
+      <td>${b && b.n ? `${nzPts(-b.dd)}<br><small class="hint">test ${nzPts(-b.btDd)}${b.btDd ? " · " + dvNum(100 * b.dd / b.btDd) + " %" : ""}</small>` : "—"}</td>
       <td class="l"><span class="chip ${v[0]}">${v[1]}</span></td></tr>`;
   }).join("");
   const withBand = list.filter(x => { const b = nzBand(x); return b && !b.noData; });
   if (!withBand.some(x => x.id === nz.band)) nz.band = withBand.length ? withBand[0].id : "";
   return `<div class="card"><h2>Naživo vs. test <span class="hint">WR, PF a obchody za týždeň: naživo / test; pásmo v bodoch indexu pri rovnakom počte obchodov</span></h2>
-    <div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Stratégia</th><th class="l">Beh v histórii</th><th>WR</th><th>PF</th><th>Obch./týž.</th><th>Naživo</th><th>Test: 5 % · medián · 95 %</th><th>Percentil</th><th>Prepad naživo / najhorší v teste</th><th class="l">Verdikt</th></tr></thead>
+    <div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Stratégia</th><th class="l">Beh v histórii</th><th>WR</th><th>PF</th><th>Obch./týž.</th><th>Naživo</th><th>Test medián<br><small>pásmo 5 – 95 %</small></th><th>Percentil</th><th>Prepad naživo<br><small>najhorší v teste</small></th><th class="l">Verdikt</th></tr></thead>
     <tbody>${rows || `<tr><td class="l hint" colspan="10">—</td></tr>`}</tbody></table></div>
     ${withBand.length ? `<div class="dv-head" style="margin-top:14px"><h2>Cesta naživo v pásme testu</h2><label class="hint">Stratégia <select id="nz-band-inst">${withBand.map(x => `<option value="${esc(x.id)}"${x.id === nz.band ? " selected" : ""}>${esc(nzName(x))}</option>`).join("")}</select></label></div><div id="nz-band" class="dv-chart sm"></div>` : ""}
     <p class="hint">Beh v histórii = nastavenie s tým istým profilom (C# port alebo Python predloha), trh radšej MNQ a ten istý TF. Z jeho obchodov (posledný rok, ak ich je aspoň 40, inak celý test) sa 2000-krát náhodne vytiahne toľko obchodov, koľko je naživo:
-      pásmo 5 – 95 % ukazuje, kam padne 90 % výberov, percentil, koľko z nich dopadlo horšie ako živý účet. Body sú spoločná miera pre MNQ aj US100.cash (ten istý index). Variant profilu naživo (napr. _SL500) sa porovnáva so základným profilom.</p></div>`;
+      pásmo 5 – 95 % ukazuje, kam padne 90 % výberov, percentil, koľko z nich dopadlo horšie ako živý účet. Body sú spoločná miera pre MNQ aj US100.cash (ten istý index). ≈ = naživo beží iný variant toho istého profilu (C# port, _SL500 …); mená oboch profilov sú v tooltipe.</p></div>`;
 }
 
 function nzFillHtml(list) {
@@ -318,6 +318,31 @@ function nzFillHtml(list) {
       <th class="l">Stratégia</th><th>Obch. s plánom</th><th>Sklz vstupu (priem.)</th><th>Sklz na stope</th><th>Sklz na TP</th><th>Plnenia vs. plán</th><th>Oneskorenie Market medián / max.</th></tr></thead><tbody>${rows}</tbody></table></div>
     <p class="hint">Kladný sklz (červený) = horšia cena: vstup proti cene, ktorú engine plánoval pri signáli, výstup na stope proti SL a na take profite proti TP. „Plnenia vs. plán“ = súčet sklzov × množstvo × hodnota bodu (a v R voči stopu);
       mínus = plnenia stáli peniaze. Oneskorenie = od odoslania Market príkazu po vyplnenie u brokera (limitka čaká na cenu zámerne).</p></div>`;
+}
+
+/** Dni v týždni otočené: riadok = stratégia, stĺpec = deň; v bunke súčet, v tooltipe dni a % v zisku. */
+function nzWeekdayHtml(R, P, fm) {
+  const days = [0, 1, 2, 3, 4, 6].filter(w => P.some(p => (p.days.weekday[w] || []).length));
+  const cell = v => {
+    if (!v || !v.length) return `<td class="hint">—</td>`;
+    const s = v.reduce((a, b) => a + b, 0);
+    return `<td class="${dvCls(s)}" title="${v.length} dní, ${dvNum(100 * v.filter(x => x > 0).length / v.length)} % v zisku">${fm(s)}</td>`;
+  };
+  return `<div class="card"><h2>Dni v týždni <span class="hint">súčet za deň; dni a % v zisku v tooltipe</span></h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Stratégia</th>${days.map(w => `<th>${DV_WD[w]}${w === 6 ? " (večer)" : ""}</th>`).join("")}</tr></thead><tbody>` +
+    P.map(p => `<tr><td class="l nz-wrap">${dvSw(p.c)}${esc(p.name)}</td>${days.map(w => cell(p.days.weekday[w])).join("")}</tr>`).join("") +
+    (P.length > 1 ? `<tr class="sum"><td class="l">Spolu</td>${days.map(w => cell(R.days.weekday[w])).join("")}</tr>` : "") + "</tbody></table></div></div>";
+}
+/** Hodina vstupu (New York) otočená: riadok = stratégia, stĺpec = hodina; v bunke zisk, v tooltipe obchody a PF. */
+function nzHoursHtml(R, P, fm) {
+  const hrs = Object.keys(R.hours).map(Number).sort((a, b) => a - b);
+  const cell = v => {
+    if (!v || !v.length) return `<td class="hint">—</td>`;
+    const s = dvStats(v);
+    return `<td class="${dvCls(s.pnl)}" title="${s.n} obch., PF ${dvPf(s.pf)}">${fm(s.pnl)} <small class="hint">${s.n}</small></td>`;
+  };
+  return `<div class="card"><h2>Hodina vstupu (New York) <span class="hint">zisk a počet obchodov; PF v tooltipe</span></h2><div class="table-wrap"><table class="dv-table"><thead><tr><th class="l">Stratégia</th>${hrs.map(hh => `<th>${String(hh).padStart(2, "0")}:00</th>`).join("")}</tr></thead><tbody>` +
+    P.map(p => `<tr><td class="l nz-wrap">${dvSw(p.c)}${esc(p.name)}</td>${hrs.map(hh => cell((R.hours[hh] || {})[p.i])).join("")}</tr>`).join("") +
+    (P.length > 1 ? `<tr class="sum"><td class="l">Spolu</td>${hrs.map(hh => cell(Object.values(R.hours[hh] || {}).flat())).join("")}</tr>` : "") + "</tbody></table></div></div>";
 }
 
 function nzLogHtml(list) {
@@ -388,7 +413,7 @@ function nzRender() {
       }
     }
     h += nzFillHtml(list);
-    if (R) h += dvDaysHtml(R, P, fm) + dvWeekdayHtml(R, P, fm) + dvTradeCardsHtml(P, fm) + dvHoursHtml(R, P, fm) + dvCorrHtml(R, P, "Naživo sa počíta od 11 spoločných obchodných dní dvojice.");
+    if (R) h += dvDaysHtml(R, P, fm) + nzWeekdayHtml(R, P, fm) + dvTradeCardsHtml(P, fm) + nzHoursHtml(R, P, fm) + dvCorrHtml(R, P, "Naživo sa počíta od 11 spoločných obchodných dní dvojice.");
     h += nzLogHtml(list);
   }
   if (stale.length) h += `<details class="card dv-log-box"><summary><h2>Staré a testovacie inštancie <span class="hint">${stale.length} — bez obchodu a bez správy viac ako 7 dní</span></h2></summary>

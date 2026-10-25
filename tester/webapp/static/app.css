@@ -720,7 +720,9 @@ select.spicker-native { position: absolute; width: 1px; height: 1px; opacity: 0;
 /* ---- Diverzifikácia (static/js/diversify.js) ---- */
 #view-diversify .hint { color: var(--muted); font-size: 12px; font-weight: 400; }
 #view-diversify h2 .hint { margin-left: 8px; }
-#view-diversify .table-wrap { overflow-x: auto; }
+#view-diversify .table-wrap, #view-livediv .table-wrap { overflow-x: auto; max-width: 100%; }
+/* dlhé mená a profily sa na karte Live diverzifikácia zalomia, nech tabuľka nie je širšia ako obrazovka */
+table.dv-table td.nz-wrap { white-space: normal; min-width: 120px; max-width: 220px; overflow-wrap: anywhere; }
 .dv-pick { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
 @media (max-width: 860px) { .dv-pick { grid-template-columns: minmax(0, 1fr); } }
 .dv-pick > .card { margin-bottom: 0; }

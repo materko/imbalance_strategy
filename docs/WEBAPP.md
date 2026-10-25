@@ -538,7 +538,7 @@ korelácie dvojíc, kontrola dát (z ktorých behov, čo sa zahodilo, prekryté 
 a denník obchodov a dní s filtrom. Deň je dátum zatvorenia v UTC, ako na stránke
 výsledkov. Výber si stránka pamätá v prehliadači.
 
-## Karta Naživo
+## Karta Live diverzifikácia
 
 Stratégie nasadené naživo (NinjaTrader, MetaTrader 5) ako jedno portfólio — tie isté rozbory
 ako Diverzifikácia (spoločný výpočet `dvComputeParts` a sekcie z `diversify.js`), len zo
