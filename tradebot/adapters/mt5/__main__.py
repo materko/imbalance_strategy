@@ -72,7 +72,8 @@ SCRIPTS = ("TradeBotImport.mq5",)
 PRESETS = {"TradeBotImport.set": ("Presets",), "IBSNet_TB.set": ("Profiles", "Tester"),
            "IBSNet_chart.set": ("Presets",), "IBSNet_live.set": ("Presets",),
            **{f"{t}_live.set": ("Presets",) for t in ("IBSEntryNet", "ORBNet", "VwapOrbNet", "VwapAdxNet", "NoaNet", "TksNet",
-                                                      "IBSEntryNetEod", "VwapOrbNetEod", "VwapAdxNetEod", "NoaNetEod", "TksNetEod")}}
+                                                      "IBSEntryNetEod", "VwapOrbNetEod", "VwapAdxNetEod", "NoaNetEod", "TksNetEod",
+                                                      "IBSEntryEsNet", "NyVaEsNet")}}
 
 
 def metaeditor() -> Path | None:

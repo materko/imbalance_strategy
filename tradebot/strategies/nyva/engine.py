@@ -143,7 +143,7 @@ class NyVaEngine:
         x_end = max(x_end, bar.time)
         kind = "P" if self.shape_p else "b" if self.shape_b else "D"
         out.drawings.append(DrawBox(NV_RANGE, x0, hi, bar.time, lo, _RANGE, fill_color=with_alpha(_RANGE, 40),
-                                    obj_id=f"nv.r.{x0}", text=f"range · profil {kind} (POC {self.shape['poc']:.0%})"))
+                                    obj_id=f"nv.r.{x0}", text=f"range · profil {kind}"))
         for kind, y, color, name, width in ((NV_POC, self.poc, _POC, "POC", 2), (NV_VA, self.vah, _VA, "VAH", 1),
                                             (NV_VA, self.val, _VA, "VAL", 1)):
             out.drawings.append(DrawLine(kind, x0, y, x_end, y, color, width=width, obj_id=f"nv.{name}.{x0}",

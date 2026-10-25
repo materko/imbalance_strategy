@@ -16,9 +16,8 @@ from .tks import SPEC as TKS_SPEC
 from .tksnet import SPEC as TKSNET_SPEC
 from .tksneteod import SPEC as TKSNETEOD_SPEC
 from .nocpon import SPEC as NOCPON_SPEC
-from .nyva import SPEC as NYVA_SPEC
 from .nyvaes import SPEC as NYVAES_SPEC
-from .nyvashape import SPEC as NYVASHAPE_SPEC
+from .nyvaesnet import SPEC as NYVAESNET_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
@@ -32,6 +31,7 @@ from .ibsnet import SPEC as IBSNET_SPEC
 from .ibsentry import SPEC as IBSENTRY_SPEC
 from .ibsentrymgc import SPEC as IBSENTRYMGC_SPEC
 from .ibsentryes import SPEC as IBSENTRYES_SPEC
+from .ibsentryesnet import SPEC as IBSENTRYESNET_SPEC
 from .ibsentrynet import SPEC as IBSENTRYNET_SPEC
 from .ibsentryneteod import SPEC as IBSENTRYNETEOD_SPEC
 from .ibsfvg import SPEC as IBSFVG_SPEC
@@ -73,6 +73,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     IBSENTRY_SPEC.key: IBSENTRY_SPEC,
     IBSENTRYMGC_SPEC.key: IBSENTRYMGC_SPEC,
     IBSENTRYES_SPEC.key: IBSENTRYES_SPEC,
+    IBSENTRYESNET_SPEC.key: IBSENTRYESNET_SPEC,
     IBSENTRYNET_SPEC.key: IBSENTRYNET_SPEC,
     IBSENTRYNETEOD_SPEC.key: IBSENTRYNETEOD_SPEC,
     IBSFVG_SPEC.key: IBSFVG_SPEC,
@@ -116,9 +117,8 @@ STRATEGIES: dict[str, StrategySpec] = {
     TKSNET_SPEC.key: TKSNET_SPEC,
     TKSNETEOD_SPEC.key: TKSNETEOD_SPEC,
     NOCPON_SPEC.key: NOCPON_SPEC,
-    NYVA_SPEC.key: NYVA_SPEC,
     NYVAES_SPEC.key: NYVAES_SPEC,
-    NYVASHAPE_SPEC.key: NYVASHAPE_SPEC,
+    NYVAESNET_SPEC.key: NYVAESNET_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SILVERBULLET_SPEC.key: SILVERBULLET_SPEC,
     NOANET_SPEC.key: NOANET_SPEC,

@@ -47,6 +47,8 @@ _PAIRS = {
     "coinbase": "btcusd_coinbase",
     "nas100": "nas100_dukascopy",
     "mnq": "mnq_databento",
+    "es": "es_databento",
+    "mgc": "mgc_databento",
 }
 
 

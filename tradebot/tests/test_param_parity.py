@@ -142,10 +142,11 @@ def _csharp_reads(csharp_dir: Path) -> set[str]:
 def _strategy_refs(key: str) -> _Refs:
     refs = _Refs()
     pkg = REPO / "tradebot" / "strategies" / key
-    csharp_dir = STRATEGIES[key].csharp_dir
+    spec = STRATEGIES.get(key)   # balík s logikou môže byť mimo registry (nyva — len predloha pre nyvaes)
+    csharp_dir = spec.csharp_dir if spec is not None else None
     if csharp_dir is not None:  # jadro v C#: polia číta ono, Python balík je len popis
         refs.attrs |= _csharp_reads(csharp_dir)
-    logic_of = STRATEGIES[key].logic_of
+    logic_of = spec.logic_of if spec is not None else None
     if logic_of is not None:  # variant: logiku (a teda čítanie polí) má balík predlohy
         base_refs = _strategy_refs(logic_of)
         refs.attrs |= base_refs.attrs

@@ -45,8 +45,10 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 | **`vwapadxneteod`** | `vwapadxnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/VwapAdxNet/VwapAdxEodEngine.cs` | `deploy/ninjatrader/VwapAdxNetEod.cs` |
 | **`noaneteod`** | `noanet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/NoaNet/NoaEodEngine.cs` | `deploy/ninjatrader/NoaNetEod.cs` |
 | **`tksneteod`** | `tksnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/TksNet/TksEodEngine.cs` | `deploy/ninjatrader/TksNetEod.cs` |
+| **`ibsentryesnet`** | `ibsentryes` (IBS EZ ES, S&P 500) | `csharp/TradeBot.Strategies/IbsEntryNet/IbsEntryEsEngine.cs` | `deploy/ninjatrader/IBSEntryEsNet.cs` |
+| **`nyvaesnet`** | `nyvaes` (NY VA BREAKOUT ES) | `csharp/TradeBot.Strategies/NyVaNet` | `deploy/ninjatrader/NyVaEsNet.cs` |
 
-Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb`, `vwapadx`, `noa` a `tks`,
+Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb`, `vwapadx`, `noa`, `tks`, `ibsentryes` a `nyvaes`,
 ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/SMERNICE_CS_<názov>_<n>.json` (vlastný prefix — export rannej úlohy
 on Mac mini maže len `PRESIEL_SMERNICAMI_*`, ktoré sám nevyrobil)
 (webapp ich ukáže v priečinku SMERNICE, karta Live ich ponúkne na nasadenie). VWAP ORB v C# nemá stop

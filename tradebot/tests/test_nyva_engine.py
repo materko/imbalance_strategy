@@ -106,5 +106,7 @@ def test_tvar_profilu_p_a_b():
 
 def test_nyvashape_ma_tvar_zapnuty():
     from tradebot.strategies import STRATEGIES
-    assert STRATEGIES["nyvashape"].config_cls().useShape is True
-    assert STRATEGIES["nyva"].config_cls().useShape is False
+    from tradebot.strategies.nyvashape import NyVaShapeConfig
+    assert NyVaShapeConfig().useShape is True
+    assert STRATEGIES["nyvaes"].config_cls().useShape is False
+    assert "nyva" not in STRATEGIES          # 25. 10. 2026: MNQ verzia zmazaná, balík je len logika
