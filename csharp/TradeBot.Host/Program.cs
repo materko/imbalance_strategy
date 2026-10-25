@@ -92,6 +92,15 @@ namespace TradeBot.Host
                 w.BeginObject().Key("strategies").Value(EngineHost.Strategies()).EndObject();
                 return w.ToString();
             }
+            if (op == "backtest")
+            {
+                // Pracovny proces nativneho hyperoptu: kazdy proces ma vlastny GC - vlakna jedneho procesu
+                // by sa pri kazdom zbere pamate zastavili vsetky naraz (tester.native_hyperopt, docs/HYPEROPT.md)
+                System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.Batch;
+                return TradeBot.Backtest.NativeBacktest.RunCachedJson(
+                    Json.GetString(req, "key", ""), (string)req["config"], (string)req["instrument"], (string)req["m1"],
+                    Json.ToInt(req["tf"]), Json.ToLong(req["from"]), Json.ToLong(req["to"]), Json.ToDouble(req["fee"]));
+            }
             if (op == "create")
             {
                 // config a instrument sa posielaju ako vnorene JSON retazce - parser ich nemusi vediet vratit spat

@@ -77,8 +77,12 @@ function hyperProgress(r) {
     return `beží · pripravuje sa (${spolu} epoch)${uz}`;
   }
   const odhad = p.eta_s == null ? "odhad po ďalšej dávke"
-    : `ešte ~${fmtMinutes(Math.max(1, Math.round(p.eta_s / 60)))}`;
-  return `beží · ${p.done}/${p.total || spolu} epoch · ${odhad}`;
+    : `ešte ~${p.eta_s < 90 ? `${Math.max(1, Math.round(p.eta_s))} s` : fmtMinutes(Math.max(1, Math.round(p.eta_s / 60)))}`;
+  // natívny hyperopt (C#) robí desiatky epoch za sekundu - tempo hovorí viac než sekundy na epochu
+  const tempo = p.s_per_epoch == null ? ""
+    : (p.s_per_epoch < 1 ? ` · ${(1 / Math.max(p.s_per_epoch, 0.01)).toFixed(0)} epoch/s` : ` · ${p.s_per_epoch} s/epocha`);
+  const pct = Math.round(100 * p.done / (p.total || spolu));
+  return `beží · ${p.done}/${p.total || spolu} epoch (${pct} %)${tempo} · ${odhad}`;
 }
 
 function renderHyper(r) {

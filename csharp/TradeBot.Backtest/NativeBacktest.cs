@@ -27,7 +27,38 @@ namespace TradeBot.Backtest
             }
         }
 
-        public static void ClearCache() { lock (Gate) { Cache.Clear(); } }
+        public static void ClearCache() { lock (Gate) { Cache.Clear(); Prepared.Clear(); } }
+
+        private static readonly Dictionary<string, EmuData> Prepared = new Dictionary<string, EmuData>();
+        private const int PreparedMax = 8;
+
+        /// <summary>Data pre graf a okno, pripravene raz za proces (hyperopt: tie iste pre kazdu epochu;
+        /// overenie: jedno na kazde referencne okno). Kluc je subor, TF a okno.</summary>
+        public static EmuData PrepareCached(string m1Path, int chartTf, long fromMs, long toMs)
+        {
+            string key = m1Path + "|" + chartTf + "|" + fromMs + "|" + toMs;
+            Candles m1 = LoadM1(m1Path);
+            lock (Gate)
+            {
+                EmuData d;
+                if (Prepared.TryGetValue(key, out d)) return d;
+                if (Prepared.Count >= PreparedMax) Prepared.Clear();
+                d = EmuData.Prepare(m1, chartTf, fromMs < 0 ? long.MinValue : fromMs, toMs < 0 ? long.MaxValue : toMs);
+                Prepared[key] = d;
+                return d;
+            }
+        }
+
+        /// <summary>Jeden beh nad datami z `PrepareCached` - pracovny proces (`TradeBot.Host.exe`, op `backtest`).</summary>
+        public static string RunCachedJson(string key, string configJson, string instrumentJson, string m1Path, int chartTf,
+                                           long fromMs, long toMs, double fee)
+        {
+            EmuData data = PrepareCached(m1Path, chartTf, fromMs, toMs);
+            Dictionary<string, object> config = Json.ParseObject(configJson);
+            InstrumentSpec inst = InstrumentSpec.FromJson(Json.ParseObject(instrumentJson));
+            IEngine engine = EngineRegistry.Create(key, config, inst, chartTf);
+            return ToJson(McEmulator.Run(engine, config, data, fee));
+        }
 
         /// <summary>`fromMs`/`toMs` &lt; 0 = bez hranice (ako prazdna strana timerange).</summary>
         public static EmuResult Run(string key, string configJson, string instrumentJson, Candles m1, int chartTf,
@@ -46,8 +77,7 @@ namespace TradeBot.Backtest
         public static string[] RunBatchJson(string key, string[] configJsons, string instrumentJson, string m1Path,
                                             int chartTf, long fromMs, long toMs, double fee, int threads)
         {
-            EmuData data = EmuData.Prepare(LoadM1(m1Path), chartTf,
-                                           fromMs < 0 ? long.MinValue : fromMs, toMs < 0 ? long.MaxValue : toMs);
+            EmuData data = PrepareCached(m1Path, chartTf, fromMs, toMs);
             InstrumentSpec inst = InstrumentSpec.FromJson(Json.ParseObject(instrumentJson));
             string[] results = new string[configJsons.Length];
             int next = -1;

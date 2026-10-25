@@ -260,9 +260,16 @@ PY -m tester.native_hyperopt --strategy tksnet --instrument mnq_databento \
 - **Zadanie je to isté:** `--param` ako pri sweepe, `--goal`/`--max-dd`/`--min-trades` ako
   `TradebotPlanLoss` (loss sa počíta zo súhrnu behu — `summary_money`, tie isté čísla ako v histórii),
   väzby medzi parametrami opraví `hyperopt_cls.constrain` stratégie.
-- **Počíta C#:** Optuna navrhne dávku epoch (`--jobs`, predvolene všetky jadrá), `NativeBacktest.RunBatchJson`
-  ich spočíta paralelne nad 1m dátami načítanými raz (`csharp/TradeBot.Backtest`). TKSNet na roku MNQ 3m:
-  240 epoch za ~5 s. Opakované body mriežky sa nepočítajú znova.
+- **Počíta C#:** Optuna navrhne dávku epoch (`--jobs`, predvolene všetky jadrá) a rozdá ju **pracovným
+  procesom** `TradeBot.Host.exe` (op `backtest`), každý si 1m dáta a pripravené bary drží medzi epochami
+  (`csharp/TradeBot.Backtest`). Procesy, nie vlákna: .NET v procese Pythonu má len workstation GC, ktorý pri
+  každom zbere pamäte zastaví všetky vlákna — nad ~4 vláknami prestanú zrýchľovať (IBSNet, rok BTC 3m:
+  vlákna najlepšie 0,19 s na beh, 24 procesov 0,088 s). Opakované body mriežky sa nepočítajú znova.
+- **Meranie (25. 10. 2026, Core Ultra 9 275HX, 24 jadier):** IBSNet, BTCUSDT.P 3m, rok 2025/26, `rrRatio` +
+  `slLookback`, 48 epoch: Freqtrade hyperopt (most do C#, 1m detail) **136 s** (2,8 s/epocha), natívne
+  **5,9 s** vrátane štartu procesov (~23×); 480 epoch natívne 31 s. Python emulátor na jednom jadre 7,6 s/epocha.
+- **Priebeh:** po každej dávke `hotovo/spolu`, tempo (epoch/s) a odhad zvyšku — v logu (CLI aj webapp),
+  v karte hyperoptu vo webapp a na hube (agent ho číta z toho istého riadku logu).
 - **Samplery:** `tpe` (bayesovský, predvolený), `cmaes` (evolučná stratégia, len čísla), `nsga2`
   (genetický), `random`, `qmc` (rovnomerné pokrytie — prvý prieskum).
 - **Overenie je súčasť behu:** víťaz sa prepočíta na piatich referenčných oknách a dostane ten istý

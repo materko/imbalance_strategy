@@ -211,7 +211,7 @@ def eta(done: int, total: int, started: float, first_done_at: float | None,
     tempo = max(0.0, koniec - first_done_at) / (done - first_done)     # sekúnd na epochu
     zostava = max(0, total - done) * tempo - max(0.0, now - koniec)
     out["eta_s"] = round(max(0.0, zostava))
-    out["s_per_epoch"] = round(tempo, 1)
+    out["s_per_epoch"] = round(tempo, 1) if tempo >= 1 else round(tempo, 4)   # natívne C#: tisíciny sekundy
     return out
 
 

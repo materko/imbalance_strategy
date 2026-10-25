@@ -52,7 +52,7 @@ from tradebot.core.types import INSTRUMENTS, Direction, InstrumentSpec
 from tradebot.strategies import get_spec
 
 from . import engines
-from .hyperopt import REFERENCE_WINDOWS, Epoch, build_plan, overrides, table, verdict
+from .hyperopt import REFERENCE_WINDOWS, Epoch, build_plan, eta, overrides, table, verdict
 
 __all__ = ["SAMPLERS", "NativeRunner", "Search", "loss_of", "config_json", "run_search", "main"]
 
@@ -62,6 +62,16 @@ SAMPLERS = ("tpe", "cmaes", "nsga2", "random", "qmc")
 UNUSABLE = 1000.0
 #: Bez `min_trades` v pláne platí to isté dno ako v `TradebotPlanLoss`.
 DEFAULT_MIN_TRADES_PER_YEAR = 60
+
+
+def fmt_seconds(sec: float) -> str:
+    """`42 s`, `3 min 5 s`, `1 h 12 min` — odhad do logu (ASCII okrem čísla)."""
+    sec = max(0, int(round(sec)))
+    if sec < 60:
+        return f"{sec} s"
+    if sec < 3600:
+        return f"{sec // 60} min {sec % 60} s" if sec % 60 else f"{sec // 60} min"
+    return f"{sec // 3600} h {sec % 3600 // 60} min"
 
 
 def _window_ms(timerange: str) -> tuple[int, int]:
@@ -81,11 +91,49 @@ def _days(timerange: str) -> int:
 # --------------------------------------------------------------------------- #
 
 
-class NativeRunner:
-    """Dávky backtestov jednej stratégie na jednom inštrumente a TF cez `NativeBacktest.RunBatchJson`."""
+class _Worker:
+    """Jeden pracovný proces `TradeBot.Host.exe` (op `backtest`) — vlastný GC, dáta si drží medzi epochami."""
 
-    def __init__(self, strategy: str, inst: InstrumentSpec, timeframe: int, fee: float, threads: int = 0) -> None:
-        from tradebot.adapters.csharp import bridge
+    def __init__(self) -> None:
+        import subprocess
+
+        from tradebot.adapters.csharp.bridge import _host_command
+        from tradebot.core.paths import CSHARP_BIN
+
+        self.proc = subprocess.Popen(_host_command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                     cwd=str(CSHARP_BIN), encoding="utf-8", bufsize=1)
+
+    def call(self, request: dict[str, Any]) -> dict[str, Any]:
+        assert self.proc.stdin is not None and self.proc.stdout is not None
+        self.proc.stdin.write(json.dumps(request) + "\n")
+        self.proc.stdin.flush()
+        line = self.proc.stdout.readline()
+        if not line:
+            return {"error": f"pracovný proces C# skončil (kód {self.proc.poll()})"}
+        return json.loads(line)
+
+    def close(self) -> None:
+        try:
+            if self.proc.poll() is None and self.proc.stdin is not None:
+                self.proc.stdin.write(json.dumps({"op": "quit"}) + "\n")
+                self.proc.stdin.close()
+            self.proc.wait(timeout=5)
+        except Exception:  # noqa: BLE001 - zatvára sa na konci, nič sa už nezachráni
+            self.proc.kill()
+
+
+class NativeRunner:
+    """Dávky backtestov jednej stratégie na jednom inštrumente a TF.
+
+    `mode="processes"` (predvolené): pool pracovných procesov `TradeBot.Host.exe`, epocha na proces. Vlákna
+    jedného .NET procesu sa pri každom zbere pamäte (workstation GC — v procese Pythonu iný nie je) zastavia
+    všetky naraz, takže nad ~4 vláknami prestanú zrýchľovať. `mode="threads"`: `NativeBacktest.RunBatchJson`
+    v tomto procese cez pythonnet — bez štartu procesov, na pár epoch a do testov.
+    """
+
+    def __init__(self, strategy: str, inst: InstrumentSpec, timeframe: int, fee: float, threads: int = 0,
+                 mode: str = "processes") -> None:
+        import os
 
         from .compare.csharp_backtest import instrument_json
 
@@ -93,27 +141,75 @@ class NativeRunner:
         self.key = getattr(self.spec.engine_factory, "csharp_key", None)
         if self.key is None:
             raise ValueError(f"{strategy}: stratégia nemá C# jadro — natívny hyperopt nejde, použi tester.hyperopt")
+        if mode not in ("processes", "threads"):
+            raise ValueError(f"neznámy režim {mode!r} (processes, threads)")
         self.inst = inst
         self.timeframe = int(timeframe)
         self.fee = float(fee)
         self.threads = int(threads)
+        self.workers = self.threads if self.threads > 0 else (os.cpu_count() or 1)
+        self.mode = mode
         self.m1_path = engines.one_minute_file(inst)
         if not self.m1_path.exists():
             raise FileNotFoundError(f"chýbajú 1m dáta {self.m1_path}")
-        bridge._load_clr()
-        from TradeBot.Backtest import NativeBacktest
-
-        self._native = NativeBacktest
         self._inst_json = instrument_json(inst)
+        self._pool: list[_Worker] = []
+        self._native = None
+        if mode == "threads":
+            from tradebot.adapters.csharp import bridge
+
+            bridge._load_clr()
+            from TradeBot.Backtest import NativeBacktest
+
+            self._native = NativeBacktest
 
     def run(self, configs: list[str], timerange: str) -> list[dict[str, Any]]:
         """Config JSON-y -> výsledky (`trades`, `bars`, …, alebo `error`) v tom istom poradí."""
-        from System import Array, String
-
         a, b = _window_ms(timerange)
-        raw = self._native.RunBatchJson(self.key, Array[String](configs), self._inst_json, str(self.m1_path),
-                                        self.timeframe, a, b, self.fee, self.threads)
-        return [json.loads(r) for r in raw]
+        if self._native is not None:
+            from System import Array, String
+
+            raw = self._native.RunBatchJson(self.key, Array[String](configs), self._inst_json, str(self.m1_path),
+                                            self.timeframe, a, b, self.fee, self.threads)
+            return [json.loads(r) for r in raw]
+
+        import threading
+
+        while len(self._pool) < min(self.workers, len(configs)):
+            self._pool.append(_Worker())
+        out: list[dict[str, Any] | None] = [None] * len(configs)
+        fronta = iter(range(len(configs)))
+        zamok = threading.Lock()
+
+        def pracuj(w: _Worker) -> None:
+            while True:
+                with zamok:
+                    i = next(fronta, None)
+                if i is None:
+                    return
+                out[i] = w.call({"op": "backtest", "key": self.key, "config": configs[i], "instrument": self._inst_json,
+                                 "m1": str(self.m1_path), "tf": self.timeframe, "from": a, "to": b, "fee": self.fee})
+
+        vlakna = [threading.Thread(target=pracuj, args=(w,), daemon=True) for w in self._pool[:len(configs)]]
+        for t in vlakna:
+            t.start()
+        for t in vlakna:
+            t.join()
+        return [r if r is not None else {"error": "beh sa nevykonal"} for r in out]
+
+    def close(self) -> None:
+        for w in self._pool:
+            w.close()
+        self._pool = []
+
+    def __enter__(self) -> "NativeRunner":
+        return self
+
+    def __exit__(self, *_exc: Any) -> None:
+        self.close()
+
+    def __del__(self) -> None:
+        self.close()
 
 
 def summary_of(result: dict[str, Any], inst: InstrumentSpec, fee: float, wallet: float) -> dict[str, Any] | None:
@@ -239,6 +335,8 @@ def run_search(runner: NativeRunner, plan: Plan, profile: str | None, timerange:
     #: config JSON -> súhrn: sampler na mriežke (krok) navrhuje tie isté body znova a znova
     seen: dict[str, dict[str, Any] | None] = {}
     t0 = time.perf_counter()
+    #: (čas, počet) po prvej dávke - tempo sa meria od nej, prvá nesie štart pracovných procesov a dáta
+    prva: tuple[float, int] | None = None
     while len(found) < epochs:
         if should_stop is not None and should_stop():
             log("zrusene")
@@ -268,8 +366,15 @@ def run_search(runner: NativeRunner, plan: Plan, profile: str | None, timerange:
         if on_progress is not None:
             on_progress(len(found), epochs)
         best = min((e for e in found if e.usable), key=lambda e: e.loss, default=None)
-        rate = len(found) / (time.perf_counter() - t0)
-        log(f"  {len(found)}/{epochs} epoch ({len(seen)} roznych), {rate:.1f}/s"
+        teraz = time.perf_counter()
+        if prva is None:
+            prva = (teraz, len(found))
+        postup = eta(len(found), epochs, t0, prva[0], prva[1], teraz, teraz)
+        tempo = (len(found) - prva[1]) / (teraz - prva[0]) if teraz > prva[0] and len(found) > prva[1] else None
+        log(f"  {len(found)}/{epochs} epoch ({len(seen)} roznych)"
+            + (f", {tempo:.1f} epoch/s" if tempo else "")
+            + (f", este ~{fmt_seconds(postup['eta_s'])}" if postup.get("eta_s") is not None else "")
+            + f", ubehlo {fmt_seconds(teraz - t0)}"
             + (f", najlepsie skore {-best.loss:.4f} (epocha {best.number})" if best else ", zatial nic v mantineloch"))
     best = min((e for e in found if e.usable), key=lambda e: e.loss, default=None)
     if best is not None:

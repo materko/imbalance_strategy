@@ -137,3 +137,27 @@ def test_hub_estimate_knows_native_epochs_are_fast():
              "settings": {**freqtrade, "hyperopt": {**freqtrade["hyperopt"], "epochs_done": 400}}}
     assert P.seconds_per_epoch([stary], freqtrade) == 10.0
     assert P.seconds_per_epoch([stary], native) is None      # Freqtrade história natívny odhad nekazí
+
+
+def test_worker_processes_match_in_process_threads(runner):
+    """Pracovné procesy `TradeBot.Host.exe` (predvolené) = vlákna cez pythonnet, bit po bite."""
+    plan = _plan()
+    cfg, _ = load_profile("nas100_dukascopy_3m", strategy="orbnet", engine=engines.MULTICHARTS)
+    configs = [config_json(cfg.to_dict(), type(cfg), plan, {"hp_rrRatio": rr, "hp_tradeDirection": "Both"})
+               for rr in (0.75, 1.5, 3.0)]
+    assert runner.mode == "processes"
+    with NativeRunner("orbnet", INST, 3, FEE, threads=2, mode="threads") as inproc:
+        assert runner.run(configs, WINDOW) == inproc.run(configs, WINDOW)
+    # pokazený config zhodí len svoj beh, nie pracovný proces
+    out = runner.run(['{"rrRatio": "nie"}', configs[0]], WINDOW)
+    assert "error" in out[0] and out[1] == runner.run(configs[:1], WINDOW)[0]
+
+
+def test_progress_line_has_done_total_and_eta(runner):
+    lines: list[str] = []
+    progress: list[tuple[int, int]] = []
+    run_search(runner, _plan(), None, WINDOW, epochs=12, batch=4, seed=1, log=lines.append,
+               on_progress=lambda d, t: progress.append((d, t)))
+    assert progress == [(4, 12), (8, 12), (12, 12)]
+    assert lines[0].startswith("  4/12 epoch") and "ubehlo" in lines[0]
+    assert "epoch/s" in lines[1] and "este ~" in lines[1]       # od druhej dávky tempo aj odhad
