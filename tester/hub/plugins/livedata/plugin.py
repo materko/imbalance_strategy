@@ -53,12 +53,9 @@ class LiveData(HubPlugin):
 
     def setup(self, ctx) -> None:
         super().setup(ctx)
-        st = read_json(ctx.path("state.json"), {}) or {}
-        self.pushed: dict[str, str] = dict(st.get("pushed") or {})
-        self.last_push = float(st.get("last_push") or 0.0)
-        self.last_commit = str(st.get("last_commit") or "")
-        self.push_error = str(st.get("push_error") or "")
-        self.push_error_since = float(st.get("push_error_since") or 0.0)
+        self._state_mtime: float | None = -1.0   # ≠ None (súbor ešte nie je) — prvé načítanie prebehne vždy
+        self.pushed: dict[str, str] = {}
+        self._reload_state()
         self.push_tried = 0.0
         self.last_export: dict[str, Any] = {}
         self._sha: dict[str, tuple[int, int, str]] = {}   # cesta -> (veľkosť, mtime_ns, sha)
@@ -80,10 +77,31 @@ class LiveData(HubPlugin):
                 "author": str(c.get("author") or "TradeBot hub <hub@tradebot.local>"),
                 "source": Path(str(c.get("source") or HUB_LIVE_DB))}
 
+    def _reload_state(self) -> None:
+        """Stav zo `state.json`, keď sa súbor zmenil (píše ho aj `plugin livedata --push` z príkazového riadka)."""
+        path = self.ctx.path("state.json")
+        try:
+            mtime: float | None = path.stat().st_mtime
+        except OSError:
+            mtime = None
+        if mtime == self._state_mtime:
+            return
+        self._state_mtime = mtime
+        st = read_json(path, {}) or {}
+        self.pushed = dict(st.get("pushed") or {})
+        self.last_push = float(st.get("last_push") or 0.0)
+        self.last_commit = str(st.get("last_commit") or "")
+        self.push_error = str(st.get("push_error") or "")
+        self.push_error_since = float(st.get("push_error_since") or 0.0)
+
     def _save(self) -> None:
-        write_json(self.ctx.path("state.json"), {"pushed": self.pushed, "last_push": self.last_push,
-                                                 "last_commit": self.last_commit, "push_error": self.push_error,
-                                                 "push_error_since": self.push_error_since})
+        path = self.ctx.path("state.json")
+        write_json(path, {"pushed": self.pushed, "last_push": self.last_push, "last_commit": self.last_commit,
+                          "push_error": self.push_error, "push_error_since": self.push_error_since})
+        try:
+            self._state_mtime = path.stat().st_mtime
+        except OSError:
+            pass
 
     # -- index ---------------------------------------------------------------- #
 
@@ -150,10 +168,12 @@ class LiveData(HubPlugin):
         if commit:
             self.last_commit = commit
             self.ctx.event("livedata_push", commit=commit[:10], months=months, files=len(files))
+        self.push_error, self.push_error_since = "", 0.0
         self._save()
         return commit
 
     def tick(self) -> None:
+        self._reload_state()   # `plugin livedata --push` z príkazového riadka mohol pushnúť medzitým
         self.export()
         self.refresh_index()
         now = self.ctx.clock()
