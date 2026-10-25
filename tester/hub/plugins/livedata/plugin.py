@@ -11,10 +11,12 @@ pushnú pri ďalšom kole znova — commit vznikne len pri zmene obsahu.
 
 `hub_data/plugins/livedata/config.json` (všetko voliteľné):
 
-    {"remote": "https://x-access-token:<token>@github.com/materko/imbalance_strategy.git",
+    {"remote": "git@github.com:materko/imbalance_strategy.git", "ssh_key": "deploy_key",
      "branch": "main", "push_day": 2, "author": "TradeBot hub <hub@tradebot.local>", "push": true}
 
-`remote` môže prísť aj z env `TRADEBOT_LIVEDATA_REMOTE`; bez neho plugin dáta drží a ponúka, ale nepushuje.
+`ssh_key` = deploy kľúč repozitára s právom zápisu (súbor v adresári pluginu, `known_hosts` vedľa neho); bez neho
+`remote` ako HTTPS s tokenom (`https://x-access-token:<token>@github.com/…`). `remote` môže prísť aj z env
+`TRADEBOT_LIVEDATA_REMOTE`; bez neho plugin dáta drží a ponúka, ale nepushuje.
 """
 
 from __future__ import annotations
@@ -71,7 +73,9 @@ class LiveData(HubPlugin):
     def settings(self) -> dict[str, Any]:
         c = self.ctx.config()
         remote = str(c.get("remote") or getenv("LIVEDATA_REMOTE") or "")
+        key = str(c.get("ssh_key") or "")
         return {"remote": remote, "push": bool(c.get("push", True)) and bool(remote),
+                "ssh_key": (Path(key) if Path(key).is_absolute() else self.ctx.path(key)) if key else None,
                 "branch": str(c.get("branch") or "main"), "push_day": max(1, min(28, int(c.get("push_day") or 2))),
                 "author": str(c.get("author") or "TradeBot hub <hub@tradebot.local>"),
                 "source": Path(str(c.get("source") or HUB_LIVE_DB))}
@@ -138,7 +142,8 @@ class LiveData(HubPlugin):
         msg = (f"Pridaj živé dáta za {', '.join(months)} z hubu ({n} {word}: {', '.join(kinds)}), "
                f"aby boli uzavreté mesiace stratégií naživo v gite oddelene od stiahnutých dát")
         commit = gitpush.push_files(self.ctx.path("repo"), cfg["remote"], cfg["branch"], self.root,
-                                    [f["path"] for f in files], msg, cfg["author"], log=self.ctx.log.info)
+                                    [f["path"] for f in files], msg, cfg["author"], log=self.ctx.log.info,
+                                    ssh_key=cfg["ssh_key"])
         for f in files:
             self.pushed[f["path"]] = f["sha"]
         self.last_push = now

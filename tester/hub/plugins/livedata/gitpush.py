@@ -9,6 +9,7 @@ súbory, commitne a pushne; keď medzitým pushol niekto iný (non-fast-forward)
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import subprocess
@@ -30,9 +31,19 @@ def mask(text: str) -> str:
     return re.sub(r"(https?://)[^/@\s]+@", r"\1***@", str(text))
 
 
+#: `GIT_SSH_COMMAND` pre push cez SSH (deploy kľúč); nastaví `push_files(ssh_key=…)`.
+_ENV: dict[str, str] = {}
+
+
+def ssh_command(key: Path, known_hosts: Path) -> str:
+    """SSH len s deploy kľúčom pluginu; kľúč hostiteľa (github.com) sa uloží pri prvom spojení vedľa neho."""
+    return (f'ssh -i "{Path(key).as_posix()}" -o IdentitiesOnly=yes -o BatchMode=yes '
+            f'-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="{Path(known_hosts).as_posix()}"')
+
+
 def _git(repo: Path, *args: str, check: bool = True, timeout: int = 300) -> subprocess.CompletedProcess:
     r = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, encoding="utf-8",
-                       errors="replace", timeout=timeout)
+                       errors="replace", timeout=timeout, env={**os.environ, **_ENV} if _ENV else None)
     if check and r.returncode != 0:
         raise PushError(mask(f"git {args[0]}: {(r.stderr or r.stdout).strip()[:400]}"))
     return r
@@ -53,11 +64,18 @@ def _prepare(repo: Path, remote: str, sub: str) -> None:
 
 
 def push_files(repo: Path, remote: str, branch: str, src_root: Path, rels: list[str], message: str,
-               author: str, *, sub: str = "data_live", log: Callable[[str], None] | None = None) -> str:
+               author: str, *, sub: str = "data_live", log: Callable[[str], None] | None = None,
+               ssh_key: Path | None = None) -> str:
     """Skopíruje `src_root/<rel>` do `<klon>/<sub>/<rel>`, commitne a pushne na `branch`.
+    `ssh_key` = deploy kľúč pre `remote` v tvare `git@github.com:…` (inak HTTPS s tokenom v URL).
     Vráti nový commit, alebo `""`, keď sa v gite nič nezmenilo. Chyba = `PushError`."""
     say = log or (lambda _s: None)
     repo = Path(repo)
+    _ENV.clear()
+    if ssh_key is not None:
+        if not Path(ssh_key).is_file():
+            raise PushError(f"deploy kľúč {Path(ssh_key).name} nie je")
+        _ENV["GIT_SSH_COMMAND"] = ssh_command(Path(ssh_key), Path(ssh_key).with_name("known_hosts"))
     m = re.match(r"^\s*(.*?)\s*<([^>]+)>\s*$", author or "")
     name, email = (m.group(1) or "TradeBot hub", m.group(2)) if m else ("TradeBot hub", "hub@tradebot.local")
     _prepare(repo, remote, sub)

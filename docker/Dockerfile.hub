@@ -22,9 +22,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# git je tu kvôli samoaktualizácii (klon vo volume), nie kvôli buildu.
+# git je tu kvôli samoaktualizácii (klon vo volume), nie kvôli buildu; openssh-client kvôli pushu
+# živých dát deploy kľúčom (plugin livedata).
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git ca-certificates \
+    && apt-get install -y --no-install-recommends git openssh-client ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir "fastapi>=0.110" "uvicorn>=0.27" "pandas>=2.0" "pyarrow>=14"
 

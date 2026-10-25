@@ -590,14 +590,23 @@ Každých 5 minút prepíše sklad telemetrie hubu (`live.sqlite`) do `hub_data/
 `hub_data/plugins/livedata/config.json`:
 
 ```json
-{"remote": "https://x-access-token:<token>@github.com/materko/imbalance_strategy.git",
+{"remote": "git@github.com:materko/imbalance_strategy.git", "ssh_key": "deploy_key",
  "branch": "main", "push_day": 2, "author": "TradeBot hub <hub@tradebot.local>"}
 ```
 
-`remote` (s tokenom, ktorý smie pushovať — GitHub fine-grained token s *Contents: write* len na tento
-repozitár) môže prísť aj z env `TRADEBOT_LIVEDATA_REMOTE`; bez neho plugin dáta drží a ponúka webapp, ale
-nepushuje. Token sa do logu ani chýb nedostane (`***`). Image hubu potrebuje pandas a pyarrow
-(`Dockerfile.hub`) — **po tejto zmene raz `up -d --build`**.
+`ssh_key` je **deploy kľúč** repozitára s právom zápisu (len tento repozitár): súkromná časť leží v adresári
+pluginu (`deploy_key`, 600), verejná je v GitHube pri repozitári (Settings → Deploy keys), `known_hosts` si
+plugin uloží pri prvom spojení. Vyrobí sa takto (na stroji hubu; verejnú časť pridať s právom zápisu):
+
+```bash
+ssh-keygen -t ed25519 -N "" -C "tradebot-hub livedata" -f hub_data/plugins/livedata/deploy_key
+gh repo deploy-key add hub_data/plugins/livedata/deploy_key.pub --allow-write --title "tradebot-hub livedata"
+```
+
+Bez `ssh_key` je `remote` HTTPS s tokenom (`https://x-access-token:<token>@github.com/…`, fine-grained token
+s *Contents: write*); môže prísť aj z env `TRADEBOT_LIVEDATA_REMOTE`. Bez `remote` plugin dáta drží a ponúka
+webapp, ale nepushuje. Token sa do logu ani chýb nedostane (`***`). Image hubu potrebuje pandas, pyarrow
+a openssh-client (`Dockerfile.hub`) — **po tejto zmene raz `up -d --build`**.
 
 ```bash
 python -m tester.hub plugin livedata            # čo je mimo gitu, čo čaká na push, posledný commit
