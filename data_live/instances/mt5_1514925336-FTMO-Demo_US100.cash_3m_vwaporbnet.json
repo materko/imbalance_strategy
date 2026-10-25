@@ -1,0 +1,420 @@
+{
+ "account": "1514925336-FTMO-Demo",
+ "configs": {
+  "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1": {
+   "_instrument": null,
+   "_source": "hub:5296e8ff09f0",
+   "_strategy": "vwaporbnet",
+   "atrLen": 14.0,
+   "breakBufferAtr": 0.0,
+   "closeAtSessionEnd": false,
+   "closeBeyondVwap": true,
+   "confirmBars": 3.0,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbBodyPct": 30.0,
+   "confirmPbWickPct": 60.0,
+   "emaExit": false,
+   "emaFilter": false,
+   "emaLen": 200.0,
+   "emaRangeFilter": false,
+   "enableTrailing": false,
+   "entryConfirm": "none",
+   "entryMode": "close",
+   "entryOrderType": "market",
+   "entryTiming": "any",
+   "entryWindowMinutes": 0.0,
+   "exitMode": "tp",
+   "legacyPineSizing": false,
+   "leverage": 1.0,
+   "limitKeepRR": true,
+   "limitOffsetPct": 50.0,
+   "limitValidBars": 3.0,
+   "lonEndH": 16.0,
+   "lonEndM": 30.0,
+   "lonRangeMinutes": 15.0,
+   "lonStartH": 8.0,
+   "lonStartM": 0.0,
+   "maxRangePct": 10.0,
+   "maxTradesPerDay": 3.0,
+   "measuredMult": 1.0,
+   "minClosePosPct": 0.0,
+   "minRangePct": 0.1,
+   "minSlDistance": 0.0,
+   "nyEndH": 15.0,
+   "nyEndM": 55.0,
+   "nyRangeMinutes": 5.0,
+   "nyStartH": 9.0,
+   "nyStartM": 30.0,
+   "retestMaxBars": 10.0,
+   "riskDollar": 500.0,
+   "rrRatio": 0.5,
+   "sessionMode": "ny",
+   "showEma": false,
+   "showLevels": true,
+   "showRange": true,
+   "showVwap": true,
+   "slAtrMult": 1.0,
+   "slBufferAtr": 0.25,
+   "slMode": "opposite",
+   "slRangePct": 50.0,
+   "tickDollarValue": 0.5,
+   "tpAtrMult": 2.0,
+   "tpMode": "rr",
+   "tradeDirection": "Both",
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "trendEmaLen": 100.0,
+   "trendFilter": "with",
+   "trendTF": 60.0,
+   "useVolumeFilter": false,
+   "volFilter": "high",
+   "volLookback": 100.0,
+   "volMultiplier": 1.5,
+   "volSmaLen": 20.0,
+   "vwapAnchor": "session",
+   "vwapBreakAtr": 0.0,
+   "vwapDriftBars": 2.0,
+   "vwapDriftMinAtr": 0.0,
+   "vwapExitAtr": 0.0,
+   "vwapPeriod": "chart",
+   "vwapRule": "break",
+   "vwapStop": false,
+   "vwapStopAtr": 0.0,
+   "vwapTp": false,
+   "vwapTpAtr": 0.0,
+   "weekdaysOnly": true
+  }
+ },
+ "engine": "vwaporbnet",
+ "id": "mt5_1514925336-FTMO-Demo_US100.cash_3m_vwaporbnet",
+ "instrument": {
+  "has_real_volume": false,
+  "min_qty": 0.01,
+  "point_value": 1.0,
+  "qty_step": 0.01,
+  "symbol": "US100.cash",
+  "tick_size": 0.01,
+  "venue": "mt5"
+ },
+ "platform": "mt5",
+ "point_value": 1.0,
+ "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+ "sessions": [
+  {
+   "end": "2026-10-14T10:10:12Z",
+   "first_bar": "2026-09-29T12:42:00Z",
+   "last_bar": "2026-10-14T13:06:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "49300f65",
+   "start": "2026-10-14T10:10:03Z"
+  },
+  {
+   "end": "2026-10-14T10:19:52Z",
+   "first_bar": "2026-09-29T12:42:00Z",
+   "last_bar": "2026-10-14T13:15:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "169f4373",
+   "start": "2026-10-14T10:10:30Z"
+  },
+  {
+   "end": "2026-10-14T11:06:45Z",
+   "first_bar": "2026-09-29T09:51:00Z",
+   "last_bar": "2026-10-14T11:03:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "8d819734",
+   "start": "2026-10-14T10:20:15Z"
+  },
+  {
+   "end": "2026-10-15T11:48:22Z",
+   "first_bar": "2026-09-29T10:51:00Z",
+   "last_bar": "2026-10-15T11:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "832d9838",
+   "start": "2026-10-14T11:20:56Z"
+  },
+  {
+   "end": "2026-10-15T13:04:20Z",
+   "first_bar": "2026-09-30T12:36:00Z",
+   "last_bar": "2026-10-15T13:00:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "4feacffb",
+   "start": "2026-10-15T13:03:33Z"
+  },
+  {
+   "end": "2026-10-15T13:04:31Z",
+   "first_bar": "2026-09-30T12:36:00Z",
+   "last_bar": "2026-10-15T13:00:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "f9f43917",
+   "start": "2026-10-15T13:04:24Z"
+  },
+  {
+   "end": "2026-10-16T06:31:45Z",
+   "first_bar": "2026-09-30T12:54:00Z",
+   "last_bar": "2026-10-16T06:27:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "6423b85a",
+   "start": "2026-10-15T13:23:26Z"
+  },
+  {
+   "end": "2026-10-16T06:32:11Z",
+   "first_bar": "2026-10-01T06:03:00Z",
+   "last_bar": "2026-10-16T06:27:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "774790c9",
+   "start": "2026-10-16T06:31:45Z"
+  },
+  {
+   "end": "2026-10-16T06:45:32Z",
+   "first_bar": "2026-10-01T06:03:00Z",
+   "last_bar": "2026-10-16T06:42:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "0fd91abd",
+   "start": "2026-10-16T06:32:15Z"
+  },
+  {
+   "end": "2026-10-16T06:48:14Z",
+   "first_bar": "2026-10-01T06:18:00Z",
+   "last_bar": "2026-10-16T06:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "ce57a713",
+   "start": "2026-10-16T06:46:25Z"
+  },
+  {
+   "end": "2026-10-16T06:48:49Z",
+   "first_bar": "2026-10-01T06:21:00Z",
+   "last_bar": "2026-10-16T06:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "c44e4206",
+   "start": "2026-10-16T06:48:40Z"
+  },
+  {
+   "end": "2026-10-16T23:07:21Z",
+   "first_bar": "2026-10-01T06:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "2a46c9c9",
+   "start": "2026-10-16T06:49:28Z"
+  },
+  {
+   "end": "2026-10-16T23:28:21Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "d5677159",
+   "start": "2026-10-16T23:07:46Z"
+  },
+  {
+   "end": "2026-10-16T23:28:55Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "0b1a5160",
+   "start": "2026-10-16T23:28:46Z"
+  },
+  {
+   "end": "2026-10-16T23:44:03Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "4d1817f8",
+   "start": "2026-10-16T23:29:32Z"
+  },
+  {
+   "end": "2026-10-16T23:44:37Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "1938d76c",
+   "start": "2026-10-16T23:44:28Z"
+  },
+  {
+   "end": "2026-10-17T09:43:19Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "977cb70a",
+   "start": "2026-10-16T23:45:10Z"
+  },
+  {
+   "end": "2026-10-17T09:43:54Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "55dbf66b",
+   "start": "2026-10-17T09:43:44Z"
+  },
+  {
+   "end": "2026-10-17T10:47:23Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "79ca51bd",
+   "start": "2026-10-17T09:44:33Z"
+  },
+  {
+   "end": "2026-10-17T11:04:09Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "b4815b94",
+   "start": "2026-10-17T10:47:52Z"
+  },
+  {
+   "end": "2026-10-17T13:30:36Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "f0b12522",
+   "start": "2026-10-17T11:04:36Z"
+  },
+  {
+   "end": "2026-10-17T19:10:38Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "165300d9",
+   "start": "2026-10-17T13:31:56Z"
+  },
+  {
+   "end": "2026-10-17T19:11:14Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "4bb8577a",
+   "start": "2026-10-17T19:11:06Z"
+  },
+  {
+   "end": "2026-10-18T15:57:44Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "d50daa39",
+   "start": "2026-10-17T19:12:13Z"
+  },
+  {
+   "end": "2026-10-18T15:58:21Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-16T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "94052ba6",
+   "start": "2026-10-18T15:58:13Z"
+  },
+  {
+   "end": "2026-10-19T08:21:25Z",
+   "first_bar": "2026-10-01T20:21:00Z",
+   "last_bar": "2026-10-19T08:18:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "c11a2dce",
+   "start": "2026-10-18T15:59:16Z"
+  },
+  {
+   "end": "2026-10-20T07:59:10Z",
+   "first_bar": "2026-10-02T08:12:00Z",
+   "last_bar": "2026-10-20T07:54:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "e8206640",
+   "start": "2026-10-19T08:39:49Z"
+  },
+  {
+   "end": "2026-10-20T08:01:00Z",
+   "first_bar": "2026-10-05T06:00:00Z",
+   "last_bar": "2026-10-20T07:57:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "9d329ff5",
+   "start": "2026-10-20T07:59:15Z"
+  },
+  {
+   "end": "2026-10-20T08:01:34Z",
+   "first_bar": "2026-10-05T06:03:00Z",
+   "last_bar": "2026-10-20T07:57:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "d4079cc3",
+   "start": "2026-10-20T08:01:04Z"
+  },
+  {
+   "end": "2026-10-20T08:07:49Z",
+   "first_bar": "2026-10-05T06:03:00Z",
+   "last_bar": "2026-10-20T08:03:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "c929b902",
+   "start": "2026-10-20T08:01:38Z"
+  },
+  {
+   "end": "2026-10-20T08:09:21Z",
+   "first_bar": "2026-10-05T06:12:00Z",
+   "last_bar": "2026-10-20T08:06:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "59cc41a7",
+   "start": "2026-10-20T08:09:14Z"
+  },
+  {
+   "end": "2026-10-20T08:14:41Z",
+   "first_bar": "2026-10-05T06:12:00Z",
+   "last_bar": "2026-10-20T08:09:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "dfc84e50",
+   "start": "2026-10-20T08:10:19Z"
+  },
+  {
+   "end": "2026-10-20T08:18:30Z",
+   "first_bar": "2026-10-05T06:15:00Z",
+   "last_bar": "2026-10-20T08:15:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "0c7b864d",
+   "start": "2026-10-20T08:14:45Z"
+  },
+  {
+   "end": "2026-10-20T09:41:14Z",
+   "first_bar": "2026-10-05T06:21:00Z",
+   "last_bar": "2026-10-20T09:36:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "576a4295",
+   "start": "2026-10-20T08:18:34Z"
+  },
+  {
+   "end": "2026-10-20T14:56:38Z",
+   "first_bar": "2026-10-05T07:45:00Z",
+   "last_bar": "2026-10-20T14:51:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "658dff8e",
+   "start": "2026-10-20T09:43:00Z"
+  },
+  {
+   "end": "2026-10-20T14:57:37Z",
+   "first_bar": "2026-10-05T12:57:00Z",
+   "last_bar": "2026-10-20T14:54:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "49f293d2",
+   "start": "2026-10-20T14:57:29Z"
+  },
+  {
+   "end": "2026-10-24T06:04:25Z",
+   "first_bar": "2026-10-05T12:57:00Z",
+   "last_bar": "2026-10-23T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "8f63ef5c",
+   "start": "2026-10-20T14:58:37Z"
+  },
+  {
+   "end": "2026-10-24T06:06:49Z",
+   "first_bar": "2026-10-08T18:48:00Z",
+   "last_bar": "2026-10-23T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "f4bb2417",
+   "start": "2026-10-24T06:06:41Z"
+  },
+  {
+   "end": "2026-10-25T13:20:28Z",
+   "first_bar": "2026-10-08T18:48:00Z",
+   "last_bar": "2026-10-23T20:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "6cbcb7e4",
+   "start": "2026-10-24T06:08:09Z"
+  }
+ ],
+ "setting": "vwaporb-1",
+ "strategy": "vwaporb",
+ "symbol": "US100.cash",
+ "tf": 3
+}

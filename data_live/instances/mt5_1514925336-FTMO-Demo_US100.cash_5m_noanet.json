@@ -1,0 +1,140 @@
+{
+ "account": "1514925336-FTMO-Demo",
+ "configs": {
+  "SMERNICE_CS_NOA_1": {
+   "_instrument": null,
+   "_source": "hub:6c6925cd0276",
+   "_strategy": "noanet",
+   "checkEvery": 13.0,
+   "confirmBars": 5.0,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbBodyPct": 30.0,
+   "confirmPbWickPct": 60.0,
+   "entryConfirm": "any",
+   "entryOrderType": "limit",
+   "fixedQty": false,
+   "gapAdjust": true,
+   "hardStopPct": 0.414,
+   "lastEntryMin": 345.0,
+   "leverage": 1.0,
+   "limitKeepRR": true,
+   "limitOffsetPct": 53.0,
+   "limitValidBars": 3.0,
+   "lookbackDays": 15.0,
+   "maxTradesPerDay": 7.0,
+   "qty": 1.0,
+   "riskDollar": 500.0,
+   "showLevels": true,
+   "showVwap": true,
+   "tradeDirection": "Both",
+   "trailVwap": true,
+   "trendEmaLen": 70.0,
+   "trendFilter": "with",
+   "trendTF": 50.0,
+   "volFilter": "off",
+   "volLookback": 100.0,
+   "volMult": 1.245,
+   "weekdaysOnly": true
+  }
+ },
+ "engine": "noanet",
+ "id": "mt5_1514925336-FTMO-Demo_US100.cash_5m_noanet",
+ "instrument": {
+  "has_real_volume": false,
+  "min_qty": 0.01,
+  "point_value": 1.0,
+  "qty_step": 0.01,
+  "symbol": "US100.cash",
+  "tick_size": 0.01,
+  "venue": "mt5"
+ },
+ "platform": "mt5",
+ "point_value": 1.0,
+ "profile": "SMERNICE_CS_NOA_1",
+ "sessions": [
+  {
+   "end": "2026-10-20T08:07:49Z",
+   "first_bar": "2026-08-31T08:40:00Z",
+   "last_bar": "2026-10-20T11:00:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "2d8c7435",
+   "start": "2026-10-20T08:01:38Z"
+  },
+  {
+   "end": "2026-10-20T08:09:21Z",
+   "first_bar": "2026-08-31T08:45:00Z",
+   "last_bar": "2026-10-20T11:00:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "ff3a0621",
+   "start": "2026-10-20T08:09:14Z"
+  },
+  {
+   "end": "2026-10-20T08:14:41Z",
+   "first_bar": "2026-08-31T08:50:00Z",
+   "last_bar": "2026-10-20T11:05:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "143a6f62",
+   "start": "2026-10-20T08:10:19Z"
+  },
+  {
+   "end": "2026-10-20T08:18:30Z",
+   "first_bar": "2026-08-31T08:50:00Z",
+   "last_bar": "2026-10-20T11:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "3483002a",
+   "start": "2026-10-20T08:14:45Z"
+  },
+  {
+   "end": "2026-10-20T09:41:14Z",
+   "first_bar": "2026-08-31T08:55:00Z",
+   "last_bar": "2026-10-20T12:35:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "c2ba9e52",
+   "start": "2026-10-20T08:18:34Z"
+  },
+  {
+   "end": "2026-10-20T14:56:38Z",
+   "first_bar": "2026-08-31T10:20:00Z",
+   "last_bar": "2026-10-20T17:50:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "bae73e08",
+   "start": "2026-10-20T09:43:00Z"
+  },
+  {
+   "end": "2026-10-20T14:57:37Z",
+   "first_bar": "2026-08-31T12:35:00Z",
+   "last_bar": "2026-10-20T14:50:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "85df7f9f",
+   "start": "2026-10-20T14:57:29Z"
+  },
+  {
+   "end": "2026-10-24T06:04:25Z",
+   "first_bar": "2026-08-31T12:35:00Z",
+   "last_bar": "2026-10-23T20:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "5cad7815",
+   "start": "2026-10-20T14:58:37Z"
+  },
+  {
+   "end": "2026-10-24T06:06:49Z",
+   "first_bar": "2026-09-03T18:25:00Z",
+   "last_bar": "2026-10-23T20:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "b8ef318e",
+   "start": "2026-10-24T06:06:41Z"
+  },
+  {
+   "end": "2026-10-25T13:20:27Z",
+   "first_bar": "2026-09-03T18:25:00Z",
+   "last_bar": "2026-10-23T20:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "7955d54a",
+   "start": "2026-10-24T06:08:09Z"
+  }
+ ],
+ "setting": "noa-1",
+ "strategy": "noa",
+ "symbol": "US100.cash",
+ "tf": 5
+}

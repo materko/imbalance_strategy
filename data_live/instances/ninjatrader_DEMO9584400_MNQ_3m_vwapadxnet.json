@@ -1,0 +1,333 @@
+{
+ "account": "DEMO9584400",
+ "configs": {
+  "SMERNICE_CS_VWAP_ADX_Pullback_2": {
+   "_instrument": null,
+   "_source": "hub:2335cdb7d4b0",
+   "_strategy": "vwapadxnet",
+   "adxLen": 14.0,
+   "adxMin": 20.0,
+   "confirmBars": 2.0,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbBodyPct": 30.0,
+   "confirmPbWickPct": 60.0,
+   "entryConfirm": "none",
+   "entryOrderType": "market",
+   "exitHHMM": 1531.0,
+   "legacyPineSizing": false,
+   "leverage": 1.0,
+   "limitKeepRR": true,
+   "limitOffsetPct": 75.0,
+   "limitValidBars": 3.0,
+   "maxTrades": 2.0,
+   "orEndHHMM": 845.0,
+   "orStartHHMM": 830.0,
+   "riskDollar": 100.0,
+   "showRange": true,
+   "showVwap": true,
+   "slBars": 18.0,
+   "tpBars": 4.0,
+   "trendEmaLen": 200.0,
+   "trendFilter": "off",
+   "trendTF": 0.0,
+   "useTimeExit": false,
+   "volFilter": "high",
+   "volLookback": 100.0,
+   "vwapAnchor": "RTH 8:30 CT"
+  },
+  "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500": {
+   "_instrument": null,
+   "_source": "hub:2335cdb7d4b0",
+   "_strategy": "vwapadxnet",
+   "adxLen": 14.0,
+   "adxMin": 20.0,
+   "confirmBars": 2.0,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbBodyPct": 30.0,
+   "confirmPbWickPct": 60.0,
+   "entryConfirm": "none",
+   "entryOrderType": "market",
+   "exitHHMM": 1531.0,
+   "legacyPineSizing": false,
+   "leverage": 1.0,
+   "limitKeepRR": true,
+   "limitOffsetPct": 75.0,
+   "limitValidBars": 3.0,
+   "maxTrades": 2.0,
+   "orEndHHMM": 845.0,
+   "orStartHHMM": 830.0,
+   "riskDollar": 500.0,
+   "showRange": true,
+   "showVwap": true,
+   "slBars": 18.0,
+   "tpBars": 4.0,
+   "trendEmaLen": 200.0,
+   "trendFilter": "off",
+   "trendTF": 0.0,
+   "useTimeExit": false,
+   "volFilter": "high",
+   "volLookback": 100.0,
+   "vwapAnchor": "RTH 8:30 CT"
+  }
+ },
+ "engine": "vwapadxnet",
+ "id": "ninjatrader_DEMO9584400_MNQ_3m_vwapadxnet",
+ "instrument": {
+  "has_real_volume": true,
+  "min_qty": 1.0,
+  "point_value": 2.0,
+  "qty_step": 1.0,
+  "symbol": "MNQ",
+  "tick_size": 0.25,
+  "venue": "ninjatrader"
+ },
+ "platform": "ninjatrader",
+ "point_value": 2.0,
+ "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+ "sessions": [
+  {
+   "end": "2026-10-15T11:48:54Z",
+   "first_bar": "2026-10-15T00:24:00Z",
+   "last_bar": "2026-10-15T11:45:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "a7a1d10d",
+   "start": "2026-10-15T11:42:47Z"
+  },
+  {
+   "end": "2026-10-16T06:45:54Z",
+   "first_bar": "2026-10-15T00:30:00Z",
+   "last_bar": "2026-10-16T06:42:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "af3198f7",
+   "start": "2026-10-15T11:48:57Z"
+  },
+  {
+   "end": "2026-10-16T06:46:18Z",
+   "first_bar": "2026-10-15T18:27:00Z",
+   "last_bar": "2026-10-16T06:42:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "49275258",
+   "start": "2026-10-16T06:45:56Z"
+  },
+  {
+   "end": "2026-10-16T06:48:36Z",
+   "first_bar": "2026-10-15T18:27:00Z",
+   "last_bar": "2026-10-16T06:45:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "19aa4618",
+   "start": "2026-10-16T06:46:21Z"
+  },
+  {
+   "end": "2026-10-16T06:49:11Z",
+   "first_bar": "2026-10-15T18:30:00Z",
+   "last_bar": "2026-10-16T06:45:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "5cfd1921",
+   "start": "2026-10-16T06:48:39Z"
+  },
+  {
+   "end": "2026-10-16T06:49:19Z",
+   "first_bar": "2026-10-15T18:30:00Z",
+   "last_bar": "2026-10-16T06:45:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "4c05c279",
+   "start": "2026-10-16T06:49:14Z"
+  },
+  {
+   "end": "2026-10-16T23:07:42Z",
+   "first_bar": "2026-10-15T18:30:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "1beff9df",
+   "start": "2026-10-16T06:49:22Z"
+  },
+  {
+   "end": "2026-10-16T23:28:42Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "0ad71199",
+   "start": "2026-10-16T23:13:17Z"
+  },
+  {
+   "end": "2026-10-16T23:29:17Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "81a39993",
+   "start": "2026-10-16T23:28:45Z"
+  },
+  {
+   "end": "2026-10-16T23:44:24Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "bb349b02",
+   "start": "2026-10-16T23:29:19Z"
+  },
+  {
+   "end": "2026-10-17T10:47:45Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "21b668ae",
+   "start": "2026-10-17T09:47:02Z"
+  },
+  {
+   "end": "2026-10-17T11:04:31Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "ee450c18",
+   "start": "2026-10-17T10:47:47Z"
+  },
+  {
+   "end": "2026-10-17T13:30:58Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "c3d62547",
+   "start": "2026-10-17T11:04:34Z"
+  },
+  {
+   "end": "2026-10-17T13:31:25Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "dce31525",
+   "start": "2026-10-17T13:31:01Z"
+  },
+  {
+   "end": "2026-10-17T19:11:00Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "126d6f0a",
+   "start": "2026-10-17T13:31:28Z"
+  },
+  {
+   "end": "2026-10-17T19:11:35Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "14be8f47",
+   "start": "2026-10-17T19:11:03Z"
+  },
+  {
+   "end": "2026-10-18T15:58:08Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "7c83c277",
+   "start": "2026-10-17T19:11:38Z"
+  },
+  {
+   "end": "2026-10-18T15:58:45Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-16T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "ad7e2dc5",
+   "start": "2026-10-18T15:58:10Z"
+  },
+  {
+   "end": "2026-10-19T08:21:53Z",
+   "first_bar": "2026-10-16T09:39:00Z",
+   "last_bar": "2026-10-19T08:18:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "127d2364",
+   "start": "2026-10-18T15:58:48Z"
+  },
+  {
+   "end": "2026-10-20T08:08:42Z",
+   "first_bar": "2026-10-19T00:00:00Z",
+   "last_bar": "2026-10-20T08:03:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "50efc744",
+   "start": "2026-10-19T11:20:50Z"
+  },
+  {
+   "end": "2026-10-20T08:10:08Z",
+   "first_bar": "2026-10-19T19:48:00Z",
+   "last_bar": "2026-10-20T08:06:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "d547ca80",
+   "start": "2026-10-20T08:08:45Z"
+  },
+  {
+   "end": "2026-10-20T09:10:02Z",
+   "first_bar": "2026-10-19T19:51:00Z",
+   "last_bar": "2026-10-20T09:06:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2",
+   "session": "5536c885",
+   "start": "2026-10-20T08:10:10Z"
+  },
+  {
+   "end": "2026-10-20T09:41:56Z",
+   "first_bar": "2026-10-19T20:51:00Z",
+   "last_bar": "2026-10-20T09:36:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "34ea95d2",
+   "start": "2026-10-20T09:10:04Z"
+  },
+  {
+   "end": "2026-10-20T09:42:42Z",
+   "first_bar": "2026-10-19T22:21:00Z",
+   "last_bar": "2026-10-20T09:39:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "72a13356",
+   "start": "2026-10-20T09:41:58Z"
+  },
+  {
+   "end": "2026-10-20T12:04:47Z",
+   "first_bar": "2026-10-19T22:24:00Z",
+   "last_bar": "2026-10-20T12:00:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "3cb2062f",
+   "start": "2026-10-20T09:42:45Z"
+  },
+  {
+   "end": "2026-10-20T12:04:56Z",
+   "first_bar": "2026-10-20T00:45:00Z",
+   "last_bar": "2026-10-20T12:00:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "b1b1722e",
+   "start": "2026-10-20T12:04:50Z"
+  },
+  {
+   "end": "2026-10-20T14:57:22Z",
+   "first_bar": "2026-10-20T00:45:00Z",
+   "last_bar": "2026-10-20T14:54:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "423e6965",
+   "start": "2026-10-20T12:04:59Z"
+  },
+  {
+   "end": "2026-10-20T14:58:21Z",
+   "first_bar": "2026-10-20T03:39:00Z",
+   "last_bar": "2026-10-20T14:54:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "e6bae6de",
+   "start": "2026-10-20T14:57:25Z"
+  },
+  {
+   "end": "2026-10-24T06:05:07Z",
+   "first_bar": "2026-10-20T03:39:00Z",
+   "last_bar": "2026-10-23T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "c6a4aa16",
+   "start": "2026-10-20T14:58:23Z"
+  },
+  {
+   "end": "2026-10-25T13:20:32Z",
+   "first_bar": "2026-10-23T09:39:00Z",
+   "last_bar": "2026-10-23T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "f78e5e9d",
+   "start": "2026-10-24T12:30:25Z"
+  }
+ ],
+ "setting": null,
+ "strategy": "vwapadx",
+ "symbol": "MNQ",
+ "tf": 3
+}
