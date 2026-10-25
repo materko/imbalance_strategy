@@ -40,6 +40,49 @@ namespace TradeBot.Backtest
                                   fromMs < 0 ? long.MinValue : fromMs, toMs < 0 ? long.MaxValue : toMs, fee);
         }
 
+        /// <summary>Dávka behov tej istej strategie nad tymi istymi datami - kazdy config na jednom vlakne
+        /// (`threads` &lt;= 0 = vsetky jadra). Data sa pripravia raz, engine ma kazdy beh vlastny. Vrati JSON
+        /// vysledku na kazdy config v tom istom poradi; beh, ktory spadne, vrati `{"error": "..."}`.</summary>
+        public static string[] RunBatchJson(string key, string[] configJsons, string instrumentJson, string m1Path,
+                                            int chartTf, long fromMs, long toMs, double fee, int threads)
+        {
+            EmuData data = EmuData.Prepare(LoadM1(m1Path), chartTf,
+                                           fromMs < 0 ? long.MinValue : fromMs, toMs < 0 ? long.MaxValue : toMs);
+            InstrumentSpec inst = InstrumentSpec.FromJson(Json.ParseObject(instrumentJson));
+            string[] results = new string[configJsons.Length];
+            int next = -1;
+            int workers = threads > 0 ? threads : Environment.ProcessorCount;
+            workers = Math.Max(1, Math.Min(workers, configJsons.Length));
+            System.Threading.Thread[] pool = new System.Threading.Thread[workers];
+            for (int w = 0; w < workers; w++)
+            {
+                pool[w] = new System.Threading.Thread(delegate ()
+                {
+                    while (true)
+                    {
+                        int i = System.Threading.Interlocked.Increment(ref next);
+                        if (i >= configJsons.Length) return;
+                        try
+                        {
+                            Dictionary<string, object> config = Json.ParseObject(configJsons[i]);
+                            IEngine engine = EngineRegistry.Create(key, config, inst, chartTf);
+                            results[i] = ToJson(McEmulator.Run(engine, config, data, fee));
+                        }
+                        catch (Exception e)
+                        {
+                            JsonWriter w2 = new JsonWriter();
+                            w2.BeginObject().Key("error").Value(e.GetType().Name + ": " + e.Message).EndObject();
+                            results[i] = w2.ToString();
+                        }
+                    }
+                }, 64 * 1024 * 1024);
+                pool[w].IsBackground = true;
+                pool[w].Start();
+            }
+            foreach (System.Threading.Thread t in pool) t.Join();
+            return results;
+        }
+
         public static string RunFileJson(string key, string configJson, string instrumentJson, string m1Path, int chartTf,
                                          long fromMs, long toMs, double fee)
         {

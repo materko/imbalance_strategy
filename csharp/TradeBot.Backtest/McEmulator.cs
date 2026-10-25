@@ -229,6 +229,68 @@ namespace TradeBot.Backtest
         }
     }
 
+    /// <summary>Bary pre jeden graf a okno: graf, 1m detail rozdeleny po baroch grafu a vyssie TF (lenivo).
+    /// Po `Prepare` sa uz len cita, takze ho smie zdielat viac vlakien naraz.</summary>
+    public sealed class EmuData
+    {
+        public readonly Candles M1;
+        public readonly int ChartTf;
+        public readonly Bar[] Chart;
+        public readonly Bar[] Detail;
+        internal readonly Dictionary<long, int[]> ByBar = new Dictionary<long, int[]>();
+        private readonly Candles _inRange;
+        private readonly Dictionary<int, Bar[]> _htf = new Dictionary<int, Bar[]>();
+        private readonly Dictionary<int, long[]> _htfCloses = new Dictionary<int, long[]>();
+
+        private EmuData(Candles m1, int chartTf, long fromMs, long toMs)
+        {
+            M1 = m1;
+            ChartTf = chartTf;
+            _inRange = CandleOps.Slice(m1, fromMs, toMs);
+            Chart = CandleOps.Bars(CandleOps.Resample(_inRange, chartTf));
+            Detail = CandleOps.Bars(_inRange);
+            long step = chartTf * CandleOps.MinuteMs;
+            // 1m bary podla baru grafu (kluc od epochy, ako `b.time // step * step` v Pythone); su zoradene
+            for (int i = 0; i < Detail.Length;)
+            {
+                long key = CandleOps.FloorDiv(Detail[i].Time, step) * step;
+                int j = i;
+                while (j < Detail.Length && CandleOps.FloorDiv(Detail[j].Time, step) * step == key) j++;
+                if (!ByBar.ContainsKey(key)) ByBar[key] = new int[] { i, j - i };
+                i = j;
+            }
+        }
+
+        /// <summary>`fromMs`/`toMs`: long.MinValue / long.MaxValue = bez hranice.</summary>
+        public static EmuData Prepare(Candles m1, int chartTf, long fromMs, long toMs)
+        {
+            return new EmuData(m1, chartTf, fromMs, toMs);
+        }
+
+        public Bar[] HtfBars(int minutes)
+        {
+            lock (_htf)
+            {
+                Bar[] b;
+                if (!_htf.TryGetValue(minutes, out b))
+                {
+                    b = CandleOps.Bars(CandleOps.Resample(_inRange, minutes));
+                    long[] closes = new long[b.Length];
+                    for (int i = 0; i < b.Length; i++) closes[i] = b[i].Time + minutes * CandleOps.MinuteMs;
+                    _htf[minutes] = b;
+                    _htfCloses[minutes] = closes;
+                }
+                return b;
+            }
+        }
+
+        public long[] HtfCloses(int minutes)
+        {
+            HtfBars(minutes);
+            lock (_htf) { return _htfCloses[minutes]; }
+        }
+    }
+
     public static class McEmulator
     {
         private static double? EntryFill(Bar sub, LiveOrder live, bool firstMinute)
@@ -350,37 +412,33 @@ namespace TradeBot.Backtest
         public static EmuResult Run(IEngine engine, Dictionary<string, object> config, Candles m1, int chartTf,
                                     long fromMs, long toMs, double fee)
         {
-            EmuResult res = new EmuResult();
-            Candles inRange = CandleOps.Slice(m1, fromMs, toMs);
-            Bar[] chart = CandleOps.Bars(CandleOps.Resample(inRange, chartTf));
-            Bar[] detail = CandleOps.Bars(inRange);
-            long step = chartTf * CandleOps.MinuteMs;
-            // 1m bary podla baru grafu (kluc od epochy, ako `b.time // step * step` v Pythone); su zoradene
-            Dictionary<long, int[]> byBar = new Dictionary<long, int[]>();
-            for (int i = 0; i < detail.Length;)
-            {
-                long key = CandleOps.FloorDiv(detail[i].Time, step) * step;
-                int j = i;
-                while (j < detail.Length && CandleOps.FloorDiv(detail[j].Time, step) * step == key) j++;
-                if (!byBar.ContainsKey(key)) byBar[key] = new int[] { i, j - i };
-                i = j;
-            }
+            return Run(engine, config, EmuData.Prepare(m1, chartTf, fromMs, toMs), fee);
+        }
 
-            McRunner runner = new McRunner(engine, config, chartTf);
+        /// <summary>Beh nad pripravenymi datami - hyperopt ich pripravi raz a zdiela medzi vlaknami (len citanie).</summary>
+        public static EmuResult Run(IEngine engine, Dictionary<string, object> config, EmuData data, double fee)
+        {
+            if (engine.ChartTfMinutes != data.ChartTf)
+                throw new ArgumentException("engine je na " + engine.ChartTfMinutes + "m, data na " + data.ChartTf + "m");
+            EmuResult res = new EmuResult();
+            Bar[] chart = data.Chart;
+            Bar[] detail = data.Detail;
+            Dictionary<long, int[]> byBar = data.ByBar;
+            long step = data.ChartTf * CandleOps.MinuteMs;
+
+            McRunner runner = new McRunner(engine, config, data.ChartTf);
             List<string> log = new List<string>();
             if (chart.Length > 0)
             {
-                string s = SeedBefore(engine, m1, chart[0].Time);
+                string s = SeedBefore(engine, data.M1, chart[0].Time);
                 if (s.Length > 0) log.Add(s);
             }
             Bar[] htfBars = new Bar[0];
             long[] htfCloses = new long[0];
             if (runner.Htf != null)
             {
-                int hm = runner.Htf.TfMinutes;
-                htfBars = CandleOps.Bars(CandleOps.Resample(inRange, hm));
-                htfCloses = new long[htfBars.Length];
-                for (int i = 0; i < htfBars.Length; i++) htfCloses[i] = htfBars[i].Time + hm * CandleOps.MinuteMs;
+                htfBars = data.HtfBars(runner.Htf.TfMinutes);
+                htfCloses = data.HtfCloses(runner.Htf.TfMinutes);
             }
             int htfPos = 0;
 

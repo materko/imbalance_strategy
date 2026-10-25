@@ -245,6 +245,33 @@ Dve veci, ktoré musia byť dodržané a ľahko sa na ne zabudne:
 - **Runner sa musí postaviť nanovo.** `EngineRunner` je inkrementálny a drží stav; je
   preto cachovaný podľa odtlačku configu, aby epocha nepočítala so starými parametrami.
 
+## Natívny hyperopt pre stratégie s C# jadrom
+
+Stratégie s jadrom v C# (`ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`, `vwapadxnet`, `noanet`,
+`tksnet` a ich `*eod`) sa dajú ladiť aj bez Freqtradu — na emulátore MultiCharts, teda s fill modelom,
+ktorý platí pre NinjaTrader a MT5:
+
+```bash
+PY -m tester.native_hyperopt --strategy tksnet --instrument mnq_databento \
+    --param loLevel=10:40:5 --param hiLevel=60:90:5 --param nConf=1:6:1 --param rrRatio=0.5:2:0.25 \
+    --timerange 20240904-20250904 --epochs 400 --sampler tpe --fee 0.0001 --out tks.json
+```
+
+- **Zadanie je to isté:** `--param` ako pri sweepe, `--goal`/`--max-dd`/`--min-trades` ako
+  `TradebotPlanLoss` (loss sa počíta zo súhrnu behu — `summary_money`, tie isté čísla ako v histórii),
+  väzby medzi parametrami opraví `hyperopt_cls.constrain` stratégie.
+- **Počíta C#:** Optuna navrhne dávku epoch (`--jobs`, predvolene všetky jadrá), `NativeBacktest.RunBatchJson`
+  ich spočíta paralelne nad 1m dátami načítanými raz (`csharp/TradeBot.Backtest`). TKSNet na roku MNQ 3m:
+  240 epoch za ~5 s. Opakované body mriežky sa nepočítajú znova.
+- **Samplery:** `tpe` (bayesovský, predvolený), `cmaes` (evolučná stratégia, len čísla), `nsga2`
+  (genetický), `random`, `qmc` (rovnomerné pokrytie — prvý prieskum).
+- **Overenie je súčasť behu:** víťaz sa prepočíta na piatich referenčných oknách a dostane ten istý
+  verdikt ako `tester.hyperopt` (PREZIL / NEJASNE / PRETRENOVANE).
+- **Zhoda:** obchody C# = Python emulátor (`tester/tests/test_csharp_backtest.py`), dávka na vláknach =
+  behy po jednom = súhrn webapp (`tester/tests/test_native_hyperopt.py`).
+
+Zatiaľ len CLI: výsledok nejde do histórie webapp ani na hub (víťaza treba spustiť ako obyčajný beh).
+
 ## Prečo hyperopt nie je odpoveď na všetko
 
 Sweep je hlúpejší, ale čitateľný: „RR 3 → 5 zlepší break-even vo všetkých oknách" je
