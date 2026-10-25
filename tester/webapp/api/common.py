@@ -127,10 +127,12 @@ def hyperopt_settings(req: Any, base: dict[str, Any]) -> dict[str, Any]:
     from ... import engines
     from ...native_hyperopt import SAMPLERS
 
-    sampler = getattr(req, "sampler", None) or "tpe"
-    if sampler not in SAMPLERS:
+    sampler = getattr(req, "sampler", None) or None
+    if sampler is not None and sampler not in SAMPLERS:
         raise HTTPException(422, f"neznámy sampler {sampler!r}; známe: {', '.join(SAMPLERS)}")
     native = base.get("engine") == engines.MULTICHARTS
+    if native and sampler is None:
+        sampler = "tpe"
     if native and getattr(get_spec(req.strategy).engine_factory, "csharp_key", None) is None:
         raise HTTPException(422, (
             f"hyperopt na emulátore MultiCharts vie len stratégia s C# jadrom (napr. {req.strategy}net); "
@@ -157,22 +159,16 @@ def hyperopt_settings(req: Any, base: dict[str, Any]) -> dict[str, Any]:
         raise HTTPException(422, f"neznámy výber víťaza {select!r}; známe: {', '.join(SELECTS)}")
     if mode not in ("search", "walkforward"):
         raise HTTPException(422, f"neznámy režim {mode!r}; známe: search, walkforward")
-    navyse = [n for n, v in (("okná kritéria", len(windows) > 1), ("viac cieľov", bool(objectives)),
-                             ("výber podľa okolia", select != "best"), ("walk-forward", mode != "search"),
-                             ("pokračovanie", bool(continue_from))) if v]
-    if navyse and not native:
-        raise HTTPException(422, (f"{', '.join(navyse)} vie len natívny hyperopt — engine Emulátor MultiCharts "
-                                  "a stratégia s C# jadrom"))
-    if objectives and sampler == "cmaes":
+    if native and objectives and sampler == "cmaes":
         raise HTTPException(422, "CMA-ES vie len jeden cieľ; pre viac cieľov zvoľ NSGA-II alebo TPE")
+    if not native and "break_even" in objectives:
+        raise HTTPException(422, "break-even ako ďalší cieľ Freqtrade epocha nenesie — daj ho ako „Vybrať podľa\"")
     if mode == "walkforward" and objectives:
         raise HTTPException(422, "walk-forward s viacerými cieľmi nie je — zvoľ jedno")
-    out = {
+    return {
         "knobs": dict(req.space), "goal": req.goal, "max_dd": req.max_dd,
         "min_trades": req.min_trades, "epochs": req.epochs, "seed": req.seed,
-        "verify": req.verify, "native": native, "sampler": sampler if native else None,
+        "verify": req.verify, "native": native, "sampler": sampler,
+        "windows": windows or None, "aggregate": aggregate, "objectives": objectives or None, "select": select,
+        "mode": mode, "anchored": anchored if mode == "walkforward" else False, "continue_from": continue_from,
     }
-    if native:
-        out.update(windows=windows or None, aggregate=aggregate, objectives=objectives or None, select=select,
-                   mode=mode, anchored=anchored if mode == "walkforward" else False, continue_from=continue_from)
-    return out

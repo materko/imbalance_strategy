@@ -36,9 +36,9 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Sequence
 
-from tradebot.adapters.freqtrade.hyperplan import Plan, knowledge
+from tradebot.adapters.freqtrade.hyperplan import Plan, knowledge, span
 from tradebot.core.paths import REPO
 from tradebot.strategies import get_spec
 
@@ -316,6 +316,38 @@ def epochs_from_dicts(rows: Iterable[dict[str, Any]]) -> list[Epoch]:
             pareto=bool(row.get("pareto")), fold=row.get("fold"),
         ))
     return out
+
+
+#: Ciele, ktoré sa dajú vyčítať z metrík epochy Freqtradu (`.fthypt`): hodnota, menej je lepšie.
+_PARETO_METRICS = {
+    "drawdown": lambda e: e.max_drawdown_pct,
+    "trades": lambda e: -e.trades,
+    "winrate": lambda e: None if e.winrate is None else -e.winrate,
+    "profit": lambda e: None if e.pnl_pct is None else -e.pnl_pct,
+}
+
+
+def pareto_front(epochs: Iterable[Epoch], objectives: Sequence[str]) -> list[Epoch]:
+    """Epochy s hodnotami cieľov a značkou Pareto — dodatočne z metrík, keď optimalizátor vie len jeden cieľ.
+
+    Prvý cieľ je vždy loss plánu (kritérium aj s mantinelmi), ďalšie z metrík epochy. Na hranici je
+    použiteľná epocha, ktorú žiadna iná neprebije vo všetkých cieľoch naraz. Freqtrade hľadá podľa
+    jedného čísla — hranica je teda výber z toho, čo našiel, nie smer, ktorým hľadal.
+    """
+    from dataclasses import replace
+
+    ciele = [o for o in objectives if o in _PARETO_METRICS]
+    out = []
+    for e in epochs:
+        hodnoty = [e.loss] + [_PARETO_METRICS[o](e) for o in ciele]
+        out.append(replace(e, values=[float(v) if v is not None else float("inf") for v in hodnoty]))
+    kandidati = [e for e in out if e.usable]
+
+    def prebije(a: Epoch, b: Epoch) -> bool:
+        return all(x <= y for x, y in zip(a.values, b.values)) and any(x < y for x, y in zip(a.values, b.values))
+
+    hranica = {e.number for e in kandidati if not any(prebije(f, e) for f in kandidati if f is not e)}
+    return [replace(e, pareto=e.number in hranica) for e in out]
 
 
 def best(epochs: Iterable[Epoch]) -> Epoch | None:

@@ -92,6 +92,16 @@ class TradebotStrategyBase(CallbacksMixin, LiveMixin, TimeframesMixin, AIMixin, 
 
     startup_candle_count = 300
 
+    class HyperOpt:
+        """Sampler Optuna z plánu testera — Freqtrade sa ho pýta cez `generate_estimator` (HyperOptAuto).
+
+        Bez samplera v pláne (alebo bez plánu) ostáva predvolený Freqtradu (NSGA-III), ako doteraz.
+        """
+
+        @staticmethod
+        def generate_estimator(dimensions: Any = None, **kwargs: Any) -> Any:
+            return hyperplan.estimator(hyperplan.plan_from_env(), kwargs.get("random_state"))
+
     def __init_subclass__(cls, **kwargs) -> None:
         """Doplní na triedu hyperopt parametre z plánu (`TRADEBOT_HYPEROPT_PLAN`).
 

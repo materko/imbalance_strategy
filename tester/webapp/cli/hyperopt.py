@@ -91,33 +91,32 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
                "verify": not args.no_verify}
     if args.jobs:
         zadanie["jobs"] = int(args.jobs)
-    # Na emulatore MultiCharts epochy pocita C# jadro strategie (tester.native_hyperopt), nie Freqtrade
-    if natively:
-        from ...hyperopt import REFERENCE_WINDOWS
-        from ...native_hyperopt import OBJECTIVES
+    # Rozšírenia vedia oba enginy; na emulatore MultiCharts epochy pocita C# (tester.native_hyperopt)
+    from ...hyperopt import REFERENCE_WINDOWS
+    from ...native_hyperopt import OBJECTIVES
 
-        okna = ([] if not args.windows else list(REFERENCE_WINDOWS) if args.windows.strip() == "ref"
-                else [w.strip() for w in args.windows.split(",") if w.strip()])
-        ciele = [o.strip() for o in (args.objectives or "").split(",") if o.strip() and o.strip() != args.goal]
-        for o in ciele:
-            if o not in OBJECTIVES:
-                raise SystemExit(f"neznamy ciel {o!r}; zname: {', '.join(OBJECTIVES)}")
-        zadanie.update(native=True, sampler=args.sampler, windows=okna or None, aggregate=args.aggregate,
-                       objectives=ciele or None, select=args.select,
-                       mode="walkforward" if args.walk_forward else "search", anchored=bool(args.anchored),
-                       continue_from=args.continue_from)
-        if args.continue_from:
-            # pokračovanie na hube: agent pôvodný záznam nemá, epochy idú so zadaním
-            if args.remote:
-                zadanie["warm"] = RunStore().extra(args.continue_from, "epochs.json") or []
-        print(f"  natívne v C# (emulator MultiCharts), sampler {args.sampler}"
-              + (f", {len(okna)} okien ({args.aggregate})" if len(okna) > 1 else "")
-              + (f", ciele {', '.join(ciele)}" if ciele else "") + (", vyber podla okolia" if args.select == "plateau" else "")
-              + (", walk-forward" + (" anchored" if args.anchored else "") if args.walk_forward else "")
-              + (f", pokracovanie {args.continue_from}" if args.continue_from else ""))
-    elif any([args.windows, args.objectives, args.select != "best", args.walk_forward, args.continue_from]):
-        raise SystemExit("--windows/--objectives/--select/--walk-forward/--continue vie len natívny hyperopt: "
-                         "--engine multicharts a strategia s C# jadrom")
+    okna = ([] if not args.windows else list(REFERENCE_WINDOWS) if args.windows.strip() == "ref"
+            else [w.strip() for w in args.windows.split(",") if w.strip()])
+    ciele = [o.strip() for o in (args.objectives or "").split(",") if o.strip() and o.strip() != args.goal]
+    for o in ciele:
+        if o not in OBJECTIVES:
+            raise SystemExit(f"neznamy ciel {o!r}; zname: {', '.join(OBJECTIVES)}")
+    zadanie.update(native=natively, sampler=args.sampler or ("tpe" if natively else None),
+                   windows=okna or None, aggregate=args.aggregate,
+                   objectives=ciele or None, select=args.select,
+                   mode="walkforward" if args.walk_forward else "search", anchored=bool(args.anchored),
+                   continue_from=args.continue_from)
+    if args.continue_from:
+        # pokračovanie na hube: agent pôvodný záznam nemá, epochy idú so zadaním
+        if args.remote:
+            zadanie["warm"] = RunStore().extra(args.continue_from, "epochs.json") or []
+    print(f"  {'natívne v C# (emulator MultiCharts)' if natively else 'Freqtrade'}, sampler "
+          f"{zadanie['sampler'] or 'predvoleny Freqtradu (NSGA-III)'}"
+          + (f", {len(okna)} okien ({args.aggregate})" if len(okna) > 1 else "")
+          + (f", ciele {', '.join(ciele)}" if ciele else "") + (", vyber podla okolia" if args.select == "plateau" else "")
+          + (", walk-forward" + (" anchored" if args.anchored else "") if args.walk_forward else "")
+          + (f", pokracovanie {args.continue_from}" if args.continue_from else ""))
+
     popis = ", ".join(f"{k}={v}" for k, v in space.items())
     note = f"hyperopt {popis}" + (f" — {args.note}" if args.note else "")
     user = args.user or getenv("USER") or ""

@@ -77,7 +77,7 @@ pracovný proces C# (`tester.native`) — súhrn, obchody aj séria sú tie ist�
 | `POST /api/hyperopts` | zaradí hyperopt; odpoveď `{"id", "epochs", "goal_note", "native", "warn", "knobs"}` |
 | `GET /api/hyperopts?strategy=` | hyperopty z histórie |
 | `GET /api/hyperopts/{id}` | detail: stav, priebeh, epochy, víťaz, overenie, verdikt |
-| `POST /api/hyperopts/{id}/continue` | natívny: ďalšie epochy (`{"epochs": 200}`) — nový záznam so starými aj novými |
+| `POST /api/hyperopts/{id}/continue` | ďalšie epochy (`{"epochs": 200}`) — nový záznam so starými aj novými (Freqtrade: zlúčenie) |
 | `POST /api/hyperopts/{id}/plateau` | zaradí susedov víťaza (±1 a ±2 kroky) — plató, alebo špička? |
 | `POST /api/hub/hyperopts` | to isté zadanie na hub (+ `cores`, `queue`, `max_wait_minutes`, …) |
 
@@ -89,17 +89,25 @@ Telo `POST /api/hyperopts` = telo behu a k nemu:
 | `goal` | `break_even` | `break_even` · `profit` · `winrate` · `drawdown` |
 | `max_dd`, `min_trades` | — | mantinely: strop drawdownu v %, minimum obchodov **za rok** |
 | `epochs`, `seed`, `verify` | 200, —, true | koľko epoch; seed sampleru; víťaz na piatich oknách |
-| `sampler` | `tpe` | natívne: `tpe` · `cmaes` · `nsga2` · `qmc` · `random` |
-| `windows` | — | natívne: okná kritéria `["20221001-20231001", …]` — epocha = beh na každom |
-| `aggregate` | `min` | natívne: `min` (najhoršie okno) · `median` · `mean` |
-| `objectives` | — | natívne: ďalšie ciele `["drawdown", "trades"]` → Pareto (nie s `cmaes`) |
-| `select` | `best` | natívne: `plateau` = víťaz s najlepším okolím, nie ostrá špička |
-| `mode` | `search` | natívne: `walkforward` = ladí na okne N, meria na N+1 (okná z `windows`, inak päť) |
-| `anchored` | false | natívne walk-forward: ladiť na všetkých oknách do N |
-| `continue_from` | — | natívne: id hyperoptu, ktorého epochy sa vložia (to isté robí `/continue`) |
+| `sampler` | — | `tpe` · `cmaes` · `nsga2` · `nsga3` · `qmc` · `random`; bez neho natívne TPE, Freqtrade NSGA-III |
+| `windows` | — | okná kritéria `["20221001-20231001", …]` — skóre sa počíta na každom okne zvlášť |
+| `aggregate` | `min` | `min` (najhoršie okno) · `median` · `mean` |
+| `objectives` | — | ďalšie ciele `["drawdown", "trades"]` → Pareto hranica |
+| `select` | `best` | `plateau` = víťaz s najlepším okolím, nie ostrá špička |
+| `mode` | `search` | `walkforward` = ladí na okne N, meria na N+1 (okná z `windows`, inak päť) |
+| `anchored` | false | walk-forward: ladiť na všetkých oknách do N |
+| `continue_from` | — | id hyperoptu, ktorého epochy pokračovanie prevezme (to isté robí `/continue`) |
 
-„Natívne" = `engine: "multicharts"` a stratégia s C# jadrom (`ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`,
-`vwapadxnet`, `noanet`, `tksnet` a `…eod`). Natívne voľby s Freqtrade enginom vrátia 422.
+Rozšírenia (`windows` až `continue_from`) vedia **oba enginy**, líši sa cena a v dvoch prípadoch aj význam:
+
+| | natívne (`engine: "multicharts"`, stratégia s C# jadrom) | Freqtrade |
+|---|---|---|
+| okná | epocha = samostatný beh na každom okne | **jeden beh cez rozpätie okien**, loss obchody rozdelí podľa otvorenia a každé okno hodnotí zvlášť (epocha trvá ako celé rozpätie; stav stratégie prechádza cez hranice okien) |
+| viac cieľov | Optuna hľadá naraz vo všetkých (NSGA-II/TPE; nie CMA-ES) | hľadá sa podľa kritéria, **Pareto sa vyráta z metrík epoch** (drawdown, obchody, winrate, zisk — break-even ako ďalší cieľ nie) |
+| okolie, walk-forward | C# dávky, sekundy | Freqtrade backtesty a hyperopty — minúty až hodiny (odhad v karte Hub) |
+| pokračovanie | staré epochy sa **vložia do hľadania** | nový beh s iným seedom a **zlúčenie epoch** — optimalizátor sa zo starých neučí |
+
+Natívne = `ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`, `vwapadxnet`, `noanet`, `tksnet` a `…eod`.
 
 Detail `GET /api/hyperopts/{id}`:
 

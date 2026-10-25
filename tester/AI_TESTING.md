@@ -269,8 +269,9 @@ sa s históriou, sweepom ani verdiktom nedajú porovnať.
 | **parita** | epocha je ten istý backtest ako obyčajný beh: Freqtrade, alebo emulátor MultiCharts v C#, ktorého obchody sú bit po bite ako Python emulátor (`tester/tests/test_csharp_backtest.py`) |
 | **overenie** | víťaz sa sám pustí na piatich referenčných oknách a dostane verdikt `VITAZ PREZIL` / `NEJASNE` / `PRETRENOVANE`; okolie víťaza (§8a) jedným príkazom |
 | **algoritmy** | natívne (C#) Optuna: `--sampler tpe` (bayesovský), `cmaes` (evolučná stratégia), `nsga2` (genetický), `qmc` (pokrytie priestoru), `random`; Freqtrade má svoj. „Skúsim evolučný algoritmus" = `--sampler cmaes` alebo `nsga2`, nie nový kód |
-| **proti pretrénovaniu** | natívne: `--windows ref --aggregate min` (epocha = beh na každom okne, skóre = najhoršie okno), `--select plateau` (víťaz s najlepším okolím, nie ostrá špička), `--walk-forward` (ladí na N, meria na N+1), `--objectives drawdown,trades` (Pareto namiesto jedného čísla s pokutami) |
-| **pokračovanie** | natívne: `--continue <hyperopt_id>` / `POST /api/hyperopts/<id>/continue` — staré epochy sa vložia do štúdie, nehľadá sa odznova |
+| **proti pretrénovaniu** | oba enginy (natívne v sekundách, cez Freqtrade pomalšie — epocha beží cez celé rozpätie okien): `--windows ref --aggregate min` (epocha = beh na každom okne, skóre = najhoršie okno), `--select plateau` (víťaz s najlepším okolím, nie ostrá špička), `--walk-forward` (ladí na N, meria na N+1), `--objectives drawdown,trades` (Pareto namiesto jedného čísla s pokutami) |
+| **pokračovanie** | `--continue <hyperopt_id>` / `POST /api/hyperopts/<id>/continue` — natívne sa staré epochy vložia do štúdie; Freqtrade ich len zlúči s novým behom (iný seed), optimalizátor sa z nich neučí |
+| **sampler** | `--sampler tpe|cmaes|nsga2|nsga3|qmc|random` pre oba enginy; bez neho natívne TPE, Freqtrade NSGA-III (ako doteraz) |
 | **rýchlosť** | natívne: epochy počítajú pracovné procesy C# na všetkých jadrách, opakované body mriežky sa nepočítajú znova. IBSNet, rok BTC 3m: 48 epoch **5,9 s** natívne vs 136 s cez Freqtrade; Python emulátor po jednom behu 7,6 s na epochu |
 | **história, hub, priebeh** | záznam v histórii (epochy, víťaz, overovacie behy), `--remote` na hub, `--seeds N` (ten istý hyperopt s N seedmi naraz a porovnanie víťazov), priebeh `hotovo/spolu`, tempo a odhad zvyšku v logu aj na hube |
 
@@ -283,7 +284,7 @@ sa s históriou, sweepom ani verdiktom nedajú porovnať.
 | chceš parametre, ktoré držia vo viacerých rokoch | `… --engine multicharts --windows ref --aggregate min --select plateau` |
 | chceš vedieť, ako by dopadlo pravidelné preladenie | `… --engine multicharts --walk-forward` (verdikt `WALK-FORWARD DRZI/NEJASNE/NEDRZI`) |
 | zisk vs drawdown vs počet obchodov naraz | `… --engine multicharts --objectives drawdown,trades --sampler nsga2` |
-| krypto fill model / stratégia bez C# jadra | `cli hyperopt …` (Freqtrade) |
+| krypto fill model / stratégia bez C# jadra | `cli hyperopt …` (Freqtrade) — tie isté `--windows`, `--select`, `--walk-forward`, `--objectives`, `--continue`, `--sampler`; počítaj s časom (walk-forward = hyperopt na každý fold, odhad ukáže karta Hub) |
 | veľa behov hneď, bez zápisu do histórie (overenie hypotézy) | `POST /api/native/backtests` (body × okná, súhrn ako v histórii) alebo `PY -m tester.native_hyperopt … --out x.json` |
 | hľadanie dobehlo, chceš viac epoch | `cli hyperopt --engine multicharts --continue <id> --epochs 400` |
 | drží optimum? | `cli plateau <hyperopt_id>` (§8a), `--seeds 4 --remote`, `cli matrix` (§8e) |

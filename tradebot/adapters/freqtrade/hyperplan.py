@@ -54,7 +54,7 @@ import math
 from dataclasses import dataclass, field, fields
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 from tradebot.core.env import getenv
 from tradebot.core.types import SizeSpec
@@ -64,6 +64,7 @@ from tradebot.strategies.hyperopt import StrategyHyperopt
 __all__ = [
     "SPACE", "ATTR_PREFIX", "PLAN_ENV", "Knob", "Plan",
     "plan_from_env", "parameters", "install", "apply", "knob_kind", "tunable", "knowledge",
+    "FREQTRADE_SAMPLERS", "estimator", "aggregate_losses", "span",
 ]
 
 #: Meno hyperopt priestoru. Vlastné, aby `--spaces plan` neladil nič iné.
@@ -168,6 +169,12 @@ class Plan:
     min_trades: int | None = None
     note: str = ""
     meta: dict[str, Any] = field(default_factory=dict)
+    #: sampler Optuna (`tpe`, `cmaes`, `nsga2`, `nsga3`, `qmc`, `random`); None = predvolený Freqtradu (NSGA-III)
+    sampler: str | None = None
+    #: okná kritéria (`YYYYMMDD-YYYYMMDD`): loss rozdelí obchody behu cez ich rozpätie po oknách a zloží skóre
+    windows: tuple[str, ...] = ()
+    #: ako zložiť skóre z okien: `min` = najhoršie okno, `median`, `mean`
+    aggregate: str = "min"
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Plan:
@@ -185,6 +192,9 @@ class Plan:
             min_trades=int(data["min_trades"]) if data.get("min_trades") else None,
             note=data.get("note") or "",
             meta=data.get("meta") or {},
+            sampler=data.get("sampler") or None,
+            windows=tuple(data.get("windows") or ()),
+            aggregate=data.get("aggregate") or "min",
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -198,7 +208,8 @@ class Plan:
                 knobs[k.name]["unit"] = k.unit
         return {"strategy": self.strategy, "goal": self.goal, "max_dd": self.max_dd,
                 "min_trades": self.min_trades, "note": self.note, "knobs": knobs,
-                "meta": self.meta}
+                "meta": self.meta, "sampler": self.sampler, "windows": list(self.windows),
+                "aggregate": self.aggregate}
 
     @classmethod
     def load(cls, path: str | Path) -> Plan:
@@ -274,6 +285,42 @@ def _knob(name: str, spec: StrategySpec, opts: dict[str, Any]) -> Knob:
     if kind == "size" and not unit:
         raise ValueError(f"{name}: veľkostné pole potrebuje jednotku (abs, ticks, atr, pct)")
     return Knob(name, low=low, high=high, step=_number(opts.get("step")), unit=unit)
+
+
+#: Sampler plánu -> meno, ktoré Freqtrade pozná (`hyperopt_optimizer.optuna_samplers_dict`). `random` nemá
+#: meno, dostane inštanciu. None = predvolený Freqtradu (NSGA-III).
+FREQTRADE_SAMPLERS = {"tpe": "TPESampler", "cmaes": "CmaEsSampler", "nsga2": "NSGAIISampler",
+                      "nsga3": "NSGAIIISampler", "qmc": "QMCSampler", "random": None}
+
+
+def estimator(plan: "Plan | None", random_state: int | None = None) -> Any:
+    """Čo vráti `HyperOpt.generate_estimator` stratégie: meno samplera, inštancia, alebo predvolený."""
+    meno = (plan.sampler if plan is not None else None) or "nsga3"
+    if meno not in FREQTRADE_SAMPLERS:
+        raise ValueError(f"neznámy sampler {meno!r}; známe: {', '.join(FREQTRADE_SAMPLERS)}")
+    if meno == "random":
+        import optuna
+
+        return optuna.samplers.RandomSampler(seed=random_state)
+    return FREQTRADE_SAMPLERS[meno]
+
+
+def aggregate_losses(values: "list[float]", how: str) -> float:
+    """Loss z viacerých okien do jedného. `min` = najhoršie okno (najväčší loss)."""
+    import statistics
+
+    if how == "min":
+        return max(values)
+    if how == "median":
+        return float(statistics.median(values))
+    if how == "mean":
+        return float(statistics.fmean(values))
+    raise ValueError(f"neznáme skladanie okien {how!r} (min, median, mean)")
+
+
+def span(windows: "Sequence[str]") -> str:
+    """Rozpätie okien `YYYYMMDD-YYYYMMDD` — jeden beh Freqtradu, ktorý všetky pokryje."""
+    return min(w.split("-")[0] for w in windows) + "-" + max(w.split("-")[1] for w in windows)
 
 
 _CACHE: dict[str, Plan] = {}

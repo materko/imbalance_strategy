@@ -35,8 +35,9 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance
   oknách — [docs/HYPEROPT.md](docs/HYPEROPT.md). C# stratégia s `--engine multicharts`
   počíta epochy natívne v C# (`--sampler tpe|cmaes|nsga2|qmc|random`, ~20× rýchlejšie).
   **Parametre hľadaj týmto, nepíš vlastný optimalizátor** (cyklus cez `cli run`, GA, scipy, vlastný
-  walk-forward) — natívne je aj kritérium cez okná (`--windows ref`), výber podľa okolia (`--select plateau`),
-  walk-forward (`--walk-forward`), Pareto (`--objectives`) a pokračovanie (`--continue <id>`);
+  walk-forward) — kritérium cez okná (`--windows ref`), výber podľa okolia (`--select plateau`),
+  walk-forward (`--walk-forward`), Pareto (`--objectives`), pokračovanie (`--continue <id>`) a `--sampler`
+  vedia oba enginy (natívne v sekundách, cez Freqtrade pomalšie);
   prečo a kedy čo: [tester/AI_TESTING.md §8](tester/AI_TESTING.md), HTTP API: [docs/API.md](docs/API.md).
 - Drží myšlienka aj mimo trhu, na ktorom sa ladila? `cli matrix --pairs all --timeframes 3m`
   (prahy sa prepočítajú na `atr`, inak by tabuľka klamala).

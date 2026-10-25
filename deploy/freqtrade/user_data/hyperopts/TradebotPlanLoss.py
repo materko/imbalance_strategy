@@ -33,6 +33,11 @@ konfigurácia mimo mantinelov nikdy neprebije tú, čo ich drží:
 ``max_dd``
     Strop na max drawdown v percentách.
 
+Okná kritéria (``windows`` v pláne): Freqtrade beží cez ich rozpätie a loss obchody rozdelí podľa
+otvorenia do okien, každé okno vyhodnotí zvlášť (kritérium, dno na obchody prepočítané na okno,
+drawdown z kapitálu okna) a skóre zloží podľa ``aggregate`` — ``min`` = najhoršie okno. Optimum,
+ktoré drží len v jednom roku, tak prehrá už pri hľadaní.
+
 Použitie (dopĺňa `tester.hyperopt`, ručne netreba)::
 
     TRADEBOT_HYPEROPT_PLAN=... freqtrade hyperopt --hyperopt-loss TradebotPlanLoss \\
@@ -47,7 +52,7 @@ from pandas import DataFrame
 
 from freqtrade.optimize.hyperopt_loss.hyperopt_loss_interface import IHyperOptLoss
 
-from tradebot.adapters.freqtrade.hyperplan import plan_from_env
+from tradebot.adapters.freqtrade.hyperplan import aggregate_losses, plan_from_env
 
 #: Keď plán počet obchodov nezadá, platí toto — pod ním výsledok nie je čím podložiť.
 #: Referencia: manuálny prieskum v TradingView dal 174 obchodov za rok.
@@ -85,33 +90,47 @@ class TradebotPlanLoss(IHyperOptLoss):
         **kwargs,
     ) -> float:
         plan = plan_from_env()
-        goal = (plan.goal if plan else None) or "break_even"
-        days = max((max_date - min_date).days, 1)
+        if plan and plan.windows and "open_date" in results:
+            import pandas as pd
 
-        za_rok = plan.min_trades if plan and plan.min_trades else DEFAULT_MIN_TRADES_PER_YEAR
-        treba = max(3, int(za_rok * days / 365))
-        if trade_count < treba:
-            return UNUSABLE + (treba - trade_count)
+            straty = []
+            for okno in plan.windows:
+                a, b = (pd.Timestamp(x, tz="UTC") for x in okno.split("-"))
+                datum = pd.to_datetime(results["open_date"], utc=True)
+                cast = results[(datum >= a) & (datum < b)]
+                straty.append(_window_loss(cast, len(cast), max((b - a).days, 1), plan, starting_balance))
+            return aggregate_losses(straty, plan.aggregate or "min")
+        return _window_loss(results, trade_count, max((max_date - min_date).days, 1), plan, starting_balance)
 
-        if goal == "winrate":
-            skore = float((results["profit_abs"] > 0).mean() * 100.0)
-        elif goal == "profit":
-            skore = float(results["profit_abs"].sum() / starting_balance * 100.0)
-        elif goal == "drawdown":
-            # Menej je lepšie, takže znamienko je opačné než u ostatných kritérií.
-            skore = -float(_max_drawdown(results, starting_balance) * 100.0)
-        else:
-            be = _break_even_pct(results)
-            if be is None:
-                return UNUSABLE
-            skore = be
 
-        # Mantinel na drawdown až nakoniec: kritérium sa ním nemení, len sa pripočíta
-        # penalizácia, ktorá rastie s prekročením - epocha mimo limitu tak neprebije
-        # tú, čo limit drží, ale optimalizátor stále vidí, ktorým smerom je lepšie.
-        loss = -skore
-        if plan and plan.max_dd:
-            dd = _max_drawdown(results, starting_balance) * 100.0
-            if dd > plan.max_dd:
-                loss += UNUSABLE + (dd - plan.max_dd)
-        return loss
+def _window_loss(results: DataFrame, trade_count: int, days: int, plan, starting_balance: float) -> float:
+    """Kritérium a mantinely plánu na jednom okne (alebo celom behu)."""
+    goal = (plan.goal if plan else None) or "break_even"
+
+    za_rok = plan.min_trades if plan and plan.min_trades else DEFAULT_MIN_TRADES_PER_YEAR
+    treba = max(3, int(za_rok * days / 365))
+    if trade_count < treba:
+        return UNUSABLE + (treba - trade_count)
+
+    if goal == "winrate":
+        skore = float((results["profit_abs"] > 0).mean() * 100.0)
+    elif goal == "profit":
+        skore = float(results["profit_abs"].sum() / starting_balance * 100.0)
+    elif goal == "drawdown":
+        # Menej je lepšie, takže znamienko je opačné než u ostatných kritérií.
+        skore = -float(_max_drawdown(results, starting_balance) * 100.0)
+    else:
+        be = _break_even_pct(results)
+        if be is None:
+            return UNUSABLE
+        skore = be
+
+    # Mantinel na drawdown až nakoniec: kritérium sa ním nemení, len sa pripočíta
+    # penalizácia, ktorá rastie s prekročením - epocha mimo limitu tak neprebije
+    # tú, čo limit drží, ale optimalizátor stále vidí, ktorým smerom je lepšie.
+    loss = -skore
+    if plan and plan.max_dd:
+        dd = _max_drawdown(results, starting_balance) * 100.0
+        if dd > plan.max_dd:
+            loss += UNUSABLE + (dd - plan.max_dd)
+    return loss

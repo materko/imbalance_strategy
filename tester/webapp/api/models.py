@@ -139,8 +139,9 @@ class HyperoptRequest(RunRequest):
     epochs: int = Field(200, ge=1, le=5000, description="koľko konfigurácií vyskúšať")
     seed: int | None = Field(None, description="random-state optimalizátora, na zopakovateľný beh")
     verify: bool = Field(True, description="pustiť víťaza na referenčných oknách")
-    sampler: str = Field("tpe", description="natívny hyperopt (emulátor MultiCharts): tpe, cmaes, nsga2, random, qmc")
-    # ---- len natívny hyperopt (emulátor MultiCharts, stratégia s C# jadrom) ---- #
+    sampler: str | None = Field(None, description="sampler Optuna: tpe, cmaes, nsga2, nsga3, qmc, random; "
+                                                  "bez neho natívne TPE, Freqtrade svoj predvolený (NSGA-III)")
+    # ---- rozšírenia hyperoptu (natívny aj Freqtrade; Freqtrade pomalšie — epocha cez všetky okná) ---- #
     windows: list[str] | None = Field(None, description="okná kritéria (YYYYMMDD-YYYYMMDD); bez nich len timerange")
     aggregate: str = Field("min", description="skóre z viacerých okien: min = najhoršie okno, median, mean")
     objectives: list[str] | None = Field(None, description="ďalšie ciele ku goal (Pareto): break_even, profit, "

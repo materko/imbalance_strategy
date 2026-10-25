@@ -185,8 +185,6 @@ def build(ctx: AppContext) -> APIRouter:
         zadanie = ((rec or {}).get("settings") or {}).get("hyperopt") or {}
         if not zadanie.get("knobs"):
             raise HTTPException(404, "taký hyperopt v histórii nie je")
-        if not zadanie.get("native"):
-            raise HTTPException(422, "pokračovať sa dá len v natívnom hyperopte (emulátor MultiCharts)")
         if zadanie.get("mode") == "walkforward":
             raise HTTPException(422, "walk-forward sa nepredlžuje — pusti nový s viac epochami na fold")
         if not store.extra(run_id, "epochs.json"):

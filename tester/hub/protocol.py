@@ -179,21 +179,34 @@ def estimate_seconds(settings: dict[str, Any], history: Iterable[dict[str, Any]]
         return STARTUP_SECONDS + okno
     z = settings.get("hyperopt") or {}
     epochs = int(z.get("epochs") or 200)
+    okna = list(z.get("windows") or [])
+    walk = z.get("mode") == "walkforward"
+    foldov = max(1, (len(okna) if len(okna) > 1 else len(REFERENCE_WINDOWS)) - 1) if walk else 1
+    navyse = 0.0
     if _is_native(settings):
         # natívne: epocha = beh na každom okne kritéria; walk-forward = epochy na každý fold
-        okien = len(z.get("windows") or []) or 1
-        if z.get("mode") == "walkforward":
-            epochs *= max(1, (okien if okien > 1 else len(REFERENCE_WINDOWS)) - 1)
-        else:
-            epochs *= okien
+        epochs *= foldov if walk else max(1, len(okna))
+    else:
+        # Freqtrade: epocha = jeden beh cez rozpätie okien; walk-forward = hyperopt na každý fold (okno ~ rok)
+        if walk:
+            epochs *= foldov
+            days = 365.0
+        elif len(okna) > 1:
+            days = window_days(min(w.split("-")[0] for w in okna) + "-" + max(w.split("-")[1] for w in okna))
+        rok = STARTUP_SECONDS + 365.0 * per_day
+        # výber podľa okolia: 5 kandidátov a ich susedia (±1 krok na parameter) ako backtesty na oknách kritéria
+        if z.get("select") == "plateau":
+            navyse += 5 * (1 + 2 * len(z.get("knobs") or {})) * max(1, len(okna)) * foldov * rok / max(1, cores)
+        if walk:
+            navyse += foldov * rok      # backtest víťaza na testovacom okne
     per_epoch = seconds_per_epoch(history, settings)
     if per_epoch is None:
         # epocha beží v tom istom procese (bez štartu), rozdelená medzi jadrá
         za_den = NATIVE_SECONDS_PER_DAY if _is_native(settings) else per_day
         per_epoch = max(days, 1.0) * za_den / max(1, int(z.get("jobs") or cores or 1))
     overenie = (REFERENCE_VERIFY_RUNS * (STARTUP_SECONDS + 365.0 * per_day)
-                if z.get("verify", True) else 0.0)
-    return STARTUP_SECONDS + epochs * per_epoch + overenie
+                if z.get("verify", True) and not walk else 0.0)
+    return STARTUP_SECONDS + epochs * per_epoch + overenie + navyse
 
 
 #: `| 12/200 |` v tabuľke epoch Freqtradu — číslo za lomkou musí sedieť s počtom epoch,

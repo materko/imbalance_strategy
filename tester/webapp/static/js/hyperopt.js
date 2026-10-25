@@ -17,7 +17,7 @@ async function startHyperopt() {
       min_trades: $("#sweep-mintrades").value === "" ? null : Number($("#sweep-mintrades").value),
       epochs: Number($("#hyper-epochs").value) || 200,
       verify: $("#hyper-verify").checked,
-      sampler: $("#hyper-sampler").value || "tpe",
+      sampler: $("#hyper-sampler").value || null,
       ...nativeBody(),
     };
     if (hubChecked()) {
@@ -57,11 +57,11 @@ function nativeBody() {
   };
 }
 
-/** Ukáže natívne voľby, keď ich stratégia vie (C# jadro), a naplní referenčné okná. */
+/** Ukáže rozšírené voľby (vedia ich oba enginy) a naplní referenčné okná. */
 function setupNativeOptions(meta) {
   const box = $("#hyper-native");
   if (!box) return;
-  box.hidden = !(meta && meta.native) || searchMode !== "hyper";
+  box.hidden = !meta || searchMode !== "hyper";
   const host = $("#hyper-windows");
   if (host && !host.dataset.ready && meta && meta.windows) {
     host.innerHTML = meta.windows.map(w => `<label class="inline small"><input type="checkbox" value="${esc(w)}"> `
@@ -179,12 +179,16 @@ function renderHyper(r) {
   casti_html.push(`<p class="an-note">${esc(st.pair || "")} ${esc(st.timeframe || "")} · ${esc(st.timerange || "")}`
     + ` · peňaženka ${esc(String(st.wallet ?? ""))} · profil ${esc(st.profile || "Pine defaulty")}`
     + (r.hyperopt.native ? ` · natívne v C# (emulátor MultiCharts), sampler ${esc(r.hyperopt.sampler || "tpe")}`
-      + (r.hyperopt.distinct ? `, ${r.hyperopt.distinct} rôznych backtestov` : "") : "")
+      + (r.hyperopt.distinct ? `, ${r.hyperopt.distinct} rôznych backtestov` : "")
+      : ` · Freqtrade, sampler ${esc(r.hyperopt.sampler || "predvolený (NSGA-III)")}`)
+    + (r.hyperopt.windows && !r.hyperopt.walk_forward ? ` · kritérium cez ${r.hyperopt.windows.length} ${slovom(r.hyperopt.windows.length, "okno", "okná", "okien")} (${esc(r.hyperopt.aggregate || "min")})` : "")
+    + (r.hyperopt.merged ? ` · zlúčené s ${r.hyperopt.merged} epochami predošlého hľadania (Freqtrade z nich neučí)` : "")
     + `</p>`);
   if (r.zero_trades) casti_html.push(`<div class="warnbox">${esc(r.zero_trades)}</div>`);
 
   if ((r.epochs || []).length) {
-    const okna = (r.hyperopt.windows && !r.hyperopt.walk_forward) ? r.hyperopt.windows : [];
+    // stĺpce po oknách len keď ich epochy nesú (natívne); Freqtrade epocha má len súhrn celého rozpätia
+    const okna = (r.hyperopt.windows && !r.hyperopt.walk_forward && (r.epochs[0] || {}).windows) ? r.hyperopt.windows : [];
     const pareto = !!(r.hyperopt.pareto || []).length;
     const head = [...r.params, "obch.", "PnL %", "WR %", "DD %", "skóre",
       ...okna.map(w => `BE ${w.slice(0, 4)}/${w.slice(11, 13)}`), ...(pareto ? ["Pareto"] : [])];
@@ -237,9 +241,9 @@ function renderHyper(r) {
     casti_html.push(`<div class="verdict ${trieda}">${esc(r.verdict)}</div>`);
   }
   if (!r.hyperopt.walk_forward) casti_html.push(plateauHtml(r));
-  if (r.hyperopt.native && r.status === "done" && !r.hyperopt.walk_forward) {
+  if (r.status === "done" && !r.hyperopt.walk_forward) {
     casti_html.push(`<p class="an-note"><button id="hyper-continue" class="ghost small" type="button"
-        title="Tie isté zadanie, štúdia začne s epochami tohto hľadania. Výsledok je nový záznam so všetkými epochami.">
+        title="Tie isté zadanie, ďalšie epochy; nový záznam nesie staré aj nové. Natívne sa staré epochy vložia do hľadania, Freqtrade ich len zlúči (nové hľadanie s iným seedom sa z nich neučí).">
         Pokračovať</button> o <input id="hyper-continue-n" type="number" min="1" max="5000" step="50" value="200"
         style="width:5.5em"> epoch</p>`);
   }

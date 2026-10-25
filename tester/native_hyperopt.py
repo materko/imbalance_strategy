@@ -31,7 +31,7 @@ funkciami ako história (`summary_money`).
 * **pokračovanie** (`warm=` / webapp „Pokračovať"): epochy predošlého hyperoptu sa vložia do štúdie a hľadá sa ďalej.
 
 ### Samplery (Optuna)
-`tpe` (bayesovský, predvolený), `cmaes` (evolučná stratégia — len čísla, jeden cieľ), `nsga2` (genetický),
+`tpe` (bayesovský, predvolený), `cmaes` (evolučná stratégia — len čísla, jeden cieľ), `nsga2`/`nsga3` (genetický),
 `random`, `qmc` (rovnomerné pokrytie priestoru). Dávka = `--jobs` epoch naraz: sampler ich navrhne, C#
 spočíta paralelne, výsledky dostane späť.
 
@@ -64,9 +64,10 @@ from .native import NativeRunner, summary_of, window_days, window_ms
 
 __all__ = ["SAMPLERS", "AGGREGATES", "OBJECTIVES", "SELECTS", "NativeRunner", "Search", "WalkForward",
            "loss_of", "objective_of", "config_json", "run_search", "walk_forward", "verify", "summary_of",
+           "walk_forward_verdict", "plateau_candidates", "plateau_choice", "aggregate",
            "space_text", "fmt_seconds", "main"]
 
-SAMPLERS = ("tpe", "cmaes", "nsga2", "random", "qmc")
+SAMPLERS = ("tpe", "cmaes", "nsga2", "nsga3", "random", "qmc")
 #: Ako sa skóre z viacerých okien zloží do jedného: najhoršie okno (predvolené), medián, priemer.
 AGGREGATES = ("min", "median", "mean")
 #: Ciele pre `objectives` — kritériá plánu a k nim počet obchodov.
@@ -234,6 +235,8 @@ def _sampler(name: str, seed: int | None, n_startup: int, multi: bool):
         return optuna.samplers.CmaEsSampler(seed=seed, n_startup_trials=n_startup, warn_independent_sampling=False)
     if name == "nsga2":
         return optuna.samplers.NSGAIISampler(seed=seed)
+    if name == "nsga3":
+        return optuna.samplers.NSGAIIISampler(seed=seed)
     if name == "random":
         return optuna.samplers.RandomSampler(seed=seed)
     if name == "qmc":
@@ -434,27 +437,7 @@ def _plateau_select(found: list[Epoch], plan: Plan, base: dict[str, Any], cfg_cl
     Robustné skóre = priemer lossu epochy a všetkých jej susedov — sused mimo mantinelov ho potiahne
     nahor, takže osamelá špička prehrá so stredom širokého plató.
     """
-    from . import plateau as pl
-
-    space = space_text(plan)
-    kandidati: list[Epoch] = []
-    videne: set[str] = set()
-    for e in sorted((e for e in found if e.usable), key=lambda e: e.loss):
-        kluc = json.dumps(e.params, sort_keys=True, default=str)
-        if kluc not in videne:
-            videne.add(kluc)
-            kandidati.append(e)
-        if len(kandidati) >= PLATEAU_TOP:
-            break
-    okolia: list[tuple[Epoch, list[dict[str, Any]]]] = []
-    for e in kandidati:
-        stred = {k.name: e.params.get(k.attr) for k in plan.knobs}
-        body = []
-        for n in pl.neighbours(space, stred, steps=(-1, 1)):
-            p = dict(e.params)
-            p["hp_" + n.param] = n.value
-            body.append({"param": n.param, "value": n.value, "step": n.step, "params": p})
-        okolia.append((e, body))
+    okolia = plateau_candidates(found, plan)
     for _e, body in okolia:
         for b in body:
             try:
@@ -462,19 +445,11 @@ def _plateau_select(found: list[Epoch], plan: Plan, base: dict[str, Any], cfg_cl
             except (ValueError, TypeError):
                 b["config"] = None
     ev.run([b["config"] for _e, body in okolia for b in body if b["config"] is not None], okna)
-    vysledky = []
-    for e, body in okolia:
-        straty = [_epoch(0, b["params"], ev.summaries(b["config"], okna), plan, how, ciele).loss for b in body]
-        robust = statistics.fmean([e.loss, *straty])
-        vysledky.append({"epoch": e.number, "loss": e.loss, "robust": robust, "neighbours": len(body),
-                         "worst": max(straty, default=e.loss),
-                         "points": [{"param": b["param"], "value": b["value"], "step": b["step"], "loss": s}
-                                    for b, s in zip(body, straty)]})
-    vybrana = min(vysledky, key=lambda v: v["robust"])
-    log(f"  vyber podla okolia: epocha {vybrana['epoch']} (robustne skore {-vybrana['robust']:.4f}, "
-        f"najlepsia epocha {kandidati[0].number} ma {-next(v['robust'] for v in vysledky if v['epoch'] == kandidati[0].number):.4f})")
-    vitaz = next(e for e in found if e.number == vybrana["epoch"])
-    return vitaz, {"candidates": vysledky, "chosen": vybrana["epoch"], "best_epoch": kandidati[0].number}
+    scored = [(e, e.loss, [(b, _epoch(0, b["params"], ev.summaries(b["config"], okna), plan, how, ciele).loss)
+                           for b in body]) for e, body in okolia]
+    info = plateau_choice(scored)
+    log(f"  vyber podla okolia: epocha {info['chosen']} (najlepsia epocha {info['best_epoch']})")
+    return next(e for e in found if e.number == info["chosen"]), info
 
 
 # --------------------------------------------------------------------------- #
@@ -539,20 +514,63 @@ def walk_forward(runner: NativeRunner, plan: Plan, profile: str | None, windows:
         folds.append(fold)
         log(f"  fold {i + 1}: ladene skore {-s.best.loss:.4f}, test break-even {((summ or {}).get('break_even_pct'))} "
             f"(nad poplatkom {edge if edge is None else round(edge, 4)})")
+    text = walk_forward_verdict(folds)
+    posledny = next((f.get("params") for f in reversed(folds) if f.get("params")), None)
+    return WalkForward(folds=folds, epochs=vsetky, seconds=time.perf_counter() - t0, verdict=text, last=posledny)
+
+
+def walk_forward_verdict(folds: Sequence[dict[str, Any]]) -> str:
+    """Jedna veta o walk-forward: v koľkých testovacích oknách (ktoré optimalizátor nevidel) je edge nad poplatkom."""
     kladne = sum(1 for f in folds if (f.get("edge") or 0) > 0 and ((f.get("result") or {}).get("trades") or 0) > 0)
     n = len(folds)
     if n == 0:
-        text = "Walk-forward nedobehol."
-    elif kladne == n:
-        text = (f"WALK-FORWARD DRZI: break-even nad poplatkom vo vsetkych {n} testovacich oknach, ktore "
+        return "Walk-forward nedobehol."
+    if kladne == n:
+        return (f"WALK-FORWARD DRZI: break-even nad poplatkom vo vsetkych {n} testovacich oknach, ktore "
                 "optimalizator nevidel.")
-    elif kladne == 0:
-        text = (f"WALK-FORWARD NEDRZI: ani v jednom z {n} testovacich okien nie je break-even nad poplatkom - "
+    if kladne == 0:
+        return (f"WALK-FORWARD NEDRZI: ani v jednom z {n} testovacich okien nie je break-even nad poplatkom - "
                 "preladovanie hlada sum, nie strategiu.")
-    else:
-        text = f"WALK-FORWARD NEJASNE: break-even nad poplatkom v {kladne} z {n} testovacich okien."
-    posledny = next((f.get("params") for f in reversed(folds) if f.get("params")), None)
-    return WalkForward(folds=folds, epochs=vsetky, seconds=time.perf_counter() - t0, verdict=text, last=posledny)
+    return f"WALK-FORWARD NEJASNE: break-even nad poplatkom v {kladne} z {n} testovacich okien."
+
+
+def plateau_candidates(found: Sequence[Epoch], plan: Plan, top: int = PLATEAU_TOP) -> list[tuple[Epoch, list[dict[str, Any]]]]:
+    """Najlepšie rôzne epochy a ich okolie (±1 krok na každom parametri) — pre oba enginy rovnako."""
+    from . import plateau as pl
+
+    space = space_text(plan)
+    kandidati: list[Epoch] = []
+    videne: set[str] = set()
+    for e in sorted((e for e in found if e.usable), key=lambda e: e.loss):
+        kluc = json.dumps(e.params, sort_keys=True, default=str)
+        if kluc not in videne:
+            videne.add(kluc)
+            kandidati.append(e)
+        if len(kandidati) >= top:
+            break
+    out = []
+    for e in kandidati:
+        stred = {k.name: e.params.get(k.attr) for k in plan.knobs}
+        body = []
+        for n in pl.neighbours(space, stred, steps=(-1, 1)):
+            p = dict(e.params)
+            p["hp_" + n.param] = n.value
+            body.append({"param": n.param, "value": n.value, "step": n.step, "params": p})
+        out.append((e, body))
+    return out
+
+
+def plateau_choice(scored: Sequence[tuple[Epoch, float, list[tuple[dict[str, Any], float]]]]) -> dict[str, Any]:
+    """`[(epocha, loss stredu, [(sused, loss)])]` -> kandidáti s robustným skóre a vybraná epocha."""
+    vysledky = []
+    for e, stred, susedia in scored:
+        straty = [s for _b, s in susedia]
+        vysledky.append({"epoch": e.number, "loss": stred, "robust": statistics.fmean([stred, *straty]),
+                         "neighbours": len(susedia), "worst": max(straty, default=stred),
+                         "points": [{"param": b["param"], "value": b["value"], "step": b["step"], "loss": s}
+                                    for b, s in susedia]})
+    vybrana = min(vysledky, key=lambda v: v["robust"])
+    return {"candidates": vysledky, "chosen": vybrana["epoch"], "best_epoch": scored[0][0].number}
 
 
 # --------------------------------------------------------------------------- #

@@ -268,7 +268,7 @@ PY -m tester.native_hyperopt --strategy tksnet --instrument mnq_databento \
 - **Meranie (25. 10. 2026, Core Ultra 9 275HX, 24 jadier):** IBSNet, BTCUSDT.P 3m, rok 2025/26, `rrRatio` +
   `slLookback`, 48 epoch: Freqtrade hyperopt (most do C#, 1m detail) **136 s** (2,8 s/epocha), natívne
   **5,9 s** vrátane štartu procesov (~23×); 480 epoch natívne 31 s. Python emulátor na jednom jadre 7,6 s/epocha.
-- **Proti pretrénovaniu (len natívne):**
+- **Proti pretrénovaniu** (vedia to oba enginy, pre Freqtrade viď „Rozšírenia aj cez Freqtrade" nižšie):
   - `--windows ref --aggregate min` — kritérium cez viac okien: epocha = beh na každom okne, skóre = najhoršie
     okno (alebo `median`, `mean`); tabuľka ukáže break-even po oknách,
   - `--select plateau` — víťaz s najlepším okolím: z piatich najlepších epoch tá, ktorej susedia (±1 krok
@@ -295,6 +295,24 @@ v histórii ako pri Freqtrade (epochy, víťaz, overovacie behy emulátora na pi
 s príznakom `settings.hyperopt.native`. Z CLI cez webapp/hub: `cli hyperopt --engine multicharts --sampler
 nsga2 …` (aj `--remote`). Agent hubu potrebuje to isté ako C# stratégie cez most — pythonnet (na macOS/Linuxe
 s Mono); stdio hostiteľ `TradeBot.Host.exe` natívny backtest nepozná.
+
+## Rozšírenia aj cez Freqtrade
+
+Tie isté voľby (`--sampler`, `--windows` + `--aggregate`, `--objectives`, `--select plateau`, `--walk-forward`,
+`--continue`, vo webapp blok **Rozšírené voľby**) vie aj hyperopt cez Freqtrade — ako **nadstavba**, Freqtrade sa
+nemení:
+
+| | ako | cena / obmedzenie |
+|---|---|---|
+| sampler | `TradebotStrategyBase.HyperOpt.generate_estimator` vráti sampler z plánu (`hyperplan.estimator`) | bez zadania ostáva NSGA-III, predvolený Freqtradu |
+| okná | jeden beh cez rozpätie okien (`hyperplan.span`), `TradebotPlanLoss` obchody rozdelí podľa otvorenia a hodnotí každé okno zvlášť (kritérium, dno na obchody, drawdown okna), skladá podľa `aggregate` | epocha trvá ako celé rozpätie (5 rokov s 1m detailom ~2–3 min); stav stratégie prechádza cez hranice okien, medzery sa počítajú tiež; tabuľka nemá stĺpce po oknách (epocha `.fthypt` nesie len súhrn), po oknách ukáže overenie |
+| Pareto | z metrík uložených epoch (`hyperopt.pareto_front`: drawdown, obchody, winrate, zisk) | hľadá sa podľa kritéria; hranica je výber z nájdeného, nie smer hľadania |
+| okolie | 5 najlepších epoch a ich susedia (±1 krok) ako Freqtrade backtesty na oknách kritéria, paralelne vnútri hyperoptu (`_ft_points`) | desiatky backtestov — minúty |
+| walk-forward | hyperopt na okne N (s `--anchored` na všetkých do N, s kritériom cez ne), víťaz ako backtest na N+1 | hyperopt na každý fold — hodiny |
+| pokračovanie | nový beh s iným seedom, epochy predošlého sa zlúčia pred nové | optimalizátor sa zo starých epoch neučí (Freqtrade ich do štúdie vložiť nevie) |
+
+Zhodu stráži `tester/tests/test_freqtrade_hyperopt_ext.py` (aj skutočný beh Freqtradu: test foldu walk-forward
+= obyčajný beh s tými istými parametrami).
 
 ## Prečo hyperopt nie je odpoveď na všetko
 

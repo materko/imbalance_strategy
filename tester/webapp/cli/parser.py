@@ -262,21 +262,21 @@ def build_parser(description: str) -> argparse.ArgumentParser:
                    help="s --remote: ten istý hyperopt s toľkými seedmi naraz (od --seed alebo 1) "
                         "a porovnanie víťazov — zhoda seedov je silnejší dôkaz než viac epoch")
     p.add_argument("--jobs", type=int, help="koľko epoch paralelne (default všetky jadrá)")
-    p.add_argument("--sampler", choices=("tpe", "cmaes", "nsga2", "random", "qmc"), default="tpe",
-                   help="s --engine multicharts (C# stratégie, epochy počíta C#): TPE, CMA-ES, NSGA-II, "
-                        "náhodný, QMC; Freqtrade si sampler volí sám")
-    p.add_argument("--windows", help="natívne: okná kritéria oddelené čiarkou alebo `ref` (päť referenčných); "
+    p.add_argument("--sampler", choices=("tpe", "cmaes", "nsga2", "nsga3", "random", "qmc"),
+                   help="sampler Optuna: TPE, CMA-ES, NSGA-II/III, náhodný, QMC; bez neho natívne TPE, "
+                        "Freqtrade svoj predvolený (NSGA-III)")
+    p.add_argument("--windows", help="okná kritéria oddelené čiarkou alebo `ref` (päť referenčných); "
                                       "epocha = beh na každom, skóre podľa --aggregate")
     p.add_argument("--aggregate", choices=("min", "median", "mean"), default="min",
-                   help="natívne: skóre z viacerých okien — min = najhoršie okno (default), median, mean")
-    p.add_argument("--objectives", help="natívne: ďalšie ciele ku --goal, napr. drawdown,trades (Pareto; nsga2/tpe)")
+                   help="skóre z viacerých okien — min = najhoršie okno (default), median, mean")
+    p.add_argument("--objectives", help="ďalšie ciele ku --goal, napr. drawdown,trades (Pareto; natívne nsga2/tpe, Freqtrade z metrík epoch)")
     p.add_argument("--select", choices=("best", "plateau"), default="best",
-                   help="natívne: víťaz = najlepšia epocha, alebo najlepšie okolie (plateau)")
+                   help="víťaz = najlepšia epocha, alebo najlepšie okolie (plateau)")
     p.add_argument("--walk-forward", action="store_true",
-                   help="natívne: ladí na okne N, meria na N+1 (okná z --windows, inak päť referenčných)")
-    p.add_argument("--anchored", action="store_true", help="natívne walk-forward: ladiť na všetkých oknách do N")
+                   help="ladí na okne N, meria na N+1 (okná z --windows, inak päť referenčných)")
+    p.add_argument("--anchored", action="store_true", help="walk-forward: ladiť na všetkých oknách do N")
     p.add_argument("--continue", dest="continue_from", metavar="HYPEROPT_ID",
-                   help="natívne: pokračovať v hyperopte z histórie (jeho epochy sa vložia, --epochs pridá ďalšie)")
+                   help="pokračovať v hyperopte z histórie (natívne sa epochy vložia do hľadania, Freqtrade ich zlúči)")
     p.add_argument("--no-verify", action="store_true",
                    help="nespúšťať víťaza na ďalších referenčných oknách (do záverov to nepatrí)")
     _run_args(p)

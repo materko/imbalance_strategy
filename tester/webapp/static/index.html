@@ -219,17 +219,19 @@
               <input type="number" id="hyper-epochs" step="10" min="1" max="5000" value="200"
                      title="Koľko konfigurácií vyskúšať. Každá je celý backtest ladeného okna.">
             </label>
-            <label class="field hyper-only" hidden>Sampler (emulátor MC)
-              <select id="hyper-sampler" title="Len pre engine Emulátor MultiCharts: epochy tam počíta C# jadro stratégie (stratégie …net) na všetkých jadrách. Freqtrade hyperopt si sampler volí sám.">
+            <label class="field hyper-only" hidden>Sampler
+              <select id="hyper-sampler" title="Algoritmus hľadania (Optuna). Predvolený: natívne (Emulátor MultiCharts) TPE, Freqtrade NSGA-III — tak, ako to bolo doteraz.">
+                <option value="">predvolený</option>
                 <option value="tpe">TPE (bayesovský)</option>
                 <option value="cmaes">CMA-ES (evolučný)</option>
                 <option value="nsga2">NSGA-II (genetický)</option>
+                <option value="nsga3">NSGA-III (genetický)</option>
                 <option value="qmc">QMC (pokrytie priestoru)</option>
                 <option value="random">náhodný</option>
               </select>
             </label>
             <fieldset class="span2 hyper-only hyper-native" id="hyper-native" hidden>
-              <legend title="Epochy počíta C# jadro stratégie na emulátore MultiCharts — zlomok sekundy na epochu, preto sa oplatí viac, než len jedno okno.">Natívne (engine Emulátor MultiCharts, stratégie …net)</legend>
+              <legend title="Engine Emulátor MultiCharts a stratégia s C# jadrom: epochy počíta C# — zlomok sekundy na epochu. Cez Freqtrade je to isté, len pomalšie: epocha s viacerými oknami beží cez ich celé rozpätie, okolie a walk-forward sú ďalšie backtesty a hyperopty.">Rozšírené voľby (natívne rýchlo, cez Freqtrade pomalšie)</legend>
               <div class="hyper-native-grid">
                 <label class="field">Režim
                   <select id="hyper-mode" title="Hľadanie = jedno hľadanie a overenie víťaza na piatich oknách. Walk-forward = ladí na okne N, meria na N+1, posúva sa — každé testovacie okno optimalizátor nevidel.">
