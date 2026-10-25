@@ -240,7 +240,13 @@ class MojaEngine:
   Engine sám **nikdy neobchoduje** — len povie, čo chce.
 - **`TradePlan`** je plán obchodu: smer, vstup, SL, TP, veľkosť, `sl_distance`. Veľkosť
   počítaj z rizika (`inst.qty_for_risk(riziko, sl_distance)`), nie z pevného počtu kusov —
-  inak sa výsledok nedá prepočítať na iný účet. **Trailing** patrí do `TradePlan.trailing`
+  inak sa výsledok nedá prepočítať na iný účet. Pole rizika pomenuj **`riskDollar`** (`risk_field`
+  v `SPEC`): podľa toho mena ho nájde obal veľkosti pozície. **Pevný počet kontraktov a strop straty
+  dopĺňaj vždy, keď má stratégia stop** — do enginu ich nepíš, dá ich obal `entry_sizing.py`
+  (`fixedQty` + `qty`, `skipOverRisk`); stačí, aby `TradePlan` niesol skutočný stop a `sl_distance`.
+  Ak ich má Pine ako vlastné vstupy, deklaruj ich v configu s jeho defaultom — obal je potom no-op.
+  Stratégia bez stopu (`sl_distance` 0) strop straty nemá ako uplatniť a v posudku to treba povedať.
+  **Trailing** patrí do `TradePlan.trailing`
   (`TrailingPlan`, prípadne potomok s vlastným `stop_price`); oba adaptéry ho berú odtiaľ,
   vo Freqtrade ho netreba písať znova.
 - **Predhistória** (`tradebot/core/warmup.py`) má dve časti, ktoré sa nemiešajú:
@@ -414,7 +420,9 @@ csharp_dir=CSHARP_DIR / "TradeBot.Strategies" / "Meno",
 
 Zvyšok rámca (Freqtrade, emulátor MultiCharts, webapp, analytika, hyperopt) sa nemení — engine je pre
 neho stále `on_bar() -> EngineOutput`. Testy parity parametrov čítajú pri takej stratégii C# zdrojáky
-(`cfg.pole`) a `test_csharp_core.py` stráži, že C# config má každé pole s rovnakým defaultom.
+(`cfg.pole`) a `test_csharp_core.py` stráži, že C# config má každé pole s rovnakým defaultom —
+aj `fixedQty`, `qty` a `skipOverRisk` (číta ich `EntrySizingEngine` v `EntryLayers.cs`, stratégia nie).
+Do C# parity pridaj variant so `skipOverRisk` a rizikom, pri ktorom strop časť vstupov vynechá.
 Vzory sú `ibsnet` a `orbnet`; celé pravidlá, most a NinjaTrader adaptér: [NINJATRADER.md](NINJATRADER.md).
 
 ## Informatívny timeframe
@@ -463,6 +471,7 @@ Zaradenie je v `tester/webapp/static/js/settings.js`, tabuľka `STRATEGIA_TRH_TY
 | 1b | každé pole formulára kód naozaj číta, inertné a zrušené sú deklarované | `pytest tradebot/tests/test_param_parity.py` |
 | 2 | config sedí s Pine (ak Pine je) | `pytest tester/tests/test_pine_parity.py` |
 | 3 | logika enginu | vlastný test na syntetických baroch |
+| 3b | veľkosť pozície: počet z `riskDollar`, pevný počet a strop straty (`fixedQty`, `qty`, `skipOverRisk`) platia | `pytest tradebot/tests/test_entry_sizing.py`; beh so `skipOverRisk` nemá obchod so stratou na stope nad riziko |
 | 4 | celý balík nič nerozbil | `pytest -q` (vrátane golden testov IBS) |
 | 5 | beží vo Freqtrade | `cli run --strategy moja --engine freqtrade …` |
 | 6 | beží v MultiCharts | `cli run --strategy moja --engine multicharts …` a rozdiel má vysvetlenie |
