@@ -307,6 +307,10 @@ function hubUpdateCell(a) {
     + (p && !p.ok ? ` <span class="chip bad" title="${esc(tip)}">pull zlyhal</span>` : "") + " ";
 }
 
+function anoNie(v) {
+  return `<span class="chip ${v ? "ok" : "bad"}">${v ? "áno" : "nie"}</span>`;
+}
+
 function hubKind(a) {
   if (a.role === "live") return '<span class="chip warn" title="obchodný stroj (NinjaTrader/MT5) — výpočty nikdy neberie">live</span>';
   if (a.kind === "webapp") return '<span class="chip" title="Tester v prehliadači — počíta, keď prijíma">webapp</span>';
@@ -404,7 +408,7 @@ async function renderHub() {
       <td><b>${esc(a.name)}</b> ${hubKind(a)}</td>
       <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}${a.updating ? ' <span class="chip warn" title="agent ťahá kód (git pull) — dovtedy nič nové nedostane">ťahá kód</span>' : ""}</td>
       <td>${esc(a.version || "–")} ${hubCodeChip(a.version, hub.code)}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
-      <td>${a.accept ? "áno" : "nie"}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${a.accept_request ? "áno" : "nie"}` : ""}</td>
+      <td>${anoNie(a.accept)}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${anoNie(a.accept_request)}` : ""}</td>
       <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td>
       <td>${hubUpdateCell(a)}${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");
     for (const b of $$("[data-hub-update]")) b.onclick = async () => {
