@@ -20,6 +20,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, ClassVar, Iterable
 
+from .entry_sizing import SIZING_CONSTRAINTS, SIZING_FIELD_NAMES, SizingFields
 from .types import INSTRUMENTS, InstrumentSpec, SizeSpec, SizeUnit
 
 __all__ = [
@@ -47,8 +48,12 @@ class ConfigError(ValueError):
     """Config je nekonzistentný alebo mimo rozsahu, ktorý Pine povoľuje."""
 
 
-class StrategyConfig:
-    """Báza pre config stratégie. Podtrieda je `@dataclass` a nastaví tabuľky nižšie."""
+class StrategyConfig(SizingFields):
+    """Báza pre config stratégie. Podtrieda je `@dataclass` a nastaví tabuľky nižšie.
+
+    Polia veľkosti pozície (`SizingFields`: `fixedQty`, `qty`, `skipOverRisk`) má každá stratégia
+    odtiaľto; ktoré z nich si nedeklaruje sama, tie sú rozšírením portu (`__init_subclass__`).
+    """
 
     #: `SizeSpec` polia a ich pôvodná Pine jednotka (holé číslo v JSON = Pine správanie).
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = {}
@@ -62,6 +67,22 @@ class StrategyConfig:
     #: Starý profil alebo beh ich smie niesť: `from_dict` ich s varovaním preskočí, namiesto
     #: toho, aby celý profil odmietol ako neznámy kľúč. Nové pole tohto mena už nesmie vzniknúť.
     RETIRED_FIELDS: ClassVar[dict[str, str]] = {}
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        """Polia veľkosti pozície zdedené zo `SizingFields` dopíše do tabuliek triedy.
+
+        Stratégia, ktorá pole deklaruje sama (Pine vstup `fixedQty`), ho má so svojím defaultom
+        a rozsahom; zdedené je rozšírenie portu s rozsahom z `SIZING_CONSTRAINTS`.
+        """
+        super().__init_subclass__(**kwargs)
+        own = {n for k in cls.__mro__ if k not in (SizingFields, StrategyConfig, object)
+               for n in k.__dict__.get("__annotations__", {})}
+        inherited = SIZING_FIELD_NAMES - own
+        if inherited - cls.PORT_ONLY_FIELDS:
+            cls.PORT_ONLY_FIELDS = cls.PORT_ONLY_FIELDS | inherited
+        missing = {n: r for n, r in SIZING_CONSTRAINTS.items() if n in inherited and n not in cls.CONSTRAINTS}
+        if missing:
+            cls.CONSTRAINTS = {**cls.CONSTRAINTS, **missing}
 
     # ------------------------------------------------------------------ #
     # Dotypovanie a validácia

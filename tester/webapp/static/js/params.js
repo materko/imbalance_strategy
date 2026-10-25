@@ -104,7 +104,7 @@ function displayGroup(meta) {
   const name = meta.name;
   const session = /^sess([123])/.exec(name);
   if (session) return `0${Number(session[1]) + 3} · Seansa ${session[1]}`;
-  if (["maxLossDollar", "legacyPineSizing", "leverage", "maxDailyWins", "tickDollarValue"].includes(name)) return "03 · Veľkosť pozície";
+  if (["maxLossDollar", "fixedQty", "qty", "skipOverRisk", "legacyPineSizing", "leverage", "maxDailyWins", "tickDollarValue"].includes(name)) return "03 · Veľkosť pozície";
   if (/^(rrRatio|sl|trail|enableTrailing|minSlDistance)/.test(name)) return "02 · Zisk a ochrana";
   if (BASIC_PARAMS.has(name) || (meta.depends_on || []).some(n => BASIC_PARAMS.has(n))) return "01 · Vstupy a smer";
   return "07 · Ďalšie nastavenia";
@@ -375,7 +375,7 @@ function applyParamFilter() {
 
 const BASIC_PARAMS = new Set(["tradeDirection", "rrRatio", "enableImbEntry", "enablePinBarEntry",
   "enableEngulfingEntry", "enableTrailing", "trailActivationR", "trailOffsetR", "maxLossDollar",
-  "legacyPineSizing", "leverage", "minSlDistance", "slLookback", "slBufferTicks", "maxDailyWins",
+  "fixedQty", "qty", "skipOverRisk", "legacyPineSizing", "leverage", "minSlDistance", "slLookback", "slBufferTicks", "maxDailyWins",
   "useStructureFilter", "indSupertrend", "indAdx", "zoneDetectionTF", "enableTrading", "closeAtSessionEnd", "weekdaysOnly"]);
 
 function setParamMode(mode) {

@@ -33,6 +33,7 @@ from ...strategies import StrategySpec, spec_for_config
 from ...core.entry_confirm import wrap_entry_confirm
 from ...core.entry_filter import wrap_entry_filter
 from ...core.entry_order import wrap_entry_order
+from ...core.entry_sizing import wrap_entry_sizing
 
 __all__ = ["LiveOrder", "MCRunner", "BarOutput"]
 
@@ -96,7 +97,7 @@ class MCRunner:
         assert self.spec.engine_factory is not None, f"{self.spec.key}: chýba engine_factory"
         # market vstupy stratégie ako limitky, keď to config chce (`entryOrderType`); inak ten istý engine
         engine = wrap_entry_filter(self.spec.engine_factory(cfg, inst, chart_tf_minutes), cfg, chart_tf_minutes)
-        self.engine = wrap_entry_order(wrap_entry_confirm(engine, cfg), cfg)
+        self.engine = wrap_entry_sizing(wrap_entry_order(wrap_entry_confirm(engine, cfg), cfg), cfg)
 
         #: feeder informatívneho TF (Data2; IBS: okno detekčného TF zón) alebo None —
         #: jedna implementácia pre Freqtrade aj MultiCharts, tu drží len minimum histórie.

@@ -65,6 +65,7 @@ namespace TradeBot.Strategies.NyVaNet
         public bool fixedQty = false;
         public double qty = 1.0;
         public double riskDollar = 500.0;
+        public bool skipOverRisk = false;   // strop straty - cita ho EntrySizingEngine v EntryLayers.cs
         // ---- vizualizacia / port ---------------------------------------------
         public bool showLevels = true;
         public double leverage = 1.0;

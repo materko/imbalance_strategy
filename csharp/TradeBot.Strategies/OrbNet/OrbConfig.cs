@@ -117,6 +117,10 @@ namespace TradeBot.Strategies.OrbNet
 
         // ---- riziko -----------------------------------------------------------
         public double riskDollar = 100.0;
+        // obal velkosti pozicie a strop straty (EntrySizingEngine v EntryLayers.cs) - cita ich z configu sam
+        public bool fixedQty = false;
+        public double qty = 1.0;
+        public bool skipOverRisk = false;
 
         // ---- vizualizacia -----------------------------------------------------
         public bool showRange = true;

@@ -54,6 +54,7 @@ namespace TradeBot.Strategies.TksNet
         // ---- velkost ----------------------------------------------------------
         public bool fixedQty = true;
         public double qty = 1.0;
+        public bool skipOverRisk = false;   // strop straty - cita ho EntrySizingEngine v EntryLayers.cs
         public double riskDollar = 100.0;
         // ---- rozsirenia portu -------------------------------------------------
         public double leverage = 1.0;

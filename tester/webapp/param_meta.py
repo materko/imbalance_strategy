@@ -20,6 +20,7 @@ from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Any
 
+from tradebot.core.entry_sizing import SIZING_FIELD_NAMES
 from tradebot.core.types import SizeSpec
 from tradebot.strategies import STRATEGIES, StrategySpec, get_spec
 from tradebot.strategies.ibs import SPEC as IBS_SPEC
@@ -153,7 +154,7 @@ def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any
             meta.options = [e.value for e in cls.ENUM_FIELDS[name]]
         if name in spec.param_notes:
             meta.note = spec.param_notes[name]
-        if name in cls.PORT_ONLY_FIELDS:
+        if name in cls.PORT_ONLY_FIELDS and name not in SIZING_FIELD_NAMES:   # veľkosť pozície ostáva pri riziku
             meta.group = PORT_GROUP
         if name in spec.parity_fields:
             meta.breaks_parity = True
@@ -169,7 +170,9 @@ def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any
         if feat.get("show"):
             by_name[feat["switches"][0]].show_param = feat["show"]
 
-    metas.sort(key=lambda m: (order.get(m.group, 999), 0))
+    # zdedené polia veľkosti pozície (predok configu, preto prvé) až za tým, čo má stratégia v skupine sama
+    inherited = SIZING_FIELD_NAMES & cls.PORT_ONLY_FIELDS
+    metas.sort(key=lambda m: (order.get(m.group, 999), int(m.name in inherited)))
     return [m.to_dict() for m in metas]
 
 

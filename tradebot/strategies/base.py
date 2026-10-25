@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from ..core.config import StrategyConfig
+from ..core.entry_sizing import SIZING_FEATURE, sizing_params
 from ..core.types import InstrumentSpec
 
 #: Koreň repozitára (deploy/, docs/).
@@ -107,6 +108,19 @@ class StrategySpec:
     #: parametrami (`tradebot/strategies/<key>/hyperopt.py`). Generický hyperopt si ju
     #: vyzdvihne odtiaľto, menom ju nepozná; bez nej platí základ `StrategyHyperopt`.
     hyperopt_cls: type | None = None
+
+    def __post_init__(self) -> None:
+        """Polia veľkosti pozície (`SizingFields`) majú všetky stratégie — popis a závislosť
+        `fixedQty → qty` dostane formulár odtiaľto, ak ich stratégia nepopísala sama. Skupina je
+        tá, v ktorej má stratégia riziko na obchod."""
+        meta = self.param_meta
+        risk = meta.get(self.risk_field) or {}
+        group = risk.get("group") or (self.param_groups[-1] if self.param_groups else "")
+        missing = {n: m for n, m in sizing_params(group).items() if n not in meta}
+        if missing:
+            object.__setattr__(self, "param_meta", {**meta, **missing})
+        if not any("qty" in f.get("params", ()) for f in self.features):
+            object.__setattr__(self, "features", (*self.features, dict(SIZING_FEATURE)))
 
     @property
     def explainer_path(self) -> Path:

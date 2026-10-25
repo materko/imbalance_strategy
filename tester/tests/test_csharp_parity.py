@@ -79,6 +79,15 @@ def test_synteticke_bary_vsetko_zapnute(frames):
     assert res["seeded"]["ibs"] == res["seeded"]["ibsnet"] != {}
 
 
+def test_synteticke_bary_strop_straty(frames):
+    """Obal veľkosti pozície (`entry_sizing.py` / `EntrySizingEngine`): Pine sizing dá aspoň 1 kontrakt,
+    takže pri maxLossDollar 50 $ strop väčšinu vstupov vynechá — IBS s čakajúcou limitkou to musí zniesť rovnako."""
+    over = {**AGGRESSIVE, "skipOverRisk": True, "maxLossDollar": 50.0, "legacyPineSizing": True, "tickDollarValue": 0.1}
+    res = _run(frames, over)
+    assert res["mismatches"] == [], res["mismatches"][:3]
+    assert 0 < res["counts"]["entries"] < _run(frames, AGGRESSIVE)["counts"]["entries"], res["counts"]
+
+
 def test_synteticke_bary_pine_defaulty(frames):
     res = _run(frames, {})
     assert res["mismatches"] == [], res["mismatches"][:3]

@@ -40,6 +40,10 @@ VARIANTS = {
                                         "volFilter": VolFilter.HIGH, "volLookback": 30,
                                         "entryConfirm": EntryConfirm.ANY, "confirmBars": 6,
                                         "entryOrderType": EntryOrderType.LIMIT, "limitOffsetPct": 30},
+    # obal veľkosti pozície: stop je tu pri každom obchode skoro rovnaký (~1 000 $ na kontrakt), takže
+    # strop pustí buď všetko (2 kontrakty pod 5 000 $), alebo nič — aj vtedy musí sedieť kresba
+    "obal_pevny_pocet_pod_stropom": {"qty": 2.0, "skipOverRisk": True, "riskDollar": 5000.0},
+    "obal_strop_vynecha_vsetko": {"skipOverRisk": True, "riskDollar": 500.0},
 }
 
 

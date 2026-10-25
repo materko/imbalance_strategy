@@ -84,10 +84,12 @@ je vždy „tak, ako to robí stratégia":
 | typ vstupu | `tradebot/core/entry_order.py` | `entryOrderType`, `limitOffsetPct`, `limitValidBars`, `limitKeepRR` | IBS a odnože (`pbEngOrderType`), `breakout` (`orderType`), `sdzone` (`entryMode`), `liquidity` (`entryOrder`) — majú vlastný |
 | vstupný model | `tradebot/core/entry_confirm.py` | `entryConfirm` (none / imbalance / pinbar / any), `confirmBars`, `confirmImbMinAtr`, `confirmPbWickPct`, `confirmPbBodyPct` | IBS a odnože, `jss`, `fibo`, `svp`, `liquidity` — majú vlastný `entryModel` |
 | filter trendu a volatility | `tradebot/core/entry_filter.py` | `trendFilter` (off / with / against), `trendEmaLen`, `trendTF`, `volFilter` (off / low / high), `volLookback` | IBS a odnože, `liquidity` — majú vlastný |
+| veľkosť pozície a strop straty | `tradebot/core/entry_sizing.py` | `fixedQty` + `qty` (pevný počet kontraktov namiesto rizika), `skipOverRisk` (obchod, ktorého strata na stope by bola väčšia než riziko na obchod `riskDollar` / `maxLossDollar`, sa vynechá; počet nadol na celý krok) | nikto — polia sú v predkovi `StrategyConfig`, popisy do formulára doplní `StrategySpec` |
 
-Obaly nasadzujú oba runnery (`wrap_entry_order(wrap_entry_confirm(wrap_entry_filter(engine)))`): filter trendu pustí vstup len na správnej strane EMA, market vstup stratégie sa podrží do
+Obaly nasadzujú oba runnery (`wrap_entry_sizing(wrap_entry_order(wrap_entry_confirm(wrap_entry_filter(engine))))`): filter trendu pustí vstup len na správnej strane EMA, market vstup stratégie sa podrží do
 potvrdzovacej sviečky (stop ostáva, cieľ na rovnaký RR, veľkosť na rovnaké riziko) a potom sa dá poslať aj limitkou.
 Stratégia s jadrom v C# nesie tie isté polia v configu (`OrbConfig.cs`) kvôli zhode; obal beží v Pythone.
+Veľkosť pozície je posledná, aby riziko počítala z konečnej ceny vstupu; stratégia ďalej sama počíta počet z rizika (`inst.qty_for_risk`) a obal ju len prepíše pevným počtom alebo vstup zahodí.
 Nová stratégia: pridaj všetky tri mixiny do configu a `entry_order_params` / `entry_confirm_params` /
 `entry_filter_params` do `params.py` (strážia `tradebot/tests/test_entry_confirm.py`, `test_entry_filter.py`).
 

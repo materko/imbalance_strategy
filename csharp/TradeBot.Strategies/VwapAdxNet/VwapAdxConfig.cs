@@ -44,6 +44,10 @@ namespace TradeBot.Strategies.VwapAdxNet
         public int maxTrades = 1;
         // ---- rozsirenia portu -------------------------------------------------
         public double riskDollar = 100.0;
+        // obal velkosti pozicie a strop straty (EntrySizingEngine v EntryLayers.cs) - cita ich z configu sam
+        public bool fixedQty = false;
+        public double qty = 1.0;
+        public bool skipOverRisk = false;
         /// <summary>Doslovny Pine sizing: vzdy 1 kontrakt bez ohladu na riziko.</summary>
         public bool legacyPineSizing = false;
         public double leverage = 1.0;

@@ -391,6 +391,8 @@ def sizing_of(record: dict[str, Any]) -> float | None:
         return None
     if spec.fixed_size_field and params.get(spec.fixed_size_field):
         return None
+    if params.get("fixedQty"):   # pevný počet kontraktov (`SizingFields`) má každá stratégia
+        return None
     value = params.get(spec.risk_field) if spec.risk_field else None
     return float(value) if value else None
 

@@ -1,12 +1,14 @@
-// Obaly vstupov - zrkadlo `tradebot/core/entry_filter.py`, `entry_confirm.py`, `entry_order.py` a `entry_draw.py`.
+// Obaly vstupov - zrkadlo `tradebot/core/entry_filter.py`, `entry_confirm.py`, `entry_order.py`, `entry_sizing.py`
+// a `entry_draw.py`.
 //
 // Strategia (engine) rozhodne, KEDY vstupit; obal vstup filtruje (trend EMA, volatilita), podrzi do
 // potvrdzovacej sviecky alebo zmeni na limitku. V Pythone ich nasadzuju adaptery (Freqtrade, emulator
 // MultiCharts); C# engine ich dostane priamo v `EngineRegistry.Create`, takze ich ma kazdy hostitel -
 // most do Pythonu aj NinjaTrader a MT5 nazivo. Obal nepozna strategiu menom: zapina ho config
-// (pole `trendFilter`/`volFilter`, `entryConfirm`, `entryOrderType`), presne ako `wrap_entry_*` v Pythone.
+// (pole `trendFilter`/`volFilter`, `entryConfirm`, `entryOrderType`, `fixedQty`/`skipOverRisk`), presne ako
+// `wrap_entry_*` v Pythone.
 //
-// Poradie je ako v adapteroch: typ orderu( potvrdenie( filter( engine ))).
+// Poradie je ako v adapteroch: velkost( typ orderu( potvrdenie( filter( engine )))).
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -622,8 +624,74 @@ namespace TradeBot.Core
         }
     }
 
-    /// <summary>Nasadenie obalov podla configu - zrkadlo `wrap_entry_filter`, `wrap_entry_confirm`, `wrap_entry_order`
-    /// v tom istom poradi, v akom ich nasadzuju Python adaptery.</summary>
+    /// <summary>Pevny pocet kontraktov a strop straty - zrkadlo `EntrySizingEngine` (`tradebot/core/entry_sizing.py`).
+    /// `fixedQty` = vzdy `qty`; `skipOverRisk` = pocet nadol na cely krok a obchod, ktoreho strata na stope
+    /// by bola vacsia nez riziko na obchod (`riskDollar`, pri Pine mene `maxLossDollar`), sa vynecha.</summary>
+    public sealed class EntrySizingEngine : EngineLayer
+    {
+        private readonly bool _fixedQty;
+        private readonly double _qty;
+        private readonly bool _skipOverRisk;
+        private readonly double _risk;
+        private HashSet<string> _dropped = new HashSet<string>();
+
+        public EntrySizingEngine(IEngine inner, Dictionary<string, object> cfg) : base(inner)
+        {
+            _fixedQty = Flag(cfg, "fixedQty", false);
+            _qty = Num(cfg, "qty", 1.0);
+            _skipOverRisk = Flag(cfg, "skipOverRisk", false);
+            _risk = RiskLimit(cfg);
+        }
+
+        /// <summary>Riziko na obchod v $ - prve z poli `riskDollar`, `maxLossDollar`, ktore config ma.</summary>
+        public static double RiskLimit(Dictionary<string, object> cfg)
+        {
+            if (cfg.ContainsKey("riskDollar")) return Num(cfg, "riskDollar", 0.0);
+            return Num(cfg, "maxLossDollar", 0.0);
+        }
+
+        /// <summary>Plan s konecnou velkostou, alebo null, ked by strata na stope prekrocila riziko.</summary>
+        private TradePlan Size(TradePlan plan)
+        {
+            double qty = _fixedQty ? _qty : plan.Qty;
+            InstrumentSpec inst = Inner.Inst;
+            if (_skipOverRisk && inst != null && _risk > 0 && !double.IsNaN(qty))
+            {
+                qty = inst.RoundQty(qty);   // broker berie len cele kroky (NinjaTrader by 2,7 zaokruhlil na 3)
+                if (qty * plan.SlDistance * inst.PointValue > _risk * (1.0 + 1e-9)) return null;
+            }
+            return qty == plan.Qty ? plan : EntryDraw.Replan(plan, plan.Entry, plan.TakeProfit, qty, plan.SlDistance);
+        }
+
+        public override EngineOutput OnBar(Bar bar, HtfWindow htf, MarketContext ctx)
+        {
+            EngineOutput o = Inner.OnBar(bar, htf, EntryDraw.WithIds(ctx, new List<string>(), _dropped));
+            _dropped = new HashSet<string>();
+            List<OrderIntent> orders = new List<OrderIntent>();
+            foreach (OrderIntent i in o.Orders)
+            {
+                if (i.Action == OrderAction.Entry && i.Plan != null)
+                {
+                    TradePlan plan = Size(i.Plan);
+                    if (plan == null)
+                    {
+                        // obchod nebude - kresba jeho boxov prec, vnutorne obaly sa to dozvedia na dalsom bare
+                        o.Drawings = EntryDraw.Without(o.Drawings, EntryDraw.TradeDrawings(o.Drawings, bar.Time));
+                        _dropped.Add(i.OrderId);
+                        continue;
+                    }
+                    orders.Add(plan == i.Plan ? i : EntryDraw.WithPlan(i, plan, i.OrderType));
+                    continue;
+                }
+                orders.Add(i);
+            }
+            o.Orders = orders;
+            return o;
+        }
+    }
+
+    /// <summary>Nasadenie obalov podla configu - zrkadlo `wrap_entry_filter`, `wrap_entry_confirm`, `wrap_entry_order`,
+    /// `wrap_entry_sizing` v tom istom poradi, v akom ich nasadzuju Python adaptery.</summary>
     public static class EntryLayers
     {
         public static IEngine Wrap(IEngine engine, Dictionary<string, object> cfg, int chartTfMinutes)
@@ -636,6 +704,8 @@ namespace TradeBot.Core
                 engine = new EntryConfirmEngine(engine, cfg);
             if (cfg.ContainsKey("entryOrderType") && EngineLayer.Text(cfg, "entryOrderType", "market") != "market")
                 engine = new EntryOrderEngine(engine, cfg);
+            if (EngineLayer.Flag(cfg, "fixedQty", false) || EngineLayer.Flag(cfg, "skipOverRisk", false))
+                engine = new EntrySizingEngine(engine, cfg);
             return engine;
         }
     }

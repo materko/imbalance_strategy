@@ -43,6 +43,7 @@ namespace TradeBot.Strategies.NoaNet
         // ---- velkost ----------------------------------------------------------
         public bool fixedQty = true;
         public double qty = 1.0;
+        public bool skipOverRisk = false;   // strop straty - cita ho EntrySizingEngine v EntryLayers.cs
         public double riskDollar = 100.0;
         // ---- vizualizacia -----------------------------------------------------
         public bool showLevels = true;

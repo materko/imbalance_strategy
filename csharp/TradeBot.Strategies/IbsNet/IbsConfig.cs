@@ -120,6 +120,10 @@ namespace TradeBot.Strategies.IbsNet
         public int slLookback = 10;
         public SizeSpec slBufferTicks = new SizeSpec(2.0, "ticks");
         public double maxLossDollar = 350.0;
+        // obal velkosti pozicie a strop straty (EntrySizingEngine v EntryLayers.cs) - cita ich z configu sam
+        public bool fixedQty = false;
+        public double qty = 1.0;
+        public bool skipOverRisk = false;
         public int maxDailyWins = 5;
         public TradeDirectionMode tradeDirection = TradeDirectionMode.Both;
 

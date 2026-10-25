@@ -121,7 +121,9 @@ s pravdepodobnosťou 90 %.
 **Účet:** max drawdown (% z vrcholu), ako často účet klesne pod hranice −10/−20/−30/−50 %
 počiatočného zostatku, pravdepodobnosť ruiny, najdlhšia séria strát, najdlhšie čakanie na
 nové maximum a konečný zostatok. Veľkosť pozície sa preškáluje z rizika behu
-(`maxLossDollar`) na `--risk`, takže rovnaká stratégia sa dá prepočítať na iný účet.
+(`maxLossDollar`, inde `riskDollar`) na `--risk`, takže rovnaká stratégia sa dá prepočítať na iný
+účet; beh s pevným počtom kontraktov (`fixedQty`) sa len premieša. So `skipOverRisk` sa obchod, ktorého
+strata na stope by prekročila riziko (široký SL pri najmenšej pozícii), vôbec nespraví.
 Na záver vypíše, **koľko sa smie riskovať**, aby 95 % ciest zostalo nad hranicou −20 %
 (na spomínanom behu 71 USDT na obchod pri účte 10 000 a riziku 100).
 
