@@ -10,6 +10,9 @@ csharp/TradeBot.Core/                 generické C# jadro (zrkadlo tradebot/core
                                       BarHistory, SessionClock, kresby, ordery, TradePlan, Warmup, IEngine, register
 csharp/TradeBot.Strategies/<Meno>/    stratégia v C# — trieda s [TradeBotEngine("kľúč")] nad IEngine
 csharp/TradeBot.Host/                 TradeBot.Host.exe — engine ako proces (stdio most, Mono)
+csharp/TradeBot.Backtest/             natívny backtest v C# (len v TradeBot.dll, do NinjaTradera nejde):
+                                      Feather.ReadCandles — feather z data/ a data_archive/ (Arrow IPC + LZ4,
+                                      bez NuGet; ZSTD a feather v1 odmietne), zhoda s pyarrow v test_csharp_feather.py
         │
         ├── tradebot/adapters/ninjatrader/TradeBotStrategy.cs   adaptér NinjaTrader (NinjaScript, managed ordery)
         │       └── deploy/ninjatrader/<Meno>.cs                šablóna stratégie pre graf (3 riadky)

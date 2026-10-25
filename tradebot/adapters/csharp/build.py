@@ -26,8 +26,9 @@ __all__ = ["BuildError", "find_compiler", "sources", "is_stale", "build", "ensur
 
 _log = logging.getLogger(__name__)
 
-#: Adresáre so zdrojákmi knižnice (jadro + stratégie) a hostiteľa pre stdio most.
-LIBRARY_DIRS = ("TradeBot.Core", "TradeBot.Strategies")
+#: Adresáre so zdrojákmi knižnice (jadro + stratégie + natívny backtest) a hostiteľa pre stdio most.
+#: `TradeBot.Backtest` (čítanie feather, ...) je len v DLL — do NinjaTradera nejde (CORE_DIRS adaptéra).
+LIBRARY_DIRS = ("TradeBot.Core", "TradeBot.Strategies", "TradeBot.Backtest")
 HOST_DIR = "TradeBot.Host"
 
 
