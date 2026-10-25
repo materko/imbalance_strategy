@@ -150,6 +150,7 @@ class LiveData(HubPlugin):
         cfg = self.settings()
         files = self.due(now, force=force)
         if not files:
+            self._clear_error()   # nič nečaká (napr. pushol to ručný push) — stará chyba už neplatí
             return ""
         if not cfg["remote"]:
             raise gitpush.PushError("push nie je nastavený (config remote / TRADEBOT_LIVEDATA_REMOTE)")
@@ -172,13 +173,21 @@ class LiveData(HubPlugin):
         self._save()
         return commit
 
+    def _clear_error(self) -> None:
+        if self.push_error:
+            self.push_error, self.push_error_since = "", 0.0
+            self._save()
+
     def tick(self) -> None:
         self._reload_state()   # `plugin livedata --push` z príkazového riadka mohol pushnúť medzitým
         self.export()
         self.refresh_index()
         now = self.ctx.clock()
         cfg = self.settings()
-        if not cfg["push"] or now - self.push_tried < RETRY_SECONDS or not self.due(now):
+        if not self.due(now):
+            self._clear_error()
+            return
+        if not cfg["push"] or now - self.push_tried < RETRY_SECONDS:
             return
         self.push_tried = now
         try:
