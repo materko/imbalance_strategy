@@ -26,6 +26,7 @@ const dv = {
   configs: {},          // strategia -> nastavenia z /api/analytics/configs
   trades: {},           // run_ids.join(",") -> odpoved /api/diversify/trades
   open: {},
+  all: false,           // aj stratégie a nastavenia, ktoré smernicou neprešli
   result: null,
   log: { view: "tr", item: "", year: "", res: "", page: 0, sort: null, dir: 1 },
 };
@@ -181,10 +182,24 @@ async function dvConfigs(strategy) {
   return dv.configs[strategy];
 }
 
+/** Nastavenie, ktoré prešlo smernicou: profil s prefixom zo smernice (`PRESIEL_SMERNICAMI_`,
+ *  `SMERNICE_CS_`) alebo súbor z rannej kontroly (`…/checkup/vwaporb_PRESIEL_SMERNICAMI_…json`,
+ *  `ibsentry_presiel1_…json`) - meno súboru je tam s kľúčom stratégie vpredu. */
+function dvIsSmernice(n) {
+  const file = String(n.profile || "").replace(/\\/g, "/").split("/").pop();
+  return isSmerniceProfile(file) || /presiel|smernic/i.test(file);
+}
+/** Nastavenia stratégie v ponuke: predvolene len tie, ktoré prešli smernicou. */
+function dvShown(cfg) { return dv.all ? cfg : cfg.filter(dvIsSmernice); }
+
 function dvPickerHtml() {
   const picked = new Set(dv.items.map(dvKey)), full = dv.items.length >= DV_MAX;
-  return (state.meta.strategies || []).map(s => {
-    const cfg = dv.configs[s.key];
+  // Stratégia, ktorej nastavenia zo smernice v histórii nemajú beh, sa v ponuke len plietla.
+  const strategies = (state.meta.strategies || []).filter(s => dv.all
+    || (inSmernice(s.key) && !(dv.configs[s.key] && !dvShown(dv.configs[s.key]).length)));
+  if (!strategies.length) return `<p class="hint">Žiadna stratégia zatiaľ neprešla smernicou.</p>`;
+  return strategies.map(s => {
+    const cfg = dv.configs[s.key] && dvShown(dv.configs[s.key]);
     let body = `<p class="hint">Načítavam nastavenia z histórie…</p>`;
     if (cfg) {
       const rows = [];
@@ -194,7 +209,8 @@ function dvPickerHtml() {
             <small>${esc(pairShort(m.pair))} ${esc(m.timeframe)} · ${dvRuns(m.runs)} · ${dvNum(m.trades)} obch.</small></span>
           <button type="button" class="ghost" data-dv-add="${esc(s.key)}" data-dv-setting="${esc(n.key)}" data-dv-market="${esc(m.key)}"${on || full ? " disabled" : ""}>${on ? "Pridané" : "Pridať"}</button></div>`);
       }
-      body = rows.join("") || `<p class="hint">V histórii nie je dobehnutý beh s obchodmi.</p>`;
+      body = rows.join("") || `<p class="hint">${dv.all ? "V histórii nie je dobehnutý beh s obchodmi."
+        : "V histórii nie je beh nastavenia, ktoré prešlo smernicou."}</p>`;
     }
     return `<details class="dv-strat" data-key="${esc(s.key)}"${dv.open[s.key] ? " open" : ""}>
       <summary><span>${esc(s.title)}</span><span class="hint">${cfg ? cfg.length + " nast." : ""}</span></summary>${body}</details>`;
@@ -255,6 +271,7 @@ function setupDiversify() {
   $("#dv-run").onclick = dvRun;
   $("#dv-rerun").onclick = dvRun;
   $("#dv-edit").onclick = () => dvCollapse(false);
+  $("#dv-all").onchange = e => { dv.all = e.target.checked; renderDiversify(); };
   $("#dv-clear").onclick = () => { dv.items = []; dvSave(); dv.result = null; $("#dv-out").innerHTML = ""; renderDiversify(); };
 }
 
@@ -273,7 +290,10 @@ async function loadDiversify() {
   dvLoad();
   for (const it of dv.items) dv.open[it.strategy] = true;
   renderDiversify();
-  await Promise.all([...new Set(dv.items.map(it => it.strategy))].map(s => dvConfigs(s).catch(() => null)));
+  // Nastavenia stratégií zo smernice hneď všetky - až potom je jasné, ktoré majú čo ponúknuť.
+  const keys = new Set([...dv.items.map(it => it.strategy),
+                        ...(state.meta.strategies || []).filter(s => inSmernice(s.key)).map(s => s.key)]);
+  await Promise.all([...keys].map(s => dvConfigs(s).catch(() => null)));
   renderDiversify();
 }
 
