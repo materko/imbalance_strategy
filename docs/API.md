@@ -39,7 +39,7 @@ zvonka. Hub (distribuované počítanie) má vlastné API s tokenom — [HUB.md]
 |---|---|
 | `POST /api/runs` | zaradí backtest do fronty; odpoveď `{"id": …}` |
 | `GET /api/queue` | fronta: čo čaká, čo beží (s priebehom) |
-| `POST /api/queue/{id}/cancel` | zruší beh alebo hyperopt vo fronte |
+| `POST /api/queue/{id}/cancel` | zruší beh alebo hyperopt: čakajúci hneď, bežiaci zabitím podprocesu; natívny beh (C# bod, natívny hyperopt) podproces nemá — dobehne a výsledok sa zahodí |
 | `GET /api/runs?q=&limit=&offset=` | história (hľadanie `q` ako v karte História) |
 | `GET /api/runs/{id}` | detail: `settings`, `params`, `result` (súhrn), `series` |
 | `GET /api/runs/{id}/log` · `/montecarlo` · `/chart` · `/profile.json` | log, Monte Carlo, kresby, profil behu |
@@ -148,7 +148,27 @@ Odpoveď: `{"runs": 4, "seconds": 0.4, "fee": 0.0001, "windows": [...], "results
 čísla ako `result` behu v histórii. `params` (celé) prebijú profil, `points` sú zmeny k nim; `[{}]` = len
 základ. Najviac 20 000 behov na dávku; s `trades: true` aj obchody každého behu (ako `trades.json`).
 
-## 6. Príklady
+## 6. Ostatné oblasti
+
+Polia a odpovede sú v `/docs`; tu je, na čo ktorá skupina je.
+
+| | |
+|---|---|
+| `GET/POST /api/analytics/history` · `GET/DELETE /api/analytics/history/{id}` | uložené analytiky (záver s odkazmi na behy, nie obchody) |
+| `POST /api/analytics/history/{id}/note` · `GET …/{id}/zadanie` · `POST …/{id}/posudok` | poznámka, čísla s otázkami pre AI, zápis posudku |
+| `GET /api/diversify/trades` · `/live` · `/livedata` · `/livedata/view` | Diverzifikácia: obchody behov, inštancie naživo, živé behy z `data_live` |
+| `GET /api/git/status` · `POST /api/git/pull` · `POST /api/git/push` | Pull a Push z hlavičky (Push len `runs/`, `sweeps/`, `profiles/`, `analytics/`, `archive/`) |
+| `GET /api/hub` · `POST/DELETE /api/hub/config` · `POST /api/hub/token` | stav hubu a agentov, pripojenie webapp k hubu |
+| `POST /api/hub/jobs` · `/runs` · `/hyperopts` · `GET /api/hub/jobs[/{id}]` · `POST …/{id}/cancel` | zadania na hub ([HUB.md](HUB.md)) |
+| `POST /api/hub/accept` · `DELETE /api/hub/undelivered` · `POST/DELETE /api/hub/agents/{meno}[/update]` | prijímanie výpočtov, nedoručené výsledky, aktualizácia a odobratie agenta |
+| `GET /api/live` · `/api/live/stream` (SSE) · `/api/live/{inst}/sessions` · `/snapshot` · `/lost` · `/events` | karta Live: telemetria inštancií ([LIVE.md](LIVE.md)) |
+| `GET/POST/PATCH/DELETE /api/live/accounts` · `/api/live/deployments` · `GET /api/live/audit` | účty, nasadenia a ich záznam zmien |
+| `GET /api/live/agents` · `POST/DELETE /api/live/agents/{meno}/update` · `GET /api/live/profiles` · `/deploy-defaults` | obchodné stroje, aktualizácia ich kódu, profily na nasadenie |
+| `GET /api/prop/meta` · `POST /api/prop` | prop výzva: obchody behov cez pravidlá výzvy |
+| `POST /api/paper` | zapíše meranie do `docs/merania/` z behov (to isté ako `cli paper`) |
+| `GET /api/ai/meta` | predvolené hodnoty AI vrstvy a čo stratégia dovolí meniť |
+
+## 7. Príklady
 
 ```bash
 # päť okien jedného nastavenia, bez histórie

@@ -493,7 +493,7 @@ Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `
 meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
 
 Tlačidlá **Pull** a **Push** sú v hlavičke; výstup gitu sa zobrazí celý. Push commitne
-**len** `runs/`, `sweeps/`, `profiles/` a `analytics/` a pushne ich do **`main`** — nie na vetvu, na ktorej klon
+**len** `runs/`, `sweeps/`, `profiles/`, `analytics/` a `archive/` a pushne ich do **`main`** — nie na vetvu, na ktorej klon
 práve stojí (inak história skončí na vývojárskej vetve a nikto ju neuvidí). Iný cieľ sa
 dá nastaviť cez `TRADEBOT_GIT_BRANCH`. Keď sa vetva klonu a cieľ líšia, hlavička to ukáže
 ako `vetva → main`.
@@ -589,7 +589,7 @@ medzi MNQ a US100.cash), pamätá si ich prehliadač.
 Telemetria zo **spustených** stratégií s C# jadrom (NinjaTrader 8, MetaTrader 5) — čítanie
 podľa [LIVE.md](LIVE.md) fáza 1; účty a nasadenia (fáza 2b) sú nižšie. Stratégia píše bary, zámery enginu (ordery),
 kresby a vyplnenia u brokera do lokálneho spoolu; agent hubu ich posiela na hub a webapp si
-ich z hubu zrkadlí do `tester/live/mirror.sqlite` (vlákno `LiveMirror`, každých 5 s; kurzor
+ich z hubu zrkadlí do `tester/live/mirror.sqlite` (vlákno `LiveMirror`, každé 2 s; kurzor
 hubu v `tester/live/mirror_cursor.json`). Keď webapp beží priamo na obchodnom PC, číta aj
 lokálny spool (vlastný kurzor `tester/live/cursor_webapp.json`) — funguje aj bez hubu. Hub
 dole = karta ukazuje, čo má; nič sa nestráca (spool je append-only, kurzory sa posúvajú až
