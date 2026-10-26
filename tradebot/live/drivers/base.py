@@ -87,6 +87,17 @@ class Deployment:
                    active=bool(d.get("active", True)), instance=str(d.get("instance") or ""),
                    slot=str(d.get("slot") or ""), own_terminal=bool(d.get("own_terminal")), raw=dict(d))
 
+    @property
+    def is_executor(self) -> bool:
+        """Virtuálne nasadenie MT5 exekútora, ktoré hub pridá sám (docs/ROUTING.md) — graf bez stratégie."""
+        return self.raw.get("kind") == "executor"
+
+    @property
+    def route(self) -> dict[str, Any] | None:
+        """Ordery do MT5 exekútora (nasadenie NinjaTradera); `to` doplní hub z prihlásenia MT5 účtu."""
+        r = self.raw.get("route")
+        return r if isinstance(r, dict) and r.get("to") else None
+
     def validate(self) -> None:
         """Bez stratégie, symbolu, TF a profilu sa nasadenie nedá zapísať — chyba k nasadeniu, nie pád."""
         chyby = []

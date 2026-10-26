@@ -88,6 +88,10 @@ _KEY_RE = re.compile(r'#define\s+TRADEBOT_ENGINE_KEY\s+"([^"]+)"')
 # čisté funkcie: šablóny, inputy, magic, text profilu grafov
 # ------------------------------------------------------------------------------------------------ #
 
+#: Šablóna EA exekútora v deploy/mt5 (bez TRADEBOT_ENGINE_KEY — nie je stratégia).
+EXECUTOR_EXPERT = "TradeBotExecutor"
+
+
 def templates(deploy_dir: Path | None = None) -> dict[str, str]:
     """Kľúč enginu → názov šablóny EA (`ibsnet` → `IBSNet`) z `#define TRADEBOT_ENGINE_KEY` v `deploy/mt5/*.mq5`."""
     out: dict[str, str] = {}
@@ -521,6 +525,9 @@ class Mt5Driver(Driver):
     def ensure_profile(self, deployment: Deployment) -> Path:
         from tradebot.strategies import canonical_key
 
+        if deployment.is_executor:
+            return self.common() / "TradeBot"   # exekútor profil nemá
+
         key = canonical_key(deployment.strategy) or deployment.strategy
         cfg = dict(deployment.config)
         data = {"_strategy": key, "_instrument": cfg.pop("_instrument", None),
@@ -542,6 +549,8 @@ class Mt5Driver(Driver):
 
         common = self.common()
         instance = deployment.instance
+        if deployment.is_executor:
+            return control_dir(common) / f"{instance}.json"   # exekútor control nečíta (pauza je vec NT nasadení)
         current = read_control(common, instance)
         if current and current.get("mode") == deployment.mode and current.get("profile") == deployment.profile:
             return control_dir(common) / f"{instance}.json"
@@ -573,6 +582,8 @@ class Mt5Driver(Driver):
 
         common = self.common()
         for dep in deployments:
+            if dep.is_executor:
+                continue
             instance = self.instance_of(account, dep)
             if read_control(common, instance) is None:
                 write_control(common, instance, dep.mode, dep.profile, by="hub")
@@ -605,8 +616,16 @@ class Mt5Driver(Driver):
     def _charts(self, account: Account, deployments: list[Deployment]) -> list[dict[str, Any]]:
         charts = []
         for dep in sorted(deployments, key=lambda d: d.id):
-            expert, path = self.template_for(dep.strategy)
             instance = self.instance_of(account, dep)
+            if dep.is_executor:
+                # jeden graf TradeBotExecutor na účet (docs/ROUTING.md): vstupy EA predvolené, magic majú route
+                charts.append({"deployment": dep.id, "instance": instance, "symbol": dep.symbol, "tf": 1,
+                               "strategy": dep.strategy, "profile": dep.profile, "config_hash": dep.config_hash,
+                               "expert": EXECUTOR_EXPERT, "path": f"Experts\\TradeBot\\{EXECUTOR_EXPERT}.ex5",
+                               "magic": 0, "inputs": {},
+                               "expertmode": EXPERTMODE_TRADING if self.allow_live_trading else EXPERTMODE_NO_TRADING})
+                continue
+            expert, path = self.template_for(dep.strategy)
             charts.append({"deployment": dep.id, "instance": instance, "symbol": dep.symbol, "tf": dep.tf,
                            "strategy": dep.strategy, "profile": dep.profile, "config_hash": dep.config_hash,
                            "expert": expert, "path": path, "magic": magic_for(dep.id),

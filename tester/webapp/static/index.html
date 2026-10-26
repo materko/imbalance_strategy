@@ -521,6 +521,13 @@
             <input id="ld-d-tf" type="number" min="1" step="1" placeholder="z profilu"></label>
           <label class="field" data-ld-only="mt5">Slot <span class="muted small">(nepovinné)</span><span class="hint">druhé nasadenie tej istej stratégie na rovnakom účte, symbole a TF (iný profil) — krátke meno, napr. <code>b</code>; prázdne = bez slotu</span>
             <input id="ld-d-slot" placeholder="napr. b" maxlength="16"></label>
+          <label class="field" data-ld-only="ninjatrader">Ordery<span class="hint">kde sa obchoduje: na účte NinjaTradera, alebo cez MT5 exekútor na tom istom stroji (NT dá len dáta) — docs/ROUTING.md</span>
+            <select id="ld-d-route"><option value="">tu — na účte nasadenia</option></select></label>
+          <label class="field ld-route-only" data-ld-only="ninjatrader">Symbol v MT5 <span class="muted small">(nepovinné)</span><span class="hint">prázdne = z mapovania (<code>MNQ</code> → <code>NAS100</code>, <code>MGC</code> → <code>XAUUSD</code>) a aliasov MT5 účtu</span>
+            <input id="ld-d-route-symbol" placeholder="z mapovania"></label>
+          <label class="field ld-route-only" data-ld-only="ninjatrader">Objem v MT5<span class="hint">podľa hodnoty bodu = rovnaké riziko v $ ako v backteste (MNQ 2 $/bod → loty CFD); pevné = loty na kontrakt</span>
+            <select id="ld-d-route-qty"><option value="value" selected>podľa hodnoty bodu</option><option value="fixed">pevné loty na kontrakt</option></select></label>
+          <label class="field ld-route-only" data-ld-only="ninjatrader">Lotov na kontrakt<input id="ld-d-route-lots" type="number" min="0" step="0.01" placeholder="len pri pevných lotoch"></label>
           <label class="field">Režim<span class="hint">nová stratégia štartuje pauznutá — zapni ju v tabuľke (control súbor je na disku skôr, než platforma inštanciu spustí)</span>
             <select id="ld-d-mode"><option value="paused" selected>pauza (predvolené)</option><option value="enabled">obchoduje hneď</option></select></label>
           <div id="ld-d-code-hint" class="span2 muted small" hidden></div>
@@ -556,6 +563,8 @@
           <label class="field" data-ld-only="mt5">Server<span class="hint">tak, ako ho ukazuje MT5 pri prihlásení</span><input id="ld-a-server-mt5" placeholder="ICMarkets-Demo"></label>
           <label class="field" data-ld-only="mt5">Heslo<span id="ld-a-password-hint" class="hint">hub ho drží zašifrované a pošle ho strojom s nasadením na tomto účte</span>
             <input id="ld-a-password" type="password" autocomplete="new-password"></label>
+          <label class="field span2" data-ld-only="mt5">Aliasy symbolov <span class="muted small">(nepovinné)</span><span class="hint">ako broker volá CFD pre ordery z NinjaTradera: <code>NAS100=US100.cash, XAUUSD=XAUUSD.r</code></span>
+            <input id="ld-a-symbols" placeholder="NAS100=US100.cash"></label>
           <label class="field" data-ld-only="ninjatrader">Účet v NinjaTraderi<span class="hint">meno účtu, napr. <code>Sim101</code></span><input id="ld-a-login-nt" placeholder="Sim101"></label>
           <label class="field" data-ld-only="ninjatrader">Pripojenie<span class="hint">meno pripojenia v NT (Connections); NT sa prihlasuje zapamätaným loginom, heslo tu netreba</span>
             <input id="ld-a-server-nt" placeholder="Continuum"></label>

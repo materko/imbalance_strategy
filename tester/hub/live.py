@@ -128,6 +128,8 @@ class AccountRequest(BaseModel):
     terminal: str | None = None
     portable: bool | None = None
     password: str | None = None
+    #: MT5: aliasy symbolov brokera pre route nasadení NinjaTradera (`{"NAS100": "US100.cash"}`, docs/ROUTING.md).
+    symbols: dict[str, str] | None = None
 
     def fields(self) -> dict[str, Any]:
         return {k: v for k, v in self.model_dump().items()
@@ -156,6 +158,8 @@ class DeploymentRequest(BaseModel):
     slot: str = ""
     #: MT5: nasadenie beží vo vlastnom (portable) termináli namiesto spoločného terminálu účtu na stroji.
     own_terminal: bool = False
+    #: NinjaTrader: ordery do MT5 exekútora `{"via": "mt5", "account": <MT5 účet>, "symbol": …}` (docs/ROUTING.md).
+    route: dict[str, Any] | None = None
 
 
 class DeploymentPatch(BaseModel):

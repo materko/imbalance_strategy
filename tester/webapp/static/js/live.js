@@ -865,7 +865,7 @@ function renderLiveDeploy() {
       return `<tr class="plain" data-dep="${esc(d.id)}">
         <td>${ldStatusChip(d)}</td>
         <td title="účet ${esc(d.account)} na stroji ${esc(d.agent || "?")}">${esc(acc.label || d.account)} <span class="muted small">${esc(d.agent || "")}</span></td>
-        <td>${esc(d.strategy)}${d.slot ? ` <span class="chip" title="slot nasadenia v id inštancie">${esc(d.slot)}</span>` : ""}${d.own_terminal ? ` <span class="muted small" title="vlastný (portable) terminál len pre toto nasadenie">vlastný terminál</span>` : ""}</td><td><b>${esc(d.symbol)}</b></td><td>${d.tf}m</td>
+        <td>${esc(d.strategy)}${d.slot ? ` <span class="chip" title="slot nasadenia v id inštancie">${esc(d.slot)}</span>` : ""}${d.own_terminal ? ` <span class="muted small" title="vlastný (portable) terminál len pre toto nasadenie">vlastný terminál</span>` : ""}</td><td><b>${esc(d.symbol)}</b>${ldRouteChip(d, accById)}</td><td>${d.tf}m</td>
         <td><select class="small ld-profile" ${dis} title="zmena profilu: aplikuje sa, až keď je stratégia bez pozície">${ldProfileOptions(d.strategy, d.profile)}</select></td>
         <td><span class="chip ${d.mode === "enabled" ? "ok" : (d.mode === "flatten" ? "bad" : "warn")}">${esc(LD_MODE_LABEL[d.mode] || d.mode)}</span></td>
         <td>${ldAppliedCell(d)}</td>
@@ -894,6 +894,23 @@ function renderLiveDeploy() {
   if (!ld.formsReady) { ldSetupForms(); ld.formsReady = true; }
   ldFillFormSelects();
   ldCodeHint();
+}
+
+/** Route do MT5 exekútora (docs/ROUTING.md): kam idú ordery a stav exekútora z posledného pingu inštancie (`hb.route`). */
+const LD_ROUTE_STATE = { ok: ["ok", "exekútor ok"], no_executor: ["bad", "exekútor nebeží"], stale: ["bad", "exekútor neodpovedá"],
+  disconnected: ["bad", "MT5 bez spojenia"], trade_disabled: ["bad", "AutoTrading vypnutý"], symbol_missing: ["bad", "symbol chýba"],
+  account_mismatch: ["bad", "iný účet"], netting_unsupported: ["bad", "netting účet"], route_pending: ["warn", "čaká na exekútor"] };
+function ldRouteChip(d, accById) {
+  const r = d.route;
+  if (!r) return "";
+  const acc = accById[r.account] || {};
+  const inst = lv.instances.find(i => i.id === d.instance);
+  const st = inst && inst.hb && inst.hb.route;
+  const [cls, text] = LD_ROUTE_STATE[st] || ["", st ? st : "stav neznámy"];
+  const qty = r.qty && r.qty.mode === "fixed" ? `${r.qty.lots} lot/kontrakt` : "objem podľa hodnoty bodu";
+  return `<div class="small" title="ordery idú do MT5 exekútora na účte ${esc(r.account)}${r.to ? ` (${esc(r.to)})` : ""}; ceny ${esc(r.price || "basis")}, ${esc(qty)}">`
+    + `→ MT5 <b>${esc(r.symbol)}</b> <span class="muted">${esc(acc.label || r.account)}</span>`
+    + (d.active ? ` <span class="chip ${cls}">${esc(text)}</span>` : "") + `</div>`;
 }
 
 function ldProfileOptions(strategy, current) {
@@ -968,6 +985,14 @@ function ldFillFormSelects() {
   if (curA && ld.accounts.some(a => a.id === curA)) selA.value = curA;
   selA.onchange = () => { ldFillAgents(); ldCodeHint(); ldFormDefaults(); };
   ldFillAgents();
+  // ordery do MT5 exekútora (NinjaTrader): MT5 účty hubu
+  const selR = $("#ld-d-route"), curR = selR.value;
+  selR.innerHTML = `<option value="">tu — na účte nasadenia</option>`
+    + ld.accounts.filter(a => a.platform === "mt5").map(a => `<option value="${esc(a.id)}">MT5 exekútor · ${esc(a.label)}</option>`).join("");
+  if (curR && ld.accounts.some(a => a.id === curR)) selR.value = curR;
+  selR.onchange = ldRouteFields;
+  $("#ld-d-route-qty").onchange = ldRouteFields;
+  ldRouteFields();
   // stratégie z /api/meta — na live (NinjaTrader aj MT5) beží len C# jadro
   const selS = $("#ld-d-strategy");
   if (!selS.options.length && state.meta && state.meta.strategies) {
@@ -986,11 +1011,21 @@ function ldFillFormSelects() {
   if (!$("#ld-a-status").textContent || !ld.admin) $("#ld-a-status").textContent = hint;
 }
 
+/** Polia route (symbol, objem) len keď ordery idú do MT5; loty len pri pevnom objeme. */
+function ldRouteFields() {
+  const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
+  const nt = !!acc && acc.platform === "ninjatrader";
+  const routed = nt && !!$("#ld-d-route").value;
+  for (const el of $$("#ld-deploy-box .ld-route-only")) el.hidden = !routed;
+  if (routed && $("#ld-d-route-qty").value !== "fixed") $("#ld-d-route-lots").closest("label").hidden = true;
+}
+
 /** Stroje do „Nasadiť": agenti s driverom platformy vybraného účtu (online prví); polia terminálu len pri MT5. */
 function ldFillAgents() {
   const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
   const platform = acc ? acc.platform : "";
   ldShowPlatform($("#ld-deploy-box"), platform);
+  ldRouteFields();
   const sel = $("#ld-d-agent"), cur = sel.value;
   const agents = ldLiveAgents().filter(a => !platform || (a.live.drivers || []).includes(platform));
   sel.innerHTML = agents.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.online ? "" : " (offline)"}</option>`).join("")
@@ -1077,12 +1112,17 @@ function ldSetupForms() {
       const own = !!mt5 && $("#ld-d-own").checked;
       Object.assign(body, { own_terminal: own, slot: mt5 ? $("#ld-d-slot").value.trim() : "",
         terminal: mt5 && !own ? $("#ld-d-terminal").value.trim() : "", portable: mt5 && !own ? $("#ld-d-portable").checked : false });
+      if (acc && acc.platform === "ninjatrader" && $("#ld-d-route").value) {
+        const mode = $("#ld-d-route-qty").value;
+        body.route = { via: "mt5", account: $("#ld-d-route").value, symbol: $("#ld-d-route-symbol").value.trim(),
+          qty: mode === "fixed" ? { mode, lots: Number($("#ld-d-route-lots").value) || 0 } : { mode } };
+      }
       if (!body.account) throw new Error("vyber účet");
       if (!body.agent) throw new Error("vyber stroj, na ktorom má stratégia bežať");
       if (!body.strategy) throw new Error("vyber stratégiu s C# jadrom");
       const d = await api("/api/live/deployments", { method: "POST", body: JSON.stringify(body) });
       $("#ld-d-status").textContent = `nasadené: ${d.symbol} ${d.tf}m → ${d.instance} na ${d.agent} (agent si to vezme v najbližšom heartbeate${d.mode === "paused" ? "; štartuje pauznuté — zapni v tabuľke" : ""})${ldCodeUpdateNote(d.code_update)}`;
-      $("#ld-d-symbol").value = ""; $("#ld-d-tf").value = ""; $("#ld-d-slot").value = "";
+      $("#ld-d-symbol").value = ""; $("#ld-d-tf").value = ""; $("#ld-d-slot").value = ""; $("#ld-d-route-symbol").value = "";
       await loadLiveDeploy();
     } catch (e) { $("#ld-d-error").textContent = e.message; $("#ld-d-error").hidden = false; $("#ld-d-status").textContent = ""; }
     finally { btn.disabled = !ld.admin; }
@@ -1102,12 +1142,24 @@ function ldAccountForm() {
   const sfx = platform === "mt5" ? "mt5" : "nt";
   return { platform, label: $("#ld-a-label").value.trim(), login: $(`#ld-a-login-${sfx}`).value.trim(),
            server: $(`#ld-a-server-${sfx}`).value.trim(),
+           symbols: platform === "mt5" ? ldParseAliases($("#ld-a-symbols").value) : null,
            password: (LD_PLATFORMS[platform] || {}).password ? $("#ld-a-password").value : "" };
 }
 
+/** `NAS100=US100.cash, XAUUSD=XAUUSD.r` → {NAS100: "US100.cash", …} (aliasy symbolov MT5 účtu pre route). */
+function ldParseAliases(text) {
+  const out = {};
+  for (const part of String(text || "").split(/[,;\n]/)) {
+    const [k, v] = part.split("=").map(x => (x || "").trim());
+    if (k && v) out[k] = v;
+  }
+  return out;
+}
+function ldAliasesText(map) { return Object.entries(map || {}).map(([k, v]) => `${k}=${v}`).join(", "); }
+
 function ldResetAccountForm(status = "") {
   ld.editing = null;
-  for (const id of ["#ld-a-label", "#ld-a-id", "#ld-a-login-mt5", "#ld-a-server-mt5", "#ld-a-login-nt", "#ld-a-server-nt", "#ld-a-password"]) $(id).value = "";
+  for (const id of ["#ld-a-label", "#ld-a-id", "#ld-a-login-mt5", "#ld-a-server-mt5", "#ld-a-login-nt", "#ld-a-server-nt", "#ld-a-password", "#ld-a-symbols"]) $(id).value = "";
   $("#ld-a-id").disabled = false; $("#ld-a-platform").disabled = false;
   $("#ld-a-title").textContent = "Pridať účet";
   $("#ld-a-submit").textContent = "Pridať účet";
@@ -1133,6 +1185,7 @@ function ldEditAccount(id) {
   $(`#ld-a-login-${sfx}`).value = a.login || "";
   $(`#ld-a-server-${sfx}`).value = a.server || "";
   $("#ld-a-password").placeholder = a.secret ? "uložené — nechať prázdne = nemeniť" : "";
+  $("#ld-a-symbols").value = ldAliasesText(a.symbols);
   $("#ld-a-title").textContent = `Upraviť účet ${a.label}`;
   $("#ld-a-submit").textContent = "Uložiť zmeny";
   $("#ld-a-cancel").hidden = false;
@@ -1159,6 +1212,7 @@ async function ldSaveAccount() {
     const zmena = {};
     for (const k of ["platform", "label", "login", "server"]) if (f[k] !== (a[k] || "")) zmena[k] = f[k];
     if (f.password) zmena.password = f.password;
+    if (f.symbols && JSON.stringify(f.symbols) !== JSON.stringify(a.symbols || {})) zmena.symbols = f.symbols;
     if (!Object.keys(zmena).length) { ldResetAccountForm("bez zmeny"); return; }
     // nové prihlásenie (login, server, heslo) = stroje inštancie zastavia, prihlásia sa znova a spustia
     const prihlasenie = ["platform", "login", "server", "password"].some(k => k in zmena);

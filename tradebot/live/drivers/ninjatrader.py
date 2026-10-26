@@ -214,9 +214,16 @@ class NinjaTraderDriver(Driver):
     def _entries(self, account: Account, deployments: list[Deployment]) -> list[dict[str, Any]]:
         out = []
         for dep in sorted(deployments, key=lambda d: d.id):
-            out.append({"deployment": dep.id, "instance": self.instance_of(account, dep),
-                        "connection": account.server, "account": account.login, "instrument": dep.symbol,
-                        "tf": dep.tf, "strategy": dep.strategy, "profile": dep.profile})
+            entry = {"deployment": dep.id, "instance": self.instance_of(account, dep),
+                     "connection": account.server, "account": account.login, "instrument": dep.symbol,
+                     "tf": dep.tf, "strategy": dep.strategy, "profile": dep.profile}
+            route = dep.route
+            if route:
+                # ordery do MT5 exekútora (docs/ROUTING.md) — AddOn ich pošle cez bridge, NT dá len dáta
+                entry["route"] = {"via": "mt5", "to": route["to"], "symbol": route.get("symbol") or "",
+                                  "price": route.get("price") or "basis", "scale": float(route.get("scale") or 1.0),
+                                  "qty": dict(route.get("qty") or {"mode": "value"}), "magic": 0}
+            out.append(entry)
         return out
 
     def ensure_instance(self, account: Account, deployments: list[Deployment]) -> None:

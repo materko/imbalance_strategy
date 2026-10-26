@@ -440,6 +440,8 @@ class LiveAccountRequest(BaseModel):
     login: str | None = None
     server: str | None = None
     password: str | None = None
+    #: MT5: aliasy symbolov brokera pre route (`{"NAS100": "US100.cash"}`).
+    symbols: dict[str, str] | None = None
     user: str | None = None
 
 
@@ -461,6 +463,8 @@ class LiveDeploymentRequest(BaseModel):
     #: MT5: slot v id inštancie (tá istá stratégia na účte, symbole a TF s iným profilom) a vlastný terminál.
     slot: str = ""
     own_terminal: bool = False
+    #: NinjaTrader: ordery do MT5 exekútora (docs/ROUTING.md); None = na účet nasadenia.
+    route: dict[str, Any] | None = None
     user: str | None = None
 
 
@@ -797,7 +801,7 @@ def build(ctx: AppContext) -> APIRouter:
         body = {"account": req.account, "agent": req.agent.strip(), "terminal": req.terminal.strip(),
                 "portable": bool(req.portable), "strategy": strategy, "symbol": symbol, "tf": tf,
                 "profile": req.profile, "config": config, "mode": req.mode, "version": _version(),
-                "slot": req.slot.strip(), "own_terminal": bool(req.own_terminal)}
+                "slot": req.slot.strip(), "own_terminal": bool(req.own_terminal), "route": req.route or None}
         dep = _via_hub(lambda: http.post(f"/api/live/deployments?by={_by(req.user)}", body))
         if isinstance(dep, dict):
             _code_state(dep)

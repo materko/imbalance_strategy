@@ -36,6 +36,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable
 
+from .routes import RouteError, executor_id, normalize_aliases, normalize_route
 from .schema import CONTROL_MODES, SLOT_RE, instance_id, instance_symbol
 from .vault import Vault, VaultError
 
@@ -129,8 +130,12 @@ _ACCOUNT_FIELDS = ("platform", "label", "login", "server")
 _LOGIN_FIELDS = ("platform", "login", "server")
 _ACCOUNT_COLS = ("id", *_ACCOUNT_FIELDS, "rev", "created", "updated", "by")
 _DEPLOYMENT_COLS = ("id", "account", "agent", "strategy", "symbol", "tf", "profile", "config", "config_hash",
-                    "mode", "active", "instance", "slot", "own_terminal", "version", "terminal", "portable", "created",
-                    "updated", "by")
+                    "mode", "active", "instance", "slot", "own_terminal", "version", "terminal", "portable", "route",
+                    "created", "updated", "by")
+#: Kľúč a id virtuálneho nasadenia MT5 exekútora (docs/ROUTING.md) — hub ho do `desired_for_agent` pridá sám
+#: pre každý MT5 účet, na ktorý na danom stroji smeruje aspoň jedno nasadenie NinjaTradera.
+EXECUTOR_STRATEGY = "executor"
+EXECUTOR_PREFIX = "exec-"
 #: Stĺpce, ktoré pribudli po prvom vydaní — `ALTER TABLE` pri otvorení starého súboru.
 _MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),
                ("deployments", "agent", "TEXT NOT NULL DEFAULT ''"),
@@ -140,7 +145,9 @@ _MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),
                ("deployments", "own_terminal", "INTEGER NOT NULL DEFAULT 0"),
                ("accounts", "rev", "TEXT NOT NULL DEFAULT ''"),
                ("accounts", "secret_enc", "TEXT"),
-               ("accounts", "secret_rev", "TEXT NOT NULL DEFAULT ''"))
+               ("accounts", "secret_rev", "TEXT NOT NULL DEFAULT ''"),
+               ("deployments", "route", "TEXT NOT NULL DEFAULT ''"),
+               ("accounts", "symbols", "TEXT NOT NULL DEFAULT ''"))
 
 #: Stav kódu na stroji voči tomu, čo nasadenie (alebo hub) chce — fáza 2c.
 CODE_STATES = ("ok", "outdated", "unknown")
@@ -311,6 +318,7 @@ class DeployStore:
     def _account_row(self, r: sqlite3.Row) -> dict[str, Any]:
         """Účet pre zoznamy: bez hesla — len či je uložené a ktoré stroje ho ešte neprevzali."""
         d = {k: r[k] for k in _ACCOUNT_COLS}
+        d["symbols"] = json.loads(r["symbols"]) if r["symbols"] else {}
         d["secret"] = bool(r["secret_enc"])
         d["secret_waiting"] = self._secret_waiting(r) if r["secret_enc"] else []
         d["secret_pending"] = bool(d["secret_waiting"])
@@ -333,6 +341,7 @@ class DeployStore:
         d["active"] = bool(d["active"])
         d["portable"] = bool(d["portable"])
         d["own_terminal"] = bool(d["own_terminal"])
+        d["route"] = json.loads(d["route"]) if d["route"] else None
         return d
 
     @staticmethod
@@ -417,6 +426,8 @@ class DeployStore:
                      "secret_rev": uuid.uuid4().hex[:12] if heslo else ""})
                 self._audit(by, "account_create", account=acc_id,
                             new={**{k: v for k, v in row.items() if k != "rev"}, "password": bool(heslo)})
+                if data.get("symbols"):
+                    self._set_symbols(acc_id, data["symbols"], by)
             else:
                 acc_id = existing["id"]
                 old = self._account_row(existing)
@@ -438,8 +449,10 @@ class DeployStore:
                     sets["secret_rev"] = uuid.uuid4().hex[:12]
                 elif "platform" in sets and not PLATFORMS[platform]["password"]:
                     sets.update(secret_enc=None, secret_rev="")   # NinjaTrader heslo nemá
+                if data.get("symbols") is not None and normalize_aliases(data["symbols"]) != old.get("symbols"):
+                    self._set_symbols(acc_id, data["symbols"], by)
                 if not sets:
-                    return old
+                    return self._account_row(self._account_or_404(acc_id))
                 if heslo or any(k in sets for k in _LOGIN_FIELDS):
                     sets["rev"] = uuid.uuid4().hex[:12]
                 sets.update(updated=now, by=by or "")
@@ -455,6 +468,19 @@ class DeployStore:
                 if any(k in sets for k in _LOGIN_FIELDS):
                     self._recompute_instances(acc_id)
             return self._account_row(self._account_or_404(acc_id))
+
+    def _set_symbols(self, acc_id: str, raw: Any, by: str) -> None:
+        """Aliasy symbolov MT5 účtu pre route (`{"NAS100": "US100.cash"}`) — nové prihlásenie to nie je (bez `rev`)."""
+        try:
+            aliases = normalize_aliases(raw)
+        except RouteError as exc:
+            raise DeployError(str(exc)) from None
+        old = self._db.execute("SELECT symbols FROM accounts WHERE id = ?", (acc_id,)).fetchone()
+        self._db.execute("UPDATE accounts SET symbols = ?, updated = ?, by = ? WHERE id = ?",
+                         (json.dumps(aliases, ensure_ascii=False, sort_keys=True) if aliases else "", self.clock(),
+                          by or "", acc_id))
+        self._audit(by, "account_update", account=acc_id,
+                    old={"symbols": json.loads(old["symbols"]) if old and old["symbols"] else {}}, new={"symbols": aliases})
 
     def _free_id(self, base: str) -> str:
         cand, n = base, 1
@@ -481,6 +507,11 @@ class DeployStore:
                 (account_id,))]
             if bezi:
                 raise Conflict(f"na účte {account_id!r} ešte beží: {', '.join(bezi)} — najprv tie nasadenia odstráň")
+            smeruju = [f"{r['strategy']} {r['symbol']} {r['tf']}m ({r['id']})" for r in self._db.execute(
+                "SELECT id, strategy, symbol, tf, route FROM deployments WHERE active = 1 AND route != ''")
+                if (json.loads(r["route"]) or {}).get("account") == account_id]
+            if smeruju:
+                raise Conflict(f"na MT5 účet {account_id!r} smerujú ordery: {', '.join(smeruju)} — najprv tie nasadenia odstráň")
             deps = [r["id"] for r in self._db.execute("SELECT id FROM deployments WHERE account = ?", (account_id,))]
             for dep_id in deps:
                 self._db.execute("DELETE FROM applied WHERE deployment = ?", (dep_id,))
@@ -562,6 +593,15 @@ class DeployStore:
         with self._lock, self._db:
             acc = dict(self._account_or_404(account_id))
             schopnosti = PLATFORMS.get(acc["platform"], {})
+            route_in = data.get("route")
+            route = None
+            if route_in not in (None, "", {}):
+                mt5_id = str(route_in.get("account") or "").strip() if isinstance(route_in, dict) else ""
+                mt5 = self.account(mt5_id) if mt5_id else None
+                try:
+                    route = normalize_route(route_in, nt_symbol=symbol, nt_platform=acc["platform"], mt5_account=mt5)
+                except RouteError as exc:
+                    raise DeployError(str(exc)) from None
             if slot and not schopnosti.get("slot"):
                 raise DeployError(f"slot vie len MetaTrader 5 — účet {account_id!r} je {acc['platform']}")
             if own_terminal and not schopnosti.get("own_terminal"):
@@ -596,12 +636,15 @@ class DeployStore:
                    "config_hash": config_hash(config), "mode": mode, "active": 1, "instance": inst,
                    "slot": slot, "own_terminal": 1 if own_terminal else 0,
                    "version": str(data.get("version") or "").strip() or self.version(),
-                   "terminal": terminal, "portable": portable, "created": now, "updated": now, "by": by or ""}
+                   "terminal": terminal, "portable": portable,
+                   "route": json.dumps(route, ensure_ascii=False, sort_keys=True) if route else "",
+                   "created": now, "updated": now, "by": by or ""}
             self._db.execute(
                 "INSERT INTO deployments (id, account, agent, strategy, symbol, tf, profile, config, config_hash, "
-                "mode, active, instance, slot, own_terminal, version, terminal, portable, created, updated, by) VALUES "
-                "(:id, :account, :agent, :strategy, :symbol, :tf, :profile, :config, :config_hash, :mode, :active, "
-                ":instance, :slot, :own_terminal, :version, :terminal, :portable, :created, :updated, :by)", row)
+                "mode, active, instance, slot, own_terminal, version, terminal, portable, route, created, updated, by) "
+                "VALUES (:id, :account, :agent, :strategy, :symbol, :tf, :profile, :config, :config_hash, :mode, "
+                ":active, :instance, :slot, :own_terminal, :version, :terminal, :portable, :route, :created, :updated, "
+                ":by)", row)
             self._audit(by, "deployment_create", account=account_id, deployment=dep_id,
                         new={k: v for k, v in row.items() if k != "config"})
         return self.deployment(dep_id)  # type: ignore[return-value]
@@ -633,7 +676,7 @@ class DeployStore:
         stroj a terminál miesto behu — na iné treba nové nasadenie."""
         patch = dict(patch or {})
         zakazane = [k for k in ("account", "agent", "strategy", "symbol", "tf", "instance", "terminal", "portable",
-                                "slot", "own_terminal")
+                                "slot", "own_terminal", "route")
                     if k in patch and patch[k] is not None]
         if zakazane:
             raise DeployError(f"{', '.join(zakazane)} sa nemení — sprav nové nasadenie")
@@ -696,6 +739,7 @@ class DeployStore:
         with self._lock, self._db:
             deps = [self._deployment_row(r) for r in self._db.execute(
                 "SELECT * FROM deployments WHERE agent = ? ORDER BY account, created", (agent,))]
+            deps += self._executors(agent, deps)
             accs = []
             for acc_id in sorted({d["account"] for d in deps}):
                 r = self._db.execute("SELECT * FROM accounts WHERE id = ?", (acc_id,)).fetchone()
@@ -722,6 +766,37 @@ class DeployStore:
                                 (acc_id, agent, r["secret_rev"]))
                 accs.append(a)
         return {"accounts": accs, "deployments": deps}
+
+    def _executors(self, agent: str, deps: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Route nasadení NinjaTradera tohto stroja: doplní im `route.to` (id exekútora z prihlásenia MT5 účtu)
+        a pre každý MT5 účet, na ktorý smerujú, vráti virtuálne nasadenie exekútora (jeden graf
+        `TradeBotExecutor` na účet). Aktívne je, kým naň smeruje aspoň jedno aktívne nasadenie; terminál
+        z vlastných nasadení MT5 účtu na tomto stroji, inak nainštalovaný."""
+        targets: dict[str, dict[str, Any]] = {}
+        for d in deps:
+            route = d.get("route")
+            if not route:
+                continue
+            r = self._db.execute("SELECT * FROM accounts WHERE id = ?", (route.get("account"),)).fetchone()
+            if r is None:
+                continue
+            route["to"] = executor_id(r["login"], r["server"])
+            t = targets.setdefault(r["id"], {"row": r, "active": False, "symbols": set(), "created": d["created"]})
+            t["active"] = t["active"] or bool(d["active"])
+            if route.get("symbol"):
+                t["symbols"].add(route["symbol"])
+        out = []
+        for acc_id, t in sorted(targets.items()):
+            r = t["row"]
+            vlastne = [d for d in deps if d["account"] == acc_id and not d["own_terminal"] and d["active"]]
+            terminal, portable = (vlastne[0]["terminal"], vlastne[0]["portable"]) if vlastne else ("", False)
+            out.append({"id": EXECUTOR_PREFIX + acc_id, "account": acc_id, "agent": agent, "kind": "executor",
+                        "strategy": EXECUTOR_STRATEGY, "symbol": min(t["symbols"]) if t["symbols"] else "",
+                        "tf": 1, "profile": EXECUTOR_STRATEGY, "config": {}, "config_hash": config_hash({}),
+                        "mode": "enabled", "active": t["active"], "instance": executor_id(r["login"], r["server"]),
+                        "slot": "", "own_terminal": False, "version": "", "terminal": terminal, "portable": portable,
+                        "route": None, "created": t["created"], "updated": t["created"], "by": "hub"})
+        return out
 
     def report_applied(self, agent: str, applied: list[dict[str, Any]] | None,
                        secret_ack: list[str] | None = None) -> int:

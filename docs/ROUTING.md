@@ -4,8 +4,8 @@ Stav (26. 10. 2026): **fáza 1 hotová** — protokol v jadre (`csharp/TradeBot.
 `StaticHost.Bridge*` pre MT5, `OrderIntent.Life` s EOD obalom, testy `tester/tests/test_bridge.py`.
 **Fáza 2 napísaná:** exekútor `TradeBotExecutor` a ručný master `python -m tradebot.live.bridge`. Preložené,
 ale na MT5 účte ešte neoverené. **Fáza 3 napísaná:** AddOn NinjaTradera smeruje ordery do exekútora podľa
-`route` v `deploy.json`, preložené proti NinjaTraderu 8. Ani NT → MT5 ešte naživo nebežal. Hub, driver a
-webapp ešte nie sú (fázy 4–5 nižšie). Cieľ: pri každom živom nasadení si zvoliť, kde idú
+`route` v `deploy.json`, preložené proti NinjaTraderu 8. **Fáza 4 hotová:** route sa zadáva pri nasadení vo
+webapp, hub k nej pridá exekútor a drivery ho nasadia. Celé NT → MT5 ešte naživo nebežalo (fáza 5). Cieľ: pri každom živom nasadení si zvoliť, kde idú
 ordery — **na ten istý účet, na ktorom stratégia beží** (dnešné správanie), alebo **remote** na iný
 terminál na tom istom stroji, dnes MT5. Stratégia (engine, bary, zóny, kresby, telemetria) ostáva
 v NinjaTraderi na dátach, na ktorých bola testovaná; MT5 je len vykonávač.
@@ -236,12 +236,12 @@ je rovnaká: exekútor pri `nt.hb` staršom než 30 s zapíše `note` a prepne r
 | `csharp/TradeBot.Core/Orders.cs`, `EodClose.cs` | voliteľné `OrderIntent.Life`; obal `EodCloseEngine` ho plní 15:58:30 NY |
 | `tradebot/adapters/mt5/TradeBotExecutor.mqh` + `deploy/mt5/TradeBotExecutor.mq5` (hotové) | samostatný EA len pre hedging, vlastná vrstva orderov (EA stratégií `TradeBotEA.mqh` sa nemení): timer 50 ms, `Bridge` poll, hb, termíny `life`, prekotvenie SL/TP na fill, strážca SL, záložný trailing, `snapshot`, pamäť cez reštart |
 | `tradebot/live/bridge.py` (hotové) | ručný master: `python -m tradebot.live.bridge execs / status / send / tail / hb` |
-| `tradebot/live/deploy.py`, hub API | pole `route` v nasadení, `symbols` (aliasy) v účte; validácia: MT5 účet na tom istom agentovi, symbol v hb exekútora |
-| `tradebot/live/apply.py`, `drivers/mt5.py` | MT5 účet, na ktorý smeruje aspoň jedno NT nasadenie, dostane **automaticky** graf s `TradeBotExecutor` (jeden na účet); posledné odstránené = exekútor preč (až keď route nemá pozície) |
-| `tradebot/live/drivers/ninjatrader.py` | `route` do `deploy.json` |
-| `tradebot/live/routes.py` (nový) | predvolené mapovanie + aliasy + výber symbolu (ako `symbols.py`) |
-| webapp karta Live | voľba „Obchodovať“ vo formulári Nasadiť, čip stavu route, obe ceny fillu |
-| testy | `test_bridge.py` (protokol cez fasádu: idempotencia, expirácia, kurzory po reštarte, prepočet cien/objemu), `test_routes.py` (mapovanie), rozšírenie testov deploy/apply/driverov |
+| `tradebot/live/deploy.py`, hub API (hotové) | stĺpec `deployments.route` (len NinjaTrader; súčasť identity, `PATCH` ju nemení), `accounts.symbols` (aliasy MT5 účtu, zmena nie je nové prihlásenie); MT5 účet, na ktorý smeruje aktívne nasadenie, sa nezmaže; `desired_for_agent` doplní `route.to` z prihlásenia MT5 účtu a **virtuálne nasadenie exekútora** `exec-<účet>` (`kind: executor`) pre každý MT5 účet, na ktorý na stroji niečo smeruje |
+| `tradebot/live/drivers/mt5.py` (hotové) | virtuálne nasadenie = graf `TradeBotExecutor` (M1, prvý symbol route, vstupy EA predvolené), bez profilu a control súboru; terminál z vlastných nasadení MT5 účtu na stroji, inak nainštalovaný. Keď na účet nič aktívne nesmeruje, graf sa odoberie (pozície ostávajú u brokera so SL/TP) |
+| `tradebot/live/drivers/ninjatrader.py` (hotové) | `route` (s `to`) do záznamu `deploy.json` |
+| `tradebot/live/routes.py` (hotové) | predvolené mapovanie `DEFAULT_CFD`, aliasy, `normalize_route`, `executor_id` (to isté ako `Bridge.ExecutorId`) |
+| webapp karta Live (hotové) | Nasadiť → pri NinjaTrader účte „Ordery“ (tu / MT5 exekútor účtu), symbol v MT5, objem; účet MT5 → „Aliasy symbolov“; v tabuľke pod symbolom `→ MT5 <symbol> <účet>` a čip stavu exekútora z `hb.route` inštancie |
+| testy | `test_bridge.py` (protokol, prepočty, EOD `life`, ručný master), `test_live_routes.py` (mapovanie, hub, drivery) |
 
 Chart Strategy `TradeBotStrategy.cs` smerovanie **nedostane**: nie je na živý účet (NINJATRADER.md).
 Opačný smer (stratégia v MT5, ordery v NT) protokol zvládne, lebo je symetrický, ale nie je v rozsahu.
@@ -261,7 +261,10 @@ Opačný smer (stratégia v MT5, ordery v NT) protokol zvládne, lebo je symetri
    trieda. Zvyšok inštancie (bary, engine, control, spool, jedna pozícia naraz) je spoločný. Podrobne v
    [NINJATRADER.md](NINJATRADER.md), „Ordery do MT5 (route)“. Test: Sim101 dáta MNQ → MT5 demo NAS100,
    spolu s odloženým testom exekútora.
-4. **Hub, driver, webapp.** `route` v nasadení, aliasy v účte, automatický exekútor, formulár a čipy, Telegram.
+4. **Hub, driver, webapp** (hotové 26. 10. 2026): route v nasadení, aliasy v účte, automatický exekútor,
+   formulár a čip stavu. Telegram netreba riešiť zvlášť: zlý stav exekútora ide z NT ako `note error`, a to
+   Telegram už posiela. Obe ceny fillu webapp zatiaľ neukazuje (do spoolu ide cena NT, cena MT5 je v logu
+   AddOnu a v `evt.jsonl`). **Hub na serveri treba nasadiť znova**, lebo nová route je v kóde hubu.
 5. **Overenie naživo a dokumentácia.** Týždeň na demo/prop skúške, porovnanie fillov NT (virtuálne)
    a MT5 (skutočné), sklz a basis. Doplniť [NINJATRADER.md](NINJATRADER.md), [MT5.md](MT5.md) a [LIVE.md](LIVE.md).
 
