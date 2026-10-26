@@ -2,7 +2,8 @@
 
 Stav (26. 10. 2026): **fáza 1 hotová** — protokol v jadre (`csharp/TradeBot.Core/Bridge.cs`), fasáda
 `StaticHost.Bridge*` pre MT5, `OrderIntent.Life` s EOD obalom, testy `tester/tests/test_bridge.py`.
-Exekútor v MT5, strana NinjaTradera, hub a webapp ešte nie sú (fázy 2–5 nižšie). Cieľ: pri každom živom nasadení si zvoliť, kde idú
+**Fáza 2 napísaná:** exekútor `TradeBotExecutor` a ručný master `python -m tradebot.live.bridge`. Preložené,
+ale na MT5 účte ešte neoverené. Strana NinjaTradera, hub a webapp ešte nie sú (fázy 3–5 nižšie). Cieľ: pri každom živom nasadení si zvoliť, kde idú
 ordery — **na ten istý účet, na ktorom stratégia beží** (dnešné správanie), alebo **remote** na iný
 terminál na tom istom stroji, dnes MT5. Stratégia (engine, bary, zóny, kresby, telemetria) ostáva
 v NinjaTraderi na dátach, na ktorých bola testovaná; MT5 je len vykonávač.
@@ -228,9 +229,9 @@ je rovnaká: exekútor pri `nt.hb` staršom než 30 s zapíše `note` a prepne r
 | `csharp/TradeBot.Core/StaticHost.cs` | `Bridge*` metódy pre MQL5, `Version() = 6` |
 | `tradebot/adapters/ninjatrader/TradeBotLiveInstance.cs` | vrstva vykonávania za rozhraním: `NtAccountExecution` (dnešný kód: `CreateOrder`, OCO SL/TP, `ExecutionUpdate`, `RestoreState`) a `Mt5RouteExecution` (bridge). Engine, bary, control, spool a „jedna pozícia naraz“ ostávajú spoločné |
 | `tradebot/adapters/ninjatrader/TradeBotLiveAddOn.cs` | `route` z `deploy.json` do inštancie |
-| `tradebot/adapters/mt5/TradeBotOrders.mqh` (nový) | z `TradeBotEA.mqh` sa vyberie vrstva orderov (Tracked, SendEntry, strážca SL, netting, párovanie dealov) parametrizovaná **symbolom a magic** namiesto `_Symbol`. EA stratégií ju používa ďalej bez zmeny správania (beh v Strategy Testeri proti Testeru musí dať to isté) |
 | `csharp/TradeBot.Core/Orders.cs`, `EodClose.cs` | voliteľné `OrderIntent.Life`; obal `EodCloseEngine` ho plní 15:58:30 NY |
-| `tradebot/adapters/mt5/TradeBotExecutor.mqh` + `deploy/mt5/TradeBotExecutor.mq5` (nové) | timer 50 ms, `Bridge` poll, `TradeBotOrders` na každú route, hb, termíny `life`, záložný trailing, `snapshot` |
+| `tradebot/adapters/mt5/TradeBotExecutor.mqh` + `deploy/mt5/TradeBotExecutor.mq5` (hotové) | samostatný EA len pre hedging, vlastná vrstva orderov (EA stratégií `TradeBotEA.mqh` sa nemení): timer 50 ms, `Bridge` poll, hb, termíny `life`, prekotvenie SL/TP na fill, strážca SL, záložný trailing, `snapshot`, pamäť cez reštart |
+| `tradebot/live/bridge.py` (hotové) | ručný master: `python -m tradebot.live.bridge execs / status / send / tail / hb` |
 | `tradebot/live/deploy.py`, hub API | pole `route` v nasadení, `symbols` (aliasy) v účte; validácia: MT5 účet na tom istom agentovi, symbol v hb exekútora |
 | `tradebot/live/apply.py`, `drivers/mt5.py` | MT5 účet, na ktorý smeruje aspoň jedno NT nasadenie, dostane **automaticky** graf s `TradeBotExecutor` (jeden na účet); posledné odstránené = exekútor preč (až keď route nemá pozície) |
 | `tradebot/live/drivers/ninjatrader.py` | `route` do `deploy.json` |
@@ -246,10 +247,11 @@ Opačný smer (stratégia v MT5, ordery v NT) protokol zvládne, lebo je symetri
 1. **Bridge v jadre + testy** (hotové 26. 10. 2026). `Bridge.cs` (`RouteSpec`, `RouteMath`, `RouteStatus`,
    `BridgeMaster`, `BridgeExecutor`), fasáda `StaticHost.Bridge*`, `OrderIntent.Life` s EOD obalom a
    `test_bridge.py`. Bez platforiem. Koniec seansy do `life.close_at` doplní adaptér až vo fáze 3.
-2. **Exekútor v MT5.** Vybrať `TradeBotOrders.mqh` z EA (s overením, že EA dáva v Strategy Testeri to
-   isté), napísať `TradeBotExecutor`, ručný test na demo účte: príkazy píše skript
-   `python -m tradebot.adapters.mt5 bridge send …` namiesto NT (vstup, zrušenie, close, modify, reštart
-   terminálu s otvorenou pozíciou, expirovaný príkaz).
+2. **Exekútor v MT5** (napísaný 26. 10. 2026, preložený MetaEditorom bez chýb; **na účte ešte neoverený**).
+   Pôvodný plán bol vybrať vrstvu orderov z `TradeBotEA.mqh` do spoločného `TradeBotOrders.mqh`. Nakoniec je
+   exekútor samostatný. EA stratégií sa tak nemení a nehrozí regresia proti Testeru. Exekútor má aj tak inú
+   vrstvu: viac symbolov a route, len hedging, prekotvenie, `life`, bez odkladania vstupov a denného limitu
+   (to drží engine v NT). Ručný test na demo účte cez `python -m tradebot.live.bridge` (nižšie).
 3. **NT strana.** `Mt5RouteExecution` v AddOne, stav route, `sync` po štarte. Test: Sim101 dáta MNQ →
    MT5 demo NAS100.
 4. **Hub, driver, webapp.** `route` v nasadení, aliasy v účte, automatický exekútor, formulár a čipy, Telegram.
@@ -266,3 +268,31 @@ Opačný smer (stratégia v MT5, ordery v NT) protokol zvládne, lebo je symetri
   exekútor ich vie vykonať sám. Nemusí ísť o „poistku len pre EOD“.
 - **NinjaTrader** pri route `mt5` slúži len na dáta. `Sim101` je len meno v id inštancie a ordery na
   ňom nebudú.
+
+## Ručný test exekútora (fáza 2)
+
+Na **demo** účte (hedging), bez NinjaTradera:
+
+1. `python -m tradebot.adapters.mt5 install`. Terminál drží `TradeBot.dll`, kým na ňom beží EA, takže EA najprv
+   odstráň z grafov. Potom `TradeBotExecutor` na ľubovoľný graf, s povoleným Allow DLL imports a Algo Trading.
+2. `python -m tradebot.live.bridge execs` ukáže id exekútora (`mt5exec_<login>-<server>`), účet, spojenie a
+   symboly z Market Watch.
+3. V druhom okne nech beží `python -m tradebot.live.bridge hb --to <id> --symbol US100.cash --seconds 3600`
+   (heartbeat mastera). Bez neho exekútor po 30 s preberie trailing a zapíše `note warn`.
+4. `python -m tradebot.live.bridge status --to <id> --symbol US100.cash` dá `ok` (inak povie prečo).
+5. Príkazy (ceny v MNQ, exekútor ich posunie o basis):
+
+   ```
+   send entry --to <id> --symbol US100.cash --id M-1 --dir long --ot Limit --e <pod trhom> --sl <e-20> --tp <e+40> --ref <MNQ teraz>
+   send cancel --to <id> --symbol US100.cash --id M-1
+   send entry … --ot Market --id M-2 … --close-in 120        # sám sa zavrie o 2 min (life.close_at + 5 s)
+   send modify --to <id> --symbol US100.cash --id M-2 --sl <nový SL> --ref <MNQ teraz>
+   send close --to <id> --symbol US100.cash --id M-2
+   send sync --to <id> --symbol US100.cash                   # pos / order / snapshot
+   tail --to <id> --symbol US100.cash                        # placed, fill in/out (price + price_nt), modified, cancelled …
+   ```
+
+6. Reštart terminálu s otvorenou pozíciou: po štarte ju exekútor prevezme (`exec\<id>.orders.json`). Čo sa
+   medzitým zavrelo, zapíše ako `fill out`. Vstup s `--exp 1` poslaný pri vypnutom termináli sa po štarte
+   odmietne (`reject expired`).
+

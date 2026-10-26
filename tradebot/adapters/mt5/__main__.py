@@ -23,8 +23,8 @@ v termináli (File > Open an Account), raz.
 `install` zostaví `TradeBot.dll` (`tradebot.adapters.csharp.build`) a skopíruje:
 
     TradeBot.dll                       -> <MQL5>/Libraries/            (.NET import; musí byť tu, nie vedľa EA)
-    TradeBotEA.mqh, TradeBotJson.mqh, TradeBotDraw.mqh -> <MQL5>/Include/TradeBot/
-    deploy/mt5/<Meno>.mq5              -> <MQL5>/Experts/TradeBot/
+    TradeBotEA.mqh, TradeBotJson.mqh, TradeBotDraw.mqh, TradeBotExecutor.mqh -> <MQL5>/Include/TradeBot/
+    deploy/mt5/<Meno>.mq5              -> <MQL5>/Experts/TradeBot/   (aj TradeBotExecutor, docs/ROUTING.md)
     TradeBotImport.mq5                 -> <MQL5>/Scripts/TradeBot/        (Custom symbol z CSV)
     presets/*.set                      -> <MQL5>/Presets/ (skripty), <MQL5>/Profiles/Tester/ (EA v testeri)
     profily ako úplné configy          -> Common/Files/TradeBot/profiles/<kľúč>/   (FILE_COMMON: vidí ich aj agent Strategy Testera)
@@ -66,7 +66,7 @@ class InstallError(RuntimeError):
 
 
 ADAPTER_DIR = Path(__file__).resolve().parent
-INCLUDES = ("TradeBotEA.mqh", "TradeBotJson.mqh", "TradeBotDraw.mqh")
+INCLUDES = ("TradeBotEA.mqh", "TradeBotJson.mqh", "TradeBotDraw.mqh", "TradeBotExecutor.mqh")
 SCRIPTS = ("TradeBotImport.mq5",)
 #: `.set` pre skripty idú do Presets, pre EA v Strategy Testeri do Profiles/Tester
 PRESETS = {"TradeBotImport.set": ("Presets",), "IBSNet_TB.set": ("Profiles", "Tester"),

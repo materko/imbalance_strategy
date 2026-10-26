@@ -17,6 +17,8 @@ deploy/mt5/ini/*.ini                      štartovacie ini terminálu: import sy
 tradebot/adapters/mt5/__main__.py         inštalácia do terminálu (DLL, include, šablóny, skript, profily), csv, run, control
 tester/tests/test_mt5_static_host.py      fasáda musí dať bar po bare to isté, čo most do Freqtrade
 csharp/TradeBot.Core/Bridge.cs            smerovanie príkazov: stratégia v NinjaTraderi, ordery v MT5 exekútore (StaticHost.Bridge*, docs/ROUTING.md)
+tradebot/adapters/mt5/TradeBotExecutor.mqh  exekútor bez stratégie (šablóna deploy/mt5/TradeBotExecutor.mq5): jeden na účet, všetky
+                                          symboly route, len hedging; ručný test `python -m tradebot.live.bridge` (docs/ROUTING.md)
 ```
 
 ## Prečo fasáda

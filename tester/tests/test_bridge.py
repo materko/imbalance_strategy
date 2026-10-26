@@ -311,3 +311,26 @@ def test_eod_engine_dava_vstupom_life(clr):
     for bt, o in eod:
         assert o["life"] == {"close_at": core.EodCloseEngine.NextClockCloseMs(bt + tf * 60_000, tz)}, (bt, o)
     assert all("life" not in o for _, o in entries("noanet"))
+
+
+def test_rucny_master_cli(clr, tmp_path, capsys):
+    """`python -m tradebot.live.bridge` píše tie isté príkazy ako NinjaTrader — exekútor ich prečíta cez fasádu."""
+    from tradebot.live import bridge as cli
+
+    _, host = clr
+    root = str(tmp_path)
+    to = host.BridgeExecutorId(5012345, "FTMO-Demo")
+    base = ["--root", root, "--to", to, "--symbol", "US100.cash"]
+    assert cli.main(["status", *base]) == 1 and "no_executor" in capsys.readouterr().out
+    assert cli.main(["send", "entry", *base, "--id", "M-1", "--e", "20000", "--sl", "19980", "--tp", "20040",
+                     "--ref", "20010", "--close-in", "30"]) == 0
+    assert cli.main(["send", "modify", *base, "--id", "M-1", "--sl", "19990", "--ref", "20010"]) == 0
+    assert cli.main(["send", "sync", *base]) == 0
+    h = host.BridgeExecOpen(root, to)
+    cmds = json.loads(host.BridgePoll(h, "manual_US100.cash"))
+    assert [c["a"] for c in cmds] == ["entry", "modify", "sync"]
+    assert cmds[0]["ot"] == "Limit" and cmds[0]["ref"] == 20010.0 and cmds[0]["life"]["close_at"] > cmds[0]["t"]
+    assert cmds[1]["sl"] == 19990.0 and cmds[1]["tp"] is None
+    assert host.BridgeMasterAge(h, "manual_US100.cash", T0 * 2) >= 0
+    host.BridgeExecClose(h)
+    assert cli.main(["execs", "--root", root]) == 1
