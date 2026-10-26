@@ -88,6 +88,10 @@ def _session_from_name(path: Path) -> str:
     return kmen.rsplit("_", 1)[1] if "_" in kmen else kmen
 
 
+#: Koľko bajtov spoolu sa prečíta naraz (`SpoolReader.read`).
+READ_BLOCK = 1 << 20
+
+
 class SpoolReader:
     def __init__(self, roots: list[Path], cursor_path: Path) -> None:
         self.roots = [Path(r) for r in roots]
@@ -191,9 +195,17 @@ class SpoolReader:
             if velkost <= start:
                 continue
             try:
+                # Najviac `READ_BLOCK` bajtov na kolo, nie celý zvyšok: po týždni bez hubu by sa desiatky MB
+                # čítali znova v každom kole, hoci sa spotrebuje len `max_events` (audit N-HUB-5). Keď blok
+                # nemá ani jeden celý riadok, zväčší sa.
+                blok = READ_BLOCK
                 with open(path, "rb") as fh:
-                    fh.seek(start)
-                    data = fh.read(velkost - start)
+                    while True:
+                        fh.seek(start)
+                        data = fh.read(min(blok, velkost - start))
+                        if b"\n" in data or start + len(data) >= velkost:
+                            break
+                        blok *= 4
             except OSError as exc:
                 log.warning("live spool: %s sa nedá čítať: %s", path, exc)
                 continue

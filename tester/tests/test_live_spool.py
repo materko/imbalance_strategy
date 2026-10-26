@@ -353,3 +353,23 @@ def test_shipper_max_batches_bounds_one_pump(reader, tmp_path: Path):
     assert s.pump()["sent"] == 2
     assert s.pump()["sent"] == 1
     assert s.pump()["sent"] == 0
+
+
+def test_citanie_po_blokoch_nestrati_ani_nezdvoji_udalost(reader, monkeypatch):
+    """Audit N-HUB-5: spool sa číta po blokoch (nie celý zvyšok v každom kole) — aj keď blok preseká riadok
+    alebo je menší než jeden riadok, prídu všetky udalosti práve raz a v poradí."""
+    from tradebot.live import spool as spool_mod
+
+    monkeypatch.setattr(spool_mod, "READ_BLOCK", 50)          # menej než jeden riadok `bar`
+    r, root = reader
+    f = spool_file(root, INST, "a1b2c3d4")
+    f.write_bytes(b"".join([line(hello(1, "a1b2c3d4"))] + [line(bar(2 + i, i)) for i in range(30)]))
+    seqs = []
+    for _ in range(200):
+        b = r.read(max_events=500)
+        if not b:
+            break
+        for x in b:
+            seqs += [e["seq"] for e in x.events]
+            r.commit(x)
+    assert seqs == list(range(1, 32))
