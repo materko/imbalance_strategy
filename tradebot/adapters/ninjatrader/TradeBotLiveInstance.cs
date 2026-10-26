@@ -191,6 +191,12 @@ namespace NinjaTrader.NinjaScript.AddOns
         private double _foreignPrice;
         private long _foreignMs;
         private DateTime _extFlatSince = DateTime.MinValue;
+
+        // Viac instancii na tom istom ucte a instrumente (rozne strategie na Sim101 MNQ): pozicia uctu je netto vsetkych.
+        // Kazda instancia tu zverejni svoju podpisanu poziciu, aby zatvorenie mimo strategie a pozicia pre engine
+        // brali len vlastnu cast - long 1 jednej a short 1 druhej nie je zatvorenie oboch (audit N-LIVE-13).
+        private static readonly object NetGate = new object();
+        private static readonly Dictionary<string, KeyValuePair<string, int>> Nets = new Dictionary<string, KeyValuePair<string, int>>();
         /// <summary>Od kedy je ucet nepretrzite Connected - ReconcileExternal po reconnecte pocka, kym sa pozicie
         /// uctu zosynchronizuju (audit N-LIVE-12).</summary>
         private DateTime _connectedSince = DateTime.MinValue;
@@ -303,6 +309,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     if (_stopRequested) break;
                     try { ProcessBars(); }
                     catch (Exception e) { Note("error", "spracovanie barov zlyhalo - " + e); }
+                    PublishNet();
                     try { if (_live) ReconcileExternal(); }
                     catch (Exception e) { Note("error", "kontrola pozicie uctu - " + e.Message); }
                     try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
@@ -333,6 +340,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
             finally
             {
+                UnpublishNet();
                 Finished = true;
                 FinishedAt = DateTime.UtcNow;
                 if (Status != "failed") Status = "stopped";
@@ -682,7 +690,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (kv.Value.Filled && kv.Value.OpenQty > 0)
                     tracked += (kv.Value.Intent.Plan.Direction == TB.Direction.Long ? 1 : -1) * kv.Value.OpenQty;
             // vlastna pozicia hned (PositionUpdate uctu chodi o chvilu neskor), inak pozicia uctu (cudzia / z predosleho behu)
-            ctx.PositionSize = tracked != 0 ? tracked : AccountPosition();
+            ctx.PositionSize = tracked != 0 ? tracked : AccountPosition() - OthersNet();
             // Market vstup, ktory uz odisiel, ale fill este neprisiel, sa pocita ako pozicia (inak engine
             // posle dalsi a dalsi - 25. 9. 2026 ORB 20 market orderov v jednej sekunde).
             foreach (KeyValuePair<string, Tracked> kv in _orders)
@@ -935,7 +943,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (!t.Protect && (now - t.NoStopSince).TotalSeconds < NoStopGraceSeconds) continue;
                 // TP z neuplnej dvojice najprv prec (inak by po novej dvojici stali dva TP)
                 if (Alive(t.Tp)) { CancelOrder(t.Tp); continue; }
-                if (AccountPosition() == 0) continue;   // ucet flat - pozicia sa zavrela inde (ReconcileExternal)
+                if (AccountPosition() == OthersNet()) continue;   // vlastna cast flat - pozicia sa zavrela inde (ReconcileExternal)
                 if (t.ExitFails >= MaxExitAttempts)
                 {
                     if (t.Closing != null) continue;    // trhovy vystup uz bezi (CloseTimeouts)
@@ -1044,7 +1052,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (t.Filled && t.OpenQty > 0) return true;
                 if (!t.Filled && !t.Parked && t.Entry != null && t.Intent.OrderType == TB.OrderType.Market && Alive(t.Entry)) return true;
             }
-            return AccountPosition() != 0;
+            return AccountPosition() - OthersNet() != 0;   // len vlastna cast (N-LIVE-13)
         }
 
         private void ParkOthers(string filledId)
@@ -1111,6 +1119,40 @@ namespace NinjaTrader.NinjaScript.AddOns
                      + "zavri to rucne v NinjaTraderi");
         }
 
+        private string NetKey() { return _account.Name + "|" + _inst.FullName; }
+
+        private int OwnNet()
+        {
+            int net = 0;
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+                if (kv.Value.Filled && kv.Value.OpenQty > 0)
+                    net += (kv.Value.Intent.Plan.Direction == TB.Direction.Long ? 1 : -1) * kv.Value.OpenQty;
+            return net;
+        }
+
+        private void PublishNet()
+        {
+            if (_account == null || _inst == null || _instance.Length == 0) return;
+            lock (NetGate) Nets[_instance] = new KeyValuePair<string, int>(NetKey(), OwnNet());
+        }
+
+        private void UnpublishNet()
+        {
+            lock (NetGate) Nets.Remove(_instance);
+        }
+
+        /// <summary>Sucet pozicii ostatnych instancii tohto procesu na tom istom ucte a instrumente.</summary>
+        private int OthersNet()
+        {
+            if (_account == null || _inst == null) return 0;
+            string key = NetKey();
+            int sum = 0;
+            lock (NetGate)
+                foreach (KeyValuePair<string, KeyValuePair<string, int>> kv in Nets)
+                    if (kv.Key != _instance && kv.Value.Key == key) sum += kv.Value.Value;
+            return sum;
+        }
+
         private void ReconcileExternal()
         {
             // Pri vypadku spojenia `_account.Positions` chvilu pozicie nema (kym sa ucet nezosynchronizuje) - bez tejto
@@ -1127,7 +1169,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             bool open = false;
             foreach (KeyValuePair<string, Tracked> kv in _orders)
                 if (kv.Value.Filled && kv.Value.OpenQty > 0 && (DateTime.UtcNow - kv.Value.FilledAt).TotalSeconds >= 10) open = true;
-            if (!open || AccountPosition() != 0) { _extFlatSince = DateTime.MinValue; return; }
+            // vlastna cast pozicie zmizla = ucet ma uz len to, co drzia ostatne instancie (bez nich 0 ako doteraz)
+            if (!open || AccountPosition() != OthersNet()) { _extFlatSince = DateTime.MinValue; return; }
             if (_extFlatSince == DateTime.MinValue) { _extFlatSince = DateTime.UtcNow; return; }
             if ((DateTime.UtcNow - _extFlatSince).TotalSeconds < 3) return;
             _extFlatSince = DateTime.MinValue;
@@ -1505,7 +1548,7 @@ namespace NinjaTrader.NinjaScript.AddOns
 
         private bool IsFlat()
         {
-            return _orders.Count == 0 && AccountPosition() == 0;
+            return _orders.Count == 0 && AccountPosition() - OthersNet() == 0;
         }
 
         /// <summary>Vymena profilu, ked je instancia flat: novy engine, novy spool (nova session) a historia
@@ -1797,7 +1840,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     // ani SL/TP na ucte, ani vystup v exekuciach (NinjaTrader bol dole, exekucie spred pripojenia nema;
                     // vstup vyplneny pocas vypadku SL/TP este nema a mohol ho niekto zavriet rucne): pozicia uctu
                     // rozhodne, ci obchod este bezi - inak by nove SL/TP na flat ucte otvorili poziciu
-                    int pos = AccountPosition();
+                    int pos = AccountPosition() - OthersNet();
                     if (Math.Sign(pos) != (int)plan.Direction || Math.Abs(pos) < open)
                     {
                         lost++;
