@@ -28,6 +28,7 @@ Env `TRADEBOT_TELEGRAM_TOKEN` a `TRADEBOT_TELEGRAM_CHATS` (čiarkou) prebijú s�
 
 from __future__ import annotations
 
+import copy
 import html
 import json
 import logging
@@ -136,9 +137,15 @@ def _multipart(payload: dict) -> tuple[bytes, str]:
 
 
 class TelegramError(Exception):
-    def __init__(self, message: str, retry_after: float | None = None) -> None:
+    def __init__(self, message: str, retry_after: float | None = None, code: int | None = None) -> None:
         super().__init__(message)
         self.retry_after = retry_after
+        self.code = code
+
+    @property
+    def permanent(self) -> bool:
+        """400 (zlá správa) a 403 (bot vyhodený z chatu) sa opakovaním nezmenia — na rozdiel od siete, 429 a 5xx."""
+        return self.code in (400, 403)
 
 
 class TelegramConflict(TelegramError):
@@ -188,7 +195,7 @@ class TelegramBot:
         if code == 409:
             raise TelegramConflict(text)
         retry = (body.get("parameters") or {}).get("retry_after")
-        raise TelegramError(text, float(retry) if retry else None)
+        raise TelegramError(text, float(retry) if retry else None, code if isinstance(code, int) else None)
 
     def send(self, chat_id: int, text: str, buttons: list[list[dict]] | None = None, *, html: bool = False,
              keyboard: list[list[str]] | None = None) -> Any:
@@ -645,8 +652,17 @@ class LiveNotifier:
         return "\n".join(riadky) or None
 
     def _send_all(self, text: str) -> None:
+        """Do každého chatu zvlášť. Trvalá chyba jedného chatu (400 zlá správa, 403 bot vyhodený) sa zapíše a ide
+        sa ďalej — inak by jedna otrávená správa zastavila všetky ostatné navždy (audit N-LIVE-17). Prechodná
+        chyba (sieť, 429, 5xx) zastaví kolo a pošle sa celé znova."""
         for chat in self.cfg.chats:
-            self.bot.send(chat, text, html=True)
+            try:
+                self.bot.send(chat, text, html=True)
+            except TelegramError as exc:
+                if not exc.permanent:
+                    raise
+                self.last_error = f"chat {chat}: {exc}"
+                log.warning("telegram: správa do chatu %s sa nedá doručiť, preskakujem: %s", chat, exc)
 
     def pump(self, max_events: int = 500) -> dict[str, Any]:
         """Jedno kolo: prečítaj, pošli, potvrď. Obchody a varovania z celého kola idú jednou správou (každý
@@ -656,7 +672,12 @@ class LiveNotifier:
             self._skip_history()
             return {"sent": 0, "skipped_history": True}
         sent = 0
+        self.last_error = None   # trvalá chyba jedného chatu v tomto kole ho znova nastaví (`_send_all`)
         batches = self.reader.read(max_events)
+        # `messages` mení kontext (otvorené vstupy, zbierka životného cyklu) — pri chybe Telegramu sa kurzor
+        # neposunie a to isté kolo príde znova, takže zmeny sa musia vrátiť, inak by sa vstup započítal
+        # druhýkrát a /status by ukazoval LONG 2 (audit N-LIVE-17)
+        zaloha = {k: copy.deepcopy(self.state.data.get(k)) for k in ("ctx", "life")}
         riadky_po: list[tuple[Any, list[tuple[int, str]]]] = [(b, self.messages(b)) for b in batches]
         texty = [t for _, riadky in riadky_po for _, t in riadky if t]
         try:
@@ -670,6 +691,7 @@ class LiveNotifier:
                 sent += suhrn.count("\n") + 1
         except TelegramError as exc:
             self.last_error = str(exc)
+            self.state.data.update(zaloha)
             self.state.save()
             return {"sent": sent, "error": self.last_error}
         for batch, riadky in riadky_po:
@@ -679,7 +701,6 @@ class LiveNotifier:
             self.reader.commit(batch)
         if batches or sent:
             self.state.save()
-        self.last_error = None
         self.sent_total += sent
         return {"sent": sent, "error": None}
 

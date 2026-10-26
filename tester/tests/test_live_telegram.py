@@ -126,6 +126,38 @@ def test_notifier_preskoci_historiu_posiela_nove_a_po_vypadku_nezdvoji(tmp_path:
     assert n2.pump()["sent"] == 0
 
 
+def test_chyba_telegramu_nezdvoji_vstup_a_otravena_sprava_nezastavi_ostatne(tmp_path: Path):
+    """Audit N-LIVE-17: pri chybe sa kontext (otvorené vstupy) uložil, `seq` nie — po opakovaní bol vstup
+    započítaný dvakrát; 400/403 jedného chatu zastavilo všetky."""
+    root = tmp_path / "spool"
+    write(root, [hello(), entry(2)])
+    bot = FakeBot()
+    state = TelegramState(tmp_path / "tg.json")
+    n = LiveNotifier(SpoolReader([root], tmp_path / "cur.json"), bot, CFG, state)
+    n.pump()                                                               # história
+    write(root, [fill(3, "in", 29152.0)])
+    bot.fail = TelegramError("sendMessage: 502", code=502)
+    assert n.pump()["error"]
+    bot.fail = None
+    assert n.pump()["sent"] == 1
+    otvorene = next(c for c in state.data["ctx"].values() if "open" in c)["open"]
+    assert [round(o["qty"], 2) for o in otvorene.values()] == [0.14]       # nie 0.28
+
+    class Otraveny(FakeBot):
+        def send(self, chat, text, buttons=None, html=False, keyboard=None):
+            if chat == 7:
+                raise TelegramError("sendMessage: 403 Forbidden: bot was kicked", code=403)
+            super().send(chat, text, buttons, html, keyboard)
+
+    bot2 = Otraveny()
+    n2 = LiveNotifier(SpoolReader([root], tmp_path / "cur.json"), bot2,
+                      TelegramConfig(token="t", chats=[7, 8], admins=[42]), state)
+    write(root, [fill(4, "out", 28802.0, exit_="sltp")])
+    out = n2.pump()
+    assert out["sent"] == 1 and [c for c, *_ in bot2.sent] == [8] and "403" in (n2.last_error or "")
+    assert n2.pump()["sent"] == 0                                          # kurzor sa posunul, nezasekne sa
+
+
 def test_restart_troch_strategii_je_jeden_suhrn_po_utichnuti(tmp_path: Path):
     root = tmp_path / "spool"
     t = [1000.0]
