@@ -253,6 +253,8 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--archive", type=Path, default=TESTER_ARCHIVE,
                     help="kam ročné feather súbory (default data_archive/tester/)")
     ap.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre Tester")
+    ap.add_argument("--replace", action="store_true",
+                    help="roky z exportu prepísať celé (inak sa zlúčia s tým, čo v archíve už je)")
     return ap
 
 
@@ -288,7 +290,7 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
         return 1
 
     print("\narchiv (commitni ho):", file=err)
-    files = store(df, inst, archive=args.archive, merge=not args.no_merge)
+    files = store(df, inst, archive=args.archive, merge=not args.no_merge, replace=args.replace)
     rolls_path = files[0].with_name(f"{inst.data_stem}-1m.rolls.json")
     rolls_path.write_text(json.dumps([{"date": d, "contract": s} for d, s in stats.rolls],
                                      indent=1), encoding="utf-8")

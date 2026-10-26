@@ -191,3 +191,26 @@ def test_archiv_je_zrkadlom_skladu_sviecok():
     assert TESTER_ARCHIVE == DATA_ARCHIVE / TESTER_DATA.name
     for func in (dukas_import.store, dukas_import.write_years):
         assert inspect.signature(func).parameters["archive"].default == TESTER_ARCHIVE, func.__name__
+
+
+def test_ciastocny_import_roka_nezmaze_zvysok(tmp_path):
+    """Audit N-DATA-1: archív 2026 celý, nový export len za október — rok sa zlúči (október z nového exportu
+    vyhrá), nie prepíše. `replace=True` prepíše celý rok."""
+    import pandas as pd
+
+    from tester.dukas_import import write_years
+
+    def frame(start, n, price):
+        dates = pd.date_range(start, periods=n, freq="1min", tz="UTC")
+        return pd.DataFrame({"date": dates, "open": price, "high": price, "low": price, "close": price, "volume": 1.0})
+
+    full = pd.concat([frame("2026-01-05", 3, 1.0), frame("2026-10-01", 3, 1.0)], ignore_index=True)
+    write_years(full, "X_USD", archive=tmp_path, verbose=False)
+    write_years(frame("2026-10-01 00:01", 3, 2.0), "X_USD", archive=tmp_path, verbose=False)
+    got = pd.read_feather(tmp_path / "X_USD-1m.2026.feather")
+    assert len(got) == 7 and got["date"].is_monotonic_increasing
+    assert got[got["date"] == pd.Timestamp("2026-01-05", tz="UTC")]["close"].item() == 1.0       # január ostal
+    assert got[got["date"] == pd.Timestamp("2026-10-01 00:01", tz="UTC")]["close"].item() == 2.0  # nový vyhral
+    assert not list(tmp_path.glob(".*.tmp"))
+    write_years(frame("2026-10-01", 2, 3.0), "X_USD", archive=tmp_path, verbose=False, replace=True)
+    assert len(pd.read_feather(tmp_path / "X_USD-1m.2026.feather")) == 2

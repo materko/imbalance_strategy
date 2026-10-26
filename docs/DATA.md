@@ -188,6 +188,9 @@ Priamo použiteľný nie je. Všetko potrebné spraví jeden príkaz:
 alebo priamo `PY -m tester.dukas_import <csv> --symbol NAS100`. Import robí vždy to isté
 a nič viac: **vyčistí** surový súbor, spraví z neho **feather v timeframe zdroja** (Dukascopy
 = 1m), **rozdelí po rokoch** a uloží do `data_archive/`. Tam jeho práca končí.
+Rok, ktorý už v archíve je, sa s exportom **zlúči** (pri tom istom čase vyhrá nový) — čiastočný
+export (len október) zvyšok roka nezmaže; celý rok prepíše len `--replace`. Zápis je atomický
+(platí pre `dukas_import`, `bento_import` aj `ibkr_import`).
 
 ```
 raw  ->  import (čistenie, feather, split po rokoch)  ->  data_archive/  (commituje sa)

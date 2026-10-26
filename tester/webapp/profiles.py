@@ -26,6 +26,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from tester.atomic import write_json_atomic
 from tradebot.core.config import ConfigError
 from tradebot.core.paths import PROFILES_DIR
 from tradebot.core.types import INSTRUMENTS
@@ -258,10 +259,7 @@ def save(name: str, params: dict[str, Any], instrument: str, *,
         data = {"_comment": comment, **data}
     if title:
         data = {"_title": title, **data}
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        json.dump(data, fh, ensure_ascii=False, indent=2)
-        fh.write("\n")
+    write_json_atomic(path, data, indent=2)
     return path
 
 

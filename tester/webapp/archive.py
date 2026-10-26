@@ -29,6 +29,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
+from tester.atomic import write_json_atomic
 from tradebot.core.paths import ARCHIVE_DIR
 
 from .store import PLAN_FILE, RunStore
@@ -137,10 +138,7 @@ def _next_file(root: Path) -> Path:
 
 
 def _write_index(root: Path, mapa: dict[str, str]) -> None:
-    with open(root / "index.json", "w", encoding="utf-8", newline="\n") as fh:
-        json.dump({"version": 1, "runs": dict(sorted(mapa.items()))}, fh,
-                  ensure_ascii=False, indent=1)
-        fh.write("\n")
+    write_json_atomic(root / "index.json", {"version": 1, "runs": dict(sorted(mapa.items()))}, indent=1)
 
 
 def apply(store: RunStore, p: Plan, root: Path | None = None,
@@ -163,16 +161,17 @@ def apply(store: RunStore, p: Plan, root: Path | None = None,
                     continue
                 fh.write(json.dumps(riadok, ensure_ascii=False, default=str) + "\n")
                 zapisane.append(run_id)
-        # Prečítaj späť, čo sa práve zapísalo — až potom sa smie mazať.
+        # Prečítaj späť, čo sa práve zapísalo, zapíš register — až potom sa smie mazať. Pád medzi
+        # mazaním a registrom by inak nechal behy zmazané a `restore` by ich nenašiel (N-WEB-5).
         v_subore = _ids_in(subor)
-        for run_id in zapisane:
-            if run_id not in v_subore:
-                chyby += 1
-                continue
+        overene = [run_id for run_id in zapisane if run_id in v_subore]
+        chyby += len(zapisane) - len(overene)
+        for run_id in overene:
             mapa[run_id] = subor.name
+        _write_index(root, mapa)
+        for run_id in overene:
             store.delete(run_id)
             hotovo += 1
-        _write_index(root, mapa)
         log(f"{subor.name}: {len(zapisane)} behov, ostáva {len(zvysok)}")
     return {"archived": hotovo, "failed": chyby, "files": len(list(root.glob("runs-*.jsonl.gz")))}
 

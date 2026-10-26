@@ -170,8 +170,17 @@ def load_dukas_frame(path: str | Path, *, drop_padding: bool = True, fix_scale: 
 
 
 def write_years(df, stem: str, *, archive: Path = TESTER_ARCHIVE, from_year: int | None = None,
-                to_year: int | None = None, verbose: bool = True) -> list[Path]:
-    """Rok = jeden súbor. Uzavretý rok sa už nezmení, takže jeho blob je v gite raz."""
+                to_year: int | None = None, verbose: bool = True, replace: bool = False) -> list[Path]:
+    """Rok = jeden súbor. Uzavretý rok sa už nezmení, takže jeho blob je v gite raz.
+
+    Rok, ktorý už v archíve je, sa s novými sviečkami **zlúči** (pri tom istom čase vyhrá nová) — čiastočný
+    export (len október) nesmie zmazať zvyšok roka (audit N-DATA-1). Celý rok prepíše len `replace`.
+    Zápis je atomický (dočasný súbor + `os.replace`), prerušený import nenechá rozbitý feather.
+    """
+    import os
+
+    import pandas as pd
+
     written: list[Path] = []
     years = df["date"].dt.year
     for year in sorted(years.unique()):
@@ -180,7 +189,16 @@ def write_years(df, stem: str, *, archive: Path = TESTER_ARCHIVE, from_year: int
         part = df[years == year].reset_index(drop=True)
         out = archive / f"{stem}-1m.{year}.feather"
         out.parent.mkdir(parents=True, exist_ok=True)
-        part.to_feather(out)
+        if out.exists() and not replace:
+            old = pd.read_feather(out)
+            before = len(old)
+            part = (pd.concat([old, part[old.columns] if set(old.columns) <= set(part.columns) else part], ignore_index=True)
+                    .drop_duplicates("date", keep="last").sort_values("date").reset_index(drop=True))
+            if verbose:
+                print(f"  {out.name}: zlúčené s archívom ({before} -> {len(part)} barov)")
+        tmp = out.with_name(f".{out.name}.{os.getpid()}.tmp")
+        part.to_feather(tmp)
+        os.replace(tmp, out)
         written.append(out)
         if verbose:
             print(f"  {out.name}  {len(part):>8} barov  {out.stat().st_size / 1e6:.1f} MB")
@@ -188,14 +206,14 @@ def write_years(df, stem: str, *, archive: Path = TESTER_ARCHIVE, from_year: int
 
 
 def store(df, inst: InstrumentSpec, *, archive: Path = TESTER_ARCHIVE, merge: bool = True,
-          verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
+          verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None, replace: bool = False) -> list[Path]:
     """Vyčistené sviečky → ročné súbory v archíve (+ pracovná kópia pre Tester).
 
     Spoločný koniec každého importu, nech je zdroj akýkoľvek: do archívu ide timeframe
     zdroja, zvyšok si Tester dopočíta z neho.
     """
     written = write_years(df, inst.data_stem, archive=archive / inst.data_source / inst.market,
-                          verbose=verbose)
+                          verbose=verbose, replace=replace)
     if merge:
         from . import data_archive
 
@@ -273,6 +291,8 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--archive", type=Path, default=TESTER_ARCHIVE,
                     help="kam ročné feather súbory (default data_archive/tester/)")
     ap.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre Tester")
+    ap.add_argument("--replace", action="store_true",
+                    help="roky z exportu prepísať celé (inak sa zlúčia s tým, čo v archíve už je)")
 
     new = ap.add_argument_group("nový symbol (ak ešte nie je v tabuľke)")
     new.add_argument("--point-value", type=float, help="$ za pohyb ceny o 1.0 na jednotku = Big Point Value")
@@ -337,7 +357,7 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
         return 1
 
     print("\narchiv (commitni ho):", file=err)
-    files = store(df, inst, archive=args.archive, merge=not args.no_merge)
+    files = store(df, inst, archive=args.archive, merge=not args.no_merge, replace=args.replace)
     print(f"zapisanych {len(files)} rocnych suborov do {args.archive}", file=err)
     if not args.no_merge:
         from . import engines

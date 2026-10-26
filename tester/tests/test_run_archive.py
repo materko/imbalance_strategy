@@ -126,3 +126,40 @@ def test_riadok_archivu_nesie_cely_beh(tmp_path: Path):
     assert riadky[0]["run"]["params"]["rrRatio"] == 1.0
     assert json.loads(riadky[0]["trades.json"]) == [TRADE]
     assert riadky[0]["log.txt"] == "log behu 1"
+
+
+def test_register_sa_zapise_skor_nez_sa_maze(tmp_path: Path, monkeypatch):
+    """Audit N-WEB-5: pád pri mazaní (po zápise do `.jsonl.gz`) nesmie nechať behy mimo registra — `restore`
+    ich musí nájsť."""
+    import pytest
+
+    store = _store(tmp_path, 3)
+    koren = tmp_path / "archive"
+    plan = archive.plan(store, store.all(), root=koren)
+
+    def pad(run_id):
+        raise KeyboardInterrupt("pád uprostred mazania")
+
+    monkeypatch.setattr(store, "delete", pad)
+    with pytest.raises(KeyboardInterrupt):
+        archive.apply(store, plan, root=koren, log=lambda t: None)
+    assert set(archive.archived(koren)) == set(plan.ids)
+
+
+def test_atomicky_zapis_nenecha_rozbity_subor(tmp_path: Path, monkeypatch):
+    """Audit N-WEB-4: zápis prerušený uprostred nechá pôvodný súbor celý a žiadny dočasný."""
+    import pytest
+
+    from tester import atomic
+
+    cesta = tmp_path / "run.json"
+    atomic.write_json_atomic(cesta, {"a": 1})
+
+    def pad(*a, **k):
+        raise OSError("plný disk")
+
+    monkeypatch.setattr(atomic.os, "replace", pad)
+    with pytest.raises(OSError):
+        atomic.write_json_atomic(cesta, {"a": 2})
+    assert json.loads(cesta.read_text(encoding="utf-8")) == {"a": 1}
+    assert [p.name for p in tmp_path.iterdir()] == ["run.json"]

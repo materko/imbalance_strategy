@@ -35,6 +35,7 @@ import threading
 from pathlib import Path
 from typing import Any, Iterable
 
+from tester.atomic import write_json_atomic
 from tradebot.core.paths import SWEEPS_DIR
 
 __all__ = ["KINDS", "BatchStore", "batch_tag", "strip_tag", "new_batch", "add_to"]
@@ -73,12 +74,7 @@ def _diff(full: dict[str, Any], base: dict[str, Any]) -> dict[str, Any]:
 
 
 def _write_atomic(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
-    with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
-        json.dump(data, fh, ensure_ascii=False, indent=1, default=str)
-        fh.write("\n")
-    os.replace(tmp, path)
+    write_json_atomic(path, data, indent=1, default=str)
 
 
 def _kind_id(record: dict[str, Any]) -> tuple[str, str]:

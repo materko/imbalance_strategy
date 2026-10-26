@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any, Iterable
 from uuid import uuid4
 
+from tester.atomic import write_json_atomic
 from tradebot.core.paths import ANALYTICS_DIR
 
 __all__ = ["AnalyticsStore", "ANALYTICS_DIR", "POSUDOK_OTAZKY",
@@ -95,8 +96,7 @@ class AnalyticsStore:
             "posudok_user": "",
             "report": _bez_obchodov(report),
         }
-        self._path(an_id).write_text(json.dumps(zaznam, ensure_ascii=False, indent=1),
-                                     encoding="utf-8")
+        write_json_atomic(self._path(an_id), zaznam, indent=1, newline=False)
         return summary(zaznam)
 
     def get(self, an_id: str) -> dict[str, Any] | None:
@@ -121,8 +121,7 @@ class AnalyticsStore:
         zaznam["posudok_stamp"] = zaznam.get("numbers") or ""
         zaznam["posudok_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
         zaznam["posudok_user"] = user
-        self._path(an_id).write_text(json.dumps(zaznam, ensure_ascii=False, indent=1),
-                                     encoding="utf-8")
+        write_json_atomic(self._path(an_id), zaznam, indent=1, newline=False)
         return summary(zaznam)
 
     def find_by_numbers(self, strategy: str, numbers: str) -> dict[str, Any] | None:
@@ -160,8 +159,7 @@ class AnalyticsStore:
         if zaznam is None:
             return None
         zaznam.update(fields)
-        self._path(an_id).write_text(json.dumps(zaznam, ensure_ascii=False, indent=1),
-                                     encoding="utf-8")
+        write_json_atomic(self._path(an_id), zaznam, indent=1, newline=False)
         return summary(zaznam)
 
     def delete(self, an_id: str) -> bool:

@@ -48,6 +48,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from tester.atomic import write_json_atomic
 from tradebot.core.paths import CHART_CACHE, REPO, RUNS_DIR, SWEEPS_DIR  # noqa: F401  (REPO sa reexportuje)
 from tradebot.strategies import canonical_key
 
@@ -91,10 +92,7 @@ def strategy_of(record: dict[str, Any]) -> str:
 
 
 def _write_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        json.dump(data, fh, ensure_ascii=False, indent=2, default=str)
-        fh.write("\n")
+    write_json_atomic(path, data, indent=2, default=str)   # pád uprostred nenechá rozbitý run.json (N-WEB-4)
 
 
 def plan_objects(chart: dict[str, Any] | None, trades: Iterable[dict[str, Any]],
