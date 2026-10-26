@@ -1,0 +1,8 @@
+$ emulator MultiCharts 6E 5m 20240904-20250904 (6E_USD-1m.feather)
+predhistoria grafu: 624 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 71089 barov 5m, 350669 1m, 0 HTF
+  20000/71089 barov, 46 obchodov
+  40000/71089 barov, 90 obchodov
+  60000/71089 barov, 130 obchodov
+hotovo: 157 obchodov, nerozhodnutelnych minut 1
+kresby: {'se_supply': 173, 'se_demand': 281, 'tp_box': 157, 'sl_box': 157, 'se_entry': 157}
