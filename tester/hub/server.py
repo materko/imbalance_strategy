@@ -111,7 +111,7 @@ class HeartbeatRequest(BaseModel):
     updating: bool | None = None
     load: dict[str, Any] = Field(default_factory=dict)
     jobs: list[dict[str, Any]] = Field(default_factory=list)
-    #: Live nasadenia (docs/LIVE.md, fáza 2b): `instances`, `applied`, `drivers`, `secret_ack`;
+    #: Live nasadenia (docs/LIVE.md, fáza 2b): `instances`, `applied`, `drivers`, `secret_ack`, `exec_symbols`;
     #: starý agent to neposiela.
     live: dict[str, Any] | None = None
     #: Vybavený pokyn „aktualizuj sa" (`request` = čas pokynu, `ok`, `version`, `output`, `at`).

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -38,8 +39,17 @@ def _now() -> int:
     return int(time.time() * 1000)
 
 
-def _root(args, core) -> str:
-    return args.root or str(core.Bridge.DefaultRoot())
+def _root(args, core=None) -> str:
+    """Koreň mosta: `--root`, inak `Bridge.DefaultRoot` — bez C# (`core=None`, príkazy, ktoré len čítajú súbory)
+    jeho zrkadlo v Pythone (`TRADEBOT_BRIDGE_ROOT`, inak `%APPDATA%/MetaQuotes/Terminal/Common/Files/TradeBot`)."""
+    if args.root:
+        return args.root
+    if core is not None:
+        return str(core.Bridge.DefaultRoot())
+    env = os.environ.get("TRADEBOT_BRIDGE_ROOT")
+    if env:
+        return env
+    return str(Path(os.environ.get("APPDATA") or Path.home()) / "MetaQuotes" / "Terminal" / "Common" / "Files" / "TradeBot")
 
 
 def _master(args, core):
@@ -68,14 +78,17 @@ def _status(master) -> tuple[str, str]:
 
 
 def cmd_execs(args) -> int:
-    core = _core()
-    exec_dir = Path(_root(args, core)) / "exec"
+    exec_dir = Path(_root(args)) / "exec"
     files = sorted(exec_dir.glob("*.hb.json")) if exec_dir.is_dir() else []
     if not files:
         print(f"žiadny exekútor v {exec_dir}")
         return 1
     for f in files:
-        hb = json.loads(f.read_text(encoding="utf-8"))
+        try:
+            hb = json.loads(f.read_text(encoding="utf-8-sig"))
+        except (OSError, ValueError) as exc:
+            print(f"{f.name}: nečitateľný ({exc})")
+            continue
         age = (_now() - int(hb.get("t", 0))) / 1000
         print(f"{hb.get('id')}  pred {age:.0f} s  {hb.get('margin_mode')}  pripojený={hb.get('connected')}  "
               f"AutoTrading={hb.get('trade_allowed')}  symbolov {len(hb.get('symbols', []))}")
@@ -127,8 +140,7 @@ def cmd_send(args) -> int:
 
 
 def cmd_tail(args) -> int:
-    core = _core()
-    path = Path(_root(args, core)) / "bridge" / (args.instance or f"manual_{args.symbol}") / "evt.jsonl"
+    path = Path(_root(args)) / "bridge" / (args.instance or f"manual_{args.symbol}") / "evt.jsonl"
     if not path.exists():
         print(f"{path} ešte neexistuje")
         return 1
@@ -190,6 +202,8 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit("send: zadaj akciu (entry, cancel, close, modify, flatten, sync)")
         if args.action == "entry" and (not args.e or args.sl is None or args.tp is None):
             raise SystemExit("send entry: zadaj --e, --sl a --tp")
+        if args.action == "modify" and args.sl is None and args.tp is None:
+            raise SystemExit("send modify: zadaj --sl alebo --tp (prázdny modify nič nemení)")
         return cmd_send(args)
     return {"status": cmd_status, "tail": cmd_tail, "hb": cmd_hb}[args.command](args)
 

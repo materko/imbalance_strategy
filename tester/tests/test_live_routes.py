@@ -203,3 +203,146 @@ def test_mt5_driver_da_exekutorovi_graf_bez_profilu(drv):  # noqa: F811
     charts = d._charts(acc, [ex])
     assert charts[0]["expert"] == "TradeBotExecutor" and charts[0]["path"] == "Experts\\TradeBot\\TradeBotExecutor.ex5"
     assert charts[0]["inputs"] == {} and charts[0]["symbol"] == "US100.cash" and charts[0]["tf"] == 1
+
+
+# --------------------------------------------------------------------------- #
+# nízke nálezy auditu smerovania (docs/AUDIT_routing_2026-10-26.md, časť 4)
+
+
+def test_alias_na_koren_futures_vyhra_nad_tabulkou():
+    aliasy = {"MNQ": "USTEC", "NAS100": "US100.cash"}
+    assert cfd_symbol("MNQ 12-26", aliasy) == ("USTEC", 1.0)
+    assert cfd_symbol("NQ 12-26", aliasy) == ("US100.cash", 1.0)       # iný koreň ide cez alias CFD
+    r = normalize_route({"account": "ftmo"}, nt_symbol="MNQ 12-26", nt_platform="ninjatrader",
+                        mt5_account={**MT5, "symbols": aliasy})
+    assert r["symbol"] == "USTEC"
+
+
+@pytest.mark.parametrize("route", [{"scale": float("nan")}, {"scale": float("inf")}, {"scale": "inf"},
+                                   {"scale": "-inf"}, {"qty": {"mode": "fixed", "lots": float("nan")}},
+                                   {"qty": {"mode": "fixed", "lots": "inf"}}])
+def test_nan_a_inf_v_route_neprejdu(route):
+    with pytest.raises(RouteError, match="konečné"):
+        normalize_route({"account": "ftmo", **route}, nt_symbol="MNQ 12-26", nt_platform="ninjatrader", mt5_account=MT5)
+
+
+def test_zle_aliasy_existujuceho_uctu_su_chyba_vstupu(store: DeployStore):
+    _ucty(store)
+    with pytest.raises(DeployError, match="symbols účtu") as exc:
+        store.upsert_account({"id": "ftmo", "symbols": "NAS100=US100.cash"}, by="rasto")
+    assert not isinstance(exc.value, RouteError)
+    assert store.account("ftmo")["symbols"] == {"NAS100": "US100.cash"}
+
+
+def test_poskodena_route_nezhodi_pozadovany_stav_a_nie_je_lokalna(store: DeployStore):
+    _ucty(store)
+    a = store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "MNQ 12-26",
+                                 "tf": 3, "profile": "p1", "route": {"account": "ftmo"}}, by="rasto")
+    b = store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "orbnet", "symbol": "MGC 02-27",
+                                 "tf": 5, "profile": "p1", "route": {"account": "ftmo"}}, by="rasto")
+    store._db.execute("UPDATE deployments SET route = '{\"account\": \"ftmo\", ' WHERE id = ?", (a["id"],))
+    store._db.commit()
+    deps = {d["id"]: d for d in store.desired_for_agent("trade-pc")["deployments"]}
+    assert "poškodená" in deps[a["id"]]["route"]["error"] and "to" not in deps[a["id"]]["route"]
+    assert deps[b["id"]]["route"]["to"] == "mt5exec_1514750898-FTMO-Demo"     # ostatné nasadenia idú ďalej
+    assert deps[EXECUTOR_PREFIX + "ftmo"]["active"] is True
+    dep = Deployment.from_dict(deps[a["id"]])
+    assert dep.route is None
+    with pytest.raises(ValueError, match="poškodená"):
+        dep.validate()                                   # agent ju nezapíše — nikdy nie ako lokálne obchodovanie
+    assert {d["id"] for d in store.deployments()} >= {a["id"], b["id"]}
+    store.delete_deployment(a["id"], by="rasto")
+    with pytest.raises(Conflict, match="poškodená"):
+        store.update_deployment(a["id"], {"active": True}, by="rasto")
+
+
+def test_executor_id_cisla_a_server():
+    assert executor_id("007", "FTMO-Demo") == "mt5exec_7-FTMO-Demo"     # C# berie login ako long
+    assert executor_id(" 1514750898 ", "FTMO Demo") == "mt5exec_1514750898-FTMO-Demo"
+    assert executor_id(5, "ftmo-demo") == "mt5exec_5-ftmo-demo"          # veľkosť písmen servera ostáva
+    assert executor_id(5, None) == "mt5exec_5-"
+    assert executor_id(5, "Šrv/1") == "mt5exec_5--rv-1"
+
+
+def _hb_exekutora(root: Path, exec_id: str, t_ms: int, symbols: list[str]) -> None:
+    (root / "exec").mkdir(parents=True, exist_ok=True)
+    (root / "exec" / f"{exec_id}.hb.json").write_text(json.dumps(
+        {"t": t_ms, "id": exec_id, "symbols": [{"name": s, "tick": 0.01} for s in symbols], "routes": []}), encoding="utf-8")
+
+
+def test_agent_hlasi_symboly_exekutora(tmp_path: Path, monkeypatch):
+    from tester.tests.test_live_apply import FakeDriver, dep, desired
+    from tradebot.live.apply import Reconciler
+
+    monkeypatch.setenv("TRADEBOT_BRIDGE_ROOT", str(tmp_path / "bridge"))
+    now = 1_790_000_000.0
+    to = "mt5exec_1514750898-FTMO-Demo"
+    acc = {"id": "ftmo", "platform": "mt5", "label": "FTMO", "login": "1514750898", "server": "FTMO-Demo",
+           "terminal": "", "portable": False}
+    rec = Reconciler({"mt5": FakeDriver()}, tmp_path / "s.json", clock=lambda: now)
+    ex = dep("exec-ftmo", kind="executor", strategy="executor", profile="executor", config={}, config_hash="",
+             symbol="US100.cash", mode="enabled", instance=to)
+    rec.run(desired(ex, accounts=(acc,)))
+    assert rec.fragment()["exec_symbols"] == {}                           # exekútor ešte nič nenapísal
+    _hb_exekutora(tmp_path / "bridge", to, int((now - 5) * 1000), ["US100.cash", "XAUUSD", "US100.cash"])
+    assert rec.fragment()["exec_symbols"] == {"ftmo": ["US100.cash", "XAUUSD"]}
+    _hb_exekutora(tmp_path / "bridge", to, int((now - 3600) * 1000), ["US100.cash"])
+    assert rec.fragment()["exec_symbols"] == {}                           # starý heartbeat sa nehlási
+
+
+def test_hub_odmietne_symbol_ktory_ucet_nema(store: DeployStore):
+    _ucty(store)
+    a = store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "MNQ 12-26",
+                                 "tf": 3, "profile": "p1", "route": {"account": "ftmo", "symbol": "USTEC"}}, by="rasto")
+    assert store.account("ftmo")["exec_symbols"] is None                 # nikto nehlásil = bez kontroly
+    # cudzí stroj (nič z neho na účet nesmeruje) ani NT účet zoznam nezapíšu
+    store.report_applied("iny-pc", [], exec_symbols={"ftmo": ["X"]})
+    store.report_applied("trade-pc", [], exec_symbols={"sim": ["X"]})
+    assert store.account("ftmo")["exec_symbols"] is None and store.account("sim")["exec_symbols"] is None
+    store.report_applied("trade-pc", [], exec_symbols={"ftmo": ["US100.cash", "XAUUSD.r"]})
+    assert store.account("ftmo")["exec_symbols"] == ["US100.cash", "XAUUSD.r"]
+    store.report_applied("trade-pc", [], exec_symbols={"ftmo": []})       # prázdny Market Watch neprepíše známy
+    assert store.account("ftmo")["exec_symbols"] == ["US100.cash", "XAUUSD.r"]
+    with pytest.raises(DeployError, match="nemá symbol 'USTEC'"):
+        store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "orbnet", "symbol": "MNQ 12-26",
+                                 "tf": 5, "profile": "p1", "route": {"account": "ftmo", "symbol": "USTEC"}}, by="rasto")
+    with pytest.raises(DeployError, match="myslel si US100.cash"):
+        store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "orbnet", "symbol": "MNQ 12-26",
+                                 "tf": 5, "profile": "p1", "route": {"account": "ftmo", "symbol": "us100.CASH"}}, by="rasto")
+    ok = store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "orbnet", "symbol": "MNQ 12-26",
+                                  "tf": 5, "profile": "p1", "route": {"account": "ftmo"}}, by="rasto")
+    assert ok["route"]["symbol"] == "US100.cash" and a["route"]["symbol"] == "USTEC"
+
+
+def test_hub_heartbeat_ulozi_symboly_exekutora(store: DeployStore, tmp_path: Path):
+    from tester.hub.state import HubState
+
+    _ucty(store)
+    store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "MNQ 12-26",
+                             "tf": 3, "profile": "p1", "route": {"account": "ftmo"}}, by="rasto")
+    state = HubState(tmp_path / "hub", token="hlavny")
+    state.deploy = store
+    state._live_report("trade-pc", {}, {"applied": [], "exec_symbols": {"ftmo": ["US100.cash"]}})
+    assert store.account("ftmo")["exec_symbols"] == ["US100.cash"]
+    state._live_report("trade-pc", {}, {"applied": [], "exec_symbols": "zle"})   # zlý tvar nič nezhodí
+    assert store.account("ftmo")["exec_symbols"] == ["US100.cash"]
+
+
+def test_migracia_starej_databazy_uctov(tmp_path: Path):
+    import sqlite3
+
+    path = tmp_path / "old.sqlite"
+    db = sqlite3.connect(str(path))
+    db.executescript("""
+        CREATE TABLE accounts (id TEXT PRIMARY KEY, agent TEXT NOT NULL, platform TEXT NOT NULL,
+            label TEXT NOT NULL DEFAULT '', login TEXT NOT NULL DEFAULT '', server TEXT NOT NULL DEFAULT '',
+            terminal TEXT NOT NULL DEFAULT '', portable INTEGER NOT NULL DEFAULT 0, created REAL NOT NULL,
+            updated REAL NOT NULL, by TEXT NOT NULL DEFAULT '', secret_pending TEXT);
+        INSERT INTO accounts (id, agent, platform, login, server, created, updated) VALUES ('ftmo', '', 'mt5', '1', 'S', 0, 0);
+    """)
+    db.commit()
+    db.close()
+    s = DeployStore(path, clock=Clock(), config_resolver=_resolver, vault=Vault(key=b"k" * 32), strategy_check=lambda k: k)
+    acc = s.account("ftmo")
+    assert acc["symbols"] == {} and acc["exec_symbols"] is None
+    s.close()

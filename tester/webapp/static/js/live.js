@@ -903,10 +903,15 @@ const LD_ROUTE_STATE = { ok: ["ok", "exekútor ok"], no_executor: ["bad", "exek�
 function ldRouteChip(d, accById) {
   const r = d.route;
   if (!r) return "";
+  if (r.error) return `<div class="small"><span class="chip bad" title="${esc(r.error)}">route poškodená</span></div>`;
   const acc = accById[r.account] || {};
   const inst = lv.instances.find(i => i.id === d.instance);
-  const st = inst && inst.hb && inst.hb.route;
-  const [cls, text] = LD_ROUTE_STATE[st] || ["", st ? st : "stav neznámy"];
+  // stav route len z čerstvého pingu živej inštancie — mŕtva inštancia nesmie ukazovať posledné „ok"
+  const hb = inst && inst.hb;
+  const fresh = !!hb && Number(lv.now) > 0 && liveAlive(inst) && Number(hb.t) > 0 && lv.now - Number(hb.t) <= LIVE_HB_MS;
+  const st = fresh ? hb.route : null;
+  const [cls, text] = st ? (LD_ROUTE_STATE[st] || ["", st])
+    : ["", inst ? "stav neznámy — inštancia nepinguje" : "stav neznámy — inštancia nebeží"];
   const qty = r.qty && r.qty.mode === "fixed" ? `${r.qty.lots} lot/kontrakt` : "objem podľa hodnoty bodu";
   // prečo exekútor nebeží: hlásenie agenta k jeho grafu (chýba MT5 driver, terminál, inštalácia)
   const exErr = d.executor && d.executor.status === "error" ? d.executor.error : "";
@@ -1022,6 +1027,12 @@ function ldRouteFields() {
   const routed = nt && !!$("#ld-d-route").value;
   for (const el of $$("#ld-deploy-box .ld-route-only")) el.hidden = !routed;
   if (routed && $("#ld-d-route-qty").value !== "fixed") $("#ld-d-route-lots").closest("label").hidden = true;
+  // ponuka symbolov z heartbeatu exekútora MT5 účtu (Market Watch, hlási agent); hub iný symbol odmietne
+  const mt5 = routed ? ld.accounts.find(a => a.id === $("#ld-d-route").value) : null;
+  const names = (mt5 && Array.isArray(mt5.exec_symbols)) ? mt5.exec_symbols : [];
+  $("#ld-d-route-symbols").innerHTML = names.map(n => `<option value="${esc(n)}"></option>`).join("");
+  $("#ld-d-route-symbol").title = names.length ? `exekútor účtu hlási ${names.length} symbolov (Market Watch)`
+    : "exekútor účtu ešte nehlásil symboly — hub symbol neoverí";
 }
 
 /** Stroje do „Nasadiť": agenti s driverom platformy vybraného účtu (online prví), pri route do MT5 aj s driverom

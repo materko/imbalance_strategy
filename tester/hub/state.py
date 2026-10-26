@@ -313,7 +313,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
 
     def _live_report(self, name: str, agent: dict[str, Any], zive: dict[str, Any]) -> None:
         """`live` z heartbeatu: inštancie a drivery si hub pamätá pri agentovi (prehľad),
-        `applied` a `secret_ack` idú do `DeployStore`."""
+        `applied`, `secret_ack` a `exec_symbols` (symboly MT5 účtov z heartbeatu exekútorov) idú do `DeployStore`."""
         inst = [dict(i) for i in (zive.get("instances") or []) if isinstance(i, dict)][:200]
         installed = zive.get("installed")
         code_update = zive.get("code_update")
@@ -326,7 +326,9 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             "code_update": dict(code_update) if isinstance(code_update, dict) else None,
         }
         if self.deploy is not None:
-            self.deploy.report_applied(name, zive.get("applied") or [], zive.get("secret_ack") or [])
+            ex = zive.get("exec_symbols")
+            self.deploy.report_applied(name, zive.get("applied") or [], zive.get("secret_ack") or [],
+                                       exec_symbols=ex if isinstance(ex, dict) else None)
             # režimy prepnuté na stroji (Telegram) — do nasadenia, aby webapp ukazovala skutočnosť
             ov = zive.get("overrides")
             if isinstance(ov, list) and ov:

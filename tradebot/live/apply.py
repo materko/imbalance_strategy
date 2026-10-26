@@ -130,10 +130,31 @@ class Reconciler:
     # -- pre heartbeat ------------------------------------------------------- #
 
     def fragment(self) -> dict[str, Any]:
-        """`applied` + `secret_ack` do heartbeatu — z posledného kola, po reštarte z disku."""
+        """`applied` + `secret_ack` do heartbeatu — z posledného kola, po reštarte z disku — a `exec_symbols`:
+        symboly MT5 účtov z čerstvého heartbeatu ich exekútorov na tomto stroji (hub podľa nich odmietne route
+        na symbol, ktorý účet nemá)."""
         with self._lock:
             applied = [{k: v for k, v in e.items() if k not in _LOCAL_FIELDS} for e in self.state["applied"].values()]
-            return {"applied": applied, "secret_ack": list(self.state.get("secret_ack") or [])}
+            return {"applied": applied, "secret_ack": list(self.state.get("secret_ack") or []),
+                    "exec_symbols": self.exec_symbols()}
+
+    def exec_symbols(self) -> dict[str, list[str]]:
+        """`{MT5 účet: [symbol, …]}` z `exec/<id>.hb.json` exekútorov z požadovaného stavu (`kind: executor`);
+        účet bez súboru alebo so starým heartbeatom (`EXEC_HB_MAX_AGE`) chýba. Nikdy nevyhodí výnimku."""
+        from .routes import executor_symbols
+
+        out: dict[str, list[str]] = {}
+        try:
+            deps = (self.state.get("desired") or {}).get("deployments") or []
+            for d in deps:
+                if not isinstance(d, dict) or d.get("kind") != "executor" or not d.get("instance") or not d.get("account"):
+                    continue
+                names = executor_symbols(str(d["instance"]), now=self.clock())
+                if names:
+                    out[str(d["account"])] = names
+        except Exception as exc:  # noqa: BLE001 - heartbeat musí odísť
+            log.debug("live apply: symboly exekútorov sa nedali zistiť: %s", exc)
+        return out
 
     def status(self) -> dict[str, Any]:
         """Stav pre webapp/CLI: drivery, posledné kolo, nasadenia a čo o účtoch vie driver."""

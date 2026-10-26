@@ -30,8 +30,10 @@ driver H3. Až potom demo test podľa ROUTING.md.
 prevezmú podľa komentára. Preložené (NT `check`, MetaEditor 0 chýb), testy `test_live_*`, `test_bridge` prešli;
 naživo stále neoverené. V druhom kole opravené NT V1 a V4–V5 exekútora (test `test_druhy_exekutor_s_tym_istym_id_sa_neotvori`).
 V treťom kole opravené NT V4 a S2–S6, hub H4–H6 (testy `test_bez_stavu_exekutora_sa_stare_prikazy_okrem_vstupu_neprehraju`,
-`test_mena_nt_instrumentu_ide_exekutorovi`, `test_exekutor_graf_hlasenie_a_platforma_uctu`). Neopravené ostávajú stredné,
-rýchlostné a nízke nálezy exekútora, nízke na strane NT a hubu, kontrola 422 symbolu (H5) a rozpory s ROUTING.md.
+`test_mena_nt_instrumentu_ide_exekutorovi`, `test_exekutor_graf_hlasenie_a_platforma_uctu`). Vo štvrtom kole opravené stredné,
+rýchlostné a nízke nálezy exekútora, nízke na strane NT a hubu, 422 symbolu (H5) a rozpory s ROUTING.md —
+každé s poznámkou pri náleze. Ostáva: rotácia `evt.jsonl`/`cmd.jsonl`, mazanie mŕtvych adresárov route, freeze level,
+duplicity konštánt (Python/C#/HTML) a demo test naživo.
 
 ## 2. MT5 exekútor (`tradebot/adapters/mt5/TradeBotExecutor.mqh`)
 
@@ -55,29 +57,29 @@ rýchlostné a nízke nálezy exekútora, nízke na strane NT a hubu, kontrola 4
 
 ### Stredné
 
-- 560–565: limit/stop, ktoré by sa v NT vyplnili hneď (limit nad trhom), broker odmietne (10015) → `reject`, obchod oproti backtestu chýba; chýba prepnutie na market.
-- `Mid(sym) = 0` (bez kotácie po čerstvom `SymbolSelect`) dá v 529–533 nezmyselné ceny; `CheckRoute` overuje len hedging a trade mode. `SYMBOL_TRADE_STOPS_LEVEL`/freeze level sa nikde neposúvajú; `TrailOnMinute` 784 pri odmietnutí mlčí.
-- `ClosePosition` 631–635 pri 10018 (trh zatvorený) píše `note error` každý pokus (max. raz za 60 s) donekonečna → cez NT Telegram spam. Requote/off quotes pri vstupe sa v rámci `exp` neopakujú.
-- `WatchMasters` 402: `BridgeMasterAge` vráti pri chybe −2 a berie sa ako `lost` → falošný `warn` a na sekundu trailing exekútora.
-- `Reconcile` pri fille počas výpadku neprekotví SL/TP, neberie `POSITION_SL` od brokera (EA to robí, `TradeBotEA.mqh:1760`), nedobehne `extreme`; výstupy z ešte otvorenej pozície sa neemitujú.
-- Návrh: `cancel_at` dať aj brokerovi (`ORDER_TIME_SPECIFIED`) ako druhú poistku, dnes `life` platí len pri bežiacom termináli.
+- *(opravené: prekročená limitka/stop ide trhom s `note info`)* 560–565: limit/stop, ktoré by sa v NT vyplnili hneď (limit nad trhom), broker odmietne (10015) → `reject`, obchod oproti backtestu chýba; chýba prepnutie na market.
+- *(opravené: bez kotácie `reject`, SL/TP sa posúvajú najbližšie, koľko dovolí `STOPS_LEVEL` — `ClampStop` v `HandleModify` aj `TrailOnMinute`; freeze level a kontrola kotácie v `CheckRoute` nie)* `Mid(sym) = 0` (bez kotácie po čerstvom `SymbolSelect`) dá v 529–533 nezmyselné ceny; `CheckRoute` overuje len hedging a trade mode. `SYMBOL_TRADE_STOPS_LEVEL`/freeze level sa nikde neposúvajú; `TrailOnMinute` 784 pri odmietnutí mlčí.
+- *(opravené: note pri 1. neúspechu, inom kóde a raz za 10 pokusov; market vstup pri requote/zmene ceny až 3 pokusy v rámci `exp`)* `ClosePosition` 631–635 pri 10018 (trh zatvorený) píše `note error` každý pokus (max. raz za 60 s) donekonečna → cez NT Telegram spam. Requote/off quotes pri vstupe sa v rámci `exp` neopakujú.
+- *(opravené: −2 sa preskočí)* `WatchMasters` 402: `BridgeMasterAge` vráti pri chybe −2 a berie sa ako `lost` → falošný `warn` a na sekundu trailing exekútora.
+- *(opravené: SL/TP od brokera, `extreme` z 1m barov od fillu, výstupy z ešte otvorenej pozície z histórie dealov; viac IN dealov = jeden `fill in` s celým objemom)* `Reconcile` pri fille počas výpadku neprekotví SL/TP, neberie `POSITION_SL` od brokera (EA to robí, `TradeBotEA.mqh:1760`), nedobehne `extreme`; výstupy z ešte otvorenej pozície sa neemitujú.
+- *(urobené: `ORDER_TIME_SPECIFIED` = `cancel_at` + 5 s + 1 min, pri `INVALID_EXPIRATION` GTC; expirácia u brokera = `cancelled` s `exit: life`)* Návrh: `cancel_at` dať aj brokerovi (`ORDER_TIME_SPECIFIED`) ako druhú poistku, dnes `life` platí len pri bežiacom termináli.
 
 ### Rýchlosť
 
-- 50 ms `BridgePoll` na route = `File.Exists` + `FileStream` + `Length` v C# — v poriadku. Pri chybe však `Print` **každých 50 ms** (421).
-- `RefreshRoutes` každé 2 s prechádza všetky adresáre `bridge\` a číta každý `route.json` (Bridge.cs 611–627), aj staré a cudzie; adresáre sa nikdy nemažú. Mŕtve route s `to` = tento exekútor sa pollujú ďalej a po každom štarte dostanú `warn`.
-- Heartbeat: na každý symbol Market Watch 1 volanie DLL + 9× `SymbolInfo` (380–388); pri 100+ symboloch ~1000 volaní/s a veľký JSON, ktorý NT parsuje každú sekundu. Posielať len symboly route (+ pár na výber vo webapp) alebo celý zoznam raz za minútu.
-- `nt.hb` sa číta 2× na route (400–401). `evt.jsonl`/`cmd.jsonl` rastú bez rotácie.
+- *(opravené: výpis najviac raz za 10 s)* 50 ms `BridgePoll` na route = `File.Exists` + `FileStream` + `Length` v C# — v poriadku. Pri chybe však `Print` **každých 50 ms** (421).
+- *(čiastočne: `route.json` sa číta len pri zmene času zápisu; mŕtva route po štarte nevaruje — adresáre sa stále nemažú)* `RefreshRoutes` každé 2 s prechádza všetky adresáre `bridge\` a číta každý `route.json` (Bridge.cs 611–627), aj staré a cudzie; adresáre sa nikdy nemažú. Mŕtve route s `to` = tento exekútor sa pollujú ďalej a po každom štarte dostanú `warn`.
+- *(opravené: celý Market Watch raz za minútu alebo pri zmene počtu, medzitým `BridgeHbSymbolsKeep`)* Heartbeat: na každý symbol Market Watch 1 volanie DLL + 9× `SymbolInfo` (380–388); pri 100+ symboloch ~1000 volaní/s a veľký JSON, ktorý NT parsuje každú sekundu. Posielať len symboly route (+ pár na výber vo webapp) alebo celý zoznam raz za minútu.
+- *(opravené čítanie: `MasterSession` po `MasterAgeMs` z pamäte; rotácia JSONL nie)* `nt.hb` sa číta 2× na route (400–401). `evt.jsonl`/`cmd.jsonl` rastú bez rotácie.
 
 ### Nízke
 
-- `NowMs() = TimeGMT()*1000` (115) má sekundovú presnosť; `t` v hb, `exp`, `life` sú orezané — pri hraniciach 3 s (stale) a 10 s (`exp`) tesné. Použiť `Bridge.NowMs()`.
-- Tickety v `orders.json` ako číslo cez `double` (185, 228); EA ich zámerne drží ako reťazce (`TradeBotEA.mqh:1577`).
+- *(opravené: `StaticHost.BridgeNowMs`)* `NowMs() = TimeGMT()*1000` (115) má sekundovú presnosť; `t` v hb, `exp`, `life` sú orezané — pri hraniciach 3 s (stale) a 10 s (`exp`) tesné. Použiť `Bridge.NowMs()`.
+- *(opravené: reťazec, starý stav s číslom sa načíta)* Tickety v `orders.json` ako číslo cez `double` (185, 228); EA ich zámerne drží ako reťazce (`TradeBotEA.mqh:1577`).
 - `TradeBotJson` prijme objekt/pole končiace čiarkou (141, 158). Dnes neškodné (celé riadky, atomické súbory). Úniky `CJson` som nenašiel.
-- Prechodná chyba čítania `route.json` route vyradí (337–344) a vráti cez `ZeroMemory` (318–325) → reset `masterSeen`, `masterLost`, `lastM1`.
-- Plán bez TP/SL (`null` → 0) dá `MapPrice(0, …)` zápornú cenu → broker odmietne (neisté, či to niektorý engine posiela).
-- `XRoute.masterSession` sa píše, nečíta. Udalosť `closed` sa nikdy neemituje. ROUTING.md opisuje `exec\…state.json` s `cid → ticket`; skutočnosť je `bridge\<inst>\exec.state` + `exec\<id>.orders.json`.
-- `StaticHost._lastError` je statický pre celý terminál — EA stratégií a exekútor si ho prepisujú.
+- *(opravené: route sa zahodí až po 3 obnovách po sebe)* Prechodná chyba čítania `route.json` route vyradí (337–344) a vráti cez `ZeroMemory` (318–325) → reset `masterSeen`, `masterLost`, `lastM1`.
+- *(opravené: 0 ostane 0 pri vstupe aj pri prekotvení)* Plán bez TP/SL (`null` → 0) dá `MapPrice(0, …)` zápornú cenu → broker odmietne (neisté, či to niektorý engine posiela).
+- *(dokumentácia opravená: tabuľka súborov a udalostí v ROUTING.md)* `XRoute.masterSession` sa píše, nečíta. Udalosť `closed` sa nikdy neemituje. ROUTING.md opisuje `exec\…state.json` s `cid → ticket`; skutočnosť je `bridge\<inst>\exec.state` + `exec\<id>.orders.json`.
+- *(opravené: `[ThreadStatic]`)* `StaticHost._lastError` je statický pre celý terminál — EA stratégií a exekútor si ho prepisujú.
 
 ## 3. NinjaTrader AddOn a jadro mosta (`TradeBotLiveInstance.cs`, `Bridge.cs`)
 
@@ -97,7 +99,7 @@ Stredné:
 - **S5 strata `exec.state` (Bridge.cs 636–648)** *(opravené: prvé čítanie route bez stavu vynechá príkazy okrem `entry` staršie ako 60 s proti `nt.hb` mastera a zapíše `note warn`)* prehrá celý `cmd.jsonl`: vstupy chráni `exp` a `Existing`, ale `flatten`/`close`/`modify` termín nemajú — staré `flatten` z control zavrie súčasné pozície.
 - **S6 (neisté) rollover s pozíciou** *(opravené: stav nesie `contract`; pri inom kontrakte po reštarte sa trailing NT prevzatých pozícií vypne, SL/TP ostávajú u MT5)*: id inštancie aj bridge adresár sú bez expirácie, `RestoreRoute` vráti plán v cenách starého kontraktu, `CatchUpExtreme` a trailing (1408–1416) počítajú z nového → SL posunutý o roll spread. `OldContractCheck` je pri route vypnutý (414).
 
-Nízke: `ReadShared` nechytá `UnauthorizedAccessException` (Bridge.cs 307–325; `AtomicWrite` áno); `ReleaseParked → SubmitRemote` obíde bránu stavu route (N2); výstupné qty `Math.Max(1, (int)Math.Round(qty))` (2207) pri čiastočnom fille 0,5 → banková 0 → 1; `JsonlLog.Append` 389–394 pri výnimke z `Flush` nezvýši `_seq` → ďalší príkaz dostane ten istý `cid` a exekútor ho preskočí; `SpoolBroker` pri route hlási `OwnNet()`, teda vieru NT, nie MT5 (stĺpec „u brokera“ je tautológia); `nt.hb` sa zapíše v `OpenRoute` (2083), ale `RequestSeries`/`Replay` môžu trvať >30 s → falošné „master lost“ pri štarte; `BridgeMaster.Flatten` NT nepoužíva; `ref` v `modify` exekútor ignoruje (ROUTING.md tvrdí opak); `exp` limitky je `now + TF`, nie „koniec baru + TF“; logy skladajú double cez aktuálnu kultúru; `MapPrice` nemá ochranu `scale ≤ 0` (`ToNtPrice` má); opakované `Entry` s tým istým id (949–956) exekútor odpovie `ack "vstup uz bezi"` a nový plán zahodí (neisté, či engine posiela).
+Nízke *(opravené: `ReadShared` chytá aj `UnauthorizedAccessException`; `ReleaseParked` pri route prechádza `RouteTakesEntry`; výstupné qty sú rozdiely zaokrúhlených celkov z exekútora a NT berie aj 0; `Append` minie `seq` pred zápisom; `SpoolBroker` pri route hlási `net` z heartbeatu exekútora (pozície MT5); `nt.hb` počas štartu píše časovač; vlákno inštancie má invariantnú kultúru; `MapPrice` so `scale ≤ 0` = 1; opakovaný `entry` s tým istým id exekútor nahradí — starý order zruší bez `cancelled`. `ref` v `modify` a `exp` limitky: opravená dokumentácia. `BridgeMaster.Flatten` NT nepoužíva — nie je to chyba)*: `ReadShared` nechytá `UnauthorizedAccessException` (Bridge.cs 307–325; `AtomicWrite` áno); `ReleaseParked → SubmitRemote` obíde bránu stavu route (N2); výstupné qty `Math.Max(1, (int)Math.Round(qty))` (2207) pri čiastočnom fille 0,5 → banková 0 → 1; `JsonlLog.Append` 389–394 pri výnimke z `Flush` nezvýši `_seq` → ďalší príkaz dostane ten istý `cid` a exekútor ho preskočí; `SpoolBroker` pri route hlási `OwnNet()`, teda vieru NT, nie MT5 (stĺpec „u brokera“ je tautológia); `nt.hb` sa zapíše v `OpenRoute` (2083), ale `RequestSeries`/`Replay` môžu trvať >30 s → falošné „master lost“ pri štarte; `BridgeMaster.Flatten` NT nepoužíva; `ref` v `modify` exekútor ignoruje (ROUTING.md tvrdí opak); `exp` limitky je `now + TF`, nie „koniec baru + TF“; logy skladajú double cez aktuálnu kultúru; `MapPrice` nemá ochranu `scale ≤ 0` (`ToNtPrice` má); opakované `Entry` s tým istým id (949–956) exekútor odpovie `ack "vstup uz bezi"` a nový plán zahodí (neisté, či engine posiela).
 
 `test_bridge.py` pokrýva prepočty, `LifeAction`, idempotenciu a kurzory cez reštart, `cid` po reštarte mastera, všetky stavy `Evaluate`, tvar hb, EOD `life`, CLI. Nepokrýva neukončený riadok JSONL, zlyhanie zápisu kurzora (V2), stratu `exec.state` (S5), poškodený koniec v `LastSeq`, `HandleRouteEvent` (nemá harness), menu účtu, súbežný prístup.
 
@@ -112,20 +114,20 @@ Vysoké:
 Stredné:
 
 - **H4 platforma MT5 účtu s aktívnou route sa dá zmeniť** *(opravené: `_routed_to` — 409, aj pri neaktívnych)* (`_account_agents` pozerá len vlastné nasadenia, `deploy.py:327–330, 441`; `live.js:1182` to pustí): `_executors` ďalej vyrába `exec-ftmo`, NT driver zapíše „inštanciu“ so stratégiou `executor` do `deploy.json`, AddOn ju neúspešne štartuje; `route.to` sa skladá z NT loginu.
-- **H5 symbol grafu exekútora = `min(symbols)` zo všetkých route** *(čiastočne opravené: symbol najstaršej route, nová route graf nezmení; kontrola 422 ostáva — hub hb exekútora nevidí)* (`deploy.py:786–794`), nikde neoverený. Preklep v jednej route pravdepodobne zhodí graf pre všetky route účtu (neisté, či MT5 graf s neznámym symbolom otvorí); route s abecedne menším symbolom zmení graf → reštart spoločného terminálu aj s EA stratégií. Kontrola 422 „symbol, ktorý účet nemá“ (ROUTING.md 105–107) **nie je implementovaná** — hub hb exekútora nevidí.
+- **H5 symbol grafu exekútora = `min(symbols)` zo všetkých route** *(opravené: symbol najstaršej route, nová route graf nezmení; 422 na symbol, ktorý exekútor nehlási)* (`deploy.py:786–794`), nikde neoverený. Preklep v jednej route pravdepodobne zhodí graf pre všetky route účtu (neisté, či MT5 graf s neznámym symbolom otvorí); route s abecedne menším symbolom zmení graf → reštart spoločného terminálu aj s EA stratégií. Kontrola 422 „symbol, ktorý účet nemá“ (ROUTING.md 105–107) **nie je implementovaná** — hub hb exekútora nevidí.
 - **H6 chyby exekútora sa nikam nedostanú** *(opravené: hlásenie `exec-<účet>` sa ukladá ako `exec-<účet>@<stroj>`, nasadenie s route ho nesie v `executor` a webapp ho ukáže pri route; formulár pri route ponúka len stroje s driverom NinjaTradera aj MT5)*: `report_applied` zahodí hlásenie k `exec-*` (nemá riadok v `deployments`, `deploy.py:812–814`); bez MT5 drivera/terminálu na stroji NT vidno len čip „exekútor nebeží“ bez dôvodu. Formulár ponúka stroje len podľa NT drivera (`live.js:1030`), nekontroluje `mt5` v `live.drivers`.
 
-Nízke: alias na koreň futures (`{"MNQ": "USTEC"}`) sa pre známe korene ignoruje (`routes.py:72–78`, docstring tvrdí opak); aliasy v route zamrznú (`normalize_route` uloží výsledný symbol, PATCH ho nemení; ROUTING.md 102 sľubuje „platí pre všetky nasadenia“); `scale`/`lots` = `nan`/`inf` prejdú validáciou (`routes.py:111–130`, chýba `isfinite`; `inf` → `Infinity` v `deploy.json`, C# `Json` pozná len `NaN`); `upsert_account` existujúceho účtu volá `normalize_aliases` mimo `try` (`deploy.py:452`, `RouteError` → 500, dnes cez Pydantic nedosiahnuteľné); poškodený JSON v stĺpci `route` zhodí celý `desired_for_agent` (344); `executor_id` sedí s `Bridge.ExecutorId` pre číselný login, rozíde sa pri logine s nulou na začiatku a pri inej veľkosti písmen servera (`account_mismatch`) — žiadny test neporovnáva Python s C#; čip stavu berie `hb.route` aj zo starého pingu (`live.js:907–913`), mŕtva inštancia ukazuje zelené „ok“; `bridge.py` `execs`/`tail` volajú `_core()` aj keď len čítajú (bez pythonnet traceback), `send modify` bez `--sl`/`--tp` pošle prázdny modify.
+Nízke *(opravené všetky: alias na koreň vyhrá nad tabuľkou; aliasy v route zámerne ostávajú zamrznuté — zmena symbolu pod otvorenou pozíciou by ju nechala bez správy, ROUTING.md opravené; `isfinite` pre `scale`/`lots`; `normalize_aliases` v `try`; poškodená route = route s `error`, nikdy lokálne; `executor_id` = `Bridge.ExecutorId` overené testom cez pythonnet; čip route len z čerstvého pingu; `bridge.py` `execs`/`tail` bez pythonnet, `send modify` bez SL/TP = chyba)*: alias na koreň futures (`{"MNQ": "USTEC"}`) sa pre známe korene ignoruje (`routes.py:72–78`, docstring tvrdí opak); aliasy v route zamrznú (`normalize_route` uloží výsledný symbol, PATCH ho nemení; ROUTING.md 102 sľubuje „platí pre všetky nasadenia“); `scale`/`lots` = `nan`/`inf` prejdú validáciou (`routes.py:111–130`, chýba `isfinite`; `inf` → `Infinity` v `deploy.json`, C# `Json` pozná len `NaN`); `upsert_account` existujúceho účtu volá `normalize_aliases` mimo `try` (`deploy.py:452`, `RouteError` → 500, dnes cez Pydantic nedosiahnuteľné); poškodený JSON v stĺpci `route` zhodí celý `desired_for_agent` (344); `executor_id` sedí s `Bridge.ExecutorId` pre číselný login, rozíde sa pri logine s nulou na začiatku a pri inej veľkosti písmen servera (`account_mismatch`) — žiadny test neporovnáva Python s C#; čip stavu berie `hb.route` aj zo starého pingu (`live.js:907–913`), mŕtva inštancia ukazuje zelené „ok“; `bridge.py` `execs`/`tail` volajú `_core()` aj keď len čítajú (bez pythonnet traceback), `send modify` bez `--sl`/`--tp` pošle prázdny modify.
 
 Rýchlosť: `_executors` jeden SELECT účtu na routované nasadenie a `desired_for_agent` jeden na účet v každom heartbeate, `deployments()` N+1 na `applied` — pri desiatkach nasadení zanedbateľné. `position_from_spool` číta v každom kole celý spool každého neaktívneho nasadenia (`update.py:57–82`) — staršia vec.
 
 ### Rozpory kódu s ROUTING.md
 
-- „Ten istý profil raz lokálne a raz cez MT5“ (r. 59): na tom istom NT účte, symbole a TF nejde — `instance_id` route neobsahuje, duplicita končí `Conflict`, NT nemá slot.
-- Magic (r. 150) „z id nasadenia“: NT driver píše `magic: 0`, AddOn berie FNV-1a z id **inštancie** (`TradeBotLiveInstance.cs:2079`); MT5 EA berú `magic_for(deployment.id)`. Dve konvencie.
-- Rozbaľovací zoznam symbolov z hb exekútora (r. 106): vo webapp voľný text (`index.html:527`), 422 chýba.
-- „MT5 účet musí byť na tom istom stroji“ (r. 73) sa nevynucuje; exekútor ide na stroj NT (r. 240 to hovorí inak).
-- `price` a `scale` sa vo formulári nedajú zadať (vždy `basis` a tabuľka).
+- *(ROUTING.md opravené)* „Ten istý profil raz lokálne a raz cez MT5“ (r. 59): na tom istom NT účte, symbole a TF nejde — `instance_id` route neobsahuje, duplicita končí `Conflict`, NT nemá slot.
+- *(ROUTING.md opisuje obe konvencie)* Magic (r. 150) „z id nasadenia“: NT driver píše `magic: 0`, AddOn berie FNV-1a z id **inštancie** (`TradeBotLiveInstance.cs:2079`); MT5 EA berú `magic_for(deployment.id)`. Dve konvencie.
+- *(opravené: agent hlási `exec_symbols` z heartbeatu exekútora, hub 422 na symbol mimo zoznamu, webapp `<datalist>`; kontrolu nerobí, kým zoznam nikto nehlásil, a vidí len Market Watch)* Rozbaľovací zoznam symbolov z hb exekútora (r. 106): vo webapp voľný text (`index.html:527`), 422 chýba.
+- *(ROUTING.md opravené; formulár pri route chce stroj s driverom MT5)* „MT5 účet musí byť na tom istom stroji“ (r. 73) sa nevynucuje; exekútor ide na stroj NT (r. 240 to hovorí inak).
+- *(ROUTING.md: len cez API)* `price` a `scale` sa vo formulári nedajú zadať (vždy `basis` a tabuľka).
 - Duplicity: doplnenie defaultov route v `normalize_route` aj v `_entries` NT drivera; `"executor"` na troch miestach; `{login}-{server}` v `ACCOUNT_IDENTITY`, `executor_id`, `Mt5Driver.spool_account`; `PRICE_MODES`/`QTY_MODES` zvlášť v Pythone, C# a HTML.
 
 ### Chýbajúce testy

@@ -398,10 +398,15 @@ namespace NinjaTrader.NinjaScript.AddOns
 
         private void Run()
         {
+            // logy a texty (note, chyby) skladaju double retazcami: vo vlakne instancie vzdy s bodkou, nie podla
+            // jazyka Windows (SK: "21450,25")
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             try
             {
                 Status = "starting";
-                if (!Setup())
+                bool ok = Setup();
+                StopSetupHeartbeat();   // dalej heartbeat pise RouteTick v slucke
+                if (!ok)
                 {
                     Failed = true;
                     Status = "failed";
@@ -927,9 +932,18 @@ namespace NinjaTrader.NinjaScript.AddOns
         private void SpoolBroker()
         {
             if (_spool == null || _account == null || _inst == null) return;
+            if (Routed)
+            {
+                // u brokera = co hlasi exekutor z pozicii MT5 (`net` v jeho heartbeate), nie vlastna viera NT
+                double net = _route.BrokerNet;
+                if (double.IsNaN(net)) return;
+                _spool.Broker((int)Math.Round(net, MidpointRounding.AwayFromZero), 0.0, "route");
+                SpoolCheck();
+                return;
+            }
             double price;
             int qty = AccountPosition(out price);
-            _spool.Broker(qty, qty != 0 ? price : 0.0, Routed ? "route" : "account");
+            _spool.Broker(qty, qty != 0 ? price : 0.0, "account");
             SpoolCheck();
         }
 
@@ -1211,6 +1225,8 @@ namespace NinjaTrader.NinjaScript.AddOns
         private void ReleaseParked()
         {
             if (HasOpenPosition() || _controlMode != "enabled") return;
+            // route: ta ista brana ako pre novy vstup (Apply) - pri zlom stave exekutora ostava odlozeny a skusi sa znova
+            if (Routed && !RouteTakesEntry()) return;
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
             {
                 Tracked t = kv.Value;
@@ -2101,7 +2117,23 @@ namespace NinjaTrader.NinjaScript.AddOns
             catch (Exception e) { Log("route do MT5 sa neotvorila - " + e.Message); return false; }
             Log("ordery idu do MT5 exekutora " + spec.To + " na " + spec.Symbol + " (magic " + spec.Magic + ", " + _route.Dir + ")");
             _route.Heartbeat(NowMs(), _controlMode);
+            // BarsRequest a prehratie predhistorie mozu trvat dlhsie nez 30 s (MasterLostMs) - kym slucka nebezi,
+            // heartbeat pise casovac, inak by exekutor hlasil "master neodpoveda" a prevzal trailing
+            TB.BridgeMaster route = _route;
+            _setupHb = new System.Threading.Timer(delegate(object _)
+            {
+                try { route.Heartbeat(NowMs(), _controlMode); } catch (Exception) { }
+            }, null, 1000, 1000);
             return true;
+        }
+
+        private System.Threading.Timer _setupHb;
+
+        private void StopSetupHeartbeat()
+        {
+            System.Threading.Timer t = _setupHb;
+            _setupHb = null;
+            if (t != null) try { t.Dispose(); } catch (Exception) { }
         }
 
         /// <summary>Kazdu iteraciu slucky: heartbeat a stav route (raz za sekundu), udalosti exekutora. Kazda cast ma
@@ -2274,8 +2306,12 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
             if (k == "fill")
             {
-                int qty = Math.Max(1, (int)Math.Round(TB.Json.GetDouble(ev, "qty", 1)));
                 bool entry = TB.Json.GetString(ev, "side", "") == "in";
+                // vstup aspon 1 kontrakt; vystup moze byt 0 (ciastocne zatvorenie pod jeden kontrakt - exekutor posiela
+                // rozdiely zaokruhlenych celkov, takze sucet vystupov sedi na objem vstupu; `qty` 0 sa do JSON nepise)
+                double rawQty = TB.Json.GetDouble(ev, "qty", 0);
+                int qty = entry ? Math.Max(1, (int)Math.Round(rawQty == 0 ? 1 : rawQty, MidpointRounding.AwayFromZero))
+                                : (int)Math.Round(rawQty, MidpointRounding.AwayFromZero);
                 if (entry)
                 {
                     if (!known)
@@ -2304,7 +2340,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                 }
                 if (!known) { Log("MT5 FILL out " + id + " - instancia ho nesleduje"); return; }
                 string exitName = RouteExitName(TB.Json.GetString(ev, "exit", ""), t.Closing);
-                Log("FILL out " + id + " " + exitName + " @" + px + " x" + qty + " (MT5 " + mt5Price + ")");
+                Log("FILL out " + id + " " + exitName + " @" + px + " x" + qty + " (MT5 " + mt5Price + ", lots " + lots + ")");
+                if (qty <= 0) return;   // cast pod jeden kontrakt - prirata sa k dalsiemu vystupu
                 if (_spool != null) { _spool.Fill(ft, id, false, exitName, px, qty, _live); SpoolCheck(); }
                 t.OpenQty -= qty;
                 if (t.OpenQty > 0) return;
@@ -2473,6 +2510,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         private void Teardown(string reason)
         {
             Status = "stopping";
+            StopSetupHeartbeat();
             try
             {
                 if (_account != null)

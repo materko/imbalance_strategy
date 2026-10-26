@@ -114,7 +114,7 @@ namespace TradeBot.Core
         /// `refNt` = posledna cena mastera v case prikazu, `refExec` = aktualna cena exekutora (mid).</summary>
         public static double MapPrice(double price, double refNt, double refExec, double scale, double tick)
         {
-            return RoundToTick(refExec + (price - refNt) * scale, tick);
+            return RoundToTick(refExec + (price - refNt) * (scale > 0 ? scale : 1.0), tick);
         }
 
         /// <summary>Cena exekutora -> cena mastera (fill do enginu a telemetrie), bez zaokruhlenia.</summary>
@@ -180,6 +180,19 @@ namespace TradeBot.Core
         public const long StaleMs = 3000;
 
         /// <summary>Stav route z heartbeatu exekutora (`hb` null = subor neexistuje). `detail` = text pre cloveka.</summary>
+        /// <summary>`net` route z heartbeatu exekutora; NaN = exekutor ju nehlasi (starsia verzia).</summary>
+        public static double Net(Dictionary<string, object> hb, string routeId)
+        {
+            List<object> routes = hb != null ? Json.Get(hb, "routes") as List<object> : null;
+            if (routes == null) return double.NaN;
+            foreach (object o in routes)
+            {
+                Dictionary<string, object> r = o as Dictionary<string, object>;
+                if (r != null && Json.GetString(r, "id", "") == routeId) return Json.GetDouble(r, "net", double.NaN);
+            }
+            return double.NaN;
+        }
+
         public static string Evaluate(Dictionary<string, object> hb, RouteSpec spec, string routeId, long nowMs, out string detail)
         {
             detail = "";
@@ -361,6 +374,12 @@ namespace TradeBot.Core
                     if (attempt >= 20) throw;
                     System.Threading.Thread.Sleep(5);
                 }
+                catch (UnauthorizedAccessException)
+                {
+                    // File.Replace druhej strany (antivirus) na chvilu subor zamkne ako pristup odmietnuty
+                    if (attempt >= 20) throw;
+                    System.Threading.Thread.Sleep(5);
+                }
             }
         }
 
@@ -416,7 +435,9 @@ namespace TradeBot.Core
             return 0;
         }
 
-        /// <summary>Prida riadok `{"seq":n,"t":ms, ...polia}` a vrati jeho `seq`. Flush hned (druha strana caka).</summary>
+        /// <summary>Prida riadok `{"seq":n,"t":ms, ...polia}` a vrati jeho `seq`. Flush hned (druha strana caka).
+        /// `seq` sa minie aj pri vynimke zo zapisu: riadok mohol na disk prist a dalsi s tym istym `seq` (a teda `cid`)
+        /// by druha strana preskocila ako uz vykonany.</summary>
         public long Append(long nowMs, Action<JsonWriter> fields)
         {
             long seq = _seq + 1;
@@ -426,12 +447,12 @@ namespace TradeBot.Core
             fields(w);
             w.EndObject();
             byte[] bytes = new UTF8Encoding(false).GetBytes(w.ToString() + "\n");
+            _seq = seq;
             using (FileStream fs = new FileStream(_path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete))
             {
                 fs.Write(bytes, 0, bytes.Length);
                 fs.Flush(true);
             }
-            _seq = seq;
             return seq;
         }
     }
@@ -630,8 +651,13 @@ namespace TradeBot.Core
         public string Status(long nowMs, out string detail)
         {
             Dictionary<string, object> hb = Bridge.ReadJsonFile(Bridge.ExecHeartbeatPath(_root, Spec.To));
-            return RouteStatus.Evaluate(hb, Spec, Spec.Instance, nowMs, out detail);
+            string state = RouteStatus.Evaluate(hb, Spec, Spec.Instance, nowMs, out detail);
+            BrokerNet = state == RouteStatus.Ok ? RouteStatus.Net(hb, Spec.Instance) : double.NaN;
+            return state;
         }
+
+        /// <summary>Cista pozicia route u brokera podla posledneho `Status` (kontrakty mastera); NaN = nevie sa.</summary>
+        public double BrokerNet = double.NaN;
     }
 
     /// <summary>Strana vykonavaca (MT5 `TradeBotExecutor`): najde route urcene jemu, cita prikazy (kazdy cid raz,
@@ -707,14 +733,32 @@ namespace TradeBot.Core
             Array.Sort(dirs, StringComparer.Ordinal);
             foreach (string d in dirs)
             {
-                Dictionary<string, object> raw = Bridge.ReadJsonFile(Path.Combine(d, Bridge.RouteFile));
-                if (raw == null) continue;
-                RouteSpec spec = RouteSpec.FromDict(raw);
-                if (spec.To != Id) continue;
+                RouteSpec spec = ReadRoute(Path.Combine(d, Bridge.RouteFile));
+                if (spec == null || spec.To != Id) continue;
                 outp[Path.GetFileName(d)] = spec;
             }
             return outp;
         }
+
+        /// <summary>route.json -> spec (null = nie je / rozpisany). Exekutor zoznam obnovuje kazde 2 s a adresare route
+        /// sa nemazu: subor sa cita znova, len ked sa zmenil cas zapisu.</summary>
+        private RouteSpec ReadRoute(string path)
+        {
+            DateTime mtime;
+            try { mtime = File.GetLastWriteTimeUtc(path); }
+            catch (IOException) { return null; }
+            catch (UnauthorizedAccessException) { return null; }
+            KeyValuePair<DateTime, RouteSpec> hit;
+            if (_routeFiles.TryGetValue(path, out hit) && hit.Key == mtime) return hit.Value;
+            Dictionary<string, object> raw = Bridge.ReadJsonFile(path);
+            if (raw == null) { _routeFiles.Remove(path); return null; }
+            RouteSpec spec = RouteSpec.FromDict(raw);
+            _routeFiles[path] = new KeyValuePair<DateTime, RouteSpec>(mtime, spec);
+            return spec;
+        }
+
+        private readonly Dictionary<string, KeyValuePair<DateTime, RouteSpec>> _routeFiles =
+            new Dictionary<string, KeyValuePair<DateTime, RouteSpec>>();
 
         private RouteState Route(string routeId)
         {
@@ -837,17 +881,24 @@ namespace TradeBot.Core
             return Route(routeId).Evt.Append(nowMs, fields);
         }
 
+        /// <summary>Session z heartbeatu mastera, ktory naposledy precital `MasterAgeMs` (route -> session).</summary>
+        private readonly Dictionary<string, string> _masterSession = new Dictionary<string, string>();
+
         /// <summary>Ako stary je heartbeat mastera route (ms); -1 = nikdy neprisiel.</summary>
         public long MasterAgeMs(string routeId, long nowMs)
         {
             Dictionary<string, object> hb = Bridge.ReadJsonFile(Path.Combine(Bridge.RouteDir(_root, routeId), Bridge.MasterHeartbeatFile));
+            _masterSession[routeId] = hb == null ? "" : Json.GetString(hb, "session", "");
             if (hb == null) return -1;
             return Math.Max(0, nowMs - (long)Json.GetDouble(hb, "t", 0.0));
         }
 
-        /// <summary>Session mastera z jeho heartbeatu ("" = ziadny) - nova session = master sa restartoval.</summary>
+        /// <summary>Session mastera z jeho heartbeatu ("" = ziadny) - nova session = master sa restartoval. Po
+        /// `MasterAgeMs` tej istej route sa subor necita druhy raz.</summary>
         public string MasterSession(string routeId)
         {
+            string s;
+            if (_masterSession.TryGetValue(routeId, out s)) { _masterSession.Remove(routeId); return s; }
             Dictionary<string, object> hb = Bridge.ReadJsonFile(Path.Combine(Bridge.RouteDir(_root, routeId), Bridge.MasterHeartbeatFile));
             return hb == null ? "" : Json.GetString(hb, "session", "");
         }
@@ -862,20 +913,57 @@ namespace TradeBot.Core
             _hb.Key("login").Value(login).Key("server").Value(server ?? "").Key("margin_mode").Value(marginMode ?? "");
             _hb.Key("connected").Value(connected).Key("trade_allowed").Value(tradeAllowed);
             _hbSymbols = _hbRoutes = false;
+            _symNew = null;
         }
+
+        private sealed class HbSymbol
+        {
+            public string Name;
+            public double Tick, TickValue, VolMin, VolStep, VolMax, Bid, Ask;
+            public int TradeMode;
+        }
+
+        /// <summary>Symboly z posledneho heartbeatu, ktory ich mal (`HeartbeatSymbolsKeep` ich zopakuje).</summary>
+        private List<HbSymbol> _symCache = new List<HbSymbol>();
+        private List<HbSymbol> _symNew;
 
         public void HeartbeatSymbol(string name, double tick, double tickValue, double volMin, double volStep, double volMax,
                                     int tradeMode, double bid, double ask)
         {
+            HbSymbol s = new HbSymbol();
+            s.Name = name; s.Tick = tick; s.TickValue = tickValue; s.VolMin = volMin; s.VolStep = volStep; s.VolMax = volMax;
+            s.TradeMode = tradeMode; s.Bid = bid; s.Ask = ask;
+            WriteSymbol(s);
+            if (_symNew == null) _symNew = new List<HbSymbol>();
+            _symNew.Add(s);
+        }
+
+        /// <summary>Symboly ako v poslednom heartbeate so zoznamom: MT5 ich nemusi kazdu sekundu prechadzat cele
+        /// (100+ symbolov Market Watch = ~1000 volani DLL za sekundu, audit exekutora - rychlost).</summary>
+        public void HeartbeatSymbolsKeep()
+        {
+            foreach (HbSymbol s in _symCache) WriteSymbol(s);
+            if (!_hbSymbols) { _hb.Key("symbols").BeginArray(); _hbSymbols = true; }
+        }
+
+        private void WriteSymbol(HbSymbol s)
+        {
             if (_hb == null) throw new InvalidOperationException("HeartbeatBegin nebol zavolany");
             if (_hbRoutes) throw new InvalidOperationException("symboly idu pred route");
             if (!_hbSymbols) { _hb.Key("symbols").BeginArray(); _hbSymbols = true; }
-            _hb.BeginObject().Key("name").Value(name).Key("tick").Value(tick).Key("tick_value").Value(tickValue);
-            _hb.Key("vol_min").Value(volMin).Key("vol_step").Value(volStep).Key("vol_max").Value(volMax);
-            _hb.Key("trade_mode").Value(tradeMode).Key("bid").Value(bid).Key("ask").Value(ask).EndObject();
+            _hb.BeginObject().Key("name").Value(s.Name).Key("tick").Value(s.Tick).Key("tick_value").Value(s.TickValue);
+            _hb.Key("vol_min").Value(s.VolMin).Key("vol_step").Value(s.VolStep).Key("vol_max").Value(s.VolMax);
+            _hb.Key("trade_mode").Value(s.TradeMode).Key("bid").Value(s.Bid).Key("ask").Value(s.Ask).EndObject();
         }
 
         public void HeartbeatRoute(string routeId, string state, string detail)
+        {
+            HeartbeatRoute(routeId, state, detail, double.NaN);
+        }
+
+        /// <summary>Route do heartbeatu; `netNt` = cista pozicia route u brokera v kontraktoch mastera (+ long, - short),
+        /// NaN = nehlasi sa. NT ju dava do telemetrie ako poziciu "u brokera" (nie svoju vieru).</summary>
+        public void HeartbeatRoute(string routeId, string state, string detail, double netNt)
         {
             if (_hb == null) throw new InvalidOperationException("HeartbeatBegin nebol zavolany");
             if (_hbSymbols && !_hbRoutes) _hb.EndArray();
@@ -883,6 +971,7 @@ namespace TradeBot.Core
             if (!_hbRoutes) { _hb.Key("routes").BeginArray(); _hbRoutes = true; }
             _hb.BeginObject().Key("id").Value(routeId).Key("state").Value(state ?? "");
             if (!string.IsNullOrEmpty(detail)) _hb.Key("detail").Value(detail);
+            if (!double.IsNaN(netNt)) _hb.Key("net").Value(netNt);
             _hb.EndObject();
         }
 
@@ -896,6 +985,7 @@ namespace TradeBot.Core
             _hb.EndObject();
             Bridge.AtomicWrite(Bridge.ExecHeartbeatPath(_root, Id), _hb.ToString());
             _hb = null;
+            if (_symNew != null) { _symCache = _symNew; _symNew = null; }
         }
     }
 }

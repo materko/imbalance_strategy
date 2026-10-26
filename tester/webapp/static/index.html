@@ -524,7 +524,7 @@
           <label class="field" data-ld-only="ninjatrader">Ordery<span class="hint">kde sa obchoduje: na účte NinjaTradera, alebo cez MT5 exekútor na tom istom stroji (NT dá len dáta) — docs/ROUTING.md</span>
             <select id="ld-d-route"><option value="">tu — na účte nasadenia</option></select></label>
           <label class="field ld-route-only" data-ld-only="ninjatrader">Symbol v MT5 <span class="muted small">(nepovinné)</span><span class="hint">prázdne = z mapovania (<code>MNQ</code> → <code>NAS100</code>, <code>MGC</code> → <code>XAUUSD</code>) a aliasov MT5 účtu</span>
-            <input id="ld-d-route-symbol" placeholder="z mapovania"></label>
+            <input id="ld-d-route-symbol" placeholder="z mapovania" list="ld-d-route-symbols" autocomplete="off"><datalist id="ld-d-route-symbols"></datalist></label>
           <label class="field ld-route-only" data-ld-only="ninjatrader">Objem v MT5<span class="hint">podľa hodnoty bodu = rovnaké riziko v $ ako v backteste (MNQ 2 $/bod → loty CFD); pevné = loty na kontrakt</span>
             <select id="ld-d-route-qty"><option value="value" selected>podľa hodnoty bodu</option><option value="fixed">pevné loty na kontrakt</option></select></label>
           <label class="field ld-route-only" data-ld-only="ninjatrader">Lotov na kontrakt<input id="ld-d-route-lots" type="number" min="0" step="0.01" placeholder="len pri pevných lotoch"></label>

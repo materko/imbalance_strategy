@@ -57,7 +57,9 @@ preposiela. Tento EA však drží aj ochranu pozície (SL u brokera, strážca S
 
 Profil (`tradebot/strategies/<kľúč>/configs`, `config_hash`) je config enginu. Ten istý profil
 beží v backteste, v parite aj naživo. Kam idú ordery, je vec **nasadenia** (deployment v hube, [LIVE.md](LIVE.md), fáza 2b).
-Tak sa ten istý profil dá nasadiť raz lokálne a raz cez MT5 bez kópie. Vo formulári „Nasadiť“ to
+Tak sa ten istý profil dá nasadiť raz lokálne a raz cez MT5 bez kópie — na inom NT účte, symbole
+alebo TF. Na tom istom NT účte, symbole a TF to nejde: id inštancie route neobsahuje a NinjaTrader slot
+nemá, takže druhé nasadenie skončí ako duplicita (`Conflict`). Vo formulári „Nasadiť“ to
 vyzerá ako voľba v profile:
 
 ```
@@ -71,13 +73,17 @@ Nové pole deploymentu (hub `live.sqlite`, `tradebot/live/deploy.py`):
 "route": null                                   // = local, dnešné správanie
 "route": {
   "via": "mt5",
-  "account": "ftmo-100k",                       // id MT5 účtu v hube; musí byť na tom istom stroji (agent)
+  "account": "ftmo-100k",                       // id MT5 účtu v hube; exekútor ide na stroj NT nasadenia
   "symbol": "US100.cash",                       // symbol u brokera; prázdne = z mapovania nižšie
   "price": "basis",                             // ako prepočítať ceny (nižšie)
   "scale": 1.0,                                 // pomer cien MT5 / NT (1 pre NQ↔NAS100, MGC↔XAUUSD)
   "qty": {"mode": "value"}                      // alebo {"mode": "fixed", "lots": 0.5} na kontrakt
 }
 ```
+
+Exekútor beží na **stroji NT nasadenia** (hub mu tam pridá graf `TradeBotExecutor`), takže ten stroj
+potrebuje aj driver MT5 a terminál účtu; formulár pri route ponúka len stroje s oboma drivermi. `price` a
+`scale` formulár neponúka (posiela predvolené `basis` a mierku z tabuľky nižšie), dajú sa zadať cez API.
 
 `route` je ako stratégia, symbol a TF súčasť identity nasadenia (`PATCH` ho nemení; iné smerovanie =
 nové nasadenie), lebo prepnutie s otvorenou pozíciou by ju nechalo na jednom účte a ďalší vstup poslalo na druhý.
@@ -100,12 +106,19 @@ Tri vrstvy, každá prepíše predošlú:
 
 2. **Aliasy brokera pri MT5 účte v hube** (nové pole účtu `symbols`, napr. `{"NAS100": "US100.cash",
    "XAUUSD": "XAUUSD.r"}`). Každý broker volá CFD inak (FTMO `US100.cash`, IC Markets `USTEC`).
-   Nastaví sa raz pre účet a potom platí pre všetky nasadenia.
+   Nastaví sa raz pre účet a platí pre nasadenia vytvorené potom; bežiace nasadenie má symbol uložený v route
+   z času vytvorenia (zmena aliasu ho nemení — exekútor hľadá pozície route podľa jej symbolu, na nový symbol
+   treba nové nasadenie). Alias smie byť aj priamo na koreň futures (`{"MNQ": "USTEC"}`) a má prednosť
+   pred tabuľkou.
 3. **`route.symbol` v nasadení**, keď treba niečo výnimočné.
 
-Exekútor v heartbeate hlási **zoznam symbolov účtu so špecifikáciou** (tick, hodnota ticku za lot,
-minimum a krok objemu, `trade_mode`). Webapp z neho robí rozbaľovací zoznam a hub odmietne nasadenie
-na symbol, ktorý účet nemá (422).
+Exekútor v heartbeate hlási **symboly z Market Watch so špecifikáciou** (tick, hodnota ticku za lot,
+minimum a krok objemu, `trade_mode`). Agent mená posiela hubu (`exec_symbols`, len z heartbeatu exekútora
+mladšieho než 10 min), webapp z nich robí rozbaľovací zoznam a hub odmietne (422) symbol, ktorý v zozname nie
+je — kým zoznam nikto nehlásil, hub symbol neoverí. Symbol mimo Market Watch treba do neho najprv pridať.
+
+Identita exekútora: server v účte hubu musí presne (aj veľkosťou písmen) sedieť s `ACCOUNT_SERVER`
+terminálu; login sa berie ako číslo (`007` = `7`).
 
 ### Ceny: futures ≠ CFD
 
@@ -120,7 +133,9 @@ ceny z enginu (`e`, `sl`, `tp`) preto nejdú do MT5 priamo:
   SL „20 bodov pod vstupom“.
 - **SL/TP po vyplnení** (`price: "basis"`, predvolené): exekútor ich po fille prekotví na **skutočnú
   cenu fillu** (`fill ± pôvodná vzdialenosť`). Sklz na CFD tak nezmení riziko obchodu v bodoch.
-- Trailing (`a: modify`) sa prepočíta tým istým spôsobom s `ref` v čase posunu.
+- Trailing (`a: modify`) sa kotví ako SL po fille: `fill + (nový SL − plánovaný vstup NT) × scale`; `ref`
+  v `modify` sa posiela, ale exekútor ho nepoužíva (kotva od aktuálnej ceny by po sklze dala iný stop
+  než prvotný SL). Stop sa nikdy neposunie späť a k trhu najbližšie, koľko broker dovolí (`STOPS_LEVEL`).
 - `price: "same"` = bez prepočtu, pre prípad, že NT aj MT5 obchodujú ten istý inštrument (napr. MT5
   broker s CME futures).
 
@@ -147,18 +162,19 @@ Súbory, nie sieť: rovnaký princíp ako spool a control ([LIVE.md](LIVE.md)). 
 - MQL5 sieť (`WebRequest`) nechceme.
 
 Zápis aj čítanie robí **C# `Bridge` v `TradeBot.Core`**. NinjaTrader ho má zo zdrojákov (`install`
-kopíruje jadro) a MT5 ho volá cez `StaticHost` (`BridgeOpen/Poll/Emit/Heartbeat`, fasáda verzie 6).
+kopíruje jadro) a MT5 ho volá cez `StaticHost` (`BridgeExecOpen/Poll/Emit/Hb*`, fasáda verzie 5 — `Bridge*` verziu nemenia).
 Protokol je teda napísaný raz a otestovaný v Pythone cez fasádu ako `test_mt5_static_host.py`.
 
 | súbor | píše | obsah |
 |---|---|---|
-| `route.json` | NT pri štarte inštancie | `to` (id exekútora), `symbol`, `price`, `scale`, `qty`, `magic` (z id nasadenia), `nt_symbol`, `nt_point_value`, `nt_currency`, `nt_tick` |
+| `route.json` | NT pri štarte inštancie | `to` (id exekútora), `symbol`, `price`, `scale`, `qty`, `magic` (FNV-1a z id **inštancie**; NT driver píše 0 = dopočíta AddOn — EA stratégií MT5 berú magic z id nasadenia, sú to dve konvencie), `nt_symbol`, `nt_point_value`, `nt_currency`, `nt_tick` |
 | `cmd.jsonl` | NT, append | `{"seq", "t", "cid", "a": "entry"/"cancel"/"close"/"modify"/"flatten"/"sync", "id", "dir", "ot", "p": {e, sl, tp, q, tr}, "life": {…}, "ref", "exp"}` |
-| `evt.jsonl` | exekútor, append | `{"seq", "t", "cid", "k": "ack"/"reject"/"placed"/"fill"/"modified"/"cancelled"/"closed"/"snapshot", "id", "price", "price_nt", "qty", "lots", "exit", "err"}` |
+| `evt.jsonl` | exekútor, append | `{"seq", "t", "cid", "k": "ack"/"reject"/"placed"/"fill"/"modified"/"cancelled"/"pos"/"order"/"snapshot"/"note", "id", "side", "price", "price_nt", "qty", "lots", "ft", "exit", "text"}` — zatvorenie pozície je `fill` so `side: out` a `exit` (samostatné `closed` nie je) |
 | `nt.hb` | NT, každú 1 s | `{t, session, mode}` (živosť stratégie pre `on_master_lost`) |
-| `exec\mt5exec_<login>-<server>.hb.json` | exekútor, každú 1 s | `{t, v, login, server, margin_mode, connected, trade_allowed, symbols:[…], routes:[…]}` |
+| `exec\mt5exec_<login>-<server>.hb.json` | exekútor, každú 1 s | `{t, v, login, server, margin_mode, connected, trade_allowed, symbols:[…], routes:[{id, state, detail, net}]}` — `symbols` celý Market Watch raz za minútu (medzitým zopakované), `net` = čistá pozícia route u brokera v kontraktoch NT |
 | `exec\mt5exec_<login>-<server>.lock` | exekútor, drží otvorený | výhradný zámok: druhý exekútor s tým istým id (iný graf, iný terminál) sa neotvorí |
-| `exec\…state.json` | exekútor | spracované `seq` za každú route, `cid → ticket`, otvorené pozície route (pre reštart) |
+| `bridge\<inštancia>\exec.state` | exekútor | potvrdený offset `cmd.jsonl` a vykonané `cid` (idempotencia cez reštart) |
+| `exec\mt5exec_<login>-<server>.orders.json` | exekútor | jeho záznamy orderov a pozícií všetkých route (ticket, plán NT, SL/TP, `life`, trailing) na zladenie po reštarte |
 
 Pravidlá:
 
@@ -183,12 +199,21 @@ Pravidlá:
   (`note warn`); keby sa zvyšok aj tak stihol vyplniť, príde `pos` s novým celkovým objemom. Zvyšok teda
   nikdy neostane GTC mimo `cancel` a `life`.
 - **Doručenie vstupu:** `entry` má `exp`, termín, do ktorého sa príkaz smie **odoslať brokerovi**
-  (market: 10 s, limit/stop: koniec baru + 1 TF). Neskorší príkaz exekútor odmietne (`reject
+  (market: 10 s, limit/stop: 1 TF od odoslania, teda zhruba do konca baru, v ktorom vstup vznikol). Neskorší príkaz exekútor odmietne (`reject
   expired`), napríklad keď MT5 hodinu nebežal a market vstup by išiel za úplne inú cenu. Toto nie je
   životnosť orderu (tú má `life`, nižšie). `cancel`, `close`, `modify` a `flatten` termín nemajú.
 - **Ochrana u brokera:** vstup ide so SL/TP priamo v orderi (MT5 pending order nesie `sl/tp`, ktoré
   platia po vyplnení). Pozícia teda nie je ani chvíľu bez stopu, aj keď NT medzitým spadne.
   Strážca SL (dnes v `TradeBotEA.mqh`) beží v exekútore na každej route.
+- **Vstup ako v backteste:** limitka za trhom a stop, ktorý trh už prešiel, idú trhom (v NT by sa vyplnili hneď,
+  broker by ich ako pending odmietol). Market vstup pri requote skúsi exekútor znova, kým platí `exp`.
+  `life.cancel_at` dostane aj broker (`ORDER_TIME_SPECIFIED` + 1 min), ak ho symbol vie — druhá poistka, keby
+  terminál nebežal. Plán bez SL/TP ide bez nich (nie s prepočítanou nulou).
+- **Hlásenia bez zaplavenia:** odmietnuté zatvorenie (napr. zatvorený trh) ide do `note` pri prvom neúspechu,
+  pri inom dôvode a potom raz za 10 pokusov; chyba čítania príkazov do Experts logu najviac raz za 10 s. Mŕtva
+  route (master mlčí deň a viac, exekútor na nej nič nedrží) po štarte nevaruje.
+- **Štart NT:** kým beží `BarsRequest` a prehrávanie predhistórie (aj dlhšie ako 30 s), `nt.hb` píše časovač,
+  aby exekútor nehlásil „master neodpovedá“ a nepreberal trailing.
 - **Zdroj pravdy o pozícii** je MT5. NT pri štarte pošle `sync` a exekútor vráti `snapshot`
   (pozície a ordery route podľa magic). Tým sa nahradí `RestoreState` voči NT účtu.
 - **Len hedging účet.** Každý vstup je vlastná pozícia so SL/TP na nej. Netting exekútor nepodporuje:

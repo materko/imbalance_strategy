@@ -40,6 +40,10 @@ const int    MaxExitAttempts = 3;
 const long   MasterLostMs    = 30000;     // Bridge.MasterLostMs
 const int    StraySweepSec   = 5;         // ako casto hladat u brokera ordery/pozicie route bez zaznamu
 const int    HistoryLookbackDays = 3;     // dokedy dozadu hladat v historii order k zopakovanemu prikazu
+const int    SymbolsEverySec = 60;        // cely Market Watch do heartbeatu (inak sa zopakuje posledny zoznam)
+const int    RouteMissesMax  = 3;         // route chybajuca v tolkych obnovach po sebe sa zahodi
+const long   DormantMs       = 86400000;  // master route mlci dlhsie: mrtva route, po starte bez varovania
+const long   LifeGraceMs     = 5000;      // RouteMath.LifeGraceMs
 
 struct XRoute
   {
@@ -56,6 +60,8 @@ struct XRoute
    string detail;
    bool   masterLost;
    bool   masterSeen;
+   int    misses;       // kolko obnov zoznamu po sebe route chybala (prechodna chyba citania route.json)
+   datetime pollErrAt;  // posledny vypis chyby citania prikazov (nie kazdych 50 ms)
    string masterSession;
    datetime lastM1;     // posledny spracovany 1m bar (server)
    bool   seen;         // pri obnove zoznamu: route este existuje
@@ -84,6 +90,7 @@ struct XOrder
    double lastStop, lastTp;
    bool   closing;
    int    closeFails;
+   uint   closeRc;      // posledny kod odmietnutia zatvorenia (note len pri zmene, nie pri kazdom pokuse)
    datetime closeRetryAt;
    string closeWhy;     // close / life_close / flatten
    int    slFails;
@@ -104,6 +111,8 @@ int      g_gmtOffsetSec = 0;
 datetime g_lastSlow = 0;
 datetime g_lastRoutes = 0;
 datetime g_lastStrays = 0;
+datetime g_lastSymbols = 0;     // posledny heartbeat s celym Market Watch
+int      g_symbolsTotal = -1;
 bool     g_hedging = false;
 bool     g_reconciled = false;  // stav spred restartu zladeny s brokerom (az po pripojeni terminalu)
 
@@ -119,7 +128,7 @@ string JStr(string s)
    return "\"" + s + "\"";
   }
 
-long NowMs() { return (long)TimeGMT() * 1000; }
+long NowMs() { return StaticHost::BridgeNowMs(); }   // TimeGMT ma len sekundy (hranice stale 3 s, exp 10 s)
 
 void RefreshGmtOffset()
   {
@@ -145,6 +154,12 @@ int FindOrder(string route, string id)
    return -1;
   }
 
+bool HasOrders(string route)
+  {
+   for(int i = 0; i < ArraySize(g_xo); i++) if(g_xo[i].route == route) return true;
+   return false;
+  }
+
 int FindTicket(ulong ticket)
   {
    for(int i = 0; i < ArraySize(g_xo); i++) if(g_xo[i].ticket == ticket) return i;
@@ -161,6 +176,20 @@ void RemoveOrder(int i)
 double Tick(string sym) { return SymbolInfoDouble(sym, SYMBOL_TRADE_TICK_SIZE); }
 double Mid(string sym) { return (SymbolInfoDouble(sym, SYMBOL_BID) + SymbolInfoDouble(sym, SYMBOL_ASK)) / 2.0; }
 double RoundTick(string sym, double p) { return StaticHost::BridgeMapPrice(p, 0, 0, 1.0, Tick(sym)); }
+
+/// SL pozicie najblizsie k trhu, kolko broker dovoli (SYMBOL_TRADE_STOPS_LEVEL): blizsi by odmietol (10016) a trailing
+/// by sa neposunul vobec. Odsunuty stop je stale lepsi nez stary, ak bol posun dost velky.
+double ClampStop(string sym, bool isLong, double sl)
+  {
+   if(sl <= 0) return sl;
+   double lvl = (double)SymbolInfoInteger(sym, SYMBOL_TRADE_STOPS_LEVEL) * SymbolInfoDouble(sym, SYMBOL_POINT);
+   double tick = Tick(sym);
+   if(lvl <= 0 || tick <= 0) return sl;
+   double bid = SymbolInfoDouble(sym, SYMBOL_BID), ask = SymbolInfoDouble(sym, SYMBOL_ASK);
+   if(isLong && bid > 0 && sl > bid - lvl) return MathFloor((bid - lvl) / tick + 1e-9) * tick;
+   if(!isLong && ask > 0 && sl < ask + lvl) return MathCeil((ask + lvl) / tick - 1e-9) * tick;
+   return sl;
+  }
 
 /// Kurz: 1 `from` = ? `to`, z forex paru u brokera (EURUSD, USDCZK... najprv Market Watch, potom vsetky); 0 = nie je.
 double FxRate(string from, string to)
@@ -231,7 +260,7 @@ string OrderJson(const XOrder &o)
           + ",\"dir\":" + IntegerToString(o.dir) + ",\"ot\":" + JStr(o.ot) + ",\"q\":" + Num(o.q)
           + ",\"nte\":" + Num(o.ntEntry) + ",\"ntsl\":" + Num(o.ntSl) + ",\"nttp\":" + Num(o.ntTp)
           + ",\"e\":" + Num(o.entry) + ",\"sl0\":" + Num(o.sl0) + ",\"tp0\":" + Num(o.tp0) + ",\"lots\":" + Num(o.lots)
-          + ",\"ticket\":" + IntegerToString((long)o.ticket) + ",\"filled\":" + (o.filled ? "true" : "false")
+          + ",\"ticket\":" + JStr(IntegerToString((long)o.ticket)) + ",\"filled\":" + (o.filled ? "true" : "false")
           + ",\"fill\":" + Num(o.fill) + ",\"fill_ms\":" + IntegerToString(o.fillMs) + ",\"open\":" + Num(o.openLots)
           + ",\"cancel_at\":" + IntegerToString(o.cancelAt) + ",\"close_at\":" + IntegerToString(o.closeAt)
           + ",\"hold_ms\":" + IntegerToString(o.holdMs) + ",\"trail\":" + (o.hasTrail ? "true" : "false")
@@ -274,7 +303,10 @@ void LoadState()
       o.route = j.Str("route"); o.id = j.Str("id"); o.cid = j.Str("cid"); o.dir = (int)j.Dbl("dir"); o.ot = j.Str("ot");
       o.q = j.Dbl("q"); o.ntEntry = j.Dbl("nte"); o.ntSl = j.Dbl("ntsl"); o.ntTp = j.Dbl("nttp");
       o.entry = j.Dbl("e"); o.sl0 = j.Dbl("sl0"); o.tp0 = j.Dbl("tp0"); o.lots = j.Dbl("lots");
-      o.ticket = (ulong)j.Dbl("ticket"); o.filled = j.Bool("filled"); o.fill = j.Dbl("fill"); o.fillMs = (long)j.Dbl("fill_ms");
+      // ticket ako retazec (cez double by velke cislo stratilo presnost); stav zo starsej verzie ma cislo
+      CJson *jt = j.Find("ticket");
+      o.ticket = jt != NULL && jt.type == JSON_STRING ? (ulong)StringToInteger(jt.str) : (ulong)j.Dbl("ticket");
+      o.filled = j.Bool("filled"); o.fill = j.Dbl("fill"); o.fillMs = (long)j.Dbl("fill_ms");
       o.openLots = j.Dbl("open"); o.cancelAt = (long)j.Dbl("cancel_at"); o.closeAt = (long)j.Dbl("close_at");
       o.holdMs = (long)j.Dbl("hold_ms"); o.hasTrail = j.Bool("trail"); o.trailAct = j.Dbl("ta"); o.trailOff = j.Dbl("to");
       o.extreme = j.Dbl("ext"); o.lastStop = j.Dbl("stop"); o.lastTp = j.Dbl("tp");
@@ -297,40 +329,97 @@ int ReconcileOrder(int i, string when)
       if(!g_xo[i].filled)
          OnEntryFill(i, PositionGetDouble(POSITION_VOLUME), PositionGetDouble(POSITION_PRICE_OPEN),
                      ServerMsToUtc(PositionGetInteger(POSITION_TIME_MSC)), t, "vyplnene " + when);
-      if(i < ArraySize(g_xo) && PositionSelectByTicket(t)) g_xo[i].openLots = PositionGetDouble(POSITION_VOLUME);
+      if(i >= ArraySize(g_xo) || !PositionSelectByTicket(t)) return 0;
+      double vol = PositionGetDouble(POSITION_VOLUME);
+      // SL/TP su u brokera (mohli sa posunut, kym exekutor nebezal - trailing pred padom, rucne): tie plati
+      if(PositionGetDouble(POSITION_SL) > 0) g_xo[i].lastStop = PositionGetDouble(POSITION_SL);
+      if(PositionGetDouble(POSITION_TP) > 0) g_xo[i].lastTp = PositionGetDouble(POSITION_TP);
+      // ciastocne zatvorenia pocas vypadku: do NT, inak by drzal vacsiu poziciu
+      if(vol < g_xo[i].openLots - 1e-8) EmitHistoryExits(i, t, g_xo[i].openLots - vol, when);
+      g_xo[i].openLots = vol;
+      CatchUpExtreme(i);
       return 0;
      }
    if(!g_xo[i].filled && OrderSelect(t)) return 0;
    // ani pozicia, ani cakajuci order: dohladat v historii
    if(HistorySelectByPosition(t))
      {
-      double inLots = 0;
+      double inLots = 0, px = 0;
+      long ms = 0;
       for(int k = 0; k < HistoryDealsTotal(); k++)
         {
          ulong d = HistoryDealGetTicket(k);
-         ENUM_DEAL_ENTRY e = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY);
-         double vol = HistoryDealGetDouble(d, DEAL_VOLUME), px = HistoryDealGetDouble(d, DEAL_PRICE);
-         long ms = ServerMsToUtc(HistoryDealGetInteger(d, DEAL_TIME_MSC));
-         if(e == DEAL_ENTRY_IN)
-           {
-            inLots += vol;
-            if(!g_xo[i].filled)
-              {
-               g_xo[i].filled = true; g_xo[i].fill = px; g_xo[i].fillMs = ms;
-               Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "in", px, NtPrice(g_xo[i], px, g_xo[i].entry, g_xo[i].ntEntry),
-                    g_xo[i].q, vol, ms, "", "vyplnene " + when);
-              }
-            continue;
-           }
-         ENUM_DEAL_REASON why = (ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON);
-         string exitName = why == DEAL_REASON_SL ? "sl" : (why == DEAL_REASON_TP ? "tp" : "external");
-         double ntFill = NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry);
-         Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "out", px, NtPrice(g_xo[i], px, g_xo[i].fill, ntFill),
-              QtyNt(g_xo[i], vol), vol, ms, exitName, "zatvorene " + when);
+         if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY) != DEAL_ENTRY_IN) continue;
+         if(inLots == 0) { px = HistoryDealGetDouble(d, DEAL_PRICE); ms = ServerMsToUtc(HistoryDealGetInteger(d, DEAL_TIME_MSC)); }
+         inLots += HistoryDealGetDouble(d, DEAL_VOLUME);
         }
-      if(inLots > 0) { RemoveOrder(i); return 1; }
+      if(inLots > 0 && !g_xo[i].filled)
+        {
+         // vyplnil sa (aj viacerymi dealmi) a zavrel, kym exekutor nebezal: jeden fill in s celym objemom
+         g_xo[i].filled = true; g_xo[i].fill = px; g_xo[i].fillMs = ms; g_xo[i].openLots = inLots;
+         Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "in", px, NtPrice(g_xo[i], px, g_xo[i].entry, g_xo[i].ntEntry),
+              QtyNt(g_xo[i], inLots), inLots, ms, "", "vyplnene " + when);
+        }
+      if(inLots > 0)
+        {
+         // vystupy, ktore NT este nema: zvysok otvoreneho objemu (skorsie ciastocne vystupy uz dostal)
+         EmitHistoryExits(i, t, g_xo[i].openLots, when);
+         RemoveOrder(i);
+         return 1;
+        }
      }
    return 2;
+  }
+
+/// Kontrakty NT pre vystup z `before` na `after` lotov: rozdiel zaokruhlenych celkov, aby sucet vystupov dal presne
+/// objem vstupu (ciastocny vystup pod jeden kontrakt je 0, zvysok pride s poslednym).
+double ExitQtyNt(const XOrder &o, double before, double after)
+  {
+   return MathRound(QtyNt(o, before)) - MathRound(QtyNt(o, MathMax(0.0, after)));
+  }
+
+/// Poslednych `lots` lotov vystupnych dealov pozicie `t` z historie ako `fill out` (najstarsie z nich prve) -
+/// to, co sa zatvorilo, kym exekutor nebezal. Volajuci ma `openLots` pred nimi; po nich ho znizi sam.
+void EmitHistoryExits(int i, ulong t, double lots, string when)
+  {
+   if(lots <= 1e-8 || !HistorySelectByPosition(t)) return;
+   int n = HistoryDealsTotal();
+   int first = n;
+   double left = lots;
+   for(int k = n - 1; k >= 0 && left > 1e-8; k--)
+     {
+      ulong d = HistoryDealGetTicket(k);
+      if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY) == DEAL_ENTRY_IN) continue;
+      left -= HistoryDealGetDouble(d, DEAL_VOLUME);
+      first = k;
+     }
+   double open = g_xo[i].openLots;
+   double ntFill = NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry);
+   for(int k = first; k < n; k++)
+     {
+      ulong d = HistoryDealGetTicket(k);
+      if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY) == DEAL_ENTRY_IN) continue;
+      double vol = HistoryDealGetDouble(d, DEAL_VOLUME), px = HistoryDealGetDouble(d, DEAL_PRICE);
+      ENUM_DEAL_REASON why = (ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON);
+      string exitName = why == DEAL_REASON_SL ? "sl" : (why == DEAL_REASON_TP ? "tp" : "external");
+      Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "out", px, NtPrice(g_xo[i], px, g_xo[i].fill, ntFill),
+           ExitQtyNt(g_xo[i], open, open - vol), vol, ServerMsToUtc(HistoryDealGetInteger(d, DEAL_TIME_MSC)), exitName,
+           "zatvorene " + when);
+      open -= vol;
+     }
+  }
+
+/// Extrem pre zalozny trailing z 1m barov od fillu (pocas vypadku exekutora sa nesledoval).
+void CatchUpExtreme(int i)
+  {
+   if(!g_xo[i].hasTrail || g_xo[i].fillMs <= 0) return;
+   int r = FindRoute(g_xo[i].route);
+   if(r < 0) return;
+   datetime from = (datetime)(g_xo[i].fillMs / 1000 + g_gmtOffsetSec);
+   MqlRates bars[];
+   int n = CopyRates(g_routes[r].symbol, PERIOD_M1, from, TimeTradeServer(), bars);
+   for(int k = 0; k < n; k++)
+      g_xo[i].extreme = g_xo[i].dir > 0 ? MathMax(g_xo[i].extreme, bars[k].high) : MathMin(g_xo[i].extreme, bars[k].low);
   }
 
 /// Po starte (az ked je terminal pripojeny - pred tym by broker "nemal nic" a vsetko by sa zahodilo): co zo stavu
@@ -385,12 +474,15 @@ void RefreshRoutes()
       g_routes[r].ntPointValue = j.Dbl("nt_point_value");
       g_routes[r].ntCurrency = j.Str("nt_currency");
       g_routes[r].seen = true;
+      g_routes[r].misses = 0;
       CheckRoute(r);
      }
    delete arr;
    for(int i = ArraySize(g_routes) - 1; i >= 0; i--)
      {
       if(g_routes[i].seen) continue;
+      // route.json prave rozpisany / zamknuty: route ostava (aj s masterSeen, masterLost, lastM1), kym nechyba opakovane
+      if(++g_routes[i].misses < RouteMissesMax) continue;
       Print("TradeBot exekutor: route ", g_routes[i].id, " zmizla (otvorene ordery sa stazia dalej)");
       int n = ArraySize(g_routes);
       for(int k = i; k < n - 1; k++) g_routes[k] = g_routes[k + 1];
@@ -424,24 +516,51 @@ bool TradeAllowed()
           && AccountInfoInteger(ACCOUNT_TRADE_ALLOWED) && AccountInfoInteger(ACCOUNT_TRADE_EXPERT);
   }
 
+/// Cista pozicia route u brokera v kontraktoch mastera: pozicie s magic a symbolom route, objem od brokera (ciastocne
+/// zatvorenia vidno hned), prepocet na kontrakty podla zaznamu vstupu. Pozicia bez zaznamu (prevezme ju AdoptStrays)
+/// sa zatial nepocita.
+double RouteNetNt(int r)
+  {
+   double net = 0;
+   for(int k = PositionsTotal() - 1; k >= 0; k--)
+     {
+      ulong t = PositionGetTicket(k);
+      if(t == 0 || PositionGetInteger(POSITION_MAGIC) != g_routes[r].magic || PositionGetString(POSITION_SYMBOL) != g_routes[r].symbol)
+         continue;
+      int i = FindTicket(t);
+      if(i < 0) continue;
+      double q = QtyNt(g_xo[i], PositionGetDouble(POSITION_VOLUME));
+      net += PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY ? q : -q;
+     }
+   return net;
+  }
+
 void WriteHeartbeat()
   {
    long login = AccountInfoInteger(ACCOUNT_LOGIN);
    if(StaticHost::BridgeHbBegin(g_x, NowMs(), login, AccountInfoString(ACCOUNT_SERVER), g_hedging ? "hedging" : "netting",
                                 TerminalInfoInteger(TERMINAL_CONNECTED) != 0, TradeAllowed(), ExecVersion) < 0)
      { Print("TradeBot exekutor: heartbeat: ", StaticHost::LastError()); return; }
-   // symboly: vsetky z Market Watch (webapp z nich ponuka vyber pri nasadeni) - route ich tam pridava sama
+   // symboly: vsetky z Market Watch (webapp z nich ponuka vyber pri nasadeni) - route ich tam pridava sama. Cely
+   // zoznam raz za minutu alebo pri zmene poctu, inak ho jadro zopakuje (100+ symbolov x 9 volani kazdu sekundu)
    int n = SymbolsTotal(true);
-   for(int i = 0; i < n; i++)
+   datetime now = TimeLocal();
+   if(n != g_symbolsTotal || now - g_lastSymbols >= SymbolsEverySec)
      {
-      string s = SymbolName(i, true);
-      StaticHost::BridgeHbSymbol(g_x, s, Tick(s), SymbolInfoDouble(s, SYMBOL_TRADE_TICK_VALUE),
-                                 SymbolInfoDouble(s, SYMBOL_VOLUME_MIN), SymbolInfoDouble(s, SYMBOL_VOLUME_STEP),
-                                 SymbolInfoDouble(s, SYMBOL_VOLUME_MAX), (int)SymbolInfoInteger(s, SYMBOL_TRADE_MODE),
-                                 SymbolInfoDouble(s, SYMBOL_BID), SymbolInfoDouble(s, SYMBOL_ASK));
+      for(int i = 0; i < n; i++)
+        {
+         string s = SymbolName(i, true);
+         StaticHost::BridgeHbSymbol(g_x, s, Tick(s), SymbolInfoDouble(s, SYMBOL_TRADE_TICK_VALUE),
+                                    SymbolInfoDouble(s, SYMBOL_VOLUME_MIN), SymbolInfoDouble(s, SYMBOL_VOLUME_STEP),
+                                    SymbolInfoDouble(s, SYMBOL_VOLUME_MAX), (int)SymbolInfoInteger(s, SYMBOL_TRADE_MODE),
+                                    SymbolInfoDouble(s, SYMBOL_BID), SymbolInfoDouble(s, SYMBOL_ASK));
+        }
+      g_symbolsTotal = n;
+      g_lastSymbols = now;
      }
+   else StaticHost::BridgeHbSymbolsKeep(g_x);
    for(int r = 0; r < ArraySize(g_routes); r++)
-      StaticHost::BridgeHbRoute(g_x, g_routes[r].id, g_routes[r].state, g_routes[r].detail);
+      StaticHost::BridgeHbRouteNet(g_x, g_routes[r].id, g_routes[r].state, g_routes[r].detail, RouteNetNt(r));
    if(StaticHost::BridgeHbWrite(g_x) < 0) Print("TradeBot exekutor: heartbeat: ", StaticHost::LastError());
   }
 
@@ -452,10 +571,13 @@ void WatchMasters()
    for(int r = 0; r < ArraySize(g_routes); r++)
      {
       long age = StaticHost::BridgeMasterAge(g_x, g_routes[r].id, now);
+      if(age == -2) continue;   // chyba citania nt.hb - nic nove sa nevie, stav ostava (nie falosne "master neodpoveda")
       string session = StaticHost::BridgeMasterSession(g_x, g_routes[r].id);
       bool lost = age < 0 || age > MasterLostMs;
       if(age >= 0) g_routes[r].masterSeen = true;
-      if(lost && !g_routes[r].masterLost && g_routes[r].masterSeen)
+      // mrtva route (master mlci den a viac, exekutor na nej nic nedrzi): adresar sa nemaze, varovat netreba
+      bool dormant = age > DormantMs && !HasOrders(g_routes[r].id);
+      if(lost && !g_routes[r].masterLost && g_routes[r].masterSeen && !dormant)
          Note(g_routes[r].id, "warn", StringFormat("master neodpoveda %d s - ordery bezia dalej podla svojho life, trailing preberam", (int)(age / 1000)));
       if(!lost && g_routes[r].masterLost)
          Note(g_routes[r].id, "info", "master je spat (session " + session + ")");
@@ -472,7 +594,16 @@ void PollCommands()
    for(int r = 0; r < ArraySize(g_routes); r++)
      {
       string raw = StaticHost::BridgePoll(g_x, g_routes[r].id);
-      if(raw == "") { Print("TradeBot exekutor: prikazy ", g_routes[r].id, ": ", StaticHost::LastError()); continue; }
+      if(raw == "")
+        {
+         // kazdych 50 ms by to zaplavilo Experts log - najviac raz za 10 s
+         if(TimeLocal() - g_routes[r].pollErrAt >= 10)
+           {
+            g_routes[r].pollErrAt = TimeLocal();
+            Print("TradeBot exekutor: prikazy ", g_routes[r].id, ": ", StaticHost::LastError());
+           }
+         continue;
+        }
       if(raw == "[]") continue;
       CJson *arr = JsonParse(raw);
       if(arr == NULL) { Print("TradeBot exekutor: prikazy ", g_routes[r].id, " sa nedaju precitat"); continue; }
@@ -614,11 +745,38 @@ void AdoptExisting(XOrder &o, ulong ticket, bool isPosition, string cid, string 
                   ServerMsToUtc(PositionGetInteger(POSITION_TIME_MSC)), ticket, why);
   }
 
+/// Ten isty vstup (id) znova: engine nahradil nevyplneny vstup novym planom (ina cena, SL). Stary order sa zrusi bez
+/// `cancelled` (NT drzi pod tym istym id uz novy a zahodil by ho) a vstup sa posle znova. false = nove sa neposiela:
+/// stary je vyplneny alebo sa neda zrusit (`ack` s dovodom).
+bool ReplaceEntry(int i, string cid)
+  {
+   string route = g_xo[i].route, id = g_xo[i].id;
+   if(g_xo[i].filled) { Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "vstup uz bezi (vyplneny)"); return false; }
+   ulong t = g_xo[i].ticket;
+   if(t == 0 || (g_trade.OrderDelete(t) && Sent()))
+     {
+      RemoveOrder(i);
+      if(InpLog) Print("TradeBot exekutor [", route, "] vstup ", id, " nahradeny novym planom");
+      return true;
+     }
+   if(OrderSelect(t))
+     {
+      Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "stary vstup sa neda zrusit (" + TradeErr() + ") - bezi povodny");
+      return false;
+     }
+   int res = ReconcileOrder(i, "tesne pred nahradenim");
+   if(res == 0) { Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "uz je vyplneny - nahradenie sa ignoruje"); return false; }
+   if(res == 1) { Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "vyplnil sa aj zavrel tesne pred nahradenim"); return false; }
+   RemoveOrder(i);   // u brokera nie je: novy sa posle
+   return true;
+  }
+
 void HandleEntry(int r, CJson *c)
   {
    string route = g_routes[r].id, cid = c.Str("cid"), id = c.Str("id"), sym = g_routes[r].symbol;
    long now = NowMs();
-   if(FindOrder(route, id) >= 0) { Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "vstup uz bezi"); return; }
+   int prev = FindOrder(route, id);
+   if(prev >= 0 && !ReplaceEntry(prev, cid)) return;
    CJson *p = c.Find("p");
    if(p == NULL) { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", "vstup bez planu"); return; }
 
@@ -659,8 +817,9 @@ void HandleEntry(int r, CJson *c)
    if(refExec <= 0) { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", "symbol " + sym + " nema kotaciu"); return; }
    if(refNt <= 0) refNt = o.ntEntry;
    o.entry = same ? RoundTick(sym, o.ntEntry) : StaticHost::BridgeMapPrice(o.ntEntry, refNt, refExec, scale, tick);
-   o.sl0 = same ? RoundTick(sym, o.ntSl) : StaticHost::BridgeMapPrice(o.ntSl, refNt, refExec, scale, tick);
-   o.tp0 = same ? RoundTick(sym, o.ntTp) : StaticHost::BridgeMapPrice(o.ntTp, refNt, refExec, scale, tick);
+   // plan bez SL/TP (0) ostane bez neho - prepocet nuly by dal zapornu cenu a broker by vstup odmietol
+   o.sl0 = o.ntSl <= 0 ? 0 : (same ? RoundTick(sym, o.ntSl) : StaticHost::BridgeMapPrice(o.ntSl, refNt, refExec, scale, tick));
+   o.tp0 = o.ntTp <= 0 ? 0 : (same ? RoundTick(sym, o.ntTp) : StaticHost::BridgeMapPrice(o.ntTp, refNt, refExec, scale, tick));
    o.lastStop = o.sl0; o.lastTp = o.tp0;
    string whyTv = "";
    double tickValue = g_routes[r].qtyMode == "fixed" ? 1.0 : TickValueNt(sym, g_routes[r].ntCurrency, whyTv);
@@ -675,15 +834,53 @@ void HandleEntry(int r, CJson *c)
    g_trade.SetExpertMagicNumber((ulong)g_routes[r].magic);
    g_trade.SetTypeFillingBySymbol(sym);
    g_trade.SetDeviationInPoints(InpDeviationPts);
-   bool isLong = o.dir > 0, ok;
+   bool isLong = o.dir > 0, ok = false;
+   // limitka za trhom / stop, ktory uz trh presiel: v NT (aj v backteste) by sa vyplnili hned - broker ich ako pending
+   // odmietne (10015 invalid price), takze idu trhom
+   double ask = SymbolInfoDouble(sym, SYMBOL_ASK), bid = SymbolInfoDouble(sym, SYMBOL_BID);
+   if(o.ot != "Market" && ask > 0 && bid > 0)
+     {
+      bool crossed = o.ot == "Stop" ? (isLong ? o.entry <= ask : o.entry >= bid) : (isLong ? o.entry >= ask : o.entry <= bid);
+      if(crossed)
+        {
+         Note(route, "info", StringFormat("vstup %s: %s %s za trhom (%s / %s) - posielam trhom", id, o.ot, Num(o.entry), Num(bid), Num(ask)));
+         o.ot = "Market";
+        }
+     }
    if(o.ot == "Market")
-      ok = isLong ? g_trade.Buy(o.lots, sym, 0, o.sl0, o.tp0, id) : g_trade.Sell(o.lots, sym, 0, o.sl0, o.tp0, id);
-   else if(o.ot == "Stop")
-      ok = isLong ? g_trade.BuyStop(o.lots, o.entry, sym, o.sl0, o.tp0, ORDER_TIME_GTC, 0, id)
-                  : g_trade.SellStop(o.lots, o.entry, sym, o.sl0, o.tp0, ORDER_TIME_GTC, 0, id);
+     {
+      // requote / zmena ceny: kym plati `exp`, skusit znova s aktualnou cenou
+      for(int attempt = 0; ; attempt++)
+        {
+         ok = isLong ? g_trade.Buy(o.lots, sym, 0, o.sl0, o.tp0, id) : g_trade.Sell(o.lots, sym, 0, o.sl0, o.tp0, id);
+         uint q = g_trade.ResultRetcode();
+         bool requote = q == TRADE_RETCODE_REQUOTE || q == TRADE_RETCODE_PRICE_CHANGED || q == TRADE_RETCODE_PRICE_OFF;
+         if(!requote || attempt >= 2 || (exp > 0 && NowMs() > exp)) break;
+         Sleep(100);
+        }
+     }
    else
-      ok = isLong ? g_trade.BuyLimit(o.lots, o.entry, sym, o.sl0, o.tp0, ORDER_TIME_GTC, 0, id)
-                  : g_trade.SellLimit(o.lots, o.entry, sym, o.sl0, o.tp0, ORDER_TIME_GTC, 0, id);
+     {
+      // `life.cancel_at` aj brokerovi (ORDER_TIME_SPECIFIED), ak ho symbol vie: druha poistka, keby terminal nebezal
+      ENUM_ORDER_TYPE_TIME tt = ORDER_TIME_GTC;
+      datetime expiry = 0;
+      if(o.cancelAt > 0 && (SymbolInfoInteger(sym, SYMBOL_EXPIRATION_MODE) & SYMBOL_EXPIRATION_SPECIFIED) != 0)
+        {
+         tt = ORDER_TIME_SPECIFIED;
+         expiry = (datetime)((o.cancelAt + LifeGraceMs) / 1000 + 60 + g_gmtOffsetSec);
+        }
+      for(int attempt = 0; attempt < 2; attempt++)
+        {
+         if(o.ot == "Stop")
+            ok = isLong ? g_trade.BuyStop(o.lots, o.entry, sym, o.sl0, o.tp0, tt, expiry, id)
+                        : g_trade.SellStop(o.lots, o.entry, sym, o.sl0, o.tp0, tt, expiry, id);
+         else
+            ok = isLong ? g_trade.BuyLimit(o.lots, o.entry, sym, o.sl0, o.tp0, tt, expiry, id)
+                        : g_trade.SellLimit(o.lots, o.entry, sym, o.sl0, o.tp0, tt, expiry, id);
+         if(tt == ORDER_TIME_GTC || g_trade.ResultRetcode() != TRADE_RETCODE_INVALID_EXPIRATION) break;
+         tt = ORDER_TIME_GTC; expiry = 0;   // broker termin neberie: life strazi exekutor sam
+        }
+     }
    uint rc = g_trade.ResultRetcode();
    // ciastocne vyplneny market (IOC) je u brokera rovnako ako DONE - zvysok dealov pride v OnTradeTransaction
    ulong ticket = ok && (Sent() || rc == TRADE_RETCODE_DONE_PARTIAL) ? g_trade.ResultOrder() : 0;
@@ -784,6 +981,13 @@ void HandleModify(int r, CJson *c)
       Note(route, "info", "posun SL " + id + " na " + Num(sl) + " by stop uvolnil (je " + Num(g_xo[i].lastStop) + ") - ignorujem");
       sl = g_xo[i].lastStop;
      }
+   double clamped = ClampStop(sym, isLong, sl);
+   if(clamped != sl)
+     {
+      Note(route, "info", "posun SL " + id + " na " + Num(sl) + " je blizsie k trhu, nez broker dovoli - " + Num(clamped));
+      if(g_xo[i].lastStop <= 0 || (isLong ? clamped > g_xo[i].lastStop : clamped < g_xo[i].lastStop)) sl = clamped;
+      else sl = g_xo[i].lastStop;
+     }
    if(MathAbs(sl - g_xo[i].lastStop) < Tick(sym) / 2 && MathAbs(tp - g_xo[i].lastTp) < Tick(sym) / 2)
      { Emit(route, "ack", cid, id, "", sl, 0, 0, 0, 0, "", "SL/TP bez zmeny"); return; }
    if(!g_trade.PositionModify(g_xo[i].ticket, sl, tp) || !Sent())
@@ -829,8 +1033,14 @@ void ClosePosition(int i)
    g_xo[i].closeFails++;
    int wait = (int)MathMin(60, 1 << (int)MathMin(6, g_xo[i].closeFails));
    g_xo[i].closeRetryAt = TimeLocal() + wait;
-   Note(g_xo[i].route, "error", StringFormat("zatvorenie %s odmietnute: %s (%d. neuspech, dalsi pokus o %d s; SL/TP ostavaju)",
-                                             g_xo[i].id, TradeErr(), g_xo[i].closeFails, wait));
+   // note (a cez NT Telegram) len pri prvom neuspechu, inom dovode a potom raz za 10 pokusov - zatvoreny trh
+   // (10018) by inak hlasil kazdu minutu az do otvorenia
+   uint rc = g_trade.ResultRetcode();
+   if(g_xo[i].closeFails == 1 || rc != g_xo[i].closeRc || g_xo[i].closeFails % 10 == 0)
+      Note(g_xo[i].route, rc == TRADE_RETCODE_MARKET_CLOSED ? "warn" : "error",
+           StringFormat("zatvorenie %s odmietnute: %s (%d. neuspech, skusam znova kazdych %d s; SL/TP ostavaju)",
+                        g_xo[i].id, TradeErr(), g_xo[i].closeFails, wait));
+   g_xo[i].closeRc = rc;
   }
 
 //+------------------------------------------------------------------+
@@ -884,8 +1094,8 @@ void OnEntryFill(int i, double vol, double px, long ms, ulong position, string t
    DropRemainder(i);
    // SL/TP od skutocneho fillu (sklz na CFD nezmeni riziko v bodoch)
    if(r < 0 || g_routes[r].price == "same") return;
-   double sl = StaticHost::BridgeReanchor(px, g_xo[i].ntEntry, g_xo[i].ntSl, g_routes[r].scale, Tick(sym));
-   double tp = StaticHost::BridgeReanchor(px, g_xo[i].ntEntry, g_xo[i].ntTp, g_routes[r].scale, Tick(sym));
+   double sl = g_xo[i].ntSl <= 0 ? 0 : StaticHost::BridgeReanchor(px, g_xo[i].ntEntry, g_xo[i].ntSl, g_routes[r].scale, Tick(sym));
+   double tp = g_xo[i].ntTp <= 0 ? 0 : StaticHost::BridgeReanchor(px, g_xo[i].ntEntry, g_xo[i].ntTp, g_routes[r].scale, Tick(sym));
    if(MathAbs(sl - g_xo[i].sl0) < Tick(sym) / 2 && MathAbs(tp - g_xo[i].tp0) < Tick(sym) / 2) return;
    g_trade.SetExpertMagicNumber((ulong)g_routes[r].magic);
    if(g_trade.PositionModify(g_xo[i].ticket, sl, tp) && Sent())
@@ -923,7 +1133,7 @@ void OnExitFill(int i, double vol, double px, long ms, string exitName)
   {
    double ntFill = NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry);
    Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "out", px, NtPrice(g_xo[i], px, g_xo[i].fill, ntFill),
-        QtyNt(g_xo[i], vol), vol, ms, exitName, "");
+        ExitQtyNt(g_xo[i], g_xo[i].openLots, g_xo[i].openLots - vol), vol, ms, exitName, "");
    g_xo[i].openLots = MathMax(0.0, g_xo[i].openLots - vol);
    if(g_xo[i].openLots <= 1e-9) RemoveOrder(i);
   }
@@ -955,7 +1165,10 @@ void Guards()
             ENUM_ORDER_STATE st = (ENUM_ORDER_STATE)HistoryOrderGetInteger(g_xo[i].ticket, ORDER_STATE);
             if(st == ORDER_STATE_CANCELED || st == ORDER_STATE_REJECTED || st == ORDER_STATE_EXPIRED)
               {
-               Emit(g_xo[i].route, "cancelled", "", g_xo[i].id, "", 0, 0, 0, 0, 0, "broker", "order zruseny mimo exekutora");
+               // expiroval termin `life.cancel_at`, ktory dostal aj broker (ORDER_TIME_SPECIFIED) - je to life, nie zasah zvonku
+               bool life = st == ORDER_STATE_EXPIRED && g_xo[i].cancelAt > 0 && nowMs >= g_xo[i].cancelAt;
+               Emit(g_xo[i].route, "cancelled", "", g_xo[i].id, "", 0, 0, 0, 0, 0, life ? "life" : "broker",
+                    life ? "vyprsal u brokera (life)" : "order zruseny mimo exekutora");
                RemoveOrder(i);
               }
            }
@@ -1009,7 +1222,7 @@ void TrailOnMinute()
          g_xo[i].extreme = isLong ? MathMax(g_xo[i].extreme, bar[0].high) : MathMin(g_xo[i].extreme, bar[0].low);
          if(!g_routes[r].masterLost) continue;
          double stop = StaticHost::BridgeTrailStop(g_xo[i].dir, g_xo[i].fill, g_xo[i].sl0, g_xo[i].extreme, g_xo[i].trailAct, g_xo[i].trailOff);
-         stop = RoundTick(g_routes[r].symbol, stop);
+         stop = ClampStop(g_routes[r].symbol, isLong, RoundTick(g_routes[r].symbol, stop));
          bool better = isLong ? stop > g_xo[i].lastStop : stop < g_xo[i].lastStop;
          if(!better) continue;
          if(g_trade.PositionModify(g_xo[i].ticket, stop, g_xo[i].lastTp) && Sent())

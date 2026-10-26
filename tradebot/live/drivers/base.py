@@ -116,6 +116,8 @@ class Deployment:
         if chyby:
             raise ValueError("nasadenie nemá: " + ", ".join(chyby))
         raw_route = self.raw.get("route")
+        if isinstance(raw_route, dict) and raw_route.get("error"):
+            raise ValueError(str(raw_route["error"]))   # hub route neprečítal (poškodený JSON) — nikdy nie lokálne
         if isinstance(raw_route, dict) and raw_route and self.route is None:
             # route bez exekútora (MT5 účet z hubu zmizol): nasadenie sa NESMIE potichu prepnúť na obchodovanie
             # na účte NinjaTradera — radšej chyba a inštancia sa nezapíše

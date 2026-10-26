@@ -44,12 +44,14 @@ public static class StaticHost
     private static readonly object Lock = new object();
     private static readonly Dictionary<int, Slot> Slots = new Dictionary<int, Slot>();
     private static int _next = 1;
-    private static string _lastError = "";
+    /// <summary>Chyba za vlakno: kazde EA v MT5 bezi vo vlastnom vlakne a cez jednu spolocnu premennu by si
+    /// EA strategii a exekutor chybu navzajom prepisali skor, nez ju volajuci precita.</summary>
+    [ThreadStatic] private static string _lastError;
 
     /// <summary>Posledna chyba (text vynimky) alebo prazdny retazec. Cita sa po -1 / "".</summary>
-    public static string LastError() { lock (Lock) { return _lastError; } }
+    public static string LastError() { return _lastError ?? ""; }
 
-    private static void Fail(Exception e) { lock (Lock) { _lastError = e.GetType().Name + ": " + e.Message; } }
+    private static void Fail(Exception e) { _lastError = e.GetType().Name + ": " + e.Message; }
 
     private static Slot Get(int handle)
     {
@@ -211,7 +213,7 @@ public static class StaticHost
 
     // -- live telemetria (docs/LIVE.md) ------------------------------------------------------- //
 
-    private static void FailSpool(LiveSpool sp) { lock (Lock) { _lastError = "LiveSpool: " + sp.LastError; } }
+    private static void FailSpool(LiveSpool sp) { _lastError = "LiveSpool: " + sp.LastError; }
 
     /// <summary>Otvori spool `root/instance/start_session.jsonl` a napise `hello`. Kluc strategie, TF,
     /// config a instrument berie zo slotu. Vrati 1, alebo -1 (chyba v `LastError`; engine bezi dalej).</summary>
@@ -557,6 +559,23 @@ public static class StaticHost
                                      double volMax, int tradeMode, double bid, double ask)
     {
         try { Exec(handle).HeartbeatSymbol(name, tick, tickValue, volMin, volStep, volMax, tradeMode, bid, ask); return 1; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Namiesto `BridgeHbSymbol`*: symboly z posledneho heartbeatu, ktory ich mal. 1 ok, -1 chyba.</summary>
+    public static int BridgeHbSymbolsKeep(int handle)
+    {
+        try { Exec(handle).HeartbeatSymbolsKeep(); return 1; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Cas UTC v ms (MQL `TimeGMT` ma len sekundy - `exp`, `life` a hb by boli orezane).</summary>
+    public static long BridgeNowMs() { return Bridge.NowMs(); }
+
+    /// <summary>Ako `BridgeHbRoute` aj s cistou poziciou route u brokera v kontraktoch mastera (`net`).</summary>
+    public static int BridgeHbRouteNet(int handle, string routeId, string state, string detail, double netNt)
+    {
+        try { Exec(handle).HeartbeatRoute(routeId, state, detail, netNt); return 1; }
         catch (Exception e) { Fail(e); return -1; }
     }
 

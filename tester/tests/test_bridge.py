@@ -12,6 +12,8 @@ Master (NinjaTrader AddOn) volá `TradeBot.Core.BridgeMaster` priamo, exekútor 
 from __future__ import annotations
 
 import json
+import math
+import time
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
@@ -243,6 +245,45 @@ def test_stav_route(clr, tmp_path):
     assert host.BridgeHbWrite(h) == -1 and "HeartbeatBegin" in host.LastError()
     host.BridgeExecClose(h)
     assert host.BridgePoll(h, rid) == "" and str(h) in host.LastError()
+
+
+def test_heartbeat_zopakuje_symboly_a_hlasi_poziciu_route(clr, tmp_path):
+    """Exekútor nemusí každú sekundu prechádzať celý Market Watch; NT berie pozíciu „u brokera“ z `net` route."""
+    core, host = clr
+    root = str(tmp_path)
+    exec_id = host.BridgeExecutorId(5012345, "FTMO-Demo")
+    master = core.BridgeMaster(root, _spec(core, exec_id))
+    rid = master.Instance
+    h = host.BridgeExecOpen(root, exec_id)
+    _hb(host, h, T0, route=(rid, "ok"))
+    detail = ""
+    assert str(master.Status(T0 + 500, detail)[0]) == "ok"
+    assert math.isnan(master.BrokerNet)                                # starý tvar bez `net`
+    assert host.BridgeHbBegin(h, T0 + 1000, 5012345, "FTMO-Demo", "hedging", True, True, "1") == 1
+    assert host.BridgeHbSymbolsKeep(h) == 1                            # symboly z predošlého
+    assert host.BridgeHbRouteNet(h, rid, "ok", "", -2.0) == 1
+    assert host.BridgeHbWrite(h) == 1
+    hb = json.loads((tmp_path / "exec" / f"{exec_id}.hb.json").read_text(encoding="utf-8"))
+    assert [s["name"] for s in hb["symbols"]] == ["US100.cash"] and hb["routes"] == [{"id": rid, "state": "ok", "net": -2.0}]
+    assert str(master.Status(T0 + 1500, detail)[0]) == "ok" and master.BrokerNet == -2.0
+    assert str(master.Status(T0 + 9000, detail)[0]) == "stale" and math.isnan(master.BrokerNet)
+    host.BridgeExecClose(h)
+    assert abs(host.BridgeNowMs() - int(time.time() * 1000)) < 5000
+
+
+def test_nt_hb_sa_cita_raz_a_mierka_nula(clr, tmp_path):
+    core, host = clr
+    root = str(tmp_path)
+    exec_id = host.BridgeExecutorId(5012345, "FTMO-Demo")
+    master = core.BridgeMaster(root, _spec(core, exec_id))
+    master.Heartbeat(T0, "enabled")
+    h = host.BridgeExecOpen(root, exec_id)
+    rid = master.Instance
+    assert host.BridgeMasterAge(h, rid, T0 + 700) == 700
+    assert host.BridgeMasterSession(h, rid) == master.Session          # z toho istého čítania
+    assert host.BridgeMasterSession(h, rid) == master.Session          # bez Age číta súbor sám
+    host.BridgeExecClose(h)
+    assert core.RouteMath.MapPrice(100.0, 90.0, 200.0, 0.0, 0.25) == 210.0   # mierka 0 = 1, nie cena exekútora
 
 
 def test_mena_nt_instrumentu_ide_exekutorovi(clr, tmp_path):

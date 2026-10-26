@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 import sqlite3
 import threading
@@ -39,6 +40,8 @@ from typing import Any, Callable
 from .routes import RouteError, executor_id, normalize_aliases, normalize_route
 from .schema import CONTROL_MODES, SLOT_RE, instance_id, instance_symbol
 from .vault import Vault, VaultError
+
+log = logging.getLogger(__name__)
 
 __all__ = ["DeployStore", "DeployError", "Conflict", "NotFound", "config_hash", "account_identity", "ACCOUNT_IDENTITY",
            "code_state", "CODE_STATES", "DEFAULT_MODE", "PLATFORMS"]
@@ -147,7 +150,10 @@ _MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),
                ("accounts", "secret_enc", "TEXT"),
                ("accounts", "secret_rev", "TEXT NOT NULL DEFAULT ''"),
                ("deployments", "route", "TEXT NOT NULL DEFAULT ''"),
-               ("accounts", "symbols", "TEXT NOT NULL DEFAULT ''"))
+               ("accounts", "symbols", "TEXT NOT NULL DEFAULT ''"),
+               ("accounts", "exec_symbols", "TEXT NOT NULL DEFAULT ''"))
+#: Ako často sa smie prepísať nezmenený zoznam symbolov exekútora (len čas hlásenia) — nie v každom heartbeate.
+EXEC_SYMBOLS_REFRESH = 300.0
 
 #: Stav kódu na stroji voči tomu, čo nasadenie (alebo hub) chce — fáza 2c.
 CODE_STATES = ("ok", "outdated", "unknown")
@@ -319,6 +325,10 @@ class DeployStore:
         """Účet pre zoznamy: bez hesla — len či je uložené a ktoré stroje ho ešte neprevzali."""
         d = {k: r[k] for k in _ACCOUNT_COLS}
         d["symbols"] = json.loads(r["symbols"]) if r["symbols"] else {}
+        ex = _exec_symbols_of(r)
+        # symboly v Market Watch MT5 účtu z heartbeatu exekútora (hlási agent); None = ešte nikto nehlásil
+        d["exec_symbols"] = ex["symbols"] if ex else None
+        d["exec_symbols_at"] = ex["ts"] if ex else None
         d["secret"] = bool(r["secret_enc"])
         d["secret_waiting"] = self._secret_waiting(r) if r["secret_enc"] else []
         d["secret_pending"] = bool(d["secret_waiting"])
@@ -334,9 +344,10 @@ class DeployStore:
         out = []
         for r in self._db.execute("SELECT * FROM deployments WHERE route != '' ORDER BY created"):
             try:
-                acc = (json.loads(r["route"]) or {}).get("account")
+                route = json.loads(r["route"])
             except ValueError:
                 continue
+            acc = route.get("account") if isinstance(route, dict) else None
             if acc == account_id and (agent is None or r["agent"] == agent):
                 out.append(r)
         return out
@@ -360,7 +371,7 @@ class DeployStore:
         d["active"] = bool(d["active"])
         d["portable"] = bool(d["portable"])
         d["own_terminal"] = bool(d["own_terminal"])
-        d["route"] = json.loads(d["route"]) if d["route"] else None
+        d["route"] = _route_of(d["id"], d["route"])
         return d
 
     @staticmethod
@@ -471,8 +482,13 @@ class DeployStore:
                     sets["secret_rev"] = uuid.uuid4().hex[:12]
                 elif "platform" in sets and not PLATFORMS[platform]["password"]:
                     sets.update(secret_enc=None, secret_rev="")   # NinjaTrader heslo nemá
-                if data.get("symbols") is not None and normalize_aliases(data["symbols"]) != old.get("symbols"):
-                    self._set_symbols(acc_id, data["symbols"], by)
+                if data.get("symbols") is not None:
+                    try:
+                        aliases = normalize_aliases(data["symbols"])
+                    except RouteError as exc:
+                        raise DeployError(str(exc)) from None
+                    if aliases != old.get("symbols"):
+                        self._set_symbols(acc_id, data["symbols"], by)
                 if not sets:
                     return self._account_row(self._account_or_404(acc_id))
                 if heslo or any(k in sets for k in _LOGIN_FIELDS):
@@ -630,6 +646,7 @@ class DeployStore:
                     route = normalize_route(route_in, nt_symbol=symbol, nt_platform=acc["platform"], mt5_account=mt5)
                 except RouteError as exc:
                     raise DeployError(str(exc)) from None
+                self._check_exec_symbol(mt5, route)
             if slot and not schopnosti.get("slot"):
                 raise DeployError(f"slot vie len MetaTrader 5 — účet {account_id!r} je {acc['platform']}")
             if own_terminal and not schopnosti.get("own_terminal"):
@@ -678,6 +695,20 @@ class DeployStore:
         return self.deployment(dep_id)  # type: ignore[return-value]
 
     @staticmethod
+    def _check_exec_symbol(mt5: dict[str, Any] | None, route: dict[str, Any] | None) -> None:
+        """Symbol route musí byť medzi symbolmi, ktoré exekútor MT5 účtu hlási (Market Watch); kým ich nikto
+        nehlásil, kontrola nie je (docs/ROUTING.md, audit H5)."""
+        known = (mt5 or {}).get("exec_symbols")
+        if not route or not known or route.get("symbol") in known:
+            return
+        sym = str(route.get("symbol") or "")
+        podobne = [k for k in known if k.lower() == sym.lower()]
+        rada = f" — myslel si {podobne[0]}?" if podobne else (
+            " — skontroluj meno, alebo ho pridaj do Market Watch terminálu účtu (exekútor hlási len symboly v ňom)")
+        raise DeployError(f"MT5 účet {mt5.get('id')!r} nemá symbol {sym!r} (exekútor hlási "
+                          f"{len(known)} symbolov){rada}")
+
+    @staticmethod
     def _duplicate_text(dup: sqlite3.Row, agent: str, strategy: str, symbol: str, tf: int, inst: str,
                         slots: bool = False) -> str:
         """Prečo druhé nasadenie tej istej inštancie nejde a čo s tým — inštancia nepozná stroj, ten istý účet
@@ -718,6 +749,8 @@ class DeployStore:
             if patch.get("active") is not None:
                 sets["active"] = 1 if patch["active"] else 0
                 route = old.get("route")
+                if sets["active"] and isinstance(route, dict) and route.get("error"):
+                    raise Conflict(str(route["error"]))
                 if sets["active"] and isinstance(route, dict) and route.get("account"):
                     acc = self._db.execute("SELECT id, platform FROM accounts WHERE id = ?", (route["account"],)).fetchone()
                     if acc is None or acc["platform"] != "mt5":
@@ -835,12 +868,16 @@ class DeployStore:
         return out
 
     def report_applied(self, agent: str, applied: list[dict[str, Any]] | None,
-                       secret_ack: list[str] | None = None) -> int:
+                       secret_ack: list[str] | None = None, exec_symbols: dict[str, Any] | None = None) -> int:
         """Agent hlási, čo k nasadeniam naozaj spravil, a ktoré heslá prevzal (platí verzia, ktorá mu
-        naposledy odišla). Cudzie nasadenia (iného agenta) sa ignorujú. Vráti počet prijatých hlásení."""
+        naposledy odišla), a symboly exekútorov MT5 účtov (`{účet: [symbol, …]}` z ich heartbeatu). Cudzie
+        nasadenia (iného agenta) a exekútory účtov, na ktoré z neho nič nesmeruje, sa ignorujú. Vráti počet
+        prijatých hlásení nasadení."""
         n = 0
         with self._lock, self._db:
             now = self.clock()
+            if isinstance(exec_symbols, dict):
+                self._store_exec_symbols(agent, exec_symbols, now)
             for a in applied or []:
                 dep_id = str((a or {}).get("deployment") or "")
                 if not dep_id:
@@ -874,6 +911,22 @@ class DeployStore:
                 if cur.rowcount:
                     self._audit(agent, "secret_taken", account=str(acc_id))
         return n
+
+    def _store_exec_symbols(self, agent: str, reported: dict[str, Any], now: float) -> None:
+        for acc_id, names in reported.items():
+            if not isinstance(names, list):
+                continue
+            r = self._db.execute("SELECT * FROM accounts WHERE id = ?", (str(acc_id),)).fetchone()
+            if r is None or r["platform"] != "mt5" or not self._routed_to(r["id"], agent):
+                continue
+            symbols = sorted({str(x).strip() for x in names if str(x or "").strip()})[:5000]
+            if not symbols:
+                continue   # prázdny Market Watch (terminál ešte nenačítal) — známy zoznam neprepisovať
+            old = _exec_symbols_of(r)
+            if old and old["symbols"] == symbols and now - float(old.get("ts") or 0) < EXEC_SYMBOLS_REFRESH:
+                continue
+            self._db.execute("UPDATE accounts SET exec_symbols = ? WHERE id = ?",
+                             (json.dumps({"symbols": symbols, "agent": agent, "ts": now}, ensure_ascii=False), r["id"]))
 
     def apply_overrides(self, agent: str, overrides: list[dict[str, Any]] | None) -> int:
         """Režimy, ktoré agent prepol lokálne (Telegram), do nasadení: aktívne nasadenie toho agenta s tou
@@ -927,6 +980,31 @@ class DeployStore:
             a = self._db.execute("SELECT COUNT(*) AS n FROM accounts").fetchone()["n"]
             d = self._db.execute("SELECT COUNT(*) AS n FROM deployments WHERE active = 1").fetchone()["n"]
         return {"accounts": int(a), "deployments": int(d)}
+
+
+def _route_of(dep_id: str, raw: str | None) -> dict[str, Any] | None:
+    """Route zo stĺpca `route`. Poškodený JSON nezhodí celý požadovaný stav stroja a NIKDY nie je „bez route“
+    (to by obchodovalo na účte NinjaTradera, audit H1): je to route s `error` — agent nasadenie nezapíše."""
+    if not raw:
+        return None
+    try:
+        route = json.loads(raw)
+        if not isinstance(route, dict) or not route:
+            raise ValueError("nie je objekt")
+    except ValueError as exc:
+        log.warning("deploy: nasadenie %s má poškodenú route v hube (%s)", dep_id, exc)
+        return {"error": f"route nasadenia je v hube poškodená ({exc}) — ordery by išli na účet NinjaTradera, "
+                         "nasadenie sa nezapisuje; zmaž ho a sprav nové"}
+    return route
+
+
+def _exec_symbols_of(r: sqlite3.Row) -> dict[str, Any] | None:
+    """`{symbols, agent, ts}` — posledné hlásenie symbolov exekútora MT5 účtu, alebo None."""
+    try:
+        d = json.loads(r["exec_symbols"]) if r["exec_symbols"] else None
+    except (ValueError, IndexError, KeyError):
+        return None
+    return d if isinstance(d, dict) and isinstance(d.get("symbols"), list) else None
 
 
 def _executor_key(account_id: str, agent: str) -> str:
