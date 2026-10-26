@@ -301,8 +301,9 @@ class InstrumentSpec:
         Pine tu má ``int(math.max(1, math.floor(...)))``, čo je správne pre futures
         a akcie, ale na crypte to zabíja risk management — preto `qty_step`.
         """
-        stepped = math.floor(qty / self.qty_step) * self.qty_step
-        # floor v plávajúcej desatinnej čiarke vie useknúť o jeden krok nižšie
+        # 0.3 / 0.1 = 2.9999999999999996 — bez tolerancie by floor useklo o krok nižšie
+        # (audit N-CORE-4); to isté robí C# `RoundQty` aj MT5 EA pri lotoch
+        stepped = math.floor(qty / self.qty_step + 1e-9) * self.qty_step
         stepped = round(stepped, 12)
         return max(self.min_qty, stepped)
 

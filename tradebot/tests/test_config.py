@@ -121,6 +121,16 @@ def test_round_qty_steps_down():
     assert BTCUSDT_BINANCE.round_qty(0.0019) == pytest.approx(0.001)
 
 
+def test_round_qty_presny_nasobok_kroku_neusekne():
+    """0.3 / 0.1 = 2.9999999999999996 — floor bez tolerancie dal 0.2 (audit N-CORE-4)."""
+    from dataclasses import replace
+
+    inst = replace(MNQ, qty_step=0.1, min_qty=0.1)
+    assert inst.round_qty(0.3) == pytest.approx(0.3)
+    assert inst.round_qty(0.7) == pytest.approx(0.7)
+    assert inst.qty_for_risk(30.0, 100.0 / inst.point_value) == pytest.approx(0.3)
+
+
 # --------------------------------------------------------------------------- #
 # Krížová kontrola config × inštrument
 # --------------------------------------------------------------------------- #

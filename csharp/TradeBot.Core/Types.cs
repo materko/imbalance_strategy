@@ -154,7 +154,8 @@ namespace TradeBot.Core
         /// <summary>Zaokruhli nadol na `QtyStep` a podrz `MinQty`.</summary>
         public double RoundQty(double qty)
         {
-            double stepped = Math.Floor(qty / QtyStep) * QtyStep;
+            // 0.3 / 0.1 = 2.9999999999999996 - bez tolerancie by Floor uskol o krok nizsie (audit N-CORE-4)
+            double stepped = Math.Floor(qty / QtyStep + 1e-9) * QtyStep;
             stepped = Math.Round(stepped, 12);
             return Math.Max(MinQty, stepped);
         }
