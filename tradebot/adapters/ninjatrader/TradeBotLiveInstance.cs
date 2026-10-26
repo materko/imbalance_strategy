@@ -191,6 +191,9 @@ namespace NinjaTrader.NinjaScript.AddOns
         private double _foreignPrice;
         private long _foreignMs;
         private DateTime _extFlatSince = DateTime.MinValue;
+        /// <summary>Od kedy je ucet nepretrzite Connected - ReconcileExternal po reconnecte pocka, kym sa pozicie
+        /// uctu zosynchronizuju (audit N-LIVE-12).</summary>
+        private DateTime _connectedSince = DateTime.MinValue;
         /// <summary>Strazca feedu (FeedWatch): bary pocas seansy neprichadzaju; kedy sa to naposledy hlasilo.</summary>
         private bool _feedStale;
         private DateTime _feedNoted = DateTime.MinValue;
@@ -1076,6 +1079,17 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// </summary>
         private void ReconcileExternal()
         {
+            // Pri vypadku spojenia `_account.Positions` chvilu pozicie nema (kym sa ucet nezosynchronizuje) - bez tejto
+            // brany by po 3 s vznikol falosny vystup 'close', zrusili by sa SL/TP a po reconnecte by pozicia ostala
+            // bez stopu (audit N-LIVE-12).
+            if (_account == null || _account.ConnectionStatus != ConnectionStatus.Connected)
+            {
+                _connectedSince = DateTime.MinValue;
+                _extFlatSince = DateTime.MinValue;
+                return;
+            }
+            if (_connectedSince == DateTime.MinValue) _connectedSince = DateTime.UtcNow;
+            if ((DateTime.UtcNow - _connectedSince).TotalSeconds < 30) { _extFlatSince = DateTime.MinValue; return; }
             bool open = false;
             foreach (KeyValuePair<string, Tracked> kv in _orders)
                 if (kv.Value.Filled && kv.Value.OpenQty > 0 && (DateTime.UtcNow - kv.Value.FilledAt).TotalSeconds >= 10) open = true;
