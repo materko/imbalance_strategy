@@ -690,7 +690,7 @@
 
   // ---------- obrazovky ----------
   // Priečinky podľa trhu (používateľ 20. 10. 2026): všetko doterajšie je Nasdaq; GOLD, DOW a SP 500 sú pripravené.
-  var MARKETS = [["NASDAQ", "Nasdaq 100 — NQ / MNQ"], ["GOLD", "Zlato — GC / MGC"], ["DOW", "Dow Jones — YM / MYM"], ["SP 500", "S&P 500 — ES / MES"]];
+  var MARKETS = [["NASDAQ", "Nasdaq 100 — NQ / MNQ"], ["GOLD", "Zlato — GC / MGC"], ["DOW", "Dow Jones — YM / MYM"], ["SP 500", "S&P 500 — ES / MES"], ["EURUSD", "Euro FX — 6E / M6E · EURUSD"]];
   function marketOf(s) { return s.market || "NASDAQ"; }
   function marketHref(m) { return "#/m/" + encodeURIComponent(m); }
   function marketCrumb(s) { var m = marketOf(s); return '<a href="' + marketHref(m) + '">' + esc(m) + "</a><span>/</span>"; }

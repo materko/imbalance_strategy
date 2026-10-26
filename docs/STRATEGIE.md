@@ -52,6 +52,8 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
 | `scalp3mamgc` | Scalping 3MA (MGC) | 0 | Scalping 3MA na zlate (MGC) bez zásahu do `scalp3ma` (`replace` SPEC-u); 4 profily z víkendového hľadania v zisku všetkých 5 rokov (bez nákladov); vo webapp ZLATO › SKALPOVACIE |
 | `fibomgc` | Fibo 1.0 (MGC) | 0 | Fibo 1.0 na zlate (MGC) bez zásahu do `fibo` (`replace` SPEC-u); 2 profily z víkendového hľadania v zisku všetkých 5 rokov (bez nákladov); vo webapp ZLATO › TRENDOVÉ |
 | `fibomgcnet` | Fibo 1.0 MGC (C# jadro) | 0 | prepis `fibo` do C# (`csharp/TradeBot.Strategies/FiboNet`, `[TradeBotEngine("fibomgcnet")]`), profily `PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1–10` zo smernice (riziko 500 $); NinjaTrader `deploy/ninjatrader/FiboMgcNet.cs`, MT5 `deploy/mt5/FiboMgcNet.mq5`; parita `tester/tests/test_csharp_parity_mgc.py`; MGC 3m |
+| `sdeur` | SD ZÓNY EURUSD 1.0 | 0 | zadanie používateľa 26. 10. 2026 (Euro FX futures 6E, „najpodstatnejšia je kvalita zón“): supply / demand zóny na vyššom TF `zoneTF` (default 1 h, skladá sa z grafu) — báza 1–`baseMaxBars` sviečok na extréme `extremeBars` sviečok, odchod aspoň `depMin` ATR do `depMaxBars` sviečok bez prerazenia bázy (zóna platí až od toho zavretia, žiadny pohľad dopredu), kvalita z času vzniku (`formStartH`–`formEndH`, noc) a výšky zóny; limitka na bližšej hrane (alebo `entryDepthPct` % hĺbky) na najbližšiu nedotknutú zónu len v okne vstupu (Londýn 2:00–11:00 NY), prvý dotyk mimo okna zónu minie, stop za vzdialenejšou hranou + `slBuffer` + 1 tick, cieľ RR, najdlhšie `maxHoldHours`; 6E 5m |
+| `sdeurnet` | SD ZÓNY EURUSD (C# jadro) | 0 | prepis `sdeur` do C# (`csharp/TradeBot.Strategies/SdEurNet`, `[TradeBotEngine("sdeurnet")]`), riziko 500 $; NinjaTrader `deploy/ninjatrader/SdEurNet.cs`, MT5 `deploy/mt5/SdEurNet.mq5`; parita `tester/tests/test_csharp_parity_6e.py`; 6E / M6E 5m |
 | `jss` | JSS 1.0 — BOS a SD zóna | 56 | BOS / CHoCH na TF štruktúry (skladá sa z grafu), SD zóna na začiatku nohy, ktorá swing prerazila (posledná opačná sviečka / báza pred impulzom); prvý návrat: limitka na hranu zóny alebo IBS imbalance / pin bar na grafe (nižší TF); stop za zónou (+ATR, +body), cieľ RR alebo extrém nohy |
 | `crt` | CRT + TBS 1.0 | 50 | Candle Range Theory s Turtle Body Soup: sviečka vyššieho TF (4h, skladá sa z grafu) je range, ďalšia jednu stranu vyberie (telom / knôtom), po návrate do rangu vstup model 1 / CISD / MSS + FVG; stop za extrém výberu, cieľ stred alebo opačný koniec rangu alebo RR |
 | `scalp3ma` | Scalping 3MA + RSI + fraktál 1.0 | 47 | podľa videa Money Knowledge: trend podľa troch SMMA (20 / 60 / 200), RSI nad / pod 50, Williamsov fraktál ako potvrdenie; stop v bodoch (5 pipov) / ATR / za fraktál, cieľ RR 2, posun stopu na vstup, výstup pri RSI cez 50 |
@@ -452,12 +454,12 @@ prestane niečo znamenať.
 
 ## Zaradenie vo webapp: trh, typ, LIVE
 
-Výber stratégie vo webapp má tri fialové priečinky podľa trhu — **NASDAQ**, **ZLATO**, **S&P 500** — a v každom
+Výber stratégie vo webapp má fialové priečinky podľa trhu — **NASDAQ**, **ZLATO**, **S&P 500**, **EURUSD** — a v každom
 **TRENDOVÉ**, **SKALPOVACIE**, **RANGEOVÉ** a **LIVE** (nakoniec **OSTATNÉ** pre to, čo nie je ladené na žiadny z trhov).
 Zaradenie je v `tester/webapp/static/js/settings.js`, tabuľka `STRATEGIA_TRH_TYP`:
 
 * **každá nová stratégia** dostane riadok `kľúč: [trh, typ]` — trh = na čo je ladená (NQ / MNQ → NASDAQ, GC / MGC →
-  ZLATO, ES / MES → S&P 500), typ podľa logiky: **trendová** (prieraz, pokračovanie trendu, momentum dňa),
+  ZLATO, ES / MES → S&P 500, 6E / EURUSD → EURUSD), typ podľa logiky: **trendová** (prieraz, pokračovanie trendu, momentum dňa),
   **skalpovacia** (malý cieľ, obchod na minúty), **rangeová** (návrat do rozsahu, otočka po výbere likvidity, férová cena);
   kým žiadne jej nastavenie neprejde smernicou, je aj v `NOVE_STRATEGIE` (štítok „nová“);
 * **prepis do C# jadra** (`s.csharp`, aj EOD kópia) sa zaradí sám do **LIVE** trhu svojej predlohy — LIVE sú stratégie

@@ -49,6 +49,7 @@ _PAIRS = {
     "mnq": "mnq_databento",
     "es": "es_databento",
     "mgc": "mgc_databento",
+    "6e": "6e_databento",
 }
 
 

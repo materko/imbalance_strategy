@@ -520,11 +520,11 @@ function smerniceKeys() {
     ...Object.keys(sm).filter(k => (sm[k].profiles || []).some(isSmerniceProfile))]);
 }
 function inSmernice(key) { return smerniceKeys().has(key); }
-/** Výber stratégie po trhoch (používateľ 21. 10. 2026): NASDAQ, ZLATO, S&P 500 (fialové priečinky), v každom
+/** Výber stratégie po trhoch (používateľ 21. 10. 2026, EURUSD 26. 10.): NASDAQ, ZLATO, S&P 500, EURUSD (fialové priečinky), v každom
  *  TRENDOVÉ / SKALPOVACIE / RANGEOVÉ a LIVE = stratégie prepísané do C# jadra, nachystané na NinjaTrader a MT5.
  *  NOVÁ STRATÉGIA = riadok sem: trh (na čo je ladená) a typ. C# port (`s.csharp`) sa zaradí sám do LIVE trhu
  *  svojej predlohy (`ibsentryneteod` → `ibsentry`). Čo tu nie je, ukáže sa v OSTATNÉ. */
-const TRHY = ["NASDAQ", "ZLATO", "S&P 500"];
+const TRHY = ["NASDAQ", "ZLATO", "S&P 500", "EURUSD"];
 const TYPY = ["TRENDOVÉ", "SKALPOVACIE", "RANGEOVÉ"];
 const STRATEGIA_TRH_TYP = {
   // NASDAQ — trendové: prieraz, pokračovanie trendu, momentum dňa
@@ -549,9 +549,11 @@ const STRATEGIA_TRH_TYP = {
   fvgpolaritymgc: ["ZLATO", "SKALPOVACIE"],
   scalp3mamgc: ["ZLATO", "SKALPOVACIE"],
   fibomgc: ["ZLATO", "TRENDOVÉ"],
+  // EURUSD (Euro FX futures 6E, CFD EURUSD)
+  sdeur: ["EURUSD", "RANGEOVÉ"], asiasweep: ["EURUSD", "RANGEOVÉ"],
 };
 /** Práve pridané stratégie — štítok „nová“, kým žiadne ich nastavenie neprejde smernicou. */
-const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes"]);
+const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet"]);
 /** Kľúč predlohy C# portu: `ibsentryneteod` → `ibsentry`, `tksnet` → `tks`, `ibsnet` → `ibs`. */
 function baseStrategyKey(k) {
   let b = String(k).replace(/eod$/, "");
@@ -587,7 +589,7 @@ function renderStrategyPicker() {
   const folderOf = k => STRATEGY_FOLDERS.find(f => f.match(k));
   const subOf = (f, k) => (f && f.sub || []).find(x => x.match(k));
   const subId = (f, x) => f.name + "/" + x.name;
-  pickerInit = true;                        // na začiatku sú všetky priečinky zatvorené: vidno NASDAQ, ZLATO, S&P 500
+  pickerInit = true;                        // na začiatku sú všetky priečinky zatvorené: vidno NASDAQ, ZLATO, S&P 500, EURUSD
   const badges = s => (inSmernice(s.key) ? ' <span class="spicker-badge ok" title="má nastavenia, ktoré prešli smernicou">✓ smernica</span>' : "")
     + (NOVE_STRATEGIE.has(s.key) && !inSmernice(s.key) ? ' <span class="spicker-badge new">nová</span>' : "");
   const item = (s, depth) => `<button type="button" class="spicker-item${depth ? " sub" : ""}${s.key === sel.value ? " sel" : ""}"${depth > 1 ? ' style="padding-left:44px"' : ""} data-key="${esc(s.key)}">${esc(s.title || s.key)}${badges(s)}</button>`;
@@ -597,7 +599,7 @@ function renderStrategyPicker() {
       + `<span class="spicker-arrow">${open ? "▾" : "▸"}</span> ${cls === "live" ? "🟢" : "📁"} ${esc(name)} <span class="muted">(${members.length})</span></button>`;
   };
   let html = "";
-  for (const f of STRATEGY_FOLDERS) {        // NASDAQ, ZLATO, S&P 500, nakoniec OSTATNÉ
+  for (const f of STRATEGY_FOLDERS) {        // NASDAQ, ZLATO, S&P 500, EURUSD, nakoniec OSTATNÉ
     const members = list.filter(x => f.match(x.key));
     if (!members.length && !f.showEmpty) continue;
     html += folderBtn(f.name, f.name, members, 0, f.market ? "market" : "");

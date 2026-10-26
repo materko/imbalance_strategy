@@ -96,7 +96,7 @@ def test_templates_magic_period_and_inputs():
                            "vwaporbneteod": "VwapOrbNetEod", "vwapadxneteod": "VwapAdxNetEod", "noaneteod": "NoaNetEod",
                            "tksnet": "TksNet", "tksneteod": "TksNetEod",
                            "ibsentryesnet": "IBSEntryEsNet", "nyvaesnet": "NyVaEsNet",
-                           "fibomgcnet": "FiboMgcNet"}
+                           "fibomgcnet": "FiboMgcNet", "sdeurnet": "SdEurNet"}
     m = magic_for("d1")
     assert m == magic_for("d1") and m != magic_for("d2") and 100_000 <= m < 2**31
     assert period_of(1) == (0, 1) and period_of(5) == (0, 5) and period_of(60) == (1, 1) and period_of(240) == (1, 4)
