@@ -64,6 +64,10 @@ namespace TradeBot.Core
         private string _brokerScope = "";
         private System.Threading.Timer _timer;
         private int _heartbeatMs = DefaultHeartbeatMs;
+        /// <summary>Po chybe zapisu (`Break`) sa subor skusi otvorit znova najskor vtedy (audit N-LIVE-19: inak
+        /// telemetria aj `hb` mlcia navzdy a nikto o tom nevie).</summary>
+        private DateTime _retryAt = DateTime.MaxValue;
+        public static int ReopenSeconds = 30;   // testy ho skracuju
 
         public string Instance { get; private set; }
         public string Session { get; private set; }
@@ -219,6 +223,7 @@ namespace TradeBot.Core
         private void Break(Exception e)
         {
             Broken = true;
+            _retryAt = DateTime.UtcNow.AddSeconds(ReopenSeconds);
             try { if (_timer != null) { _timer.Dispose(); } } catch (Exception) { }
             _timer = null;
             LastError = e.GetType().Name + ": " + e.Message;
@@ -226,7 +231,30 @@ namespace TradeBot.Core
             _writer = null;
         }
 
-        private bool Off() { return Broken || _closed || _writer == null; }
+        /// <summary>Volanie sa nema zapisat. Rozbity spool sa pritom po `ReopenSeconds` skusi otvorit znova - novy
+        /// subor tej istej session (ako rotacia dna: `hello` s dalsim seq) a `note warn` s chybou. Vola sa pod zamkom.</summary>
+        private bool Off()
+        {
+            if (Broken && !_closed && _dir.Length > 0 && DateTime.UtcNow >= _retryAt) Reopen();
+            return Broken || _closed || _writer == null;
+        }
+
+        private void Reopen()
+        {
+            string error = LastError;
+            try
+            {
+                Broken = false;
+                OpenFile(DateTime.UtcNow);
+                JsonWriter w = Begin("note");
+                w.Key("level").Value("warn").Key("text").Value("telemetria obnovena po chybe zapisu (" + error + ") - udalosti z vypadku chybaju");
+                End(w);
+                LastError = "";
+                _retryAt = DateTime.MaxValue;
+                Arm();
+            }
+            catch (Exception e) { Break(e); }
+        }
 
         // ------------------------------------------------------------------ //
         // JSON pomocne

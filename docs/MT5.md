@@ -62,6 +62,15 @@ a text je v `LastError()`.
   opačný market order `close:<id>`, vstup proti otvorenej pozícii najprv odpíše otvorené vstupy
   opačného smeru (deal OUT/INOUT) a cudzie zavretie (ručné, stop-out) sa odpíše z otvorených
   vstupov v smere pozície;
+- **strážca pozície** (timer 2 s, len naživo): vyplnený vstup bez SL (netting: SL order odmietnutý alebo
+  zrušený, hedging: pozícia bez SL) dostane SL po 2 s znova, po 3 neúspechoch sa zavrie trhom. Zatvorenie
+  (`close`, koniec seansy, flatten) kontroluje výsledok: neúspech (`REQUOTE`, `MARKET_CLOSED`, `TRADE_DISABLED`)
+  ide do `note error` a znova s odstupom 2, 4, 8 … 60 s, v nettingu od 3. neúspechu medzi pokusmi stoja SL/TP
+  znova. Neúspešný posun trailingu sa skúsi na ďalšom bare. Vlastný deal sa páruje podľa ticketu orderu
+  (`DEAL_ORDER`), komentár je len prvý pokus — brokeri ho menia (FTMO dopisuje `[sl]`/`[tp]`). Pri odchode EA
+  (`OnDeinit`) sa čakajúce vstupy zrušia, SL/TP otvorených pozícií ostanú. Počas seansy symbolu
+  (`SymbolInfoSessionTrade`) bez baru dlhšie než 2 TF + 1 min → `note error` každých 15 min; EOD kópie
+  zatvárajú od 15:58:30 NY aj bez baru (`EodDue`);
 - **naživo**: odoslaný, ešte nevyplnený market vstup sa ráta ako pozícia a bar, ktorý prišiel
   neskôr než dva TF po svojom zatvorení, sa neobchoduje (viď docs/NINJATRADER.md, „Naživo“);
 - **jedna pozícia naraz** (Pine `pyramiding=0`): vstup, ktorý príde počas pozície, sa odloží a
@@ -86,8 +95,9 @@ a text je v `LastError()`.
   a vyplnenia do JSONL spoolu `Common\Files\TradeBot\spool\mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>\`;
   agent hubu ho posiela do webapp (karta **Live**). Vstupy `InpTelemetry` (predvolene zapnuté) a
   `InpTelemetryInTester` (predvolene vypnuté — tester spool nepíše, iba na overenie). Fasáda má od toho
-  `Version() == 2` (od slotu nasadenia `3`, `InstanceIdSlot`/`SpoolOpenSlot`): staršiu `TradeBot.dll` EA odmietne pri štarte, stačí `install`. Chyba spoolu EA
-  nezhodí — zaloguje sa a obchoduje sa ďalej;
+  `Version() == 2` (od slotu nasadenia `3`, `InstanceIdSlot`/`SpoolOpenSlot`, od `EodDue` `5`): staršiu `TradeBot.dll` EA odmietne pri štarte, stačí `install`. Chyba spoolu EA
+  nezhodí — zaloguje sa a obchoduje sa ďalej; DLL po 30 s otvorí nový súbor tej istej session (`hello`
+  + `note warn`), udalosti z výpadku chýbajú;
 - **ovládanie na diaľku** cez `Common\Files\TradeBot\control\<inštancia>.json` (pauza, flatten, zmena
   profilu bez človeka pri termináli) — sekcia „Ovládanie na diaľku“ nižšie;
 - **export signálov** do `Common\Files\TradeBot\logs\*.csv` v tvare NinjaTrader exportu

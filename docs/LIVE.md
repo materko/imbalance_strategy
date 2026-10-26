@@ -719,8 +719,8 @@ sa / padá N min / visí N min / <problém, ktorý plugin sám hlási>` a `🟢 
 - `tester/tests/test_hub.py` — `/api/live/*` cez TestClient, práva tokenov; agent preberá
   `heartbeat_seconds` hubu a strážca spoolu zobudí odosielanie.
 - `tester/tests/test_mt5_static_host.py` — `Spool*` cez reflexiu: súbor vznikne, `hello`+`bar`+`fill`
-  +`order/modify` sú platné podľa `schema.validate`, `Version() == 4`, slot v id inštancie (`InstanceIdSlot`, `SpoolOpenSlot`),
-  1m bary `SpoolMinute` (`m1`).
+  +`order/modify` sú platné podľa `schema.validate`, `Version() == 5`, slot v id inštancie (`InstanceIdSlot`, `SpoolOpenSlot`),
+  1m bary `SpoolMinute` (`m1`), EOD podľa hodín (`EodDue`), obnova rozbitého spoolu po `ReopenSeconds`.
 - `tester/tests/test_livedata.py` — export skladu do `data_live` (1m aj bary grafu, behy z Testera von, nič sa
   neprepíše), čítanie git + hub, `sync_hub`, plugin hubu `livedata` (ponuka mimo gitu, mesačný push do
   lokálneho bare repa), súbory pluginu cez API, poradie zdrojov sviečok okolo hranice, párovanie, API webapp.

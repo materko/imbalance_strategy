@@ -19,8 +19,36 @@ namespace TradeBot.Core
     {
     }
 
-    public abstract class EodCloseEngine : EngineLayer, IWrapsEntryLayers
+    /// <summary>
+    /// Zivy adapter: zatvorenie podla hodin, ked posledny bar pred 15:59 NY neprisiel (zamrznuty feed, reconnect) -
+    /// audit N-LIVE-7. Backtest to nepouziva: tam bar pride vzdy a zatvori engine.
+    /// </summary>
+    public interface IClockFlatten
     {
+        /// <summary>`nowMs` (UTC) je v okne, v ktorom uz nesmie byt nic otvorene.</summary>
+        bool FlattenDue(long nowMs);
+    }
+
+    public static class ClockFlatten
+    {
+        /// <summary>Prva vrstva enginu (zvonka dnu), ktora zatvara podla hodin; null = engine taku nema.</summary>
+        public static IClockFlatten Find(IEngine engine)
+        {
+            for (IEngine e = engine; e != null; )
+            {
+                IClockFlatten c = e as IClockFlatten;
+                if (c != null) return c;
+                EngineLayer layer = e as EngineLayer;
+                e = layer != null ? layer.Inner : null;
+            }
+            return null;
+        }
+    }
+
+    public abstract class EodCloseEngine : EngineLayer, IWrapsEntryLayers, IClockFlatten
+    {
+        /// <summary>Zatvorenie podla hodin od 15:58:30 NY - bar zatvarajuci sa 15:57 (3m) to bezne spravi skor.</summary>
+        public const int ClockCloseSec = CloseMin * 60 - 30;
         public const string Zone = "America/New_York";
         /// <summary>15:59 New York - najneskorsie zavretie baru, na ktorom sa este obchoduje</summary>
         public const int CloseMin = 15 * 60 + 59;
@@ -48,6 +76,13 @@ namespace TradeBot.Core
             DateTime t = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(barOpenMs), tz);
             int openMin = t.Hour * 60 + t.Minute;
             return openMin + 2 * tfMinutes > CloseMin && openMin < ReopenMin;
+        }
+
+        public bool FlattenDue(long nowMs)
+        {
+            DateTime t = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(nowMs), _tz);
+            int sec = t.Hour * 3600 + t.Minute * 60 + t.Second;
+            return sec >= ClockCloseSec && sec < ReopenMin * 60;
         }
 
         private static List<string> Sorted(IEnumerable<string> ids)

@@ -65,7 +65,9 @@ engine predlohy a dá ho doň. Zatvára sa na poslednom bare, ktorý sa zatvára
 1m: 15:59). Okno je v čase New York, takže v týždňoch s rozdielnym prechodom na letný čas je to u nás 20:59, nikdy nie
 neskôr. Obaly vstupov (limitka, potvrdenie, filter) nasadí EOD obal pod seba, aby ani čakajúca limitka nevyslala vstup
 v okne, a `EngineRegistry.Create` ich druhý raz nebalí (`IWrapsEntryLayers`). Skrátené obchodné dni pred sviatkami
-obal nepozná. Nastavenia zo smernice majú kópie `tester/profiles/SMERNICE_CS_EOD_*` (priečinok SMERNICE, karta Live).
+obal nepozná. Naživo (AddOn aj MT5 EA) sa okrem toho zatvára **podľa hodín**: keď bar pred 15:59 NY
+nepríde (reconnect, zamrznutý feed), od 15:58:30 NY sa pozícia zavrie a čakajúce vstupy zrušia aj bez baru
+(`IClockFlatten`, fasáda `EodDue`; `note warn` raz za deň). Backtest to nepotrebuje — tam bar príde vždy. Nastavenia zo smernice majú kópie `tester/profiles/SMERNICE_CS_EOD_*` (priečinok SMERNICE, karta Live).
 Že mimo okna sa nezmení nič a v okne nič neostane otvorené, stráži `tester/tests/test_csharp_eod.py`.
 
 ### Obaly vstupov sú v C# jadre
@@ -226,6 +228,11 @@ do `Documents\NinjaTrader 8\TradeBot\profiles\`. Potom v NinjaTraderi *New → N
 a stratégia **IBSNet** alebo **ORBNet** na **minútový** graf. Netreba pridávať referenciu na DLL; po zmene jadra stačí
 `install` zopakovať. `check` beží aj samostatne — chybu NinjaTrader API ukáže pri preklade, nie v grafe.
 
+> **Chart Strategy (`TradeBotStrategy`) je na porovnanie s Testerom (Strategy Analyzer, graf), nie na živý účet.**
+> Výnimka v `OnBarUpdate` NinjaTrader stratégiu vypne a managed approach pri tom zruší `SetStopLoss`/`SetProfitTarget`;
+> `StartBehavior.WaitUntilFlat` po reštarte pozíciu neprevezme. Naživo obchoduje AddOn `TradeBotLiveAddOn` (nižšie):
+> vlastné vlákno, strážca SL, pamäť obchodov cez reštart.
+
 Čo adaptér robí:
 
 | | |
@@ -334,7 +341,9 @@ pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenen
 | predhistória | história z BarsRequest sa prehrá do enginu s `ready:false` (bez orderov, `Realtime=false` v spoole), potom `Realtime=true`; bar starší než 2 × TF sa neobchoduje (`note warn`) |
 | ENTRY | `Account.CreateOrder` + `Submit`, meno = id z enginu, `OrderEntry.Automated`, **GTC**; limit / stop-market / market podľa zámeru |
 | SL / TP | po vyplnení vstupu dva ordery s tým istým `Oco`: stop-market `<id>:sl` a limit `<id>:tp`; čiastočný fill navýši objem cez `Account.Change` |
-| CANCEL / CLOSE | `Account.Cancel`; CLOSE = najprv zrušiť SL/TP, trhový výstup `<id>:tb_close` ide až po potvrdení zrušenia (inak by sa SL mohol vyplniť v tej istej sekunde a trh by otvoril opačnú pozíciu), po 10 s bez potvrdenia ide aj tak; koniec seansy `tb_session_end`, control `tb_flatten` |
+| CANCEL / CLOSE | `Account.Cancel`; CLOSE = najprv zrušiť SL/TP, trhový výstup `<id>:tb_close` ide až po potvrdení zrušenia (inak by sa SL mohol vyplniť v tej istej sekunde a trh by otvoril opačnú pozíciu), po 10 s bez potvrdenia ide aj tak; koniec seansy `tb_session_end`, control `tb_flatten`. Odmietnutý trhový výstup ide znova s odstupom 2, 4, 8 … 60 s (nie každé 2 s); od 3. neúspechu medzi pokusmi **SL/TP znova stoja** — pozícia cez noc bez stopu neostane |
+| strážca SL | každú sekundu: vyplnený vstup bez živého SL (neodoslaný, odmietnutý, zrušený zvonka) dostane po 2 s SL/TP znova; po 3 neúspechoch sa zavrie trhom (`note error`). Odmietnutá len **zmena** SL (trailing) pozíciu nezatvára — SL stojí na starej cene a posun sa skúsi na ďalšom bare |
+| strážca feedu | počas seansy inštrumentu (`TradingHours`) musí každý TF prísť bar; keď posledný je starší než 2 TF + 1 min, `note error` (webapp, Telegram), znova každých 15 min, kým bary nezačnú chodiť — `hb` ide ďalej, takže bez toho by webapp hlásila len „trh zatvorený“ |
 | jedna pozícia naraz | vstup počas pozície sa odloží (a čakajúci s tým istým menom stiahne), po skončení pozície sa pošle — ako `ParkOthers/ReleaseParked` v Strategy; cudzia pozícia účtu na inštrumente sa počíta tiež (žiadny druhý vstup, engine ju vidí ako `PositionSize`) |
 | trailing | `TradePlan.Trailing` na zatvorení baru: `StopPriceChanged` + `Account.Change` na SL orderi, do spoolu `order a:"modify"` |
 | denný limit výhier | `max_daily_wins` zo `Stats()`, výhra = výstup SL/TP so ziskom > 0, platí od ďalšieho baru |
@@ -342,6 +351,7 @@ pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenen
 | spool | `LiveSpool` v `TradeBot\spool\ninjatrader_<účet>_<symbol>_<TF>m_<kľúč>\` (symbol = `MasterInstrument.Name`, teda `MNQ`), `tester:false`; pri konci `stat` + `bye` (`removed`, `changed`, `terminated`, `superseded`, `profile_switch`) |
 | control | `TradeBot\control\<inštancia>.json` každé 2 s a pri každom bare, režimy ako v Strategy; **zmena profilu** (keď je flat) = nový engine, nová session spoolu a **história z BarsRequest sa prehrá znova** — čerstvý štart, aj iný informatívny TF (nový BarsRequest) |
 | kresby | nekreslia sa (nie je graf) — idú len do spoolu, webapp karta Live ich ukáže |
+| flatten po reštarte | režim `flatten` z control súboru sa po prevzatí obchodov spred reštartu (`RestoreState`) uplatní aj na ne |
 | zastavenie | zruší čakajúce vstupy, **pozíciu nechá** (jej SL/TP sú GTC ordery na účte), zatvorí BarsRequesty a spool; flatten je vec control súboru |
 | generácie | po rekompilácii NT inštancuje AddOn znova, ale staré vlákno nezmizne — každá generácia si zapíše token do `AppDomain` a stará sa zastaví (`bye superseded`), inak by bežali dve kópie |
 | chyby | každý NT callback v `try/catch`; log okno *NinjaScript Output* a `TradeBot\logs\addon_<čas>.txt`; NT UI vlákno sa nikdy neblokuje |

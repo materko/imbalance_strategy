@@ -123,6 +123,13 @@ namespace NinjaTrader.NinjaScript.AddOns
             public DateTime FilledAt;
             /// <summary>Cas prveho fillu vstupu a odoslania vstupu (ms UTC) - po restarte od nich hlada exekucie uctu.</summary>
             public long FilledMs, SentMs;
+            /// <summary>Strazca SL (GuardExits): od kedy pozicia nema zivy SL, kolko pokusov ho polozit znova zlyhalo.</summary>
+            public DateTime NoStopSince;
+            public int ExitFails;
+            /// <summary>Odmietnute trhove zatvorenie: pocet, dalsi pokus najskor o, a ci medzitym stoja SL/TP znova.</summary>
+            public int CloseFails;
+            public DateTime CloseRetryAt;
+            public bool Protect;
         }
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -131,6 +138,12 @@ namespace NinjaTrader.NinjaScript.AddOns
         private const int ControlPeriodSeconds = 2;
         /// <summary>Kym sa pri zatvarani pozicie nepotvrdi zrusenie SL/TP, trhovy vystup pocka najviac tolko.</summary>
         private const int CloseCancelTimeoutSeconds = 10;
+        /// <summary>Pozicia bez ziveho SL: po tolkych sekundach sa polozi znova (OCO, fill druheho vystupu ma prednost).</summary>
+        private const int NoStopGraceSeconds = 2;
+        /// <summary>Tolko pokusov polozit SL znova - potom sa pozicia zavrie trhom (bez stopu nesmie ostat).</summary>
+        private const int MaxExitAttempts = 3;
+        /// <summary>Po tolkych odmietnutych trhovych zatvoreniach sa SL/TP polozia spat, kym ide dalsi pokus.</summary>
+        private const int MaxCloseAttempts = 3;
 
         public readonly LiveDeployment Deployment;
         private readonly Queue<Action> _queue = new Queue<Action>();
@@ -178,6 +191,12 @@ namespace NinjaTrader.NinjaScript.AddOns
         private double _foreignPrice;
         private long _foreignMs;
         private DateTime _extFlatSince = DateTime.MinValue;
+        /// <summary>Strazca feedu (FeedWatch): bary pocas seansy neprichadzaju; kedy sa to naposledy hlasilo.</summary>
+        private bool _feedStale;
+        private DateTime _feedNoted = DateTime.MinValue;
+        private NinjaTrader.Data.SessionIterator _sessions;
+        /// <summary>Den (NY), v ktorom sa uz zatvaralo podla hodin (EodByClock) - hlasi sa raz.</summary>
+        private string _eodClockDay;
         private double _lastClose;
 
         // control subor (docs/LIVE.md, faza 2)
@@ -242,9 +261,15 @@ namespace NinjaTrader.NinjaScript.AddOns
 
         private void SpoolCheck()
         {
-            if (_spool == null || !_spool.Broken || _spoolErrorPrinted) return;
+            if (_spool == null) return;
+            if (!_spool.Broken)
+            {
+                if (_spoolErrorPrinted) { _spoolErrorPrinted = false; Log("live telemetria znova bezi"); }
+                return;
+            }
+            if (_spoolErrorPrinted) return;
             _spoolErrorPrinted = true;
-            Log("live telemetria vypnuta - " + _spool.LastError);
+            Log("live telemetria prerusena - " + _spool.LastError + " (skusi sa znova o " + TB.LiveSpool.ReopenSeconds + " s)");
         }
 
         /// <summary>Callback NinjaTradera: praca sa zaradi do fronty vlakna instancie.</summary>
@@ -279,6 +304,10 @@ namespace NinjaTrader.NinjaScript.AddOns
                     catch (Exception e) { Note("error", "kontrola pozicie uctu - " + e.Message); }
                     try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
                     catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
+                    try { if (_live) GuardExits(); }
+                    catch (Exception e) { Note("error", "strazca SL - " + e.Message); }
+                    try { if (_live) { EodByClock(); FeedWatch(); } }
+                    catch (Exception e) { Note("error", "strazca feedu / EOD - " + e.Message); }
                     SaveState();
                     try { if (_live) SpoolBroker(); }
                     catch (Exception e) { Log("pozicia uctu do telemetrie - " + e.Message); }
@@ -395,6 +424,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             Replay();
             try { RestoreState(); }
             catch (Exception e) { Note("error", "prevzatie obchodov spred restartu zlyhalo - " + e); }
+            // rezim flatten z control suboru: ControlInit bezal pred prevzatim, ked este nebolo co zatvorit (audit N-LIVE-9)
+            if (_controlMode == "flatten" && _orders.Count > 0) { Flatten("tb_flatten"); Log("FLATTEN (control, po prevzati obchodov)"); }
             SaveState();
             return true;
         }
@@ -845,24 +876,75 @@ namespace NinjaTrader.NinjaScript.AddOns
             TB.TradePlan plan = t.Intent.Plan;
             bool isLong = plan.Direction == TB.Direction.Long;
             OrderAction action = isLong ? OrderAction.Sell : OrderAction.BuyToCover;
-            try
+            if (t.Sl == null)
             {
-                if (t.Sl == null)
+                try
                 {
                     string oco = "tb" + (++_ocoSeq).ToString(CultureInfo.InvariantCulture) + "-" + Guid.NewGuid().ToString("N").Substring(0, 8);
                     t.Sl = Create(action, OrderType.StopMarket, t.OpenQty, 0, Tick(t.LastStop), oco, id + ":sl");
                     t.Tp = Create(action, OrderType.Limit, t.OpenQty, Tick(plan.TakeProfit), 0, oco, id + ":tp");
                     _account.Submit(new Order[] { t.Sl, t.Tp });
                     Log("EXITS " + id + " SL " + Tick(t.LastStop) + " TP " + Tick(plan.TakeProfit) + " qty " + t.OpenQty + " oco " + oco);
-                    return;
                 }
+                catch (Exception e)
+                {
+                    // neodoslane - GuardExits ich polozi znova, po MaxExitAttempts pozicia ide von trhom
+                    t.Sl = null;
+                    t.Tp = null;
+                    Note("error", "vystupy " + id + " sa neposlali - " + e.Message);
+                }
+                return;
+            }
+            try
+            {
                 // dalsi ciastocny fill: navys objem vystupov
                 List<Order> change = new List<Order>();
                 if (Alive(t.Sl)) { t.Sl.QuantityChanged = t.OpenQty; change.Add(t.Sl); }
                 if (Alive(t.Tp)) { t.Tp.QuantityChanged = t.OpenQty; change.Add(t.Tp); }
                 if (change.Count > 0) _account.Change(change);
             }
-            catch (Exception e) { Note("error", "vystupy " + id + " sa neposlali - " + e.Message); }
+            catch (Exception e) { Note("error", "objem vystupov " + id + " sa nezmenil - " + e.Message); }
+        }
+
+        /// <summary>
+        /// Pozicia nesmie ostat bez stopu (audit N-LIVE-1, N-LIVE-11): vyplneny vstup, ktory nema zivy SL (neodoslany,
+        /// odmietnuty, zruseny zvonka), dostane SL/TP znova; po `MaxExitAttempts` neuspechoch sa zavrie trhom. Pocas
+        /// zatvarania trhom plati to iste, ked uz trhovy vystup `MaxCloseAttempts` krat nepresiel (`Protect`).
+        /// </summary>
+        private void GuardExits()
+        {
+            DateTime now = DateTime.UtcNow;
+            foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
+            {
+                Tracked t = kv.Value;
+                if (!t.Filled || t.OpenQty <= 0 || (t.Closing != null && !t.Protect)) { t.NoStopSince = DateTime.MinValue; continue; }
+                if (Alive(t.Sl))
+                {
+                    t.NoStopSince = DateTime.MinValue;
+                    if (t.Sl.OrderState == OrderState.Accepted || t.Sl.OrderState == OrderState.Working) t.ExitFails = 0;   // broker ho prijal
+                    continue;
+                }
+                // vystup sa prave vyplnil - pozicia sa zavrie sama (HandleExecution)
+                if ((t.Sl != null && t.Sl.OrderState == OrderState.Filled) || (t.Tp != null && t.Tp.OrderState == OrderState.Filled)) continue;
+                if (t.NoStopSince == DateTime.MinValue) { t.NoStopSince = now; if (!t.Protect) continue; }
+                if (!t.Protect && (now - t.NoStopSince).TotalSeconds < NoStopGraceSeconds) continue;
+                // TP z neuplnej dvojice najprv prec (inak by po novej dvojici stali dva TP)
+                if (Alive(t.Tp)) { CancelOrder(t.Tp); continue; }
+                if (AccountPosition() == 0) continue;   // ucet flat - pozicia sa zavrela inde (ReconcileExternal)
+                if (t.ExitFails >= MaxExitAttempts)
+                {
+                    if (t.Closing != null) continue;    // trhovy vystup uz bezi (CloseTimeouts)
+                    Note("error", "pozicia " + kv.Key + " je bez SL a polozit ho " + t.ExitFails + "x zlyhalo - zatvaram trhom");
+                    RequestClose(kv.Key, t, "tb_close");
+                    continue;
+                }
+                Note("warn", "pozicia " + kv.Key + " nema SL - pokladam SL/TP znova (pokus " + (t.ExitFails + 1) + ")");
+                t.Sl = null;
+                t.Tp = null;
+                t.NoStopSince = now;
+                t.ExitFails++;
+                EnsureExits(kv.Key, t);
+            }
         }
 
         /// <summary>Zavretie pozicie trhovym orderom: najprv zrus SL/TP, trhovy vystup ide, az ked su prec
@@ -891,18 +973,52 @@ namespace NinjaTrader.NinjaScript.AddOns
                 _account.Submit(new Order[] { o });
                 Log("EXIT " + id + " market x" + t.OpenQty + " (" + t.Closing + ")");
             }
-            catch (Exception e) { Note("error", "trhovy vystup " + id + " sa neposlal - " + e.Message); t.CloseSent = false; }
+            catch (Exception e) { CloseFailed(id, t, "trhovy vystup " + id + " sa neposlal - " + e.Message); }
         }
 
-        /// <summary>Zrusenie SL/TP sa nepotvrdilo do limitu - trhovy vystup ide aj tak.</summary>
+        /// <summary>
+        /// Trhovy vystup nepresiel (odmietnuty, neodoslany): dalsi pokus s odstupom 2, 4, 8 ... 60 s, nie kazde 2 s
+        /// (audit N-LIVE-2). Od `MaxCloseAttempts`. neuspechu stoja medzi pokusmi SL/TP znova (GuardExits) - pozicia
+        /// cez noc bez stopu nesmie ostat; pred dalsim pokusom sa zrusia ako pri prvom.
+        /// </summary>
+        private void CloseFailed(string id, Tracked t, string message)
+        {
+            t.CloseSent = false;
+            t.CloseFails++;
+            int wait = Math.Min(60, 1 << Math.Min(6, t.CloseFails));
+            t.CloseRetryAt = DateTime.UtcNow.AddSeconds(wait);
+            bool protect = t.CloseFails >= MaxCloseAttempts;
+            if (protect && !t.Protect) { t.Protect = true; t.ExitFails = 0; t.NoStopSince = DateTime.MinValue; }
+            Note("error", message + " (" + t.CloseFails + ". neuspech, dalsi pokus o " + wait + " s"
+                 + (protect ? ", medzitym SL/TP znova" : "") + ")");
+        }
+
+        /// <summary>Zatvaranie trhom: zrusenie SL/TP sa nepotvrdilo do limitu - trhovy vystup ide aj tak; odmietnuty
+        /// trhovy vystup ide znova po odstupe (pri `Protect` najprv znova zrusit SL/TP).</summary>
         private void CloseTimeouts()
         {
+            DateTime now = DateTime.UtcNow;
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
             {
                 Tracked t = kv.Value;
                 if (t.Closing == null || t.CloseSent || t.OpenQty <= 0) continue;
-                if ((DateTime.UtcNow - t.ClosingSince).TotalSeconds < CloseCancelTimeoutSeconds) continue;
-                Note("warn", "zrusenie SL/TP " + kv.Key + " sa nepotvrdilo do " + CloseCancelTimeoutSeconds + " s - trhovy vystup posielam aj tak");
+                if (now < t.CloseRetryAt) continue;
+                if (t.Protect)
+                {
+                    // SL/TP stoja z GuardExits - dalsi pokus rovnako ako prvy: zrusit, trhovy vystup az ked su prec
+                    t.Protect = false;
+                    t.ClosingSince = now;
+                    List<Order> cancel = new List<Order>();
+                    if (Alive(t.Sl)) cancel.Add(t.Sl);
+                    if (Alive(t.Tp)) cancel.Add(t.Tp);
+                    if (cancel.Count == 0) { SubmitCloseMarket(kv.Key, t); continue; }
+                    try { _account.Cancel(cancel); }
+                    catch (Exception e) { Note("error", "zrusenie SL/TP " + kv.Key + " zlyhalo - " + e.Message); SubmitCloseMarket(kv.Key, t); }
+                    continue;
+                }
+                bool gone = Gone(t.Sl) && Gone(t.Tp);
+                if (!gone && (now - t.ClosingSince).TotalSeconds < CloseCancelTimeoutSeconds) continue;
+                if (!gone) Note("warn", "zrusenie SL/TP " + kv.Key + " sa nepotvrdilo do " + CloseCancelTimeoutSeconds + " s - trhovy vystup posielam aj tak");
                 SubmitCloseMarket(kv.Key, t);
             }
         }
@@ -984,6 +1100,72 @@ namespace NinjaTrader.NinjaScript.AddOns
             _foreignMs = 0;
         }
 
+        /// <summary>
+        /// Engine s koncom dna (EOD) chce byt od 15:58:30 NY flat aj vtedy, ked bar pred 15:59 neprisiel (reconnect,
+        /// zamrznuty feed) - zatvorenie podla hodin, nie podla baru (audit N-LIVE-7). Bezne uz zatvoril bar.
+        /// </summary>
+        private void EodByClock()
+        {
+            TB.IClockFlatten clock = TB.ClockFlatten.Find(_engine);
+            if (clock == null) return;
+            long nowMs = (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds);
+            if (!clock.FlattenDue(nowMs)) return;
+            bool work = false;
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+                if ((kv.Value.Filled && kv.Value.OpenQty > 0 && kv.Value.Closing == null) || (!kv.Value.Filled && kv.Value.Entry != null)) work = true;
+            if (!work) return;
+            string day = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            if (_eodClockDay != day)
+            {
+                _eodClockDay = day;
+                Note("warn", "EOD podla hodin: bar pred 15:59 NY neprisiel (posledny " + LastBarText() + ") - zatvaram a rusim cakajuce vstupy");
+            }
+            Flatten("tb_session_end");
+        }
+
+        private string LastBarText()
+        {
+            return _lastBarMs > 0 ? Epoch.AddMilliseconds(_lastBarMs + _stepMs).ToString("HH:mm", CultureInfo.InvariantCulture) + " UTC" : "ziadny";
+        }
+
+        /// <summary>
+        /// Pocas seansy instrumentu (TradingHours) musi kazdy TF prist bar; ked posledny uzavrety je starsi nez 2 TF + 1 min,
+        /// feed alebo BarsRequest je mrtvy - `note error` (webapp, Telegram), znova kazdych 15 min, kym bary nezacnu
+        /// chodit (audit N-LIVE-7: `hb` ide dalej a webapp by hlasila len „trh zatvoreny").
+        /// </summary>
+        private void FeedWatch()
+        {
+            if (_chart == null || _lastBarMs <= 0) return;
+            long nowMs = (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds);
+            bool late = nowMs > _lastBarMs + 2 * _stepMs + 60000L;
+            if (!late)
+            {
+                if (_feedStale) { _feedStale = false; Note("info", "bary znova chodia (posledny " + LastBarText() + ")"); }
+                return;
+            }
+            if (!InSession(NinjaTrader.Core.Globals.Now)) return;
+            if (_feedStale && (DateTime.UtcNow - _feedNoted).TotalMinutes < 15) return;
+            _feedStale = true;
+            _feedNoted = DateTime.UtcNow;
+            Note("error", "pocas seansy neprisiel bar " + (int)((nowMs - _lastBarMs - _stepMs) / 60000L) + " min (posledny " + LastBarText()
+                 + ") - feed alebo pripojenie (" + Deployment.Connection + "), trailing a zatvorenie na bare stoja");
+        }
+
+        /// <summary>Cas platformy je v obchodnej seanse instrumentu; ked sa to zistit neda, berie sa ako v seanse (radsej alarm navyse).</summary>
+        private bool InSession(DateTime platformNow)
+        {
+            try
+            {
+                if (_sessions == null) _sessions = new NinjaTrader.Data.SessionIterator(_inst.MasterInstrument.TradingHours);
+                return _sessions.IsInSession(platformNow, true, true);
+            }
+            catch (Exception e)
+            {
+                Log("seansa instrumentu sa neda zistit - " + e.Message);
+                return true;
+            }
+        }
+
         /// <summary>Zrus cakajuce vstupy a zavri, co je otvorene (koniec seansy, flatten).</summary>
         private void Flatten(string signal)
         {
@@ -1013,7 +1195,6 @@ namespace NinjaTrader.NinjaScript.AddOns
                 double stop = plan.Trailing.StopPrice(plan.Direction, plan.Entry, plan.StopLoss, best);
                 bool better = isLong ? stop > t.LastStop : stop < t.LastStop;
                 if (!better) continue;
-                t.LastStop = stop;
                 if (Alive(t.Sl))
                 {
                     try
@@ -1022,8 +1203,10 @@ namespace NinjaTrader.NinjaScript.AddOns
                         _account.Change(new Order[] { t.Sl });
                         Log("TRAIL " + kv.Key + " SL -> " + Tick(stop));
                     }
+                    // LastStop ostava stara - posun sa skusi na dalsom bare znova (audit N-LIVE-10)
                     catch (Exception e) { Note("error", "posun SL " + kv.Key + " zlyhal - " + e.Message); continue; }
                 }
+                t.LastStop = stop;   // bez ziveho SL ho s touto cenou polozi GuardExits
                 if (_spool != null) { _spool.Modify(bar.Time, kv.Key, Tick(stop), null, "trailing", _live); SpoolCheck(); }
             }
         }
@@ -1079,18 +1262,27 @@ namespace NinjaTrader.NinjaScript.AddOns
             bool exit = suffix == "sl" || suffix == "tp";
             if (state == OrderState.Rejected)
             {
+                if (!exit)
+                {
+                    // trhovy vystup - CloseTimeouts ho posle znova po odstupe
+                    CloseFailed(id, t, "vystup " + name + " odmietnuty: " + error + " " + comment);
+                    return;
+                }
                 Note("error", "vystup " + name + " odmietnuty: " + error + " " + comment);
-                if (!exit) { t.CloseSent = false; return; }   // trhovy vystup - CloseTimeouts ho posle znova
+                if (suffix == "sl" && ReferenceEquals(o, t.Sl) && Alive(o))
+                {
+                    // odmietnuta len ZMENA (posun trailingu) - SL stoji na starej cene; trailing to skusi na dalsom
+                    // bare znova (audit N-LIVE-10, N-LIVE-11: zdrava pozicia sa kvoli tomu nezatvara)
+                    t.LastStop = o.StopPrice;
+                    return;
+                }
             }
             if (!exit || (state != OrderState.Cancelled && state != OrderState.Rejected)) return;
-            if (t.OpenQty > 0 && t.Closing == null && state == OrderState.Rejected)
-            {
-                // pozicia bez ochrany - zavri ju trhovo
-                RequestClose(id, t, "tb_close");
-                return;
-            }
+            // SL/TP prec mimo zatvarania (odmietnuty, zruseny zvonka) - pozicia bez ochrany: GuardExits ho polozi
+            // znova, po MaxExitAttempts zavrie trhom
+            if (t.Closing == null || t.Protect) return;
             // oba vystupy prec (zrusene, nie vyplnene) -> trhovy vystup; vyplneny vystup zavrie poziciu sam (HandleExecution)
-            if (t.Closing != null && !t.CloseSent && Gone(t.Sl) && Gone(t.Tp) && t.OpenQty > 0) SubmitCloseMarket(id, t);
+            if (!t.CloseSent && Gone(t.Sl) && Gone(t.Tp) && t.OpenQty > 0 && DateTime.UtcNow >= t.CloseRetryAt) SubmitCloseMarket(id, t);
         }
 
         /// <summary>Order je prec bez fillu (zruseny / odmietnuty / nikdy neposlany).</summary>

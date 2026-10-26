@@ -77,7 +77,7 @@ def _instrument_json(inst) -> str:
 
 
 def test_verzia_strategie_a_chyba_bez_vynimky(static_host):
-    assert static_host.Version() == 4      # docs/LIVE.md: Spool* (2), slot v id inštancie (3), SpoolMinute (4); EA kontroluje 4
+    assert static_host.Version() == 5      # docs/LIVE.md: Spool* (2), slot v id inštancie (3), SpoolMinute (4), EodDue (5); EA kontroluje 5
     assert {"ibsnet", "orbnet"} <= set(static_host.Strategies().split(","))
     # chyba nesmie letieť cez hranicu .NET -> MQL5 ako výnimka: -1 a text v LastError
     inst = '{"symbol":"X","venue":"mt5","tick_size":0.25,"point_value":2.0,"qty_step":1,"min_qty":1}'
@@ -421,3 +421,55 @@ def test_pozicia_u_brokera_ide_do_pingu_len_pri_zmene(static_host, tmp_path):
 
     hb = [schema.parse_line(x) for x in open(path, encoding="utf-8").read().splitlines() if '"k":"hb"' in x]
     assert [(e["pos"], e["pos_px"], e["pos_of"]) for e in hb] == [(-1.0, 29445.5, "magic"), (0.0, 0.0, "magic"), (0.0, 0.0, "magic")]
+
+
+def test_eod_podla_hodin(static_host):
+    """`EodDue` (audit N-LIVE-7): engine s koncom dna chce byt od 15:58:30 do 18:00 New York flat aj bez baru;
+    engine bez EOD nikdy. Letný aj zimný čas: vždy hodiny NY."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    def ms(y, mo, d, hh, mm, ss=0):
+        return int(datetime(y, mo, d, hh, mm, ss, tzinfo=ZoneInfo("America/New_York")).timestamp() * 1000)
+
+    eod = static_host.Create("noaneteod", "{}", _INST, 3)
+    plain = static_host.Create("noanet", "{}", _INST, 3)
+    assert eod > 0 and plain > 0, static_host.LastError()
+    try:
+        for day in ((2026, 7, 15), (2026, 12, 15)):
+            assert static_host.EodDue(eod, ms(*day, 15, 58, 29)) == 0
+            assert static_host.EodDue(eod, ms(*day, 15, 58, 30)) == 1
+            assert static_host.EodDue(eod, ms(*day, 17, 59, 59)) == 1
+            assert static_host.EodDue(eod, ms(*day, 18, 0, 0)) == 0
+            assert static_host.EodDue(plain, ms(*day, 16, 0, 0)) == 0
+        assert static_host.EodDue(987654, 0) == -1 and static_host.LastError()
+    finally:
+        static_host.Destroy(eod)
+        static_host.Destroy(plain)
+
+
+def test_rozbity_spool_sa_otvori_znova(static_host, tmp_path):
+    """Chyba zápisu spoolu nevypne telemetriu navždy (audit N-LIVE-19): po `ReopenSeconds` ďalšie volanie
+    otvorí nový súbor tej istej session s `hello` a `note warn`, seq pokračuje."""
+    from TradeBot.Core import LiveSpool
+    from tradebot.live import schema
+
+    blocker = tmp_path / "spool"
+    blocker.write_text("zatial nie som adresar", encoding="utf-8")
+    old = LiveSpool.ReopenSeconds
+    LiveSpool.ReopenSeconds = 0
+    try:
+        sp = LiveSpool(str(blocker), "mt5", "acc", "NAS100", 3, "ibsnet", "p", False, None, None)
+        assert sp.Broken and sp.LastError
+        blocker.unlink()
+        sp.Note("info", "po obnove")
+        assert not sp.Broken, sp.LastError
+        sp.Close("deinit")
+    finally:
+        LiveSpool.ReopenSeconds = old
+    files = list((blocker / sp.Instance).glob("*.jsonl"))
+    assert len(files) == 1
+    events = [schema.parse_line(line) for line in files[0].read_text(encoding="utf-8").splitlines()]
+    kinds = [e["k"] for e in events]
+    assert kinds[0] == "hello" and kinds[1] == "note" and events[1]["level"] == "warn"
+    assert any(e["k"] == "note" and e.get("text") == "po obnove" for e in events)

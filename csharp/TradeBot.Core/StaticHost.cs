@@ -59,7 +59,19 @@ public static class StaticHost
     }
 
     /// <summary>Verzia fasady - hostitel si ju overi, kym zacne (zmena kontraktu = ina verzia).</summary>
-    public static int Version() { return 4; }
+    public static int Version() { return 5; }
+
+    /// <summary>Zivy EA: engine s koncom dna (EOD) chce byt v `nowMs` (UTC) bez pozicie aj bez barov - zatvorenie
+    /// podla hodin, ked bar pred 15:59 NY neprisiel (audit N-LIVE-7). 1 ano, 0 nie (alebo engine bez EOD), -1 chyba.</summary>
+    public static int EodDue(int handle, long nowMs)
+    {
+        try
+        {
+            IClockFlatten clock = ClockFlatten.Find(Get(handle).Host.Engine);
+            return clock != null && clock.FlattenDue(nowMs) ? 1 : 0;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
 
     /// <summary>Kluce C# strategii v tejto assembly, oddelene ciarkou.</summary>
     public static string Strategies()
