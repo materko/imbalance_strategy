@@ -53,8 +53,14 @@ namespace NinjaTrader.NinjaScript.AddOns
 
         public bool SameAs(LiveDeployment o)
         {
+            return SameInstance(o) && Profile == o.Profile;
+        }
+
+        /// <summary>Ta ista instancia az na profil - ten sa meni za behu (`LiveInstance.ChangeProfile`), nie restartom.</summary>
+        public bool SameInstance(LiveDeployment o)
+        {
             return o != null && Id == o.Id && Connection == o.Connection && Account == o.Account && Instrument == o.Instrument
-                && Tf == o.Tf && Strategy == o.Strategy && Profile == o.Profile && RouteText == o.RouteText;
+                && Tf == o.Tf && Strategy == o.Strategy && RouteText == o.RouteText;
         }
 
         public string Describe()
@@ -270,6 +276,10 @@ namespace NinjaTrader.NinjaScript.AddOns
         private string _controlProfile;
         private string _pendingProfile;
         private bool _pendingLogged;
+        // subor beziaceho profilu: hub pri rovnakom nazve prepise parametre - ProfileCheck ho prepne za behu
+        private string _profilePath;
+        private string _profileText;
+        private DateTime _profileMtime = DateTime.MinValue;
         private int _controlEvents;
         private DateTime _controlChecked = DateTime.MinValue;
 
@@ -298,6 +308,20 @@ namespace NinjaTrader.NinjaScript.AddOns
         }
 
         public string Instance { get { return _instance; } }
+
+        /// <summary>Iny profil v deploy.json (vola ho AddOn z vlakna NT): prepne sa za behu, ked je instancia flat -
+        /// to iste ako zmena profilu cez control, bez restartu instancie.</summary>
+        public void ChangeProfile(string profile)
+        {
+            Post(delegate
+            {
+                if (_engine == null || string.IsNullOrEmpty(profile) || profile == (_controlProfile ?? "") || profile == _pendingProfile) return;
+                Log("deploy.json: profil '" + profile + "' - prepnem ho za behu, ked bude instancia flat");
+                _pendingProfile = profile;
+                _pendingLogged = false;
+                if (TrySwitchProfile() || _pendingProfile == null) ControlEvent("deploy");
+            });
+        }
 
         // ------------------------------------------------------------------ //
         // Zivotny cyklus
@@ -396,6 +420,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     {
                         lastControl = DateTime.UtcNow;
                         try { ControlCheck(); } catch (Exception e) { Note("error", "control zlyhal - " + e.Message); }
+                        try { ProfileCheck(); } catch (Exception e) { Note("error", "kontrola profilu zlyhala - " + e.Message); }
                         try { if (!Routed) CloseTimeouts(); } catch (Exception e) { Note("error", "close timeout - " + e.Message); }
                     }
                 }
@@ -469,7 +494,9 @@ namespace NinjaTrader.NinjaScript.AddOns
 
             try
             {
-                _config = TB.Json.ParseObject(File.ReadAllText(profilePath));
+                string profileText = File.ReadAllText(profilePath);
+                _config = TB.Json.ParseObject(profileText);
+                RememberProfile(profilePath, profileText);
                 TB.EngineRegistry.Reset();
                 _engine = TB.EngineRegistry.Create(d.Strategy, _config, InstrumentSpec(), d.Tf);
             }
@@ -1654,6 +1681,40 @@ namespace NinjaTrader.NinjaScript.AddOns
             return _orders.Count == 0 && AccountPosition() - OthersNet() == 0;
         }
 
+        private void RememberProfile(string path, string text)
+        {
+            _profilePath = path;
+            _profileText = text;
+            try { _profileMtime = File.GetLastWriteTimeUtc(path); } catch (Exception) { _profileMtime = DateTime.MinValue; }
+        }
+
+        /// <summary>
+        /// Zmenene parametre pri rovnakom nazve profilu: driver hubu prepise `profiles\&lt;strategia&gt;\&lt;profil&gt;.json`,
+        /// ale nazov v deploy.json ani v control subore sa nemeni, takze bez tohto by instancia bezala na starych
+        /// parametroch az do restartu (MT5 v tom pripade restartuje terminal). Subor sa kontroluje kazde 2 s podla mtime;
+        /// iny obsah = ten isty profil sa prepne znova (novy engine, prehratie historie, nova session spoolu), ked je
+        /// instancia flat - inak caka ako kazda zmena profilu. Cakajucu zmenu skusa znova aj bez control suboru.
+        /// </summary>
+        private void ProfileCheck()
+        {
+            if (_pendingProfile != null)
+            {
+                if (_controlPath == null || !File.Exists(_controlPath))   // inak ju skusa ControlCheck
+                    if (TrySwitchProfile() || _pendingProfile == null) ControlEvent("profile");
+                return;
+            }
+            if (_profilePath == null || _controlProfile == null || !File.Exists(_profilePath)) return;
+            DateTime mtime = File.GetLastWriteTimeUtc(_profilePath);
+            if (mtime == _profileMtime) return;
+            _profileMtime = mtime;
+            string text = File.ReadAllText(_profilePath);
+            if (text == _profileText) return;
+            Note("info", "profil '" + _controlProfile + "' ma nove parametre (" + _profilePath + ") - novy engine, ked bude instancia flat");
+            _pendingProfile = _controlProfile;
+            _pendingLogged = false;
+            if (TrySwitchProfile() || _pendingProfile == null) ControlEvent("profile");
+        }
+
         /// <summary>Vymena profilu, ked je instancia flat: novy engine, novy spool (nova session) a historia
         /// z BarsRequest sa prehra znova - vysledok je ako cerstvy start. Iny informativny TF = novy BarsRequest.</summary>
         private bool TrySwitchProfile()
@@ -1679,7 +1740,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
             try
             {
-                Dictionary<string, object> cfg = TB.Json.ParseObject(File.ReadAllText(path));
+                string text = File.ReadAllText(path);
+                Dictionary<string, object> cfg = TB.Json.ParseObject(text);
                 TB.IEngine fresh = TB.EngineRegistry.Create(Deployment.Strategy, cfg, InstrumentSpec(), Deployment.Tf);
                 TB.IHtfFeeder feeder = fresh.CreateHtfFeeder();
                 bool setupPhase = _chart == null;   // pred BarsRequest: serie a prehratie spravi Setup s novym enginom
@@ -1711,6 +1773,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 _dailyWinsSeen.Clear();
                 ReadStats();
                 _controlProfile = wanted;
+                RememberProfile(path, text);
                 OpenSpool(wanted);
                 Log("control: novy engine z profilu '" + wanted + "' (" + path + "), predhistoria " + _engine.RequiredHistory + " barov"
                     + (setupPhase ? "" : " - prehravam historiu znova"));

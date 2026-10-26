@@ -335,7 +335,8 @@ alebo ruka):
 Profil je `TradeBot\profiles\<stratégia>\<profil>.json`, inak `TradeBot\profiles\<profil>.json` (tam ich
 dáva `install`), inak celá cesta; chýbajúci profil = záznam sa preskočí a zaloguje. Supervízor (vlastné
 vlákno, štart 3 s po vzniku Control Center) číta súbor podľa mtime **každé 2 s** a znova pri zmene stavu
-pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenený reštartuje, neúspešný štart
+pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenený reštartuje — okrem samotného
+profilu: iný `profile` inštanciu nereštartuje, prepne sa za behu, keď je flat (ako cez control) —, neúspešný štart
 (pripojenie dole, účet nepripojený) skúša každých 60 s. `instances: []` alebo chýbajúci súbor = nič nebeží.
 
 Čo jedna `LiveInstance` robí (semantika je tá istá ako v `TradeBotStrategy.cs`, riadok po riadku):
@@ -357,7 +358,7 @@ pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenen
 | denný limit výhier | `max_daily_wins` zo `Stats()`, výhra = výstup SL/TP so ziskom > 0, platí od ďalšieho baru |
 | fily | `Account.ExecutionUpdate` filtrované na vlastné mená; `fill` `in`/`out` s menom výstupu `Stop loss` / `Profit target` / `tb_close` / `tb_session_end` / `tb_flatten` |
 | spool | `LiveSpool` v `TradeBot\spool\ninjatrader_<účet>_<symbol>_<TF>m_<kľúč>\` (symbol = `MasterInstrument.Name`, teda `MNQ`), `tester:false`; pri konci `stat` + `bye` (`removed`, `changed`, `terminated`, `superseded`, `profile_switch`) |
-| control | `TradeBot\control\<inštancia>.json` každé 2 s a pri každom bare, režimy ako v Strategy; **zmena profilu** (keď je flat) = nový engine, nová session spoolu a **história z BarsRequest sa prehrá znova** — čerstvý štart, aj iný informatívny TF (nový BarsRequest) |
+| control | `TradeBot\control\<inštancia>.json` každé 2 s a pri každom bare, režimy ako v Strategy; **zmena profilu** (keď je flat) = nový engine, nová session spoolu a **história z BarsRequest sa prehrá znova** — čerstvý štart, aj iný informatívny TF (nový BarsRequest); **nové parametre pri rovnakom názve** (hub prepíše `profiles\<stratégia>\<profil>.json`, názov sa nemení) inštancia zistí podľa mtime súboru každé 2 s a prepne ich rovnako — bez nej by bežala na starých až do reštartu |
 | kresby | nekreslia sa (nie je graf) — idú len do spoolu, webapp karta Live ich ukáže |
 | flatten po reštarte | režim `flatten` z control súboru sa po prevzatí obchodov spred reštartu (`RestoreState`) uplatní aj na ne |
 | zastavenie | zruší čakajúce vstupy, **pozíciu nechá** (jej SL/TP sú GTC ordery na účte), zatvorí BarsRequesty a spool; flatten je vec control súboru |

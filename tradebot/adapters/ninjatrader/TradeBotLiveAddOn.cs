@@ -328,7 +328,14 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 LiveInstance inst = kv.Value;
                 LiveDeployment want;
-                bool keep = desired.TryGetValue(kv.Key, out want) && want.SameAs(inst.Deployment);
+                // iny profil instanciu nerestartuje - prepne sa za behu, ked je flat (ako cez control)
+                bool keep = desired.TryGetValue(kv.Key, out want) && want.SameInstance(inst.Deployment);
+                if (keep && want.Profile != inst.Deployment.Profile)
+                {
+                    Say("instancia " + kv.Key + ": profil '" + inst.Deployment.Profile + "' -> '" + want.Profile + "' (za behu)");
+                    inst.Deployment.Profile = want.Profile;
+                    inst.ChangeProfile(want.Profile);
+                }
                 if (!keep && !inst.Finished)
                 {
                     Say("instancia " + kv.Key + ": " + (desired.ContainsKey(kv.Key) ? "zmena zaznamu - restart" : "odstranena z deploy.json") + " - zastavujem");
