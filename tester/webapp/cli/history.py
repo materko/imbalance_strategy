@@ -129,9 +129,11 @@ def cmd_reindex(args: argparse.Namespace) -> int:
 
     store = RunStore()
     if args.rebuild:
-        store.index.close()
-        for p in store.index.path.parent.glob("runs.sqlite3*"):
-            p.unlink(missing_ok=True)
+        # Vyprázdniť tabuľku v sqlite, nie mazať súbor: bežiaca webapp má k nemu otvorené spojenie
+        # (na Windows súbor zmazať nejde, inde by jej spojenie ostalo na zmazanom súbore - N-WEB-6).
+        if not store.index.clear():
+            print("index sa nepodarilo vyprázdniť — skús to znova, keď webapp nebeží")
+            return 1
     t = time.time()
     if not store.index.sync(force=True):
         print("index sa nepodarilo otvoriť — webapp bude čítať súbory (pomaly)")

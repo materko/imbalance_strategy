@@ -137,6 +137,10 @@ def row_of(record: dict[str, Any], mtime: int, size: int) -> tuple:
     return tuple(hodnoty[c] for c in _COLS)
 
 
+#: Po zlyhaní indexu sa toľko sekúnd číta zo súborov, potom sa index skúsi znova (`RunIndex._fail`).
+RETRY_AFTER = 60.0
+
+
 class RunIndex:
     """Sqlite index nad adresárom behov. Všetko, čo sa pokazí, je len strata rýchlosti:
     `ok` spadne na `False` a sklad sa vráti k čítaniu súborov."""
@@ -149,12 +153,28 @@ class RunIndex:
         self._lock = threading.Lock()
         self._synced = 0.0
         self._deep = 0.0
+        self._failed_at = 0.0
 
     # -- spojenie ----------------------------------------------------------- #
 
+    def _fail(self) -> None:
+        """Index zlyhal (`database is locked` pri `cli reindex`, poškodený súbor): sklad číta súbory, ale len
+        `RETRY_AFTER` s, potom sa index skúsi znova - kedysi ostal vypnutý až do reštartu webapp (N-WEB-6).
+        Volá sa pod `_lock`."""
+        self.ok = False
+        self._failed_at = time.monotonic()
+        if self._conn is not None:
+            try:
+                self._conn.close()
+            except sqlite3.Error:
+                pass
+            self._conn = None
+
     def _db(self) -> sqlite3.Connection | None:
         if not self.ok:
-            return None
+            if not self._failed_at or time.monotonic() - self._failed_at < RETRY_AFTER:
+                return None
+            self.ok = True   # skúsiť znova; nové zlyhanie nastaví ďalšiu pauzu
         if self._conn is not None:
             return self._conn
         try:
@@ -170,7 +190,7 @@ class RunIndex:
             conn.execute("INSERT OR REPLACE INTO meta(k, v) VALUES ('schema', ?)", (str(SCHEMA),))
             conn.commit()
         except (sqlite3.Error, OSError, ValueError):
-            self.ok = False
+            self._fail()
             return None
         self._conn = conn
         return conn
@@ -186,6 +206,21 @@ class RunIndex:
 
     # -- zosúladenie s diskom ------------------------------------------------ #
 
+    def clear(self) -> bool:
+        """Vyprázdni index (`cli reindex --rebuild`); ďalší `sync` ho postaví znova zo súborov."""
+        with self._lock:
+            conn = self._db()
+            if conn is None:
+                return False
+            try:
+                conn.execute("DELETE FROM runs")
+                conn.commit()
+            except sqlite3.Error:
+                self._fail()
+                return False
+            self._deep = 0.0
+            return True
+
     def forget(self, run_id: str) -> None:
         """Zabudni beh — nabudúce sa prečíta zo súboru. Pre cudzie zápisy do `run.json`."""
         with self._lock:
@@ -196,7 +231,7 @@ class RunIndex:
                 conn.execute("DELETE FROM runs WHERE id = ?", (run_id,))
                 conn.commit()
             except sqlite3.Error:
-                self.ok = False
+                self._fail()
 
     def put(self, run_id: str) -> None:
         """Načítaj (alebo odstráň) jeden beh — volá sklad hneď po zápise behu."""
@@ -208,7 +243,7 @@ class RunIndex:
                 self._upsert(conn, [run_id])
                 conn.commit()
             except sqlite3.Error:
-                self.ok = False
+                self._fail()
 
     def sync(self, force: bool = False) -> bool:
         """Dorovnaj index s diskom. `force` = pozri aj časy súborov, nielen zoznam adresárov.
@@ -250,7 +285,7 @@ class RunIndex:
                 if zmazat or nacitat:
                     conn.commit()
             except sqlite3.Error:
-                self.ok = False
+                self._fail()
                 return False
             self._synced = teraz
             return True
@@ -333,7 +368,7 @@ class RunIndex:
             try:
                 return int(conn.execute(f"SELECT COUNT(*) FROM runs WHERE {sql}", hodnoty).fetchone()[0])
             except sqlite3.Error:
-                self.ok = False
+                self._fail()
                 raise
 
     def page(self, sql: str, hodnoty: list[Any], offset: int, limit: int) -> list[dict[str, Any]]:
@@ -353,5 +388,5 @@ class RunIndex:
             try:
                 return [json.loads(r[0]) for r in conn.execute(sql, hodnoty)]
             except (sqlite3.Error, json.JSONDecodeError):
-                self.ok = False
+                self._fail()
                 raise sqlite3.Error("index sa nepodarilo prečítať")

@@ -192,3 +192,20 @@ def test_stary_kluc_strategie_v_historii_patri_premenovanej(tmp_path: Path):
     assert ids == {rec["id"]}
     na_disku = json.loads((tmp_path / "runs" / rec["id"] / "run.json").read_text(encoding="utf-8"))
     assert na_disku["settings"]["strategy"] == "ibsninja"
+
+
+def test_index_sa_po_chybe_skusi_znova(tmp_path: Path, monkeypatch):
+    """Audit N-WEB-6: jedna sqlite chyba (`database is locked`) nesmie index vypnúť do reštartu webapp —
+    po `RETRY_AFTER` sa skúsi znova."""
+    from tester.webapp import index as index_mod
+
+    store = _store(tmp_path, 3)
+    idx = store.index
+    assert idx.sync(force=True)
+    with idx._lock:
+        idx._fail()
+    assert not idx.ok and idx._db() is None                    # počas pauzy číta súbory
+    monkeypatch.setattr(index_mod, "RETRY_AFTER", 0.0)
+    assert idx.sync(force=True) and idx.ok                     # po pauze index znova beží
+    assert idx.clear() and idx.count("1", []) == 0
+    assert idx.sync(force=True) and idx.count("1", []) == 3    # vyprázdnený sa postaví zo súborov
