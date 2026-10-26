@@ -106,3 +106,17 @@ def test_resample_matches_pandas(minutes):
         nan = np.isnan(b)
         assert np.array_equal(np.isnan(a), nan), name
         assert np.array_equal(a[~nan].view(np.int64), b[~nan].view(np.int64)), name
+
+
+def test_register_enginov_sa_po_nacitani_assembly_obnovi():
+    """NinjaTrader po rekompilácii načíta novú generáciu assembly a stará ostane v AppDomain — register sa
+    musí zabudnúť sám, nie až po ručnom `Reset()` (audit N-CS-3); duplicitné kľúče vie vymenovať."""
+    import System
+    from TradeBot.Core import EngineRegistry
+
+    known = EngineRegistry.Known()
+    assert known.ContainsKey("ibsnet") and list(EngineRegistry.Duplicates()) == []
+    assert System.Object.ReferenceEquals(EngineRegistry.Known(), known)       # bez novej assembly cache drží
+    System.Reflection.Assembly.Load("System.Data.OracleClient, Version=4.0.0.0, Culture=neutral, "
+                                    "PublicKeyToken=b77a5c561934e089")     # nová assembly v AppDomain
+    assert not System.Object.ReferenceEquals(EngineRegistry.Known(), known)

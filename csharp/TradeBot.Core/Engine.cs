@@ -78,7 +78,21 @@ namespace TradeBot.Core
     public static class EngineRegistry
     {
         private static Dictionary<string, Type> _types;
+        private static List<string> _duplicates = new List<string>();
         private static readonly object Gate = new object();
+
+        static EngineRegistry()
+        {
+            // NinjaTrader po rekompilacii nacita novu generaciu NinjaTrader.Custom a stara ostane v AppDomain -
+            // bez zabudnutia by register dalej vyrabal engine zo starej assembly (audit N-CS-3)
+            AppDomain.CurrentDomain.AssemblyLoad += delegate { Reset(); };
+        }
+
+        /// <summary>Kluce, ktore sa nasli vo viac assembly (stara a nova generacia) - vyhrala neskor nacitana.</summary>
+        public static List<string> Duplicates()
+        {
+            lock (Gate) { Known(); return new List<string>(_duplicates); }
+        }
 
         public static Dictionary<string, Type> Known()
         {
@@ -86,6 +100,7 @@ namespace TradeBot.Core
             {
                 if (_types != null) return _types;
                 Dictionary<string, Type> found = new Dictionary<string, Type>();
+                List<string> dup = new List<string>();
                 foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     Type[] types;
@@ -97,9 +112,13 @@ namespace TradeBot.Core
                         if (t == null || !t.IsClass || t.IsAbstract || !typeof(IEngine).IsAssignableFrom(t)) continue;
                         object[] attrs = t.GetCustomAttributes(typeof(TradeBotEngineAttribute), false);
                         if (attrs.Length == 0) continue;
-                        found[((TradeBotEngineAttribute)attrs[0]).Key] = t;
+                        string key = ((TradeBotEngineAttribute)attrs[0]).Key;
+                        // GetAssemblies ide v poradi nacitania - neskorsia (novsia) generacia prepise starsiu
+                        if (found.ContainsKey(key) && found[key] != t && !dup.Contains(key)) dup.Add(key);
+                        found[key] = t;
                     }
                 }
+                _duplicates = dup;
                 _types = found;
                 return _types;
             }
