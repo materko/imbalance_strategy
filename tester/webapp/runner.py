@@ -153,8 +153,15 @@ class BacktestRunner(HyperoptJobMixin):
         params = effective_params(params, settings.get("strategy") or "ibs")
         check_market_rules(settings["pair"], params)
         settings = {**settings, "instrument": instrument_for_pair(settings["pair"])}
-        job = Job(id=make_run_id(params, settings), params=params, settings=settings, note=note, user=user)
+        teraz = datetime.now(timezone.utc)
         with self._lock:
+            # dvojklik alebo dvojitý replay v tej istej sekunde dá to isté id — druhý Job by prepísal
+            # prvý v `self.jobs` a zbehol by len jeden (audit N-CORE-6)
+            n = 0
+            while ((run_id := make_run_id(params, settings, teraz, salt=n)) in self.jobs
+                   or self.store.find(run_id) is not None):
+                n += 1
+            job = Job(id=run_id, params=params, settings=settings, note=note, user=user)
             self.jobs[job.id] = job
             self.order.append(job.id)
         self._q.put(job.id)

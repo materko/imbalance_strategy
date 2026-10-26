@@ -64,9 +64,14 @@ PLAN_FILE = "plan.json"
 CACHE_RUNS = 256
 
 
-def make_run_id(params: dict[str, Any], settings: dict[str, Any], when: datetime | None = None) -> str:
+def make_run_id(params: dict[str, Any], settings: dict[str, Any], when: datetime | None = None,
+                salt: int = 0) -> str:
+    """`YYYYMMDD-HHMMSS-<odtlačok>`; `salt` dá inému behu s tým istým configom v tej istej sekunde iný odtlačok."""
     when = when or datetime.now(timezone.utc)
-    blob = json.dumps({"p": params, "s": settings}, sort_keys=True, default=str).encode()
+    obsah: dict[str, Any] = {"p": params, "s": settings}
+    if salt:
+        obsah["n"] = salt
+    blob = json.dumps(obsah, sort_keys=True, default=str).encode()
     return f"{when:%Y%m%d-%H%M%S}-{hashlib.sha1(blob).hexdigest()[:6]}"
 
 

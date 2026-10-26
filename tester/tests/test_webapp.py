@@ -122,6 +122,30 @@ def test_run_id_is_time_plus_param_fingerprint():
     assert a.startswith("20260905-123000-") and a != b and len(a) == 22
 
 
+def test_dva_rovnake_behy_v_tej_istej_sekunde_maju_rozne_id(tmp_path: Path, monkeypatch):
+    """Dvojklik / dvojitý replay: rovnaký config v tej istej sekunde dal rovnaké id a druhý Job
+    prepísal prvý — zbehol len jeden (audit N-CORE-6)."""
+    from datetime import datetime, timezone
+
+    from tester.webapp import runner as runner_mod
+
+    pevny = datetime(2026, 9, 5, 12, 30, 0, tzinfo=timezone.utc)
+
+    class _Hodiny(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return pevny
+
+    monkeypatch.setattr(runner_mod, "datetime", _Hodiny)
+    runner = runner_mod.BacktestRunner(RunStore(tmp_path / "runs"), command_builder=lambda *a: ["python", "-c", ""])
+    monkeypatch.setattr(runner, "start", lambda: None)
+    nast = {"pair": "BTC/USDT:USDT", "timerange": "20260801-20260802", "timeframe": "3m"}
+    a = runner.submit({}, dict(nast))
+    b = runner.submit({}, dict(nast))
+    assert a.id != b.id and a.id[:15] == b.id[:15] == "20260905-123000"
+    assert len(b.id) == 22 and set(runner.jobs) >= {a.id, b.id}
+
+
 def test_store_roundtrip_is_plain_json(tmp_path: Path):
     store = RunStore(tmp_path)
     rec = _record("20260905-120000-abc123", note="prvy")
