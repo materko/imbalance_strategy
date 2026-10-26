@@ -271,6 +271,65 @@ def test_heartbeat_zopakuje_symboly_a_hlasi_poziciu_route(clr, tmp_path):
     assert abs(host.BridgeNowMs() - int(time.time() * 1000)) < 5000
 
 
+def test_rotacia_jsonl_az_po_potvrdeni_citatelom(clr, tmp_path):
+    """cmd.jsonl / evt.jsonl sa odložia do `.1` len vtedy, keď ich druhá strana celé potvrdila; čítanie pokračuje."""
+    core, host = clr
+    root = str(tmp_path)
+    exec_id = host.BridgeExecutorId(5012345, "FTMO-Demo")
+    master = core.BridgeMaster(root, _spec(core, exec_id))
+    rid = master.Instance
+    d = tmp_path / "bridge" / rid
+    h = host.BridgeExecOpen(root, exec_id)
+    c1 = master.Cancel(T0, "L-1", "a")
+    c2 = master.Cancel(T0 + 1, "L-2", "b")
+    assert not master.RotateCommands(1)                                # exekútor ešte nič nepotvrdil
+    assert [c["cid"] for c in json.loads(host.BridgePoll(h, rid))] == [c1, c2]
+    host.BridgeDone(h, rid, c1)
+    assert not master.RotateCommands(1)                                # c2 ešte nie
+    host.BridgeDone(h, rid, c2)
+    assert not master.RotateCommands(10_000_000)                       # malý súbor sa nechá
+    assert master.RotateCommands(1)
+    assert (d / "cmd.jsonl.1").exists() and not (d / "cmd.jsonl").exists()
+    c3 = master.Cancel(T0 + 2, "L-3", "c")
+    assert c3.endswith("-3")                                           # seq pokračuje
+    assert [c["cid"] for c in json.loads(host.BridgePoll(h, rid))] == [c3]   # kurzor za koncom = od začiatku
+    host.BridgeDone(h, rid, c3)
+    master2 = core.BridgeMaster(root, _spec(core, exec_id))            # reštart NT po rotácii: seq z archívu
+    assert master2.Cancel(T0 + 3, "L-4", "d").endswith("-4")
+    host.BridgeExecClose(h)
+
+    # evt.jsonl: odloží exekútor, keď ho master potvrdil (nt.cursor)
+    h = host.BridgeExecOpen(root, exec_id)
+    assert host.BridgeEmit(h, rid, T0, "note", "", "", "info", 0.0, 0.0, 0.0, 0.0, 0, "", "x") == 1
+    assert host.BridgeRotateEvents(h, rid) == 0                        # master nič nečítal
+    assert len(list(master2.Poll(False))) == 1
+    assert host.BridgeRotateEvents(h, rid) == 0                        # prečítané, ale nepotvrdené
+    master2.CommitCursor()
+    assert host.BridgeRotateEvents(h, rid) == 0                        # pod RotateBytes
+    raw = json.loads((d / "nt.cursor").read_text(encoding="utf-8"))
+    assert raw["offset"] == (d / "evt.jsonl").stat().st_size
+    assert host.BridgeEmit(h, rid, T0 + 1, "note", "", "", "info", 0.0, 0.0, 0.0, 0.0, 0, "", "y") == 2
+    assert [str(e["text"]) for e in master2.Poll(True)] == ["y"]
+    host.BridgeExecClose(h)
+
+
+def test_mrtva_route_sa_zmaze(clr, tmp_path):
+    core, host = clr
+    root = str(tmp_path)
+    exec_id = host.BridgeExecutorId(5012345, "FTMO-Demo")
+    master = core.BridgeMaster(root, _spec(core, exec_id))
+    rid = master.Instance
+    master.Heartbeat(T0, "enabled")
+    h = host.BridgeExecOpen(root, exec_id)
+    day = 86_400_000
+    assert host.BridgePruneRoute(h, rid, T0 + 13 * day, 14 * day) == 0
+    assert host.BridgePruneRoute(h, rid, T0 + 15 * day, 14 * day) == 1
+    assert not (tmp_path / "bridge" / rid).exists()
+    assert json.loads(host.BridgeRoutes(h)) == []
+    assert host.BridgePruneRoute(h, rid, T0 + 15 * day, 14 * day) == 0
+    host.BridgeExecClose(h)
+
+
 def test_nt_hb_sa_cita_raz_a_mierka_nula(clr, tmp_path):
     core, host = clr
     root = str(tmp_path)

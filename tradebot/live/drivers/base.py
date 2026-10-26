@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from ..routes import EXECUTOR_KIND
 from ..schema import CONTROL_MODES, SLOT_RE, instance_id, instance_symbol
 
 __all__ = ["Account", "Deployment", "Driver", "load_drivers", "DRIVER_MODULES"]
@@ -90,7 +91,7 @@ class Deployment:
     @property
     def is_executor(self) -> bool:
         """Virtuálne nasadenie MT5 exekútora, ktoré hub pridá sám (docs/ROUTING.md) — graf bez stratégie."""
-        return self.raw.get("kind") == "executor"
+        return self.raw.get("kind") == EXECUTOR_KIND
 
     @property
     def route(self) -> dict[str, Any] | None:

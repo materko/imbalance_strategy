@@ -25,6 +25,8 @@ import sys
 import time
 from pathlib import Path
 
+from .routes import PRICE_MODES, QTY_MODES
+
 
 def _core():
     from tradebot.adapters.csharp import bridge
@@ -169,9 +171,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--to", help="id exekútora (mt5exec_<login>-<server>, pozri `execs`)")
     ap.add_argument("--symbol", default="US100.cash", help="symbol u brokera exekútora")
     ap.add_argument("--instance", help="adresár route (predvolene manual_<symbol>)")
-    ap.add_argument("--price", default="basis", choices=("basis", "same"))
+    ap.add_argument("--price", default=PRICE_MODES[0], choices=PRICE_MODES)
     ap.add_argument("--scale", type=float, default=1.0)
-    ap.add_argument("--qty-mode", default="value", choices=("value", "fixed"))
+    ap.add_argument("--qty-mode", default=QTY_MODES[0], choices=QTY_MODES)
     ap.add_argument("--lots", type=float, default=0.0, help="qty-mode fixed: loty na kontrakt")
     ap.add_argument("--magic", type=int, default=990001)
     ap.add_argument("--nt-symbol", default="MNQ")

@@ -43,6 +43,8 @@ const int    HistoryLookbackDays = 3;     // dokedy dozadu hladat v historii ord
 const int    SymbolsEverySec = 60;        // cely Market Watch do heartbeatu (inak sa zopakuje posledny zoznam)
 const int    RouteMissesMax  = 3;         // route chybajuca v tolkych obnovach po sebe sa zahodi
 const long   DormantMs       = 86400000;  // master route mlci dlhsie: mrtva route, po starte bez varovania
+const long   PruneMs         = 14 * 86400000L;  // a takto dlho: adresar route sa zmaze (NT si ho po navrate zalozi)
+const int    MaintainSec     = 60;        // rotacia evt.jsonl a mazanie mrtvych route
 const long   LifeGraceMs     = 5000;      // RouteMath.LifeGraceMs
 
 struct XRoute
@@ -112,6 +114,7 @@ datetime g_lastSlow = 0;
 datetime g_lastRoutes = 0;
 datetime g_lastStrays = 0;
 datetime g_lastSymbols = 0;     // posledny heartbeat s celym Market Watch
+datetime g_lastMaintain = 0;
 int      g_symbolsTotal = -1;
 bool     g_hedging = false;
 bool     g_reconciled = false;  // stav spred restartu zladeny s brokerom (az po pripojeni terminalu)
@@ -189,6 +192,16 @@ double ClampStop(string sym, bool isLong, double sl)
    if(isLong && bid > 0 && sl > bid - lvl) return MathFloor((bid - lvl) / tick + 1e-9) * tick;
    if(!isLong && ask > 0 && sl < ask + lvl) return MathCeil((ask + lvl) / tick - 1e-9) * tick;
    return sl;
+  }
+
+/// Je trh pri aktualnom SL alebo TP pozicie blizsie nez SYMBOL_TRADE_FREEZE_LEVEL? Vtedy broker ich zmenu odmietne.
+bool Frozen(string sym, bool isLong, double sl, double tp)
+  {
+   double lvl = (double)SymbolInfoInteger(sym, SYMBOL_TRADE_FREEZE_LEVEL) * SymbolInfoDouble(sym, SYMBOL_POINT);
+   if(lvl <= 0) return false;
+   double px = isLong ? SymbolInfoDouble(sym, SYMBOL_BID) : SymbolInfoDouble(sym, SYMBOL_ASK);   // cena zatvorenia
+   if(px <= 0) return false;
+   return (sl > 0 && MathAbs(px - sl) <= lvl) || (tp > 0 && MathAbs(px - tp) <= lvl);
   }
 
 /// Kurz: 1 `from` = ? `to`, z forex paru u brokera (EURUSD, USDCZK... najprv Market Watch, potom vsetky); 0 = nie je.
@@ -562,6 +575,24 @@ void WriteHeartbeat()
    for(int r = 0; r < ArraySize(g_routes); r++)
       StaticHost::BridgeHbRouteNet(g_x, g_routes[r].id, g_routes[r].state, g_routes[r].detail, RouteNetNt(r));
    if(StaticHost::BridgeHbWrite(g_x) < 0) Print("TradeBot exekutor: heartbeat: ", StaticHost::LastError());
+  }
+
+/// Raz za minutu: `evt.jsonl` do `.1`, ked je velky a NT ho cely potvrdil; adresar route, ktorej master mlci
+/// `PruneMs` a exekutor na nej nic nedrzi, sa zmaze (inak by sa pollovala navzdy).
+void Maintain()
+  {
+   long now = NowMs();
+   for(int r = ArraySize(g_routes) - 1; r >= 0; r--)
+     {
+      string id = g_routes[r].id;
+      if(StaticHost::BridgeRotateEvents(g_x, id) > 0) Print("TradeBot exekutor: evt.jsonl route ", id, " odlozeny do .1");
+      if(HasOrders(id)) continue;
+      if(StaticHost::BridgePruneRoute(g_x, id, now, PruneMs) <= 0) continue;
+      Print("TradeBot exekutor: route ", id, " je mrtva (master mlci viac ako 14 dni) - adresar zmazany");
+      int n = ArraySize(g_routes);
+      for(int k = r; k < n - 1; k++) g_routes[k] = g_routes[k + 1];
+      ArrayResize(g_routes, n - 1);
+     }
   }
 
 /// Zije master route? Nikoho nic neruší - len sa to zapise a exekutor prevezme trailing.
@@ -990,6 +1021,12 @@ void HandleModify(int r, CJson *c)
      }
    if(MathAbs(sl - g_xo[i].lastStop) < Tick(sym) / 2 && MathAbs(tp - g_xo[i].lastTp) < Tick(sym) / 2)
      { Emit(route, "ack", cid, id, "", sl, 0, 0, 0, 0, "", "SL/TP bez zmeny"); return; }
+   if(Frozen(sym, isLong, g_xo[i].lastStop, g_xo[i].lastTp))
+     {
+      // trh je pri SL/TP blizsie nez SYMBOL_TRADE_FREEZE_LEVEL: broker zmenu nedovoli (10029) - NT posun zopakuje
+      Emit(route, "reject", cid, id, "", sl, 0, 0, 0, 0, "", "posun SL/TP: trh je v pasme zmrazenia (freeze level) - skus neskor");
+      return;
+     }
    if(!g_trade.PositionModify(g_xo[i].ticket, sl, tp) || !Sent())
      { Emit(route, "reject", cid, id, "", sl, 0, 0, 0, 0, "", "posun SL/TP: " + TradeErr()); return; }
    g_xo[i].lastStop = sl; g_xo[i].lastTp = tp;
@@ -1225,6 +1262,7 @@ void TrailOnMinute()
          stop = ClampStop(g_routes[r].symbol, isLong, RoundTick(g_routes[r].symbol, stop));
          bool better = isLong ? stop > g_xo[i].lastStop : stop < g_xo[i].lastStop;
          if(!better) continue;
+         if(Frozen(g_routes[r].symbol, isLong, g_xo[i].lastStop, g_xo[i].lastTp)) continue;   // skusi sa na dalsej minute
          if(g_trade.PositionModify(g_xo[i].ticket, stop, g_xo[i].lastTp) && Sent())
            {
             g_xo[i].lastStop = stop;
@@ -1285,6 +1323,7 @@ void OnTimer()
    RefreshGmtOffset();
    if(now - g_lastRoutes >= 2) { RefreshRoutes(); g_lastRoutes = now; }
    if(now - g_lastStrays >= StraySweepSec) { AdoptStrays(); g_lastStrays = now; }
+   if(now - g_lastMaintain >= MaintainSec) { Maintain(); g_lastMaintain = now; }
    WatchMasters();
    Guards();
    TrailOnMinute();

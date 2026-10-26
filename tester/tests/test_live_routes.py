@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -20,7 +21,7 @@ from tester.tests.test_live_drivers_mt5 import drv  # noqa: F401 (fixture)
 from tradebot.live.deploy import EXECUTOR_PREFIX, Conflict, DeployError, DeployStore
 from tradebot.live.drivers.base import Account, Deployment
 from tradebot.live.drivers.ninjatrader import NinjaTraderDriver
-from tradebot.live.routes import RouteError, cfd_symbol, executor_id, normalize_route
+from tradebot.live.routes import PRICE_MODES, QTY_MODES, RouteError, cfd_symbol, executor_id, normalize_route
 from tradebot.live.vault import Vault
 
 MT5 = {"id": "ftmo", "platform": "mt5", "login": "1514750898", "server": "FTMO-Demo", "symbols": {"NAS100": "US100.cash"}}
@@ -346,3 +347,16 @@ def test_migracia_starej_databazy_uctov(tmp_path: Path):
     acc = s.account("ftmo")
     assert acc["symbols"] == {} and acc["exec_symbols"] is None
     s.close()
+
+
+def test_rezimy_route_vo_formulari_a_v_jadre():
+    """Režimy route sú v Pythone, C# jadre a formulári webapp zvlášť (audit, duplicity) — musia sa zhodovať."""
+    repo = Path(__file__).resolve().parents[2]
+    html = (repo / "tester" / "webapp" / "static" / "index.html").read_text(encoding="utf-8")
+    sel = re.search(r'<select id="ld-d-route-qty">(.*?)</select>', html, re.S)
+    assert sel and tuple(re.findall(r'<option value="([^"]+)"', sel.group(1))) == QTY_MODES
+    cs = (repo / "csharp" / "TradeBot.Core" / "Bridge.cs").read_text(encoding="utf-8")
+    assert f'public string Price = "{PRICE_MODES[0]}";' in cs and f'public string QtyMode = "{QTY_MODES[0]}";' in cs
+    assert f'mode == "{QTY_MODES[1]}"' in cs
+    mqh = (repo / "tradebot" / "adapters" / "mt5" / "TradeBotExecutor.mqh").read_text(encoding="utf-8")
+    assert f'.price == "{PRICE_MODES[1]}"' in mqh and f'.qtyMode == "{QTY_MODES[1]}"' in mqh

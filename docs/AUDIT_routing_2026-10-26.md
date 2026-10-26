@@ -32,8 +32,8 @@ naživo stále neoverené. V druhom kole opravené NT V1 a V4–V5 exekútora (t
 V treťom kole opravené NT V4 a S2–S6, hub H4–H6 (testy `test_bez_stavu_exekutora_sa_stare_prikazy_okrem_vstupu_neprehraju`,
 `test_mena_nt_instrumentu_ide_exekutorovi`, `test_exekutor_graf_hlasenie_a_platforma_uctu`). Vo štvrtom kole opravené stredné,
 rýchlostné a nízke nálezy exekútora, nízke na strane NT a hubu, 422 symbolu (H5) a rozpory s ROUTING.md —
-každé s poznámkou pri náleze. Ostáva: rotácia `evt.jsonl`/`cmd.jsonl`, mazanie mŕtvych adresárov route, freeze level,
-duplicity konštánt (Python/C#/HTML) a demo test naživo.
+každé s poznámkou pri náleze. V piatom kole aj rotácia `evt.jsonl`/`cmd.jsonl`, mazanie mŕtvych adresárov route, freeze level a duplicity
+konštánt. Z auditu v kóde nič neostáva; chýba overenie naživo (demo test exekútora podľa ROUTING.md).
 
 ## 2. MT5 exekútor (`tradebot/adapters/mt5/TradeBotExecutor.mqh`)
 
@@ -58,7 +58,7 @@ duplicity konštánt (Python/C#/HTML) a demo test naživo.
 ### Stredné
 
 - *(opravené: prekročená limitka/stop ide trhom s `note info`)* 560–565: limit/stop, ktoré by sa v NT vyplnili hneď (limit nad trhom), broker odmietne (10015) → `reject`, obchod oproti backtestu chýba; chýba prepnutie na market.
-- *(opravené: bez kotácie `reject`, SL/TP sa posúvajú najbližšie, koľko dovolí `STOPS_LEVEL` — `ClampStop` v `HandleModify` aj `TrailOnMinute`; freeze level a kontrola kotácie v `CheckRoute` nie)* `Mid(sym) = 0` (bez kotácie po čerstvom `SymbolSelect`) dá v 529–533 nezmyselné ceny; `CheckRoute` overuje len hedging a trade mode. `SYMBOL_TRADE_STOPS_LEVEL`/freeze level sa nikde neposúvajú; `TrailOnMinute` 784 pri odmietnutí mlčí.
+- *(opravené: bez kotácie `reject`, SL/TP sa posúvajú najbližšie, koľko dovolí `STOPS_LEVEL` — `ClampStop` v `HandleModify` aj `TrailOnMinute`; pri `FREEZE_LEVEL` sa posun SL/TP neposiela brokerovi — `reject` a NT ho zopakuje, trailing exekútora na ďalšej minúte; kotácia sa kontroluje pri vstupe)* `Mid(sym) = 0` (bez kotácie po čerstvom `SymbolSelect`) dá v 529–533 nezmyselné ceny; `CheckRoute` overuje len hedging a trade mode. `SYMBOL_TRADE_STOPS_LEVEL`/freeze level sa nikde neposúvajú; `TrailOnMinute` 784 pri odmietnutí mlčí.
 - *(opravené: note pri 1. neúspechu, inom kóde a raz za 10 pokusov; market vstup pri requote/zmene ceny až 3 pokusy v rámci `exp`)* `ClosePosition` 631–635 pri 10018 (trh zatvorený) píše `note error` každý pokus (max. raz za 60 s) donekonečna → cez NT Telegram spam. Requote/off quotes pri vstupe sa v rámci `exp` neopakujú.
 - *(opravené: −2 sa preskočí)* `WatchMasters` 402: `BridgeMasterAge` vráti pri chybe −2 a berie sa ako `lost` → falošný `warn` a na sekundu trailing exekútora.
 - *(opravené: SL/TP od brokera, `extreme` z 1m barov od fillu, výstupy z ešte otvorenej pozície z histórie dealov; viac IN dealov = jeden `fill in` s celým objemom)* `Reconcile` pri fille počas výpadku neprekotví SL/TP, neberie `POSITION_SL` od brokera (EA to robí, `TradeBotEA.mqh:1760`), nedobehne `extreme`; výstupy z ešte otvorenej pozície sa neemitujú.
@@ -67,9 +67,9 @@ duplicity konštánt (Python/C#/HTML) a demo test naživo.
 ### Rýchlosť
 
 - *(opravené: výpis najviac raz za 10 s)* 50 ms `BridgePoll` na route = `File.Exists` + `FileStream` + `Length` v C# — v poriadku. Pri chybe však `Print` **každých 50 ms** (421).
-- *(čiastočne: `route.json` sa číta len pri zmene času zápisu; mŕtva route po štarte nevaruje — adresáre sa stále nemažú)* `RefreshRoutes` každé 2 s prechádza všetky adresáre `bridge\` a číta každý `route.json` (Bridge.cs 611–627), aj staré a cudzie; adresáre sa nikdy nemažú. Mŕtve route s `to` = tento exekútor sa pollujú ďalej a po každom štarte dostanú `warn`.
+- *(opravené: `route.json` sa číta len pri zmene času zápisu; mŕtva route po štarte nevaruje a po 14 dňoch ticha mastera, keď na nej exekútor nič nedrží, sa jej adresár zmaže — NT si ho po návrate založí)* `RefreshRoutes` každé 2 s prechádza všetky adresáre `bridge\` a číta každý `route.json` (Bridge.cs 611–627), aj staré a cudzie; adresáre sa nikdy nemažú. Mŕtve route s `to` = tento exekútor sa pollujú ďalej a po každom štarte dostanú `warn`.
 - *(opravené: celý Market Watch raz za minútu alebo pri zmene počtu, medzitým `BridgeHbSymbolsKeep`)* Heartbeat: na každý symbol Market Watch 1 volanie DLL + 9× `SymbolInfo` (380–388); pri 100+ symboloch ~1000 volaní/s a veľký JSON, ktorý NT parsuje každú sekundu. Posielať len symboly route (+ pár na výber vo webapp) alebo celý zoznam raz za minútu.
-- *(opravené čítanie: `MasterSession` po `MasterAgeMs` z pamäte; rotácia JSONL nie)* `nt.hb` sa číta 2× na route (400–401). `evt.jsonl`/`cmd.jsonl` rastú bez rotácie.
+- *(opravené: `MasterSession` po `MasterAgeMs` z pamäte; `cmd.jsonl` odkladá NT a `evt.jsonl` exekútor do `.1` od 4 MB, až keď ich druhá strana celé potvrdila — čitateľ si skrátenie všimne sám, `seq` pokračuje z archívu)* `nt.hb` sa číta 2× na route (400–401). `evt.jsonl`/`cmd.jsonl` rastú bez rotácie.
 
 ### Nízke
 
@@ -128,7 +128,7 @@ Rýchlosť: `_executors` jeden SELECT účtu na routované nasadenie a `desired_
 - *(opravené: agent hlási `exec_symbols` z heartbeatu exekútora, hub 422 na symbol mimo zoznamu, webapp `<datalist>`; kontrolu nerobí, kým zoznam nikto nehlásil, a vidí len Market Watch)* Rozbaľovací zoznam symbolov z hb exekútora (r. 106): vo webapp voľný text (`index.html:527`), 422 chýba.
 - *(ROUTING.md opravené; formulár pri route chce stroj s driverom MT5)* „MT5 účet musí byť na tom istom stroji“ (r. 73) sa nevynucuje; exekútor ide na stroj NT (r. 240 to hovorí inak).
 - *(ROUTING.md: len cez API)* `price` a `scale` sa vo formulári nedajú zadať (vždy `basis` a tabuľka).
-- Duplicity: doplnenie defaultov route v `normalize_route` aj v `_entries` NT drivera; `"executor"` na troch miestach; `{login}-{server}` v `ACCOUNT_IDENTITY`, `executor_id`, `Mt5Driver.spool_account`; `PRICE_MODES`/`QTY_MODES` zvlášť v Pythone, C# a HTML.
+- *(opravené: `EXECUTOR_KIND`, `MT5_IDENTITY`, `route_defaults` v `routes.py` pre hub, agenta, drivery a bridge CLI; zhodu režimov s C#, MQL a formulárom stráži `test_rezimy_route_vo_formulari_a_v_jadre`)* Duplicity: doplnenie defaultov route v `normalize_route` aj v `_entries` NT drivera; `"executor"` na troch miestach; `{login}-{server}` v `ACCOUNT_IDENTITY`, `executor_id`, `Mt5Driver.spool_account`; `PRICE_MODES`/`QTY_MODES` zvlášť v Pythone, C# a HTML.
 
 ### Chýbajúce testy
 

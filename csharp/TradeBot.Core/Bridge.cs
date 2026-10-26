@@ -253,10 +253,12 @@ namespace TradeBot.Core
         public const string MasterHeartbeatFile = "nt.hb";
         public const string MasterCursorFile = "nt.cursor";
         public const string ExecStateFile = "exec.state";
+        /// <summary>`cmd.jsonl` / `evt.jsonl` od tejto velkosti zapisovatel odlozi do `.1`, ked ich citatel cele potvrdil.</summary>
+        public const long RotateBytes = 4L * 1024 * 1024;
         /// <summary>Heartbeat mastera starsi nez toto = master je prec (exekutor nic neruší, len to zapise a prevezme trailing).</summary>
         public const long MasterLostMs = 30000;
 
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        internal static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
 
         /// <summary>`Common\Files\TradeBot` terminalov MT5; env `TRADEBOT_BRIDGE_ROOT` ho presmeruje (testy).</summary>
@@ -409,7 +411,32 @@ namespace TradeBot.Core
         public string FilePath { get { return _path; } }
         public long Seq { get { return _seq; } }
 
+        /// <summary>Odlozi subor do `&lt;subor&gt;.1` (predosly `.1` prepise) a zacne prazdny, ked ma aspon `maxBytes`
+        /// a citatel ho cely potvrdil (`consumedOffset` = jeho ulozeny kurzor). Citatel si skratenie vsimne sam
+        /// (`JsonlCursor`: dlzka &lt; offset = od zaciatku); `seq` pokracuje. true = odlozeny.</summary>
+        public bool RotateIfConsumed(long consumedOffset, long maxBytes)
+        {
+            FileInfo fi = new FileInfo(_path);
+            if (!fi.Exists || fi.Length < maxBytes || consumedOffset < fi.Length) return false;
+            string archive = _path + ".1";
+            try
+            {
+                if (File.Exists(archive)) File.Delete(archive);
+                File.Move(_path, archive);
+            }
+            catch (IOException) { return false; }   // druha strana ho prave drzi bez FileShare.Delete - nabudce
+            catch (UnauthorizedAccessException) { return false; }
+            return true;
+        }
+
         private static long LastSeq(string path)
+        {
+            long seq = LastSeqOf(path);
+            // po odlozeni je subor prazdny alebo chyba: cislovanie pokracuje z archivu
+            return seq > 0 ? seq : LastSeqOf(path + ".1");
+        }
+
+        private static long LastSeqOf(string path)
         {
             if (!File.Exists(path)) return 0;
             using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
@@ -534,6 +561,13 @@ namespace TradeBot.Core
             _cursorPath = Path.Combine(_dir, Bridge.MasterCursorFile);
             Dictionary<string, object> cur = Bridge.ReadJsonFile(_cursorPath);
             _evt = new JsonlCursor(Path.Combine(_dir, Bridge.EventFile), cur != null ? (long)Json.GetDouble(cur, "offset", 0.0) : 0);
+        }
+
+        /// <summary>Odlozi `cmd.jsonl` do `.1`, ked je velky a exekutor ho cely potvrdil (offset v jeho `exec.state`).</summary>
+        public bool RotateCommands(long maxBytes)
+        {
+            Dictionary<string, object> st = Bridge.ReadJsonFile(Path.Combine(_dir, Bridge.ExecStateFile));
+            return st != null && _cmd.RotateIfConsumed((long)Json.GetDouble(st, "offset", 0.0), maxBytes);
         }
 
         private string Send(long nowMs, string action, Action<JsonWriter> fields)
@@ -873,6 +907,39 @@ namespace TradeBot.Core
             foreach (string cid in s.DoneOrder) w.Value(cid);
             w.EndArray().EndObject();
             Bridge.AtomicWrite(Path.Combine(s.Dir, Bridge.ExecStateFile), w.ToString());
+        }
+
+        /// <summary>Zmaze adresar mrtvej route: master (`nt.hb`, bez neho `route.json`) mlci dlhsie nez `keepMs`. Ci na nej
+        /// exekutor nic nedrzi, overi volajuci (MQL ma zaznamy orderov). Ked sa NT vrati, adresar si zalozi znova
+        /// (route.json pri starte, kurzor od nuly). true = zmazany.</summary>
+        public bool PruneRoute(string routeId, long nowMs, long keepMs)
+        {
+            string dir = Bridge.RouteDir(_root, routeId);
+            if (!Directory.Exists(dir)) return false;
+            Dictionary<string, object> hb = Bridge.ReadJsonFile(Path.Combine(dir, Bridge.MasterHeartbeatFile));
+            long last = hb != null ? (long)Json.GetDouble(hb, "t", 0.0) : 0;
+            if (last <= 0)
+            {
+                string route = Path.Combine(dir, Bridge.RouteFile);
+                if (!File.Exists(route)) return false;
+                last = (long)(File.GetLastWriteTimeUtc(route) - Bridge.Epoch).TotalMilliseconds;
+            }
+            if (nowMs - last <= keepMs) return false;
+            try { Directory.Delete(dir, true); }
+            catch (IOException) { return false; }
+            catch (UnauthorizedAccessException) { return false; }
+            _routes.Remove(routeId);
+            _routeFiles.Remove(Path.Combine(dir, Bridge.RouteFile));
+            _masterSession.Remove(routeId);
+            return true;
+        }
+
+        /// <summary>Odlozi `evt.jsonl` route do `.1`, ked je velky a master ho cely potvrdil (offset v `nt.cursor`).</summary>
+        public bool RotateEvents(string routeId, long maxBytes)
+        {
+            RouteState s = Route(routeId);
+            Dictionary<string, object> cur = Bridge.ReadJsonFile(Path.Combine(s.Dir, Bridge.MasterCursorFile));
+            return cur != null && s.Evt.RotateIfConsumed((long)Json.GetDouble(cur, "offset", 0.0), maxBytes);
         }
 
         /// <summary>Udalost do `evt.jsonl` route; vrati jej `seq`.</summary>

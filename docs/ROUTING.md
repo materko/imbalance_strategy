@@ -193,6 +193,11 @@ Pravidlá:
 - **Krátke zaváhanie stavu route vstup nezahodí:** NT vstup neposiela len pri trvalom stave (iný účet, netting,
   chýbajúci symbol, vypnuté obchodovanie) alebo keď zlý stav trvá 5 s; `exp` a kontrola stavu v exekútore ho
   chránia. Odmietnutý `modify` NT zopakuje na ďalšom bare (`LastStop` sa vráti na prijatý stop).
+- **Súbory nerastú donekonečna:** `cmd.jsonl` (NT) a `evt.jsonl` (exekútor) sa od 4 MB odložia do `.1`, až keď
+  ich druhá strana celé potvrdila (`exec.state`, `nt.cursor`); čitateľ pozná skrátený súbor a číta od začiatku,
+  `seq` pokračuje z archívu. Adresár route, ktorej master mlčí 14 dní a exekútor na nej nič nedrží, exekútor
+  zmaže; NT si ho po návrate založí znova. Posun SL/TP v pásme `FREEZE_LEVEL` exekútor brokerovi neposiela
+  (`reject`, NT ho zopakuje).
 - **Jeden exekútor na účet.** Druhá inštancia s tým istým id sa nespustí (`exec\<id>.lock`), inak by dva
   kurzory nad tým istým `cmd.jsonl` poslali každý vstup dvakrát.
 - **Čiastočný fill vstupu:** NT dostane `fill in` s vyplneným objemom a zvyšok orderu exekútor hneď zruší

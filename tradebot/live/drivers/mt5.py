@@ -56,6 +56,7 @@ from typing import Any, Callable
 from tradebot.core.paths import LIVE_MT5_DIR, LIVE_SECRETS, MT5_DIR
 
 from . import secrets
+from ..routes import MT5_IDENTITY
 from .base import Account, Deployment, Driver
 
 __all__ = ["Mt5Driver", "DRIVER", "magic_for", "templates", "ea_inputs", "chart_text", "parse_chart", "period_of"]
@@ -487,7 +488,7 @@ class Mt5Driver(Driver):
             shutil.copy2(servers, dst / "config" / "servers.dat")
 
     def spool_account(self, account: Account) -> str:
-        return f"{account.login}-{account.server}"
+        return MT5_IDENTITY.format(login=account.login, server=account.server)
 
     # -- log ----------------------------------------------------------------- #
 

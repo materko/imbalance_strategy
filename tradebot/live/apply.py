@@ -47,6 +47,7 @@ from typing import Any
 from tradebot.core.paths import LIVE_APPLY_STATE
 
 from .drivers.base import Account, Deployment, Driver
+from .routes import EXECUTOR_KIND
 
 __all__ = ["Reconciler", "config_hash", "ISSUE_PREFIX"]
 
@@ -147,7 +148,7 @@ class Reconciler:
         try:
             deps = (self.state.get("desired") or {}).get("deployments") or []
             for d in deps:
-                if not isinstance(d, dict) or d.get("kind") != "executor" or not d.get("instance") or not d.get("account"):
+                if not isinstance(d, dict) or d.get("kind") != EXECUTOR_KIND or not d.get("instance") or not d.get("account"):
                     continue
                 names = executor_symbols(str(d["instance"]), now=self.clock())
                 if names:

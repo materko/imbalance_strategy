@@ -37,7 +37,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable
 
-from .routes import RouteError, executor_id, normalize_aliases, normalize_route
+from .routes import EXECUTOR_KIND, MT5_IDENTITY, RouteError, executor_id, normalize_aliases, normalize_route
 from .schema import CONTROL_MODES, SLOT_RE, instance_id, instance_symbol
 from .vault import Vault, VaultError
 
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS applied (
 
 #: Ako sa z účtu spraví reťazec do id inštancie (to, čo platforma hlási v `hello.account`).
 #: Jediné miesto, kde hub vie o platforme niečo viac než kľúč.
-ACCOUNT_IDENTITY: dict[str, str] = {"mt5": "{login}-{server}"}
+ACCOUNT_IDENTITY: dict[str, str] = {"mt5": MT5_IDENTITY}
 DEFAULT_IDENTITY = "{login}"
 
 #: Stavy, ktoré agent hlási v `applied.status`.
@@ -137,7 +137,7 @@ _DEPLOYMENT_COLS = ("id", "account", "agent", "strategy", "symbol", "tf", "profi
                     "created", "updated", "by")
 #: Kľúč a id virtuálneho nasadenia MT5 exekútora (docs/ROUTING.md) — hub ho do `desired_for_agent` pridá sám
 #: pre každý MT5 účet, na ktorý na danom stroji smeruje aspoň jedno nasadenie NinjaTradera.
-EXECUTOR_STRATEGY = "executor"
+EXECUTOR_STRATEGY = EXECUTOR_KIND
 EXECUTOR_PREFIX = "exec-"
 #: Stĺpce, ktoré pribudli po prvom vydaní — `ALTER TABLE` pri otvorení starého súboru.
 _MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),
@@ -859,7 +859,7 @@ class DeployStore:
             r = t["row"]
             vlastne = [d for d in deps if d["account"] == acc_id and not d["own_terminal"] and d["active"]]
             terminal, portable = (vlastne[0]["terminal"], vlastne[0]["portable"]) if vlastne else ("", False)
-            out.append({"id": EXECUTOR_PREFIX + acc_id, "account": acc_id, "agent": agent, "kind": "executor",
+            out.append({"id": EXECUTOR_PREFIX + acc_id, "account": acc_id, "agent": agent, "kind": EXECUTOR_KIND,
                         "strategy": EXECUTOR_STRATEGY, "symbol": t["first"][1] if t["first"] else "",
                         "tf": 1, "profile": EXECUTOR_STRATEGY, "config": {}, "config_hash": config_hash({}),
                         "mode": "enabled", "active": t["active"], "instance": executor_id(r["login"], r["server"]),

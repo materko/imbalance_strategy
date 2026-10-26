@@ -296,6 +296,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         private string _routeState = "";
         private string _routeDetail = "";
         private DateTime _routeChecked = DateTime.MinValue;
+        private DateTime _routeRotated = DateTime.MinValue;
         /// <summary>cid posledneho `sync` - `snapshot` s nim uzavrie zladenie s exekutorom</summary>
         private string _syncCid;
         /// <summary>cas odoslania `sync` (ms UTC) - vstupy odoslane po nom snapshot nepozna a nesmu sa zahodit</summary>
@@ -2147,6 +2148,13 @@ namespace NinjaTrader.NinjaScript.AddOns
                 catch (Exception e) { NoteThrottled("route-hb", "error", "heartbeat pre MT5 exekutor sa neda zapisat - " + e.Message); }
                 try { RouteStatusCheck(); }
                 catch (Exception e) { NoteThrottled("route-status", "error", "stav MT5 exekutora sa neda precitat - " + e.Message); }
+            }
+            if ((DateTime.UtcNow - _routeRotated).TotalSeconds >= 60)
+            {
+                // cmd.jsonl do .1, ked je velky a exekutor ho cely potvrdil (evt.jsonl odklada exekutor)
+                _routeRotated = DateTime.UtcNow;
+                try { if (_route.RotateCommands(TB.Bridge.RotateBytes)) Log("cmd.jsonl route odlozeny do .1"); }
+                catch (Exception e) { Log("rotacia cmd.jsonl - " + e.Message); }
             }
             try { RoutePoll(); }
             catch (Exception e) { NoteThrottled("route-poll", "error", "udalosti MT5 exekutora sa nedaju precitat - " + e.Message); }

@@ -32,6 +32,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+from ..routes import route_defaults
 from .base import Account, Deployment, Driver
 
 __all__ = ["NinjaTraderDriver", "DRIVER"]
@@ -221,8 +222,7 @@ class NinjaTraderDriver(Driver):
             if route:
                 # ordery do MT5 exekútora (docs/ROUTING.md) — AddOn ich pošle cez bridge, NT dá len dáta
                 entry["route"] = {"via": "mt5", "to": route["to"], "symbol": route.get("symbol") or "",
-                                  "price": route.get("price") or "basis", "scale": float(route.get("scale") or 1.0),
-                                  "qty": dict(route.get("qty") or {"mode": "value"}), "magic": 0}
+                                  **route_defaults(route), "magic": 0}
             out.append(entry)
         return out
 

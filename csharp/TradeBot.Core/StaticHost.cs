@@ -533,6 +533,21 @@ public static class StaticHost
         catch (Exception e) { Fail(e); return -1; }
     }
 
+    /// <summary>Odlozi `evt.jsonl` route, ked je velky a master ho cely potvrdil. 1 odlozeny, 0 nie, -1 chyba.</summary>
+    public static int BridgeRotateEvents(int handle, string routeId)
+    {
+        try { return Exec(handle).RotateEvents(routeId, Bridge.RotateBytes) ? 1 : 0; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Zmaze adresar route, ktorej master mlci dlhsie nez `keepMs` (exekutor na nej nesmie nic drzat).
+    /// 1 zmazany, 0 nie, -1 chyba.</summary>
+    public static int BridgePruneRoute(int handle, string routeId, long nowMs, long keepMs)
+    {
+        try { return Exec(handle).PruneRoute(routeId, nowMs, keepMs) ? 1 : 0; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
     /// <summary>Vek heartbeatu mastera route v ms; -1 = nikdy neprisiel, -2 = chyba.</summary>
     public static long BridgeMasterAge(int handle, string routeId, long nowMs)
     {

@@ -31,7 +31,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-__all__ = ["DEFAULT_CFD", "PRICE_MODES", "QTY_MODES", "RouteError", "executor_id", "cfd_symbol", "normalize_route",
+__all__ = ["DEFAULT_CFD", "PRICE_MODES", "QTY_MODES", "EXECUTOR_KIND", "MT5_IDENTITY", "route_defaults", "RouteError", "executor_id", "cfd_symbol", "normalize_route",
            "normalize_aliases", "bridge_root", "executor_symbols", "EXEC_HB_MAX_AGE"]
 
 #: Koreň futures kontraktu (NinjaTrader `MasterInstrument.Name`) → meno CFD u väčšiny brokerov a mierka cien.
@@ -43,8 +43,14 @@ DEFAULT_CFD: dict[str, tuple[str, float]] = {
     "MGC": ("XAUUSD", 1.0), "GC": ("XAUUSD", 1.0),
     "M6E": ("EURUSD", 1.0), "6E": ("EURUSD", 1.0),
 }
+#: Režimy route — prvý je predvolený. To isté poznajú `TradeBot.Core.RouteSpec` (C#), exekútor (MQL) a formulár
+#: webapp (`index.html` `ld-d-route-qty`, test `test_rezimy_route_vo_formulari`).
 PRICE_MODES = ("basis", "same")
 QTY_MODES = ("value", "fixed")
+#: `kind` aj kľúč „stratégie“ virtuálneho nasadenia MT5 exekútora (hub, agent, drivery).
+EXECUTOR_KIND = "executor"
+#: Identita MT5 účtu: v id inštancie (hub `ACCOUNT_IDENTITY`, `Mt5Driver.spool_account`) aj v id exekútora.
+MT5_IDENTITY = "{login}-{server}"
 
 _CLEAN = re.compile(r"[^A-Za-z0-9._-]")
 
@@ -64,7 +70,7 @@ def executor_id(login: str | int, server: str) -> str:
     text = str(login).strip()
     if re.fullmatch(r"[+-]?[0-9]+", text):
         text = str(int(text))
-    raw = f"mt5exec_{text}-{server or ''}"
+    raw = "mt5exec_" + MT5_IDENTITY.format(login=text, server=server or "")
     return "".join(ch if _CLEAN.fullmatch(ch) is None else ("--" if ord(ch) > 0xFFFF else "-") for ch in raw)
 
 
@@ -156,6 +162,12 @@ def normalize_route(route: Any, *, nt_symbol: str, nt_platform: str, mt5_account
             raise RouteError("qty fixed potrebuje lots > 0 (loty na kontrakt)")
         qty["lots"] = lots
     return {"via": "mt5", "account": account, "symbol": symbol, "price": price, "scale": scale, "qty": qty}
+
+
+def route_defaults(route: dict[str, Any]) -> dict[str, Any]:
+    """`price`, `scale`, `qty` route s predvolenými hodnotami (to isté dopĺňa `normalize_route` pri vytvorení)."""
+    return {"price": route.get("price") or PRICE_MODES[0], "scale": float(route.get("scale") or 1.0),
+            "qty": dict(route.get("qty") or {"mode": QTY_MODES[0]})}
 
 
 def bridge_root() -> Path | None:
