@@ -21,7 +21,7 @@ namespace TradeBot.Backtest
                 if (!Cache.TryGetValue(path, out c))
                 {
                     // pracovny proces zije dlho a striedaju sa v nom trhy - viac ako styri subory nedrzi
-                    if (Cache.Count >= 4) { Cache.Clear(); Prepared.Clear(); }
+                    if (Cache.Count >= 4) { Cache.Clear(); Prepared.Clear(); PreparedOrder.Clear(); }
                     c = Feather.ReadCandles(path);
                     Cache[path] = c;
                 }
@@ -29,10 +29,21 @@ namespace TradeBot.Backtest
             }
         }
 
-        public static void ClearCache() { lock (Gate) { Cache.Clear(); Prepared.Clear(); } }
+        public static void ClearCache() { lock (Gate) { Cache.Clear(); Prepared.Clear(); PreparedOrder.Clear(); } }
 
         private static readonly Dictionary<string, EmuData> Prepared = new Dictionary<string, EmuData>();
-        private const int PreparedMax = 16;
+        /// <summary>Poradie pouzitia `Prepared` (najstarsie vpredu) - vyhadzuje sa po jednom, nie vsetko naraz.</summary>
+        private static readonly LinkedList<string> PreparedOrder = new LinkedList<string>();
+        /// <summary>Kolko pripravenych okien proces drzi (~30 MB/rok s 1m detailom, krat pocet jadier) - hyperopt
+        /// s 5 oknami a 2 TF ich potrebuje 10; `TRADEBOT_NATIVE_PREPARED` to zmeni (audit N-CS-5).</summary>
+        private static readonly int PreparedMax = PreparedLimit();
+
+        private static int PreparedLimit()
+        {
+            int n;
+            string raw = Environment.GetEnvironmentVariable("TRADEBOT_NATIVE_PREPARED");
+            return int.TryParse(raw, out n) && n > 0 ? n : 12;
+        }
 
         /// <summary>Data pre graf a okno, pripravene raz za proces (hyperopt: tie iste pre kazdu epochu;
         /// overenie: jedno na kazde referencne okno). Kluc je subor, TF a okno.</summary>
@@ -43,10 +54,20 @@ namespace TradeBot.Backtest
             lock (Gate)
             {
                 EmuData d;
-                if (Prepared.TryGetValue(key, out d)) return d;
-                if (Prepared.Count >= PreparedMax) Prepared.Clear();
+                if (Prepared.TryGetValue(key, out d))
+                {
+                    PreparedOrder.Remove(key);
+                    PreparedOrder.AddLast(key);
+                    return d;
+                }
+                while (Prepared.Count >= PreparedMax && PreparedOrder.Count > 0)
+                {
+                    Prepared.Remove(PreparedOrder.First.Value);   // najdlhsie nepouzite okno
+                    PreparedOrder.RemoveFirst();
+                }
                 d = EmuData.Prepare(m1, chartTf, fromMs < 0 ? long.MinValue : fromMs, toMs < 0 ? long.MaxValue : toMs);
                 Prepared[key] = d;
+                PreparedOrder.AddLast(key);
                 return d;
             }
         }

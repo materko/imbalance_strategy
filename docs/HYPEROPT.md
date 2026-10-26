@@ -265,6 +265,8 @@ PY -m tester.native_hyperopt --strategy tksnet --instrument mnq_databento \
   (`csharp/TradeBot.Backtest`). Procesy, nie vlákna: .NET v procese Pythonu má len workstation GC, ktorý pri
   každom zbere pamäte zastaví všetky vlákna — nad ~4 vláknami prestanú zrýchľovať (IBSNet, rok BTC 3m:
   vlákna najlepšie 0,19 s na beh, 24 procesov 0,088 s). Opakované body mriežky sa nepočítajú znova.
+  Pripravených okien (TF × okno, ~30 MB/rok s 1m detailom) drží proces najviac 12 a vyhadzuje najdlhšie
+  nepoužité; pri málo pamäti a mnohých jadrách to zníži `TRADEBOT_NATIVE_PREPARED`.
 - **Meranie (25. 10. 2026, Core Ultra 9 275HX, 24 jadier):** IBSNet, BTCUSDT.P 3m, rok 2025/26, `rrRatio` +
   `slLookback`, 48 epoch: Freqtrade hyperopt (most do C#, 1m detail) **136 s** (2,8 s/epocha), natívne
   **5,9 s** vrátane štartu procesov (~23×); 480 epoch natívne 31 s. Python emulátor na jednom jadre 7,6 s/epocha.
