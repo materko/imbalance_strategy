@@ -1,0 +1,10 @@
+$ emulator MultiCharts MGC 3m 20221001-20231001 (MGC_USD-1m.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 117733 barov 3m, 347345 1m, 0 HTF
+  20000/117733 barov, 52 obchodov
+  40000/117733 barov, 126 obchodov
+  60000/117733 barov, 196 obchodov
+  80000/117733 barov, 255 obchodov
+  100000/117733 barov, 326 obchodov
+hotovo: 386 obchodov, nerozhodnutelnych minut 0
+kresby: {'fp_fvg': 19350, 'fp_entry': 388}

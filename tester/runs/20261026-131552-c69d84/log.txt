@@ -1,0 +1,23 @@
+$ emulator MultiCharts MNQ 1m 20221001-20231001 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: 15m štruktúra a FVG (15m) @15m 218/218
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 353442 barov 1m, 353442 1m, 0 HTF
+  20000/353442 barov, 10 obchodov
+  40000/353442 barov, 21 obchodov
+  60000/353442 barov, 37 obchodov
+  80000/353442 barov, 44 obchodov
+  100000/353442 barov, 56 obchodov
+  120000/353442 barov, 64 obchodov
+  140000/353442 barov, 70 obchodov
+  160000/353442 barov, 78 obchodov
+  180000/353442 barov, 87 obchodov
+  200000/353442 barov, 97 obchodov
+  220000/353442 barov, 106 obchodov
+  240000/353442 barov, 112 obchodov
+  260000/353442 barov, 121 obchodov
+  280000/353442 barov, 126 obchodov
+  300000/353442 barov, 133 obchodov
+  320000/353442 barov, 141 obchodov
+  340000/353442 barov, 146 obchodov
+hotovo: 156 obchodov, nerozhodnutelnych minut 0
+kresby: {'pc_htf_fvg': 4770, 'pc_choch': 2351, 'tp_box': 156, 'sl_box': 156, 'pc_fvg': 156, 'pc_entry': 156}
