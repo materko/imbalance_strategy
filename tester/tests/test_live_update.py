@@ -198,6 +198,15 @@ def test_chyby_po_platformach_oddelene_a_markery(tmp_path: Path):
     # každý driver dostal len účty svojej platformy
     assert drivers["mt5"].calls == [("install_code", "abc1234", ("ftmo",))]
     assert drivers["ninjatrader"].calls == [("install_code", "abc1234", ("sim",))]
+    # opakovanie toho istého cieľa (aj s force) inštaluje len platformu, ktorá zlyhala — hotová sa
+    # nereštartuje každých 5 min (audit N-LIVE-14)
+    drivers["mt5"].fail = None
+    r2 = upd.run({"version": "abc1234", "force": True, "ts": 1.0})
+    assert r2["status"] == "ok" and r2["platforms"]["ninjatrader"]["kept"]
+    assert len(drivers["ninjatrader"].calls) == 1 and len(drivers["mt5"].calls) == 2
+    # nový cieľ s force (iný čas) preinštaluje všetko
+    upd.run({"version": "abc1234", "force": True, "ts": 2.0})
+    assert len(drivers["ninjatrader"].calls) == 2
     # bez drivera / bez verzie: chyba, nie výnimka
     assert CodeUpdater({}, clock=lambda: 1.0).run({"version": "x"})["status"] == "error"
     assert upd.run({"version": "", "force": True})["status"] == "error"

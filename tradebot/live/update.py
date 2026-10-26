@@ -173,8 +173,10 @@ class CodeUpdater:
         out: dict[str, Any] = {"version": version, "force": force, "status": "ok", "error": None, "reasons": [],
                                "pulled": False, "code_changed": False, "platforms": {}, "ts": self.clock(),
                                "requested_by": (target or {}).get("requested_by"), "target_ts": (target or {}).get("ts")}
+        predosly = self.last if (self.last or {}).get("version") == version \
+            and (self.last or {}).get("target_ts") == out["target_ts"] else None
         try:
-            self._run(out, version, force)
+            self._run(out, version, force, predosly)
         except Exception as exc:  # noqa: BLE001 - aktualizácia nesmie zhodiť pomalé vlákno agenta
             out["status"], out["error"] = "error", _short(exc)
             log.exception("code update: %s", out["error"])
@@ -182,7 +184,7 @@ class CodeUpdater:
         self.last = out
         return out
 
-    def _run(self, out: dict[str, Any], version: str, force: bool) -> None:
+    def _run(self, out: dict[str, Any], version: str, force: bool, predosly: dict[str, Any] | None = None) -> None:
         if not version:
             out["status"], out["error"] = "error", "code_target bez verzie"
             return
@@ -218,6 +220,12 @@ class CodeUpdater:
                 return
         # 3. platformy
         for key, drv in self.drivers.items():
+            minule = ((predosly or {}).get("platforms") or {}).get(key) or {}
+            if minule.get("status") == "ok" and _same(installed.get(key), version):
+                # opakovanie toho istého cieľa po chybe inej platformy: hotovú platformu znova neinštalovať —
+                # MT5 by sa inak reštartoval každých 5 min len preto, že NinjaTrader nebeží (audit N-LIVE-14)
+                out["platforms"][key] = {**minule, "status": "ok", "error": None, "kept": True}
+                continue
             entry: dict[str, Any] = {"status": "ok", "error": None}
             try:
                 info = drv.install_code(version, self._accounts(key))
