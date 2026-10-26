@@ -374,7 +374,8 @@ rovnako ako denné limity strát. To isté z CLI: `python -m tester.montecarlo <
 
 ```
 tester/runs/<YYYYMMDD-HHMMSS-odtlačok>/      v gite
-    run.json        celý config behu, nastavenia (vrátane settings.strategy a settings.instrument), výsledok (súhrn), séria pre graf
+    run.json        celý config behu, nastavenia (vrátane settings.strategy a settings.instrument), výsledok (súhrn), séria pre graf,
+                    repo_version (commit kódu, ktorý beh prehral)
     trades.json     obchody
     plan.json       plánovaný SL/TP obchodov (výťah z kresieb pre analytiku)
     log.txt         skrátený log

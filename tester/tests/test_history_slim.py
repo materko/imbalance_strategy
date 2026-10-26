@@ -145,6 +145,26 @@ def test_overenie_hyperoptu_nesie_interval_vitaza_pre_okolie(tmp_path: Path):
     assert (lo, hi) == pl.winner_ci(rec, obchody)             # ten istý interval ako z obchodov
 
 
+def test_beh_aj_bod_celku_nesu_verziu_kodu(tmp_path: Path, monkeypatch):
+    """Ten istý beh na inom commite dá iné čísla — bez verzie kódu sa staré merania nedajú
+    odlíšiť od nových (audit, „reprodukovateľnosť")."""
+    from tester.webapp import runner as runner_mod
+
+    monkeypatch.setattr(runner_mod, "_code_version", lambda: "abc1234")
+    store = RunStore(tmp_path / "runs")
+    runner, Job = _runner(store)
+    rec = _record("x")
+    job = Job(id="20260905-120000-eeeeee", params=rec["params"], status="done", note="", user="t",
+              settings=rec["settings"])
+    runner._persist(job, (rec["result"], [_trade(T0)], {"equity": []}), 1.0)
+    assert store.get("20260905-120000-eeeeee")["repo_version"] == "abc1234"
+
+    bod = Job(id="20260905-120001-ffffff", params=rec["params"], status="done", note="", user="t",
+              settings={**rec["settings"], "sweep": {"id": "20260905-110000-aaaaaa", "values": {"rrRatio": 3}}})
+    runner._persist(bod, (rec["result"], [_trade(T0)], {"equity": []}), 1.0)
+    assert store.tagged("sweep", "20260905-110000-aaaaaa")[0]["repo_version"] == "abc1234"
+
+
 @pytest.fixture
 def app_client(tmp_path: Path, monkeypatch):
     pytest.importorskip("fastapi")

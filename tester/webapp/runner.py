@@ -33,11 +33,13 @@ import time
 import traceback
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable
 
 from tradebot.core.paths import REPO, BACKTEST_RESULTS as RESULTS_DIR, TMP_PROFILES
 from tradebot.core.types import INSTRUMENTS
+from tradebot.core.version import repo_version
 
 from .. import engines
 from .batches import batch_tag
@@ -93,6 +95,13 @@ class Job:
             "note": self.note, "user": self.user, "log_tail": self.log_lines[-40:],
             "progress": getattr(self, "progress", None),
         }
+
+
+@lru_cache(maxsize=1)
+def _code_version() -> str:
+    """Commit kódu, ktorý tento proces naozaj prehráva — zistený raz pri prvom behu, lebo po
+    Pull bez reštartu má HEAD už iný commit, než aký je načítaný v pamäti."""
+    return repo_version()
 
 
 class BacktestRunner(HyperoptJobMixin):
@@ -422,6 +431,7 @@ class BacktestRunner(HyperoptJobMixin):
             "note": job.note,
             "settings": job.settings,
             "params": job.params,
+            "repo_version": _code_version() or None,
             "error": job.error,
             "result": None,
             "series": None,
