@@ -908,9 +908,13 @@ function ldRouteChip(d, accById) {
   const st = inst && inst.hb && inst.hb.route;
   const [cls, text] = LD_ROUTE_STATE[st] || ["", st ? st : "stav neznámy"];
   const qty = r.qty && r.qty.mode === "fixed" ? `${r.qty.lots} lot/kontrakt` : "objem podľa hodnoty bodu";
+  // prečo exekútor nebeží: hlásenie agenta k jeho grafu (chýba MT5 driver, terminál, inštalácia)
+  const exErr = d.executor && d.executor.status === "error" ? d.executor.error : "";
   return `<div class="small" title="ordery idú do MT5 exekútora na účte ${esc(r.account)}${r.to ? ` (${esc(r.to)})` : ""}; ceny ${esc(r.price || "basis")}, ${esc(qty)}">`
     + `→ MT5 <b>${esc(r.symbol)}</b> <span class="muted">${esc(acc.label || r.account)}</span>`
-    + (d.active ? ` <span class="chip ${cls}">${esc(text)}</span>` : "") + `</div>`;
+    + (d.active ? ` <span class="chip ${cls}">${esc(text)}</span>` : "")
+    + (exErr ? ` <span class="chip bad" title="${esc(exErr)}">exekútor: ${esc(exErr.length > 60 ? exErr.slice(0, 57) + "…" : exErr)}</span>` : "")
+    + `</div>`;
 }
 
 function ldProfileOptions(strategy, current) {
@@ -990,9 +994,9 @@ function ldFillFormSelects() {
   selR.innerHTML = `<option value="">tu — na účte nasadenia</option>`
     + ld.accounts.filter(a => a.platform === "mt5").map(a => `<option value="${esc(a.id)}">MT5 exekútor · ${esc(a.label)}</option>`).join("");
   if (curR && ld.accounts.some(a => a.id === curR)) selR.value = curR;
-  selR.onchange = ldRouteFields;
+  selR.onchange = ldFillAgents;   // route chce na stroji aj MT5 driver (exekútor beží tam, kde NinjaTrader)
   $("#ld-d-route-qty").onchange = ldRouteFields;
-  ldRouteFields();
+  ldFillAgents();
   // stratégie z /api/meta — na live (NinjaTrader aj MT5) beží len C# jadro
   const selS = $("#ld-d-strategy");
   if (!selS.options.length && state.meta && state.meta.strategies) {
@@ -1020,16 +1024,20 @@ function ldRouteFields() {
   if (routed && $("#ld-d-route-qty").value !== "fixed") $("#ld-d-route-lots").closest("label").hidden = true;
 }
 
-/** Stroje do „Nasadiť": agenti s driverom platformy vybraného účtu (online prví); polia terminálu len pri MT5. */
+/** Stroje do „Nasadiť": agenti s driverom platformy vybraného účtu (online prví), pri route do MT5 aj s driverom
+ *  MT5 — exekútor beží na stroji NinjaTradera; polia terminálu len pri MT5. */
 function ldFillAgents() {
   const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
   const platform = acc ? acc.platform : "";
   ldShowPlatform($("#ld-deploy-box"), platform);
   ldRouteFields();
+  const routed = platform === "ninjatrader" && !!($("#ld-d-route") || {}).value;
+  const need = [platform, routed ? "mt5" : ""].filter(Boolean);
   const sel = $("#ld-d-agent"), cur = sel.value;
-  const agents = ldLiveAgents().filter(a => !platform || (a.live.drivers || []).includes(platform));
+  const agents = ldLiveAgents().filter(a => need.every(p => (a.live.drivers || []).includes(p)));
+  const title = need.map(p => (LD_PLATFORMS[p] || {}).title || p).join(" + ") || "platformou";
   sel.innerHTML = agents.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.online ? "" : " (offline)"}</option>`).join("")
-    || `<option value="">— žiadny stroj s ${esc((LD_PLATFORMS[platform] || {}).title || "platformou")} —</option>`;
+    || `<option value="">— žiadny stroj s ${esc(title)} —</option>`;
   if (cur && agents.some(a => a.name === cur)) sel.value = cur;
   sel.onchange = () => { ldTerminalHint(); ldCodeHint(); };
   $("#ld-d-own").onchange = ldTerminalHint;

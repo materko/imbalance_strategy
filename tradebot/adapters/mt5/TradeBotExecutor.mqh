@@ -51,7 +51,8 @@ struct XRoute
    double lots;
    long   magic;
    double ntPointValue;
-   string state;        // co hlasi heartbeat (ok / symbol_missing / netting_unsupported ...)
+   string ntCurrency;   // mena ntPointValue (ISO); "" = neprepocitava sa
+   string state;       // co hlasi heartbeat (ok / symbol_missing / netting_unsupported ...)
    string detail;
    bool   masterLost;
    bool   masterSeen;
@@ -160,6 +161,42 @@ void RemoveOrder(int i)
 double Tick(string sym) { return SymbolInfoDouble(sym, SYMBOL_TRADE_TICK_SIZE); }
 double Mid(string sym) { return (SymbolInfoDouble(sym, SYMBOL_BID) + SymbolInfoDouble(sym, SYMBOL_ASK)) / 2.0; }
 double RoundTick(string sym, double p) { return StaticHost::BridgeMapPrice(p, 0, 0, 1.0, Tick(sym)); }
+
+/// Kurz: 1 `from` = ? `to`, z forex paru u brokera (EURUSD, USDCZK... najprv Market Watch, potom vsetky); 0 = nie je.
+double FxRate(string from, string to)
+  {
+   for(int pass = 0; pass < 2; pass++)
+     {
+      bool mw = pass == 0;
+      int n = SymbolsTotal(mw);
+      for(int i = 0; i < n; i++)
+        {
+         string s = SymbolName(i, mw);
+         ENUM_SYMBOL_CALC_MODE m = (ENUM_SYMBOL_CALC_MODE)SymbolInfoInteger(s, SYMBOL_TRADE_CALC_MODE);
+         if(m != SYMBOL_CALC_MODE_FOREX && m != SYMBOL_CALC_MODE_FOREX_NO_LEVERAGE) continue;
+         string b = SymbolInfoString(s, SYMBOL_CURRENCY_BASE), p = SymbolInfoString(s, SYMBOL_CURRENCY_PROFIT);
+         bool direct = b == from && p == to, inverse = b == to && p == from;
+         if(!direct && !inverse) continue;
+         if(!mw) SymbolSelect(s, true);
+         double px = Mid(s);
+         if(px <= 0) continue;
+         return direct ? px : 1.0 / px;
+        }
+     }
+   return 0;
+  }
+
+/// Hodnota ticku `sym` za 1 lot v mene NT instrumentu (v nej je `nt_point_value`). SYMBOL_TRADE_TICK_VALUE je v mene
+/// uctu: EUR / CZK ucet by bez prepoctu dal objem mimo o kurz (CZK ~23x menej lotov = pod minimom). 0 + `why` = neda sa.
+double TickValueNt(string sym, string ntCur, string &why)
+  {
+   double tv = SymbolInfoDouble(sym, SYMBOL_TRADE_TICK_VALUE);
+   string acc = AccountInfoString(ACCOUNT_CURRENCY);
+   if(ntCur == "" || ntCur == acc) return tv;
+   double rate = FxRate(ntCur, acc);
+   if(rate <= 0) { why = "ucet je v " + acc + ", NT instrument v " + ntCur + " - u brokera nie je forex par na prepocet objemu"; return 0; }
+   return tv / rate;
+  }
 
 /// Udalost do evt.jsonl route (StaticHost::BridgeEmit). Ceny a objemy 0 = nepisu sa.
 void Emit(string route, string kind, string cid, string id, string side, double price, double priceNt, double qty,
@@ -346,6 +383,7 @@ void RefreshRoutes()
       g_routes[r].lots = j.Dbl("lots");
       g_routes[r].magic = (long)j.Dbl("magic");
       g_routes[r].ntPointValue = j.Dbl("nt_point_value");
+      g_routes[r].ntCurrency = j.Str("nt_currency");
       g_routes[r].seen = true;
       CheckRoute(r);
      }
@@ -624,7 +662,11 @@ void HandleEntry(int r, CJson *c)
    o.sl0 = same ? RoundTick(sym, o.ntSl) : StaticHost::BridgeMapPrice(o.ntSl, refNt, refExec, scale, tick);
    o.tp0 = same ? RoundTick(sym, o.ntTp) : StaticHost::BridgeMapPrice(o.ntTp, refNt, refExec, scale, tick);
    o.lastStop = o.sl0; o.lastTp = o.tp0;
-   o.lots = StaticHost::BridgeLots(o.q, g_routes[r].ntPointValue, scale, SymbolInfoDouble(sym, SYMBOL_TRADE_TICK_VALUE), tick,
+   string whyTv = "";
+   double tickValue = g_routes[r].qtyMode == "fixed" ? 1.0 : TickValueNt(sym, g_routes[r].ntCurrency, whyTv);
+   if(tickValue <= 0)
+     { Emit(route, "reject", cid, id, "", 0, 0, o.q, 0, 0, "", whyTv != "" ? whyTv : "symbol " + sym + " nema hodnotu ticku"); return; }
+   o.lots = StaticHost::BridgeLots(o.q, g_routes[r].ntPointValue, scale, tickValue, tick,
                                    SymbolInfoDouble(sym, SYMBOL_VOLUME_MIN), SymbolInfoDouble(sym, SYMBOL_VOLUME_STEP),
                                    SymbolInfoDouble(sym, SYMBOL_VOLUME_MAX), g_routes[r].qtyMode, g_routes[r].lots);
    if(o.lots <= 0)

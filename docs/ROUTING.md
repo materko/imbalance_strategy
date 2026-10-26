@@ -131,7 +131,9 @@ telemetria NT pracujú v cenách NT. Webapp ukáže obe a sklz.
 
 - `qty.mode = "value"` (predvolené): `loty = kontrakty × PointValue_NT / (hodnota bodu za 1 lot v MT5)`,
   zaokrúhlené **nadol** na krok objemu. MNQ (2 $/bod) na NAS100 s 1 $/bod/lot = 2 loty na kontrakt.
-  Riziko v dolároch je potom rovnaké ako v backteste.
+  Riziko v dolároch je potom rovnaké ako v backteste. Hodnota bodu NT je v mene inštrumentu (`nt_currency`,
+  USD pre CME), hodnota ticku v MT5 v mene účtu: pri inej mene účtu (EUR, CZK) ju exekútor prepočíta kurzom
+  forex páru u brokera (EURUSD, USDCZK…); keď pár nemá, vstup odmietne s dôvodom.
 - `qty.mode = "fixed"`: `lots` lotov na kontrakt.
 - Vyjde pod minimum objemu → príkaz sa **odmietne** (`evt reject`, `note error`), nezaokrúhli sa nahor.
 
@@ -150,7 +152,7 @@ Protokol je teda napísaný raz a otestovaný v Pythone cez fasádu ako `test_mt
 
 | súbor | píše | obsah |
 |---|---|---|
-| `route.json` | NT pri štarte inštancie | `to` (id exekútora), `symbol`, `price`, `scale`, `qty`, `magic` (z id nasadenia), `nt_symbol`, `nt_point_value`, `nt_tick` |
+| `route.json` | NT pri štarte inštancie | `to` (id exekútora), `symbol`, `price`, `scale`, `qty`, `magic` (z id nasadenia), `nt_symbol`, `nt_point_value`, `nt_currency`, `nt_tick` |
 | `cmd.jsonl` | NT, append | `{"seq", "t", "cid", "a": "entry"/"cancel"/"close"/"modify"/"flatten"/"sync", "id", "dir", "ot", "p": {e, sl, tp, q, tr}, "life": {…}, "ref", "exp"}` |
 | `evt.jsonl` | exekútor, append | `{"seq", "t", "cid", "k": "ack"/"reject"/"placed"/"fill"/"modified"/"cancelled"/"closed"/"snapshot", "id", "price", "price_nt", "qty", "lots", "exit", "err"}` |
 | `nt.hb` | NT, každú 1 s | `{t, session, mode}` (živosť stratégie pre `on_master_lost`) |
@@ -169,6 +171,12 @@ Pravidlá:
   „broker nemal nič“); cakajúci order, ktorý pri `cancel` u brokera už nie je, sa najprv zladí (vyplnil sa? → fill,
   nie `cancelled`); raz za 5 s sa ordery a pozície s magic route bez záznamu prevezmú (`AdoptStrays`), aby nič
   nebežalo bez strážcu a bez hlásenia do NT.
+- **Strata stavu exekútora:** route bez `exec.state` sa prečíta od začiatku `cmd.jsonl`, ale `close`, `modify`,
+  `flatten`, `cancel` a `sync` staršie ako 60 s (proti `nt.hb` mastera) sa neprehrajú — nemajú termín a starý
+  `flatten` by zavrel dnešné pozície; `entry` chráni `exp`. Exekútor o tom zapíše `note warn`.
+- **Krátke zaváhanie stavu route vstup nezahodí:** NT vstup neposiela len pri trvalom stave (iný účet, netting,
+  chýbajúci symbol, vypnuté obchodovanie) alebo keď zlý stav trvá 5 s; `exp` a kontrola stavu v exekútore ho
+  chránia. Odmietnutý `modify` NT zopakuje na ďalšom bare (`LastStop` sa vráti na prijatý stop).
 - **Jeden exekútor na účet.** Druhá inštancia s tým istým id sa nespustí (`exec\<id>.lock`), inak by dva
   kurzory nad tým istým `cmd.jsonl` poslali každý vstup dvakrát.
 - **Čiastočný fill vstupu:** NT dostane `fill in` s vyplneným objemom a zvyšok orderu exekútor hneď zruší
@@ -254,7 +262,7 @@ je rovnaká: exekútor pri `nt.hb` staršom než 30 s zapíše `note` a prepne r
 | `tradebot/adapters/mt5/TradeBotExecutor.mqh` + `deploy/mt5/TradeBotExecutor.mq5` (hotové) | samostatný EA len pre hedging, vlastná vrstva orderov (EA stratégií `TradeBotEA.mqh` sa nemení): timer 50 ms, `Bridge` poll, hb, termíny `life`, prekotvenie SL/TP na fill, strážca SL, záložný trailing, `snapshot`, pamäť cez reštart |
 | `tradebot/live/bridge.py` (hotové) | ručný master: `python -m tradebot.live.bridge execs / status / send / tail / hb` |
 | `tradebot/live/deploy.py`, hub API (hotové) | stĺpec `deployments.route` (len NinjaTrader; súčasť identity, `PATCH` ju nemení), `accounts.symbols` (aliasy MT5 účtu, zmena nie je nové prihlásenie); MT5 účet, na ktorý smeruje aktívne nasadenie, sa nezmaže; `desired_for_agent` doplní `route.to` z prihlásenia MT5 účtu a **virtuálne nasadenie exekútora** `exec-<účet>` (`kind: executor`) pre každý MT5 účet, na ktorý na stroji niečo smeruje |
-| `tradebot/live/drivers/mt5.py` (hotové) | virtuálne nasadenie = graf `TradeBotExecutor` (M1, prvý symbol route, vstupy EA predvolené), bez profilu a control súboru; terminál z vlastných nasadení MT5 účtu na stroji, inak nainštalovaný. Keď na účet nič aktívne nesmeruje, graf sa odoberie (pozície ostávajú u brokera so SL/TP) |
+| `tradebot/live/drivers/mt5.py` (hotové) | virtuálne nasadenie = graf `TradeBotExecutor` (M1, symbol najstaršej route — nová route graf nemení, vstupy EA predvolené), bez profilu a control súboru; terminál z vlastných nasadení MT5 účtu na stroji, inak nainštalovaný. Keď na účet nič aktívne nesmeruje, graf sa odoberie (pozície ostávajú u brokera so SL/TP) |
 | `tradebot/live/drivers/ninjatrader.py` (hotové) | `route` (s `to`) do záznamu `deploy.json` |
 | `tradebot/live/routes.py` (hotové) | predvolené mapovanie `DEFAULT_CFD`, aliasy, `normalize_route`, `executor_id` (to isté ako `Bridge.ExecutorId`) |
 | webapp karta Live (hotové) | Nasadiť → pri NinjaTrader účte „Ordery“ (tu / MT5 exekútor účtu), symbol v MT5, objem; účet MT5 → „Aliasy symbolov“; v tabuľke pod symbolom `→ MT5 <symbol> <účet>` a čip stavu exekútora z `hb.route` inštancie |

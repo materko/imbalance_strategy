@@ -245,6 +245,56 @@ def test_stav_route(clr, tmp_path):
     assert host.BridgePoll(h, rid) == "" and str(h) in host.LastError()
 
 
+def test_mena_nt_instrumentu_ide_exekutorovi(clr, tmp_path):
+    """Hodnota bodu NT je v mene inštrumentu, SYMBOL_TRADE_TICK_VALUE v mene účtu - exekútor prepočíta (audit S3)."""
+    core, host = clr
+    assert [core.Bridge.IsoCurrency(x) for x in ("UsDollar", "Euro", "CZK", "Unknown", "")] == ["USD", "EUR", "CZK", "", ""]
+    root = str(tmp_path)
+    exec_id = host.BridgeExecutorId(5012345, "FTMO-Demo")
+    spec = _spec(core, exec_id)
+    spec.NtCurrency = "EUR"
+    core.BridgeMaster(root, spec)
+    old = core.BridgeMaster(root, _spec(core, exec_id, "ninjatrader_Sim101_MES_3m_ibsnet"))
+    raw = json.loads((tmp_path / "bridge" / old.Instance / "route.json").read_text(encoding="utf-8"))
+    raw.pop("nt_currency")                                             # route.json spred meny
+    (tmp_path / "bridge" / old.Instance / "route.json").write_text(json.dumps(raw), encoding="utf-8")
+    h = host.BridgeExecOpen(root, exec_id)
+    routes = {r["instance"]: r["nt_currency"] for r in json.loads(host.BridgeRoutes(h))}
+    assert routes == {spec.Instance: "EUR", old.Instance: "USD"}
+    host.BridgeExecClose(h)
+
+
+def test_bez_stavu_exekutora_sa_stare_prikazy_okrem_vstupu_neprehraju(clr, tmp_path):
+    """Strata exec.state: starý flatten / close / modify nemá termín a zavrel by dnešné pozície (audit S5)."""
+    core, host = clr
+    root = str(tmp_path)
+    exec_id = host.BridgeExecutorId(5012345, "FTMO-Demo")
+    master = core.BridgeMaster(root, _spec(core, exec_id))
+    c_flat = master.Flatten(T0, "control")
+    c_entry = master.Entry(T0 + 1, _entry(core), 20000.25, T0 + 360_000)   # vstup chráni exp v exekútore
+    c_close = master.Close(T0 + 2, "L-1", "SESSION_END")
+    c_new = master.Modify(T0 + 100_000, "L-1", 19990.0, None, 20010.0, "trailing")
+    master.Heartbeat(T0 + 120_000, "enabled")                          # „teraz“ podľa mastera
+
+    h = host.BridgeExecOpen(root, exec_id)
+    rid = master.Instance
+    got = [c["cid"] for c in json.loads(host.BridgePoll(h, rid))]
+    assert got == [c_entry, c_new] and c_flat not in got and c_close not in got
+    ev = [json.loads(x) for x in (tmp_path / "bridge" / rid / "evt.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert ev[-1]["k"] == "note" and ev[-1]["side"] == "warn" and "2 starych" in ev[-1]["text"]
+    # ďalšie čítanie je živé - nič sa nevynecháva, ani po čase
+    c_late = master.Close(T0 + 1, "L-1", "neskoro zapísaný")
+    assert [c["cid"] for c in json.loads(host.BridgePoll(h, rid))] == [c_late]
+    host.BridgeExecClose(h)
+
+    # route bez heartbeatu mastera (nová route, NT ešte nezapísal hb): nevynecháva sa nič
+    other = core.BridgeMaster(root, _spec(core, exec_id, "ninjatrader_Sim101_MES_3m_ibsnet"))
+    c_o = other.Flatten(T0, "control")
+    h = host.BridgeExecOpen(root, exec_id)
+    assert [c["cid"] for c in json.loads(host.BridgePoll(h, other.Instance))] == [c_o]
+    host.BridgeExecClose(h)
+
+
 def test_druhy_exekutor_s_tym_istym_id_sa_neotvori(clr, tmp_path):
     """EA na druhom grafe (alebo v druhom termináli) by čítalo ten istý cmd.jsonl a každý vstup poslalo dvakrát."""
     _core, host = clr

@@ -329,6 +329,25 @@ class DeployStore:
         return [r["agent"] for r in self._db.execute(
             "SELECT DISTINCT agent FROM deployments WHERE account = ? AND agent != '' ORDER BY agent", (account_id,))]
 
+    def _routed_to(self, account_id: str, agent: str | None = None) -> list[sqlite3.Row]:
+        """Nasadenia (aj neaktívne), ktorých route smeruje ordery na tento MT5 účet; s `agent` len z toho stroja."""
+        out = []
+        for r in self._db.execute("SELECT * FROM deployments WHERE route != '' ORDER BY created"):
+            try:
+                acc = (json.loads(r["route"]) or {}).get("account")
+            except ValueError:
+                continue
+            if acc == account_id and (agent is None or r["agent"] == agent):
+                out.append(r)
+        return out
+
+    def _executor_applied(self, route: dict[str, Any] | None, agent: str) -> dict[str, Any] | None:
+        """Čo agent naposledy hlásil k exekútoru MT5 účtu route (status/chyba grafu `TradeBotExecutor`)."""
+        if not route or not route.get("account"):
+            return None
+        return self._applied_row(self._db.execute("SELECT * FROM applied WHERE deployment = ?",
+                                                  (_executor_key(route["account"], agent),)).fetchone())
+
     def _secret_waiting(self, r: sqlite3.Row) -> list[str]:
         prevzate = {x["agent"] for x in self._db.execute(
             "SELECT agent FROM secret_sent WHERE account = ? AND rev = ?", (r["id"], r["secret_rev"]))}
@@ -440,6 +459,9 @@ class DeployStore:
                         raise DeployError(f"platforma účtu musí byť {' alebo '.join(PLATFORMS)}")
                     if self._account_agents(acc_id):
                         raise Conflict("platforma účtu s nasadeniami sa nemení — sprav nový účet")
+                    if self._routed_to(acc_id):
+                        # exekútor by z neho ďalej robil `exec-…` a NT driver „inštanciu“ stratégie executor (audit H4)
+                        raise Conflict("na účet smerujú ordery NinjaTrader nasadení — platforma sa nemení, sprav nový účet")
                 if "login" in sets and not sets["login"]:
                     raise DeployError("login nesmie byť prázdny")
                 platform = sets.get("platform") or existing["platform"]
@@ -509,8 +531,7 @@ class DeployStore:
                 raise Conflict(f"na účte {account_id!r} ešte beží: {', '.join(bezi)} — najprv tie nasadenia odstráň")
             # aj neaktívne: po reaktivácii by nasadenie bez exekútora obchodovalo na účte NinjaTradera
             smeruju = [f"{r['strategy']} {r['symbol']} {r['tf']}m ({r['id']}{'' if r['active'] else ', neaktívne'})"
-                       for r in self._db.execute("SELECT id, strategy, symbol, tf, route, active FROM deployments WHERE route != ''")
-                       if (json.loads(r["route"]) or {}).get("account") == account_id]
+                       for r in self._routed_to(account_id)]
             if smeruju:
                 raise Conflict(f"na MT5 účet {account_id!r} smerujú ordery: {', '.join(smeruju)} — najprv tie nasadenia zmaž")
             deps = [r["id"] for r in self._db.execute("SELECT id FROM deployments WHERE account = ?", (account_id,))]
@@ -519,6 +540,8 @@ class DeployStore:
                 self._db.execute("DELETE FROM deployments WHERE id = ?", (dep_id,))
                 self._audit(by, "deployment_delete", account=account_id, deployment=dep_id, old={"with_account": True})
             self._db.execute("DELETE FROM secret_sent WHERE account = ?", (account_id,))
+            prefix = _executor_key(account_id, "")
+            self._db.execute("DELETE FROM applied WHERE substr(deployment, 1, ?) = ?", (len(prefix), prefix))
             self._db.execute("DELETE FROM accounts WHERE id = ?", (account_id,))
             self._audit(by, "account_delete", account=account_id, old=old)
             return {"id": account_id, "deleted": True, "deployments": deps}
@@ -542,6 +565,8 @@ class DeployStore:
                 d["platform"] = r["_platform"]
                 d["applied"] = self._applied_row(
                     self._db.execute("SELECT * FROM applied WHERE deployment = ?", (d["id"],)).fetchone())
+                if d["route"]:
+                    d["executor"] = self._executor_applied(d["route"], d["agent"])
                 out.append(d)
         return out
 
@@ -555,6 +580,8 @@ class DeployStore:
             d["platform"] = r["_platform"]
             d["applied"] = self._applied_row(
                 self._db.execute("SELECT * FROM applied WHERE deployment = ?", (dep_id,)).fetchone())
+            if d["route"]:
+                d["executor"] = self._executor_applied(d["route"], d["agent"])
         return d
 
     def _resolve_config(self, strategy: str, profile: str, config: Any) -> dict[str, Any]:
@@ -788,17 +815,19 @@ class DeployStore:
             if r is None:
                 continue
             route["to"] = executor_id(r["login"], r["server"])
-            t = targets.setdefault(r["id"], {"row": r, "active": False, "symbols": set(), "created": d["created"]})
+            t = targets.setdefault(r["id"], {"row": r, "active": False, "first": None, "created": d["created"]})
             t["active"] = t["active"] or bool(d["active"])
-            if route.get("symbol"):
-                t["symbols"].add(route["symbol"])
+            # graf exekútora na symbole najstaršej route: nová route (ani s abecedne menším symbolom či preklepom)
+            # graf nezmení a spoločný terminál sa kvôli nej nereštartuje (audit H5)
+            if route.get("symbol") and (t["first"] is None or d["created"] < t["first"][0]):
+                t["first"] = (d["created"], route["symbol"])
         out = []
         for acc_id, t in sorted(targets.items()):
             r = t["row"]
             vlastne = [d for d in deps if d["account"] == acc_id and not d["own_terminal"] and d["active"]]
             terminal, portable = (vlastne[0]["terminal"], vlastne[0]["portable"]) if vlastne else ("", False)
             out.append({"id": EXECUTOR_PREFIX + acc_id, "account": acc_id, "agent": agent, "kind": "executor",
-                        "strategy": EXECUTOR_STRATEGY, "symbol": min(t["symbols"]) if t["symbols"] else "",
+                        "strategy": EXECUTOR_STRATEGY, "symbol": t["first"][1] if t["first"] else "",
                         "tf": 1, "profile": EXECUTOR_STRATEGY, "config": {}, "config_hash": config_hash({}),
                         "mode": "enabled", "active": t["active"], "instance": executor_id(r["login"], r["server"]),
                         "slot": "", "own_terminal": False, "version": "", "terminal": terminal, "portable": portable,
@@ -816,9 +845,17 @@ class DeployStore:
                 dep_id = str((a or {}).get("deployment") or "")
                 if not dep_id:
                     continue
-                r = self._db.execute("SELECT agent FROM deployments WHERE id = ?", (dep_id,)).fetchone()
-                if r is None or r["agent"] != agent:
-                    continue
+                if dep_id.startswith(EXECUTOR_PREFIX):
+                    # exekútor MT5 účtu nemá riadok v deployments: hlásenie sa drží pod účtom a strojom, aby chyba
+                    # jeho grafu (chýba MT5 driver, terminál) bola vidno pri nasadeniach, ktoré naň smerujú (audit H6)
+                    acc_id = dep_id[len(EXECUTOR_PREFIX):]
+                    if not self._routed_to(acc_id, agent):
+                        continue
+                    dep_id = _executor_key(acc_id, agent)
+                else:
+                    r = self._db.execute("SELECT agent FROM deployments WHERE id = ?", (dep_id,)).fetchone()
+                    if r is None or r["agent"] != agent:
+                        continue
                 status = str(a.get("status") or "ok")
                 if status not in APPLIED_STATES:
                     status = "error"
@@ -890,6 +927,11 @@ class DeployStore:
             a = self._db.execute("SELECT COUNT(*) AS n FROM accounts").fetchone()["n"]
             d = self._db.execute("SELECT COUNT(*) AS n FROM deployments WHERE active = 1").fetchone()["n"]
         return {"accounts": int(a), "deployments": int(d)}
+
+
+def _executor_key(account_id: str, agent: str) -> str:
+    """Kľúč hlásenia exekútora v `applied`: `exec-<účet>@<stroj>` (virtuálne nasadenie nemá riadok v deployments)."""
+    return f"{EXECUTOR_PREFIX}{account_id}@{agent}"
 
 
 def _check_strategy(key: str) -> str:

@@ -482,6 +482,7 @@ public static class StaticHost
                 w.Key("scale").Value(r.Scale).Key("qty_mode").Value(r.QtyMode).Key("lots").Value(r.Lots);
                 w.Key("magic").Value(r.Magic).Key("instance").Value(r.Instance).Key("deployment").Value(r.Deployment);
                 w.Key("nt_symbol").Value(r.NtSymbol).Key("nt_point_value").Value(r.NtPointValue).Key("nt_tick").Value(r.NtTick);
+                w.Key("nt_currency").Value(r.NtCurrency ?? "");
                 w.Key("tf").Value(r.Tf).EndObject();
             }
             w.EndArray();

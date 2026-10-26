@@ -49,6 +49,8 @@ namespace TradeBot.Core
         public long Magic;
         public string NtSymbol = "";
         public double NtPointValue;
+        /// <summary>mena `NtPointValue` (ISO, USD pre CME); exekutor podla nej prepocita hodnotu ticku z meny uctu</summary>
+        public string NtCurrency = "USD";
         public double NtTick;
         public int Tf;
 
@@ -62,6 +64,7 @@ namespace TradeBot.Core
             if (QtyMode == "fixed") w.Key("lots").Value(Lots);
             w.EndObject();
             w.Key("magic").Value(Magic).Key("nt_symbol").Value(NtSymbol).Key("nt_point_value").Value(NtPointValue);
+            w.Key("nt_currency").Value(NtCurrency ?? "");
             w.Key("nt_tick").Value(NtTick).Key("tf").Value(Tf);
             w.EndObject();
             return w.ToString();
@@ -85,6 +88,7 @@ namespace TradeBot.Core
             r.Magic = (long)Json.GetDouble(d, "magic", 0.0);
             r.NtSymbol = Json.GetString(d, "nt_symbol", "");
             r.NtPointValue = Json.GetDouble(d, "nt_point_value", 0.0);
+            r.NtCurrency = Json.GetString(d, "nt_currency", "USD");   // route.json spred meny: CME = USD
             r.NtTick = Json.GetDouble(d, "nt_tick", 0.0);
             r.Tf = (int)Json.GetDouble(d, "tf", 0.0);
             return r;
@@ -269,6 +273,36 @@ namespace TradeBot.Core
         public static string ExecHeartbeatPath(string root, string executorId)
         {
             return Path.Combine(Path.Combine(root, ExecDir), executorId + ".hb.json");
+        }
+
+        /// <summary>Meno meny z NinjaTradera (`Cbi.Currency`, napr. `UsDollar`) -> ISO kod pre MT5 (`USD`);
+        /// ISO kod necha, neznamu menu vrati ako "" (exekutor potom hodnotu ticku neprepocitava).</summary>
+        public static string IsoCurrency(string ntName)
+        {
+            switch ((ntName ?? "").Trim())
+            {
+                case "UsDollar": return "USD";
+                case "Euro": return "EUR";
+                case "BritishPound": return "GBP";
+                case "JapaneseYen": return "JPY";
+                case "SwissFranc": return "CHF";
+                case "CanadianDollar": return "CAD";
+                case "AustralianDollar": return "AUD";
+                case "NewZealandDollar": return "NZD";
+                case "HongKongDollar": return "HKD";
+                case "SingaporeDollar": return "SGD";
+                case "SwedishKrona": return "SEK";
+                case "NorwegianKrona": return "NOK";
+                case "DanishKrone": return "DKK";
+                case "MexicanPeso": return "MXN";
+                case "SouthAfricanRand": return "ZAR";
+                case "CzechKoruna": return "CZK";
+                case "PolishZloty": return "PLN";
+                case "HungarianForint": return "HUF";
+            }
+            string s = (ntName ?? "").Trim();
+            if (s.Length == 3 && s.ToUpperInvariant() == s) return s;
+            return "";
         }
 
         public static string ExecLockPath(string root, string executorId)
@@ -617,7 +651,13 @@ namespace TradeBot.Core
             public readonly HashSet<string> InflightDone = new HashSet<string>();
             public readonly HashSet<string> Done = new HashSet<string>();
             public readonly LinkedList<string> DoneOrder = new LinkedList<string>();
+            /// <summary>Route bez `exec.state` (nova, alebo stav stratil) - prve citanie je cely cmd.jsonl od zaciatku.</summary>
+            public bool Fresh;
         }
+
+        /// <summary>Bez `exec.state` sa `close` / `modify` / `flatten` / `cancel` / `sync` starsie nez toto (proti
+        /// heartbeatu mastera) neprehraju: nemaju termin ako `entry` (`exp`) a stary `flatten` by zavrel dnesne pozicie.</summary>
+        public const long FreshReplayMs = 60000;
 
         private readonly string _root;
         private readonly Dictionary<string, RouteState> _routes = new Dictionary<string, RouteState>();
@@ -695,26 +735,47 @@ namespace TradeBot.Core
                         if (s.Done.Add(cid)) s.DoneOrder.AddLast(cid);
                     }
             }
-            s.Cmd = new JsonlCursor(Path.Combine(s.Dir, Bridge.CommandFile), s.Committed);
+            s.Fresh = st == null;
+            s.Cmd =new JsonlCursor(Path.Combine(s.Dir, Bridge.CommandFile), s.Committed);
             s.Evt = new JsonlLog(Path.Combine(s.Dir, Bridge.EventFile));
             _routes[routeId] = s;
             return s;
         }
 
         /// <summary>Nove prikazy route ako text riadkov JSON - bez tych, ktore uz boli vykonane (`Done`). Prikaz, ktory
-        /// exekutor precital, ale pred padom nestihol oznacit `Done`, pride po restarte znova.</summary>
+        /// exekutor precital, ale pred padom nestihol oznacit `Done`, pride po restarte znova. Prve citanie route bez
+        /// `exec.state` vynecha stare prikazy okrem `entry` (`FreshReplayMs`) a zapise o tom `note`.</summary>
         public List<string> Poll(string routeId)
         {
             RouteState s = Route(routeId);
             List<string> outp = new List<string>();
+            long staleBefore = 0;
+            if (s.Fresh)
+            {
+                // "teraz" podla mastera, nie podla hodin exekutora: bez jeho heartbeatu sa nic nevynechava
+                Dictionary<string, object> hb = Bridge.ReadJsonFile(Path.Combine(s.Dir, Bridge.MasterHeartbeatFile));
+                long masterNow = hb != null ? (long)Json.GetDouble(hb, "t", 0.0) : 0;
+                if (masterNow > 0) staleBefore = masterNow - FreshReplayMs;
+                s.Fresh = false;
+            }
+            int skipped = 0;
             foreach (JsonlCursor.Line l in s.Cmd.ReadNew())
             {
-                string cid;
-                try { cid = Json.GetString(Json.ParseObject(l.Text), "cid", ""); }
-                catch (JsonException) { cid = ""; }
-                if (cid == "" || s.Done.Contains(cid))
+                string cid, action = "";
+                long t = 0;
+                try
                 {
-                    // poskodeny alebo uz vykonany: posunie sa aj potvrdeny offset, ked pred nim nic necaka
+                    Dictionary<string, object> cmd = Json.ParseObject(l.Text);
+                    cid = Json.GetString(cmd, "cid", "");
+                    action = Json.GetString(cmd, "a", "");
+                    t = (long)Json.GetDouble(cmd, "t", 0.0);
+                }
+                catch (JsonException) { cid = ""; }
+                bool stale = staleBefore > 0 && cid != "" && action != "entry" && t < staleBefore;
+                if (stale) skipped++;
+                if (cid == "" || s.Done.Contains(cid) || stale)
+                {
+                    // poskodeny, uz vykonany alebo stary: posunie sa aj potvrdeny offset, ked pred nim nic necaka
                     s.Inflight.Add(new KeyValuePair<string, long>("", l.End));
                     continue;
                 }
@@ -722,6 +783,17 @@ namespace TradeBot.Core
                 outp.Add(l.Text);
             }
             Advance(s);
+            if (skipped > 0)
+            {
+                int n = skipped;
+                s.Evt.Append(Bridge.NowMs(), delegate(JsonWriter w)
+                {
+                    w.Key("k").Value("note").Key("side").Value("warn").Key("text").Value(
+                        "exekutor nemal stav route (exec.state) - " + n.ToString(CultureInfo.InvariantCulture)
+                        + " starych prikazov (close/modify/flatten/cancel/sync) neprehral");
+                });
+                Save(s);
+            }
             return outp;
         }
 

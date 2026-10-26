@@ -133,6 +133,35 @@ def test_route_v_nasadeni_a_exekutor_v_pozadovanom_stave(store: DeployStore):
     assert store.delete_account("ftmo", by="rasto")["deleted"] is True
 
 
+def test_exekutor_graf_hlasenie_a_platforma_uctu(store: DeployStore):
+    """H5: graf exekútora na symbole najstaršej route; H6: chyba exekútora pri nasadení; H4: platforma sa nemení."""
+    _ucty(store)
+    b = store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "orbnet", "symbol": "MGC 02-27",
+                                 "tf": 5, "profile": "p1", "route": {"account": "ftmo"}}, by="rasto")
+    a = store.create_deployment({"account": "sim", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "MNQ 12-26",
+                                 "tf": 3, "profile": "p1", "route": {"account": "ftmo"}}, by="rasto")
+    ex = {d["id"]: d for d in store.desired_for_agent("trade-pc")["deployments"]}[EXECUTOR_PREFIX + "ftmo"]
+    assert ex["symbol"] == "XAUUSD"              # najstaršia route, nie abecedne prvý US100.cash
+
+    # hlásenie agenta k exekútoru sa ukáže pri nasadeniach, ktoré naň smerujú; cudzí stroj ho nezapíše
+    rep = [{"deployment": EXECUTOR_PREFIX + "ftmo", "status": "error", "error": "driver pre platformu 'mt5' nie je na tomto stroji"}]
+    assert store.report_applied("iny-pc", rep) == 0
+    assert store.report_applied("trade-pc", rep) == 1
+    deps = {d["id"]: d for d in store.deployments()}
+    assert deps[a["id"]]["executor"]["status"] == "error" and "mt5" in deps[a["id"]]["executor"]["error"]
+    assert store.deployment(b["id"])["executor"]["error"] == deps[a["id"]]["executor"]["error"]
+
+    with pytest.raises(Conflict, match="smerujú ordery"):
+        store.upsert_account({"id": "ftmo", "platform": "ninjatrader"}, by="rasto")
+    assert store.account("ftmo")["platform"] == "mt5"
+
+    for d in (a, b):
+        store.delete_deployment(d["id"], by="rasto")
+        store.delete_deployment(d["id"], by="rasto", force=True)
+    store.delete_account("ftmo", by="rasto")
+    assert store._db.execute("SELECT COUNT(*) FROM applied WHERE deployment LIKE 'exec-%'").fetchone()[0] == 0
+
+
 def test_ninjatrader_driver_zapise_route(tmp_path: Path, monkeypatch):
     nt = tmp_path / "NinjaTrader 8"
     (nt / "bin" / "Custom").mkdir(parents=True)
