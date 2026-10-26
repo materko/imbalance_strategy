@@ -103,7 +103,9 @@ def split_root(archive: Path, data: Path, verbose: bool = True,
             out = archive / rel.parent / f"{_stem(src)}.{year}.feather"
             # Zapisujeme len ak sa obsah naozaj zmenil - inak by git videl novy
             # blob aj pri roku, ktory sa nemenil (feather nie je bajtovo stabilny).
-            if out.exists() and len(_read(out)) == len(part):
+            # Porovnava sa obsah, nie pocet riadkov: opravena sviecka ma rovnaky pocet
+            # barov a do archivu by sa inak nedostala (audit N-DATA-4).
+            if out.exists() and _read(out).reset_index(drop=True).equals(part.reset_index(drop=True)):
                 continue
             _write(part, out)
             written.append(out)

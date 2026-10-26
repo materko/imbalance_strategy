@@ -86,6 +86,19 @@ def test_nezmeneny_rok_sa_neprepise(dirs):
     assert old.stat().st_mtime_ns == stamp
 
 
+def test_opravena_sviecka_s_rovnakym_poctom_barov_sa_zapise(dirs):
+    """Porovnával sa len počet riadkov — oprava ceny jednej sviečky sa do archívu nedostala (N-DATA-4)."""
+    data, archive = dirs
+    src = data / "ex" / "PAIR-1m.feather"
+    df = _frame("2024-06-01", 100)
+    _write(src, df)
+    da.split(verbose=False)
+    df.loc[50, "close"] = 999
+    _write(src, df)
+    assert da.split(verbose=False) == [archive / "ex" / "PAIR-1m.2024.feather"]
+    assert pd.read_feather(archive / "ex" / "PAIR-1m.2024.feather")["close"].iloc[50] == 999
+
+
 def test_novy_rok_pribudne_a_stary_ostane(dirs):
     data, archive = dirs
     src = data / "ex" / "PAIR-1m.feather"
