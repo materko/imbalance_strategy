@@ -171,8 +171,6 @@ Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pr
 
 ## Posudok (AI)
 
-> **Posudok je starší než čísla** (písal sa k vzorke `d4f9840f`, tu je `d33419cb`). Nech ho AI prepíše — čísla nižšie sa medzitým zmenili.
-
 <!-- POSUDOK cisla=d33419cb -->
 
 **Posudok východiskového profilu `eurusd_6e_5m` (26. 10. 2026, pred hľadaním podľa smernice).**

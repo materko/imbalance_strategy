@@ -181,17 +181,15 @@ Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pr
 
 ## Posudok (AI)
 
-> **Posudok je starší než čísla** (písal sa k vzorke `f94088ac`, tu je `e8c1827d`). Nech ho AI prepíše — čísla nižšie sa medzitým zmenili.
-
-<!-- POSUDOK cisla=f94088ac -->
+<!-- POSUDOK cisla=e8c1827d -->
 
 **1. Na čo sa to hodí a na čo nie.** Na ES (aj MES) 3m počas newyorskej seansy: profil 9:30–10:30, potom **retest** — limitka na VAH / VAL po prieraze, ktorá platí 20 barov, vstup len s **pin barom** v smere a v smere **EMA 50** grafu, cieľ ~0,47 R, stop 3 ticky za POC (najviac 5 ATR), value area aspoň 10,9 bodu široká, jeden obchod denne, vstupy do 16:00. Medián držania 2 bary, WR ~73 %, 0,43 obchodu denne. Hodí sa na prop a ako druhý trh k NQ stratégiám — DD v 95 % ciest do 12 %, séria strát najviac 5. Nehodí sa na CFD so širokým spreadom: cieľ je pár bodov a rozhoduje 1 tick.
 
 **2. Má to potenciál?** Áno. Zisk v **5 z 5** okien (PnL +8,6 až +21 % ročne), odložený rok +19 % pri WR 75,8 %, break-even 0,0115 % je 6× poplatok, edge nad poplatkom v 100 % bootstrapových vzoriek a +8,0 sigma proti náhodnému vstupu. Šikmosť výnosov je kladná (+0,5) — straty sú malé voči ziskom, nie opačne. Opatrne: proti náhode **v tých istých hodinách** je to +6,3 sigma, časť edge je teda v načasovaní (prvé hodiny NY). Rok 23/24 má len 102 obchodov a posledné obdobie je na 26. percentile — v norme, ale treba sledovať. Na US500 (krok 8) je PF 1,09 s dvoma stratovými rokmi (0,84, 0,96) — jav drží len na futures.
 
-**3. Čo treba dorobiť.** (a) Kópia do C# jadra (od 25. 10. 2026 nové stratégie idú rovno tam) — retest je limitka, treba overiť fill na NT / MT5 a sklz. (b) Frekvencia kolíše (102 až 188 obchodov za rok) kvôli prahu šírky VA 10,9 bodu — prah v ATR by bol stabilnejší. (c) Dni so správami a FOMC overiť v rozbore skupín pri ďalšom checkupe.
+**3. Čo treba dorobiť.** (a) C# kópia `nyvaesnet` je hotová a bar po bare zhodná; ostáva overiť fill retestovej limitky na NT / MT5 a sklz. Pozor na veľkosť: pri riziku 500 $ na ES strop straty vynechá široké obchody (478 namiesto 775, rok 24/25 v strate) — s týmto rizikom patrí na MES. (b) Frekvencia kolíše (102 až 188 obchodov za rok) kvôli prahu šírky VA 10,9 bodu — prah v ATR by bol stabilnejší. (c) Dni so správami: FOMC 17 obchodov, WR 59 %, break-even −0,0036 %; NFP 44 obchodov a 0,0322 %, CPI 0,0121 %. Bez FOMC by sa celok zlepšil len o 0,0003 % — filter na to nestojí za zložitosť.
 
-**4. Čo otestovať ďalej.** Po prepise do C#: natívny hyperopt `cli hyperopt --engine multicharts --windows ref --aggregate min --select plateau` na `rrRatio`, `vaMinPoints` (v ATR) a `retestBars`, potom `cli plateau`; `--walk-forward` rozhodne, či by pravidelné preladenie držalo. Potom krok 9: forward test na MES 4–6 týždňov, porovnať WR a sklz s backtestom.
+**4. Čo otestovať ďalej.** Na C# jadre (`nyvaesnet`): natívny hyperopt `cli hyperopt --engine multicharts --windows ref --aggregate min --select plateau` na `rrRatio`, `vaMinPoints` (v ATR) a `retestBars`, potom `cli plateau`; `--walk-forward` rozhodne, či by pravidelné preladenie držalo. Potom krok 9: forward test na MES 4–6 týždňov, porovnať WR a sklz s backtestom.
 
 **5. Je to použiteľné, alebo je to o ničom?** **Použiteľné len na futures (ES / MES).** Prešlo smernicou cez krok 7 s 5 profilmi, edge je jasný a stabilný po rokoch; krok 8 na US500 neprešiel, preto nie na CFD. Do forward testu ide ako doplnok k IBS EZ ES — obe ES, ale iná logika a iné hodiny.
 

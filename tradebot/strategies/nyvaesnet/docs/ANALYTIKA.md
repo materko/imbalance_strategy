@@ -187,15 +187,13 @@ Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pr
 
 ## Posudok (AI)
 
-> **Posudok je starší než čísla** (písal sa k vzorke `2c1bf1e6`, tu je `bbfe2f77`). Nech ho AI prepíše — čísla nižšie sa medzitým zmenili.
-
-<!-- POSUDOK cisla=2c1bf1e6 -->
+<!-- POSUDOK cisla=bbfe2f77 -->
 
 **C# jadro, riziko 500 $ na ES.** Logika je bar po bare zhodná s Python predlohou `nyvaes` na všetkých piatich profiloch (`tester/tests/test_csharp_parity_es.py`). **Pozor na veľkosť:** ES má 50 $ za bod a strop straty (obal `entry_sizing`) vynechá obchod, pri ktorom by 1 kontrakt na stope stratil viac než 500 $ — preto 478 obchodov namiesto 775 a rok 24/25 v strate (−6,7 %); s plným počtom obchodov bolo 5 z 5 rokov v zisku.
 
 **1. Na čo sa to hodí a na čo nie.** Prieraz z value area prvej hodiny NY na S&P 500 futures, 3m, jeden obchod denne, WR 60–78 %. Pri riziku 500 $ patrí na **MES** (5 $ za bod); na ES s 500 $ v tomto tvare nie. Na CFD US500 neprešiel krokom 8.
 
-**2. Má to potenciál?** S plným počtom obchodov áno (5 z 5 rokov, +7 sigma). S vynechanými ES obchodmi už len 4 z 5 rokov, edge nad poplatkom v 94 % vzoriek — výber vstupov podľa veľkosti stopu kazí výsledok, lebo vynecháva práve široké, ale ziskové prierazy.
+**2. Má to potenciál?** S plným počtom obchodov áno (`nyvaes`: 5 z 5 rokov, break-even 0,0115 %, +8,0 sigma). S vynechanými ES obchodmi už len 4 z 5 rokov, break-even 0,0045 % (rezerva 0,0027 % nad poplatkom), +4,3 sigma (+3,5 v tých istých hodinách) a edge nad poplatkom v 94 % vzoriek — výber vstupov podľa veľkosti stopu kazí výsledok, lebo vynecháva práve široké, ale ziskové prierazy (skupina so stopom nad 0,165 % má break-even 0,0133 %, najužšia 0,0004 %). Šikmosť výnosov je záporná (−1,1), séria strát do 6 (95. percentil 7), drawdown v 95 % ciest 12,5 %. Posledné obdobie je na 54. percentile, úsek 2024-03 – 2025-06 na 12. — úpadok to nie je, ale rok 24/25 je slabý aj bez stropu (WR 59,6 %).
 
 **3. Čo treba dorobiť.** Nástroj MES (bod 5 $) do zoznamu nástrojov a analytiku na ňom s rizikom 500 $.
 
