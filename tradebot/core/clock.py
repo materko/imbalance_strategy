@@ -38,10 +38,14 @@ def _zone(tz: str) -> ZoneInfo:
     return ZoneInfo(tz)
 
 
+# `state()` pýta ten istý lokálny čas a tie isté hranice okien pre jeden bar desiatky krát (3 seansy × deň
+# v týždni, dve okná, zvyšok seansy) - čisté funkcie, takže cache (audit N-CORE-10).
+@lru_cache(maxsize=64)
 def _local(ts_ms: int, tz: str) -> datetime:
     return datetime.fromtimestamp(ts_ms / 1000, tz=_zone(tz))
 
 
+@lru_cache(maxsize=4096)
 def _timestamp_ms(tz: str, year: int, month: int, day: int, hour: int, minute: int) -> int:
     """Pine `timestamp(tz, y, mo, d, h, m)` — lokálny čas v danom pásme → ms epoch."""
     dt = datetime(year, month, day, hour, minute, tzinfo=_zone(tz))
