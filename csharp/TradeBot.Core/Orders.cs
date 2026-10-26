@@ -77,6 +77,38 @@ namespace TradeBot.Core
         }
     }
 
+    /// <summary>Zivot vstupu, ktory vie engine dopredu (docs/ROUTING.md, "Order, ktory vie fungovat sam"): vzdialeny
+    /// vykonavac (MT5 exekutor) ho dodrzi aj vtedy, ked engine nebezi. Na backtest nema vplyv - engine svoje
+    /// `cancel`/`close` posiela ako doteraz. Casy v ms UTC, 0 = nie je.</summary>
+    public sealed class OrderLife
+    {
+        /// <summary>dokedy plati nevyplneny vstup</summary>
+        public long CancelAtMs;
+        /// <summary>absolutny cas, ked ma byt vsetko zavrete a zrusene (koniec seansy, EOD)</summary>
+        public long CloseAtMs;
+        /// <summary>najdlhsie drzanie pozicie od vyplnenia</summary>
+        public long HoldMs;
+
+        public bool IsEmpty { get { return CancelAtMs <= 0 && CloseAtMs <= 0 && HoldMs <= 0; } }
+
+        /// <summary>Skorsi termin z dvoch (0 = ziadny) - obal priklada svoj termin k terminu strategie.</summary>
+        public static long Earlier(long a, long b)
+        {
+            if (a <= 0) return b;
+            if (b <= 0) return a;
+            return Math.Min(a, b);
+        }
+
+        public void WriteJson(JsonWriter w)
+        {
+            w.BeginObject();
+            if (CancelAtMs > 0) w.Key("cancel_at").Value(CancelAtMs);
+            if (CloseAtMs > 0) w.Key("close_at").Value(CloseAtMs);
+            if (HoldMs > 0) w.Key("hold_ms").Value(HoldMs);
+            w.EndObject();
+        }
+    }
+
     /// <summary>Co ma adapter spravit. Engine sam nikdy neobchoduje.</summary>
     public sealed class OrderIntent
     {
@@ -88,6 +120,8 @@ namespace TradeBot.Core
         public TradePlan Plan;
         public OrderType OrderType = OrderType.Limit;
         public string Reason = "";
+        /// <summary>len pri vstupe a len ked ho engine (alebo obal) pozna; null = nic</summary>
+        public OrderLife Life;
 
         public OrderIntent(OrderAction action, string orderId, int sourceId)
         {
@@ -128,6 +162,11 @@ namespace TradeBot.Core
                     w.EndObject();
                 }
                 w.EndObject();
+            }
+            if (Life != null && !Life.IsEmpty)
+            {
+                w.Key("life");
+                Life.WriteJson(w);
             }
         }
     }

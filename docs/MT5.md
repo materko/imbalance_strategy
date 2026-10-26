@@ -16,6 +16,7 @@ tradebot/adapters/mt5/presets/*.set       parametre skriptu a EA (tester, kresle
 deploy/mt5/ini/*.ini                      štartovacie ini terminálu: import symbolu, beh v Strategy Testeri, živý beh bez človeka
 tradebot/adapters/mt5/__main__.py         inštalácia do terminálu (DLL, include, šablóny, skript, profily), csv, run, control
 tester/tests/test_mt5_static_host.py      fasáda musí dať bar po bare to isté, čo most do Freqtrade
+csharp/TradeBot.Core/Bridge.cs            smerovanie príkazov: stratégia v NinjaTraderi, ordery v MT5 exekútore (StaticHost.Bridge*, docs/ROUTING.md)
 ```
 
 ## Prečo fasáda

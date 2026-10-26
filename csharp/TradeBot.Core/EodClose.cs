@@ -78,6 +78,23 @@ namespace TradeBot.Core
             return openMin + 2 * tfMinutes > CloseMin && openMin < ReopenMin;
         }
 
+        /// <summary>Najblizsie zatvorenie podla hodin (15:58:30 NY, `ClockCloseSec`) po `afterMs` v ms UTC, mimo
+        /// soboty a nedele - `OrderLife.CloseAtMs` vstupu, aby ho vzdialeny vykonavac zavrel aj bez enginu.</summary>
+        public static long NextClockCloseMs(long afterMs, TimeZoneInfo tz)
+        {
+            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(epoch.AddMilliseconds(afterMs), tz);
+            DateTime day = local.Date;
+            for (int i = 0; i < 8; i++, day = day.AddDays(1))
+            {
+                if (day.DayOfWeek == DayOfWeek.Saturday || day.DayOfWeek == DayOfWeek.Sunday) continue;
+                DateTime close = DateTime.SpecifyKind(day.AddSeconds(ClockCloseSec), DateTimeKind.Unspecified);
+                if (close <= local) continue;
+                return (long)(TimeZoneInfo.ConvertTimeToUtc(close, tz) - epoch).TotalMilliseconds;
+            }
+            return 0;
+        }
+
         public bool FlattenDue(long nowMs)
         {
             DateTime t = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(nowMs), _tz);
@@ -119,6 +136,9 @@ namespace TradeBot.Core
                         continue;
                     }
                     _pending.Add(i.OrderId);
+                    // vstup ide brokerovi na zatvoreni baru; vzdialeny vykonavac ho zavrie o 15:58:30 NY aj sam
+                    if (i.Life == null) i.Life = new OrderLife();
+                    i.Life.CloseAtMs = OrderLife.Earlier(i.Life.CloseAtMs, NextClockCloseMs(bar.Time + _tf * 60000L, _tz));
                 }
                 else
                 {

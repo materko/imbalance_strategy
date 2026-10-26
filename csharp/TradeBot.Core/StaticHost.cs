@@ -25,6 +25,9 @@
 // v testoch hladaju metodu podla mena.
 //
 // Verzia 4: `SpoolMinute` - uzavrety 1m bar symbolu (`m1`) do telemetrie, z ktoreho sa sklada sklad zivych sviecok.
+//
+// `Bridge*` (bez zmeny verzie, ako `SpoolHeartbeat`): MT5 exekutor pre ordery strategie, ktora bezi v inej platforme
+// (docs/ROUTING.md); vstupy v `OnBar` mozu niest `life` (`OrderLife`), EA strategii ho ignoruje.
 using System;
 using System.Collections.Generic;
 using TradeBot.Core;
@@ -409,5 +412,190 @@ public static class StaticHost
             return s.Spool != null ? s.Spool.Path : "";
         }
         catch (Exception e) { Fail(e); return ""; }
+    }
+
+    // -- smerovanie prikazov: MT5 exekutor (docs/ROUTING.md) -------------------------------------- //
+    // Exekutor nema engine - ma vlastnu tabulku handle. Prikazy idu von ako JSON pole (MQL5 ich cita
+    // `TradeBotJson.mqh`), udalosti dnu typovanymi parametrami (MQL nema nullable: 0 / "" = pole sa nepise).
+
+    private static readonly Dictionary<int, BridgeExecutor> Execs = new Dictionary<int, BridgeExecutor>();
+
+    private static BridgeExecutor Exec(int handle)
+    {
+        lock (Lock)
+        {
+            BridgeExecutor x;
+            if (!Execs.TryGetValue(handle, out x)) throw new ArgumentException("neznamy handle exekutora " + handle);
+            return x;
+        }
+    }
+
+    /// <summary>`mt5exec_&lt;login&gt;-&lt;server&gt;`.</summary>
+    public static string BridgeExecutorId(long login, string server)
+    {
+        try { return Bridge.ExecutorId(login, server); }
+        catch (Exception e) { Fail(e); return ""; }
+    }
+
+    /// <summary>Otvori exekutor nad `root` (`Common\Files\TradeBot`); handle &gt; 0, alebo -1.</summary>
+    public static int BridgeExecOpen(string root, string executorId)
+    {
+        try
+        {
+            BridgeExecutor x = new BridgeExecutor(root, executorId);
+            lock (Lock)
+            {
+                int h = _next++;
+                Execs[h] = x;
+                _lastError = "";
+                return h;
+            }
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    public static void BridgeExecClose(int handle)
+    {
+        lock (Lock) { Execs.Remove(handle); }
+    }
+
+    /// <summary>Route urcene tomuto exekutorovi ako JSON pole objektov `route.json` s doplnenym `id` (adresar route);
+    /// "" pri chybe (prazdny zoznam je "[]").</summary>
+    public static string BridgeRoutes(int handle)
+    {
+        try
+        {
+            JsonWriter w = new JsonWriter();
+            w.BeginArray();
+            foreach (KeyValuePair<string, RouteSpec> kv in Exec(handle).Routes())
+            {
+                RouteSpec r = kv.Value;
+                w.BeginObject().Key("id").Value(kv.Key).Key("symbol").Value(r.Symbol).Key("price").Value(r.Price);
+                w.Key("scale").Value(r.Scale).Key("qty_mode").Value(r.QtyMode).Key("lots").Value(r.Lots);
+                w.Key("magic").Value(r.Magic).Key("instance").Value(r.Instance).Key("deployment").Value(r.Deployment);
+                w.Key("nt_symbol").Value(r.NtSymbol).Key("nt_point_value").Value(r.NtPointValue).Key("nt_tick").Value(r.NtTick);
+                w.Key("tf").Value(r.Tf).EndObject();
+            }
+            w.EndArray();
+            return w.ToString();
+        }
+        catch (Exception e) { Fail(e); return ""; }
+    }
+
+    /// <summary>Nove, este nevykonane prikazy route ako JSON pole; "" pri chybe.</summary>
+    public static string BridgePoll(int handle, string routeId)
+    {
+        try { return "[" + string.Join(",", Exec(handle).Poll(routeId).ToArray()) + "]"; }
+        catch (Exception e) { Fail(e); return ""; }
+    }
+
+    /// <summary>Prikaz `cid` je vybaveny (vykonany aj odmietnuty) - po restarte sa nezopakuje. 1 ok, -1 chyba.</summary>
+    public static int BridgeDone(int handle, string routeId, string cid)
+    {
+        try { Exec(handle).Done(routeId, cid); return 1; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Udalost exekutora do `evt.jsonl`: `kind` ack/reject/placed/fill/modified/cancelled/closed/pos/order/
+    /// snapshot/note; `side` in/out pri fille a smer pri `pos`; ceny a objemy 0 = nepisat. Vrati `seq` alebo -1.</summary>
+    public static long BridgeEmit(int handle, string routeId, long nowMs, string kind, string cid, string id, string side,
+                                  double price, double priceNt, double qty, double lots, long execMs, string exitName,
+                                  string text)
+    {
+        try
+        {
+            return Exec(handle).Emit(routeId, nowMs, delegate(JsonWriter w)
+            {
+                w.Key("k").Value(kind ?? "");
+                if (!string.IsNullOrEmpty(cid)) w.Key("cid").Value(cid);
+                if (!string.IsNullOrEmpty(id)) w.Key("id").Value(id);
+                if (!string.IsNullOrEmpty(side)) w.Key("side").Value(side);
+                if (price != 0) w.Key("price").Value(price);
+                if (priceNt != 0) w.Key("price_nt").Value(priceNt);
+                if (qty != 0) w.Key("qty").Value(qty);
+                if (lots != 0) w.Key("lots").Value(lots);
+                if (execMs != 0) w.Key("ft").Value(execMs);
+                if (!string.IsNullOrEmpty(exitName)) w.Key("exit").Value(exitName);
+                if (!string.IsNullOrEmpty(text)) w.Key("text").Value(text);
+            });
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Vek heartbeatu mastera route v ms; -1 = nikdy neprisiel, -2 = chyba.</summary>
+    public static long BridgeMasterAge(int handle, string routeId, long nowMs)
+    {
+        try { return Exec(handle).MasterAgeMs(routeId, nowMs); }
+        catch (Exception e) { Fail(e); return -2; }
+    }
+
+    /// <summary>Session mastera z jeho heartbeatu; "" = ziadny (alebo chyba v `LastError`).</summary>
+    public static string BridgeMasterSession(int handle, string routeId)
+    {
+        try { return Exec(handle).MasterSession(routeId); }
+        catch (Exception e) { Fail(e); return ""; }
+    }
+
+    /// <summary>Heartbeat exekutora: `BridgeHbBegin`, `BridgeHbSymbol`*, `BridgeHbRoute`*, `BridgeHbWrite`. 1 ok, -1 chyba.</summary>
+    public static int BridgeHbBegin(int handle, long nowMs, long login, string server, string marginMode, bool connected,
+                                    bool tradeAllowed, string version)
+    {
+        try { Exec(handle).HeartbeatBegin(nowMs, login, server, marginMode, connected, tradeAllowed, version); return 1; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    public static int BridgeHbSymbol(int handle, string name, double tick, double tickValue, double volMin, double volStep,
+                                     double volMax, int tradeMode, double bid, double ask)
+    {
+        try { Exec(handle).HeartbeatSymbol(name, tick, tickValue, volMin, volStep, volMax, tradeMode, bid, ask); return 1; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    public static int BridgeHbRoute(int handle, string routeId, string state, string detail)
+    {
+        try { Exec(handle).HeartbeatRoute(routeId, state, detail); return 1; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    public static int BridgeHbWrite(int handle)
+    {
+        try { Exec(handle).HeartbeatWrite(); return 1; }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    // ciste vypocty (RouteMath) - MQL ich nepise druhy raz
+
+    public static double BridgeMapPrice(double price, double refNt, double refExec, double scale, double tick)
+    {
+        return RouteMath.MapPrice(price, refNt, refExec, scale, tick);
+    }
+
+    public static double BridgeToNtPrice(double execPrice, double refNt, double refExec, double scale)
+    {
+        return RouteMath.ToNtPrice(execPrice, refNt, refExec, scale);
+    }
+
+    public static double BridgeReanchor(double fill, double plannedEntry, double level, double scale, double tick)
+    {
+        return RouteMath.Reanchor(fill, plannedEntry, level, scale, tick);
+    }
+
+    public static double BridgeLots(double contracts, double ntPointValue, double scale, double tickValue, double tickSize,
+                                    double volMin, double volStep, double volMax, string mode, double fixedLots)
+    {
+        return RouteMath.Lots(contracts, ntPointValue, scale, tickValue, tickSize, volMin, volStep, volMax, mode ?? "value", fixedLots);
+    }
+
+    /// <summary>"cancel" / "close" / "" podla `OrderLife` (odklad `RouteMath.LifeGraceMs`).</summary>
+    public static string BridgeLifeAction(long cancelAtMs, long closeAtMs, long holdMs, bool filled, long fillMs, long nowMs)
+    {
+        return RouteMath.LifeAction(cancelAtMs, closeAtMs, holdMs, filled, fillMs, nowMs, RouteMath.LifeGraceMs);
+    }
+
+    /// <summary>Zalozny trailing exekutora (master prec): stop podla `TrailingPlan.StopPrice`, vzdialenosti v cenach exekutora.</summary>
+    public static double BridgeTrailStop(int direction, double entry, double baseStop, double extreme, double activation, double offset)
+    {
+        TrailingPlan p = new TrailingPlan(activation, offset, 0, 0);
+        return p.StopPrice(direction > 0 ? Direction.Long : Direction.Short, entry, baseStop, extreme);
     }
 }
