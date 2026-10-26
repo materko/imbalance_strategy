@@ -2062,7 +2062,13 @@ def test_runner_exclusive_and_results_dir(tmp_path: Path):
     r.jobs = {a.id: a, h.id: h}
     r.order = [a.id, h.id]
     assert not r._can_start(h)          # hyperopt čaká, kým beží backtest
-    assert r._can_start(Job(id="c", params={}, settings=BT))
+    # beh zaradený po čakajúcom hyperopte ho nepredbehne (N-WEB-11), skôr zaradený áno
+    assert not r._can_start(Job(id="c", params={}, settings=BT))
+    skor = Job(id="20260901-000000-cccccc", params={}, settings=BT)
+    r.jobs[skor.id] = skor
+    r.order.insert(0, skor.id)
+    assert r._can_start(skor)
+    skor.status = "done"
     a.status, h.status = "done", "running"
     assert not r._can_start(Job(id="c", params={}, settings=BT))  # a naopak
     assert r.load() == {"running": 1, "exclusive": True, "queued": 0, "workers": 3}

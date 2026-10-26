@@ -246,7 +246,17 @@ class BacktestRunner(HyperoptJobMixin):
         bezia = [self.jobs[i] for i in self.order if self.jobs[i].status == "running"]
         if job.exclusive:
             return not bezia
-        return not any(j.exclusive for j in bezia)
+        if any(j.exclusive for j in bezia):
+            return False
+        # hyperopt zaradený skôr čaká na prázdny stroj — ostatní workeri ho nesmú predbiehať
+        # ďalšími bodmi, inak pri 24 slotoch nezačne, kým fronta nevyschne (audit N-WEB-11)
+        for i in self.order:
+            if i == job.id:
+                break
+            skor = self.jobs[i]
+            if skor.status == "queued" and skor.exclusive and not skor.cancel_requested:
+                return False
+        return True
 
     def _loop(self) -> None:
         while True:
