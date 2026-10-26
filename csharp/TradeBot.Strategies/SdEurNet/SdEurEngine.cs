@@ -17,7 +17,7 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.SdEurNet
 {
     [TradeBotEngine("sdeurnet", "SD ZÓNY EURUSD (C# jadro)")]
-    public sealed class SdEurEngine : IEngine
+    public sealed class SdEurEngine : IEngine, IConfigured
     {
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
@@ -43,6 +43,8 @@ namespace TradeBot.Strategies.SdEurNet
         }
 
         private readonly SdEurConfig _cfg;
+        /// <summary>Config strategie - `EntryLayers.Wrap` z neho berie defaulty klucov, ktore profil nema.</summary>
+        public object Settings { get { return _cfg; } }
         private readonly InstrumentSpec _inst;
         private readonly int _tf;
         private readonly long _stepMs, _zoneMs;

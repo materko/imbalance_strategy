@@ -71,7 +71,7 @@ def test_ciastocny_profil_ako_uplny(bars, name):
 
 
 _CS_KEYS = ["ibsnet", "ibsentrynet", "ibsentryesnet", "noanet", "nyvaesnet", "orbnet", "tksnet", "vwapadxnet", "vwaporbnet",
-            "fibomgcnet"]
+            "fibomgcnet", "sdeurnet"]
 
 
 def _enum_cases():
