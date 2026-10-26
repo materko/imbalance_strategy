@@ -184,12 +184,16 @@ oprávnenia: PowerShell ako správca, alebo `--user`.
 v `data/`, pár sa v ponuke volá ako v MultiCharts (`NAS100`) a beh
 nejde cez Freqtrade, ale cez **emulátor** — ten istý `MCRunner`, ktorý beží v študii, plus
 broker podľa MultiCharts (jedna pozícia, order platí na ďalší bar, market na otvorení,
-limitka pri dotyku, SL/TP po 1m sviečkach, koniec seansy na close baru). Výsledok má
+limitka pri dotyku, SL/TP po 1m sviečkach, koniec seansy na close baru). Pozícia dostane SL/TP
+orderu, ktorý sa naozaj vyplnil (`filled_order_id`), a limitka vyplnená uprostred minúty, za ktorou
+cena v tej istej minúte prešla aj stop, končí stopom hneď v nej (audit 25. 10. 2026, N-CORE-2). Výsledok má
 rovnaký tvar ako Freqtrade beh, história ich nerozlišuje; v `result.engine` je
 `multicharts-emulator`. Dáta pripraví [DATA.md §B](DATA.md).
 
-**Predhistória.** Emulátor začína engine na `from_ms` bez predhistórie grafu (ako doteraz).
-Indikátory na vlastnom vyššom TF (IBS Supertrend/ADX pri `tradeDirection = Indicator`,
+**Predhistória.** Pred `from_ms` emulátor prehrá `max(300, required_history)` barov grafu (a HTF)
+bez obchodovania — ako Freqtrade `startup_candle_count` a `ready:false` naživo; ordery z nich broker
+nedostane (`MCRunner.forget_orders`). Do 26. 10. 2026 začínal bez nej a prvé dni okna (ATR, zóny,
+`lookbackDays` NOA/TKS) boli prázdne (N-CORE-3; C# `McEmulator.WarmupBars`). Indikátory na vlastnom vyššom TF (IBS Supertrend/ADX pri `tradeDirection = Indicator`,
 vyššie TF divergencie) však pred prvým barom dostanú svoje bary z 1m dát pred `from_ms`
 (`tradebot.core.warmup.seed_engine`) — rovnako ako vo Freqtrade, takže stav na prvom bare
 je na oboch enginoch ten istý. **Živá študia** neseeduje: indikátor sa rozbehne na histórii,

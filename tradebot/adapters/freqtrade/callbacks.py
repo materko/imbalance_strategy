@@ -133,9 +133,11 @@ class CallbacksMixin(IStrategy):
     def custom_entry_price(
         self, pair: str, trade, current_time, proposed_rate: float, entry_tag, side: str, **kwargs
     ) -> float:
-        """Limitka presne na cene plánu — Pine `strategy.entry(limit=entryPrice)`."""
+        """Limitka presne na cene plánu — Pine `strategy.entry(limit=entryPrice)`; market vstup na cene, ktorú
+        navrhne Freqtrade (v backteste open ďalšej sviečky, ako market order v emulátore a na platforme).
+        Limitka na close signálnej sviečky by po gape nevyplnila nič alebo inú cenu (audit N-CORE-1)."""
         row = self._signal(pair, current_time, entry_tag)
-        if row is None or row.entry != row.entry:
+        if row is None or row.entry != row.entry or row.market:
             return proposed_rate
         return row.entry
 

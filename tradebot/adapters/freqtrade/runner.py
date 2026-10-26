@@ -34,7 +34,7 @@ from ...core.config import StrategyConfig
 from ...core.drawing import objects_to_dicts
 from ...core.money import trade_money
 from ...core.risk import TrailingPlan, extreme_before_stop
-from ...core.types import Direction
+from ...core.types import Direction, OrderType
 from ...strategies import StrategySpec, spec_for_config
 from ...core.entry_confirm import wrap_entry_confirm
 from ...core.entry_filter import wrap_entry_filter
@@ -81,6 +81,9 @@ class SignalRow:
     #: (nie je v `COLUMN_ATTRS`) — číta ho `custom_stoploss` cez `signal_at`, rovnako
     #: ako MultiCharts runner berie `plan.trailing`.
     trailing: TrailingPlan | None = None
+    #: Vstup je market (ORB `entryMode=close`, NOA, TKS, VWAP ORB, IBS pin bar `Market`): Freqtrade ho má
+    #: vyplniť na open ďalšej sviečky, nie ako limitku na `entry` (audit N-CORE-1). Do DataFrame nejde.
+    market: bool = False
 
 
 def _utc_day(ts_ms: int) -> str:
@@ -290,6 +293,7 @@ class EngineRunner:
             row.take_profit = plan.take_profit
             row.qty = plan.qty
             row.trailing = plan.trailing
+            row.market = intent.order_type is OrderType.MARKET
             row.source_id = float(intent.source_id)
 
         self.rows[bar.time] = row

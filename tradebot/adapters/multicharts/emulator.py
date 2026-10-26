@@ -114,6 +114,18 @@ def bars_from_frame(m1, minutes: int, from_ms: int | None = None, to_ms: int | N
             for i in range(len(ts))]
 
 
+#: Predhistória grafu pred oknom behu v baroch — ako Freqtrade `startup_candle_count` (`max(300, required_history)`),
+#: aby prvý deň okna mal ATR, zóny a HTF okno ako na Freqtrade a naživo (audit N-CORE-3). C#: `McEmulator.WarmupBars`.
+WARMUP_BARS = 300
+
+
+def warmup_bars(m1, chart_tf: int, first_ms: int, n: int) -> list[Bar]:
+    """Posledných `n` uzavretých barov grafu pred `first_ms` (víkendy a sviatky sa preskočia)."""
+    step = chart_tf * MIN_MS
+    lo = first_ms - 3 * n * step - 7 * 86_400_000
+    return bars_from_frame(m1, chart_tf, lo, first_ms)[-n:] if n > 0 else []
+
+
 def _seed_before(runner: MCRunner, m1, first_ms: int, log: Callable[[str], None]) -> None:
     """Indikátory s vlastnou predhistóriou z 1m dát pred prvým barom grafu (bez pohľadu dopredu)."""
     warmup = getattr(runner.engine, "warmup", None)
@@ -225,16 +237,33 @@ def emulate(
         by_bar.setdefault(b.time // step * step, []).append(b)
 
     runner = MCRunner(cfg, inst, chart_tf, spec=spec)
+    pre: list[Bar] = []
+    if chart and from_ms is not None:
+        pre = warmup_bars(m1, chart_tf, chart[0].time,
+                          max(WARMUP_BARS, int(getattr(runner.engine, "required_history", 0) or 0)))
     if chart:
-        _seed_before(runner, m1, chart[0].time, out_log)
+        _seed_before(runner, m1, pre[0].time if pre else chart[0].time, out_log)
     htf_bars: list[Bar] = []
     htf_closes: list[int] = []
     htf_pos = 0
     if runner.htf is not None and runner.spec.informative_tfs:
         htf_minutes = timeframe_minutes(runner.spec.informative_tfs(cfg)[0])
-        htf_bars = bars_from_frame(m1, htf_minutes, from_ms, to_ms)
+        htf_bars = bars_from_frame(m1, htf_minutes, pre[0].time if pre else from_ms, to_ms)
         htf_closes = [b.time + htf_minutes * MIN_MS for b in htf_bars]
     registry = registry if registry is not None else DrawRegistry()
+
+    # Predhistória: engine vidí bary pred oknom, ale nič sa neobchoduje — ordery z nej broker nedostane
+    # (ako `ready:false` v NinjaTraderi a MT5). Platný vstup engine po štarte okna pošle znova.
+    for bar in pre:
+        if htf_bars:
+            end = bisect_right(htf_closes, bar.time + step)
+            for hb in htf_bars[htf_pos:end]:
+                runner.feed_htf(hb)
+            htf_pos = max(htf_pos, end)
+        registry.extend(runner.on_bar(bar, position_size=0.0, closed_trades=0, closed_trade_pnls=[]).drawings)
+    if pre:
+        runner.forget_orders()
+        out_log(f"predhistoria grafu: {len(pre)} barov pred oknom (bez obchodov)")
 
     trades: list[EmuTrade] = []
     open_trade: EmuTrade | None = None
@@ -242,6 +271,8 @@ def emulate(
     pending_entries: list[LiveOrder] = []
     #: koľko uzavretých obchodov už runner dostal (`closed_trade_pnls` = len nové)
     reported = 0
+    #: order poslednej otvorenej pozície - runner podľa neho prevezme SL/TP (N-CORE-2)
+    filled_id: str | None = None
     ambiguous = 0
     first_close = last_close = None
     daily: dict[int, float] = {}
@@ -269,7 +300,19 @@ def emulate(
                     )
                     active_stop, active_tp = float(live.plan.stop_loss), float(live.plan.take_profit)
                     filled_now = px == sub.open  # limitka uprostred minúty: výstup až od ďalšej
+                    filled_id = live.order_id
                     pending_entries = []
+                    if not filled_now and not live.market and not live.stop:
+                        # Limitka sa vyplnila cestou ceny proti nej (long: z open dolu k vstupu). Stop leží ďalej
+                        # tým istým smerom, takže low / high minúty za ním je zásah PO vyplnení - jednoznačne
+                        # (N-CORE-2). TP je na druhej strane a ten v tej minúte rozhodnúť nejde.
+                        hit_sl = sub.low <= active_stop if open_trade.is_long else sub.high >= active_stop
+                        if hit_sl:
+                            open_trade.max_price = max(open_trade.max_price, sub.high)
+                            open_trade.min_price = min(open_trade.min_price, sub.low)
+                            open_trade.exit, open_trade.close_ms, open_trade.reason = active_stop, sub.time, "stop_loss"
+                            trades.append(open_trade)
+                            open_trade = None
                     break
             if open_trade is None:
                 continue
@@ -300,7 +343,8 @@ def emulate(
             htf_pos = max(htf_pos, end)
         position = open_trade.qty * open_trade.sign if open_trade is not None else 0.0
         out = runner.on_bar(bar, position_size=position, closed_trades=len(trades),
-                            closed_trade_pnls=[_net_pnl(t, inst, fee) for t in trades[reported:]])
+                            closed_trade_pnls=[_net_pnl(t, inst, fee) for t in trades[reported:]],
+                            filled_order_id=filled_id)
         reported = len(trades)
         registry.extend(out.drawings)
 

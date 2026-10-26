@@ -382,7 +382,7 @@ def test_emulator_a_freqtrade_rovnaky_stav_na_prvom_bare(tmp_path, monkeypatch, 
     from freqtrade.data.history import get_datahandler
     from freqtrade.enums import CandleType
 
-    from tradebot.adapters.multicharts.emulator import emulate
+    from tradebot.adapters.multicharts.emulator import WARMUP_BARS, emulate, warmup_bars
 
     pair = "BTC/USDT:USDT"
     tf = f"{chart}m"
@@ -393,7 +393,8 @@ def test_emulator_a_freqtrade_rovnaky_stav_na_prvom_bare(tmp_path, monkeypatch, 
     cfg, inst = _ibs_cfg(st_tf="60", adx_tf="60")
     _, mc = emulate(cfg, inst, m1_long, chart, from_ms=first_ms, to_ms=first_ms + step)
 
-    # Freqtrade: TF behu na disku (z 1m cez candles.py), DataFrame behu začína first_ms
+    # Freqtrade: TF behu na disku (z 1m cez candles.py), DataFrame behu začína predhistóriou
+    # (`startup_candle_count`) - tou istou, ktorú emulátor prehrá pred `from_ms` (audit N-CORE-3)
     datadir = tmp_path / "data"
     (datadir / "futures").mkdir(parents=True)
     handler = get_datahandler(datadir, "feather")
@@ -404,7 +405,9 @@ def test_emulator_a_freqtrade_rovnaky_stav_na_prvom_bare(tmp_path, monkeypatch, 
                       indSupertrend=True, indAdx=True, stTimeframe="60", adxTimeframe="60")
     ft_df = resample_ohlcv(m1_long, chart)
     ms = ft_df["date"].astype("datetime64[ns, UTC]").astype("int64") // 1_000_000
-    ft_df = ft_df[(ms >= first_ms) & (ms < first_ms + step)].reset_index(drop=True)
+    pre = warmup_bars(m1_long, chart, first_ms, max(WARMUP_BARS, mc.engine.required_history))
+    start = pre[0].time if pre else first_ms
+    ft_df = ft_df[(ms >= start) & (ms < first_ms + step)].reset_index(drop=True)
     s.dp = None                                   # Freqtrade ho dosadí až pri štarte botu
     s.populate_indicators(ft_df, {"pair": pair})
     ft = s._runners[pair]

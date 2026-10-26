@@ -81,6 +81,14 @@ namespace TradeBot.Backtest
 
         public LiveOrder Last { get { return _order.Count == 0 ? null : _map[_order[_order.Count - 1]]; } }
 
+        public LiveOrder Get(string id)
+        {
+            LiveOrder o;
+            return id != null && _map.TryGetValue(id, out o) ? o : null;
+        }
+
+        public void Clear() { _order.Clear(); _map.Clear(); }
+
         public List<LiveOrder> Values()
         {
             List<LiveOrder> v = new List<LiveOrder>(_order.Count);
@@ -125,7 +133,12 @@ namespace TradeBot.Backtest
 
         public void FeedHtf(Bar b) { if (Htf != null) Htf.Feed(b); }
 
-        public BarOutput OnBar(Bar bar, double positionSize, int closedTrades, List<double> closedTradePnls)
+        /// <summary>Po predhistorii: cakajuce ordery z nej broker nedostal (Python `forget_orders`).</summary>
+        public void ForgetOrders() { _live.Clear(); }
+
+        /// <summary>`filledOrderId` = order, ktory poziciu otvoril (emulator to vie) - Python `filled_order_id`,
+        /// bez neho posledny zalozeny (audit N-CORE-2).</summary>
+        public BarOutput OnBar(Bar bar, double positionSize, int closedTrades, List<double> closedTradePnls, string filledOrderId)
         {
             if (_lastTs.HasValue && bar.Time <= _lastTs.Value) return new BarOutput();
             _lastTs = bar.Time;
@@ -135,7 +148,7 @@ namespace TradeBot.Backtest
             if (_closedTrades.HasValue && closedTrades > _closedTrades.Value && positionSize == 0.0
                 && _openPlan == null && _live.Count > 0)
             {
-                LiveOrder last = _live.Last;
+                LiveOrder last = _live.Get(filledOrderId) ?? _live.Last;
                 roundTripId = last.OrderId;
                 _live.Remove(roundTripId);
             }
@@ -143,7 +156,7 @@ namespace TradeBot.Backtest
 
             if (positionSize != 0.0 && _openPlan == null)
             {
-                LiveOrder last = _live.Last;
+                LiveOrder last = _live.Get(filledOrderId) ?? _live.Last;
                 _openPlan = last != null ? last.Plan : null;
                 _openId = last != null ? last.OrderId : null;
                 _openExtreme = null;
@@ -244,10 +257,16 @@ namespace TradeBot.Backtest
         private readonly Dictionary<int, Bar[]> _htf = new Dictionary<int, Bar[]>();
         private readonly Dictionary<int, long[]> _htfCloses = new Dictionary<int, long[]>();
 
+        private readonly bool _fromBounded;
+        private readonly long _toMs;
+        private readonly Dictionary<int, Bar[]> _pre = new Dictionary<int, Bar[]>();
+
         private EmuData(Candles m1, int chartTf, long fromMs, long toMs)
         {
             M1 = m1;
             ChartTf = chartTf;
+            _fromBounded = fromMs != long.MinValue;
+            _toMs = toMs;
             _inRange = CandleOps.Slice(m1, fromMs, toMs);
             Chart = CandleOps.Bars(CandleOps.Resample(_inRange, chartTf));
             Detail = CandleOps.Bars(_inRange);
@@ -291,10 +310,42 @@ namespace TradeBot.Backtest
             HtfBars(minutes);
             lock (_htf) { return _htfCloses[minutes]; }
         }
+
+        /// <summary>Python `warmup_bars`: poslednych `n` barov grafu pred oknom (len pri ohranicenom zaciatku okna).</summary>
+        public Bar[] PreBars(int n)
+        {
+            if (!_fromBounded || Chart.Length == 0 || n <= 0) return new Bar[0];
+            lock (_pre)
+            {
+                Bar[] b;
+                if (_pre.TryGetValue(n, out b)) return b;
+                long step = ChartTf * CandleOps.MinuteMs;
+                long lo = Chart[0].Time - 3L * n * step - 7L * 86400000L;
+                Bar[] all = CandleOps.Bars(CandleOps.Resample(CandleOps.Slice(M1, lo, Chart[0].Time), ChartTf));
+                int skip = Math.Max(0, all.Length - n);
+                b = new Bar[all.Length - skip];
+                Array.Copy(all, skip, b, 0, b.Length);
+                _pre[n] = b;
+                return b;
+            }
+        }
+
+        /// <summary>Vyssi TF od `startMs` (zaciatok predhistorie) do konca okna, s casmi zatvorenia.</summary>
+        public Bar[] HtfBarsFrom(int minutes, long startMs, out long[] closes)
+        {
+            Candles part = CandleOps.Slice(M1, startMs, _toMs);
+            Bar[] b = CandleOps.Bars(CandleOps.Resample(part, minutes));
+            closes = new long[b.Length];
+            for (int i = 0; i < b.Length; i++) closes[i] = b[i].Time + minutes * CandleOps.MinuteMs;
+            return b;
+        }
     }
 
     public static class McEmulator
     {
+        /// <summary>Predhistoria grafu pred oknom - Python `WARMUP_BARS` (Freqtrade `startup_candle_count`).</summary>
+        public const int WarmupBars = 300;
+
         private static double? EntryFill(Bar sub, LiveOrder live, bool firstMinute)
         {
             double price = live.Plan.Entry;
@@ -430,19 +481,43 @@ namespace TradeBot.Backtest
 
             McRunner runner = new McRunner(engine, config, data.ChartTf);
             List<string> log = new List<string>();
+            Bar[] pre = data.PreBars(Math.Max(WarmupBars, engine.RequiredHistory));
             if (chart.Length > 0)
             {
-                string s = SeedBefore(engine, data.M1, chart[0].Time);
+                string s = SeedBefore(engine, data.M1, pre.Length > 0 ? pre[0].Time : chart[0].Time);
                 if (s.Length > 0) log.Add(s);
             }
             Bar[] htfBars = new Bar[0];
             long[] htfCloses = new long[0];
             if (runner.Htf != null)
             {
-                htfBars = data.HtfBars(runner.Htf.TfMinutes);
-                htfCloses = data.HtfCloses(runner.Htf.TfMinutes);
+                if (pre.Length > 0) htfBars = data.HtfBarsFrom(runner.Htf.TfMinutes, pre[0].Time, out htfCloses);
+                else
+                {
+                    htfBars = data.HtfBars(runner.Htf.TfMinutes);
+                    htfCloses = data.HtfCloses(runner.Htf.TfMinutes);
+                }
             }
             int htfPos = 0;
+
+            // predhistoria bez obchodov - Python `emulate` (audit N-CORE-3)
+            List<double> none = new List<double>();
+            foreach (Bar pb in pre)
+            {
+                if (htfBars.Length > 0)
+                {
+                    int end = UpperBound(htfCloses, pb.Time + step);
+                    for (int h = htfPos; h < end; h++) runner.FeedHtf(htfBars[h]);
+                    htfPos = Math.Max(htfPos, end);
+                }
+                runner.OnBar(pb, 0.0, 0, none, null);
+            }
+            if (pre.Length > 0)
+            {
+                runner.ForgetOrders();
+                log.Add("predhistoria grafu: " + pre.Length + " barov pred oknom (bez obchodov)");
+            }
+            string filledId = null;
 
             List<EmuTrade> trades = res.Trades;
             EmuTrade open = null;
@@ -479,7 +554,21 @@ namespace TradeBot.Backtest
                             activeStop = live.Plan.StopLoss;
                             activeTp = live.Plan.TakeProfit;
                             filledNow = px.Value == sub.Open;   // limitka uprostred minuty: vystup az od dalsej
+                            filledId = live.OrderId;
                             pending = new List<LiveOrder>();
+                            if (!filledNow && !live.Market && !live.Stop)
+                            {
+                                // limitka vyplnena cestou ceny proti nej - stop za low/high minuty je zasah PO vyplneni (N-CORE-2)
+                                bool hitSl = open.IsLong ? sub.Low <= activeStop : sub.High >= activeStop;
+                                if (hitSl)
+                                {
+                                    open.MaxPrice = Math.Max(open.MaxPrice, sub.High);
+                                    open.MinPrice = Math.Min(open.MinPrice, sub.Low);
+                                    open.Exit = activeStop; open.CloseMs = sub.Time; open.Reason = "stop_loss";
+                                    trades.Add(open);
+                                    open = null;
+                                }
+                            }
                             break;
                         }
                     }
@@ -505,7 +594,7 @@ namespace TradeBot.Backtest
                 double position = open != null ? open.Qty * (open.IsLong ? 1.0 : -1.0) : 0.0;
                 List<double> pnls = new List<double>();
                 for (int t = reported; t < trades.Count; t++) pnls.Add(NetPnl(trades[t], engine.Inst, fee));
-                BarOutput o = runner.OnBar(bar, position, trades.Count, pnls);
+                BarOutput o = runner.OnBar(bar, position, trades.Count, pnls, filledId);
                 reported = trades.Count;
 
                 if (o.CloseSession && open != null)

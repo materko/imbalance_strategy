@@ -420,6 +420,10 @@ Každý spárovaný obchod má rovnakú vstupnú aj výstupnú cenu; rozdiely s�
   `legacyPineSizing` počíta `qty = floor(maxLossDollar / SL vzdialenosť)`, blízko hranice
   zaokrúhlenia to zmení qty aj o polovicu (24. 1.: −174 vs −360 USD pri tej istej cene).
 
+Market vstupy (pin bar `Market`, ORB `close`, NOA, TKS, VWAP ORB) idú od 26. 10. 2026 na cene, ktorú
+navrhne Freqtrade (open ďalšej sviečky) — predtým ako limitka na close signálnej sviečky, takže po
+gape obchod chýbal (audit N-CORE-1; na IBS golden BTC 3m +1 až +7 obchodov za rok).
+
 Preto: **laď cez Freqtrade, ale záver over emulátorom.** Referencia pre NAS100 ostáva
 emulátor, lebo ten sedí s tým, čo v MultiCharts naozaj pobeží.
 

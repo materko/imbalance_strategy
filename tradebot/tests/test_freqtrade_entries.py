@@ -222,3 +222,17 @@ def test_vystup_uprace_extrem_trailingu(strategy):
     assert ok is True
     assert (PAIR, trade.open_date_utc) not in strategy._extremes
     assert ("ETH/USDT:USDT", trade.open_date_utc) in strategy._extremes
+
+
+def test_market_vstup_ide_na_navrhnutej_cene_nie_na_close_signalu(strategy):
+    """Audit N-CORE-1: market vstup (ORB `close`, NOA, TKS, VWAP ORB, IBS pin bar) Freqtrade vyplní na open
+    ďalšej sviečky (`proposed_rate`). Limitka na close signálnej sviečky by po gape hore nevyplnila nič."""
+    market = SignalRow(enter_long=1, entry=100.0, stop_loss=95.0, take_profit=110.0, qty=1.0,
+                       in_trade_window=True, market=True)
+    limit = SignalRow(enter_long=1, entry=100.0, stop_loss=95.0, take_profit=110.0, qty=1.0,
+                      in_trade_window=True)
+    strategy._runners[PAIR] = _Runner(market, limit)
+    when = T_SIGNAL + MIN3
+    assert strategy.custom_entry_price(PAIR, None, when, 105.0, f"{ENTRY_TAG_PREFIX}{_ms(T_SIGNAL)}", "long") == 105.0
+    assert strategy.custom_entry_price(PAIR, None, when, 105.0, f"{ENTRY_TAG_PREFIX}{_ms(T_SIGNAL + MIN3)}", "long") == 100.0
+

@@ -54,7 +54,7 @@ def scripted(monkeypatch, outputs: dict[int, BarOutput]):
 
     seen = []
 
-    def on_bar(self, bar, *, position_size=0.0, closed_trades=None, closed_trade_pnls=None):
+    def on_bar(self, bar, *, position_size=0.0, closed_trades=None, closed_trade_pnls=None, filled_order_id=None):
         seen.append((bar.time, position_size, closed_trades))
         self.last_ts = bar.time
         return outputs.get(len(seen) - 1, BarOutput())
@@ -333,3 +333,25 @@ def test_max_daily_wins_straty_ani_vyhra_zjedena_poplatkom_sa_nepocitaju():
     rising = [(m, 100.0 + m, 101.0 + m, 100.0 + m, 101.0 + m) for m in range(0, 60)]
     result, runner = emulate(IBSConfig(maxDailyWins=1), MNQ, m1_frame(rising), 3, spec=_spy_spec(TinyWin), fee=0.001)
     assert len(result.trades) > 5 and not any(flag for _ts, flag in runner.engine.limits)
+
+
+def test_stop_v_minute_vyplnenia_limitky(monkeypatch):
+    """Audit N-CORE-2 (A4): limit 100 / SL 99, minúta O101 H101 L98 — cena išla dolu cez vstup aj cez stop,
+    takže stop zasiahol po vyplnení v tej istej minúte, nie až v ďalšej."""
+    rows = flat([0, 1, 2], 101) + [(3, 101, 101, 98, 98.5), (4, 98.5, 99, 97, 97.5), (5, 97.5, 97.5, 97.5, 97.5)] + flat([6, 7, 8], 97.5)
+    scripted(monkeypatch, {0: BarOutput(entries=[live("LONG_1", entry=100.0, sl=99.0, tp=102.0, qty=1)])})
+    result, _ = emulate(cfg(), MNQ, m1_frame(rows), 3)
+    t = result.trades[0]
+    assert (t.entry, t.exit, t.reason, t.open_ms, t.close_ms) == (100.0, 99.0, "stop_loss", T0 + 3 * MIN, T0 + 3 * MIN)
+
+
+def test_runner_prevezme_plan_vyplneneho_orderu():
+    """Audit N-CORE-2 (A3): dva čakajúce longy A (100 / SL 90 / TP 110) a B (95 / 85 / 105); vyplnil sa A —
+    pozícia musí mať SL/TP z A, nie z posledného založeného B."""
+    from tradebot.adapters.multicharts.runner import MCRunner
+
+    r = MCRunner.__new__(MCRunner)
+    r._live = {"A": live("A", entry=100.0, sl=90.0, tp=110.0), "B": live("B", entry=95.0, sl=85.0, tp=105.0)}
+    assert r._adopt_open_plan("A")[1] == "A" and r._adopt_open_plan("A")[0].stop_loss == 90.0
+    assert r._adopt_open_plan()[1] == "B"            # študia MultiCharts id nevie: posledný (pôvodné správanie)
+    assert r._adopt_open_plan("cudzi")[1] == "B"

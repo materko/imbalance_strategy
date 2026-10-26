@@ -151,7 +151,7 @@ class MCRunner:
     # ------------------------------------------------------------------ #
 
     def on_bar(self, bar: Bar, *, position_size: float = 0.0, closed_trades: int | None = None,
-               closed_trade_pnls: Sequence[float] | None = None) -> BarOutput:
+               closed_trade_pnls: Sequence[float] | None = None, filled_order_id: str | None = None) -> BarOutput:
         """Spracuje jeden uzavretý bar grafu.
 
         `position_size` je `self.MarketPosition` zo študie: > 0 long, < 0 short.
@@ -163,6 +163,10 @@ class MCRunner:
         `closed_trade_pnls` je realizovaný zisk (po poplatkoch) obchodov uzavretých od
         minulého volania, v poradí uzavretia — z nich sa počíta Pine `dailyWinLimitReached`
         (`maxDailyWins`). `None` = adaptér to nevie, limit sa neuplatní (pôvodné správanie).
+
+        `filled_order_id` je order, ktorý pozíciu otvoril (alebo otvoril a hneď zavrel), keď to hostiteľ vie —
+        emulátor áno, študia MultiCharts nie. Bez neho sa pri dvoch čakajúcich orderoch berie posledný a obchod
+        by dostal SL/TP toho druhého (audit N-CORE-2).
         """
         if self.last_ts is not None and bar.time <= self.last_ts:
             return BarOutput()  # MultiCharts vie zavolať CalcBar na tom istom bare
@@ -175,7 +179,7 @@ class MCRunner:
             and closed_trades > self._closed_trades and position_size == 0.0
             and self._open_plan is None and self._live
         ):
-            _plan, round_trip_id = self._adopt_open_plan()
+            _plan, round_trip_id = self._adopt_open_plan(filled_order_id)
             if round_trip_id is not None:
                 self._live.pop(round_trip_id, None)
         if closed_trades is not None:
@@ -186,7 +190,7 @@ class MCRunner:
         # Vyplnený order sa z množiny živých vyradí — v Pine vyplnená `strategy.entry`
         # už neexistuje; inak by sa po zavretí pozície poslal znova (market vstup).
         if position_size != 0.0 and self._open_plan is None:
-            self._open_plan, self._open_id = self._adopt_open_plan()
+            self._open_plan, self._open_id = self._adopt_open_plan(filled_order_id)
             self._open_extreme = None
             if self._open_id is not None:
                 self._live.pop(self._open_id, None)
@@ -293,7 +297,11 @@ class MCRunner:
             stop=intent.order_type is OrderType.STOP,
         )
 
-    def _adopt_open_plan(self) -> tuple[TradePlan | None, str | None]:
+    def forget_orders(self) -> None:
+        """Po predhistórii emulátora: čakajúce ordery z nej sa brokerovi neposlali (engine ich zruší sám)."""
+        self._live.clear()
+
+    def _adopt_open_plan(self, filled_order_id: str | None = None) -> tuple[TradePlan | None, str | None]:
         """Ktorý z čakajúcich orderov sa práve vyplnil.
 
         MultiCharts nepovie, ktorý order pozíciu otvoril — vie len `MarketPosition`.
@@ -303,5 +311,7 @@ class MCRunner:
         """
         if not self._live:
             return None, None
+        if filled_order_id is not None and filled_order_id in self._live:
+            return self._live[filled_order_id].plan, filled_order_id
         order_id, live = next(reversed(self._live.items()))
         return live.plan, order_id
