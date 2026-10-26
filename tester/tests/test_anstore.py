@@ -32,6 +32,31 @@ def store(tmp_path):
     return AnalyticsStore(tmp_path)
 
 
+def test_subezny_patch_a_posudok_sa_neprepisu(store, monkeypatch):
+    """GET histórie dopĺňa konfiguráciu (`patch`) a súbežne sa ukladá posudok — read-modify-write bez
+    zámku nechal len jednu z dvoch zmien (audit N-WEB-12)."""
+    import threading
+    import time
+
+    an_id = store.save(report(), strategy="ibs")["id"]
+    povodny_get = AnalyticsStore.get
+
+    def pomaly_get(self, i):
+        z = povodny_get(self, i)
+        time.sleep(0.05)                                  # okno medzi čítaním a zápisom
+        return z
+
+    monkeypatch.setattr(AnalyticsStore, "get", pomaly_get)
+    vlakna = [threading.Thread(target=store.patch, args=(an_id,), kwargs={"config_key": "k1"}),
+              threading.Thread(target=store.set_posudok, args=(an_id, "posudok"))]
+    for t in vlakna:
+        t.start()
+    for t in vlakna:
+        t.join()
+    z = povodny_get(store, an_id)
+    assert z["config_key"] == "k1" and z["posudok"] == "posudok"
+
+
 def test_ulozi_sa_zaver_a_odkaz_na_behy(store):
     hlavicka = store.save(report(), strategy="ibs", note="skúška")
 

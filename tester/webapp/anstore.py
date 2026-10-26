@@ -19,6 +19,7 @@ stratégii iné, takže zliať ich do jedného zoznamu by znamenalo porovnávať
 from __future__ import annotations
 
 import json
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
@@ -32,6 +33,11 @@ __all__ = ["AnalyticsStore", "ANALYTICS_DIR", "POSUDOK_OTAZKY",
 
 #: Koľko znakov z hlavičky ide do zoznamu. Celá veta je v detaile.
 HEADLINE_CHARS = 300
+
+
+#: Read-modify-write záznamu (patch, posudok) — GET histórie dopĺňa staré záznamy a súbežný POST posudku by
+#: sa inak prepísali (audit N-WEB-12). Spoločný pre všetky inštancie: webapp ich vyrába viac nad tým istým adresárom.
+_RMW = threading.RLock()
 
 
 class AnalyticsStore:
@@ -114,14 +120,15 @@ class AnalyticsStore:
         Odtlačok sa berie **z uložených čísel**, nie z aktuálnych — posudok patrí k tomu,
         čo mal pisateľ pred očami.
         """
-        zaznam = self.get(an_id)
-        if zaznam is None:
-            return None
-        zaznam["posudok"] = text.strip()
-        zaznam["posudok_stamp"] = zaznam.get("numbers") or ""
-        zaznam["posudok_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
-        zaznam["posudok_user"] = user
-        write_json_atomic(self._path(an_id), zaznam, indent=1, newline=False)
+        with _RMW:
+            zaznam = self.get(an_id)
+            if zaznam is None:
+                return None
+            zaznam["posudok"] = text.strip()
+            zaznam["posudok_stamp"] = zaznam.get("numbers") or ""
+            zaznam["posudok_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            zaznam["posudok_user"] = user
+            write_json_atomic(self._path(an_id), zaznam, indent=1, newline=False)
         return summary(zaznam)
 
     def find_by_numbers(self, strategy: str, numbers: str) -> dict[str, Any] | None:
@@ -155,11 +162,12 @@ class AnalyticsStore:
 
     def patch(self, an_id: str, **fields: Any) -> dict[str, Any] | None:
         """Doplní hlavičkové polia (napr. konfiguráciu k starším záznamom). `None` = niet."""
-        zaznam = self.get(an_id)
-        if zaznam is None:
-            return None
-        zaznam.update(fields)
-        write_json_atomic(self._path(an_id), zaznam, indent=1, newline=False)
+        with _RMW:
+            zaznam = self.get(an_id)
+            if zaznam is None:
+                return None
+            zaznam.update(fields)
+            write_json_atomic(self._path(an_id), zaznam, indent=1, newline=False)
         return summary(zaznam)
 
     def delete(self, an_id: str) -> bool:
