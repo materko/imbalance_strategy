@@ -184,9 +184,13 @@ def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
         time.sleep(2)
         if not quiet and job.log_lines:
             print(f"  … {job.log_lines[-1][:100]}", flush=True)
-    # bod mriežky/matice nie je v histórii, ale v `sweeps/` — `find` nájde oboje
-    return store.find(job.id) or {"id": job.id, "status": job.status, "error": job.error,
-                                  "settings": settings}
+    # Runner prepne stav na done/failed pred zápisom `run.json` — bez čakania by checkup
+    # dostal záznam bez výsledku a okno by vypadlo z analytiky.
+    # Bod mriežky/matice nie je v histórii, ale v `sweeps/` — `find` nájde oboje.
+    koniec = time.monotonic() + 120
+    while (rec := store.find(job.id)) is None and time.monotonic() < koniec:
+        time.sleep(0.2)
+    return rec or {"id": job.id, "status": job.status, "error": job.error, "settings": settings}
 
 
 def cmd_run(args: argparse.Namespace) -> int:

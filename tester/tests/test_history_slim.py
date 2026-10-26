@@ -165,6 +165,38 @@ def test_beh_aj_bod_celku_nesu_verziu_kodu(tmp_path: Path, monkeypatch):
     assert store.tagged("sweep", "20260905-110000-aaaaaa")[0]["repo_version"] == "abc1234"
 
 
+def test_priamy_beh_z_cli_pocka_na_zapis_zaznamu(tmp_path: Path, monkeypatch):
+    """Runner prepne stav na done skôr, než zapíše `run.json`; checkup bez webapp vtedy
+    dostal záznam bez výsledku a okno vypadlo z analytiky (tksnet 26. 10. 2026)."""
+    import argparse
+    import importlib
+    import threading
+
+    from tester.webapp import runner as runner_mod
+    from tester.webapp import store as store_mod
+
+    store = RunStore(tmp_path / "runs")
+    rec = _record("20260905-120000-aaaaa1")
+
+    class Pomaly:
+        def __init__(self, _store):
+            pass
+
+        def submit(self, params, settings, note="", user=""):
+            job = runner_mod.Job(id=rec["id"], params=params, status="done", note=note, user=user,
+                                 settings=settings)
+            threading.Timer(0.5, lambda: store.save(rec)).start()
+            return job
+
+    monkeypatch.setattr(runner_mod, "BacktestRunner", Pomaly)
+    monkeypatch.setattr(store_mod, "RunStore", lambda: store)
+    cli_run = importlib.import_module("tester.webapp.cli.run")
+    monkeypatch.setattr(cli_run, "server_alive", lambda url: False)
+    args = argparse.Namespace(user="t", url="http://127.0.0.1:9", remote=False)
+    out = cli_run._execute(args, rec["params"], rec["settings"], "x", quiet=True)
+    assert out["result"] == rec["result"]
+
+
 @pytest.fixture
 def app_client(tmp_path: Path, monkeypatch):
     pytest.importorskip("fastapi")
