@@ -512,15 +512,21 @@ def build(ctx: AppContext) -> APIRouter:
         `after` = rowid zrkadla, od ktorého klient riadky ešte nemá (-1 = len od teraz)."""
 
         async def gen():
+            loop = asyncio.get_running_loop()
+
+            def spravy(od: int) -> list[dict[str, Any]]:
+                return list(stream_messages(mirror, after=od, deploy=_deploy_state))
+
+            # sqlite zrkadla a git (stav nasadenia) idú do vlákna - priamo v `async` by zastavili celú
+            # aplikáciu vrátane heartbeatu agenta, pre každú otvorenú kartu Live (audit N-WEB-7)
             kurzor = mirror.store.cursor() if after < 0 else int(after)
             verzia = mirror.version
             yield "retry: 3000\n\n"
             # prvý stav hneď (aj keď sa nič nezmenilo) — klient nemusí volať /api/live zvlášť
-            for msg in stream_messages(mirror, after=kurzor, deploy=_deploy_state):
+            for msg in await loop.run_in_executor(None, spravy, kurzor):
                 kurzor = max(kurzor, int(msg.get("cursor") or 0), *(r["id"] for r in msg.get("rows") or []))
                 yield sse_event(msg)
             ticho = 0.0
-            loop = asyncio.get_running_loop()
             while True:
                 if await request.is_disconnected():
                     return
@@ -532,7 +538,7 @@ def build(ctx: AppContext) -> APIRouter:
                         yield ": keepalive\n\n"
                     continue
                 verzia, ticho = nova, 0.0
-                for msg in stream_messages(mirror, after=kurzor, deploy=_deploy_state):
+                for msg in await loop.run_in_executor(None, spravy, kurzor):
                     kurzor = max(kurzor, int(msg.get("cursor") or 0), *(r["id"] for r in msg.get("rows") or []))
                     yield sse_event(msg)
 
@@ -541,13 +547,22 @@ def build(ctx: AppContext) -> APIRouter:
 
     # -- fáza 2b: účty a nasadenia — len proxy na hub ------------------------- #
 
+    deploy_cache: dict[str, Any] = {"ts": 0.0, "value": None}
+
     def _deploy_state() -> dict[str, Any]:
+        """Stav nasadenia do každej SSE správy - git podproces a config najviac raz za 10 s, nie pri
+        každej zmene zrkadla (2 s) pre každú kartu (audit N-WEB-7)."""
         from ...hub import config as hub_config, gitcode
 
+        now = time.time()
+        if deploy_cache["value"] is not None and now - deploy_cache["ts"] < 10:
+            return deploy_cache["value"]
         cfg = hub_config.load()
         verzia = gitcode.version() or None
-        return {"configured": cfg is not None, "hub_url": cfg.hub_url if cfg else None,
-                "admin": bool(cfg and cfg.admin_token), "version": verzia, "pushed": _pushed(verzia)}
+        value = {"configured": cfg is not None, "hub_url": cfg.hub_url if cfg else None,
+                 "admin": bool(cfg and cfg.admin_token), "version": verzia, "pushed": _pushed(verzia)}
+        deploy_cache.update(ts=now, value=value)
+        return value
 
     pushed_cache: dict[str, Any] = {"version": None, "ts": 0.0, "value": None}
 
