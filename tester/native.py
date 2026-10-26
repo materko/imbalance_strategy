@@ -75,6 +75,10 @@ def window_days(timerange: str) -> int:
 # --------------------------------------------------------------------------- #
 
 
+#: Najdlhší jeden príkaz pracovného procesu (celý backtest / dávka bodov), s; `TRADEBOT_NATIVE_TIMEOUT`.
+CALL_TIMEOUT = float(os.environ.get("TRADEBOT_NATIVE_TIMEOUT") or 3600)
+
+
 class _Worker:
     """Jeden pracovný proces `TradeBot.Host.exe` (op `backtest`) — vlastný GC, dáta si drží medzi behmi."""
 
@@ -84,8 +88,11 @@ class _Worker:
         from tradebot.adapters.csharp.bridge import _host_command
         from tradebot.core.paths import CSHARP_BIN
 
+        from tradebot.adapters.csharp.bridge import LineReader
+
         self.proc = subprocess.Popen(_host_command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                      cwd=str(CSHARP_BIN), encoding="utf-8", bufsize=1)
+        self._reader = LineReader(self.proc.stdout)
         self.last_used = time.time()
 
     @property
@@ -97,11 +104,16 @@ class _Worker:
         try:
             self.proc.stdin.write(json.dumps(request) + "\n")
             self.proc.stdin.flush()
-            line = self.proc.stdout.readline()
+            line = self._reader.readline(CALL_TIMEOUT)
         except OSError as exc:
             return {"error": f"pracovný proces C# neodpovedá: {exc}"}
         finally:
             self.last_used = time.time()
+        if line is None:
+            # uviaznutý (nekonečná slučka, OOM): zabiť - pool mŕtvy proces pri vrátení zahodí a beh
+            # skončí chybou, nie „running" naveky (audit N-WEB-10)
+            self.proc.kill()
+            return {"error": f"pracovný proces C# neodpovedal do {CALL_TIMEOUT / 60:.0f} min - zabitý"}
         if not line:
             return {"error": f"pracovný proces C# skončil (kód {self.proc.poll()})"}
         return json.loads(line)

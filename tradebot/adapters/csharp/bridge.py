@@ -161,10 +161,45 @@ def _host_command() -> list[str]:
     return [mono, str(CSHARP_HOST)]
 
 
+class LineReader:
+    """Riadky zo stdout podprocesu s timeoutom: jedno čítacie vlákno na proces, odpovede cez frontu.
+
+    `readline()` na rúre nemá timeout — uviaznutý `Host.exe` (nekonečná slučka, OOM mimo `try`) by navždy
+    zastavil Freqtrade backtest aj frontu webapp (audit N-CS-4, N-WEB-10). Koniec rúry = prázdny riadok."""
+
+    def __init__(self, stream) -> None:
+        import queue
+        import threading
+
+        self._q: "queue.Queue[str]" = queue.Queue()
+        self._empty = queue.Empty
+        threading.Thread(target=self._run, args=(stream,), name="csharp-stdout", daemon=True).start()
+
+    def _run(self, stream) -> None:
+        try:
+            for line in stream:
+                self._q.put(line)
+        except (OSError, ValueError):
+            pass
+        self._q.put("")
+
+    def readline(self, timeout: float | None) -> str | None:
+        """Riadok, `""` na konci rúry, `None` po `timeout` sekundách bez odpovede."""
+        try:
+            return self._q.get(timeout=timeout)
+        except self._empty:
+            return None
+
+
+#: Najdlhšia odpoveď C# hostiteľa na jeden bar / príkaz (s); dlhšie = uviaznutý, zabije sa.
+CALL_TIMEOUT = float(os.environ.get("TRADEBOT_CSHARP_TIMEOUT") or 120)
+
+
 class StdioTransport(Transport):
     def __init__(self, key: str, config_json: str, instrument_json: str, chart_tf_minutes: int) -> None:
         self._proc = subprocess.Popen(_host_command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                       cwd=str(CSHARP_DLL.parent), encoding="utf-8", bufsize=1)
+        self._reader = LineReader(self._proc.stdout)
         self.info = self._call({"op": "create", "key": key, "config": config_json,
                                 "instrument": instrument_json, "tf": int(chart_tf_minutes)})
 
@@ -174,7 +209,10 @@ class StdioTransport(Transport):
             raise BridgeError("C# hostiteľ nebeží")
         proc.stdin.write(json.dumps(req, separators=(",", ":")) + "\n")
         proc.stdin.flush()
-        line = proc.stdout.readline()
+        line = self._reader.readline(CALL_TIMEOUT)
+        if line is None:
+            proc.kill()
+            raise BridgeError(f"C# hostiteľ neodpovedal do {CALL_TIMEOUT:.0f} s (op {req.get('op')}) - zabitý")
         if not line:
             raise BridgeError(f"C# hostiteľ skončil (kód {proc.poll()})")
         reply = json.loads(line)

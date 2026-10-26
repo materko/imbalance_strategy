@@ -235,3 +235,33 @@ def test_hub_estimate_counts_windows_and_folds():
 def test_loss_penalty_unchanged():
     plan = build_plan({"rrRatio": "1:3:0.5"}, strategy="orbnet", min_trades=200)
     assert loss_of({"trades": 100, "break_even_pct": 0.1, "max_drawdown_pct": 1}, plan, 365) == UNUSABLE + 100
+
+
+def test_uviaznuty_csharp_proces_sa_po_timeoute_zabije(monkeypatch):
+    """Audit N-CS-4, N-WEB-10: C# hostiteľ / pracovný proces, ktorý neodpovie, nesmie zablokovať backtest ani
+    frontu navždy — po timeoute sa zabije a volanie skončí chybou."""
+    import sys
+    import time
+
+    import pytest
+
+    from tester import native
+    from tradebot.adapters.csharp import bridge
+
+    visi = [sys.executable, "-c", "import time; time.sleep(60)"]
+    monkeypatch.setattr(bridge, "_host_command", lambda: visi)
+    monkeypatch.setattr(bridge, "CALL_TIMEOUT", 0.5)
+    t = time.time()
+    with pytest.raises(bridge.BridgeError, match="neodpovedal"):
+        bridge.StdioTransport("ibsnet", "{}", "{}", 3)
+    assert time.time() - t < 10
+
+    monkeypatch.setattr(native, "CALL_TIMEOUT", 0.5)
+    w = native._Worker()
+    try:
+        out = w.call({"op": "backtest"})
+        assert "neodpovedal" in out["error"]
+        w.proc.wait(timeout=10)
+        assert not w.alive                       # pool ho pri vrátení zahodí
+    finally:
+        w.close()
