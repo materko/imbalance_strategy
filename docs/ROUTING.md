@@ -158,6 +158,14 @@ Protokol je teda napísaný raz a otestovaný v Pythone cez fasádu ako `test_mt
 Pravidlá:
 
 - **Idempotencia:** `cid` (id príkazu) sa vykoná najviac raz, aj po reštarte terminálu (stav na disku).
+  Exekútor zapíše `orders.json` **pred** `Done`; zopakovaný `entry` najprv hľadá order/pozíciu u brokera
+  (magic + symbol + komentár = id, založené po čase príkazu) a vyplnený aj v histórii orderov — prevezme ich,
+  nepošle druhý, a až potom pozerá `exp`. NT potvrdí kurzor `evt.jsonl` až po spracovaní udalostí a zápise
+  svojho stavu (`Poll(false)` + `CommitCursor`), spracovanie je idempotentné (`fill in` sa neprirata).
+- **Zdroj pravdy je broker, nie záznam exekútora.** `Reconcile` beží až po `TERMINAL_CONNECTED` (pred ním by
+  „broker nemal nič“); cakajúci order, ktorý pri `cancel` u brokera už nie je, sa najprv zladí (vyplnil sa? → fill,
+  nie `cancelled`); raz za 5 s sa ordery a pozície s magic route bez záznamu prevezmú (`AdoptStrays`), aby nič
+  nebežalo bez strážcu a bez hlásenia do NT.
 - **Doručenie vstupu:** `entry` má `exp`, termín, do ktorého sa príkaz smie **odoslať brokerovi**
   (market: 10 s, limit/stop: koniec baru + 1 TF). Neskorší príkaz exekútor odmietne (`reject
   expired`), napríklad keď MT5 hodinu nebežal a market vstup by išiel za úplne inú cenu. Toto nie je

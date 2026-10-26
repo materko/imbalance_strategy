@@ -553,6 +553,14 @@ namespace TradeBot.Core
         /// <summary>Nove udalosti exekutora (kazda raz; kurzor sa ulozi hned).</summary>
         public List<Dictionary<string, object>> Poll()
         {
+            return Poll(true);
+        }
+
+        /// <summary>Nove udalosti exekutora. S `commit = false` sa kurzor na disk neulozi - master ho potvrdi
+        /// `CommitCursor()` az po spracovani a zapise vlastneho stavu, aby pad medzi citanim a spracovanim udalosti
+        /// nestratil (po restarte sa precitaju znova; spracovanie musi byt idempotentne).</summary>
+        public List<Dictionary<string, object>> Poll(bool commit)
+        {
             List<Dictionary<string, object>> outp = new List<Dictionary<string, object>>();
             List<JsonlCursor.Line> lines = _evt.ReadNew();
             if (lines.Count == 0) return outp;
@@ -561,10 +569,21 @@ namespace TradeBot.Core
                 try { outp.Add(Json.ParseObject(l.Text)); }
                 catch (JsonException) { }   // poskodeny riadok sa preskoci, nesmie zablokovat zvysok
             }
+            _uncommitted = true;
+            if (commit) CommitCursor();
+            return outp;
+        }
+
+        private bool _uncommitted;
+
+        /// <summary>Ulozi kurzor evt.jsonl na disk (po `Poll(false)`); bez nicoho noveho nerobi nic.</summary>
+        public void CommitCursor()
+        {
+            if (!_uncommitted) return;
             JsonWriter w = new JsonWriter();
             w.BeginObject().Key("offset").Value(_evt.Offset).EndObject();
             Bridge.AtomicWrite(_cursorPath, w.ToString());
-            return outp;
+            _uncommitted = false;
         }
 
         /// <summary>Stav route podla heartbeatu exekutora.</summary>

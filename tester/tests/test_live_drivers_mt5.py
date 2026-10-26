@@ -359,6 +359,20 @@ def test_ea_s_profile_reload_prepne_profil_bez_restartu_terminalu(drv):
     assert len(procs.started) == started + 2
 
 
+def test_graf_exekutora_nerestartuje_terminal_v_kazdom_kole(drv):
+    """Audit smerovania H3: graf exekútora nemá `InpProfile`, v `.chr` je prázdny — manifest s profilom `executor`
+    sa nikdy nezhodol a terminál sa reštartoval v každom kole (bez `profile_reload` v markeri)."""
+    d, procs, clock, data, common = drv
+    x = Deployment.from_dict({"id": "exec-ftmo", "account": "ftmo", "strategy": "executor", "symbol": "US100.cash",
+                              "tf": 1, "profile": "executor", "config": {}, "config_hash": "", "mode": "enabled",
+                              "active": True, "kind": "executor"})
+    x.instance = "mt5exec_1514750898-FTMO-Demo"
+    for _ in range(3):
+        d.ensure_instance(ACC, [dep("d1"), x])
+    assert len(procs.started) == 1 and procs.closed == []
+    assert d.status(ACC)["charts"][1]["expert"] == "TradeBotExecutor"
+
+
 def test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu(drv):
     """docs/MT5.md „Viac stratégií na jednom serveri“: tri stratégie na tom istom účte, symbole a TF = tri
     grafy v profile jedného terminálu, každý s vlastnou šablónou EA, magic a control súborom."""

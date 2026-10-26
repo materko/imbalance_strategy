@@ -14,9 +14,11 @@
 //|   - zalozny trailing na zatvoreni 1m baru symbolu, ked heartbeat NT je starsi nez 30 s            |
 //| Len hedging ucet (kazdy vstup vlastna pozicia). Netting route odmietne (`netting_unsupported`).    |
 //|                                                                                                   |
-//| Pamat cez restart terminalu: Common\Files\TradeBot\exec\<id>.orders.json - po starte sa zladi s    |
-//| brokerom (pozicia ticket = ticket orderu, ktory ju otvoril). Co sa zavrelo pocas vypadku, ide do   |
-//| evt.jsonl ako fill z historie dealov.                                                             |
+//| Pamat cez restart terminalu: Common\Files\TradeBot\exec\<id>.orders.json - po starte (az ked je     |
+//| terminal pripojeny) sa zladi s brokerom (pozicia ticket = ticket orderu, ktory ju otvoril). Co sa   |
+//| zavrelo pocas vypadku, ide do evt.jsonl ako fill z historie dealov. Zdroj pravdy je broker: order  |
+//| ci pozicia s magic route, ktore zaznam nema (pad medzi odoslanim a zapisom stavu, timeout brokera),|
+//| sa raz za 5 s prevezmu podla komentara (= id vstupu) - nic nema ostat bez dozoru.                  |
 //+------------------------------------------------------------------+
 #property copyright "TradeBot"
 #property version   "1.00"
@@ -36,6 +38,8 @@ const string ExecVersion   = "1";
 const int    NoStopGraceSec  = 2;
 const int    MaxExitAttempts = 3;
 const long   MasterLostMs    = 30000;     // Bridge.MasterLostMs
+const int    StraySweepSec   = 5;         // ako casto hladat u brokera ordery/pozicie route bez zaznamu
+const int    HistoryLookbackDays = 3;     // dokedy dozadu hladat v historii order k zopakovanemu prikazu
 
 struct XRoute
   {
@@ -98,7 +102,9 @@ CTrade   g_trade;
 int      g_gmtOffsetSec = 0;
 datetime g_lastSlow = 0;
 datetime g_lastRoutes = 0;
+datetime g_lastStrays = 0;
 bool     g_hedging = false;
+bool     g_reconciled = false;  // stav spred restartu zladeny s brokerom (az po pripojeni terminalu)
 
 //+------------------------------------------------------------------+
 //| Pomocne                                                          |
@@ -135,6 +141,12 @@ int FindRoute(string id)
 int FindOrder(string route, string id)
   {
    for(int i = 0; i < ArraySize(g_xo); i++) if(g_xo[i].route == route && g_xo[i].id == id) return i;
+   return -1;
+  }
+
+int FindTicket(ulong ticket)
+  {
+   for(int i = 0; i < ArraySize(g_xo); i++) if(g_xo[i].ticket == ticket) return i;
    return -1;
   }
 
@@ -236,63 +248,67 @@ void LoadState()
    delete root;
   }
 
-/// Po starte: co zo stavu este zije u brokera. Pozicia v hedgingu ma ticket orderu, ktory ju otvoril.
+/// Jeden zaznam proti brokerovi (pozicia v hedgingu ma ticket orderu, ktory ju otvoril): 0 = zije dalej (cakajuci
+/// order alebo pozicia; vstup vyplneny medzitym sa dohlasi ako fill a SL/TP sa prekotvia), 1 = vyplnil sa a uz je
+/// zavrety (fily in/out z historie dealov dohlasene, zaznam prec), 2 = u brokera nie je nic (zaznam ostava - volajuci
+/// posle `cancelled` s dovodom a zmaze ho). `when` ide do textu udalosti.
+int ReconcileOrder(int i, string when)
+  {
+   ulong t = g_xo[i].ticket;
+   if(PositionSelectByTicket(t))
+     {
+      if(!g_xo[i].filled)
+         OnEntryFill(i, PositionGetDouble(POSITION_VOLUME), PositionGetDouble(POSITION_PRICE_OPEN),
+                     ServerMsToUtc(PositionGetInteger(POSITION_TIME_MSC)), t, "vyplnene " + when);
+      if(i < ArraySize(g_xo) && PositionSelectByTicket(t)) g_xo[i].openLots = PositionGetDouble(POSITION_VOLUME);
+      return 0;
+     }
+   if(!g_xo[i].filled && OrderSelect(t)) return 0;
+   // ani pozicia, ani cakajuci order: dohladat v historii
+   if(HistorySelectByPosition(t))
+     {
+      double inLots = 0;
+      for(int k = 0; k < HistoryDealsTotal(); k++)
+        {
+         ulong d = HistoryDealGetTicket(k);
+         ENUM_DEAL_ENTRY e = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY);
+         double vol = HistoryDealGetDouble(d, DEAL_VOLUME), px = HistoryDealGetDouble(d, DEAL_PRICE);
+         long ms = ServerMsToUtc(HistoryDealGetInteger(d, DEAL_TIME_MSC));
+         if(e == DEAL_ENTRY_IN)
+           {
+            inLots += vol;
+            if(!g_xo[i].filled)
+              {
+               g_xo[i].filled = true; g_xo[i].fill = px; g_xo[i].fillMs = ms;
+               Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "in", px, NtPrice(g_xo[i], px, g_xo[i].entry, g_xo[i].ntEntry),
+                    g_xo[i].q, vol, ms, "", "vyplnene " + when);
+              }
+            continue;
+           }
+         ENUM_DEAL_REASON why = (ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON);
+         string exitName = why == DEAL_REASON_SL ? "sl" : (why == DEAL_REASON_TP ? "tp" : "external");
+         double ntFill = NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry);
+         Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "out", px, NtPrice(g_xo[i], px, g_xo[i].fill, ntFill),
+              QtyNt(g_xo[i], vol), vol, ms, exitName, "zatvorene " + when);
+        }
+      if(inLots > 0) { RemoveOrder(i); return 1; }
+     }
+   return 2;
+  }
+
+/// Po starte (az ked je terminal pripojeny - pred tym by broker "nemal nic" a vsetko by sa zahodilo): co zo stavu
+/// este zije u brokera. Route musia byt nacitane skor (prepocet cien do mastera potrebuje `scale`).
 void Reconcile()
   {
    int kept = 0, closed = 0, gone = 0;
    for(int i = ArraySize(g_xo) - 1; i >= 0; i--)
      {
-      ulong t = g_xo[i].ticket;
-      if(PositionSelectByTicket(t))
-        {
-         if(!g_xo[i].filled)
-           {
-            // vyplnil sa pocas vypadku
-            g_xo[i].filled = true;
-            g_xo[i].fill = PositionGetDouble(POSITION_PRICE_OPEN);
-            g_xo[i].fillMs = ServerMsToUtc(PositionGetInteger(POSITION_TIME_MSC));
-            g_xo[i].extreme = g_xo[i].fill;
-            Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "in", g_xo[i].fill,
-                 NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry), g_xo[i].q, PositionGetDouble(POSITION_VOLUME),
-                 g_xo[i].fillMs, "", "vyplnene pocas vypadku exekutora");
-           }
-         g_xo[i].openLots = PositionGetDouble(POSITION_VOLUME);
-         kept++;
-         continue;
-        }
-      if(!g_xo[i].filled && OrderSelect(t)) { kept++; continue; }
-      // ani pozicia, ani cakajuci order: dohladat v historii
-      if(HistorySelectByPosition(t))
-        {
-         double inLots = 0;
-         for(int k = 0; k < HistoryDealsTotal(); k++)
-           {
-            ulong d = HistoryDealGetTicket(k);
-            ENUM_DEAL_ENTRY e = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY);
-            double vol = HistoryDealGetDouble(d, DEAL_VOLUME), px = HistoryDealGetDouble(d, DEAL_PRICE);
-            long ms = ServerMsToUtc(HistoryDealGetInteger(d, DEAL_TIME_MSC));
-            if(e == DEAL_ENTRY_IN)
-              {
-               inLots += vol;
-               if(!g_xo[i].filled)
-                 {
-                  g_xo[i].filled = true; g_xo[i].fill = px; g_xo[i].fillMs = ms;
-                  Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "in", px, NtPrice(g_xo[i], px, g_xo[i].entry, g_xo[i].ntEntry),
-                       g_xo[i].q, vol, ms, "", "vyplnene pocas vypadku exekutora");
-                 }
-               continue;
-              }
-            ENUM_DEAL_REASON why = (ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON);
-            string exitName = why == DEAL_REASON_SL ? "sl" : (why == DEAL_REASON_TP ? "tp" : "external");
-            double ntFill = NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry);
-            Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "out", px, NtPrice(g_xo[i], px, g_xo[i].fill, ntFill),
-                 QtyNt(g_xo[i], vol), vol, ms, exitName, "zatvorene pocas vypadku exekutora");
-           }
-         if(inLots > 0) { closed++; RemoveOrder(i); continue; }
-        }
+      int res = ReconcileOrder(i, "pocas vypadku exekutora");
+      if(res == 0) { kept++; continue; }
+      if(res == 1) { closed++; continue; }
       Emit(g_xo[i].route, "cancelled", g_xo[i].cid, g_xo[i].id, "", 0, 0, 0, 0, 0, "", "order u brokera po restarte nie je");
-      gone++;
       RemoveOrder(i);
+      gone++;
      }
    if(kept + closed + gone > 0)
       Print(StringFormat("TradeBot exekutor: po restarte %d orderov/pozicii bezi dalej, %d sa medzitym zavrelo, %d u brokera nie je",
@@ -427,11 +443,13 @@ void PollCommands()
          CJson *c = arr.At(k);
          string cid = c.Str("cid");
          Handle(r, c);
+         // najprv stav (order u brokera musi byt v orders.json), az potom Done: pad medzi nimi prikaz zopakuje a
+         // `Existing` ho prevezme; opacne poradie by nechalo order bez zaznamu az do prehladania brokera (AdoptStrays)
+         SaveState();
          if(StaticHost::BridgeDone(g_x, g_routes[r].id, cid) < 0)
             Print("TradeBot exekutor: Done ", cid, ": ", StaticHost::LastError());
         }
       delete arr;
-      SaveState();
      }
   }
 
@@ -492,29 +510,74 @@ void Snapshot(int r, string cid)
    Emit(route, "snapshot", cid, "", "", 0, 0, n, 0, 0, "", g_routes[r].state);
   }
 
-/// Order s tym istym magic a komentarom uz u brokera je (prikaz sa po pade zopakoval) - ticket, inak 0.
-ulong Existing(string sym, long magic, string id)
+/// Cakajuci order alebo pozicia s magic route, symbolom a komentarom = id vstupu, zalozene najskor v case prikazu
+/// `sinceMs` (prikaz sa po pade zopakoval, alebo broker odpovedal timeoutom a request presiel). Cas chrani pred
+/// starsim obchodom s tym istym id. Vracia ticket a ci je to uz pozicia; 0 = nic.
+ulong Existing(string sym, long magic, string id, long sinceMs, bool &isPosition)
   {
+   isPosition = false;
+   long since = sinceMs - 2000;
    for(int i = OrdersTotal() - 1; i >= 0; i--)
      {
       ulong t = OrderGetTicket(i);
-      if(t > 0 && OrderGetInteger(ORDER_MAGIC) == magic && OrderGetString(ORDER_SYMBOL) == sym && OrderGetString(ORDER_COMMENT) == id) return t;
+      if(t > 0 && OrderGetInteger(ORDER_MAGIC) == magic && OrderGetString(ORDER_SYMBOL) == sym && OrderGetString(ORDER_COMMENT) == id
+         && ServerMsToUtc(OrderGetInteger(ORDER_TIME_SETUP_MSC)) >= since) return t;
      }
    for(int i = PositionsTotal() - 1; i >= 0; i--)
      {
       ulong t = PositionGetTicket(i);
-      if(t > 0 && PositionGetInteger(POSITION_MAGIC) == magic && PositionGetString(POSITION_SYMBOL) == sym && PositionGetString(POSITION_COMMENT) == id) return t;
+      if(t > 0 && PositionGetInteger(POSITION_MAGIC) == magic && PositionGetString(POSITION_SYMBOL) == sym && PositionGetString(POSITION_COMMENT) == id
+         && ServerMsToUtc(PositionGetInteger(POSITION_TIME_MSC)) >= since) { isPosition = true; return t; }
      }
    return 0;
+  }
+
+/// Vyplneny order k zopakovanemu prikazu, ktory uz nie je ani pozicia (vyplnil sa aj zavrel medzitym): ticket z historie
+/// orderov za `HistoryLookbackDays`, inak 0. Order, ktory broker zrusil/odmietol, sa neberie - prikaz sa posle znova (chrani ho `exp`).
+ulong FilledInHistory(string sym, long magic, string id, long sinceMs)
+  {
+   datetime now = TimeCurrent();
+   if(!HistorySelect(now - HistoryLookbackDays * 86400, now + 86400)) return 0;
+   long since = sinceMs - 2000;
+   for(int k = HistoryOrdersTotal() - 1; k >= 0; k--)
+     {
+      ulong t = HistoryOrderGetTicket(k);
+      if(t == 0 || HistoryOrderGetInteger(t, ORDER_MAGIC) != magic || HistoryOrderGetString(t, ORDER_SYMBOL) != sym
+         || HistoryOrderGetString(t, ORDER_COMMENT) != id || ServerMsToUtc(HistoryOrderGetInteger(t, ORDER_TIME_SETUP_MSC)) < since) continue;
+      ENUM_ORDER_STATE st = (ENUM_ORDER_STATE)HistoryOrderGetInteger(t, ORDER_STATE);
+      if(st == ORDER_STATE_FILLED || st == ORDER_STATE_PARTIAL) return t;
+     }
+   return 0;
+  }
+
+/// Zaznam k orderu/pozicii, ktore uz su u brokera (zopakovany prikaz, timeout, pad medzi odoslanim a zapisom stavu):
+/// ceny a objem z brokera, nie z prepoctu. `placed` a pri pozicii aj `fill in` (s prekotvenim SL/TP) idu do evt.
+void AdoptExisting(XOrder &o, ulong ticket, bool isPosition, string cid, string why)
+  {
+   o.ticket = ticket;
+   if(isPosition && PositionSelectByTicket(ticket))
+     {
+      o.entry = PositionGetDouble(POSITION_PRICE_OPEN); o.lots = PositionGetDouble(POSITION_VOLUME);
+      o.sl0 = PositionGetDouble(POSITION_SL); o.tp0 = PositionGetDouble(POSITION_TP);
+     }
+   else if(OrderSelect(ticket))
+     {
+      o.entry = OrderGetDouble(ORDER_PRICE_OPEN); o.lots = OrderGetDouble(ORDER_VOLUME_CURRENT);
+      o.sl0 = OrderGetDouble(ORDER_SL); o.tp0 = OrderGetDouble(ORDER_TP);
+     }
+   o.lastStop = o.sl0; o.lastTp = o.tp0; o.extreme = o.entry;
+   AddOrder(o);
+   int i = ArraySize(g_xo) - 1;
+   Emit(o.route, "placed", cid, o.id, "", o.entry, o.ntEntry, o.q, o.lots, 0, "", why);
+   if(isPosition && PositionSelectByTicket(ticket))
+      OnEntryFill(i, PositionGetDouble(POSITION_VOLUME), PositionGetDouble(POSITION_PRICE_OPEN),
+                  ServerMsToUtc(PositionGetInteger(POSITION_TIME_MSC)), ticket, why);
   }
 
 void HandleEntry(int r, CJson *c)
   {
    string route = g_routes[r].id, cid = c.Str("cid"), id = c.Str("id"), sym = g_routes[r].symbol;
    long now = NowMs();
-   long exp = (long)c.Dbl("exp");
-   if(exp > 0 && now > exp) { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", "expired: prikaz prisiel neskoro (" + IntegerToString((now - exp) / 1000) + " s po termine)"); return; }
-   if(g_routes[r].state != "ok") { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", g_routes[r].state + ": " + g_routes[r].detail); return; }
    if(FindOrder(route, id) >= 0) { Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "vstup uz bezi"); return; }
    CJson *p = c.Find("p");
    if(p == NULL) { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", "vstup bez planu"); return; }
@@ -525,8 +588,35 @@ void HandleEntry(int r, CJson *c)
    o.dir = (int)p.Dbl("dir"); o.ot = c.Str("ot"); o.q = p.Dbl("q");
    o.ntEntry = p.Dbl("e"); o.ntSl = p.Dbl("sl"); o.ntTp = p.Dbl("tp");
    double scale = g_routes[r].scale, tick = Tick(sym);
+   CJson *life = c.Find("life");
+   if(life != NULL) { o.cancelAt = (long)life.Dbl("cancel_at"); o.closeAt = (long)life.Dbl("close_at"); o.holdMs = (long)life.Dbl("hold_ms"); }
+   CJson *tr = p.Find("tr");
+   if(tr != NULL && tr.type == JSON_OBJECT) { o.hasTrail = true; o.trailAct = tr.Dbl("ap") * scale; o.trailOff = tr.Dbl("op") * scale; }
+
+   // Najprv broker, az potom terminy: zopakovany prikaz (pad pred `Done`) ma order mozno uz u brokera, a ten musi
+   // mat zaznam, aj keby prikaz medzitym vyprsal - inak by bezal ako sirota bez life a bez strazcu
+   long since = (long)c.Dbl("t");
+   bool isPos = false;
+   ulong prior = Existing(sym, g_routes[r].magic, id, since, isPos);
+   if(prior > 0) { AdoptExisting(o, prior, isPos, cid, "prevzaty po restarte"); return; }
+   ulong hist = FilledInHistory(sym, g_routes[r].magic, id, since);
+   if(hist > 0)
+     {
+      // vyplnil sa aj zavrel, kym exekutor nebezal: fily z historie dealov, nic nove sa neposiela
+      o.ticket = hist;
+      AddOrder(o);
+      int i = ArraySize(g_xo) - 1;
+      int res = ReconcileOrder(i, "pred restartom exekutora");
+      if(res == 2) { Emit(route, "cancelled", cid, id, "", 0, 0, 0, 0, 0, "", "order v historii bez dealov"); RemoveOrder(i); }
+      return;
+     }
+
+   long exp = (long)c.Dbl("exp");
+   if(exp > 0 && now > exp) { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", "expired: prikaz prisiel neskoro (" + IntegerToString((now - exp) / 1000) + " s po termine)"); return; }
+   if(g_routes[r].state != "ok") { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", g_routes[r].state + ": " + g_routes[r].detail); return; }
    bool same = g_routes[r].price == "same";
    double refNt = c.Dbl("ref"), refExec = Mid(sym);
+   if(refExec <= 0) { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", "symbol " + sym + " nema kotaciu"); return; }
    if(refNt <= 0) refNt = o.ntEntry;
    o.entry = same ? RoundTick(sym, o.ntEntry) : StaticHost::BridgeMapPrice(o.ntEntry, refNt, refExec, scale, tick);
    o.sl0 = same ? RoundTick(sym, o.ntSl) : StaticHost::BridgeMapPrice(o.ntSl, refNt, refExec, scale, tick);
@@ -537,20 +627,7 @@ void HandleEntry(int r, CJson *c)
                                    SymbolInfoDouble(sym, SYMBOL_VOLUME_MAX), g_routes[r].qtyMode, g_routes[r].lots);
    if(o.lots <= 0)
      { Emit(route, "reject", cid, id, "", 0, 0, o.q, 0, 0, "", StringFormat("objem %.2f kontraktov je na %s pod minimom lotov", o.q, sym)); return; }
-   CJson *life = c.Find("life");
-   if(life != NULL) { o.cancelAt = (long)life.Dbl("cancel_at"); o.closeAt = (long)life.Dbl("close_at"); o.holdMs = (long)life.Dbl("hold_ms"); }
-   CJson *tr = p.Find("tr");
-   if(tr != NULL && tr.type == JSON_OBJECT) { o.hasTrail = true; o.trailAct = tr.Dbl("ap") * scale; o.trailOff = tr.Dbl("op") * scale; }
 
-   ulong prior = Existing(sym, g_routes[r].magic, id);
-   if(prior > 0)
-     {
-      // prikaz sa zopakoval po pade pred `Done`: order uz je u brokera - prevziat, neposlat druhy
-      o.ticket = prior;
-      AddOrder(o);
-      Emit(route, "placed", cid, id, "", o.entry, o.ntEntry, o.q, o.lots, 0, "", "prevzaty po restarte");
-      return;
-     }
    g_trade.SetExpertMagicNumber((ulong)g_routes[r].magic);
    g_trade.SetTypeFillingBySymbol(sym);
    g_trade.SetDeviationInPoints(InpDeviationPts);
@@ -563,14 +640,74 @@ void HandleEntry(int r, CJson *c)
    else
       ok = isLong ? g_trade.BuyLimit(o.lots, o.entry, sym, o.sl0, o.tp0, ORDER_TIME_GTC, 0, id)
                   : g_trade.SellLimit(o.lots, o.entry, sym, o.sl0, o.tp0, ORDER_TIME_GTC, 0, id);
-   if(!ok || !Sent())
+   uint rc = g_trade.ResultRetcode();
+   // ciastocne vyplneny market (IOC) je u brokera rovnako ako DONE - zvysok dealov pride v OnTradeTransaction
+   ulong ticket = ok && (Sent() || rc == TRADE_RETCODE_DONE_PARTIAL) ? g_trade.ResultOrder() : 0;
+   if(ticket == 0 && (rc == TRADE_RETCODE_TIMEOUT || rc == TRADE_RETCODE_CONNECTION || rc == TRADE_RETCODE_ERROR))
+     {
+      // odpoved sa stratila, request mohol prejst: ak order uz je, prevziat; inak ho najde AdoptStrays, ked sa objavi
+      ticket = Existing(sym, g_routes[r].magic, id, since, isPos);
+      if(ticket > 0) { AdoptExisting(o, ticket, isPos, cid, "broker odpovedal " + TradeErr() + ", order je"); return; }
+      Note(route, "warn", "vstup " + id + ": broker odpovedal " + TradeErr() + " - ak sa order objavi, exekutor ho prevezme");
+      return;
+     }
+   if(ticket == 0)
      { Emit(route, "reject", cid, id, "", o.entry, o.ntEntry, o.q, o.lots, 0, "", "broker: " + TradeErr()); return; }
-   o.ticket = g_trade.ResultOrder();
+   o.ticket = ticket;
    o.extreme = o.entry;
    AddOrder(o);
    Emit(route, "placed", cid, id, "", o.entry, o.ntEntry, o.q, o.lots, 0, "",
         StringFormat("%s %s SL %s TP %s", o.ot, sym, DoubleToString(o.sl0, (int)SymbolInfoInteger(sym, SYMBOL_DIGITS)),
                      DoubleToString(o.tp0, (int)SymbolInfoInteger(sym, SYMBOL_DIGITS))));
+  }
+
+/// Raz za `StraySweepSec`: cakajuce ordery a pozicie s magic a symbolom niektorej route, ktore nemaju zaznam (pad medzi
+/// odoslanim a zapisom stavu, timeout brokera, rucny order s magic route) - prevziat podla komentara ako id vstupu,
+/// aby nic nebezalo bez strazcu a bez hlasenia do NT (ten neznamy vstup zavrie, zname prevezme).
+void AdoptStrays()
+  {
+   for(int r = 0; r < ArraySize(g_routes); r++)
+     {
+      long magic = g_routes[r].magic;
+      string sym = g_routes[r].symbol;
+      if(magic == 0 || sym == "") continue;
+      for(int pass = 0; pass < 2; pass++)
+        {
+         int total = pass == 0 ? OrdersTotal() : PositionsTotal();
+         for(int k = total - 1; k >= 0; k--)
+           {
+            ulong t = pass == 0 ? OrderGetTicket(k) : PositionGetTicket(k);
+            if(t == 0 || FindTicket(t) >= 0) continue;
+            bool mine = pass == 0 ? (OrderGetInteger(ORDER_MAGIC) == magic && OrderGetString(ORDER_SYMBOL) == sym)
+                                  : (PositionGetInteger(POSITION_MAGIC) == magic && PositionGetString(POSITION_SYMBOL) == sym);
+            if(!mine) continue;
+            string comment = pass == 0 ? OrderGetString(ORDER_COMMENT) : PositionGetString(POSITION_COMMENT);
+            XOrder o;
+            ZeroMemory(o);
+            o.route = g_routes[r].id;
+            o.id = comment != "" ? comment : "mt5:" + IntegerToString((long)t);
+            if(FindOrder(o.route, o.id) >= 0) continue;   // zaznam s tym id uz je (iny ticket) - nemiesat
+            if(pass == 0)
+              {
+               ENUM_ORDER_TYPE ot = (ENUM_ORDER_TYPE)OrderGetInteger(ORDER_TYPE);
+               o.dir = ot == ORDER_TYPE_BUY_LIMIT || ot == ORDER_TYPE_BUY_STOP || ot == ORDER_TYPE_BUY ? 1 : -1;
+               o.ot = ot == ORDER_TYPE_BUY_STOP || ot == ORDER_TYPE_SELL_STOP ? "Stop" : "Limit";
+               o.ntEntry = OrderGetDouble(ORDER_PRICE_OPEN); o.ntSl = OrderGetDouble(ORDER_SL); o.ntTp = OrderGetDouble(ORDER_TP);
+               o.q = OrderGetDouble(ORDER_VOLUME_CURRENT);
+              }
+            else
+              {
+               o.dir = PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY ? 1 : -1;
+               o.ot = "Market";
+               o.ntEntry = PositionGetDouble(POSITION_PRICE_OPEN); o.ntSl = PositionGetDouble(POSITION_SL); o.ntTp = PositionGetDouble(POSITION_TP);
+               o.q = PositionGetDouble(POSITION_VOLUME);
+              }
+            // ceny mastera nepozname - price_nt bude cena exekutora (scale sa neuplatni), NT to vidi v texte
+            Note(o.route, "warn", "u brokera je " + (pass == 0 ? "order " : "pozicia ") + o.id + " s magic route bez zaznamu - preberam");
+            AdoptExisting(o, t, pass == 1, "", "prevzaty u brokera bez zaznamu");
+           }
+        }
+     }
   }
 
 void AddOrder(const XOrder &o)
@@ -587,19 +724,29 @@ void HandleModify(int r, CJson *c)
    if(i < 0 || !g_xo[i].filled) { Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "nic na posun"); return; }
    string sym = g_routes[r].symbol;
    bool same = g_routes[r].price == "same";
-   double ntFill = NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry);
    CJson *jsl = c.Find("sl");
    CJson *jtp = c.Find("tp");
    double sl = g_xo[i].lastStop, tp = g_xo[i].lastTp;
-   // posun od skutocneho fillu: vzdialenost SL od vstupu v cenach mastera ostava
+   // ta ista kotva ako pri prekotveni po fille: skutocny fill + vzdialenost urovne od PLANOVANEHO vstupu mastera
+   // (master trailuje od plan.Entry); kotva na cene orderu by po sklze polozila stop inde nez prvotny SL
    if(jsl != NULL && jsl.type == JSON_NUMBER)
-      sl = same ? RoundTick(sym, jsl.num) : StaticHost::BridgeReanchor(g_xo[i].fill, ntFill, jsl.num, g_routes[r].scale, Tick(sym));
+      sl = same ? RoundTick(sym, jsl.num) : StaticHost::BridgeReanchor(g_xo[i].fill, g_xo[i].ntEntry, jsl.num, g_routes[r].scale, Tick(sym));
    if(jtp != NULL && jtp.type == JSON_NUMBER)
-      tp = same ? RoundTick(sym, jtp.num) : StaticHost::BridgeReanchor(g_xo[i].fill, ntFill, jtp.num, g_routes[r].scale, Tick(sym));
+      tp = same ? RoundTick(sym, jtp.num) : StaticHost::BridgeReanchor(g_xo[i].fill, g_xo[i].ntEntry, jtp.num, g_routes[r].scale, Tick(sym));
+   // stop nikdy spat (ako zalozny trailing): master po navrate nevie o trailingu exekutora a po sklze by stop uvolnil
+   bool isLong = g_xo[i].dir > 0;
+   if(g_xo[i].lastStop > 0 && (isLong ? sl < g_xo[i].lastStop : sl > g_xo[i].lastStop))
+     {
+      Note(route, "info", "posun SL " + id + " na " + Num(sl) + " by stop uvolnil (je " + Num(g_xo[i].lastStop) + ") - ignorujem");
+      sl = g_xo[i].lastStop;
+     }
+   if(MathAbs(sl - g_xo[i].lastStop) < Tick(sym) / 2 && MathAbs(tp - g_xo[i].lastTp) < Tick(sym) / 2)
+     { Emit(route, "ack", cid, id, "", sl, 0, 0, 0, 0, "", "SL/TP bez zmeny"); return; }
    if(!g_trade.PositionModify(g_xo[i].ticket, sl, tp) || !Sent())
      { Emit(route, "reject", cid, id, "", sl, 0, 0, 0, 0, "", "posun SL/TP: " + TradeErr()); return; }
    g_xo[i].lastStop = sl; g_xo[i].lastTp = tp;
-   Emit(route, "modified", cid, id, "", sl, jsl != NULL && jsl.type == JSON_NUMBER ? jsl.num : 0, 0, 0, 0, "", "TP " + Num(tp));
+   double ntFill = NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry);
+   Emit(route, "modified", cid, id, "", sl, NtPrice(g_xo[i], sl, g_xo[i].fill, ntFill), 0, 0, 0, "", "TP " + Num(tp));
   }
 
 //+------------------------------------------------------------------+
@@ -609,9 +756,16 @@ void CancelEntry(int i, string cid, string why)
   {
    string route = g_xo[i].route, id = g_xo[i].id;
    ulong t = g_xo[i].ticket;
-   if(t == 0 || g_trade.OrderDelete(t) || !OrderSelect(t))
+   if(t == 0) { Emit(route, "cancelled", cid, id, "", 0, 0, 0, 0, 0, why, ""); RemoveOrder(i); return; }
+   if(g_trade.OrderDelete(t) && Sent()) { Emit(route, "cancelled", cid, id, "", 0, 0, 0, 0, 0, why, ""); RemoveOrder(i); return; }
+   if(!OrderSelect(t))
      {
-      Emit(route, "cancelled", cid, id, "", 0, 0, 0, 0, 0, why, "");
+      // cakajuci order u brokera uz nie je: vyplnil sa (deal este caka vo fronte za timerom) alebo ho broker zrusil.
+      // Vyplneny sa NESMIE hlasit ako zruseny - pozicia by ostala bez trailingu, life a strazcu a NT by ju nepoznal
+      int res = ReconcileOrder(i, "tesne pred zrusenim");
+      if(res == 0) { Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "uz je vyplneny - cancel sa ignoruje"); return; }
+      if(res == 1) { Emit(route, "ack", cid, id, "", 0, 0, 0, 0, 0, "", "vyplnil sa aj zavrel tesne pred zrusenim"); return; }
+      Emit(route, "cancelled", cid, id, "", 0, 0, 0, 0, 0, why, "order u brokera uz nebol");
       RemoveOrder(i);
       return;
      }
@@ -650,7 +804,7 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
    long ms = ServerMsToUtc(HistoryDealGetInteger(trans.deal, DEAL_TIME_MSC));
    for(int i = 0; i < ArraySize(g_xo); i++)
      {
-      if(entry == DEAL_ENTRY_IN && g_xo[i].ticket == order && !g_xo[i].filled) { OnEntryFill(i, vol, px, ms, position); break; }
+      if(entry == DEAL_ENTRY_IN && g_xo[i].ticket == order && !g_xo[i].filled) { OnEntryFill(i, vol, px, ms, position, ""); break; }
       if(entry == DEAL_ENTRY_IN && g_xo[i].ticket == order && g_xo[i].filled) { g_xo[i].openLots += vol; break; }   // ciastocny fill dalsej casti
       if(entry != DEAL_ENTRY_IN && g_xo[i].filled && g_xo[i].ticket == position)
         {
@@ -662,7 +816,8 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
    SaveState();
   }
 
-void OnEntryFill(int i, double vol, double px, long ms, ulong position)
+/// Vstup vyplneny (deal, alebo pozicia najdena pri zladeni s brokerom): fill do evt a SL/TP od skutocneho fillu.
+void OnEntryFill(int i, double vol, double px, long ms, ulong position, string text)
   {
    g_xo[i].filled = true;
    g_xo[i].fill = px;
@@ -673,7 +828,7 @@ void OnEntryFill(int i, double vol, double px, long ms, ulong position)
    int r = FindRoute(g_xo[i].route);
    string sym = r >= 0 ? g_routes[r].symbol : PositionGetString(POSITION_SYMBOL);
    Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "in", px, NtPrice(g_xo[i], px, g_xo[i].entry, g_xo[i].ntEntry),
-        QtyNt(g_xo[i], vol), vol, ms, "", "");
+        QtyNt(g_xo[i], vol), vol, ms, "", text);
    // SL/TP od skutocneho fillu (sklz na CFD nezmeni riziko v bodoch)
    if(r < 0 || g_routes[r].price == "same") return;
    double sl = StaticHost::BridgeReanchor(px, g_xo[i].ntEntry, g_xo[i].ntSl, g_routes[r].scale, Tick(sym));
@@ -784,8 +939,11 @@ void TrailOnMinute()
          if(g_trade.PositionModify(g_xo[i].ticket, stop, g_xo[i].lastTp) && Sent())
            {
             g_xo[i].lastStop = stop;
-            Emit(g_routes[r].id, "modified", "", g_xo[i].id, "", stop, 0, 0, 0, 0, "", "trailing exekutora (master neodpoveda)");
+            double ntFill = NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry);
+            Emit(g_routes[r].id, "modified", "", g_xo[i].id, "", stop, NtPrice(g_xo[i], stop, g_xo[i].fill, ntFill), 0, 0, 0, "",
+                 "trailing exekutora (master neodpoveda)");
            }
+         else Note(g_routes[r].id, "warn", "trailing exekutora " + g_xo[i].id + " na " + Num(stop) + " odmietnuty: " + TradeErr());
         }
      }
   }
@@ -806,24 +964,38 @@ int OnInit()
    g_statePath = "TradeBot\\exec\\" + g_id + ".orders.json";
    if(!g_hedging) Print("TradeBot exekutor: ucet je NETTING - route budu odmietnute (podporovany je len hedging)");
    LoadState();
-   Reconcile();
    RefreshRoutes();
-   WatchMasters();
-   WriteHeartbeat();
+   WriteHeartbeat();   // NT vidi `connected: false`, kym sa terminal neprihlasi; prikazy sa citaju az po zladeni
    EventSetMillisecondTimer(MathMax(10, InpTimerMs));
-   Print("TradeBot exekutor ", g_id, ": ", ArraySize(g_routes), " route, ", ArraySize(g_xo), " sledovanych orderov, koren ", g_root);
+   Print("TradeBot exekutor ", g_id, ": ", ArraySize(g_routes), " route, ", ArraySize(g_xo), " orderov zo stavu, koren ", g_root,
+         TerminalInfoInteger(TERMINAL_CONNECTED) ? "" : " - cakam na pripojenie k brokerovi");
    return INIT_SUCCEEDED;
   }
 
 void OnTimer()
   {
-   PollCommands();
    datetime now = TimeLocal();
+   if(!g_reconciled)
+     {
+      // stav spred restartu az po pripojeni: pred nim broker "nema nic" a vsetko by sa zahodilo ako zrusene
+      if(!TerminalInfoInteger(TERMINAL_CONNECTED) || AccountInfoInteger(ACCOUNT_LOGIN) == 0)
+        {
+         if(now != g_lastSlow) { g_lastSlow = now; WriteHeartbeat(); }
+         return;
+        }
+      RefreshGmtOffset();
+      RefreshRoutes();
+      Reconcile();
+      g_reconciled = true;
+      Print("TradeBot exekutor: pripojeny, stav zladeny - citam prikazy");
+     }
+   PollCommands();
    if(now == g_lastSlow) return;
    g_lastSlow = now;
    // raz za sekundu
    RefreshGmtOffset();
    if(now - g_lastRoutes >= 2) { RefreshRoutes(); g_lastRoutes = now; }
+   if(now - g_lastStrays >= StraySweepSec) { AdoptStrays(); g_lastStrays = now; }
    WatchMasters();
    Guards();
    TrailOnMinute();

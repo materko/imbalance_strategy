@@ -288,7 +288,12 @@ class Reconciler:
         for dep in vanished:
             vanished_by.setdefault(dep.account, []).append(dep)
 
-        for acc_id in sorted(set(by_account) | set(vanished_by)):
+        # účty s exekútorom až po ostatných: či exekútor MT5 účtu ostáva, závisí od toho, ktoré NT nasadenia naň
+        # smerujúce sa v tomto kole podržali pre otvorenú pozíciu (`_hold_open` → `_held`)
+        def poradie(a: str) -> tuple[bool, str]:
+            return (any(d.is_executor for d in by_account.get(a, []) + vanished_by.get(a, [])), a)
+
+        for acc_id in sorted(set(by_account) | set(vanished_by), key=poradie):
             acc = accounts.get(acc_id) or prev_accounts.get(acc_id)
             deps = by_account.get(acc_id, [])
             drv = self.drivers.get(acc.platform) if acc is not None else None
@@ -379,7 +384,20 @@ class Reconciler:
     def _hold_open(self, drv: Driver, dep: Deployment, entry: dict[str, Any], active_ok: list[Deployment]) -> bool:
         """Rušené nasadenie, ktorého inštancia má otvorenú pozíciu: graf ostane v pauze (alebo vo flatten, keď
         ho tak človek nastavil) — EA pozíciu dovedie stopom, cieľom, trailingom a EOD, len neotvorí novú.
-        Odobratie grafu a reštart terminálu by pozíciu nechali bez správy (audit N-LIVE-15). True = podržané."""
+        Odobratie grafu a reštart terminálu by pozíciu nechali bez správy (audit N-LIVE-15). True = podržané.
+        Exekútor MT5 účtu nemá spool ani pozíciu — drží sa, kým naň smeruje podržané NT nasadenie (ROUTING audit H2):
+        bez neho by `close`, trailing a `life` podržanej pozície nemal kto vykonať."""
+        if dep.is_executor:
+            routed = sorted(i for i, h in self._held.items()
+                            if isinstance(h.get("route"), dict) and h["route"].get("account") == dep.account)
+            if not routed:
+                return False
+            held = dataclasses.replace(dep, active=True)
+            entry["held"] = f"naň smeruje podržané nasadenie {', '.join(routed)} s otvorenou pozíciou — exekútor ostáva"
+            active_ok.append(held)
+            self._held[dep.id] = {**(dep.raw or dataclasses.asdict(dep)), "active": True}
+            self._warn_once(f"podržané {dep.id}", entry["held"])
+            return True
         try:
             pos = self.position(dep.instance)
         except Exception:  # noqa: BLE001 - pozícia sa nedá zistiť: radšej podržať, než zavrieť graf naslepo

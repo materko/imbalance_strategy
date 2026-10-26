@@ -295,6 +295,8 @@ namespace NinjaTrader.NinjaScript.AddOns
         private DateTime _routeChecked = DateTime.MinValue;
         /// <summary>cid posledneho `sync` - `snapshot` s nim uzavrie zladenie s exekutorom</summary>
         private string _syncCid;
+        /// <summary>cas odoslania `sync` (ms UTC) - vstupy odoslane po nom snapshot nepozna a nesmu sa zahodit</summary>
+        private long _syncSentMs;
         private readonly HashSet<string> _syncSeen = new HashSet<string>();
         /// <summary>Seansa instrumentu pre `life.close_at` (vlastny iterator - `_sessions` patri strazcovi feedu).</summary>
         private NinjaTrader.Data.SessionIterator _lifeSessions;
@@ -2105,7 +2107,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     {
                         Note("info", "MT5 exekutor " + _route.Spec.To + " (" + _route.Spec.Symbol + "): ok" + (_routeWasBad ? " - zas viditelny, zladujem stav" : ""));
                         // po navrate exekutora zistit, co sa medzitym stalo (fily su v evt.jsonl, snapshot doplni zvysok)
-                        if (_routeWasBad && _syncCid == null) { _syncSeen.Clear(); _syncCid = _route.Sync(now); }
+                        if (_routeWasBad && _syncCid == null) { _syncSeen.Clear(); _syncSentMs = now; _syncCid = _route.Sync(now); }
                         _routeWasBad = false;
                     }
                 }
@@ -2119,11 +2121,17 @@ namespace NinjaTrader.NinjaScript.AddOns
                          + (detail.Length > 0 ? " - " + detail : "") + " - nove vstupy sa neposielaju, otvorene ordery bezia u brokera so SL/TP");
                 }
             }
-            foreach (Dictionary<string, object> ev in _route.Poll())
+            // kurzor evt.jsonl sa potvrdi az po spracovani a zapise stavu: pad medzi nimi udalosti neprehra do prazdna,
+            // po restarte pridu znova (spracovanie je idempotentne - fill in neprirata, fill out nezname preskoci)
+            List<Dictionary<string, object>> events = _route.Poll(false);
+            if (events.Count == 0) return;
+            foreach (Dictionary<string, object> ev in events)
             {
                 try { HandleRouteEvent(ev); }
                 catch (Exception e) { Note("error", "udalost z MT5 " + TB.Json.GetString(ev, "k", "?") + " - " + e.Message); }
             }
+            SaveState();
+            _route.CommitCursor();
         }
 
         /// <summary>Koniec obchodnej seansy instrumentu (TradingHours) v ms UTC; 0 = neda sa zistit.</summary>
@@ -2215,11 +2223,18 @@ namespace NinjaTrader.NinjaScript.AddOns
                         _route.Close(NowMs(), id, "neznamy vstup");
                         return;
                     }
-                    if (!t.Filled) { t.FilledAt = DateTime.UtcNow; t.FilledMs = ft; }
+                    if (t.Filled)
+                    {
+                        // ten isty fill druhy raz (exekutor ho po pade zopakoval, alebo sa prehrava evt.jsonl) - objem sa neprirata
+                        Log("MT5 FILL in " + id + " znova - uz je vyplneny x" + t.OpenQty + ", ignorujem");
+                        return;
+                    }
+                    t.FilledAt = DateTime.UtcNow;
+                    t.FilledMs = ft;
                     t.Filled = true;
                     t.Parked = false;
                     t.RemoteLive = false;
-                    t.OpenQty += qty;
+                    t.OpenQty = qty;
                     Log("FILL in " + id + " @" + px + " x" + qty + " (MT5 " + mt5Price + ", lots " + lots + ")");
                     if (_spool != null) { _spool.Fill(ft, id, true, "", px, qty, _live); SpoolCheck(); }
                     ParkOthers(id);
@@ -2293,6 +2308,9 @@ namespace NinjaTrader.NinjaScript.AddOns
                 {
                     if (_syncSeen.Contains(kv.Key) || kv.Value.Parked) continue;
                     if (!kv.Value.Filled && !kv.Value.RemoteLive) continue;
+                    // vstup odoslany po `sync` v snapshote byt nemoze - exekutor ho este nevidel; zahodit by ho znamenalo
+                    // zavriet jeho fill ako "neznamy vstup"
+                    if (!kv.Value.Filled && kv.Value.SentMs >= _syncSentMs) continue;
                     // u exekutora nie je: vystup / zrusenie uz prisli v evt.jsonl, alebo sa stratili - nesledovat dalej
                     Note("warn", (kv.Value.Filled ? "pozicia " : "vstup ") + kv.Key + " u MT5 exekutora nie je - prestavam ho sledovat");
                     _orders.Remove(kv.Key);
@@ -2352,7 +2370,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                 }
             }
             _syncSeen.Clear();
-            _syncCid = _route.Sync(NowMs());
+            _syncSentMs = NowMs();
+            _syncCid = _route.Sync(_syncSentMs);
             Log("route: zo stavu " + restored + " orderov/pozicii, sync " + _syncCid + " - cakam na snapshot exekutora");
         }
 

@@ -507,11 +507,12 @@ class DeployStore:
                 (account_id,))]
             if bezi:
                 raise Conflict(f"na účte {account_id!r} ešte beží: {', '.join(bezi)} — najprv tie nasadenia odstráň")
-            smeruju = [f"{r['strategy']} {r['symbol']} {r['tf']}m ({r['id']})" for r in self._db.execute(
-                "SELECT id, strategy, symbol, tf, route FROM deployments WHERE active = 1 AND route != ''")
-                if (json.loads(r["route"]) or {}).get("account") == account_id]
+            # aj neaktívne: po reaktivácii by nasadenie bez exekútora obchodovalo na účte NinjaTradera
+            smeruju = [f"{r['strategy']} {r['symbol']} {r['tf']}m ({r['id']}{'' if r['active'] else ', neaktívne'})"
+                       for r in self._db.execute("SELECT id, strategy, symbol, tf, route, active FROM deployments WHERE route != ''")
+                       if (json.loads(r["route"]) or {}).get("account") == account_id]
             if smeruju:
-                raise Conflict(f"na MT5 účet {account_id!r} smerujú ordery: {', '.join(smeruju)} — najprv tie nasadenia odstráň")
+                raise Conflict(f"na MT5 účet {account_id!r} smerujú ordery: {', '.join(smeruju)} — najprv tie nasadenia zmaž")
             deps = [r["id"] for r in self._db.execute("SELECT id FROM deployments WHERE account = ?", (account_id,))]
             for dep_id in deps:
                 self._db.execute("DELETE FROM applied WHERE deployment = ?", (dep_id,))
@@ -689,6 +690,12 @@ class DeployStore:
                 sets["mode"] = patch["mode"]
             if patch.get("active") is not None:
                 sets["active"] = 1 if patch["active"] else 0
+                route = old.get("route")
+                if sets["active"] and isinstance(route, dict) and route.get("account"):
+                    acc = self._db.execute("SELECT id, platform FROM accounts WHERE id = ?", (route["account"],)).fetchone()
+                    if acc is None or acc["platform"] != "mt5":
+                        raise Conflict(f"nasadenie smeruje ordery na MT5 účet {route['account']!r}, ktorý v hube "
+                                       f"{'nie je' if acc is None else 'už nie je MT5'} — bez exekútora sa neaktivuje")
             if str(patch.get("version") or "").strip():
                 sets["version"] = str(patch["version"]).strip()
             if patch.get("profile") is not None or isinstance(patch.get("config"), dict):

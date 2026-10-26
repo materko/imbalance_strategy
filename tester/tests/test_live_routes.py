@@ -110,13 +110,23 @@ def test_route_v_nasadeni_a_exekutor_v_pozadovanom_stave(store: DeployStore):
     assert len([d for d in want["deployments"] if d.get("kind") == "executor"]) == 1
     assert store.desired_for_agent("iny-pc")["deployments"] == []
 
-    # MT5 účet, na ktorý smerujú ordery, sa nezmaže; po odstránení nasadení exekútor neaktívny
+    # MT5 účet, na ktorý smerujú ordery, sa nezmaže (ani pri neaktívnych nasadeniach - po reaktivácii by bez
+    # exekútora obchodovali na účte NinjaTradera, audit H1); po odstránení nasadení exekútor neaktívny
     with pytest.raises(Conflict, match="smerujú ordery"):
         store.delete_account("ftmo", by="rasto")
     store.delete_deployment(a["id"], by="rasto")
     store.delete_deployment(b["id"], by="rasto")
+    with pytest.raises(Conflict, match="neaktívne"):
+        store.delete_account("ftmo", by="rasto")
     ex = {d["id"]: d for d in store.desired_for_agent("trade-pc")["deployments"]}[EXECUTOR_PREFIX + "ftmo"]
     assert ex["active"] is False
+    # reaktivácia bez MT5 účtu v hube sa odmietne
+    store._db.execute("DELETE FROM accounts WHERE id = 'ftmo'")
+    with pytest.raises(Conflict, match="bez exekútora"):
+        store.update_deployment(a["id"], {"active": True}, by="rasto")
+    store.upsert_account({"id": "ftmo", "platform": "mt5", "login": "1514750898", "server": "FTMO-Demo"}, by="rasto")
+    assert store.update_deployment(a["id"], {"active": True}, by="rasto")["active"] is True
+    store.delete_deployment(a["id"], by="rasto")
     store.delete_deployment(a["id"], by="rasto", force=True)
     store.delete_deployment(b["id"], by="rasto", force=True)
     assert EXECUTOR_PREFIX + "ftmo" not in {d["id"] for d in store.desired_for_agent("trade-pc")["deployments"]}
@@ -134,12 +144,19 @@ def test_ninjatrader_driver_zapise_route(tmp_path: Path, monkeypatch):
     a = Deployment.from_dict({"id": "n1", "account": "sim", "strategy": "ibsnet", "symbol": "MNQ 12-26", "tf": 3,
                               "profile": "p1", "route": route})
     b = Deployment.from_dict({"id": "n2", "account": "sim", "strategy": "orbnet", "symbol": "MNQ 12-26", "tf": 5,
-                              "profile": "p1", "route": {**route, "to": ""}})   # hub ešte nedoplnil `to` = lokálne
+                              "profile": "p1"})   # bez route = lokálne
     d.ensure_instance(acc, [a, b])
     inst = {e["deployment"]: e for e in json.loads((nt / "TradeBot" / "deploy.json").read_text(encoding="utf-8"))["instances"]}
     assert inst["n1"]["route"] == {"via": "mt5", "to": "mt5exec_1514750898-FTMO-Demo", "symbol": "US100.cash",
                                    "price": "basis", "scale": 1.0, "qty": {"mode": "value"}, "magic": 0}
     assert "route" not in inst["n2"]
+    # route bez `to` (MT5 účet z hubu zmizol) sa NESMIE potichu zapísať ako lokálne obchodovanie (audit H1):
+    # reconciler ju odmietne pri validácii nasadenia
+    c = Deployment.from_dict({"id": "n3", "account": "sim", "strategy": "orbnet", "symbol": "MNQ 12-26", "tf": 5,
+                              "profile": "p1", "route": {**route, "to": ""}})
+    assert c.route is None
+    with pytest.raises(ValueError, match="nemá exekútora"):
+        c.validate()
 
 
 def test_mt5_driver_da_exekutorovi_graf_bez_profilu(drv):  # noqa: F811

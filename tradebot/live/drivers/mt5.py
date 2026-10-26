@@ -621,9 +621,11 @@ class Mt5Driver(Driver):
         for dep in sorted(deployments, key=lambda d: d.id):
             instance = self.instance_of(account, dep)
             if dep.is_executor:
-                # jeden graf TradeBotExecutor na účet (docs/ROUTING.md): vstupy EA predvolené, magic majú route
+                # jeden graf TradeBotExecutor na účet (docs/ROUTING.md): vstupy EA predvolené, magic majú route;
+                # profil prázdny ako v `.chr` (exekútor InpProfile nemá) - inak by sa graf nikdy nezhodol a terminál
+                # by sa reštartoval v každom kole
                 charts.append({"deployment": dep.id, "instance": instance, "symbol": dep.symbol, "tf": 1,
-                               "strategy": dep.strategy, "profile": dep.profile, "config_hash": dep.config_hash,
+                               "strategy": dep.strategy, "profile": "", "config_hash": "",
                                "expert": EXECUTOR_EXPERT, "path": f"Experts\\TradeBot\\{EXECUTOR_EXPERT}.ex5",
                                "magic": 0, "inputs": {},
                                "expertmode": EXPERTMODE_TRADING if self.allow_live_trading else EXPERTMODE_NO_TRADING})

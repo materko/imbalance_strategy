@@ -115,6 +115,12 @@ class Deployment:
             chyby.append(f"slot {self.slot!r} (písmená, číslice, pomlčka, najviac 16)")
         if chyby:
             raise ValueError("nasadenie nemá: " + ", ".join(chyby))
+        raw_route = self.raw.get("route")
+        if isinstance(raw_route, dict) and raw_route and self.route is None:
+            # route bez exekútora (MT5 účet z hubu zmizol): nasadenie sa NESMIE potichu prepnúť na obchodovanie
+            # na účte NinjaTradera — radšej chyba a inštancia sa nezapíše
+            raise ValueError(f"route nasadenia nemá exekútora (MT5 účet {raw_route.get('account')!r} v hube nie je) "
+                             "— ordery by išli na účet NinjaTradera, nasadenie sa nezapisuje")
 
 
 class Driver(ABC):

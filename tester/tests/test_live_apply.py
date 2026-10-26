@@ -589,3 +589,42 @@ def test_zrusene_nasadenie_s_otvorenou_poziciou_drzi_graf_v_pauze(tmp_path: Path
     assert kinds(drv.calls, "remove_instance") == [("remove_instance", "ftmo", "d1")]
     assert rec.state["held"] == {}
     rec.run(desired())                                    # už sa neodstraňuje znova
+
+
+def test_exekutor_ostava_kym_podrzane_nt_nasadenie_nan_smeruje(tmp_path: Path):
+    """Audit smerovania H2: exekútor MT5 účtu nemá spool ani pozíciu, takže deaktivácia NT nasadenia s otvorenou
+    pozíciou v MT5 mu graf odobrala — `close`, trailing a `life` podržanej pozície nemal kto vykonať. Exekútor sa
+    drží, kým naň smeruje podržané nasadenie (aj keď ho hub už neposiela), a odoberie sa až s ním."""
+    class NtDriver(FakeDriver):
+        platform = "ninjatrader"
+
+    pozicie: dict[str, float | None] = {}
+    mt5, nt = FakeDriver(), NtDriver()
+    rec = Reconciler({"mt5": mt5, "ninjatrader": nt}, tmp_path / "s.json", position=lambda inst: pozicie.get(inst))
+    sim = {"id": "sim", "platform": "ninjatrader", "label": "Sim", "login": "Sim101", "server": "Rithmic", "terminal": "", "portable": False}
+    route = {"via": "mt5", "account": "ftmo", "symbol": "US100.cash", "price": "basis", "scale": 1.0,
+             "qty": {"mode": "value"}, "to": "mt5exec_1514750898-FTMO-Demo"}
+    n1 = dep("n1", account="sim", symbol="MNQ 12-26", tf=3, route=route)
+    ex = dep("exec-ftmo", kind="executor", strategy="executor", profile="executor", config={}, config_hash="",
+             symbol="US100.cash", mode="enabled", instance="mt5exec_1514750898-FTMO-Demo")
+    rec.run(desired(n1, ex, accounts=(sim, ACC)))
+    assert kinds(mt5.calls, "ensure_instance") == [("ensure_instance", "ftmo", ("exec-ftmo",))]
+    inst = rec.state["applied"]["n1"]["instance"]
+    pozicie[inst] = 1.0
+    mt5.calls.clear()
+    # NT nasadenie deaktivované s pozíciou: hub exekútor hlási neaktívny - ostáva, lebo naň podržané n1 smeruje
+    rec.run(desired(dep("n1", account="sim", symbol="MNQ 12-26", tf=3, route=route, active=False),
+                    {**ex, "active": False}, accounts=(sim, ACC)))
+    assert "n1" in rec.state["held"] and "exec-ftmo" in rec.state["held"]
+    assert kinds(mt5.calls, "remove_instance") == [] and "smeruje podržané" in rec.state["applied"]["exec-ftmo"]["held"]
+    assert kinds(mt5.calls, "ensure_instance") == [("ensure_instance", "ftmo", ("exec-ftmo",))]
+    # hub oboje zmazal (exekútor už neposiela vôbec): stále podržané
+    mt5.calls.clear()
+    rec.run(desired(accounts=(sim, ACC)))
+    assert kinds(mt5.calls, "remove_instance") == [] and "exec-ftmo" in rec.state["held"]
+    # pozícia zatvorená: NT nasadenie aj exekútor preč
+    pozicie[inst] = None
+    mt5.calls.clear()
+    rec.run(desired(accounts=(sim, ACC)))
+    assert kinds(mt5.calls, "remove_instance") == [("remove_instance", "ftmo", "exec-ftmo")]
+    assert kinds(nt.calls, "remove_instance")[-1] == ("remove_instance", "sim", "n1") and rec.state["held"] == {}
