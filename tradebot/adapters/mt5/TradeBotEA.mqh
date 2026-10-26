@@ -1133,6 +1133,15 @@ bool SendEntry(Tracked &t)
   }
 
 /// Bezi pozicia: vyplneny vstup s otvorenym objemom, alebo odoslany market vstup bez dealu.
+/// Sleduje EA otvorenu poziciu s tymto identifikatorom (ticket pozicie z dealu vstupu)?
+bool OwnsPosition(ulong positionId)
+  {
+   if(positionId == 0) return false;
+   for(int i = 0; i < ArraySize(g_orders); i++)
+      if(g_orders[i].filled && g_orders[i].openQty > 0 && g_orders[i].positionTicket == positionId) return true;
+   return false;
+  }
+
 bool HasOpenPosition()
   {
    for(int i = 0; i < ArraySize(g_orders); i++)
@@ -1449,7 +1458,6 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
 void HandleDeal(const MqlTradeTransaction &trans)
   {
    if(!HistoryDealSelect(trans.deal)) return;
-   if(HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != InpMagic) return;
    string comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
    ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(trans.deal, DEAL_ENTRY);
    ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
@@ -1458,6 +1466,10 @@ void HandleDeal(const MqlTradeTransaction &trans)
    double price = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
    datetime dealTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
    ulong positionId = (ulong)HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
+   // Cudzi magic (rucne zavretie v terminali ma magic 0) sa berie len ako VYSTUP z pozicie, ktoru EA sleduje -
+   // inak by EA verilo fantomovej pozicii, novy vstup by cakal navzdy a zmena profilu tiez (audit N-LIVE-21)
+   if(HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != InpMagic
+      && !((entry == DEAL_ENTRY_OUT || entry == DEAL_ENTRY_OUT_BY) && OwnsPosition(positionId))) return;
    int dealDir = type == DEAL_TYPE_BUY ? 1 : (type == DEAL_TYPE_SELL ? -1 : 0);
    if(dealDir == 0) return;
 
