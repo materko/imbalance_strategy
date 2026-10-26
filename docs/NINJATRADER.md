@@ -474,6 +474,37 @@ prešla SL / TP), do pozície nepočíta — rovnako ako stránka výsledkov (`t
 podľa svojho *Order fill resolution*; pre porovnateľné čísla nastav *High* s 1-minútovou sériou (to je
 to isté, čo `--timeframe-detail 1m` vo Freqtrade). Závery pre NinjaTrader patria behom v NinjaTraderi.
 
+#### Ordery do MT5 (route)
+
+Záznam v `deploy.json` s `route` neobchoduje na účte NinjaTradera. Jeho ordery idú do MT5 exekútora
+`TradeBotExecutor` na tom istom stroji ([ROUTING.md](ROUTING.md)):
+
+```json
+{"deployment":"dep-7","connection":"Rithmic","account":"Sim101","instrument":"MNQ 12-26","tf":3,
+ "strategy":"ibsnet","profile":"multicharts_mnq_3m",
+ "route":{"via":"mt5","to":"mt5exec_5012345-FTMO-Demo","symbol":"US100.cash","price":"basis","scale":1,
+          "qty":{"mode":"value"},"magic":0}}
+```
+
+NinjaTrader dáva len dáta. Účet záznamu (`Sim101`) je len meno v id inštancie a jeho ordery ani fily
+inštancia nesleduje (žiadne `OrderUpdate`/`ExecutionUpdate`). `magic: 0` = magic sa spočíta z id inštancie.
+Zmena `route` je zmena záznamu, takže inštancia sa reštartuje. Čo inštancia robí inak než na vlastnom účte:
+
+| | |
+|---|---|
+| vstup | `BridgeMaster.Entry`: plán v cenách NT, `ref` = zatvorenie baru, `exp` market 10 s / limit a stop 1 TF, `life` od enginu + `cancel_at` = koniec seansy inštrumentu (`TradingHours`) |
+| zrušenie, zatvorenie | `cancel` / `close` s menom výstupu (`tb_close`, `tb_session_end`, `tb_flatten`); jedna pozícia naraz a odkladanie vstupov ako lokálne, len zrušenie potvrdí až `cancelled` z MT5 |
+| trailing | na zatvorení baru NT ako doteraz, posun ide ako `modify` (exekútor ho prekotví na svoj fill) |
+| SL/TP, strážca SL | v orderi u brokera a v exekútore; `GuardExits`, `CloseTimeouts`, `ReconcileExternal` a kontrola starého kontraktu v route nebežia (rollover NT na MT5 nemá vplyv) |
+| fily | udalosti `fill` z `evt.jsonl` (čítanie každých 250 ms); do spoolu idú v **cenách NT** (`price_nt`), cena MT5 je v logu |
+| pozícia pre engine | súčet vlastných sledovaných vstupov (`pos_of: route` v `hb`), nie pozícia účtu NT |
+| stav exekútora | každú sekundu `nt.hb` + `RouteStatus` z heartbeatu exekútora; zlý stav trvajúci 5 s → `note` (`error`, Telegram), pole `route` v `hb`; kým nie je `ok`, nové vstupy sa zahadzujú (`warn`), `cancel`/`close` čakajú v `cmd.jsonl`; návrat na `ok` → `sync` |
+| reštart | sledované ordery zo stavu (`state\<inštancia>.json`) + `sync`. Fily z výpadku prídu z `evt.jsonl` od kurzora. `snapshot` potom zahodí, čo u exekútora už nie je; neznámy čakajúci vstup u exekútora zruší, neznámu pozíciu prevezme bez plánu (SL/TP stoja u brokera) |
+| zastavenie | čakajúce vstupy sa rušia **len pri odstránení** záznamu (`removed`). Pri reštarte NT, novom kóde či páde ostávajú, lebo vstup nesie svoj `life` |
+
+Preložené proti NinjaTraderu 8 (`check`), **naživo ešte nebežalo** — overí sa spolu s exekútorom na MT5 demo
+(ROUTING.md, „Ručný test exekútora“).
+
 ### Test v Strategy Analyzeri proti Testeru
 
 NinjaTrader nemá históriu, kým nie je pripojený poskytovateľ dát — a aj potom by to boli iné sviečky

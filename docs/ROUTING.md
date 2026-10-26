@@ -3,7 +3,9 @@
 Stav (26. 10. 2026): **fáza 1 hotová** — protokol v jadre (`csharp/TradeBot.Core/Bridge.cs`), fasáda
 `StaticHost.Bridge*` pre MT5, `OrderIntent.Life` s EOD obalom, testy `tester/tests/test_bridge.py`.
 **Fáza 2 napísaná:** exekútor `TradeBotExecutor` a ručný master `python -m tradebot.live.bridge`. Preložené,
-ale na MT5 účte ešte neoverené. Strana NinjaTradera, hub a webapp ešte nie sú (fázy 3–5 nižšie). Cieľ: pri každom živom nasadení si zvoliť, kde idú
+ale na MT5 účte ešte neoverené. **Fáza 3 napísaná:** AddOn NinjaTradera smeruje ordery do exekútora podľa
+`route` v `deploy.json`, preložené proti NinjaTraderu 8. Ani NT → MT5 ešte naživo nebežal. Hub, driver a
+webapp ešte nie sú (fázy 4–5 nižšie). Cieľ: pri každom živom nasadení si zvoliť, kde idú
 ordery — **na ten istý účet, na ktorom stratégia beží** (dnešné správanie), alebo **remote** na iný
 terminál na tom istom stroji, dnes MT5. Stratégia (engine, bary, zóny, kresby, telemetria) ostáva
 v NinjaTraderi na dátach, na ktorých bola testovaná; MT5 je len vykonávač.
@@ -185,8 +187,10 @@ sa má pozícia zavrieť. Exekútor to vykoná sám, či NT beží, alebo nie.
 | `life.close_at`: absolútny čas zatvorenia | koniec seansy (`tb_session_end`), EOD 15:59 NY (`EodCloseEngine`, `IClockFlatten`) | o tomto čase zatvorí pozíciu a zruší čakajúci vstup |
 | `life.hold_ms`: najdlhšie držanie od fillu | `maxHoldHours`, „časový exit“, „zavretie v čase“ | `fill + hold_ms` zatvorí trhom |
 
-Každý order má aspoň `close_at` = koniec seansy inštrumentu. Ten pozná adaptér vždy, takže žiadny order
-nebeží donekonečna. Termíny z `life` sa vykonajú s oneskorením **5 s**. Keď NT žije, jeho vlastný
+Každý **nevyplnený vstup** má aspoň `cancel_at` = koniec seansy inštrumentu (`TradingHours` v NT, doplní
+ho AddOn). Čakajúci vstup teda nebeží donekonečna. Pozícia sa koncom seansy inštrumentu **nezatvára**,
+lebo stratégia ju smie držať cez noc ako v backteste. Zatvára sa len cez `close_at`/`hold_ms` od enginu
+(EOD obal, časový exit) a ochránia ju SL/TP u brokera. Termíny z `life` sa vykonajú s oneskorením **5 s**. Keď NT žije, jeho vlastný
 `cancel`/`close` príde skôr (na zatvorení baru, presne ako v backteste) a termín exekútora sa už
 nemá čoho chytiť. Exekútor je teda len poistka, ktorá nezmení obchody oproti backtestu.
 
@@ -202,7 +206,7 @@ lebo naživo bežia len C# enginy. Most do Freqtrade ho pri čítaní zahodí, t
 EOD obal (`EodCloseEngine`, kópie `<kľúč>eod`) dáva každému vstupu `close_at` = najbližších
 15:58:30 New York po zatvorení baru (`NextClockCloseMs`, bez sobôt a nedieľ). Je to ten istý čas,
 v ktorom zatvára živý adaptér podľa hodín (`IClockFlatten`). Ostatné stratégie budú `Life` plniť
-postupne. Kým ho nemajú, order nesie SL/TP, trailing a koniec seansy, ktorý doplní adaptér (fáza 3).
+postupne. Kým ho nemajú, order nesie SL/TP, trailing a `cancel_at` = koniec seansy, ktorý doplní AddOn.
 
 ### Živosť: NT musí hlásiť, či exekútor vidí
 
@@ -246,14 +250,17 @@ Opačný smer (stratégia v MT5, ordery v NT) protokol zvládne, lebo je symetri
 
 1. **Bridge v jadre + testy** (hotové 26. 10. 2026). `Bridge.cs` (`RouteSpec`, `RouteMath`, `RouteStatus`,
    `BridgeMaster`, `BridgeExecutor`), fasáda `StaticHost.Bridge*`, `OrderIntent.Life` s EOD obalom a
-   `test_bridge.py`. Bez platforiem. Koniec seansy do `life.close_at` doplní adaptér až vo fáze 3.
+   `test_bridge.py`. Bez platforiem.
 2. **Exekútor v MT5** (napísaný 26. 10. 2026, preložený MetaEditorom bez chýb; **na účte ešte neoverený**).
    Pôvodný plán bol vybrať vrstvu orderov z `TradeBotEA.mqh` do spoločného `TradeBotOrders.mqh`. Nakoniec je
    exekútor samostatný. EA stratégií sa tak nemení a nehrozí regresia proti Testeru. Exekútor má aj tak inú
    vrstvu: viac symbolov a route, len hedging, prekotvenie, `life`, bez odkladania vstupov a denného limitu
    (to drží engine v NT). Ručný test na demo účte cez `python -m tradebot.live.bridge` (nižšie).
-3. **NT strana.** `Mt5RouteExecution` v AddOne, stav route, `sync` po štarte. Test: Sim101 dáta MNQ →
-   MT5 demo NAS100.
+3. **NT strana** (napísaná 26. 10. 2026, preložená proti NinjaTraderu 8; **naživo neoverená**). Vetva `route`
+   je priamo v `LiveInstance` (`TradeBotLiveInstance.cs`, sekcia „Route do MT5 exekútora“), nie samostatná
+   trieda. Zvyšok inštancie (bary, engine, control, spool, jedna pozícia naraz) je spoločný. Podrobne v
+   [NINJATRADER.md](NINJATRADER.md), „Ordery do MT5 (route)“. Test: Sim101 dáta MNQ → MT5 demo NAS100,
+   spolu s odloženým testom exekútora.
 4. **Hub, driver, webapp.** `route` v nasadení, aliasy v účte, automatický exekútor, formulár a čipy, Telegram.
 5. **Overenie naživo a dokumentácia.** Týždeň na demo/prop skúške, porovnanie fillov NT (virtuálne)
    a MT5 (skutočné), sklz a basis. Doplniť [NINJATRADER.md](NINJATRADER.md), [MT5.md](MT5.md) a [LIVE.md](LIVE.md).

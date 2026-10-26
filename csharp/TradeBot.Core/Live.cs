@@ -480,11 +480,23 @@ namespace TradeBot.Core
                     w.Key("bars").Value(_bars).Key("lb").Value(_lastBarMs);
                     if (_mode.Length > 0) w.Key("mode").Value(_mode);
                     if (_brokerKnown) w.Key("pos").Value(_brokerQty).Key("pos_px").Value(_brokerPrice).Key("pos_of").Value(_brokerScope);
+                    if (_route.Length > 0) w.Key("route").Value(_route);
                     End(w);
                     _writer.Flush();
                 }
             }
             catch (Exception e) { Break(e); }
+        }
+
+        private string _route = "";
+
+        /// <summary>Stav smerovania orderov do MT5 exekutora (`RouteStatus`, docs/ROUTING.md) - ide do kazdeho `hb`
+        /// ako `route`; pri zmene sa `hb` napise hned. Prazdny = ordery idu na ucet instancie.</summary>
+        public void Route(string state)
+        {
+            bool changed;
+            lock (_gate) { changed = (state ?? "") != _route; _route = state ?? ""; }
+            if (changed) Heartbeat();
         }
 
         /// <summary>Pozicia u brokera na instrumente: podpisane mnozstvo (+ long, - short, 0 flat), priemerna cena

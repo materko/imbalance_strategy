@@ -39,6 +39,11 @@ namespace NinjaTrader.NinjaScript.AddOns
         public int Tf = 1;
         public string Strategy = "";
         public string Profile = "";
+        /// <summary>Smerovanie orderov (docs/ROUTING.md): null = na ucet nasadenia, inak do MT5 exekutora.
+        /// `{"via":"mt5","to":"mt5exec_...","symbol":"US100.cash","price":"basis","scale":1,"qty":{"mode":"value"},"magic":n}`</summary>
+        public Dictionary<string, object> Route;
+        /// <summary>`Route` ako text - na porovnanie dvoch citani deploy.json.</summary>
+        public string RouteText = "";
 
         /// <summary>Kluc na porovnanie medzi dvoma citaniami deploy.json.</summary>
         public string Key
@@ -49,13 +54,34 @@ namespace NinjaTrader.NinjaScript.AddOns
         public bool SameAs(LiveDeployment o)
         {
             return o != null && Id == o.Id && Connection == o.Connection && Account == o.Account && Instrument == o.Instrument
-                && Tf == o.Tf && Strategy == o.Strategy && Profile == o.Profile;
+                && Tf == o.Tf && Strategy == o.Strategy && Profile == o.Profile && RouteText == o.RouteText;
         }
 
         public string Describe()
         {
             return (Id.Length > 0 ? Id + ": " : "") + Strategy + " " + Instrument + " " + Tf + "m na " + Account
-                 + " (" + Connection + ", profil '" + Profile + "')";
+                 + " (" + Connection + ", profil '" + Profile + "')"
+                 + (Route != null ? ", ordery -> " + TB.Json.GetString(Route, "to", "?") + " " + TB.Json.GetString(Route, "symbol", "?") : "");
+        }
+
+        /// <summary>Route z deploy.json -> RouteSpec (instancia, NT instrument a TF doplni LiveInstance).</summary>
+        public TB.RouteSpec RouteSpec()
+        {
+            if (Route == null) return null;
+            TB.RouteSpec r = new TB.RouteSpec();
+            r.To = TB.Json.GetString(Route, "to", "");
+            r.Symbol = TB.Json.GetString(Route, "symbol", "");
+            r.Price = TB.Json.GetString(Route, "price", "basis");
+            r.Scale = TB.Json.GetDouble(Route, "scale", 1.0);
+            Dictionary<string, object> q = TB.Json.Get(Route, "qty") as Dictionary<string, object>;
+            if (q != null)
+            {
+                r.QtyMode = TB.Json.GetString(q, "mode", "value");
+                r.Lots = TB.Json.GetDouble(q, "lots", 0.0);
+            }
+            r.Magic = (long)TB.Json.GetDouble(Route, "magic", 0.0);
+            r.Deployment = Id;
+            return r;
         }
 
         public static LiveDeployment FromJson(Dictionary<string, object> d)
@@ -68,7 +94,33 @@ namespace NinjaTrader.NinjaScript.AddOns
             dep.Tf = (int)TB.Json.GetDouble(d, "tf", 1);
             dep.Strategy = TB.Json.GetString(d, "strategy", "");
             dep.Profile = TB.Json.GetString(d, "profile", "");
+            Dictionary<string, object> route = TB.Json.Get(d, "route") as Dictionary<string, object>;
+            if (route != null && TB.Json.GetString(route, "via", "") == "mt5")
+            {
+                dep.Route = route;
+                TB.JsonWriter w = new TB.JsonWriter();
+                Canon(w, route);
+                dep.RouteText = w.ToString();
+            }
             return dep;
+        }
+
+        /// <summary>JSON s klucmi v poradi - rovnaky obsah = rovnaky text.</summary>
+        private static void Canon(TB.JsonWriter w, object v)
+        {
+            Dictionary<string, object> d = v as Dictionary<string, object>;
+            if (d != null)
+            {
+                w.BeginObject();
+                List<string> keys = new List<string>(d.Keys);
+                keys.Sort(StringComparer.Ordinal);
+                foreach (string k in keys) { w.Key(k); Canon(w, d[k]); }
+                w.EndObject();
+                return;
+            }
+            List<object> l = v as List<object>;
+            if (l != null) { w.BeginArray(); foreach (object x in l) Canon(w, x); w.EndArray(); return; }
+            w.ValueObject(v);
         }
     }
 
@@ -130,6 +182,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             public int CloseFails;
             public DateTime CloseRetryAt;
             public bool Protect;
+            /// <summary>Route do MT5: vstup odisiel exekutorovi a este nie je zruseny / odmietnuty (namiesto `Entry`).</summary>
+            public bool RemoteLive;
         }
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -224,6 +278,19 @@ namespace NinjaTrader.NinjaScript.AddOns
         private string _stateText;
         private bool _stateWarned;
 
+        // smerovanie do MT5 exekutora (docs/ROUTING.md): ucet NinjaTradera dava len meno instancie, ordery idu cez bridge
+        private TB.BridgeMaster _route;
+        private string _routeState = "";
+        private string _routeDetail = "";
+        private DateTime _routeChecked = DateTime.MinValue;
+        /// <summary>cid posledneho `sync` - `snapshot` s nim uzavrie zladenie s exekutorom</summary>
+        private string _syncCid;
+        private readonly HashSet<string> _syncSeen = new HashSet<string>();
+        /// <summary>Seansa instrumentu pre `life.close_at` (vlastny iterator - `_sessions` patri strazcovi feedu).</summary>
+        private NinjaTrader.Data.SessionIterator _lifeSessions;
+
+        private bool Routed { get { return _route != null; } }
+
         public LiveInstance(LiveDeployment deployment)
         {
             Deployment = deployment;
@@ -304,21 +371,23 @@ namespace NinjaTrader.NinjaScript.AddOns
                 DateTime lastControl = DateTime.UtcNow;
                 while (!_stopRequested)
                 {
-                    _wake.WaitOne(1000);
+                    _wake.WaitOne(Routed ? 250 : 1000);   // route: udalosti exekutora sa citaju v slucke
                     Drain();
                     if (_stopRequested) break;
+                    try { if (Routed) RouteTick(); }
+                    catch (Exception e) { Note("error", "route do MT5 - " + e); }
                     try { ProcessBars(); }
                     catch (Exception e) { Note("error", "spracovanie barov zlyhalo - " + e); }
                     PublishNet();
-                    try { if (_live) ReconcileExternal(); }
+                    try { if (_live && !Routed) ReconcileExternal(); }
                     catch (Exception e) { Note("error", "kontrola pozicie uctu - " + e.Message); }
                     try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
                     catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
-                    try { if (_live) GuardExits(); }
+                    try { if (_live && !Routed) GuardExits(); }   // route: SL strazi exekutor
                     catch (Exception e) { Note("error", "strazca SL - " + e.Message); }
                     try { if (_live) { EodByClock(); FeedWatch(); } }
                     catch (Exception e) { Note("error", "strazca feedu / EOD - " + e.Message); }
-                    try { if (_live) OldContractCheck(); }
+                    try { if (_live && !Routed) OldContractCheck(); }
                     catch (Exception e) { Log("kontrola stareho kontraktu - " + e.Message); }
                     SaveState();
                     try { if (_live) SpoolBroker(); }
@@ -327,7 +396,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     {
                         lastControl = DateTime.UtcNow;
                         try { ControlCheck(); } catch (Exception e) { Note("error", "control zlyhal - " + e.Message); }
-                        try { CloseTimeouts(); } catch (Exception e) { Note("error", "close timeout - " + e.Message); }
+                        try { if (!Routed) CloseTimeouts(); } catch (Exception e) { Note("error", "close timeout - " + e.Message); }
                     }
                 }
                 Teardown(_stopReason);
@@ -396,6 +465,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             _stepMs = d.Tf * 60000L;
             _instance = TB.LiveSpool.InstanceId("ninjatrader", _account.Name, _instrumentName, d.Tf, d.Strategy);
             _statePath = Path.Combine(TradeBotLiveAddOn.StateDir, _instance + ".json");
+            if (d.Route != null && !OpenRoute()) return false;
 
             try
             {
@@ -429,13 +499,17 @@ namespace NinjaTrader.NinjaScript.AddOns
             _m1Series = d.Tf == 1 ? _chart : RequestSeries(1, TB.LiveSpool.MinuteBackfill);
             if (_m1Series == null) Log("1m bary do telemetrie nebudu (BarsRequest 1m zlyhal)");
 
-            _orderHandler = OnOrderUpdate;
-            _executionHandler = OnExecutionUpdate;
-            _account.OrderUpdate += _orderHandler;
-            _account.ExecutionUpdate += _executionHandler;
+            if (!Routed)
+            {
+                // route do MT5: ucet NinjaTradera neobchoduje - jeho ordery a fily (Chart Trader, ine instancie) nas nezaujimaju
+                _orderHandler = OnOrderUpdate;
+                _executionHandler = OnExecutionUpdate;
+                _account.OrderUpdate += _orderHandler;
+                _account.ExecutionUpdate += _executionHandler;
+            }
 
             Replay();
-            try { RestoreState(); }
+            try { if (Routed) RestoreRoute(); else RestoreState(); }
             catch (Exception e) { Note("error", "prevzatie obchodov spred restartu zlyhalo - " + e); }
             // rezim flatten z control suboru: ControlInit bezal pred prevzatim, ked este nebolo co zatvorit (audit N-LIVE-9)
             if (_controlMode == "flatten" && _orders.Count > 0) { Flatten("tb_flatten"); Log("FLATTEN (control, po prevzati obchodov)"); }
@@ -510,6 +584,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             _spool = new TB.LiveSpool(TradeBotLiveAddOn.SpoolDir, "ninjatrader", _account.Name, _instrumentName, Deployment.Tf,
                                       Deployment.Strategy, profile, false, _config, InstrumentSpec());
             SpoolCheck();
+            if (Routed && _routeState.Length > 0) _spool.Route(_routeState);   // nova session spoolu (zmena profilu)
             _m1Spooled = 0;   // novy beh dostane predhistoriu 1m znova
         }
 
@@ -697,7 +772,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 Tracked p = kv.Value;
                 if (p.Filled || p.Parked || p.Intent.OrderType != TB.OrderType.Market || p.Intent.Plan == null) continue;
-                if (p.Entry == null || !Alive(p.Entry)) continue;
+                if (!EntryAlive(p)) continue;
                 ctx.PositionSize += (p.Intent.Plan.Direction == TB.Direction.Long ? 1 : -1) * Math.Max(1, Math.Round(p.Intent.Plan.Qty));
             }
             string day = UtcDay(bar.Time);
@@ -765,6 +840,20 @@ namespace NinjaTrader.NinjaScript.AddOns
             return s != OrderState.Cancelled && s != OrderState.Rejected && s != OrderState.Filled && s != OrderState.Unknown;
         }
 
+        /// <summary>Vstup je u brokera (lokalne: zivy order; route: odoslany exekutorovi, nezruseny, nevyplneny).</summary>
+        private bool EntryAlive(Tracked t) { return Routed ? t.RemoteLive : t.Entry != null && Alive(t.Entry); }
+
+        /// <summary>Vstup este nie je potvrdene prec (lokalne: order existuje; route: zrusenie exekutor nepotvrdil).</summary>
+        private bool EntryPending(Tracked t) { return Routed ? t.RemoteLive : t.Entry != null; }
+
+        private void CancelEntry(string id, Tracked t, string why)
+        {
+            if (!Routed) { if (t.Entry != null) CancelOrder(t.Entry); return; }
+            if (t.RemoteLive) _route.Cancel(NowMs(), id, why);
+        }
+
+        private static long NowMs() { return (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds); }
+
         /// <summary>Pozicia uctu na instrumente (aj cudzia - napr. z predosleho behu alebo z grafu).</summary>
         private int AccountPosition()
         {
@@ -775,6 +864,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         private int AccountPosition(out double avgPrice)
         {
             avgPrice = 0;
+            if (Routed) return OwnNet();   // pozicia je u exekutora; ucet NinjaTradera neobchoduje
             try
             {
                 lock (_account.Positions)
@@ -796,7 +886,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (_spool == null || _account == null || _inst == null) return;
             double price;
             int qty = AccountPosition(out price);
-            _spool.Broker(qty, qty != 0 ? price : 0.0, "account");
+            _spool.Broker(qty, qty != 0 ? price : 0.0, Routed ? "route" : "account");
             SpoolCheck();
         }
 
@@ -818,6 +908,11 @@ namespace NinjaTrader.NinjaScript.AddOns
                     Log("ENTRY " + intent.OrderId + " zahodeny - rezim " + _controlMode);
                     return;
                 }
+                if (Routed && _routeState != TB.RouteStatus.Ok)
+                {
+                    Note("warn", "ENTRY " + intent.OrderId + " zahodeny - MT5 exekutor: " + _routeState + " (" + _routeDetail + ")");
+                    return;
+                }
                 if (_orders.TryGetValue(intent.OrderId, out t) && t.Filled && t.OpenQty > 0) return;
                 Tracked previous = t;
                 t = new Tracked();
@@ -827,7 +922,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (HasOpenPosition())
                 {
                     t.Parked = true;
-                    if (previous != null && !previous.Filled && previous.Entry != null) CancelOrder(previous.Entry);
+                    if (previous != null && !previous.Filled) CancelEntry(intent.OrderId, previous, "nahradeny");
                     Log("ENTRY " + intent.OrderId + " odlozeny - bezi pozicia");
                     return;
                 }
@@ -840,7 +935,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 if (!t.Filled)
                 {
-                    if (t.Entry != null) CancelOrder(t.Entry);
+                    CancelEntry(intent.OrderId, t, intent.Reason);
                     _orders.Remove(intent.OrderId);
                 }
                 Log("CANCEL " + intent.OrderId + " (" + intent.Reason + ")");
@@ -860,6 +955,7 @@ namespace NinjaTrader.NinjaScript.AddOns
 
         private void SubmitEntry(string id, Tracked t)
         {
+            if (Routed) { SubmitRemote(id, t); return; }
             TB.OrderIntent intent = t.Intent;
             TB.TradePlan plan = intent.Plan;
             int qty = (int)Math.Max(1, Math.Round(plan.Qty));
@@ -886,6 +982,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// <summary>Po vyplneni vstupu: SL (stop-market) + TP (limit) ako OCO dvojica na otvoreny objem.</summary>
         private void EnsureExits(string id, Tracked t)
         {
+            if (Routed) return;   // SL/TP su v orderi exekutora
             TB.TradePlan plan = t.Intent.Plan;
             bool isLong = plan.Direction == TB.Direction.Long;
             OrderAction action = isLong ? OrderAction.Sell : OrderAction.BuyToCover;
@@ -967,6 +1064,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (t.Closing != null) return;
             t.Closing = signal;
             t.ClosingSince = DateTime.UtcNow;
+            if (Routed) { _route.Close(NowMs(), id, signal); t.CloseSent = true; Log("EXIT " + id + " -> MT5 (" + signal + ")"); return; }
             List<Order> cancel = new List<Order>();
             if (Alive(t.Sl)) cancel.Add(t.Sl);
             if (Alive(t.Tp)) cancel.Add(t.Tp);
@@ -1050,7 +1148,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 Tracked t = kv.Value;
                 if (t.Filled && t.OpenQty > 0) return true;
-                if (!t.Filled && !t.Parked && t.Entry != null && t.Intent.OrderType == TB.OrderType.Market && Alive(t.Entry)) return true;
+                if (!t.Filled && !t.Parked && t.Intent.OrderType == TB.OrderType.Market && EntryAlive(t)) return true;
             }
             return AccountPosition() - OthersNet() != 0;   // len vlastna cast (N-LIVE-13)
         }
@@ -1062,7 +1160,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 Tracked t = kv.Value;
                 if (kv.Key == filledId || t.Filled || t.Parked) continue;
                 t.Parked = true;
-                if (t.Entry != null) CancelOrder(t.Entry);
+                CancelEntry(kv.Key, t, "odlozeny");
                 Log("ENTRY " + kv.Key + " odlozeny - vyplnil sa " + filledId);
             }
         }
@@ -1073,7 +1171,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
             {
                 Tracked t = kv.Value;
-                if (!t.Parked || t.Entry != null) continue;
+                if (!t.Parked || EntryPending(t)) continue;
                 t.Parked = false;
                 SubmitEntry(kv.Key, t);
             }
@@ -1144,7 +1242,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// <summary>Sucet pozicii ostatnych instancii tohto procesu na tom istom ucte a instrumente.</summary>
         private int OthersNet()
         {
-            if (_account == null || _inst == null) return 0;
+            if (_account == null || _inst == null || Routed) return 0;   // route: hedging ucet, kazda instancia ma vlastne pozicie
             string key = NetKey();
             int sum = 0;
             lock (NetGate)
@@ -1203,7 +1301,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (!clock.FlattenDue(nowMs)) return;
             bool work = false;
             foreach (KeyValuePair<string, Tracked> kv in _orders)
-                if ((kv.Value.Filled && kv.Value.OpenQty > 0 && kv.Value.Closing == null) || (!kv.Value.Filled && kv.Value.Entry != null)) work = true;
+                if ((kv.Value.Filled && kv.Value.OpenQty > 0 && kv.Value.Closing == null) || (!kv.Value.Filled && EntryPending(kv.Value))) work = true;
             if (!work) return;
             string day = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             if (_eodClockDay != day)
@@ -1265,7 +1363,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 Tracked t = kv.Value;
                 if (!t.Filled)
                 {
-                    if (t.Entry != null) CancelOrder(t.Entry);
+                    CancelEntry(kv.Key, t, signal);
                     _orders.Remove(kv.Key);
                 }
                 else if (t.OpenQty > 0) RequestClose(kv.Key, t, signal);
@@ -1286,7 +1384,12 @@ namespace NinjaTrader.NinjaScript.AddOns
                 double stop = plan.Trailing.StopPrice(plan.Direction, plan.Entry, plan.StopLoss, best);
                 bool better = isLong ? stop > t.LastStop : stop < t.LastStop;
                 if (!better) continue;
-                if (Alive(t.Sl))
+                if (Routed)
+                {
+                    _route.Modify(NowMs(), kv.Key, Tick(stop), null, bar.Close, "trailing");
+                    Log("TRAIL " + kv.Key + " SL -> " + Tick(stop) + " (MT5)");
+                }
+                else if (Alive(t.Sl))
                 {
                     try
                     {
@@ -1650,7 +1753,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 Tracked t = kv.Value;
                 TB.TradePlan plan = t.Intent != null ? t.Intent.Plan : null;
                 if (plan == null) continue;
-                if (t.Filled ? t.OpenQty <= 0 : (t.Parked || !Alive(t.Entry))) continue;   // odlozeny vstup u brokera nie je
+                if (t.Filled ? t.OpenQty <= 0 : (t.Parked || !EntryAlive(t))) continue;   // odlozeny vstup u brokera nie je
                 w.BeginObject().Key("id").Value(kv.Key).Key("ot").Value(t.Intent.OrderType.ToString())
                  .Key("filled").Value(t.Filled).Key("filled_ms").Value(t.FilledMs).Key("sent_ms").Value(t.SentMs)
                  .Key("open_qty").Value(t.OpenQty).Key("dir").Value((int)plan.Direction).Key("entry").Value(plan.Entry)
@@ -1878,6 +1981,319 @@ namespace NinjaTrader.NinjaScript.AddOns
         }
 
         // ------------------------------------------------------------------ //
+        // Route do MT5 exekutora (docs/ROUTING.md): engine, bary a telemetria ostavaju tu, ordery vykona MT5
+        // ------------------------------------------------------------------ //
+        // Ucet NinjaTradera (Sim101) dava len meno instancie - neobchoduje sa na nom. Prikazy idu do
+        // `Common\Files\TradeBot\bridge\<instancia>\cmd.jsonl` (TB.BridgeMaster), udalosti exekutora (placed, fill,
+        // cancelled ...) sa citaju v slucke instancie kazdych 250 ms. SL/TP stoja v orderi u brokera, strazca SL
+        // a terminy `life` su vec exekutora; tu sa riesi, co vie len engine (trailing na baroch, close, koniec seansy).
+
+        private DateTime _routeSince = DateTime.UtcNow;
+        private bool _routeNoted, _routeWasBad;
+
+        /// <summary>Stabilne magic cislo route z id instancie (FNV-1a), ked ho deploy.json nedal.</summary>
+        private static long StableMagic(string text)
+        {
+            uint h = 2166136261;
+            foreach (char c in text) { h ^= c; h *= 16777619; }
+            long m = h & 0x7FFFFFFF;
+            return m == 0 ? 1 : m;
+        }
+
+        private bool OpenRoute()
+        {
+            TB.RouteSpec spec = Deployment.RouteSpec();
+            if (spec.To.Length == 0 || spec.Symbol.Length == 0)
+            {
+                Log("route v deploy.json nema `to` alebo `symbol` - preskakujem");
+                return false;
+            }
+            spec.Instance = _instance;
+            spec.NtSymbol = _instrumentName;
+            spec.NtPointValue = _inst.MasterInstrument.PointValue;
+            spec.NtTick = _inst.MasterInstrument.TickSize;
+            spec.Tf = Deployment.Tf;
+            if (spec.Magic == 0) spec.Magic = StableMagic(_instance);
+            try { _route = new TB.BridgeMaster(TB.Bridge.DefaultRoot(), spec); }
+            catch (Exception e) { Log("route do MT5 sa neotvorila - " + e.Message); return false; }
+            Log("ordery idu do MT5 exekutora " + spec.To + " na " + spec.Symbol + " (magic " + spec.Magic + ", " + _route.Dir + ")");
+            _route.Heartbeat(NowMs(), _controlMode);
+            return true;
+        }
+
+        /// <summary>Kazdu iteraciu slucky: heartbeat a stav route (raz za sekundu), udalosti exekutora.</summary>
+        private void RouteTick()
+        {
+            long now = NowMs();
+            if ((DateTime.UtcNow - _routeChecked).TotalSeconds >= 1)
+            {
+                _routeChecked = DateTime.UtcNow;
+                _route.Heartbeat(now, _controlMode);
+                string detail;
+                string state = _route.Status(now, out detail);
+                bool ok = state == TB.RouteStatus.Ok;
+                if (state != _routeState)
+                {
+                    _routeState = state;
+                    _routeSince = DateTime.UtcNow;
+                    _routeNoted = false;
+                    if (_spool != null) { _spool.Route(state); SpoolCheck(); }
+                    if (ok)
+                    {
+                        Note("info", "MT5 exekutor " + _route.Spec.To + " (" + _route.Spec.Symbol + "): ok" + (_routeWasBad ? " - zas viditelny, zladujem stav" : ""));
+                        // po navrate exekutora zistit, co sa medzitym stalo (fily su v evt.jsonl, snapshot doplni zvysok)
+                        if (_routeWasBad && _syncCid == null) { _syncSeen.Clear(); _syncCid = _route.Sync(now); }
+                        _routeWasBad = false;
+                    }
+                }
+                _routeDetail = detail;
+                // zly stav sa hlasi, az ked trva 5 s (exekutor novu route prevezme do 2 s)
+                if (!ok && !_routeNoted && (DateTime.UtcNow - _routeSince).TotalSeconds >= 5)
+                {
+                    _routeNoted = true;
+                    _routeWasBad = true;
+                    Note(state == TB.RouteStatus.Pending ? "warn" : "error", "MT5 exekutor " + _route.Spec.To + ": " + state
+                         + (detail.Length > 0 ? " - " + detail : "") + " - nove vstupy sa neposielaju, otvorene ordery bezia u brokera so SL/TP");
+                }
+            }
+            foreach (Dictionary<string, object> ev in _route.Poll())
+            {
+                try { HandleRouteEvent(ev); }
+                catch (Exception e) { Note("error", "udalost z MT5 " + TB.Json.GetString(ev, "k", "?") + " - " + e.Message); }
+            }
+        }
+
+        /// <summary>Koniec obchodnej seansy instrumentu (TradingHours) v ms UTC; 0 = neda sa zistit.</summary>
+        private long SessionEndMs()
+        {
+            try
+            {
+                if (_lifeSessions == null) _lifeSessions = new NinjaTrader.Data.SessionIterator(_inst.MasterInstrument.TradingHours);
+                _lifeSessions.GetNextSession(NinjaTrader.Core.Globals.Now, true);
+                return ToMs(_lifeSessions.ActualSessionEnd);
+            }
+            catch (Exception e)
+            {
+                Log("koniec seansy pre life sa neda zistit - " + e.Message);
+                return 0;
+            }
+        }
+
+        /// <summary>Vstup do MT5: plan v cenach NinjaTradera, `ref` = zatvorenie posledneho baru (prepocet basis),
+        /// `life` od enginu + nevyplneny vstup plati najdlhsie do konca seansy instrumentu.</summary>
+        private void SubmitRemote(string id, Tracked t)
+        {
+            TB.OrderIntent intent = t.Intent;
+            long now = NowMs();
+            if (intent.Life == null) intent.Life = new TB.OrderLife();
+            intent.Life.CancelAtMs = TB.OrderLife.Earlier(intent.Life.CancelAtMs, SessionEndMs());
+            long exp = intent.OrderType == TB.OrderType.Market ? now + 10000L : now + Deployment.Tf * 60000L;
+            try
+            {
+                string cid = _route.Entry(now, intent, _lastClose > 0 ? _lastClose : intent.Plan.Entry, exp);
+                t.RemoteLive = true;
+                t.SentMs = now;
+                Log("ENTRY " + id + " -> MT5 " + intent.OrderType + " @" + intent.Plan.Entry + " SL " + intent.Plan.StopLoss + " TP "
+                    + intent.Plan.TakeProfit + " qty " + intent.Plan.Qty + " (" + cid + ")");
+            }
+            catch (Exception e)
+            {
+                Note("error", "vstup " + id + " sa do MT5 nezapisal - " + e.Message);
+                _orders.Remove(id);
+            }
+        }
+
+        private static string RouteExitName(string exit, string closing)
+        {
+            if (exit == "sl") return "Stop loss";
+            if (exit == "tp") return "Profit target";
+            if (exit == "close") return closing ?? "tb_close";
+            if (exit == "flatten") return "tb_flatten";
+            if (exit == "life_close") return "tb_life";
+            if (exit == "no_stop") return "tb_close";
+            return "close";   // external: rucne v MT5, stop-out
+        }
+
+        private void HandleRouteEvent(Dictionary<string, object> ev)
+        {
+            string k = TB.Json.GetString(ev, "k", "");
+            string id = TB.Json.GetString(ev, "id", "");
+            string cid = TB.Json.GetString(ev, "cid", "");
+            string text = TB.Json.GetString(ev, "text", "");
+            double mt5Price = TB.Json.GetDouble(ev, "price", 0);
+            double px = TB.Json.GetDouble(ev, "price_nt", mt5Price);
+            double lots = TB.Json.GetDouble(ev, "lots", 0);
+            long ft = (long)TB.Json.GetDouble(ev, "ft", NowMs());
+            Tracked t = null;
+            bool known = id.Length > 0 && _orders.TryGetValue(id, out t);
+
+            if (k == "placed")
+            {
+                if (known && !t.Filled) t.RemoteLive = true;
+                Log("MT5 PLACED " + id + " @" + mt5Price + " lots " + lots + (text.Length > 0 ? " " + text : ""));
+                return;
+            }
+            if (k == "reject")
+            {
+                Note("error", "MT5 odmietol " + (id.Length > 0 ? id : cid) + ": " + text);
+                if (known && !t.Filled) _orders.Remove(id);   // odmietnuty vstup - engine si ho odpise ako nevyplneny
+                return;
+            }
+            if (k == "fill")
+            {
+                int qty = Math.Max(1, (int)Math.Round(TB.Json.GetDouble(ev, "qty", 1)));
+                bool entry = TB.Json.GetString(ev, "side", "") == "in";
+                if (entry)
+                {
+                    if (!known)
+                    {
+                        // vstup, o ktorom instancia nevie (zruseny tu, vyplneny tam): engine ho nespravuje - von
+                        Note("warn", "MT5 vyplnil vstup " + id + ", ktory instancia nesleduje - zatvaram ho");
+                        _route.Close(NowMs(), id, "neznamy vstup");
+                        return;
+                    }
+                    if (!t.Filled) { t.FilledAt = DateTime.UtcNow; t.FilledMs = ft; }
+                    t.Filled = true;
+                    t.Parked = false;
+                    t.RemoteLive = false;
+                    t.OpenQty += qty;
+                    Log("FILL in " + id + " @" + px + " x" + qty + " (MT5 " + mt5Price + ", lots " + lots + ")");
+                    if (_spool != null) { _spool.Fill(ft, id, true, "", px, qty, _live); SpoolCheck(); }
+                    ParkOthers(id);
+                    return;
+                }
+                if (!known) { Log("MT5 FILL out " + id + " - instancia ho nesleduje"); return; }
+                string exitName = RouteExitName(TB.Json.GetString(ev, "exit", ""), t.Closing);
+                Log("FILL out " + id + " " + exitName + " @" + px + " x" + qty + " (MT5 " + mt5Price + ")");
+                if (_spool != null) { _spool.Fill(ft, id, false, exitName, px, qty, _live); SpoolCheck(); }
+                t.OpenQty -= qty;
+                if (t.OpenQty > 0) return;
+                _orders.Remove(id);
+                ReleaseParked();
+                string exit = TB.Json.GetString(ev, "exit", "");
+                CountWin(t.Intent.Plan, exit == "sl" || exit == "tp" ? exit : "", px, ft);
+                return;
+            }
+            if (k == "cancelled")
+            {
+                Log("MT5 CANCELLED " + id + " " + TB.Json.GetString(ev, "exit", "") + (text.Length > 0 ? " " + text : ""));
+                if (!known || t.Filled) return;
+                t.RemoteLive = false;
+                if (t.Parked) ReleaseParked();   // odlozeny: posle sa znova, ked skonci pozicia
+                else _orders.Remove(id);
+                return;
+            }
+            if (k == "note")
+            {
+                string level = TB.Json.GetString(ev, "side", "info");
+                Note(level == "warn" || level == "error" ? level : "info", "MT5: " + text);
+                return;
+            }
+            if (k == "pos" || k == "order")
+            {
+                if (cid.Length > 0 && cid == _syncCid) _syncSeen.Add(id);
+                if (known)
+                {
+                    if (k == "pos") { t.Filled = true; t.RemoteLive = false; int q = (int)Math.Round(TB.Json.GetDouble(ev, "qty", t.OpenQty)); if (q > 0) t.OpenQty = q; }
+                    else if (!t.Filled) t.RemoteLive = true;
+                    return;
+                }
+                if (k == "order")
+                {
+                    // cakajuci vstup bez planu v stave instancie: engine o nom nevie - zrusit
+                    Note("warn", "MT5 drzi cakajuci vstup " + id + ", ktory instancia nepozna - rusim ho");
+                    _route.Cancel(NowMs(), id, "neznamy vstup");
+                    return;
+                }
+                // pozicia bez planu: prevziat aspon smer a objem, aby engine neotvoril dalsiu (SL/TP stoja u brokera)
+                TB.Direction dir = TB.Json.GetString(ev, "side", "") == "short" ? TB.Direction.Short : TB.Direction.Long;
+                TB.TradePlan plan = new TB.TradePlan(dir, px, 0, 0, Math.Max(1, TB.Json.GetDouble(ev, "qty", 1)), 0, null);
+                TB.OrderIntent intent = new TB.OrderIntent(TB.OrderAction.Entry, id, 0, "prevzaty z MT5 bez planu");
+                intent.Direction = dir;
+                intent.Plan = plan;
+                Tracked a = new Tracked();
+                a.Intent = intent;
+                a.Filled = true;
+                a.OpenQty = (int)Math.Max(1, Math.Round(plan.Qty));
+                a.FilledMs = ft;
+                a.FilledAt = DateTime.UtcNow;
+                _orders[id] = a;
+                Note("warn", "MT5 drzi poziciu " + id + " (" + (dir == TB.Direction.Long ? "long" : "short") + " x" + a.OpenQty
+                     + "), ktoru stav instancie nepozna - prevzata bez trailingu (SL/TP u brokera)");
+                return;
+            }
+            if (k == "snapshot")
+            {
+                if (cid != _syncCid) return;
+                int dropped = 0;
+                foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
+                {
+                    if (_syncSeen.Contains(kv.Key) || kv.Value.Parked) continue;
+                    if (!kv.Value.Filled && !kv.Value.RemoteLive) continue;
+                    // u exekutora nie je: vystup / zrusenie uz prisli v evt.jsonl, alebo sa stratili - nesledovat dalej
+                    Note("warn", (kv.Value.Filled ? "pozicia " : "vstup ") + kv.Key + " u MT5 exekutora nie je - prestavam ho sledovat");
+                    _orders.Remove(kv.Key);
+                    dropped++;
+                }
+                Log("MT5 snapshot: " + _syncSeen.Count + " orderov/pozicii u exekutora, " + dropped + " zahodenych; stav " + text);
+                _syncCid = null;
+                _syncSeen.Clear();
+                ReleaseParked();
+                return;
+            }
+            if (k == "modified" || k == "ack")
+            {
+                Log("MT5 " + k + " " + id + (mt5Price != 0 ? " @" + mt5Price : "") + (text.Length > 0 ? " " + text : ""));
+                return;
+            }
+            Log("MT5 udalost " + k + " " + id + " " + text);
+        }
+
+        /// <summary>Po predhistorii (route): sledovane vstupy a pozicie zo stavu spred restartu + `sync`. Co sa medzitym
+        /// stalo, prinesu udalosti exekutora (evt.jsonl od kurzora), snapshot potom uzavrie, co uz u neho nie je.</summary>
+        private void RestoreRoute()
+        {
+            int restored = 0;
+            if (_statePath != null && File.Exists(_statePath))
+            {
+                Dictionary<string, object> root = null;
+                try { root = TB.Json.ParseObject(File.ReadAllText(_statePath)); }
+                catch (Exception e) { Note("warn", "stav " + _statePath + " sa neda precitat (" + e.Message + ")"); }
+                if (root != null && TB.Json.GetString(root, "instance", "") == _instance)
+                {
+                    ReadCounts(root, "wins", _dailyWins);
+                    ReadCounts(root, "wins_seen", _dailyWinsSeen);
+                    long savedBarMs = (long)TB.Json.GetDouble(root, "bar_ms", 0);
+                    List<object> saved = TB.Json.Get(root, "orders") as List<object>;
+                    if (saved != null)
+                        foreach (object item in saved)
+                        {
+                            Dictionary<string, object> s = item as Dictionary<string, object>;
+                            string id = s != null ? TB.Json.GetString(s, "id", "") : "";
+                            if (id.Length == 0) continue;
+                            Tracked t = new Tracked();
+                            t.Intent = IntentFrom(id, s);
+                            t.Filled = TB.Json.GetBool(s, "filled", false);
+                            t.OpenQty = (int)Math.Round(TB.Json.GetDouble(s, "open_qty", 0));
+                            t.FilledMs = (long)TB.Json.GetDouble(s, "filled_ms", 0);
+                            t.SentMs = (long)TB.Json.GetDouble(s, "sent_ms", 0);
+                            t.FilledAt = DateTime.UtcNow.AddMinutes(-1);
+                            t.RemoteLive = !t.Filled;
+                            object ex = TB.Json.Get(s, "extreme");
+                            double? extreme = t.Filled && ex != null ? TB.Json.ToDouble(ex) : (double?)null;
+                            t.Extreme = CatchUpExtreme(t.Intent.Plan, extreme, t.Filled && savedBarMs > 0 ? savedBarMs : t.FilledMs);
+                            t.LastStop = TB.Json.GetDouble(s, "last_stop", t.Intent.Plan.StopLoss);
+                            _orders[id] = t;
+                            restored++;
+                        }
+                }
+            }
+            _syncSeen.Clear();
+            _syncCid = _route.Sync(NowMs());
+            Log("route: zo stavu " + restored + " orderov/pozicii, sync " + _syncCid + " - cakam na snapshot exekutora");
+        }
+
+        // ------------------------------------------------------------------ //
         // Koniec
         // ------------------------------------------------------------------ //
 
@@ -1910,17 +2326,21 @@ namespace NinjaTrader.NinjaScript.AddOns
                 }
             }
             catch (Exception) { }
-            // cakajuce vstupy prec; pozicia ostava aj so svojimi SL/TP (GTC ordery na ucte) - flatten je vec control suboru
+            // cakajuce vstupy prec; pozicia ostava aj so svojimi SL/TP (GTC ordery na ucte) - flatten je vec control suboru.
+            // Route do MT5: vstupy sa rusia len pri odstraneni nasadenia - restart NT, novy kod ci pad nie su dovod
+            // (vstup nesie svoj `life` a exekutor ho dodrzi sam; po navrate ho `sync` znova prevezme).
             int cancelled = 0;
             try
             {
-                foreach (KeyValuePair<string, Tracked> kv in _orders)
-                {
-                    Tracked t = kv.Value;
-                    if (!t.Filled && t.Entry != null && Alive(t.Entry)) { CancelOrder(t.Entry); cancelled++; }
-                }
+                if (!Routed || reason == "removed")
+                    foreach (KeyValuePair<string, Tracked> kv in _orders)
+                    {
+                        Tracked t = kv.Value;
+                        if (!t.Filled && EntryAlive(t)) { CancelEntry(kv.Key, t, "nasadenie odstranene"); cancelled++; }
+                    }
             }
             catch (Exception e) { Log("rusenie vstupov: " + e.Message); }
+            try { if (Routed) _route.Heartbeat(NowMs(), "stopped"); } catch (Exception) { }
             SaveState();   // otvorene pozicie s planom pre dalsi beh
             DisposeSeries(_chart);
             DisposeSeries(_htfSeries);

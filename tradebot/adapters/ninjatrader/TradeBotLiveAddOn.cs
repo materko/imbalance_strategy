@@ -7,6 +7,9 @@
 //   {"instances":[{"deployment":"dep-1","connection":"Simulated Data Feed","account":"Sim101",
 //                  "instrument":"MNQ 12-26","tf":3,"strategy":"ibsnet","profile":"multicharts_mnq_3m"}]}
 //
+// Zaznam s `"route":{"via":"mt5","to":"mt5exec_<login>-<server>","symbol":"US100.cash"}` obchoduje cez MT5
+// exekutor (docs/ROUTING.md) - NinjaTrader da len data, ucet zaznamu je len meno instancie.
+//
 // a pre kazdy zaznam drzi jednu `LiveInstance` (TradeBotLiveInstance.cs): pripojenie, ucet, BarsRequest,
 // engine, ordery, spool, control subor. Subor sa sleduje podla mtime kazde 2 s (nove zaznamy sa spustia,
 // odstranene zastavia, zmenene sa restartuju) a znova pri zmene stavu pripojenia (neuspesne starty sa

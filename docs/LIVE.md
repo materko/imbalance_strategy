@@ -111,7 +111,7 @@ Freqtrade a graf webapp).
 | `fill` | `ft` (čas exekúcie ms UTC), `id` (id vstupu), `side` `in`/`out`, `exit` (meno výstupu: NT `Stop loss`/`Profit target`/`tb_close`/`tb_session_end`, MT5 `sltp`/`close`; pri `in` prázdne), `price`, `qty`, `ready` | vyplnenie u brokera (adaptér, nie engine) |
 | `stat` | `stats` (objekt: `Engine.Stats()` + `adapter_*` počítadlá) | pri ukončení |
 | `note` | `text`, `level` (`info`/`warn`/`error`) | varovania adaptéra (neskorý bar, chyba spoolu…) |
-| `hb` | `bars` (barov v session), `lb` (čas posledného baru, 0 = žiadny), `mode` (posledný `control`, keď bol), `pos` / `pos_px` / `pos_of` (pozícia u brokera — nižšie, keď ju adaptér hlási) | **ping** každých 60 s z časovača `LiveSpool` (mimo Strategy Testera/Analyzera), aj keď bary nechodia; **nečísluje `seq`** (nesie posledné pridelené) |
+| `hb` | `bars` (barov v session), `lb` (čas posledného baru, 0 = žiadny), `mode` (posledný `control`, keď bol), `pos` / `pos_px` / `pos_of` (pozícia u brokera — nižšie, keď ju adaptér hlási), `route` (stav MT5 exekútora pri smerovaní orderov — `ok`, `no_executor`, `stale` … [ROUTING.md](ROUTING.md)) | **ping** každých 60 s z časovača `LiveSpool` (mimo Strategy Testera/Analyzera), aj keď bary nechodia; **nečísluje `seq`** (nesie posledné pridelené) |
 | `bye` | `reason` | ukončenie stratégie (posledný riadok súboru, keď sa stihne) |
 
 Príklad:
