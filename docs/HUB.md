@@ -188,6 +188,15 @@ inak zlyhá s chybou „agent sa odmlčal". Beh, ktorý agent tri heartbeaty po 
 nenahlási (reštart bez stavu), zlyhá tiež. To je ale len pohľad hubu — agent medzitým
 počíta ďalej, viď nižšie.
 
+Agent, ktorý sa reštartoval uprostred výpočtu (reboot stroja), beh v novom runneri nemá a `run.json`
+ešte nevznikol: výpočet hubu neodovzdá ako `failed`, ale ho zabudne — hub ho podľa heartbeatu vráti do
+fronty (raz, ak to fronta dovolila) a ten istý agent ho prijme znova. Heartbeat s iným `instance`, kým
+pôvodný proces žije, hub odmietne (409) ako registráciu — dva procesy s jedným menom by dostali ten istý
+výpočet. Výpočet vrátený do fronty preto, že agent prestal prijímať (`accept: false`), si agenta pamätá
+v `lost_agents` a jeho neskorý výsledok prijme. Keď hub nevie zapísať `state.json` (plný disk), beží
+ďalej z pamäti, ale chyba je v `/api/status` (`persist_error`), v udalostiach (`state_save_failed`)
+a na karte Hub (audit 25. 10. 2026, N-HUB-1 až 4).
+
 **Agent preto beží na dvoch vláknach.** Heartbeat musí odísť každé 3 sekundy (predvolený interval; hub môže poslať iný), ale zip
 s výsledkom, jeho stiahnutie a hlavne `git pull` s poskladaním dát po ňom trvajú aj
 minúty. Keby boli v jednom vlákne, hub by agenta uprostred tej práce vyhlásil za mŕtveho

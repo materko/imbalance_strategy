@@ -5,8 +5,23 @@
 // Fronta
 // --------------------------------------------------------------------------- //
 
+/** Fronta každé 2 s, kým niečo beží. Chyba spojenia (reštart webapp, 502) reťaz nesmie zastaviť —
+ *  inak by karta navždy ukazovala starý „running" a história by sa po dobehnutí neobnovila (audit N-FE-1). */
 async function pollQueue() {
+  try {
+    await pollQueueOnce();
+  } catch (e) {
+    const c = $("#queue-count");
+    if (c) c.title = `fronta sa nedá načítať (${e.message}) — skúšam znova`;
+    clearTimeout(state.pollTimer);
+    state.pollTimer = setTimeout(pollQueue, 5000);
+  }
+}
+
+async function pollQueueOnce() {
   const jobs = await api("/api/queue");
+  const cnt = $("#queue-count");
+  if (cnt) cnt.title = "";
   // Beh, na ktory caka prop vyzva, uz vo fronte nie je - teda dobehol.
   if (state.propAfterRun && !jobs.some(j => j.id === state.propAfterRun)) {
     const id = state.propAfterRun;
