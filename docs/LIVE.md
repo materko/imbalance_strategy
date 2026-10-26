@@ -567,7 +567,8 @@ nehlásia, lebo zatvorený trh vyzerá rovnako; hlásilo by to každý deň pri 
    ```
 
    `chats` — kam idú správy a odkiaľ sa berú príkazy; `admins` — id používateľov (`message.from.id`),
-   ktorí smú ovládať (prázdne = ktokoľvek z `chats`); `signals` — aj zámery vstupu, nielen vyplnenia;
+   ktorí smú ovládať — pauza, spustenie, flatten (prázdne = ovládať sa dá len v súkromnom chate s botom, v skupine
+   nikto; čítať stav smie každý z `chats`). `/pause N` berie číslo z posledného zobrazeného /status; `signals` — aj zámery vstupu, nielen vyplnenia;
    `notes` — najnižšia úroveň `note` (`info`/`warn`/`error`/`off`); `capital` — kapitál účtu pre percentá
    v 📈 Výkon (číslo = každý účet, alebo účet či časť jeho mena → číslo, `*` predvolené; viac účtov sa sčíta,
    bez neho sa % neukážu); `label` — predpona správ

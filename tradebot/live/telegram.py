@@ -20,7 +20,8 @@ Konfigurácia `TELEGRAM_CONFIG` (gitignored, tajomstvo)::
      "capital": {"1514925336": 100000, "*": 50000}}
 
 `chats` = kam ísť správy a odkiaľ sa berú príkazy; `admins` = id používateľov, ktorí smú
-ovládať (prázdne = ktokoľvek z povolených chatov); `signals` = hlásiť aj zámery vstupu
+ovládať (pauza, spustenie, flatten); prázdne = ovládať sa dá len v súkromnom chate s botom, v skupine
+nikto (čítať stav smie každý z povolených chatov); `signals` = hlásiť aj zámery vstupu
 (nielen vyplnenia); `notes` = najnižšia úroveň `note` (`info`/`warn`/`error`/`off`); `capital` = kapitál
 účtu pre percentá v 📈 Výkon (číslo pre všetky účty, alebo účet / časť jeho mena → číslo, `*` predvolené).
 Env `TRADEBOT_TELEGRAM_TOKEN` a `TRADEBOT_TELEGRAM_CHATS` (čiarkou) prebijú súbor.
@@ -134,6 +135,11 @@ def _multipart(payload: dict) -> tuple[bytes, str]:
             hlava = f"--{hranica}{crlf}Content-Disposition: form-data; name=\"{k}\"{crlf}{crlf}"
             casti.append(hlava.encode() + text.encode("utf-8") + crlf.encode())
     return b"".join(casti) + f"--{hranica}--{crlf}".encode(), f"multipart/form-data; boundary={hranica}"
+
+
+#: Odpoveď na ovládanie bez oprávnenia (`TelegramCommands._can_control`).
+NO_CONTROL = ("Ovládať (pauza, spustenie, flatten) smú len admini — doplň svoje id do `admins` v configu bota. "
+              "Bez `admins` sa dá ovládať len v súkromnom chate s botom, nie v skupine.")
 
 
 class TelegramError(Exception):
@@ -990,7 +996,15 @@ class TelegramCommands:
         return "graf odoslaný"
 
     def _allowed(self, chat: Any, user: Any) -> bool:
+        """Smie čítať (stav, ordery, výkon): povolený chat a — keď sú `admins` — admin."""
         return chat in self.cfg.chats and (not self.cfg.admins or user in self.cfg.admins)
+
+    def _can_control(self, chat: Any, user: Any) -> bool:
+        """Smie ovládať (pauza, spustenie, flatten). Bez `admins` len v súkromnom chate (id chatu = id
+        používateľa) — v skupine by inak pozíciu zavrel ktokoľvek z jej členov (audit N-LIVE-18)."""
+        if chat not in self.cfg.chats:
+            return False
+        return user in self.cfg.admins if self.cfg.admins else (user is not None and chat == user)
 
     def poll(self, timeout: int = 3) -> int:
         """Jedno kolo long-pollu; vráti počet spracovaných aktualizácií. 409 = príkazy sa vypnú (iný proces
@@ -1051,6 +1065,8 @@ class TelegramCommands:
         elif cmd == "/orders":
             t, b = self.orders_view()
             self.bot.send(chat, t, b, html=True)
+        elif cmd in ("/pause", "/resume", "/flatten") and not self._can_control(chat, user):
+            self.bot.send(chat, NO_CONTROL)
         elif cmd in ("/pause", "/resume"):
             self.bot.send(chat, self._apply(arg, "paused" if cmd == "/pause" else "enabled", user))
         elif cmd == "/flatten":
@@ -1087,6 +1103,9 @@ class TelegramCommands:
         if auto and (akcia in ("o", "m", "F", "tr", "pf", "h", "v") or (akcia in ("P", "R") and kluc != "*")):
             self._set_auto(chat, mid, False)   # správa odchádza zo stavu — auto-obnova by ju prepísala späť
             auto = False
+        if akcia in ("P", "R", "F", "X", "flatten") and not self._can_control(chat, user):
+            self.bot.answer(q.get("id", ""), NO_CONTROL[:200])
+            return
         if akcia == "gr":
             obdobie, _, ciel = kluc.partition(":")
             self.bot.answer(q.get("id", ""), self.send_chart(chat, obdobie, ciel))
@@ -1188,8 +1207,15 @@ class TelegramCommands:
             return [i for i in inst if not i.get("ended")] or "Žiadna bežiaca inštancia."
         if exact:
             hit = [i for i in inst if i["instance"] == a]
-        elif a.isdigit() and 1 <= int(a) <= len(inst):
-            hit = [inst[int(a) - 1]]
+        elif a.isdigit():
+            # číslo je z /status, ktorý človek videl — medzitým mohla inštancia pribudnúť alebo skončiť
+            # a poradie sa posunúť; podľa aktuálneho zoznamu by pauza trafila inú (audit N-LIVE-18)
+            videne = self.state.data.get("status_order") or [i["instance"] for i in inst]
+            if not 1 <= int(a) <= len(videne):
+                return f"Číslo {a} v /status nie je — pozri /status znova."
+            hit = [i for i in inst if i["instance"] == videne[int(a) - 1]]
+            if not hit:
+                return f"Inštancia č. {a} z posledného /status už nebeží — pozri /status znova."
         else:
             hit = [i for i in inst if a.lower() in i["instance"].lower()]
         if not hit:
@@ -1238,6 +1264,7 @@ class TelegramCommands:
         if not inst:
             return hlava + "\n\nŽiadna stratégia za posledných 7 dní.", [[{"text": "🔄 Obnoviť", "callback_data": "s"}, auto_gomb]]
         riadky, skupina = [hlava], None
+        self.state.data["status_order"] = [i["instance"] for i in inst]   # čísla pre /pause N (`_targets`)
         for n, i in enumerate(inst, 1):
             g = (i.get("platform"), i.get("account"))
             if g != skupina:

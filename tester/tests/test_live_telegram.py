@@ -479,3 +479,22 @@ def test_status_rozlisi_trh_zatvoreny_od_ticha_a_ping_nehlasi(tmp_path: Path):
     n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), FakeBot(), CFG, TelegramState(tmp_path / "s2.json"))
     b = SimpleNamespace(instance=INST, session="s1", path=root, events=[hello(), {"seq": 1, "t": 5, "k": "hb", "bars": 0, "lb": 0}])
     assert [s for s, _ in n.messages(b)] == [1]
+
+
+def test_bez_admins_ovladanie_len_v_sukromnom_chate_a_pause_podla_videneho_statusu(tmp_path: Path):
+    """Audit N-LIVE-18: prázdne `admins` dovolilo ovládať každému v skupine; `/pause N` bralo číslo
+    z aktuálneho poradia, nie z /status, ktorý človek videl."""
+    bot, ctl = FakeBot(), FakeControls()
+    cfg = TelegramConfig(token="t", chats=[7, -100])
+    cmd = TelegramCommands(bot, cfg, TelegramState(tmp_path / "s.json"), ctl, clock=lambda: 1000.0)
+    bot.ups = [msg("/pause all", user=5, chat=-100, uid=1), msg("/status", user=5, chat=-100, uid=2)]
+    cmd.poll()
+    assert set(ctl.modes.values()) == {"enabled"} and "admini" in bot.sent[0][1]
+    assert "<b>📊 Stav</b>" in bot.sent[1][1]                         # čítať v skupine smie
+    bot.ups = [msg("/status", user=7, chat=7, uid=3)]                # súkromný chat: id chatu = id používateľa
+    cmd.poll()
+    novy = "mt5_1-A_AAA_3m_vwaporbnet"                              # pribudne pred ostatné, poradie sa posunie
+    ctl.modes[novy] = "enabled"
+    bot.ups = [msg("/pause 1", user=7, chat=7, uid=4)]
+    cmd.poll()
+    assert ctl.modes[novy] == "enabled" and ctl.modes[INST] == "paused"   # č. 1 z videného /status
