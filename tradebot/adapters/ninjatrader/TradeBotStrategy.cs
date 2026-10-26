@@ -103,6 +103,7 @@ namespace NinjaTrader.NinjaScript.Strategies
         private int _controlEvents;
         private System.Timers.Timer _controlTimer;
         private bool _controlTickQueued;
+        private bool _brokerErrLogged;   // chyba pozicie uctu do telemetrie sa vypise raz
 
         // ------------------------------------------------------------------ //
         // Parametre strategie v NinjaTraderi
@@ -282,6 +283,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 foreach (Tracked t in _orders.Values)
                     if (t.Entry != null) t.Entry = GetRealtimeOrder(t.Entry);
                 if (_spool != null) { _spool.Realtime = true; SpoolCheck(); }
+                SpoolBroker();
                 ControlStartTimer();
             }
             else if (State == State.Terminated)
@@ -409,6 +411,34 @@ namespace NinjaTrader.NinjaScript.Strategies
             _controlTickQueued = false;
             if (State != State.Realtime || _engine == null) return;
             ControlCheck();
+            SpoolBroker();
+        }
+
+        /// <summary>Pozicia uctu na instrumente do pingu `hb` (docs/LIVE.md) - webapp z nej vidi, ci pozicia u brokera
+        /// naozaj je (`account`: cely ucet, aj ine strategie na tom istom instrumente). Spool zapise len zmenu.</summary>
+        private void SpoolBroker()
+        {
+            if (_spool == null || Account == null || State != State.Realtime) return;
+            int qty = 0;
+            double price = 0;
+            try
+            {
+                lock (Account.Positions)
+                    foreach (Position p in Account.Positions)
+                        if (p.Instrument != null && p.Instrument.FullName == Instrument.FullName && p.MarketPosition != MarketPosition.Flat)
+                        {
+                            qty = p.MarketPosition == MarketPosition.Long ? p.Quantity : -p.Quantity;
+                            price = p.AveragePrice;
+                            break;
+                        }
+            }
+            catch (Exception e)
+            {
+                if (!_brokerErrLogged) { _brokerErrLogged = true; Print("TradeBot " + EngineKey + ": pozicia uctu do telemetrie - " + e.Message); }
+                return;
+            }
+            _spool.Broker(qty, price, "account");
+            SpoolCheck();
         }
 
         /// <summary>Precita subor, ked sa zmenil (mtime), a skusi cakajucu vymenu profilu. Vracia true, ked subor existuje.</summary>

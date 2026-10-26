@@ -147,8 +147,8 @@ aj `gaps` ho nevidia): novší ping ho zmaže a vloží znova s novým `rowid` �
 platformy, ručné zatvorenie, výstup, ktorý nikto nenahlásil — 16. 10. 2026 NT VWAP ORB ukazoval −1 ešte dni po tom,
 čo stop u brokera zavrel pozíciu). Adaptér preto volá `LiveSpool.Broker(qty, avgPrice, scope)` (MT5
 `StaticHost.SpoolBroker`) so skutočnou pozíciou z platformy: podpísané množstvo (+ long, − short, 0 flat), priemerná
-cena a `pos_of` = `account` (NinjaTrader AddOn: celý účet na inštrumente, aj iné inštancie) alebo `magic` (MT5 EA: len
-pozície s jeho magic). Ide do každého `hb`, pri zmene sa `hb` napíše hneď (v Testeri nie). Webapp ju na karte Live
+cena a `pos_of` = `account` (NinjaTrader AddOn aj NinjaScript `TradeBotStrategy` — tá každé 2 s z časovača control:
+celý účet na inštrumente, aj iné inštancie) alebo `magic` (MT5 EA: len pozície s jeho magic). Ide do každého `hb`, pri zmene sa `hb` napíše hneď (v Testeri nie). Webapp ju na karte Live
 ukáže ako „u brokera“ a pri nezhode s odhadom (pri `account` so súčtom odhadov inštancií toho účtu a symbolu) dá ≠.
 
 **Živá / trh zatvorený / ticho** (`tradebot.live.store.liveness`, to isté v `live.js` `liveState`,
@@ -405,8 +405,9 @@ Poradie okolo control súboru je vec bezpečnosti, lebo adaptéry berú **chýba
   so symbolom, periódou a EA s inputmi; šablóna EA z `deploy/mt5/*.mq5`, magic z id nasadenia). Overené
   28. 9. 2026: terminál profil otvorí cez `ProfileLast` v `/config:` ini (žiadny `/profile:` prepínač ani
   Supervisor EA netreba), profil reštart prežije (terminál si ho pri vypnutí prepíše, driver ho porovnáva
-  podľa obsahu, nie textu). Zmena množiny grafov (aj zmenený config pri rovnakom názve profilu — EA číta
-  profil len pri štarte) = slušný reštart terminálu; režim a názov profilu idú bez reštartu cez control.
+  podľa obsahu, nie textu). Zmena množiny grafov = slušný reštart terminálu; režim, názov profilu aj nové
+  parametre pri rovnakom názve idú bez reštartu (control súbor, EA sleduje mtime súboru profilu — driver
+  sa na to spolieha len pri `features: ["profile_reload"]` v `installed.json`, staršie EA reštartuje).
   Driver terminál spúšťa a pri páde reštartuje; `install` DLL/EA nerobí (to je nasadenie kódu, fáza 2c).
   Podrobne [MT5.md](MT5.md), „Nasadenie z hubu (driver)“; viac stratégií a účtov na jednom stroji (vlastný
   terminál nasadenia `units/<nasadenie>/`, slot, netting) v „Viac stratégií na jednom serveri“ a prevzatie

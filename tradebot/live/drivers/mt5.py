@@ -16,10 +16,13 @@ inputy. Terminál profil otvorí, lebo ini hovorí `[Charts] ProfileLast=tradebo
 sám prepíše (pridá objekty, prečísluje) — preto sa zhoda neporovnáva textovo, ale podľa toho, čo
 v súboroch je (symbol, perióda, EA, `InpProfile`, `InpMagic`).
 
-Zmena množiny grafov (nové nasadenie, odobraté, iný config profilu) = slušne zavrieť terminál
-(`taskkill` bez `/F`, EA dostane `OnDeinit`, spool `bye`), prepísať profil, spustiť znova. Režim
-(`paused`/`flatten`) a zmena názvu profilu idú cez control súbor bez reštartu. Keď stav sedí a
-terminál beží, `ensure_instance` nerobí nič; keď nebeží (pád, človek ho zavrel), spustí ho.
+Zmena množiny grafov (nové nasadenie, odobraté) = slušne zavrieť terminál (`taskkill` bez `/F`, EA
+dostane `OnDeinit`, spool `bye`), prepísať profil, spustiť znova. Režim (`paused`/`flatten`) ide cez
+control súbor bez reštartu. Iný profil aj nové parametre pod tým istým názvom (config nasadenia) EA
+prepne samo, keď je flat (control súbor, `CheckProfileFile`) — terminál sa kvôli nim nereštartuje, keď
+marker inštalácie hlási `profile_reload` (`profile_reload()`); staršie EA to nevie a reštartuje sa ako
+doteraz. Keď stav sedí a terminál beží, `ensure_instance` nerobí nič; keď nebeží (pád, človek ho
+zavrel), spustí ho.
 
 Poradie okolo control súboru je vec bezpečnosti — EA berie **chýbajúci súbor ako `enabled`**:
 
@@ -633,8 +636,23 @@ class Mt5Driver(Driver):
                            "expertmode": EXPERTMODE_TRADING if self.allow_live_trading else EXPERTMODE_NO_TRADING})
         return charts
 
+    def profile_reload(self) -> bool:
+        """Nainštalované EA prepne nový profil aj nové parametre pod tým istým názvom samo (control súbor,
+        `CheckProfileFile`) — podľa `features` v markeri inštalácie. Starší marker (alebo žiadny) = nie:
+        bez reštartu by staré EA bežalo na starých parametroch."""
+        from tradebot.adapters.mt5.__main__ import read_installed
+
+        try:
+            data = read_installed(self.common())
+        except Exception:  # noqa: BLE001 - bez markera ako doteraz (reštart)
+            return False
+        return "profile_reload" in ((data or {}).get("features") or [])
+
     @staticmethod
-    def _charts_key(charts: list[dict[str, Any]]) -> list[list[Any]]:
+    def _charts_key(charts: list[dict[str, Any]], reload: bool = False) -> list[list[Any]]:
+        """Čo musí terminál mať; s `reload` bez profilu a jeho configu — tie EA prepne za behu."""
+        if reload:
+            return sorted([c["symbol"], list(period_of(c["tf"])), c["path"].lower(), int(c["magic"])] for c in charts)
         return sorted([c["symbol"], list(period_of(c["tf"])), c["path"].lower(), c["profile"], int(c["magic"]),
                        c.get("config_hash") or ""] for c in charts)
 
@@ -658,9 +676,14 @@ class Mt5Driver(Driver):
                      ch["inputs"].get("InpProfile", ""), magic))
         return out
 
-    def _profile_matches(self, data_dir: Path, charts: list[dict[str, Any]]) -> bool:
-        wanted = {_chart_key(c["symbol"], c["tf"], c["path"], c["profile"], c["magic"]) for c in charts}
-        return self._profile_on_disk(data_dir) == wanted
+    def _profile_matches(self, data_dir: Path, charts: list[dict[str, Any]], reload: bool = False) -> bool:
+        """Profil grafov na disku má presne tieto grafy; s `reload` sa `InpProfile` neporovnáva (EA berie
+        profil z control súboru, vstup je len predvoľba pri chýbajúcom súbore)."""
+        wanted = {_chart_key(c["symbol"], c["tf"], c["path"], "" if reload else c["profile"], c["magic"]) for c in charts}
+        on_disk = self._profile_on_disk(data_dir)
+        if reload:
+            on_disk = {k[:3] + ("",) + k[4:] for k in on_disk}
+        return on_disk == wanted
 
     def write_chart_profile(self, data_dir: Path, charts: list[dict[str, Any]]) -> Path:
         """Profil `tradebot` nanovo: staré `chartNN.chr` preč, jeden súbor na graf, `order.wnd` ako terminál
@@ -790,18 +813,27 @@ class Mt5Driver(Driver):
     def _ensure_unit(self, account: Account, deployments: list[Deployment]) -> None:
         exe, data_dir, portable = self.terminal_for(account)
         charts = self._charts(account, deployments)
-        key = self._charts_key(charts)
+        # EA, ktoré profil prepne za behu: iný profil či nové parametre nie sú iné grafy (zrkadlo NT `SameInstance`)
+        reload = self.profile_reload()
+        key = self._charts_key(charts, reload)
         ident = self.spool_account(account)
         manifest = self._manifest(account)
         # identita účtu je v id inštancií aj v ini (Login/Server) — iný login = iný terminál, nie ten istý
         # s tými istými grafmi; starý manifest bez `account` sa berie ako zhodný. Nová verzia prihlásenia
         # (`rev`: zmenené heslo, login, server) = terminál zavrieť a spustiť s novým ini.
         same = (manifest is not None and manifest.get("key") == key and manifest.get("account", ident) == ident
-                and manifest.get("rev", account.rev) == account.rev and self._profile_matches(data_dir, charts))
-        if same and manifest is not None and manifest.get("rev") != account.rev:
+                and manifest.get("rev", account.rev) == account.rev and self._profile_matches(data_dir, charts, reload))
+        if same and manifest is not None and (manifest.get("rev") != account.rev or manifest.get("charts") != charts):
             # manifest spred `rev`: terminál beží s platným prihlásením — len zapamätať verziu, nech ďalšia
-            # zmena prihlásenia reštart naozaj spustí
+            # zmena prihlásenia reštart naozaj spustí; iný profil či jeho config: EA ho prepne samo, keď bude
+            # flat (control súbor, súbor profilu) — manifest len drží, čo na grafoch má bežať
+            for old in manifest.get("charts") or []:
+                new = next((c for c in charts if isinstance(old, dict) and c["instance"] == old.get("instance")), None)
+                if new is not None and (old.get("profile"), old.get("config_hash")) != (new["profile"], new["config_hash"]):
+                    self._log(account, f"{new['instance']}: profil {new['profile']} ({'nové parametre' if old.get('profile') == new['profile'] else 'zmena profilu'}) "
+                                       f"bez reštartu terminálu — EA ho prepne, keď bude flat")
             manifest["rev"] = account.rev
+            manifest["charts"] = charts
             (self.account_dir(account) / "charts.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1),
                                                                     encoding="utf-8")
         pid = self._running_pid(account)
@@ -820,7 +852,8 @@ class Mt5Driver(Driver):
         foreign = [] if pid is not None else [p for p in self.processes.find(exe) if p]
         for p in ([pid] if pid is not None else foreign):
             self._close(account, p)
-        if not same:
+        # terminál je zavretý: aj pri zhode bez profilu dostanú grafy aktuálny `InpProfile` (predvoľba EA)
+        if not same or not self._profile_matches(data_dir, charts):
             self.write_chart_profile(data_dir, charts)
             self._log(account, "profil grafov `tradebot`: " + (", ".join(f"{c['symbol']} {c['tf']}m {c['expert']}({c['profile']})"
                                                                      for c in charts) or "bez grafov"))

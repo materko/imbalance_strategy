@@ -242,6 +242,12 @@ Zápis je atomický (tmp + rename), EA číta s `FILE_COMMON | FILE_SHARE_*`. Č
   počítadlá), zmaže kresby, prehrá predhistóriu a otvorí spool znova (tá istá inštancia, nová session s
   `hello` s novým profilom). Kým nie je flat, zmena čaká (udalosť `control` so `source:"pending"`) a skúša sa
   po každom deale, bare a tiku timera. Profil, ktorý sa nedá načítať, sa zaloguje a beží ďalej starý.
+- **nové parametre pod tým istým názvom** (`CheckProfileFile`, zrkadlo NT `ProfileCheck`): hub prepíše len
+  `profiles\<kľúč>\<profil>.json`, názov v control súbore ostáva. EA s control súborom kontroluje aj súbor
+  bežiaceho profilu podľa `FILE_MODIFY_DATE`; iný obsah než ten, z ktorého engine postavilo = ten istý profil
+  sa prepne znova presne ako zmena profilu vyššie (čaká na flat, `pending`). Terminál sa kvôli tomu
+  nereštartuje — driver to vie z `features: ["profile_reload"]` v `installed.json` (staršie EA bez nej
+  driver reštartuje ako predtým).
 - každá aplikovaná zmena ide do spoolu ako `{"k":"control","mode","profile","source"}` (`source`:
   `control` zo súboru, `default` bez súboru, `pending` čaká na flat) a do Experts logu (`TradeBot control: …`);
   potlačený vstup sa loguje raz na zmenu režimu. Neplatný JSON alebo neznámy režim = log + ostáva posledný
@@ -325,7 +331,7 @@ neoverená (na tomto stroji je jeden účet).
 |---|---|
 | `start.ini` | `[Common] Login/Server[/Password]`, `[Charts] ProfileLast=tradebot`, `[Experts] AllowLiveTrading=1 AllowDllImport=1 Enabled=1` (`TRADEBOT_MT5_ALLOW_LIVE_TRADING=0` = bez obchodovania, na skúšky) |
 | `terminal.pid` | PID a čas štartu procesu, ktorý driver spustil |
-| `charts.json` | manifest grafov, ktoré má profil `tradebot` mať (symbol, TF, EA, profil, magic, `config_hash`) |
+| `charts.json` | manifest grafov, ktoré má profil `tradebot` mať (symbol, TF, EA, profil, magic, `config_hash`; pri EA s `profile_reload` sa profil a `config_hash` v ňom len aktualizujú, terminál sa nereštartuje) |
 | `driver.log` | čo driver s terminálom robil (štart, zavretie, prepis profilu, control) |
 
 Heslo účtu príde z hubu (raz za verziu hesla — hub ho drží šifrované), agent ho uloží **DPAPI** na tohto používateľa a stroj
@@ -346,22 +352,26 @@ Terminál profil otvorí vďaka `[Charts] ProfileLast=tradebot` v `/config:` ini
 potrebný; `config\common.ini` terminálu ostáva na `ProfileLast=Default`, ručný štart terminálu bez ini teda
 otvorí pôvodný profil človeka). Pri vypnutí si terminál profil `tradebot` prepíše (objekty engine-u,
 prečíslovanie) — driver preto zhodu neposudzuje textovo, ale podľa toho, čo v `.chr` je (symbol, perióda,
-cesta EA, `InpProfile`, `InpMagic`), a k tomu `config_hash` z manifestu.
+cesta EA, `InpProfile`, `InpMagic`), a k tomu `config_hash` z manifestu. Keď nainštalované EA hlási
+`profile_reload` (marker `installed.json`), `InpProfile` ani `config_hash` sa do zhody nerátajú — profil
+a jeho parametre EA prepne za behu (control súbor, súbor profilu); `InpProfile` grafov sa prepíše až pri
+najbližšom štarte terminálu (je to len predvoľba pre chýbajúci control súbor).
 
 Čo sa kedy deje (`ensure_instance`, každé kolo reconcilera = každý heartbeat):
 
 - terminál beží a grafy sedia → nič (len prípadné zmazanie hesla z ini);
 - terminál nebeží (pád, človek ho zavrel), grafy sedia → len štart s ini, profil sa neprepisuje;
-- iná množina grafov (nové nasadenie, `active: false`, zmenený `config_hash` profilu s rovnakým názvom —
-  EA si profil načíta len pri štarte, zmena názvu profilu ide bez reštartu cez control súbor) → slušne zavrieť
+- iná množina grafov (nové nasadenie, `active: false`; pri staršom EA bez `profile_reload` aj iný profil
+  či zmenený `config_hash` — také EA číta profil len pri štarte) → slušne zavrieť
   terminál (`taskkill /PID` bez `/F`, opakuje sa každých 10 s, natvrdo až po 60 s; EA dostane `OnDeinit`,
   spool `bye`), prepísať profil, zmazať control súbory grafov, ktoré zmizli, spustiť znova;
 - bez aktívneho nasadenia → terminál sa zavrie a nespúšťa; cudzí terminál z toho istého `exe` (spustený
   človekom bez ini) sa pred štartom s ini slušne zavrie (iné portable kópie sa nepočítajú — hľadá sa podľa
   cesty procesu).
 
-Režim (`paused`/`enabled`/`flatten`) a zmena názvu profilu idú cez `control\<inštancia>.json` (sekcia vyššie),
-bez reštartu; nezmenený obsah sa neprepisuje (EA číta podľa mtime). Profil nasadenia (snímka configu z hubu)
+Režim (`paused`/`enabled`/`flatten`), zmena názvu profilu a nové parametre profilu idú cez
+`control\<inštancia>.json` a súbor profilu (sekcia vyššie), bez reštartu; nezmenený obsah sa neprepisuje
+(EA číta podľa mtime). Profil nasadenia (snímka configu z hubu)
 ide do `Common\Files\TradeBot\profiles\<kľúč>\<profil>.json` v tvare `install`/`profiles` (`_strategy`,
 `_instrument`, `_source: hub:<id>`, config), rovnaký obsah sa neprepisuje.
 
@@ -423,7 +433,7 @@ spoločné riziko účtu (marža, max. DD prop firmy) si stráži človek.
 **Spoločný terminál** (predvolené). Jeden účet má na stroji jeden spoločný terminál; ďalšie nasadenie bez
 „vlastného terminálu“ ide povinne doň (hub iný `terminal`/`portable` odmietne, formulár ho rovno zamkne).
 Pridanie alebo odobratie nasadenia **reštartuje tento terminál so všetkými jeho grafmi** (driver prepíše profil
-grafov, terminál slušne zavrie a spustí); zmena režimu ani názvu profilu reštart nepotrebuje. Otvorené pozície
+grafov, terminál slušne zavrie a spustí); zmena režimu, profilu ani jeho parametrov reštart nepotrebuje. Otvorené pozície
 EA po štarte prevezme (sekcia nižšie), čakajúce vstupy zruší — počas reštartu (desiatky sekúnd) sa ale
 neposúva trailing a nové vstupy nevznikajú.
 

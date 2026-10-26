@@ -37,7 +37,8 @@ mimo neho prekladať nedá. Na rozdiel od NinjaTradera ide jadro ako **DLL**, ni
 v `csharp/` stačí `install` (terminál drží DLL otvorenú, kým EA beží — najprv ho z grafu odstráň).
 
 `install` zapíše aj `Common\\Files\\TradeBot\\installed.json` (`version` = commit tohto klonu,
-`installed`, `by`) — podľa neho hub a webapp vedia, na akom kóde platforma stojí (docs/LIVE.md, fáza 2c);
+`installed`, `by`, `features` = čo nainštalované EA vie, `EA_FEATURES`) — podľa neho hub a webapp vedia,
+na akom kóde platforma stojí (docs/LIVE.md, fáza 2c);
 driver `tradebot.live.drivers.mt5` volá `install()` v procese agenta (zavrie terminály, lebo držia DLL).
 """
 
@@ -316,6 +317,12 @@ def export_profiles(mql5: Path, extra: list[str], *, common: Path | None = None)
 # marker nainštalovaného kódu (docs/LIVE.md, fáza 2c): Common/Files/TradeBot/installed.json
 # ------------------------------------------------------------------------------------------------ #
 
+#: Čo EA z tohto kódu vie a driver sa na to smie spoľahnúť (marker staršej inštalácie ich nemá):
+#: `profile_reload` = nové parametre profilu pod tým istým názvom EA prepne samo (`CheckProfileFile`),
+#: terminál sa kvôli nim nereštartuje.
+EA_FEATURES = ("profile_reload",)
+
+
 def installed_marker(common: Path) -> Path:
     return common / "TradeBot" / "installed.json"
 
@@ -331,7 +338,8 @@ def read_installed(common: Path) -> dict | None:
 
 def write_installed(common: Path, version: str, by: str | None = None) -> dict:
     data = {"platform": "mt5", "version": str(version or ""),
-            "installed": datetime.now(timezone.utc).isoformat(timespec="seconds"), "by": by or getpass.getuser()}
+            "installed": datetime.now(timezone.utc).isoformat(timespec="seconds"), "by": by or getpass.getuser(),
+            "features": list(EA_FEATURES)}
     path = installed_marker(common)
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".json.tmp")

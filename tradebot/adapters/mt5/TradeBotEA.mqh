@@ -17,6 +17,7 @@
 //| a pri kazdom novom bare; paused = vstupy sa neposielaju, flatten = raz zrusi vstupy a zavrie       |
 //| pozicie, iny profil = novy engine, ked je strategia bez pozicie (inak caka). Chybajuci subor =     |
 //| enabled + InpProfile. V Strategy Testeri sa control subor necita (beh musi byt deterministicky).    |
+//| Iny obsah suboru bezaceho profilu (nove parametre pod tym istym nazvom) = ten isty profil znova.   |
 //| Pamat obchodov (docs/MT5.md): stav vstupov sa pise do Common\Files\TradeBot\state\<instancia>.json |
 //| a po restarte terminalu sa zladi s brokerom - pozicie so svojim magic sa prevezmu (RestoreState).  |
 //| Preklada ho MetaEditor (`python -m tradebot.adapters.mt5 install` to spravi sam); v terminali musi  |
@@ -131,6 +132,8 @@ string g_pendingProfile = "";          // zmena profilu, ktora caka, kym bude st
 long   g_controlMtime   = -2;          // posledne videne FILE_MODIFY_DATE (-1 = subor nie je)
 long   g_controlSize    = -2;
 bool   g_controlOn      = false;       // len mimo Strategy Testera
+string g_profileText    = "";          // config, z ktoreho bezi engine - iny obsah suboru profilu = nove parametre
+long   g_profileMtime   = -2;          // FILE_MODIFY_DATE suboru profilu pri poslednom citani
 bool   g_shotDone       = false;       // screenshot (InpScreenshotFile) uz bol - timer je od toho spolocny
 bool   g_suppressLogged = false;       // "vstup potlaceny" sa loguje raz na zmenu rezimu
 
@@ -360,9 +363,11 @@ int OnInit()
      }
 
    string profilePath = ResolveProfilePath(g_profile);
-   int h = CreateEngine(profilePath);
+   string config;
+   int h = CreateEngine(profilePath, config);
    if(h <= 0) return INIT_FAILED;
    AdoptEngine(h);
+   RememberProfile(profilePath, config);
 
    g_trade.SetExpertMagicNumber(InpMagic);
    g_trade.SetTypeFillingBySymbol(_Symbol);
@@ -402,9 +407,10 @@ string AccountId() { return IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) +
 string StatePath() { return "TradeBot\\state\\" + g_instance + ".json"; }
 
 /// Engine z profilu (config JSON z Common\Files, instrument zo SymbolInfo): handle > 0, alebo -1 (dovod v logu).
-int CreateEngine(string profilePath)
+/// `config` = precitany obsah profilu (pre `CheckProfileFile`).
+int CreateEngine(string profilePath, string &config)
   {
-   string config = ReadTextFile(profilePath);
+   config = ReadTextFile(profilePath);
    if(config == "") { Print("TradeBot: profil sa nenasiel: Common\\Files\\", profilePath, " (", GetLastError(), ")"); return -1; }
    int h = StaticHost::Create(TRADEBOT_ENGINE_KEY, config, InstrumentJson(HasRealVolume()), g_chartTfMin);
    if(h <= 0) { Print(EngineError("Create")); return -1; }
@@ -460,6 +466,7 @@ int ReadControl(string &mode, string &profile)
 void CheckControl()
   {
    if(!g_controlOn || g_engine <= 0) return;
+   CheckProfileFile();
    long mtime = FileGetInteger(g_controlPath, FILE_MODIFY_DATE, true);   // -1 = subor nie je
    long size = mtime < 0 ? -1 : FileGetInteger(g_controlPath, FILE_SIZE, true);
    if(mtime == g_controlMtime && size == g_controlSize) { RetryPendingProfile(); return; }
@@ -510,7 +517,8 @@ void ApplyControl(string mode, string profile, string source)
       g_pendingProfile = "";
       RebuildEngine(want);   // pri chybe bezi dalej stary profil (zalogovane)
      }
-   else g_pendingProfile = "";
+   // naspat na bezici profil rusi cakajucu zmenu - nie vsak cakajuce nove parametre toho isteho (CheckProfileFile)
+   else if(ResolveProfilePath(g_pendingProfile) != ResolveProfilePath(g_profile)) g_pendingProfile = "";
    SpoolControl(g_mode, g_profile, source);
    SaveState();
   }
@@ -522,6 +530,32 @@ void RetryPendingProfile()
    string want = g_pendingProfile;
    g_pendingProfile = "";
    if(RebuildEngine(want)) SpoolControl(g_mode, g_profile, "control");
+  }
+
+/// Subor profilu, z ktoreho bezi engine (zrkadlo NinjaTrader `ProfileCheck`): driver hubu pri rovnakom nazve
+/// profilu prepise len `profiles\<kluc>\<profil>.json`, nazov v control subore sa nemeni. Kontroluje sa podla
+/// mtime spolu s control suborom; iny obsah = ten isty profil sa prepne znova (novy engine, prehratie predhistorie,
+/// nova session spoolu), ked je strategia flat - inak caka ako kazda zmena profilu. Terminal sa nerestartuje.
+void CheckProfileFile()
+  {
+   if(g_pendingProfile != "") return;   // caka zmena - ta engine postavi aj tak nanovo
+   string path = ResolveProfilePath(g_profile);
+   long mtime = FileGetInteger(path, FILE_MODIFY_DATE, true);
+   if(mtime < 0 || mtime == g_profileMtime) return;   // subor zmizol: bezi dalej, co je nacitane
+   string text = ReadTextFile(path);
+   if(text == "") return;   // prave sa prepisuje (tmp + rename) - skusi sa znova
+   g_profileMtime = mtime;
+   if(text == g_profileText) return;
+   Print("TradeBot control: profil ", g_profile, " ma nove parametre (Common\\Files\\", path, ") - novy engine, ked bude strategia flat");
+   g_pendingProfile = g_profile;
+   if(!IsFlat()) { SpoolControl(g_mode, g_profile, "pending"); return; }
+   RetryPendingProfile();
+  }
+
+void RememberProfile(string path, string config)
+  {
+   g_profileText = config;
+   g_profileMtime = FileGetInteger(path, FILE_MODIFY_DATE, true);
   }
 
 /// Bez pozicie a bez cakajucich vstupov u brokera (odlozene vstupy u brokera nie su - novy engine ich nepozna).
@@ -540,8 +574,10 @@ bool IsFlat()
 bool RebuildEngine(string spec)
   {
    string path = ResolveProfilePath(spec);
-   int h = CreateEngine(path);
+   string config;
+   int h = CreateEngine(path, config);
    if(h <= 0) { Print("TradeBot control: profil ", spec, " sa neda nacitat - bezi dalej ", g_profile); return false; }
+   RememberProfile(path, config);
    if(g_spool && StaticHost::SpoolClose(g_engine, "profile") < 0) Print(EngineError("SpoolClose"));
    g_spool = false;
    CloseExport();

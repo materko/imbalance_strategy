@@ -276,7 +276,7 @@ def test_ensure_instance_starts_once_restarts_on_change_and_removes(drv):
     d.ensure_instance(ACC, [d1, d2])
     assert len(procs.started) == 2 and "objects=5" in _utf16(folder / "chart02.chr")
 
-    # zmena configu profilu (config_hash) = reštart, EA si profil načíta nanovo
+    # zmena configu profilu (config_hash) = reštart, EA si profil načíta nanovo (inštalácia bez `profile_reload`)
     d1b = dep("d1", config_hash="h2")
     d.ensure_instance(ACC, [d1b, d2])
     assert len(procs.started) == 3 and procs.closed[-1] == (procs.next_pid - 1, False)
@@ -320,6 +320,43 @@ def test_ensure_instance_starts_once_restarts_on_change_and_removes(drv):
     # slušné zavretie sa opakuje (terminál v štarte prvé nevidí), natvrdo až po CLOSE_TIMEOUT
     assert stuck.closed[0] == (running, False) and stuck.closed[-1] == (running, True)
     assert all(c == (running, False) for c in stuck.closed[1:-1]) and len(stuck.closed) >= 3
+
+
+def test_ea_s_profile_reload_prepne_profil_bez_restartu_terminalu(drv):
+    """EA z inštalácie s `profile_reload` (marker) prepne iný profil aj nové parametre pod tým istým názvom
+    samo, keď je flat — terminál sa nereštartuje. Marker bez `features` (staršie EA) = reštart ako doteraz.
+    `InpProfile` grafu dostane nový profil až pri ďalšom štarte terminálu (EA ho berie z control súboru)."""
+    from tradebot.adapters.mt5.__main__ import installed_marker, write_installed
+
+    d, procs, clock, data, common = drv
+    folder = data / "MQL5" / "Profiles" / "Charts" / "tradebot"
+    installed_marker(common).parent.mkdir(parents=True, exist_ok=True)
+    installed_marker(common).write_text(json.dumps({"platform": "mt5", "version": "old1234"}), encoding="utf-8")
+    assert not d.profile_reload()
+    d.ensure_instance(ACC, [dep("d1")])
+    d.ensure_instance(ACC, [dep("d1", config_hash="h2")])
+    assert len(procs.started) == 2
+
+    assert write_installed(common, "abc1234", by="hub")["features"] == ["profile_reload"] and d.profile_reload()
+    d.ensure_instance(ACC, [dep("d1", config_hash="h2")])   # manifest so starým kľúčom: raz (inštalácia aj tak zatvára)
+    started, closed = len(procs.started), len(procs.closed)
+    d.ensure_instance(ACC, [dep("d1", config_hash="h3")])
+    d.ensure_instance(ACC, [dep("d1", config_hash="h4", profile="multicharts_mnq_3m")])
+    assert len(procs.started) == started and len(procs.closed) == closed
+    manifest = json.loads((d.account_dir(ACC) / "charts.json").read_text(encoding="utf-8"))
+    assert [(c["profile"], c["config_hash"]) for c in manifest["charts"]] == [("multicharts_mnq_3m", "h4")]
+    assert d.status(ACC)["charts"][0]["profile"] == "multicharts_mnq_3m"
+    log = (d.account_dir(ACC) / "driver.log").read_text(encoding="utf-8")
+    assert "nové parametre) bez reštartu" in log and "zmena profilu) bez reštartu" in log
+    assert parse_chart(folder / "chart01.chr")["inputs"]["InpProfile"] == "golden_binance_btcusdt_3m"
+
+    # terminál spadol: štart s aktuálnym InpProfile; nový graf je stále reštart
+    procs.alive_pids.clear()
+    d.ensure_instance(ACC, [dep("d1", config_hash="h4", profile="multicharts_mnq_3m")])
+    assert len(procs.started) == started + 1
+    assert parse_chart(folder / "chart01.chr")["inputs"]["InpProfile"] == "multicharts_mnq_3m"
+    d.ensure_instance(ACC, [dep("d1", config_hash="h4", profile="multicharts_mnq_3m"), dep("d2", symbol="EURUSD")])
+    assert len(procs.started) == started + 2
 
 
 def test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu(drv):
