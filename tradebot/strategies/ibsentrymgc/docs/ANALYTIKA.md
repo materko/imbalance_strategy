@@ -16,19 +16,19 @@ python -m tester.webapp.cli checkup \
 
 ## V čom je dobrá
 
-- 813 obchodov spolu — na štatistiku dosť
+- 805 obchodov spolu — na štatistiku dosť
 
 ## Kde má chyby
 
 - zisková v 1 z 5 referenčných okien (20211001-20221001, 20231001-20241001, 20240904-20250904, 20250904-20260904 v strate)
-- break-even -0.0015 % je pod poplatkom 0.0018 % — pri tomto poplatku je to strata, nech PnL ukazuje čokoľvek
-- edge nad poplatkom len v 13 % vzoriek — v zvyšku by burza zobrala viac, než stratégia zarobí
-- 95. percentil max drawdownu 100.0 % (namerané 55.0 % medián) — na účet to treba mať
-- pravdepodobnosť ruiny účtu 6.3 % pri riziku, s akým beh bežal
-- nie je lepšia než náhodný vstup za tých istých pravidiel (-2.4 sigma) — výber vstupu nepridáva nič
-- POZOR NA TREND: každé z 4 období je horšie než predchádzajúce (sklon -0.0056 na obdobie). Posledné je ešte v medziach (8. percentil), takže test úpadok nepotvrdzuje — ale rad sa sám od seba zoradí zriedka. Zopakuj to, keď pribudnú dáta.
+- break-even -0.0013 % je pod poplatkom 0.0018 % — pri tomto poplatku je to strata, nech PnL ukazuje čokoľvek
+- edge nad poplatkom len v 15 % vzoriek — v zvyšku by burza zobrala viac, než stratégia zarobí
+- 95. percentil max drawdownu 99.2 % (namerané 52.6 % medián) — na účet to treba mať
+- pravdepodobnosť ruiny účtu 4.6 % pri riziku, s akým beh bežal
+- nie je lepšia než náhodný vstup za tých istých pravidiel (-2.2 sigma) — výber vstupu nepridáva nič
+- POZOR NA TREND: každé z 4 období je horšie než predchádzajúce (sklon -0.0055 na obdobie). Posledné je ešte v medziach (7. percentil), takže test úpadok nepotvrdzuje — ale rad sa sám od seba zoradí zriedka. Zopakuj to, keď pribudnú dáta.
 - charakter: prerazenie (breakout) (istota priemerná) — zaradenie je neisté, závery o tom, čo je pri nej normálne, treba brať opatrne
-- najhoršia skupina 'deň pred sviatkom' vlastnosti 'Sviatok na burze v USA': 13 obchodov (1.6 %), bez nej by break-even bol o +0.0121 lepší
+- najhoršia skupina 'deň pred sviatkom' vlastnosti 'Sviatok na burze v USA': 13 obchodov (1.6 %), bez nej by break-even bol o +0.0119 lepší
 
 ## Päť referenčných okien
 
@@ -42,7 +42,7 @@ Jeden rok o stratégii nepovie nič; rozhoduje **znamienko po rokoch**, nie sú�
 | 20240904-20250904 | 142 | -14.04 | -0.0047 | 21.0 | 62.7 | +12/-6 | `20261026-130738-221cb5` |
 | 20250904-20260904 | 333 | -47.19 | -0.0087 | 49.4 | 61.3 | +10/-8 | `20261026-130754-ba3b4c` |
 
-Zisková v **1 z 5** okien, obchodov spolu 813, break-even celkom -0.0015 %.
+Zisková v **1 z 5** okien, obchodov spolu 805, break-even celkom -0.0013 %. Okná sa prekrývajú, 8 obchodov započítaných dvakrát vypadlo.
 
 ## Charakter
 
@@ -50,48 +50,48 @@ Zisková v **1 z 5** okien, obchodov spolu 813, break-even celkom -0.0015 %.
 
 - vstup po pohybe v smere obchodu (+0.88 ATR za 5 barov)
 - medián držania 4.7 barov grafu
-- winrate 64.94 %, payoff 0.493
+- winrate 65.09 %, payoff 0.493
 - 0.45 obchodov za deň
-- šikmosť výnosov -1.284
+- šikmosť výnosov -1.292
 
 - **Čo je normálne:** Dlhé série strát sú normálne — platí sa nimi za tie prerazenia, ktoré vyjdú. Winrate pod 40 % je pri tomto type v poriadku.
 - **Na čo pozor:** Falošné prerazenia v úzkom rozsahu. Filter na veľkosť pohybu a na to, či je trh vôbec v rozsahu, býva silnejšia páka než čokoľvek na výstupe.
 - **Čo ladiť:** Prahy vstupu (aká veľká musí byť sviečka/pohyb) a RR. Nie winrate — ten sa dá zvýšiť len skrátením TP, a tým sa stratégia pokazí.
 
-Výstupy: `take_profit` 65.1 %, `stop_loss` 34.9 %
+Výstupy: `take_profit` 65.2 %, `stop_loss` 34.8 %
 
 Čo z čísel vyplýva pre tento typ: [docs/TYPY_STRATEGII.md](../../../../docs/TYPY_STRATEGII.md).
 
 ## Ktorá skupina obchodov kazí výsledok
 
-Najhorsia skupina je 'deň pred sviatkom' vlastnosti 'Sviatok na burze v USA': 13 obchodov (1.6 %), break-even -0.0086 % oproti -0.0015 % celku. Bez nej by break-even bol -0.0014 % (+0.0121). Ziadny parameter tuto vlastnost priamo neriadi, takze ak sa to potvrdi aj na inych oknach, je to kandidat na filter.
+Najhorsia skupina je 'deň pred sviatkom' vlastnosti 'Sviatok na burze v USA': 13 obchodov (1.6 %), break-even -0.0086 % oproti -0.0013 % celku. Bez nej by break-even bol -0.0011 % (+0.0119). Ziadny parameter tuto vlastnost priamo neriadi, takze ak sa to potvrdi aj na inych oknach, je to kandidat na filter.
 
 
 **Sviatok na burze v USA**
 
 | skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
 |---|---|---|---|---|---|---|
-| deň pred sviatkom | 13 | 1.6 % | 61.5 | -0.0086 | -0.0014 | +0.0001 |
-| bežný deň | 772 | 95.0 % | 64.5 | -0.0022 | 0.0106 | +0.0121 |
-| deň po sviatku | 19 | 2.3 % | 73.7 | 0.0119 | -0.0018 | -0.0003 |
-
-**Kde v rozsahu, v smere obchodu**
-
-| skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
-|---|---|---|---|---|---|---|
-| do 0.5537 | 204 | 25.1 % | 59.3 | -0.0089 | 0.0011 | +0.0026 |
-| 0.73 – 0.8535 | 203 | 25.0 % | 65.5 | -0.0016 | -0.0015 | +0.0000 |
-| 0.5537 – 0.73 | 203 | 25.0 % | 66.0 | 0.0006 | -0.0022 | -0.0007 |
-| nad 0.8535 | 203 | 25.0 % | 69.0 | 0.0042 | -0.0035 | -0.0020 |
+| deň pred sviatkom | 13 | 1.6 % | 61.5 | -0.0086 | -0.0011 | +0.0002 |
+| bežný deň | 764 | 94.9 % | 64.7 | -0.0020 | 0.0106 | +0.0119 |
+| deň po sviatku | 19 | 2.4 % | 73.7 | 0.0119 | -0.0016 | -0.0003 |
 
 **Volatilita voči normálu**
 
 | skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
 |---|---|---|---|---|---|---|
-| 1.562 – 2.144 | 203 | 25.0 % | 60.1 | -0.0095 | 0.0010 | +0.0025 |
-| 1.158 – 1.562 | 203 | 25.0 % | 63.0 | -0.0044 | -0.0005 | +0.0010 |
-| nad 2.144 | 203 | 25.0 % | 67.5 | 0.0037 | -0.0030 | -0.0015 |
-| do 1.158 | 204 | 25.1 % | 69.1 | 0.0041 | -0.0037 | -0.0022 |
+| 1.56 – 2.141 | 201 | 25.0 % | 59.7 | -0.0102 | 0.0016 | +0.0029 |
+| 1.151 – 1.56 | 200 | 24.8 % | 63.5 | -0.0038 | -0.0004 | +0.0009 |
+| do 1.151 | 203 | 25.2 % | 69.0 | 0.0039 | -0.0033 | -0.0020 |
+| nad 2.141 | 201 | 25.0 % | 68.2 | 0.0050 | -0.0030 | -0.0017 |
+
+**Kde v rozsahu, v smere obchodu**
+
+| skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
+|---|---|---|---|---|---|---|
+| do 0.5537 | 202 | 25.1 % | 59.9 | -0.0080 | 0.0011 | +0.0024 |
+| 0.7262 – 0.8549 | 201 | 25.0 % | 65.7 | -0.0014 | -0.0012 | +0.0001 |
+| 0.5537 – 0.7262 | 201 | 25.0 % | 65.7 | 0.0000 | -0.0017 | -0.0004 |
+| nad 0.8549 | 201 | 25.0 % | 69.2 | 0.0045 | -0.0032 | -0.0019 |
 
 Parametre, ktorými sa dá s tým niečo spraviť: `closeAtSessionEnd`, `minSlDistance`, `rrRatio`, `sess2TradeStartH`, `state2MaxBars`, `tradeDirection`, `useStructureFilter`.
 
@@ -101,10 +101,10 @@ Tá istá stratégia s náhodnými vstupmi — rovnako často, rovnakým smerom,
 
 | náhoda | break-even stratégie | break-even náhody | sigma | percentil |
 |---|---|---|---|---|
-| anytime (vstupy kedykoľvek v okne) | -0.0062 % | 0.0000 % ± 0.0026 | -2.36 | 1.2 |
-| session (vstupy v tých istých hodinách, v akých obchoduje stratégia) | -0.0062 % | -0.0002 % ± 0.0028 | -2.14 | 1.3 |
+| anytime (vstupy kedykoľvek v okne) | -0.0061 % | -0.0001 % ± 0.0027 | -2.18 | 1.4 |
+| session (vstupy v tých istých hodinách, v akých obchoduje stratégia) | -0.0061 % | -0.0001 % ± 0.0027 | -2.22 | 1.6 |
 
-HORSIE nez nahoda (-2.4 sigma). Nahodny vstup za tych istych pravidiel dava lepsi vysledok - vyber vstupu vysledku skodi.
+HORSIE nez nahoda (-2.2 sigma). Nahodny vstup za tych istych pravidiel dava lepsi vysledok - vyber vstupu vysledku skodi.
 
 ## Slabne edge?
 
@@ -112,14 +112,14 @@ Posledné obdobie proti **vlastnej minulosti**: nie proti celkovému číslu (kr
 
 | obdobie | obchodov | za mesiac | WR % | break-even % | percentil |
 |---|---|---|---|---|---|
-| 2021-10 - 2022-12 | 156 | 10.6 | 71.8 | 0.0082 | 93 |
-| 2022-12 - 2024-03 | 110 | 7.5 | 68.2 | 0.0047 | 79 |
-| 2024-03 - 2025-06 | 198 | 13.4 | 63.1 | -0.0038 | 34 |
-| 2025-06 - 2026-09 | 349 | 23.7 | 61.9 | -0.0076 | 8 |
+| 2021-10 - 2022-12 | 156 | 10.6 | 71.8 | 0.0082 | 92 |
+| 2022-12 - 2024-03 | 110 | 7.5 | 68.2 | 0.0047 | 76 |
+| 2024-03 - 2025-06 | 190 | 12.9 | 63.7 | -0.0028 | 39 |
+| 2025-06 - 2026-09 | 349 | 23.7 | 61.9 | -0.0076 | 7 |
 
-Hranice pre úsek veľkosti posledného obdobia: -0.0083 až +0.0056 % (medián -0.0013).
+Hranice pre úsek veľkosti posledného obdobia: -0.0085 až +0.0058 % (medián -0.0010).
 
-**POZOR NA TREND** — každé z 4 období je horšie než predchádzajúce (sklon -0.0056 na obdobie). Posledné je ešte v medziach (8. percentil), takže test úpadok nepotvrdzuje — ale rad sa sám od seba zoradí zriedka. Zopakuj to, keď pribudnú dáta.
+**POZOR NA TREND** — každé z 4 období je horšie než predchádzajúce (sklon -0.0055 na obdobie). Posledné je ešte v medziach (7. percentil), takže test úpadok nepotvrdzuje — ale rad sa sám od seba zoradí zriedka. Zopakuj to, keď pribudnú dáta.
 
 ## Najdlhšie série
 
@@ -168,12 +168,12 @@ Koľko ziskov a koľko strát prišlo **za sebou** — to, čo priemerný winrat
 
 Bootstrap po blokoch 10 obchodov, 10 000 opakovaní.
 
-- break-even: namerané **-0.0015 %**, medián -0.0016 %, 90 % interval -0.0063–0.0032 %
-- P(edge > poplatok) = **12.7 %**
-- max drawdown: medián 55.0 %, 95. percentil 100.0 %, najhorší 100.0 %
+- break-even: namerané **-0.0013 %**, medián -0.0013 %, 90 % interval -0.0061–0.0035 %
+- P(edge > poplatok) = **14.6 %**
+- max drawdown: medián 52.6 %, 95. percentil 99.2 %, najhorší 100.0 %
 - najdlhšia séria strát: medián 7, 95. percentil 9 obchodov
-- pravdepodobnosť ruiny účtu: 6.3 %
-- aby 95 % ciest zostalo nad −20 %, riskuj najviac **192** na obchod pri účte 60 000
+- pravdepodobnosť ruiny účtu: 4.6 %
+- aby 95 % ciest zostalo nad −20 %, riskuj najviac **202** na obchod pri účte 60 000
 
 Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pretrénovaniu chránia len okná, ktoré optimalizátor nevidel.
 
@@ -185,27 +185,19 @@ Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pr
 
 ## Posudok (AI)
 
-Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť otázok. Text patrí **medzi značky** nižšie, aby ho ďalší `cli checkup` preniesol ďalej.
-
-1. **Na čo sa to hodí a na čo nie** — trh, timeframe, režim, veľkosť účtu; kde by to isté číslo znamenalo niečo iné.
-2. **Má to potenciál?** Čo z čísel hovorí, že za tým je skutočný jav, a čo hovorí, že je to vlastnosť vzorky.
-3. **Čo treba dorobiť** v samotnej stratégii — filtre, výstupy, sizing, sviatky a seansy, chýbajúce parametre.
-4. **Čo otestovať ďalej** — konkrétne príkazy (`cli sweep`, `cli matrix`, `cli hyperopt`, druhý engine) a čo by ich výsledok rozhodol.
-5. **Je to použiteľné, alebo je to o ničom?** Odpoveď má byť jednoznačná; „ešte uvidíme" je odpoveď len vtedy, keď je za ňou konkrétny test.
-6. **Čo by som pridal** — nápad, ktorý v stratégii nie je a z týchto čísel dáva zmysel.
-<!-- POSUDOK cisla=563cdbaa -->
+<!-- POSUDOK cisla=623bf8a0 -->
 
 _Posudok (Claude, 26. 10. 2026) — nastavenie `mgc_databento_3m`: východiskový profil na zlato, IBS EZ 1 (prešiel smernicou
 na MNQ) s bodovými a tickovými prahmi prepočítanými na ATR a s uvoľnenými prahmi FVG/imbalance (~120 obchodov ročne).
 Nie je to ladený profil — je to štart hľadania._
 
-1. **Na čo sa to hodí a na čo nie.** V tejto podobe na nič. Na MGC 3m je to 813 obchodov s break-even −0,0015 % (pod
+1. **Na čo sa to hodí a na čo nie.** V tejto podobe na nič. Na MGC 3m je to 805 obchodov s break-even −0,0013 % (pod
    nulou, nie len pod poplatkom), ziskový je jediný rok z piatich (22/23, +28 %). Ten istý model na MNQ (`ibsentry`,
    `ibsentrynet`) má break-even 0,018 % a 5 z 5 rokov — prenos „ten istý vstup, prahy v ATR“ na zlato nefunguje.
-   Veľkosť z rizika (~1 000 $ na obchod) s účtom 60 000 $ dáva medián drawdownu 55 % a 6,3 % ruiny; Monte Carlo pustí
-   najviac 192 $ na obchod.
-2. **Má to potenciál? Nie v tomto nastavení.** −2,4 σ proti náhodnému vstupu: náhodný vstup s tými istými SL/TP dopadne
-   lepšie, takže výber vstupu škodí. Edge navyše rad po rade klesá (0,0082 → 0,0047 → −0,0038 → −0,0076 % po obdobiach)
+   Veľkosť z rizika (~1 000 $ na obchod) s účtom 60 000 $ dáva medián drawdownu 53 % a 4,6 % ruiny; Monte Carlo pustí
+   najviac 202 $ na obchod.
+2. **Má to potenciál? Nie v tomto nastavení.** −2,2 σ proti náhodnému vstupu: náhodný vstup s tými istými SL/TP dopadne
+   lepšie, takže výber vstupu škodí. Edge navyše rad po rade klesá (0,0082 → 0,0047 → −0,0028 → −0,0076 % po obdobiach)
    a posledný rok je najhorší (−47 %, 333 obchodov — dvakrát viac než predtým, zlato v silnom trende 2025/26).
    Jediný dobrý rok 22/23 (WR 77,5 %, break-even 0,0183 %) je bočný trh zlata — myšlienka (návrat k zóne a scalp na
    0,5 R) možno funguje v rozsahu, ale nie v trende.

@@ -16,7 +16,7 @@ python -m tester.webapp.cli checkup \
 
 ## V čom je dobrá
 
-- 1562 obchodov spolu — na štatistiku dosť
+- 1538 obchodov spolu — na štatistiku dosť
 - žiadna vopred známa vlastnosť obchodov výsledok výrazne nekazí — niet čo filtrovať, ladiť sa dá len parametrami
 
 ## Kde má chyby
@@ -24,7 +24,7 @@ python -m tester.webapp.cli checkup \
 - zisková v 2 z 5 referenčných okien (20221001-20231001, 20231001-20241001, 20240904-20250904 v strate)
 - break-even 0.0011 % je pod poplatkom 0.0018 % — pri tomto poplatku je to strata, nech PnL ukazuje čokoľvek
 - edge nad poplatkom len v 24 % vzoriek — v zvyšku by burza zobrala viac, než stratégia zarobí
-- 95. percentil max drawdownu 54.7 % (namerané 28.4 % medián) — na účet to treba mať
+- 95. percentil max drawdownu 55.0 % (namerané 28.3 % medián) — na účet to treba mať
 - proti náhode len +1.8 sigma: náznak, nie dôkaz
 - charakter: prerazenie (breakout) (istota priemerná) — zaradenie je neisté, závery o tom, čo je pri nej normálne, treba brať opatrne
 
@@ -40,7 +40,7 @@ Jeden rok o stratégii nepovie nič; rozhoduje **znamienko po rokoch**, nie sú�
 | 20240904-20250904 | 323 | -14.89 | -0.0013 | 21.0 | 48.6 | +10/-13 | `20261026-130858-5eb629` |
 | 20250904-20260904 | 327 | +5.73 | 0.0030 | 11.3 | 53.8 | +8/-7 | `20261026-130910-f72ad9` |
 
-Zisková v **2 z 5** okien, obchodov spolu 1562, break-even celkom 0.0011 %.
+Zisková v **2 z 5** okien, obchodov spolu 1538, break-even celkom 0.0011 %. Okná sa prekrývajú, 24 obchodov započítaných dvakrát vypadlo.
 
 ## Charakter
 
@@ -48,9 +48,9 @@ Zisková v **2 z 5** okien, obchodov spolu 1562, break-even celkom 0.0011 %.
 
 - vstup po pohybe v smere obchodu (+0.41 ATR za 5 barov)
 - medián držania 4 barov grafu
-- winrate 51.22 %, payoff 0.919
-- 0.87 obchodov za deň
-- šikmosť výnosov -2.059
+- winrate 51.24 %, payoff 0.919
+- 0.86 obchodov za deň
+- šikmosť výnosov -2.066
 
 - **Čo je normálne:** Dlhé série strát sú normálne — platí sa nimi za tie prerazenia, ktoré vyjdú. Winrate pod 40 % je pri tomto type v poriadku.
 - **Na čo pozor:** Falošné prerazenia v úzkom rozsahu. Filter na veľkosť pohybu a na to, či je trh vôbec v rozsahu, býva silnejšia páka než čokoľvek na výstupe.
@@ -69,27 +69,27 @@ Ziadna vopred zname vlastnost vysledok vyrazne nekazi (najviac +0.0017 % break-e
 
 | skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
 |---|---|---|---|---|---|---|
-| do 0.063 % | 389 | 25.0 % | 49.4 | -0.0001 | 0.0028 | +0.0017 |
-| 0.1218 % – 0.2269 % | 388 | 25.0 % | 50.3 | 0.0005 | 0.0012 | +0.0001 |
-| 0.063 % – 0.1218 % | 388 | 25.0 % | 52.1 | 0.0022 | 0.0008 | -0.0003 |
-| nad 0.2269 % | 388 | 25.0 % | 54.4 | 0.0107 | 0.0005 | -0.0006 |
+| do 0.0627 % | 383 | 25.0 % | 49.4 | -0.0001 | 0.0028 | +0.0017 |
+| 0.1222 % – 0.2274 % | 382 | 25.0 % | 50.0 | 0.0001 | 0.0012 | +0.0001 |
+| 0.0627 % – 0.1222 % | 382 | 25.0 % | 52.1 | 0.0022 | 0.0007 | -0.0004 |
+| nad 0.2274 % | 382 | 25.0 % | 54.7 | 0.0115 | 0.0005 | -0.0006 |
 
 **Makro udalosť v ten deň**
 
 | skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
 |---|---|---|---|---|---|---|
-| FOMC | 46 | 2.9 % | 41.3 | -0.0061 | 0.0013 | +0.0002 |
-| žiadna | 1354 | 86.7 % | 51.0 | 0.0009 | 0.0026 | +0.0015 |
-| CPI | 93 | 6.0 % | 50.5 | 0.0016 | 0.0010 | -0.0001 |
+| FOMC | 46 | 3.0 % | 41.3 | -0.0061 | 0.0013 | +0.0002 |
+| žiadna | 1334 | 86.7 % | 51.0 | 0.0009 | 0.0024 | +0.0013 |
+| CPI | 89 | 5.8 % | 50.6 | 0.0012 | 0.0011 | +0.0000 |
 | NFP | 68 | 4.4 % | 63.2 | 0.0133 | 0.0007 | -0.0004 |
 
 **Pred vyhlásením, alebo po ňom**
 
 | skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
 |---|---|---|---|---|---|---|
-| bez udalosti | 1354 | 86.7 % | 51.0 | 0.0009 | 0.0026 | +0.0015 |
-| pred vyhlásením | 123 | 7.9 % | 50.4 | 0.0009 | 0.0011 | +0.0000 |
-| po vyhlásení | 85 | 5.4 % | 55.3 | 0.0113 | 0.0009 | -0.0002 |
+| pred vyhlásením | 119 | 7.7 % | 50.4 | 0.0007 | 0.0011 | +0.0000 |
+| bez udalosti | 1334 | 86.7 % | 51.0 | 0.0009 | 0.0024 | +0.0013 |
+| po vyhlásení | 85 | 5.5 % | 55.3 | 0.0113 | 0.0009 | -0.0002 |
 
 Parametre, ktorými sa dá s tým niečo spraviť: `closeAtSessionEnd`, `minSlDistance`, `rrRatio`, `sess2TradeStartH`, `state2MaxBars`, `useStructureFilter`.
 
@@ -99,10 +99,10 @@ Tá istá stratégia s náhodnými vstupmi — rovnako často, rovnakým smerom,
 
 | náhoda | break-even stratégie | break-even náhody | sigma | percentil |
 |---|---|---|---|---|
-| anytime (vstupy kedykoľvek v okne) | 0.0038 % | 0.0002 % ± 0.0019 | +1.83 | 96.4 |
-| session (vstupy v tých istých hodinách, v akých obchoduje stratégia) | 0.0038 % | 0.0001 % ± 0.0020 | +1.88 | 97.4 |
+| anytime (vstupy kedykoľvek v okne) | 0.0039 % | 0.0003 % ± 0.0020 | +1.80 | 95.9 |
+| session (vstupy v tých istých hodinách, v akých obchoduje stratégia) | 0.0039 % | 0.0001 % ± 0.0021 | +1.85 | 96.9 |
 
-Naznak, ale nie dokaz (1.8 sigma, percentil 96.4). Take rozdiely nahoda robi bezne.
+Naznak, ale nie dokaz (1.8 sigma, percentil 95.9). Take rozdiely nahoda robi bezne.
 
 ## Slabne edge?
 
@@ -111,13 +111,13 @@ Posledné obdobie proti **vlastnej minulosti**: nie proti celkovému číslu (kr
 | obdobie | obchodov | za mesiac | WR % | break-even % | percentil |
 |---|---|---|---|---|---|
 | 2021-10 - 2022-12 | 363 | 24.7 | 55.1 | 0.0056 | 99 |
-| 2022-12 - 2024-03 | 382 | 26.0 | 47.9 | -0.0010 | 13 |
-| 2024-03 - 2025-06 | 424 | 28.8 | 50.2 | 0.0002 | 32 |
+| 2022-12 - 2024-03 | 382 | 26.0 | 47.9 | -0.0010 | 14 |
+| 2024-03 - 2025-06 | 400 | 27.2 | 50.2 | 0.0001 | 30 |
 | 2025-06 - 2026-09 | 393 | 26.7 | 51.9 | 0.0013 | 54 |
 
-Hranice pre úsek veľkosti posledného obdobia: -0.0020 až +0.0043 % (medián 0.0011).
+Hranice pre úsek veľkosti posledného obdobia: -0.0021 až +0.0042 % (medián 0.0011).
 
-**DRZI** — posledné obdobie (2025-06 - 2026-09) je na 54. percentile, teda v medziach -0.0020 až +0.0043 %, ktoré tá istá stratégia vyrobí sama od seba. Úpadok v dátach vidieť nie je.
+**DRZI** — posledné obdobie (2025-06 - 2026-09) je na 54. percentile, teda v medziach -0.0021 až +0.0042 %, ktoré tá istá stratégia vyrobí sama od seba. Úpadok v dátach vidieť nie je.
 
 ## Najdlhšie série
 
@@ -160,9 +160,9 @@ Koľko ziskov a koľko strát prišlo **za sebou** — to, čo priemerný winrat
 
 Bootstrap po blokoch 10 obchodov, 10 000 opakovaní.
 
-- break-even: namerané **0.0011 %**, medián 0.0011 %, 90 % interval -0.0005–0.0027 %
-- P(edge > poplatok) = **23.6 %**
-- max drawdown: medián 28.4 %, 95. percentil 54.7 %, najhorší 98.3 %
+- break-even: namerané **0.0011 %**, medián 0.0010 %, 90 % interval -0.0006–0.0027 %
+- P(edge > poplatok) = **23.8 %**
+- max drawdown: medián 28.3 %, 95. percentil 55.0 %, najhorší 98.6 %
 - najdlhšia séria strát: medián 10, 95. percentil 14 obchodov
 - pravdepodobnosť ruiny účtu: 0.0 %
 
@@ -176,22 +176,14 @@ Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pr
 
 ## Posudok (AI)
 
-Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť otázok. Text patrí **medzi značky** nižšie, aby ho ďalší `cli checkup` preniesol ďalej.
-
-1. **Na čo sa to hodí a na čo nie** — trh, timeframe, režim, veľkosť účtu; kde by to isté číslo znamenalo niečo iné.
-2. **Má to potenciál?** Čo z čísel hovorí, že za tým je skutočný jav, a čo hovorí, že je to vlastnosť vzorky.
-3. **Čo treba dorobiť** v samotnej stratégii — filtre, výstupy, sizing, sviatky a seansy, chýbajúce parametre.
-4. **Čo otestovať ďalej** — konkrétne príkazy (`cli sweep`, `cli matrix`, `cli hyperopt`, druhý engine) a čo by ich výsledok rozhodol.
-5. **Je to použiteľné, alebo je to o ničom?** Odpoveď má byť jednoznačná; „ešte uvidíme" je odpoveď len vtedy, keď je za ňou konkrétny test.
-6. **Čo by som pridal** — nápad, ktorý v stratégii nie je a z týchto čísel dáva zmysel.
-<!-- POSUDOK cisla=51465c62 -->
+<!-- POSUDOK cisla=f72dcc2b -->
 
 _Posudok (Claude, 26. 10. 2026) — nastavenie `multicharts_mnq_3m`: referenčný profil repozitára (defaulty IBS na MNQ,
 zóny len z FVG/IFVG 5m–1h), nie ladený. Čísla hovoria o myšlienke „IBS vstup nad imbalance zónami“, nie o najlepšom
 nastavení._
 
-1. **Na čo sa to hodí a na čo nie.** V tejto podobe na nič. MNQ 3m, 1 562 obchodov (0,87 denne), winrate 51 %, payoff
-   0,92: break-even 0,0011 % je pod poplatkom 0,0018 %, ziskové sú 2 z 5 rokov a 95. percentil drawdownu je 54,7 %
+1. **Na čo sa to hodí a na čo nie.** V tejto podobe na nič. MNQ 3m, 1 538 obchodov (0,86 denne), winrate 51 %, payoff
+   0,92: break-even 0,0011 % je pod poplatkom 0,0018 %, ziskové sú 2 z 5 rokov a 95. percentil drawdownu je 55,0 %
    pri riziku profilu. Ladené profily testera (`tester/profiles/LEN_FVG_*`, `LEN_IFVG_*`) sú ladené na poslednom roku
    (názov hovorí „posledný rok 132 obch, WR 81 %, PF 2,16“) — to číslo o ostatných rokoch nič nehovorí.
 2. **Má to potenciál? Slabý.** Repo profil: +1,8 σ proti náhode — náznak, nie dôkaz. Kontrola ladeného profilu
