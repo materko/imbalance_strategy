@@ -62,6 +62,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     app = FastAPI(title="TradeBot backtest webapp", version="0.2")
     app.state.store = store
     app.state.runner = runner
+    # vypnutie webapp počas behu: zabiť Freqtrade a zapísať beh ako failed (audit N-WEB-1)
+    app.router.on_shutdown.append(runner.shutdown)
     app.state.replayer = replayer
     ctx = AppContext(app, store, runner, replayer, anstore)
     for module in ROUTERS:

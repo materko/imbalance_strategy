@@ -219,10 +219,17 @@ class HyperoptJobMixin:
             env.pop("TRADEBOT_HYPEROPT_PLAN", None)
             env.pop("TRADEBOT_DRAW_OUT", None)
             try:
-                done = subprocess.run(cmd, cwd=str(REPO), env=env, capture_output=True, text=True,
-                                      encoding="utf-8", errors="replace")
+                # Popen v `job.extra_procs`: zrušenie behu ho zabije (subprocess.run by dobehol - N-WEB-3)
+                proc = subprocess.Popen(cmd, cwd=str(REPO), env=env, stdout=subprocess.DEVNULL,
+                                        stderr=subprocess.DEVNULL)
+                job.extra_procs.append(proc)
+                try:
+                    rc = proc.wait()
+                finally:
+                    job.extra_procs.remove(proc)
                 zipy = sorted(adresar.glob("*.zip"), key=lambda p: p.stat().st_mtime)
-                out[i][okno] = result_from_zip(zipy[-1])[0] if done.returncode == 0 and zipy else None
+                ok = rc == 0 and zipy and not job.cancel_requested
+                out[i][okno] = result_from_zip(zipy[-1])[0] if ok else None
             finally:
                 shutil.rmtree(adresar, ignore_errors=True)
                 prof.unlink(missing_ok=True)

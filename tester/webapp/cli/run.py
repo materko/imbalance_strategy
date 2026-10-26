@@ -150,9 +150,20 @@ def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
             print(f"zaradené do fronty webapp: {job['id']}  ({args.url})")
         if getattr(args, "no_wait", False):
             return {"id": job["id"], "status": "queued", "settings": settings}
+        vypadok = 0.0
         while True:
             time.sleep(3)
-            det = api(args.url, f"/api/runs/{job['id']}")
+            try:
+                det = api(args.url, f"/api/runs/{job['id']}")
+                vypadok = 0.0
+            except (urllib.error.URLError, ConnectionError, TimeoutError) as exc:
+                # webapp sa práve reštartuje (auto-reštart po pulle, Ctrl+C): čakať, nie traceback (N-WEB-1)
+                vypadok += 3
+                if vypadok > 300:
+                    raise SystemExit(f"webapp neodpovedá 5 min ({exc}) - beh {job['id']} pozri v histórii")
+                if not quiet:
+                    print(f"  … webapp neodpovedá ({exc}), čakám", flush=True)
+                continue
             rec = det["record"]
             if not det.get("live") and rec.get("status") in ("done", "failed"):
                 return rec

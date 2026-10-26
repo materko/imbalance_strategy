@@ -1565,3 +1565,69 @@ def test_diversify_live_vrati_obchody_zo_zrkadla_webapp(tmp_path: Path):
     (t,) = inst["trades"]
     assert inst["profile"] == "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1" and inst["engine"] == "vwaporbnet"
     assert (t["entry"], t["plan"], t["sd"], t["reason"]) == (100.25, 100.0, 10.0, "take_profit")
+
+
+def test_vypnutie_webapp_zabije_beh_a_zapise_ho(tmp_path):
+    """Audit N-WEB-1: Ctrl+C / reštart počas behu — Freqtrade podproces nesmie ostať sirotou a beh musí byť
+    v histórii ako failed s dôvodom, nie zmiznúť."""
+    import subprocess
+    import sys
+    import time as _t
+
+    from tester.webapp.runner import BacktestRunner
+
+    store = RunStore(tmp_path)
+    runner = BacktestRunner(store, command_builder=lambda *a: [sys.executable, "-c", "import time; time.sleep(60)"])
+    job = runner.submit({}, {"pair": "BTC/USDT:USDT", "timerange": "20260801-20260802", "timeframe": "3m",
+                             "engine": "freqtrade"})
+    for _ in range(100):
+        if job.proc is not None and job.status == "running":
+            break
+        _t.sleep(0.1)
+    assert job.proc is not None, job.log_lines[-5:]
+    proc = job.proc
+    assert runner.shutdown() == 1
+    proc.wait(timeout=10)
+    assert proc.poll() is not None                                 # podproces je preč
+    rec = store.get(job.id)
+    assert rec["status"] == "failed" and "vypla" in rec["error"]
+
+
+def test_worker_prezije_zlyhanie_zapisu(tmp_path, monkeypatch):
+    """Audit N-WEB-2: chyba behu + chyba zápisu (plný disk) nesmie zabiť worker — ďalší beh sa spustí."""
+    import time as _t
+
+    from tester.webapp.runner import BacktestRunner
+
+    runner = BacktestRunner(RunStore(tmp_path), command_builder=lambda *a: ["python", "-c", ""])
+    behy = []
+
+    def run(job):
+        behy.append(job.id)
+        raise RuntimeError("beh zlyhal")
+
+    def persist(job, *a, **k):
+        raise OSError("plný disk")
+
+    monkeypatch.setattr(runner, "_run", run)
+    monkeypatch.setattr(runner, "_persist", persist)
+    s = {"pair": "BTC/USDT:USDT", "timerange": "20260801-20260802", "timeframe": "3m"}
+    a = runner.submit({}, s)
+    b = runner.submit({"rrRatio": 2.0}, s)
+    for _ in range(100):
+        if len(behy) == 2:
+            break
+        _t.sleep(0.05)
+    assert behy == [a.id, b.id] and a.status == b.status == "failed"
+    assert "zápis do histórie zlyhal" in a.error
+
+
+def test_zrusenie_behu_bez_podprocesu_uspeje(tmp_path):
+    """Audit N-WEB-3: natívny bod / hyperopt v procese nemá `proc` — zrušenie nesmie vrátiť 404."""
+    from tester.webapp.runner import BacktestRunner, Job
+
+    runner = BacktestRunner(RunStore(tmp_path), command_builder=lambda *a: ["python", "-c", ""])
+    job = Job(id="20260901-000000-aaaaaa", params={}, settings={}, status="running")
+    runner.jobs[job.id] = job
+    runner.order.append(job.id)
+    assert runner.cancel(job.id) is True and job.cancel_requested

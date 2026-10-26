@@ -77,6 +77,8 @@ class Job:
     error: str | None = None
     log_lines: list[str] = field(default_factory=list)
     proc: subprocess.Popen | None = None
+    #: ďalšie podprocesy behu (plateau / walk-forward body hyperoptu) - `cancel` a `shutdown` ich zabijú tiež
+    extra_procs: list = field(default_factory=list)
     cancel_requested: bool = False
 
     @property
@@ -161,10 +163,38 @@ class BacktestRunner(HyperoptJobMixin):
             job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
             self._persist(job, None)
             return True
-        if job.proc is not None and job.proc.poll() is None:
-            kill_tree(job.proc.pid)
+        if job.status == "running":
+            # natívny beh (C# bod, hyperopt v procese) podproces nemá - dobehne a výsledok sa zahodí
+            # (`cancel_requested`); API preto vráti úspech, nie 404 (audit N-WEB-3)
+            self._kill_procs(job)
             return True
         return False
+
+    @staticmethod
+    def _kill_procs(job: Job) -> None:
+        for p in [job.proc, *job.extra_procs]:
+            if p is not None and p.poll() is None:
+                kill_tree(p.pid)
+
+    def shutdown(self, reason: str = "webapp sa vypla počas behu") -> int:
+        """Vypnutie webapp (Ctrl+C, reštart): bežiace behy zabiť aj s Freqtrade podprocesmi a zapísať ako
+        `failed`, čakajúce tiež — inak by Freqtrade bežal ďalej ako sirota a beh by z histórie zmizol bez
+        stopy (audit N-WEB-1). Vráti počet zapísaných behov."""
+        self._closing = reason   # vlákno behu, ktoré po zabití podprocesu ešte zapíše, nech nepíše "zrušené používateľom"
+        with self._lock:
+            jobs = [self.jobs[i] for i in self.order if self.jobs[i].status in ("queued", "running")]
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        for job in jobs:
+            job.cancel_requested = True
+            self._kill_procs(job)
+            job.status = "failed"
+            job.error = reason
+            job.finished = now
+            try:
+                self._persist(job, None)
+            except Exception:  # noqa: BLE001 - vypínanie nesmie spadnúť na jednom behu
+                traceback.print_exc()
+        return len(jobs)
 
     def snapshot(self) -> list[dict[str, Any]]:
         with self._lock:
@@ -185,26 +215,35 @@ class BacktestRunner(HyperoptJobMixin):
 
     def _loop(self) -> None:
         while True:
-            job_id = self._q.get()
-            job = self.jobs.get(job_id)
-            if job is None or job.status != "queued":
-                continue
-            with self._slot:
-                while not self._can_start(job) and not job.cancel_requested:
-                    self._slot.wait(timeout=1.0)
-                if job.status != "queued":  # zrušené počas čakania na slot
-                    continue
-                job.status = "running"
             try:
-                self._run(job)
-            except Exception:  # noqa: BLE001 - chyba behu nesmie zabiť worker
-                job.status = "failed"
-                job.error = traceback.format_exc()[-2000:]
-                job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
+                self._loop_once()
+            except Exception:  # noqa: BLE001 - worker nesmie umrieť, inak fronta visí "queued" (N-WEB-2)
+                traceback.print_exc()
+
+    def _loop_once(self) -> None:
+        job_id = self._q.get()
+        job = self.jobs.get(job_id)
+        if job is None or job.status != "queued":
+            return
+        with self._slot:
+            while not self._can_start(job) and not job.cancel_requested:
+                self._slot.wait(timeout=1.0)
+            if job.status != "queued":  # zrušené počas čakania na slot
+                return
+            job.status = "running"
+        try:
+            self._run(job)
+        except Exception:  # noqa: BLE001 - chyba behu nesmie zabiť worker
+            job.status = "failed"
+            job.error = traceback.format_exc()[-2000:]
+            job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            try:
                 self._persist(job, None)
-            finally:
-                with self._slot:
-                    self._slot.notify_all()
+            except Exception:  # noqa: BLE001 - plný disk: beh ostane failed v pamäti, worker ide ďalej
+                job.error += "\n(zápis do histórie zlyhal: " + traceback.format_exc(limit=1)[-300:] + ")"
+        finally:
+            with self._slot:
+                self._slot.notify_all()
 
     def _run(self, job: Job) -> None:
         job.status = "running"
@@ -370,6 +409,9 @@ class BacktestRunner(HyperoptJobMixin):
 
     def _persist(self, job: Job, result, duration: float | None = None,
                  chart_path: Path | None = None) -> None:
+        closing = getattr(self, "_closing", None)
+        if closing and job.status == "failed":
+            job.error = closing
         record = {
             "id": job.id,
             "status": job.status,
