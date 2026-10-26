@@ -346,6 +346,25 @@ def test_obchod_s_indexom_baru_v_tagu_sa_z_dvoch_okien_pocita_raz():
     assert vypadlo == 1 and len(obchody) == 3
 
 
+def test_poradie_obchodu_v_tagu_cs_jadra_sa_z_dvoch_okien_pocita_raz():
+    """C# jadro a emulátor píšu `LONG_<poradie od začiatku behu>` — ten istý obchod má
+    v prekrytí okien 2023/24 a 2024/25 iné číslo (ibsentrynet 26. 10. 2026: 6 obchodov dvakrát)."""
+    a = {**trade(), "pair": "MNQ/USD", "enter_tag": "SHORT_12848", "_run": "okno3"}
+    b = {**a, "enter_tag": "SHORT_159", "_run": "okno4"}
+    obchody, vypadlo = an.dedupe([a, b])
+    assert vypadlo == 1 and obchody == [a]
+
+
+def test_dva_vstupy_na_jednom_bare_v_jednom_behu_ostanu_oba():
+    """Po orezaní poradia z tagu môžu dva rôzne obchody jedného behu splynúť v kľúči —
+    duplicita je len zhoda s iným behom."""
+    a = {**trade(), "pair": "MNQ/USD", "enter_tag": "LONG_7", "_run": "okno3"}
+    b = {**a, "enter_tag": "LONG_8"}
+    z_ineho = {**a, "enter_tag": "LONG_1", "_run": "okno4"}
+    obchody, vypadlo = an.dedupe([a, b, z_ineho])
+    assert vypadlo == 1 and obchody == [a, b]
+
+
 def test_analyze_bez_paru_stav_trhu_nedoplna_a_nespadne():
     obchody = [trade(hour=h) for h in range(9, 18)] * 3
     r = an.analyze(obchody, strategy="ibs")

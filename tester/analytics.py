@@ -50,6 +50,7 @@ to, čo sa dá ladiť.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Any, Callable, Sequence
@@ -127,17 +128,19 @@ def config_key(record: dict[str, Any]) -> str:
 
 #: Číslo za dvojbodkou v `enter_tag` menšie než toto nie je čas baru v ms, ale index baru.
 _TAG_MS_MIN = 10 ** 11
+_TAG_INDEX = re.compile(r"^(.*)[:_](\d+)$")
 
 
 def _tag_key(tag: Any) -> Any:
-    """`enter_tag` do kľúča duplicity: index baru (`as:1234`) sa počíta od začiatku behu,
-    takže ten istý obchod ho má v dvoch prekrývajúcich sa oknách iný — ostane len prefix.
-    Čas baru v ms (`ibs:1725...`) je v oboch oknách rovnaký a ostáva celý."""
-    if not isinstance(tag, str) or ":" not in tag:
+    """`enter_tag` do kľúča duplicity: index baru alebo poradie obchodu (`as:1234`, v C# jadre
+    a emulátore `LONG_12848`) sa počíta od začiatku behu, takže ten istý obchod ho má v dvoch
+    prekrývajúcich sa oknách iný — ostane len prefix. Čas baru v ms (`ibs:1725...`) je v oboch
+    oknách rovnaký a ostáva celý."""
+    if not isinstance(tag, str):
         return tag
-    prefix, _, rest = tag.rpartition(":")
-    if rest.isdigit() and int(rest) < _TAG_MS_MIN:
-        return prefix
+    m = _TAG_INDEX.match(tag)
+    if m and int(m.group(2)) < _TAG_MS_MIN:
+        return m.group(1)
     return tag
 
 
@@ -149,15 +152,20 @@ def dedupe(trades: Sequence[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]
     dvakrát — v Monte Carle, v teste úpadku aj v počte obchodov. Kľúč je **konfigurácia**
     (`_cfg`, dopĺňa `trades_of`), trh, vstup a výstup: dva body sweepu na tom istom okne
     sú dve rôzne stratégie a ich obchody ostanú obidva, aj keď skončili na tom istom stope.
+
+    Duplicita je zhoda s obchodom z **iného** behu (`_run`, dopĺňa `trades_of`): dva vstupy
+    na tom istom bare v jednom behu sú dva obchody, aj keď im kľúč po orezaní tagu splynie.
+    Obchody bez `_run` sa berú ako z rôznych behov.
     """
-    videne: set[tuple[Any, ...]] = set()
+    videne: dict[tuple[Any, ...], Any] = {}
     out: list[dict[str, Any]] = []
     for t in trades:
         kluc = (t.get("_cfg"), t.get("pair"), t.get("open_date"), _tag_key(t.get("enter_tag")),
                 bool(t.get("is_short")), t.get("close_date"), t.get("close_rate"))
-        if kluc in videne:
+        beh = t.get("_run")
+        if kluc in videne and (beh is None or videne[kluc] != beh):
             continue
-        videne.add(kluc)
+        videne.setdefault(kluc, beh)
         out.append(t)
     return out, len(trades) - len(out)
 
@@ -202,6 +210,7 @@ def trades_of(records: Sequence[dict[str, Any]], trades_fn: Callable[[str], Any]
         cfg = config_key(rec)
         for x in obohatene:
             x["_cfg"] = cfg
+            x["_run"] = run_id
         out.per_run[run_id] = len(obohatene)
         vsetky += obohatene
     out.trades, out.duplicates = dedupe(vsetky)
