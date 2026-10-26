@@ -1,0 +1,1267 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20261017-061242-b277",
+ "strategy": "vwapop",
+ "created": "2026-10-17T06:12:42+00:00",
+ "user": "tester",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 0,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "htf": "15",
+   "rthSess": "0930-1600",
+   "driftLen": 2,
+   "driftAtr": 0.1,
+   "needSide": true,
+   "tolAtr": 0.1,
+   "needClose": true,
+   "firstOnly": true,
+   "maxTrades": 2,
+   "tradeWin": "0945-1530",
+   "allowLong": true,
+   "allowShort": true,
+   "slAtr": 0.5,
+   "rr": 0.5,
+   "useBE": false,
+   "closeEOD": false,
+   "flatTime": "1555-1600",
+   "showCross": true,
+   "colUp": "#22c55e",
+   "colDn": "#ef4444",
+   "colFlat": "#9ca3af",
+   "riskDollar": 500.0,
+   "legacyPineSizing": false,
+   "minSlDistance": 0.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "vwapop",
+   "exchange": null,
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "5m",
+   "timerange": "20250904-20260904",
+   "fee": 1.4e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 50000.0,
+   "timeframe_detail": "1m",
+   "profile": "VWAP_OP_Pine_presne",
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261017-061242-f628ac",
+   "status": "done",
+   "created": "2026-10-17T06:12:42+00:00",
+   "started": "2026-10-17T06:12:42+00:00",
+   "finished": "2026-10-17T06:12:43+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=0.5 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 143,
+    "losses": 74,
+    "draws": 0,
+    "winrate": 65.9,
+    "pnl_abs": -2449.38,
+    "pnl_pct": -4.899,
+    "profit_factor": 0.927,
+    "max_drawdown_abs": 6210.24,
+    "max_drawdown_pct": 11.598,
+    "starting_balance": 50000.0,
+    "final_balance": 47550.62,
+    "gross_abs": -429.5,
+    "volume_abs": 144277309.5,
+    "break_even_pct": -0.0003,
+    "exits": {
+     "stop_loss": {
+      "n": 74,
+      "pnl_abs": -33397.07
+     },
+     "take_profit": {
+      "n": 143,
+      "pnl_abs": 30947.69
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 14,
+      "from_i": 95,
+      "to_i": 108,
+      "start": "2026-02-06T16:00:00+00:00",
+      "end": "2026-03-06T15:31:00+00:00",
+      "pnl_abs": 3015.71,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 165,
+      "to_i": 172,
+      "start": "2026-06-11T15:20:00+00:00",
+      "end": "2026-06-23T14:46:00+00:00",
+      "pnl_abs": -3767.88,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "0:07:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061245-e43e4b",
+   "status": "done",
+   "created": "2026-10-17T06:12:45+00:00",
+   "started": "2026-10-17T06:12:45+00:00",
+   "finished": "2026-10-17T06:12:46+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=0.75 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 0.75
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 0.75
+   },
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 127,
+    "losses": 90,
+    "draws": 0,
+    "winrate": 58.53,
+    "pnl_abs": 1142.58,
+    "pnl_pct": 2.285,
+    "profit_factor": 1.028,
+    "max_drawdown_abs": 6043.22,
+    "max_drawdown_pct": 10.63,
+    "starting_balance": 50000.0,
+    "final_balance": 51142.58,
+    "gross_abs": 3162.5,
+    "volume_abs": 144280103.5,
+    "break_even_pct": 0.0022,
+    "exits": {
+     "stop_loss": {
+      "n": 90,
+      "pnl_abs": -40701.47
+     },
+     "take_profit": {
+      "n": 127,
+      "pnl_abs": 41844.05
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 14,
+      "from_i": 95,
+      "to_i": 108,
+      "start": "2026-02-06T16:00:00+00:00",
+      "end": "2026-03-06T15:36:00+00:00",
+      "pnl_abs": 4554.7,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 164,
+      "to_i": 172,
+      "start": "2026-06-11T14:15:00+00:00",
+      "end": "2026-06-23T14:46:00+00:00",
+      "pnl_abs": -4254.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "0:11:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061248-502f91",
+   "status": "done",
+   "created": "2026-10-17T06:12:48+00:00",
+   "started": "2026-10-17T06:12:48+00:00",
+   "finished": "2026-10-17T06:12:49+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=1 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 1.0
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 1.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 111,
+    "losses": 106,
+    "draws": 0,
+    "winrate": 51.15,
+    "pnl_abs": 948.55,
+    "pnl_pct": 1.897,
+    "profit_factor": 1.02,
+    "max_drawdown_abs": 7334.87,
+    "max_drawdown_pct": 14.364,
+    "starting_balance": 50000.0,
+    "final_balance": 50948.55,
+    "gross_abs": 2968.5,
+    "volume_abs": 144282135.5,
+    "break_even_pct": 0.0021,
+    "exits": {
+     "stop_loss": {
+      "n": 106,
+      "pnl_abs": -48074.75
+     },
+     "take_profit": {
+      "n": 111,
+      "pnl_abs": 49023.3
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 97,
+      "to_i": 108,
+      "start": "2026-02-12T15:25:00+00:00",
+      "end": "2026-03-06T16:51:00+00:00",
+      "pnl_abs": 5229.08,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 164,
+      "to_i": 172,
+      "start": "2026-06-11T14:15:00+00:00",
+      "end": "2026-06-23T14:46:00+00:00",
+      "pnl_abs": -4254.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "0:15:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061251-f84d01",
+   "status": "done",
+   "created": "2026-10-17T06:12:51+00:00",
+   "started": "2026-10-17T06:12:51+00:00",
+   "finished": "2026-10-17T06:12:52+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=1.25 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 1.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 1.25
+   },
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 101,
+    "losses": 116,
+    "draws": 0,
+    "winrate": 46.54,
+    "pnl_abs": 3167.57,
+    "pnl_pct": 6.335,
+    "profit_factor": 1.06,
+    "max_drawdown_abs": 6378.87,
+    "max_drawdown_pct": 12.348,
+    "starting_balance": 50000.0,
+    "final_balance": 53167.57,
+    "gross_abs": 5187.5,
+    "volume_abs": 144281051.5,
+    "break_even_pct": 0.0036,
+    "exits": {
+     "stop_loss": {
+      "n": 116,
+      "pnl_abs": -52765.33
+     },
+     "take_profit": {
+      "n": 101,
+      "pnl_abs": 55932.89
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 100,
+      "to_i": 107,
+      "start": "2026-02-19T15:15:00+00:00",
+      "end": "2026-03-05T16:17:00+00:00",
+      "pnl_abs": 4309.8,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 164,
+      "to_i": 172,
+      "start": "2026-06-11T14:15:00+00:00",
+      "end": "2026-06-23T14:46:00+00:00",
+      "pnl_abs": -4254.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "0:37:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061255-fc67d8",
+   "status": "done",
+   "created": "2026-10-17T06:12:55+00:00",
+   "started": "2026-10-17T06:12:55+00:00",
+   "finished": "2026-10-17T06:12:55+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=1.5 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 1.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 93,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 42.86,
+    "pnl_abs": 5580.01,
+    "pnl_pct": 11.16,
+    "profit_factor": 1.099,
+    "max_drawdown_abs": 5646.31,
+    "max_drawdown_pct": 10.796,
+    "starting_balance": 50000.0,
+    "final_balance": 55580.01,
+    "gross_abs": 7600.0,
+    "volume_abs": 144284969.0,
+    "break_even_pct": 0.0053,
+    "exits": {
+     "stop_loss": {
+      "n": 124,
+      "pnl_abs": -56418.92
+     },
+     "take_profit": {
+      "n": 93,
+      "pnl_abs": 61998.93
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 100,
+      "to_i": 106,
+      "start": "2026-02-19T15:15:00+00:00",
+      "end": "2026-03-03T15:21:00+00:00",
+      "pnl_abs": 4551.0,
+      "count": 1
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 163,
+      "to_i": 172,
+      "start": "2026-06-08T14:15:00+00:00",
+      "end": "2026-06-23T14:46:00+00:00",
+      "pnl_abs": -4722.59,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "1:05:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061258-c23321",
+   "status": "done",
+   "created": "2026-10-17T06:12:58+00:00",
+   "started": "2026-10-17T06:12:58+00:00",
+   "finished": "2026-10-17T06:12:58+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=1.75 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 1.75
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 1.75
+   },
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 87,
+    "losses": 130,
+    "draws": 0,
+    "winrate": 40.09,
+    "pnl_abs": 8886.51,
+    "pnl_pct": 17.773,
+    "profit_factor": 1.15,
+    "max_drawdown_abs": 6883.6,
+    "max_drawdown_pct": 10.666,
+    "starting_balance": 50000.0,
+    "final_balance": 58886.51,
+    "gross_abs": 10906.5,
+    "volume_abs": 144284743.5,
+    "break_even_pct": 0.0076,
+    "exits": {
+     "stop_loss": {
+      "n": 130,
+      "pnl_abs": -59070.66
+     },
+     "take_profit": {
+      "n": 87,
+      "pnl_abs": 67957.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 100,
+      "to_i": 106,
+      "start": "2026-02-19T15:15:00+00:00",
+      "end": "2026-03-03T15:25:00+00:00",
+      "pnl_abs": 5315.5,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 161,
+      "to_i": 172,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-06-23T14:46:00+00:00",
+      "pnl_abs": -5646.25,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "1:18:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061301-bb50cd",
+   "status": "done",
+   "created": "2026-10-17T06:13:01+00:00",
+   "started": "2026-10-17T06:13:01+00:00",
+   "finished": "2026-10-17T06:13:01+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=2 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 2.0
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 2.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 76,
+    "losses": 141,
+    "draws": 0,
+    "winrate": 35.02,
+    "pnl_abs": 4469.03,
+    "pnl_pct": 8.938,
+    "profit_factor": 1.07,
+    "max_drawdown_abs": 7849.16,
+    "max_drawdown_pct": 12.926,
+    "starting_balance": 50000.0,
+    "final_balance": 54469.03,
+    "gross_abs": 6489.0,
+    "volume_abs": 144283215.0,
+    "break_even_pct": 0.0045,
+    "exits": {
+     "stop_loss": {
+      "n": 141,
+      "pnl_abs": -63917.43
+     },
+     "take_profit": {
+      "n": 76,
+      "pnl_abs": 68386.46
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 2,
+      "to_i": 5,
+      "start": "2025-09-09T14:30:00+00:00",
+      "end": "2025-09-17T08:35:00+00:00",
+      "pnl_abs": 3751.77,
+      "count": 3
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 161,
+      "to_i": 172,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-06-23T14:46:00+00:00",
+      "pnl_abs": -5646.25,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "1:42:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061304-e83671",
+   "status": "done",
+   "created": "2026-10-17T06:13:04+00:00",
+   "started": "2026-10-17T06:13:04+00:00",
+   "finished": "2026-10-17T06:13:04+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=2.25 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 2.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 2.25
+   },
+   "settings": {},
+   "result": {
+    "trades": 215,
+    "wins": 69,
+    "losses": 146,
+    "draws": 0,
+    "winrate": 32.09,
+    "pnl_abs": 3563.95,
+    "pnl_pct": 7.128,
+    "profit_factor": 1.054,
+    "max_drawdown_abs": 8602.1,
+    "max_drawdown_pct": 14.072,
+    "starting_balance": 50000.0,
+    "final_balance": 53563.95,
+    "gross_abs": 5561.0,
+    "volume_abs": 142646370.0,
+    "break_even_pct": 0.0039,
+    "exits": {
+     "stop_loss": {
+      "n": 146,
+      "pnl_abs": -66249.49
+     },
+     "take_profit": {
+      "n": 69,
+      "pnl_abs": 69813.44
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 2,
+      "to_i": 5,
+      "start": "2025-09-09T14:30:00+00:00",
+      "end": "2025-09-17T08:35:00+00:00",
+      "pnl_abs": 4228.77,
+      "count": 2
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 159,
+      "to_i": 170,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-06-23T14:46:00+00:00",
+      "pnl_abs": -5646.25,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "1:55:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061307-71e5f5",
+   "status": "done",
+   "created": "2026-10-17T06:13:07+00:00",
+   "started": "2026-10-17T06:13:07+00:00",
+   "finished": "2026-10-17T06:13:07+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=2.5 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 2.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 215,
+    "wins": 64,
+    "losses": 151,
+    "draws": 0,
+    "winrate": 29.77,
+    "pnl_abs": 3796.43,
+    "pnl_pct": 7.593,
+    "profit_factor": 1.055,
+    "max_drawdown_abs": 11963.08,
+    "max_drawdown_pct": 18.518,
+    "starting_balance": 50000.0,
+    "final_balance": 53796.43,
+    "gross_abs": 5793.5,
+    "volume_abs": 142647696.5,
+    "break_even_pct": 0.0041,
+    "exits": {
+     "stop_loss": {
+      "n": 151,
+      "pnl_abs": -68477.72
+     },
+     "take_profit": {
+      "n": 64,
+      "pnl_abs": 72274.15
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 2,
+      "to_i": 5,
+      "start": "2025-09-09T14:30:00+00:00",
+      "end": "2025-09-17T08:35:00+00:00",
+      "pnl_abs": 4700.77,
+      "count": 2
+     },
+     "loss": {
+      "n": 21,
+      "from_i": 159,
+      "to_i": 179,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-07-06T17:31:00+00:00",
+      "pnl_abs": -9580.49,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "2:17:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061310-144eb0",
+   "status": "done",
+   "created": "2026-10-17T06:13:10+00:00",
+   "started": "2026-10-17T06:13:10+00:00",
+   "finished": "2026-10-17T06:13:11+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=2.75 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 2.75
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 2.75
+   },
+   "settings": {},
+   "result": {
+    "trades": 214,
+    "wins": 59,
+    "losses": 155,
+    "draws": 0,
+    "winrate": 27.57,
+    "pnl_abs": 3174.46,
+    "pnl_pct": 6.349,
+    "profit_factor": 1.045,
+    "max_drawdown_abs": 12679.09,
+    "max_drawdown_pct": 19.635,
+    "starting_balance": 50000.0,
+    "final_balance": 53174.46,
+    "gross_abs": 5163.0,
+    "volume_abs": 142038197.0,
+    "break_even_pct": 0.0036,
+    "exits": {
+     "stop_loss": {
+      "n": 155,
+      "pnl_abs": -70311.62
+     },
+     "take_profit": {
+      "n": 59,
+      "pnl_abs": 73486.09
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 2,
+      "to_i": 5,
+      "start": "2025-09-09T14:30:00+00:00",
+      "end": "2025-09-17T08:36:00+00:00",
+      "pnl_abs": 5177.77,
+      "count": 2
+     },
+     "loss": {
+      "n": 21,
+      "from_i": 158,
+      "to_i": 178,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-07-06T17:31:00+00:00",
+      "pnl_abs": -9580.49,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "2:33:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061313-b73ac5",
+   "status": "done",
+   "created": "2026-10-17T06:13:13+00:00",
+   "started": "2026-10-17T06:13:13+00:00",
+   "finished": "2026-10-17T06:13:14+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=3 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 3.0
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 3.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 214,
+    "wins": 57,
+    "losses": 157,
+    "draws": 0,
+    "winrate": 26.64,
+    "pnl_abs": 5626.03,
+    "pnl_pct": 11.252,
+    "profit_factor": 1.078,
+    "max_drawdown_abs": 13844.56,
+    "max_drawdown_pct": 20.337,
+    "starting_balance": 50000.0,
+    "final_balance": 55626.03,
+    "gross_abs": 7614.5,
+    "volume_abs": 142033528.5,
+    "break_even_pct": 0.0054,
+    "exits": {
+     "stop_loss": {
+      "n": 157,
+      "pnl_abs": -71916.55
+     },
+     "take_profit": {
+      "n": 57,
+      "pnl_abs": 77542.58
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 2,
+      "to_i": 5,
+      "start": "2025-09-09T14:30:00+00:00",
+      "end": "2025-09-17T08:42:00+00:00",
+      "pnl_abs": 5659.27,
+      "count": 2
+     },
+     "loss": {
+      "n": 21,
+      "from_i": 158,
+      "to_i": 178,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-07-06T17:31:00+00:00",
+      "pnl_abs": -9580.49,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "3:04:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061316-82b44b",
+   "status": "done",
+   "created": "2026-10-17T06:13:16+00:00",
+   "started": "2026-10-17T06:13:16+00:00",
+   "finished": "2026-10-17T06:13:17+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=3.25 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 3.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 3.25
+   },
+   "settings": {},
+   "result": {
+    "trades": 214,
+    "wins": 54,
+    "losses": 160,
+    "draws": 0,
+    "winrate": 25.23,
+    "pnl_abs": 6309.96,
+    "pnl_pct": 12.62,
+    "profit_factor": 1.086,
+    "max_drawdown_abs": 13327.76,
+    "max_drawdown_pct": 19.564,
+    "starting_balance": 50000.0,
+    "final_balance": 56309.96,
+    "gross_abs": 8298.5,
+    "volume_abs": 142038782.5,
+    "break_even_pct": 0.0058,
+    "exits": {
+     "stop_loss": {
+      "n": 160,
+      "pnl_abs": -73317.55
+     },
+     "take_profit": {
+      "n": 54,
+      "pnl_abs": 79627.51
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 89,
+      "to_i": 92,
+      "start": "2026-01-26T15:15:00+00:00",
+      "end": "2026-02-03T16:51:00+00:00",
+      "pnl_abs": 5674.58,
+      "count": 1
+     },
+     "loss": {
+      "n": 21,
+      "from_i": 158,
+      "to_i": 178,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-07-06T17:31:00+00:00",
+      "pnl_abs": -9580.49,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "3:11:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061319-9b82d3",
+   "status": "done",
+   "created": "2026-10-17T06:13:19+00:00",
+   "started": "2026-10-17T06:13:19+00:00",
+   "finished": "2026-10-17T06:13:20+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=3.5 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 3.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 3.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 213,
+    "wins": 48,
+    "losses": 165,
+    "draws": 0,
+    "winrate": 22.54,
+    "pnl_abs": 149.29,
+    "pnl_pct": 0.299,
+    "profit_factor": 1.002,
+    "max_drawdown_abs": 14276.78,
+    "max_drawdown_pct": 22.736,
+    "starting_balance": 50000.0,
+    "final_balance": 50149.29,
+    "gross_abs": 2122.5,
+    "volume_abs": 140943284.5,
+    "break_even_pct": 0.0015,
+    "exits": {
+     "stop_loss": {
+      "n": 165,
+      "pnl_abs": -75751.3
+     },
+     "take_profit": {
+      "n": 48,
+      "pnl_abs": 75900.6
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 89,
+      "to_i": 92,
+      "start": "2026-01-26T15:15:00+00:00",
+      "end": "2026-02-03T17:12:00+00:00",
+      "pnl_abs": 6115.09,
+      "count": 1
+     },
+     "loss": {
+      "n": 21,
+      "from_i": 157,
+      "to_i": 177,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-07-06T17:31:00+00:00",
+      "pnl_abs": -9580.49,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "3:36:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061322-7cb331",
+   "status": "done",
+   "created": "2026-10-17T06:13:22+00:00",
+   "started": "2026-10-17T06:13:22+00:00",
+   "finished": "2026-10-17T06:13:23+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=3.75 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 3.75
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 3.75
+   },
+   "settings": {},
+   "result": {
+    "trades": 213,
+    "wins": 46,
+    "losses": 167,
+    "draws": 0,
+    "winrate": 21.6,
+    "pnl_abs": 1332.23,
+    "pnl_pct": 2.664,
+    "profit_factor": 1.017,
+    "max_drawdown_abs": 17342.34,
+    "max_drawdown_pct": 25.913,
+    "starting_balance": 50000.0,
+    "final_balance": 51332.23,
+    "gross_abs": 3305.5,
+    "volume_abs": 140947590.5,
+    "break_even_pct": 0.0023,
+    "exits": {
+     "stop_loss": {
+      "n": 167,
+      "pnl_abs": -76667.76
+     },
+     "take_profit": {
+      "n": 46,
+      "pnl_abs": 78000.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 89,
+      "to_i": 92,
+      "start": "2026-01-26T15:15:00+00:00",
+      "end": "2026-02-03T17:12:00+00:00",
+      "pnl_abs": 6550.09,
+      "count": 1
+     },
+     "loss": {
+      "n": 21,
+      "from_i": 157,
+      "to_i": 177,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-07-06T17:31:00+00:00",
+      "pnl_abs": -9580.49,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "3:44:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261017-061325-0be919",
+   "status": "done",
+   "created": "2026-10-17T06:13:25+00:00",
+   "started": "2026-10-17T06:13:25+00:00",
+   "finished": "2026-10-17T06:13:26+00:00",
+   "user": "tester",
+   "note": "sweep 20261017-061242-b277: rr=4 — VWAP OP Pine presne, riziko 500 $/SL: hladanie R:R 0,5-4 (17.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rr": 4.0
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 15
+   },
+   "params": {
+    "rr": 4.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 213,
+    "wins": 44,
+    "losses": 169,
+    "draws": 0,
+    "winrate": 20.66,
+    "pnl_abs": 2107.17,
+    "pnl_pct": 4.214,
+    "profit_factor": 1.027,
+    "max_drawdown_abs": 17878.24,
+    "max_drawdown_pct": 26.246,
+    "starting_balance": 50000.0,
+    "final_balance": 52107.17,
+    "gross_abs": 4080.5,
+    "volume_abs": 140952251.5,
+    "break_even_pct": 0.0029,
+    "exits": {
+     "stop_loss": {
+      "n": 169,
+      "pnl_abs": -77568.08
+     },
+     "take_profit": {
+      "n": 44,
+      "pnl_abs": 79675.24
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 89,
+      "to_i": 92,
+      "start": "2026-01-26T15:15:00+00:00",
+      "end": "2026-02-03T17:12:00+00:00",
+      "pnl_abs": 6985.59,
+      "count": 1
+     },
+     "loss": {
+      "n": 21,
+      "from_i": 157,
+      "to_i": 177,
+      "start": "2026-06-03T15:00:00+00:00",
+      "end": "2026-07-06T17:31:00+00:00",
+      "pnl_abs": -9580.49,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "3:52:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-10-17T06:13:26+00:00"
+}

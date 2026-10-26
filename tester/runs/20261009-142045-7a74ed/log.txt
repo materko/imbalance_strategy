@@ -1,0 +1,4 @@
+$ emulator MultiCharts MNQ 30m 20211001-20221001 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 11847 barov 30m, 355395 1m, 0 HTF
+hotovo: 207 obchodov, nerozhodnutelnych minut 0
+kresby: {'vb_vwap': 7966, 'vb_noise': 293, 'vb_entry': 207, 'tp_box': 207, 'sl_box': 207}

@@ -1,0 +1,2581 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20261023-134346-8814",
+ "strategy": "orb",
+ "created": "2026-10-23T13:43:46+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 0,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "sessionMode": "london",
+   "nyStartH": 9,
+   "nyStartM": 30,
+   "nyRangeMinutes": 15,
+   "nyEndH": 15,
+   "nyEndM": 55,
+   "lonStartH": 8,
+   "lonStartM": 0,
+   "lonRangeMinutes": 5,
+   "lonEndH": 16,
+   "lonEndM": 30,
+   "tradeDirection": "Both",
+   "entryMode": "stop",
+   "breakBufferAtr": 0.0,
+   "retestMaxBars": 10,
+   "entryWindowMinutes": 0,
+   "maxTradesPerDay": 1,
+   "minRangePct": 0,
+   "maxRangePct": 10,
+   "useVolumeFilter": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "minClosePosPct": 50,
+   "weekdaysOnly": true,
+   "emaLen": 200,
+   "emaFilter": false,
+   "emaRangeFilter": false,
+   "emaExit": false,
+   "slMode": "opposite",
+   "slRangePct": 50.0,
+   "atrLen": 14,
+   "slAtrMult": 1.0,
+   "slBufferAtr": 0.0,
+   "tpMode": "rr",
+   "rrRatio": 1,
+   "measuredMult": 1.0,
+   "tpAtrMult": 2.0,
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "closeAtSessionEnd": false,
+   "riskDollar": 500,
+   "showRange": true,
+   "showLevels": true,
+   "showEma": false,
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "minSlDistance": 0.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "orb",
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "exchange": null,
+   "timerange": "20211001-20221001",
+   "fee": 2.695078786136515e-05,
+   "fee_note": "1.5 tick na stranu pri cene 13914.2 = 0.00270 %; odhad: polovica spreadu 0,5 ticku + provizia ~0,5 $ na stranu = 1 tick, spolu 1,5 ticku (0,375 bodu); spread z ohlcv dat nevidno",
+   "ai": null,
+   "wallet": 50000.0,
+   "timeframe_detail": "1m",
+   "profile": null,
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261023-134346-861211",
+   "status": "done",
+   "created": "2026-10-23T13:43:46+00:00",
+   "started": "2026-10-23T13:43:46+00:00",
+   "finished": "2026-10-23T13:43:48+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1, slMode=opposite, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "opposite",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 153,
+    "losses": 106,
+    "draws": 0,
+    "winrate": 59.07,
+    "pnl_abs": -10493.61,
+    "pnl_pct": -20.987,
+    "profit_factor": 0.818,
+    "max_drawdown_abs": 12326.72,
+    "max_drawdown_pct": 24.043,
+    "starting_balance": 50000.0,
+    "final_balance": 39506.39,
+    "gross_abs": -6232.0,
+    "volume_abs": 158125667.0,
+    "break_even_pct": -0.0039,
+    "exits": {
+     "take_profit": {
+      "n": 162,
+      "pnl_abs": 46813.35
+     },
+     "stop_loss": {
+      "n": 97,
+      "pnl_abs": -57306.96
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 55,
+      "to_i": 64,
+      "start": "2021-12-17T08:12:00+00:00",
+      "end": "2021-12-31T09:20:00+00:00",
+      "pnl_abs": 3171.91,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 244,
+      "to_i": 249,
+      "start": "2022-09-12T07:21:00+00:00",
+      "end": "2022-09-19T12:50:00+00:00",
+      "pnl_abs": -3410.58,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:31:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 2.4
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134350-901764",
+   "status": "done",
+   "created": "2026-10-23T13:43:50+00:00",
+   "started": "2026-10-23T13:43:50+00:00",
+   "finished": "2026-10-23T13:43:51+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1, slMode=opposite, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "opposite",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 154,
+    "losses": 105,
+    "draws": 0,
+    "winrate": 59.46,
+    "pnl_abs": -2403.27,
+    "pnl_pct": -4.807,
+    "profit_factor": 0.957,
+    "max_drawdown_abs": 8472.96,
+    "max_drawdown_pct": 15.593,
+    "starting_balance": 50000.0,
+    "final_balance": 47596.73,
+    "gross_abs": 476.5,
+    "volume_abs": 106852842.5,
+    "break_even_pct": 0.0004,
+    "exits": {
+     "take_profit": {
+      "n": 155,
+      "pnl_abs": 53690.76
+     },
+     "stop_loss": {
+      "n": 104,
+      "pnl_abs": -56094.03
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 7,
+      "to_i": 15,
+      "start": "2021-10-12T07:27:00+00:00",
+      "end": "2021-10-22T10:24:00+00:00",
+      "pnl_abs": 3182.27,
+      "count": 2
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 39,
+      "to_i": 44,
+      "start": "2021-11-25T08:18:00+00:00",
+      "end": "2021-12-02T10:14:00+00:00",
+      "pnl_abs": -2901.45,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:26:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134352-0071fd",
+   "status": "done",
+   "created": "2026-10-23T13:43:52+00:00",
+   "started": "2026-10-23T13:43:52+00:00",
+   "finished": "2026-10-23T13:43:53+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1, slMode=opposite, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "opposite",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30
+   },
+   "settings": {},
+   "result": {
+    "trades": 255,
+    "wins": 134,
+    "losses": 121,
+    "draws": 0,
+    "winrate": 52.55,
+    "pnl_abs": -10350.48,
+    "pnl_pct": -20.701,
+    "profit_factor": 0.826,
+    "max_drawdown_abs": 16514.6,
+    "max_drawdown_pct": 32.56,
+    "starting_balance": 50000.0,
+    "final_balance": 39649.52,
+    "gross_abs": -8293.0,
+    "volume_abs": 76342007.0,
+    "break_even_pct": -0.0109,
+    "exits": {
+     "take_profit": {
+      "n": 137,
+      "pnl_abs": 49268.89
+     },
+     "stop_loss": {
+      "n": 118,
+      "pnl_abs": -59619.37
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 49,
+      "to_i": 55,
+      "start": "2021-12-09T09:12:00+00:00",
+      "end": "2021-12-17T09:11:00+00:00",
+      "pnl_abs": 2858.62,
+      "count": 2
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 39,
+      "to_i": 46,
+      "start": "2021-11-25T08:57:00+00:00",
+      "end": "2021-12-06T09:45:00+00:00",
+      "pnl_abs": -4315.78,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "2:43:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134354-c4b612",
+   "status": "done",
+   "created": "2026-10-23T13:43:54+00:00",
+   "started": "2026-10-23T13:43:54+00:00",
+   "finished": "2026-10-23T13:43:55+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1, slMode=mid, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "mid",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid"
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 146,
+    "losses": 113,
+    "draws": 0,
+    "winrate": 56.37,
+    "pnl_abs": -7384.56,
+    "pnl_pct": -14.769,
+    "profit_factor": 0.821,
+    "max_drawdown_abs": 10487.05,
+    "max_drawdown_pct": 20.734,
+    "starting_balance": 50000.0,
+    "final_balance": 42615.44,
+    "gross_abs": 1331.0,
+    "volume_abs": 323387952.0,
+    "break_even_pct": 0.0004,
+    "exits": {
+     "take_profit": {
+      "n": 199,
+      "pnl_abs": 31833.48
+     },
+     "stop_loss": {
+      "n": 60,
+      "pnl_abs": -39218.04
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 105,
+      "to_i": 113,
+      "start": "2022-02-28T08:15:00+00:00",
+      "end": "2022-03-10T08:24:00+00:00",
+      "pnl_abs": 2352.75,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 128,
+      "to_i": 132,
+      "start": "2022-03-31T07:09:00+00:00",
+      "end": "2022-04-06T07:33:00+00:00",
+      "pnl_abs": -2096.91,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:05:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134356-be32d2",
+   "status": "done",
+   "created": "2026-10-23T13:43:56+00:00",
+   "started": "2026-10-23T13:43:56+00:00",
+   "finished": "2026-10-23T13:43:57+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1, slMode=mid, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "mid",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "slMode": "mid"
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 158,
+    "losses": 101,
+    "draws": 0,
+    "winrate": 61.0,
+    "pnl_abs": -3428.31,
+    "pnl_pct": -6.857,
+    "profit_factor": 0.931,
+    "max_drawdown_abs": 9220.34,
+    "max_drawdown_pct": 16.817,
+    "starting_balance": 50000.0,
+    "final_balance": 46571.69,
+    "gross_abs": 2514.5,
+    "volume_abs": 220505865.5,
+    "break_even_pct": 0.0011,
+    "exits": {
+     "take_profit": {
+      "n": 180,
+      "pnl_abs": 45416.72
+     },
+     "stop_loss": {
+      "n": 79,
+      "pnl_abs": -48845.03
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 42,
+      "to_i": 53,
+      "start": "2021-11-30T09:03:00+00:00",
+      "end": "2021-12-15T08:37:00+00:00",
+      "pnl_abs": 3971.03,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 97,
+      "to_i": 100,
+      "start": "2022-02-16T08:18:00+00:00",
+      "end": "2022-02-21T08:36:00+00:00",
+      "pnl_abs": -88.05,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:16:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134358-b7048b",
+   "status": "done",
+   "created": "2026-10-23T13:43:58+00:00",
+   "started": "2026-10-23T13:43:58+00:00",
+   "finished": "2026-10-23T13:43:59+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1, slMode=mid, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "mid",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "slMode": "mid"
+   },
+   "settings": {},
+   "result": {
+    "trades": 258,
+    "wins": 148,
+    "losses": 110,
+    "draws": 0,
+    "winrate": 57.36,
+    "pnl_abs": -7536.57,
+    "pnl_pct": -15.073,
+    "profit_factor": 0.866,
+    "max_drawdown_abs": 11216.93,
+    "max_drawdown_pct": 21.257,
+    "starting_balance": 50000.0,
+    "final_balance": 42463.43,
+    "gross_abs": -3214.0,
+    "volume_abs": 160387432.0,
+    "break_even_pct": -0.002,
+    "exits": {
+     "stop_loss": {
+      "n": 98,
+      "pnl_abs": -55891.67
+     },
+     "take_profit": {
+      "n": 160,
+      "pnl_abs": 48355.11
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 45,
+      "to_i": 53,
+      "start": "2021-12-03T08:33:00+00:00",
+      "end": "2021-12-15T08:37:00+00:00",
+      "pnl_abs": 2731.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 29,
+      "to_i": 35,
+      "start": "2021-11-11T08:36:00+00:00",
+      "end": "2021-11-19T09:30:00+00:00",
+      "pnl_abs": -3030.92,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:42:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134400-f21234",
+   "status": "done",
+   "created": "2026-10-23T13:44:00+00:00",
+   "started": "2026-10-23T13:44:00+00:00",
+   "finished": "2026-10-23T13:44:01+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1.5, slMode=opposite, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "opposite",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 129,
+    "losses": 130,
+    "draws": 0,
+    "winrate": 49.81,
+    "pnl_abs": -8519.09,
+    "pnl_pct": -17.038,
+    "profit_factor": 0.889,
+    "max_drawdown_abs": 13178.27,
+    "max_drawdown_pct": 24.631,
+    "starting_balance": 50000.0,
+    "final_balance": 41480.91,
+    "gross_abs": -4257.5,
+    "volume_abs": 158124878.5,
+    "break_even_pct": -0.0027,
+    "exits": {
+     "take_profit": {
+      "n": 132,
+      "pnl_abs": 67842.47
+     },
+     "stop_loss": {
+      "n": 127,
+      "pnl_abs": -76361.56
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 140,
+      "to_i": 147,
+      "start": "2022-04-19T07:12:00+00:00",
+      "end": "2022-04-28T07:27:00+00:00",
+      "pnl_abs": 4006.32,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 244,
+      "to_i": 251,
+      "start": "2022-09-12T07:21:00+00:00",
+      "end": "2022-09-21T07:18:00+00:00",
+      "pnl_abs": -4665.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:54:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134402-948264",
+   "status": "done",
+   "created": "2026-10-23T13:44:02+00:00",
+   "started": "2026-10-23T13:44:02+00:00",
+   "finished": "2026-10-23T13:44:03+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1.5, slMode=opposite, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "opposite",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 125,
+    "losses": 134,
+    "draws": 0,
+    "winrate": 48.26,
+    "pnl_abs": -1578.34,
+    "pnl_pct": -3.157,
+    "profit_factor": 0.978,
+    "max_drawdown_abs": 7068.69,
+    "max_drawdown_pct": 12.948,
+    "starting_balance": 50000.0,
+    "final_balance": 48421.66,
+    "gross_abs": 1301.5,
+    "volume_abs": 106855501.5,
+    "break_even_pct": 0.0012,
+    "exits": {
+     "take_profit": {
+      "n": 125,
+      "pnl_abs": 71812.47
+     },
+     "stop_loss": {
+      "n": 134,
+      "pnl_abs": -73390.81
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 162,
+      "to_i": 168,
+      "start": "2022-05-19T07:24:00+00:00",
+      "end": "2022-05-27T08:32:00+00:00",
+      "pnl_abs": 3860.19,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 1,
+      "to_i": 6,
+      "start": "2021-10-04T07:27:00+00:00",
+      "end": "2021-10-11T13:33:00+00:00",
+      "pnl_abs": -3087.43,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "2:07:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134404-d31d01",
+   "status": "done",
+   "created": "2026-10-23T13:44:04+00:00",
+   "started": "2026-10-23T13:44:04+00:00",
+   "finished": "2026-10-23T13:44:06+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1.5, slMode=opposite, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "opposite",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 255,
+    "wins": 109,
+    "losses": 146,
+    "draws": 0,
+    "winrate": 42.75,
+    "pnl_abs": -8942.13,
+    "pnl_pct": -17.884,
+    "profit_factor": 0.878,
+    "max_drawdown_abs": 16715.31,
+    "max_drawdown_pct": 32.707,
+    "starting_balance": 50000.0,
+    "final_balance": 41057.87,
+    "gross_abs": -6885.0,
+    "volume_abs": 76329297.0,
+    "break_even_pct": -0.009,
+    "exits": {
+     "stop_loss": {
+      "n": 144,
+      "pnl_abs": -73173.29
+     },
+     "take_profit": {
+      "n": 111,
+      "pnl_abs": 64231.16
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 49,
+      "to_i": 53,
+      "start": "2021-12-09T09:12:00+00:00",
+      "end": "2021-12-15T09:15:00+00:00",
+      "pnl_abs": 3229.29,
+      "count": 3
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 39,
+      "to_i": 46,
+      "start": "2021-11-25T08:57:00+00:00",
+      "end": "2021-12-06T09:45:00+00:00",
+      "pnl_abs": -4315.78,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "3:40:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134406-963394",
+   "status": "done",
+   "created": "2026-10-23T13:44:06+00:00",
+   "started": "2026-10-23T13:44:06+00:00",
+   "finished": "2026-10-23T13:44:08+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1.5, slMode=mid, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "mid",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid",
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 149,
+    "losses": 110,
+    "draws": 0,
+    "winrate": 57.53,
+    "pnl_abs": -2678.67,
+    "pnl_pct": -5.357,
+    "profit_factor": 0.957,
+    "max_drawdown_abs": 10946.36,
+    "max_drawdown_pct": 19.629,
+    "starting_balance": 50000.0,
+    "final_balance": 47321.33,
+    "gross_abs": 6037.0,
+    "volume_abs": 323392153.0,
+    "break_even_pct": 0.0019,
+    "exits": {
+     "take_profit": {
+      "n": 169,
+      "pnl_abs": 59575.12
+     },
+     "stop_loss": {
+      "n": 90,
+      "pnl_abs": -62253.79
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 17,
+      "to_i": 27,
+      "start": "2021-10-26T07:42:00+00:00",
+      "end": "2021-11-09T08:13:00+00:00",
+      "pnl_abs": 4749.22,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 28,
+      "to_i": 31,
+      "start": "2021-11-10T08:21:00+00:00",
+      "end": "2021-11-15T08:38:00+00:00",
+      "pnl_abs": -1790.14,
+      "count": 7
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:11:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134408-3f995e",
+   "status": "done",
+   "created": "2026-10-23T13:44:08+00:00",
+   "started": "2026-10-23T13:44:08+00:00",
+   "finished": "2026-10-23T13:44:10+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1.5, slMode=mid, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "mid",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "slMode": "mid",
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 142,
+    "losses": 117,
+    "draws": 0,
+    "winrate": 54.83,
+    "pnl_abs": -1844.34,
+    "pnl_pct": -3.689,
+    "profit_factor": 0.974,
+    "max_drawdown_abs": 8754.28,
+    "max_drawdown_pct": 15.765,
+    "starting_balance": 50000.0,
+    "final_balance": 48155.66,
+    "gross_abs": 4098.5,
+    "volume_abs": 220507128.5,
+    "break_even_pct": 0.0019,
+    "exits": {
+     "take_profit": {
+      "n": 147,
+      "pnl_abs": 69985.13
+     },
+     "stop_loss": {
+      "n": 112,
+      "pnl_abs": -71829.47
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 47,
+      "to_i": 53,
+      "start": "2021-12-07T08:24:00+00:00",
+      "end": "2021-12-15T09:12:00+00:00",
+      "pnl_abs": 4013.3,
+      "count": 2
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 243,
+      "to_i": 250,
+      "start": "2022-09-09T07:27:00+00:00",
+      "end": "2022-09-20T07:31:00+00:00",
+      "pnl_abs": -5184.27,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:28:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134410-4d193a",
+   "status": "done",
+   "created": "2026-10-23T13:44:10+00:00",
+   "started": "2026-10-23T13:44:10+00:00",
+   "finished": "2026-10-23T13:44:12+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=1.5, slMode=mid, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "mid",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "slMode": "mid",
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 258,
+    "wins": 118,
+    "losses": 140,
+    "draws": 0,
+    "winrate": 45.74,
+    "pnl_abs": -15043.65,
+    "pnl_pct": -30.087,
+    "profit_factor": 0.814,
+    "max_drawdown_abs": 16930.67,
+    "max_drawdown_pct": 33.861,
+    "starting_balance": 50000.0,
+    "final_balance": 34956.35,
+    "gross_abs": -10721.0,
+    "volume_abs": 160390536.0,
+    "break_even_pct": -0.0067,
+    "exits": {
+     "stop_loss": {
+      "n": 135,
+      "pnl_abs": -80661.95
+     },
+     "take_profit": {
+      "n": 123,
+      "pnl_abs": 65618.3
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 47,
+      "to_i": 53,
+      "start": "2021-12-07T08:48:00+00:00",
+      "end": "2021-12-15T09:13:00+00:00",
+      "pnl_abs": 4033.8,
+      "count": 1
+     },
+     "loss": {
+      "n": 14,
+      "from_i": 33,
+      "to_i": 46,
+      "start": "2021-11-17T08:45:00+00:00",
+      "end": "2021-12-06T09:39:00+00:00",
+      "pnl_abs": -8797.02,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:10:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134412-3e4ca6",
+   "status": "done",
+   "created": "2026-10-23T13:44:12+00:00",
+   "started": "2026-10-23T13:44:12+00:00",
+   "finished": "2026-10-23T13:44:14+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2, slMode=opposite, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "opposite",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 110,
+    "losses": 149,
+    "draws": 0,
+    "winrate": 42.47,
+    "pnl_abs": -9088.19,
+    "pnl_pct": -18.176,
+    "profit_factor": 0.9,
+    "max_drawdown_abs": 12437.15,
+    "max_drawdown_pct": 24.338,
+    "starting_balance": 50000.0,
+    "final_balance": 40911.81,
+    "gross_abs": -4826.5,
+    "volume_abs": 158128497.5,
+    "break_even_pct": -0.0031,
+    "exits": {
+     "take_profit": {
+      "n": 110,
+      "pnl_abs": 81563.16
+     },
+     "stop_loss": {
+      "n": 149,
+      "pnl_abs": -90651.35
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 24,
+      "to_i": 28,
+      "start": "2021-11-04T08:09:00+00:00",
+      "end": "2021-11-10T08:53:00+00:00",
+      "pnl_abs": 3683.32,
+      "count": 4
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 244,
+      "to_i": 251,
+      "start": "2022-09-12T07:21:00+00:00",
+      "end": "2022-09-21T07:18:00+00:00",
+      "pnl_abs": -4665.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:17:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134414-70ca44",
+   "status": "done",
+   "created": "2026-10-23T13:44:14+00:00",
+   "started": "2026-10-23T13:44:14+00:00",
+   "finished": "2026-10-23T13:44:16+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2, slMode=opposite, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "opposite",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 103,
+    "losses": 156,
+    "draws": 0,
+    "winrate": 39.77,
+    "pnl_abs": -4022.18,
+    "pnl_pct": -8.044,
+    "profit_factor": 0.954,
+    "max_drawdown_abs": 12401.93,
+    "max_drawdown_pct": 22.002,
+    "starting_balance": 50000.0,
+    "final_balance": 45977.82,
+    "gross_abs": -1142.5,
+    "volume_abs": 106849716.5,
+    "break_even_pct": -0.0011,
+    "exits": {
+     "take_profit": {
+      "n": 103,
+      "pnl_abs": 82719.26
+     },
+     "stop_loss": {
+      "n": 156,
+      "pnl_abs": -86741.44
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 162,
+      "to_i": 168,
+      "start": "2022-05-19T07:24:00+00:00",
+      "end": "2022-05-27T09:55:00+00:00",
+      "pnl_abs": 5508.18,
+      "count": 1
+     },
+     "loss": {
+      "n": 11,
+      "from_i": 205,
+      "to_i": 215,
+      "start": "2022-07-19T07:39:00+00:00",
+      "end": "2022-08-02T13:33:00+00:00",
+      "pnl_abs": -6098.23,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "2:44:00",
+    "bars": 118465,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134416-d3fe87",
+   "status": "done",
+   "created": "2026-10-23T13:44:16+00:00",
+   "started": "2026-10-23T13:44:16+00:00",
+   "finished": "2026-10-23T13:44:18+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2, slMode=opposite, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "opposite",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 254,
+    "wins": 91,
+    "losses": 163,
+    "draws": 0,
+    "winrate": 35.83,
+    "pnl_abs": -8549.09,
+    "pnl_pct": -17.098,
+    "profit_factor": 0.896,
+    "max_drawdown_abs": 15274.77,
+    "max_drawdown_pct": 29.331,
+    "starting_balance": 50000.0,
+    "final_balance": 41450.91,
+    "gross_abs": -6497.0,
+    "volume_abs": 76142000.0,
+    "break_even_pct": -0.0085,
+    "exits": {
+     "stop_loss": {
+      "n": 161,
+      "pnl_abs": -81948.2
+     },
+     "take_profit": {
+      "n": 93,
+      "pnl_abs": 73399.12
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 216,
+      "to_i": 219,
+      "start": "2022-08-09T08:09:00+00:00",
+      "end": "2022-08-12T15:03:00+00:00",
+      "pnl_abs": 3426.77,
+      "count": 3
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 226,
+      "to_i": 235,
+      "start": "2022-08-23T07:48:00+00:00",
+      "end": "2022-09-05T13:38:00+00:00",
+      "pnl_abs": -4633.65,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "4:17:00",
+    "bars": 118465,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134418-7390ec",
+   "status": "done",
+   "created": "2026-10-23T13:44:18+00:00",
+   "started": "2026-10-23T13:44:18+00:00",
+   "finished": "2026-10-23T13:44:20+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2, slMode=mid, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "mid",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid",
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 135,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 52.12,
+    "pnl_abs": -870.6,
+    "pnl_pct": -1.741,
+    "profit_factor": 0.99,
+    "max_drawdown_abs": 12421.86,
+    "max_drawdown_pct": 20.3,
+    "starting_balance": 50000.0,
+    "final_balance": 49129.4,
+    "gross_abs": 7845.0,
+    "volume_abs": 323389519.0,
+    "break_even_pct": 0.0024,
+    "exits": {
+     "take_profit": {
+      "n": 144,
+      "pnl_abs": 82953.33
+     },
+     "stop_loss": {
+      "n": 115,
+      "pnl_abs": -83823.93
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 66,
+      "to_i": 73,
+      "start": "2022-01-04T08:15:00+00:00",
+      "end": "2022-01-13T08:26:00+00:00",
+      "pnl_abs": 5261.39,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 205,
+      "to_i": 210,
+      "start": "2022-07-19T07:39:00+00:00",
+      "end": "2022-07-26T07:39:00+00:00",
+      "pnl_abs": -4305.09,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:16:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134420-4a2279",
+   "status": "done",
+   "created": "2026-10-23T13:44:20+00:00",
+   "started": "2026-10-23T13:44:20+00:00",
+   "finished": "2026-10-23T13:44:22+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2, slMode=mid, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "mid",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "slMode": "mid",
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 119,
+    "losses": 140,
+    "draws": 0,
+    "winrate": 45.95,
+    "pnl_abs": -5830.53,
+    "pnl_pct": -11.661,
+    "profit_factor": 0.935,
+    "max_drawdown_abs": 17422.72,
+    "max_drawdown_pct": 28.948,
+    "starting_balance": 50000.0,
+    "final_balance": 44169.47,
+    "gross_abs": 112.5,
+    "volume_abs": 220514164.5,
+    "break_even_pct": 0.0001,
+    "exits": {
+     "take_profit": {
+      "n": 120,
+      "pnl_abs": 84442.95
+     },
+     "stop_loss": {
+      "n": 139,
+      "pnl_abs": -90273.48
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 47,
+      "to_i": 53,
+      "start": "2021-12-07T08:24:00+00:00",
+      "end": "2021-12-15T09:13:00+00:00",
+      "pnl_abs": 5702.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 243,
+      "to_i": 250,
+      "start": "2022-09-09T07:27:00+00:00",
+      "end": "2022-09-20T07:31:00+00:00",
+      "pnl_abs": -5184.27,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:45:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134422-d9be33",
+   "status": "done",
+   "created": "2026-10-23T13:44:22+00:00",
+   "started": "2026-10-23T13:44:22+00:00",
+   "finished": "2026-10-23T13:44:24+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2, slMode=mid, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "mid",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "slMode": "mid",
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 257,
+    "wins": 93,
+    "losses": 164,
+    "draws": 0,
+    "winrate": 36.19,
+    "pnl_abs": -24939.68,
+    "pnl_pct": -49.879,
+    "profit_factor": 0.74,
+    "max_drawdown_abs": 26887.73,
+    "max_drawdown_pct": 53.775,
+    "starting_balance": 50000.0,
+    "final_balance": 25060.32,
+    "gross_abs": -20623.5,
+    "volume_abs": 160150331.5,
+    "break_even_pct": -0.0129,
+    "exits": {
+     "stop_loss": {
+      "n": 161,
+      "pnl_abs": -95970.53
+     },
+     "take_profit": {
+      "n": 96,
+      "pnl_abs": 71030.85
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 49,
+      "to_i": 53,
+      "start": "2021-12-09T09:12:00+00:00",
+      "end": "2021-12-15T09:13:00+00:00",
+      "pnl_abs": 4119.32,
+      "count": 2
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 35,
+      "to_i": 46,
+      "start": "2021-11-19T09:18:00+00:00",
+      "end": "2021-12-06T09:39:00+00:00",
+      "pnl_abs": -8172.93,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:36:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134424-355a47",
+   "status": "done",
+   "created": "2026-10-23T13:44:24+00:00",
+   "started": "2026-10-23T13:44:24+00:00",
+   "finished": "2026-10-23T13:44:26+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2.5, slMode=opposite, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "opposite",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 97,
+    "losses": 162,
+    "draws": 0,
+    "winrate": 37.45,
+    "pnl_abs": -4404.19,
+    "pnl_pct": -8.808,
+    "profit_factor": 0.956,
+    "max_drawdown_abs": 11372.0,
+    "max_drawdown_pct": 21.204,
+    "starting_balance": 50000.0,
+    "final_balance": 45595.81,
+    "gross_abs": -142.5,
+    "volume_abs": 158128678.5,
+    "break_even_pct": -0.0001,
+    "exits": {
+     "take_profit": {
+      "n": 97,
+      "pnl_abs": 94677.5
+     },
+     "stop_loss": {
+      "n": 162,
+      "pnl_abs": -99081.69
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 60,
+      "to_i": 64,
+      "start": "2021-12-27T08:12:00+00:00",
+      "end": "2021-12-31T11:08:00+00:00",
+      "pnl_abs": 5331.21,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 39,
+      "to_i": 46,
+      "start": "2021-11-25T08:09:00+00:00",
+      "end": "2021-12-06T09:45:00+00:00",
+      "pnl_abs": -4847.26,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:38:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134426-b1e19e",
+   "status": "done",
+   "created": "2026-10-23T13:44:26+00:00",
+   "started": "2026-10-23T13:44:26+00:00",
+   "finished": "2026-10-23T13:44:28+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2.5, slMode=opposite, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "opposite",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 89,
+    "losses": 170,
+    "draws": 0,
+    "winrate": 34.36,
+    "pnl_abs": -2754.79,
+    "pnl_pct": -5.51,
+    "profit_factor": 0.971,
+    "max_drawdown_abs": 11805.73,
+    "max_drawdown_pct": 21.369,
+    "starting_balance": 50000.0,
+    "final_balance": 47245.21,
+    "gross_abs": 125.0,
+    "volume_abs": 106853782.0,
+    "break_even_pct": 0.0001,
+    "exits": {
+     "take_profit": {
+      "n": 90,
+      "pnl_abs": 91771.64
+     },
+     "stop_loss": {
+      "n": 169,
+      "pnl_abs": -94526.43
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 251,
+      "to_i": 254,
+      "start": "2022-09-21T07:24:00+00:00",
+      "end": "2022-09-27T13:37:00+00:00",
+      "pnl_abs": 3988.85,
+      "count": 1
+     },
+     "loss": {
+      "n": 13,
+      "from_i": 203,
+      "to_i": 215,
+      "start": "2022-07-15T07:18:00+00:00",
+      "end": "2022-08-02T13:33:00+00:00",
+      "pnl_abs": -7202.68,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "3:20:00",
+    "bars": 118465,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134428-03b796",
+   "status": "done",
+   "created": "2026-10-23T13:44:28+00:00",
+   "started": "2026-10-23T13:44:28+00:00",
+   "finished": "2026-10-23T13:44:30+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2.5, slMode=opposite, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "opposite",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 252,
+    "wins": 85,
+    "losses": 167,
+    "draws": 0,
+    "winrate": 33.73,
+    "pnl_abs": -2090.31,
+    "pnl_pct": -4.181,
+    "profit_factor": 0.975,
+    "max_drawdown_abs": 11456.06,
+    "max_drawdown_pct": 22.912,
+    "starting_balance": 50000.0,
+    "final_balance": 47909.69,
+    "gross_abs": -53.0,
+    "volume_abs": 75593760.0,
+    "break_even_pct": -0.0001,
+    "exits": {
+     "stop_loss": {
+      "n": 167,
+      "pnl_abs": -85243.52
+     },
+     "take_profit": {
+      "n": 85,
+      "pnl_abs": 83153.21
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 101,
+      "to_i": 105,
+      "start": "2022-03-01T08:51:00+00:00",
+      "end": "2022-03-07T14:04:00+00:00",
+      "pnl_abs": 4246.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 197,
+      "to_i": 205,
+      "start": "2022-07-15T08:45:00+00:00",
+      "end": "2022-07-27T11:09:00+00:00",
+      "pnl_abs": -4464.05,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "5:26:00",
+    "bars": 118465,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134430-7bf064",
+   "status": "done",
+   "created": "2026-10-23T13:44:30+00:00",
+   "started": "2026-10-23T13:44:30+00:00",
+   "finished": "2026-10-23T13:44:32+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2.5, slMode=mid, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "mid",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid",
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 122,
+    "losses": 137,
+    "draws": 0,
+    "winrate": 47.1,
+    "pnl_abs": 3851.4,
+    "pnl_pct": 7.703,
+    "profit_factor": 1.039,
+    "max_drawdown_abs": 16459.48,
+    "max_drawdown_pct": 23.712,
+    "starting_balance": 50000.0,
+    "final_balance": 53851.4,
+    "gross_abs": 12567.0,
+    "volume_abs": 323389292.0,
+    "break_even_pct": 0.0039,
+    "exits": {
+     "take_profit": {
+      "n": 127,
+      "pnl_abs": 102067.33
+     },
+     "stop_loss": {
+      "n": 132,
+      "pnl_abs": -98215.93
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 24,
+      "to_i": 28,
+      "start": "2021-11-04T08:09:00+00:00",
+      "end": "2021-11-10T08:35:00+00:00",
+      "pnl_abs": 3777.17,
+      "count": 5
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 205,
+      "to_i": 210,
+      "start": "2022-07-19T07:39:00+00:00",
+      "end": "2022-07-26T07:39:00+00:00",
+      "pnl_abs": -4305.09,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:23:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 2.0
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134434-874a61",
+   "status": "done",
+   "created": "2026-10-23T13:44:34+00:00",
+   "started": "2026-10-23T13:44:34+00:00",
+   "finished": "2026-10-23T13:44:36+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2.5, slMode=mid, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "mid",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "slMode": "mid",
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 103,
+    "losses": 156,
+    "draws": 0,
+    "winrate": 39.77,
+    "pnl_abs": -3908.89,
+    "pnl_pct": -7.818,
+    "profit_factor": 0.962,
+    "max_drawdown_abs": 16268.22,
+    "max_drawdown_pct": 26.478,
+    "starting_balance": 50000.0,
+    "final_balance": 46091.11,
+    "gross_abs": 2034.0,
+    "volume_abs": 220508788.0,
+    "break_even_pct": 0.0009,
+    "exits": {
+     "take_profit": {
+      "n": 104,
+      "pnl_abs": 97846.26
+     },
+     "stop_loss": {
+      "n": 155,
+      "pnl_abs": -101755.15
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 47,
+      "to_i": 53,
+      "start": "2021-12-07T08:24:00+00:00",
+      "end": "2021-12-15T09:14:00+00:00",
+      "pnl_abs": 7391.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 133,
+      "to_i": 141,
+      "start": "2022-04-07T08:00:00+00:00",
+      "end": "2022-04-20T08:01:00+00:00",
+      "pnl_abs": -5859.18,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:56:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134436-73d148",
+   "status": "done",
+   "created": "2026-10-23T13:44:36+00:00",
+   "started": "2026-10-23T13:44:36+00:00",
+   "finished": "2026-10-23T13:44:38+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=2.5, slMode=mid, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "mid",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "slMode": "mid",
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 257,
+    "wins": 83,
+    "losses": 174,
+    "draws": 0,
+    "winrate": 32.3,
+    "pnl_abs": -19672.42,
+    "pnl_pct": -39.345,
+    "profit_factor": 0.809,
+    "max_drawdown_abs": 23159.8,
+    "max_drawdown_pct": 45.997,
+    "starting_balance": 50000.0,
+    "final_balance": 30327.58,
+    "gross_abs": -15356.5,
+    "volume_abs": 160140846.5,
+    "break_even_pct": -0.0096,
+    "exits": {
+     "stop_loss": {
+      "n": 171,
+      "pnl_abs": -103033.97
+     },
+     "take_profit": {
+      "n": 86,
+      "pnl_abs": 83361.55
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 49,
+      "to_i": 53,
+      "start": "2021-12-09T09:12:00+00:00",
+      "end": "2021-12-15T09:14:00+00:00",
+      "pnl_abs": 5342.32,
+      "count": 2
+     },
+     "loss": {
+      "n": 14,
+      "from_i": 33,
+      "to_i": 46,
+      "start": "2021-11-17T08:45:00+00:00",
+      "end": "2021-12-06T09:39:00+00:00",
+      "pnl_abs": -10006.99,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:52:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134439-7521d8",
+   "status": "done",
+   "created": "2026-10-23T13:44:39+00:00",
+   "started": "2026-10-23T13:44:39+00:00",
+   "finished": "2026-10-23T13:44:40+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=3, slMode=opposite, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "opposite",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 86,
+    "losses": 173,
+    "draws": 0,
+    "winrate": 33.2,
+    "pnl_abs": -2278.61,
+    "pnl_pct": -4.557,
+    "profit_factor": 0.979,
+    "max_drawdown_abs": 11445.58,
+    "max_drawdown_pct": 20.202,
+    "starting_balance": 50000.0,
+    "final_balance": 47721.39,
+    "gross_abs": 1983.0,
+    "volume_abs": 158125631.0,
+    "break_even_pct": 0.0013,
+    "exits": {
+     "take_profit": {
+      "n": 86,
+      "pnl_abs": 103997.56
+     },
+     "stop_loss": {
+      "n": 173,
+      "pnl_abs": -106276.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 25,
+      "to_i": 28,
+      "start": "2021-11-05T08:12:00+00:00",
+      "end": "2021-11-10T09:11:00+00:00",
+      "pnl_abs": 4903.47,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 203,
+      "to_i": 214,
+      "start": "2022-07-15T07:18:00+00:00",
+      "end": "2022-08-01T08:46:00+00:00",
+      "pnl_abs": -7192.78,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:56:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134441-1553c5",
+   "status": "done",
+   "created": "2026-10-23T13:44:41+00:00",
+   "started": "2026-10-23T13:44:41+00:00",
+   "finished": "2026-10-23T13:44:42+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=3, slMode=opposite, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "opposite",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 79,
+    "losses": 177,
+    "draws": 0,
+    "winrate": 30.86,
+    "pnl_abs": 840.77,
+    "pnl_pct": 1.682,
+    "profit_factor": 1.009,
+    "max_drawdown_abs": 14000.69,
+    "max_drawdown_pct": 22.665,
+    "starting_balance": 50000.0,
+    "final_balance": 50840.77,
+    "gross_abs": 3694.5,
+    "volume_abs": 105886751.5,
+    "break_even_pct": 0.0035,
+    "exits": {
+     "take_profit": {
+      "n": 79,
+      "pnl_abs": 99208.05
+     },
+     "stop_loss": {
+      "n": 177,
+      "pnl_abs": -98367.28
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 3,
+      "from_i": 60,
+      "to_i": 62,
+      "start": "2021-12-27T09:12:00+00:00",
+      "end": "2021-12-29T15:12:00+00:00",
+      "pnl_abs": 3891.69,
+      "count": 5
+     },
+     "loss": {
+      "n": 20,
+      "from_i": 194,
+      "to_i": 213,
+      "start": "2022-07-06T07:24:00+00:00",
+      "end": "2022-08-02T13:33:00+00:00",
+      "pnl_abs": -11060.5,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "4:18:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134443-eabf1f",
+   "status": "done",
+   "created": "2026-10-23T13:44:43+00:00",
+   "started": "2026-10-23T13:44:43+00:00",
+   "finished": "2026-10-23T13:44:44+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=3, slMode=opposite, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "opposite",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 246,
+    "wins": 72,
+    "losses": 174,
+    "draws": 0,
+    "winrate": 29.27,
+    "pnl_abs": -2659.93,
+    "pnl_pct": -5.32,
+    "profit_factor": 0.97,
+    "max_drawdown_abs": 9990.91,
+    "max_drawdown_pct": 19.501,
+    "starting_balance": 50000.0,
+    "final_balance": 47340.07,
+    "gross_abs": -656.5,
+    "volume_abs": 74336687.5,
+    "break_even_pct": -0.0009,
+    "exits": {
+     "stop_loss": {
+      "n": 174,
+      "pnl_abs": -89267.34
+     },
+     "take_profit": {
+      "n": 72,
+      "pnl_abs": 86607.41
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 215,
+      "to_i": 218,
+      "start": "2022-08-17T07:45:00+00:00",
+      "end": "2022-08-22T14:56:00+00:00",
+      "pnl_abs": 5347.45,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 190,
+      "to_i": 201,
+      "start": "2022-07-13T07:42:00+00:00",
+      "end": "2022-07-28T12:35:00+00:00",
+      "pnl_abs": -6064.2,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "6:50:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134445-657b89",
+   "status": "done",
+   "created": "2026-10-23T13:44:45+00:00",
+   "started": "2026-10-23T13:44:45+00:00",
+   "finished": "2026-10-23T13:44:46+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=3, slMode=mid, lonRangeMinutes=5 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "mid",
+     "lonRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid",
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 111,
+    "losses": 148,
+    "draws": 0,
+    "winrate": 42.86,
+    "pnl_abs": 8836.48,
+    "pnl_pct": 17.673,
+    "profit_factor": 1.081,
+    "max_drawdown_abs": 17552.41,
+    "max_drawdown_pct": 23.522,
+    "starting_balance": 50000.0,
+    "final_balance": 58836.48,
+    "gross_abs": 17552.0,
+    "volume_abs": 323386343.0,
+    "break_even_pct": 0.0054,
+    "exits": {
+     "take_profit": {
+      "n": 114,
+      "pnl_abs": 117613.43
+     },
+     "stop_loss": {
+      "n": 145,
+      "pnl_abs": -108776.95
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 24,
+      "to_i": 28,
+      "start": "2021-11-04T08:09:00+00:00",
+      "end": "2021-11-10T08:36:00+00:00",
+      "pnl_abs": 5006.16,
+      "count": 2
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 244,
+      "to_i": 251,
+      "start": "2022-09-12T07:21:00+00:00",
+      "end": "2022-09-21T07:15:00+00:00",
+      "pnl_abs": -5659.51,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "0:31:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134447-82bb28",
+   "status": "done",
+   "created": "2026-10-23T13:44:47+00:00",
+   "started": "2026-10-23T13:44:47+00:00",
+   "finished": "2026-10-23T13:44:48+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=3, slMode=mid, lonRangeMinutes=15 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "mid",
+     "lonRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 15,
+    "slMode": "mid",
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 259,
+    "wins": 85,
+    "losses": 174,
+    "draws": 0,
+    "winrate": 32.82,
+    "pnl_abs": -15744.83,
+    "pnl_pct": -31.49,
+    "profit_factor": 0.863,
+    "max_drawdown_abs": 21498.77,
+    "max_drawdown_pct": 38.56,
+    "starting_balance": 50000.0,
+    "final_balance": 34255.17,
+    "gross_abs": -9802.0,
+    "volume_abs": 220506850.0,
+    "break_even_pct": -0.0044,
+    "exits": {
+     "take_profit": {
+      "n": 85,
+      "pnl_abs": 99548.7
+     },
+     "stop_loss": {
+      "n": 174,
+      "pnl_abs": -115293.53
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 49,
+      "to_i": 53,
+      "start": "2021-12-09T09:12:00+00:00",
+      "end": "2021-12-15T09:15:00+00:00",
+      "pnl_abs": 6577.63,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 133,
+      "to_i": 141,
+      "start": "2022-04-07T08:00:00+00:00",
+      "end": "2022-04-20T08:01:00+00:00",
+      "pnl_abs": -5859.18,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:12:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-134449-7e8726",
+   "status": "done",
+   "created": "2026-10-23T13:44:49+00:00",
+   "started": "2026-10-23T13:44:49+00:00",
+   "finished": "2026-10-23T13:44:50+00:00",
+   "user": "",
+   "note": "sweep 20261023-134346-8814: rrRatio=3, slMode=mid, lonRangeMinutes=30 — ORB čistý LONDÝN bez EOD, mriežka RR×SL×range (23.10.2026), okno 20211001-20221001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "mid",
+     "lonRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "lonRangeMinutes": 30,
+    "slMode": "mid",
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 257,
+    "wins": 74,
+    "losses": 183,
+    "draws": 0,
+    "winrate": 28.79,
+    "pnl_abs": -20066.22,
+    "pnl_pct": -40.132,
+    "profit_factor": 0.818,
+    "max_drawdown_abs": 26365.45,
+    "max_drawdown_pct": 52.731,
+    "starting_balance": 50000.0,
+    "final_balance": 29933.78,
+    "gross_abs": -15750.5,
+    "volume_abs": 160133449.5,
+    "break_even_pct": -0.0098,
+    "exits": {
+     "stop_loss": {
+      "n": 182,
+      "pnl_abs": -110386.79
+     },
+     "take_profit": {
+      "n": 75,
+      "pnl_abs": 90320.57
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 49,
+      "to_i": 53,
+      "start": "2021-12-09T09:12:00+00:00",
+      "end": "2021-12-15T09:15:00+00:00",
+      "pnl_abs": 6540.33,
+      "count": 2
+     },
+     "loss": {
+      "n": 18,
+      "from_i": 29,
+      "to_i": 46,
+      "start": "2021-11-11T08:36:00+00:00",
+      "end": "2021-12-06T09:39:00+00:00",
+      "pnl_abs": -12826.14,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "2:08:00",
+    "bars": 118465,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-10-23T13:44:50+00:00"
+}

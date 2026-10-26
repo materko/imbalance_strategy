@@ -1,0 +1,2581 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20261023-131349-1ece",
+ "strategy": "orb",
+ "created": "2026-10-23T13:13:49+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 0,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "sessionMode": "ny",
+   "nyStartH": 9,
+   "nyStartM": 30,
+   "nyRangeMinutes": 5,
+   "nyEndH": 15,
+   "nyEndM": 55,
+   "lonStartH": 8,
+   "lonStartM": 0,
+   "lonRangeMinutes": 15,
+   "lonEndH": 16,
+   "lonEndM": 30,
+   "tradeDirection": "Both",
+   "entryMode": "stop",
+   "breakBufferAtr": 0.0,
+   "retestMaxBars": 10,
+   "entryWindowMinutes": 0,
+   "maxTradesPerDay": 1,
+   "minRangePct": 0,
+   "maxRangePct": 10,
+   "useVolumeFilter": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "minClosePosPct": 50,
+   "weekdaysOnly": true,
+   "emaLen": 200,
+   "emaFilter": false,
+   "emaRangeFilter": false,
+   "emaExit": false,
+   "slMode": "opposite",
+   "slRangePct": 50.0,
+   "atrLen": 14,
+   "slAtrMult": 1.0,
+   "slBufferAtr": 0.0,
+   "tpMode": "rr",
+   "rrRatio": 1,
+   "measuredMult": 1.0,
+   "tpAtrMult": 2.0,
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "closeAtSessionEnd": false,
+   "riskDollar": 500,
+   "showRange": true,
+   "showLevels": true,
+   "showEma": false,
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "minSlDistance": 0.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "orb",
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "exchange": null,
+   "timerange": "20231001-20241001",
+   "fee": 2.066628089608994e-05,
+   "fee_note": "1.5 tick na stranu pri cene 18145.5 = 0.00207 %; odhad: polovica spreadu 0,5 ticku + provizia ~0,5 $ na stranu = 1 tick, spolu 1,5 ticku (0,375 bodu); spread z ohlcv dat nevidno",
+   "ai": null,
+   "wallet": 50000.0,
+   "timeframe_detail": "1m",
+   "profile": null,
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261023-131349-12c904",
+   "status": "done",
+   "created": "2026-10-23T13:13:49+00:00",
+   "started": "2026-10-23T13:13:49+00:00",
+   "finished": "2026-10-23T13:13:51+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1, slMode=opposite, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "opposite",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 257,
+    "wins": 155,
+    "losses": 102,
+    "draws": 0,
+    "winrate": 60.31,
+    "pnl_abs": -850.66,
+    "pnl_pct": -1.701,
+    "profit_factor": 0.984,
+    "max_drawdown_abs": 6118.35,
+    "max_drawdown_pct": 11.738,
+    "starting_balance": 50000.0,
+    "final_balance": 49149.34,
+    "gross_abs": 1154.0,
+    "volume_abs": 97001672.0,
+    "break_even_pct": 0.0012,
+    "exits": {
+     "take_profit": {
+      "n": 160,
+      "pnl_abs": 52406.69
+     },
+     "stop_loss": {
+      "n": 97,
+      "pnl_abs": -53257.36
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 142,
+      "to_i": 151,
+      "start": "2024-04-23T13:48:00+00:00",
+      "end": "2024-05-06T15:47:00+00:00",
+      "pnl_abs": 3403.55,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 125,
+      "to_i": 128,
+      "start": "2024-03-28T13:45:00+00:00",
+      "end": "2024-04-03T14:03:00+00:00",
+      "pnl_abs": -942.35,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:07:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 2.2
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131353-303d19",
+   "status": "done",
+   "created": "2026-10-23T13:13:53+00:00",
+   "started": "2026-10-23T13:13:53+00:00",
+   "finished": "2026-10-23T13:13:55+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1, slMode=opposite, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "opposite",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15
+   },
+   "settings": {},
+   "result": {
+    "trades": 254,
+    "wins": 160,
+    "losses": 94,
+    "draws": 0,
+    "winrate": 62.99,
+    "pnl_abs": 11284.55,
+    "pnl_pct": 22.569,
+    "profit_factor": 1.258,
+    "max_drawdown_abs": 2796.16,
+    "max_drawdown_pct": 4.442,
+    "starting_balance": 50000.0,
+    "final_balance": 61284.55,
+    "gross_abs": 12681.0,
+    "volume_abs": 67571456.0,
+    "break_even_pct": 0.0188,
+    "exits": {
+     "stop_loss": {
+      "n": 89,
+      "pnl_abs": -43643.4
+     },
+     "take_profit": {
+      "n": 165,
+      "pnl_abs": 54927.95
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 62,
+      "to_i": 70,
+      "start": "2024-01-02T14:51:00+00:00",
+      "end": "2024-01-16T00:42:00+00:00",
+      "pnl_abs": 2908.54,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 215,
+      "to_i": 218,
+      "start": "2024-08-07T13:51:00+00:00",
+      "end": "2024-08-12T14:16:00+00:00",
+      "pnl_abs": -2036.72,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "3:44:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131355-1dba40",
+   "status": "done",
+   "created": "2026-10-23T13:13:55+00:00",
+   "started": "2026-10-23T13:13:55+00:00",
+   "finished": "2026-10-23T13:13:57+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1, slMode=opposite, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "opposite",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30
+   },
+   "settings": {},
+   "result": {
+    "trades": 241,
+    "wins": 153,
+    "losses": 88,
+    "draws": 0,
+    "winrate": 63.49,
+    "pnl_abs": 15382.37,
+    "pnl_pct": 30.765,
+    "profit_factor": 1.407,
+    "max_drawdown_abs": 2689.89,
+    "max_drawdown_pct": 4.298,
+    "starting_balance": 50000.0,
+    "final_balance": 65382.37,
+    "gross_abs": 16372.0,
+    "volume_abs": 47886406.0,
+    "break_even_pct": 0.0342,
+    "exits": {
+     "stop_loss": {
+      "n": 84,
+      "pnl_abs": -37754.93
+     },
+     "take_profit": {
+      "n": 157,
+      "pnl_abs": 53137.29
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 195,
+      "to_i": 206,
+      "start": "2024-07-29T15:00:00+00:00",
+      "end": "2024-08-13T16:18:00+00:00",
+      "pnl_abs": 4413.08,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 136,
+      "to_i": 139,
+      "start": "2024-04-30T16:36:00+00:00",
+      "end": "2024-05-03T18:11:00+00:00",
+      "pnl_abs": -1601.04,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "9:46:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131357-2e7508",
+   "status": "done",
+   "created": "2026-10-23T13:13:57+00:00",
+   "started": "2026-10-23T13:13:57+00:00",
+   "finished": "2026-10-23T13:13:59+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1, slMode=mid, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "mid",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid"
+   },
+   "settings": {},
+   "result": {
+    "trades": 258,
+    "wins": 156,
+    "losses": 102,
+    "draws": 0,
+    "winrate": 60.47,
+    "pnl_abs": -6351.54,
+    "pnl_pct": -12.703,
+    "profit_factor": 0.871,
+    "max_drawdown_abs": 7112.46,
+    "max_drawdown_pct": 14.012,
+    "starting_balance": 50000.0,
+    "final_balance": 43648.46,
+    "gross_abs": -2100.5,
+    "volume_abs": 205699404.5,
+    "break_even_pct": -0.001,
+    "exits": {
+     "take_profit": {
+      "n": 182,
+      "pnl_abs": 42344.63
+     },
+     "stop_loss": {
+      "n": 76,
+      "pnl_abs": -48696.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 160,
+      "to_i": 166,
+      "start": "2024-05-16T13:39:00+00:00",
+      "end": "2024-05-24T14:06:00+00:00",
+      "pnl_abs": 2286.12,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 140,
+      "to_i": 143,
+      "start": "2024-04-18T13:39:00+00:00",
+      "end": "2024-04-23T13:48:00+00:00",
+      "pnl_abs": -1564.85,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "0:20:00",
+    "bars": 118010,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131359-2f2fe9",
+   "status": "done",
+   "created": "2026-10-23T13:13:59+00:00",
+   "started": "2026-10-23T13:13:59+00:00",
+   "finished": "2026-10-23T13:14:01+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1, slMode=mid, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "mid",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "slMode": "mid"
+   },
+   "settings": {},
+   "result": {
+    "trades": 258,
+    "wins": 154,
+    "losses": 104,
+    "draws": 0,
+    "winrate": 59.69,
+    "pnl_abs": -4343.28,
+    "pnl_pct": -8.687,
+    "profit_factor": 0.911,
+    "max_drawdown_abs": 8072.78,
+    "max_drawdown_pct": 15.535,
+    "starting_balance": 50000.0,
+    "final_balance": 45656.72,
+    "gross_abs": -1254.5,
+    "volume_abs": 149459663.5,
+    "break_even_pct": -0.0008,
+    "exits": {
+     "take_profit": {
+      "n": 173,
+      "pnl_abs": 44416.88
+     },
+     "stop_loss": {
+      "n": 85,
+      "pnl_abs": -48760.16
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 232,
+      "to_i": 238,
+      "start": "2024-08-26T13:48:00+00:00",
+      "end": "2024-09-03T14:14:00+00:00",
+      "pnl_abs": 1993.23,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 187,
+      "to_i": 190,
+      "start": "2024-06-24T13:51:00+00:00",
+      "end": "2024-06-27T14:45:00+00:00",
+      "pnl_abs": -1693.37,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "0:28:00",
+    "bars": 118010,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131401-5a9a0a",
+   "status": "done",
+   "created": "2026-10-23T13:14:01+00:00",
+   "started": "2026-10-23T13:14:01+00:00",
+   "finished": "2026-10-23T13:14:03+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1, slMode=mid, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1,
+     "slMode": "mid",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "slMode": "mid"
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 155,
+    "losses": 101,
+    "draws": 0,
+    "winrate": 60.55,
+    "pnl_abs": 3045.05,
+    "pnl_pct": 6.09,
+    "profit_factor": 1.064,
+    "max_drawdown_abs": 6451.69,
+    "max_drawdown_pct": 11.26,
+    "starting_balance": 50000.0,
+    "final_balance": 53045.05,
+    "gross_abs": 5425.5,
+    "volume_abs": 115185007.5,
+    "break_even_pct": 0.0047,
+    "exits": {
+     "take_profit": {
+      "n": 168,
+      "pnl_abs": 50783.6
+     },
+     "stop_loss": {
+      "n": 88,
+      "pnl_abs": -47738.55
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 173,
+      "to_i": 182,
+      "start": "2024-06-05T14:24:00+00:00",
+      "end": "2024-06-19T14:34:00+00:00",
+      "pnl_abs": 3426.56,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 115,
+      "to_i": 118,
+      "start": "2024-03-13T14:03:00+00:00",
+      "end": "2024-03-18T15:12:00+00:00",
+      "pnl_abs": -2070.67,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:00:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131403-8a2cf5",
+   "status": "done",
+   "created": "2026-10-23T13:14:03+00:00",
+   "started": "2026-10-23T13:14:03+00:00",
+   "finished": "2026-10-23T13:14:05+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1.5, slMode=opposite, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "opposite",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 132,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 51.56,
+    "pnl_abs": 6014.58,
+    "pnl_pct": 12.029,
+    "profit_factor": 1.089,
+    "max_drawdown_abs": 8901.21,
+    "max_drawdown_pct": 15.541,
+    "starting_balance": 50000.0,
+    "final_balance": 56014.58,
+    "gross_abs": 8014.0,
+    "volume_abs": 96748139.0,
+    "break_even_pct": 0.0083,
+    "exits": {
+     "take_profit": {
+      "n": 135,
+      "pnl_abs": 73767.48
+     },
+     "stop_loss": {
+      "n": 121,
+      "pnl_abs": -67752.9
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 189,
+      "to_i": 193,
+      "start": "2024-06-28T13:39:00+00:00",
+      "end": "2024-07-04T22:00:00+00:00",
+      "pnl_abs": 2992.52,
+      "count": 2
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 116,
+      "to_i": 122,
+      "start": "2024-03-18T13:42:00+00:00",
+      "end": "2024-03-26T14:29:00+00:00",
+      "pnl_abs": -4176.47,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:52:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131405-852b2c",
+   "status": "done",
+   "created": "2026-10-23T13:14:05+00:00",
+   "started": "2026-10-23T13:14:05+00:00",
+   "finished": "2026-10-23T13:14:07+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1.5, slMode=opposite, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "opposite",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 248,
+    "wins": 129,
+    "losses": 119,
+    "draws": 0,
+    "winrate": 52.02,
+    "pnl_abs": 12624.75,
+    "pnl_pct": 25.25,
+    "profit_factor": 1.212,
+    "max_drawdown_abs": 3227.76,
+    "max_drawdown_pct": 5.364,
+    "starting_balance": 50000.0,
+    "final_balance": 62624.75,
+    "gross_abs": 13984.5,
+    "volume_abs": 65795523.5,
+    "break_even_pct": 0.0213,
+    "exits": {
+     "stop_loss": {
+      "n": 117,
+      "pnl_abs": -59475.41
+     },
+     "take_profit": {
+      "n": 131,
+      "pnl_abs": 72100.16
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 80,
+      "to_i": 87,
+      "start": "2024-02-02T14:48:00+00:00",
+      "end": "2024-02-13T15:43:00+00:00",
+      "pnl_abs": 4333.84,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 10,
+      "to_i": 13,
+      "start": "2023-10-16T14:18:00+00:00",
+      "end": "2023-10-19T16:02:00+00:00",
+      "pnl_abs": -2167.76,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "7:07:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131407-f91037",
+   "status": "done",
+   "created": "2026-10-23T13:14:07+00:00",
+   "started": "2026-10-23T13:14:07+00:00",
+   "finished": "2026-10-23T13:14:09+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1.5, slMode=opposite, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "opposite",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 116,
+    "losses": 101,
+    "draws": 0,
+    "winrate": 53.46,
+    "pnl_abs": 16173.47,
+    "pnl_pct": 32.347,
+    "profit_factor": 1.358,
+    "max_drawdown_abs": 3706.47,
+    "max_drawdown_pct": 5.371,
+    "starting_balance": 50000.0,
+    "final_balance": 66173.47,
+    "gross_abs": 17060.5,
+    "volume_abs": 42921636.5,
+    "break_even_pct": 0.0397,
+    "exits": {
+     "stop_loss": {
+      "n": 97,
+      "pnl_abs": -45129.23
+     },
+     "take_profit": {
+      "n": 120,
+      "pnl_abs": 61302.7
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 176,
+      "to_i": 182,
+      "start": "2024-07-31T14:03:00+00:00",
+      "end": "2024-08-13T16:50:00+00:00",
+      "pnl_abs": 4209.87,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 206,
+      "to_i": 211,
+      "start": "2024-09-16T14:36:00+00:00",
+      "end": "2024-09-23T17:01:00+00:00",
+      "pnl_abs": -2774.87,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "17:16:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131409-6aebf9",
+   "status": "done",
+   "created": "2026-10-23T13:14:09+00:00",
+   "started": "2026-10-23T13:14:09+00:00",
+   "finished": "2026-10-23T13:14:11+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1.5, slMode=mid, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "mid",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid",
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 257,
+    "wins": 149,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 57.98,
+    "pnl_abs": 6351.42,
+    "pnl_pct": 12.703,
+    "profit_factor": 1.098,
+    "max_drawdown_abs": 6798.79,
+    "max_drawdown_pct": 11.091,
+    "starting_balance": 50000.0,
+    "final_balance": 56351.42,
+    "gross_abs": 10525.5,
+    "volume_abs": 201975447.5,
+    "break_even_pct": 0.0052,
+    "exits": {
+     "take_profit": {
+      "n": 159,
+      "pnl_abs": 70881.3
+     },
+     "stop_loss": {
+      "n": 98,
+      "pnl_abs": -64529.88
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 67,
+      "to_i": 79,
+      "start": "2024-01-08T14:42:00+00:00",
+      "end": "2024-01-24T15:36:00+00:00",
+      "pnl_abs": 5919.95,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 198,
+      "to_i": 202,
+      "start": "2024-07-10T14:06:00+00:00",
+      "end": "2024-07-16T13:57:00+00:00",
+      "pnl_abs": -2954.36,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "0:37:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131411-2ea1b5",
+   "status": "done",
+   "created": "2026-10-23T13:14:11+00:00",
+   "started": "2026-10-23T13:14:11+00:00",
+   "finished": "2026-10-23T13:14:13+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1.5, slMode=mid, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "mid",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "slMode": "mid",
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 257,
+    "wins": 144,
+    "losses": 113,
+    "draws": 0,
+    "winrate": 56.03,
+    "pnl_abs": 6136.78,
+    "pnl_pct": 12.274,
+    "profit_factor": 1.095,
+    "max_drawdown_abs": 4528.32,
+    "max_drawdown_pct": 7.714,
+    "starting_balance": 50000.0,
+    "final_balance": 56136.78,
+    "gross_abs": 9180.5,
+    "volume_abs": 147279703.5,
+    "break_even_pct": 0.0062,
+    "exits": {
+     "take_profit": {
+      "n": 149,
+      "pnl_abs": 70674.97
+     },
+     "stop_loss": {
+      "n": 108,
+      "pnl_abs": -64538.2
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 65,
+      "to_i": 72,
+      "start": "2024-01-04T15:09:00+00:00",
+      "end": "2024-01-15T14:51:00+00:00",
+      "pnl_abs": 3493.54,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 244,
+      "to_i": 249,
+      "start": "2024-09-12T13:51:00+00:00",
+      "end": "2024-09-19T14:04:00+00:00",
+      "pnl_abs": -3862.24,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:20:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131414-0b3130",
+   "status": "done",
+   "created": "2026-10-23T13:14:14+00:00",
+   "started": "2026-10-23T13:14:14+00:00",
+   "finished": "2026-10-23T13:14:15+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=1.5, slMode=mid, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "slMode": "mid",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "slMode": "mid",
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 141,
+    "losses": 115,
+    "draws": 0,
+    "winrate": 55.08,
+    "pnl_abs": 13328.04,
+    "pnl_pct": 26.656,
+    "profit_factor": 1.217,
+    "max_drawdown_abs": 4811.25,
+    "max_drawdown_pct": 7.494,
+    "starting_balance": 50000.0,
+    "final_balance": 63328.04,
+    "gross_abs": 15708.5,
+    "volume_abs": 115185742.5,
+    "break_even_pct": 0.0136,
+    "exits": {
+     "take_profit": {
+      "n": 145,
+      "pnl_abs": 74750.74
+     },
+     "stop_loss": {
+      "n": 111,
+      "pnl_abs": -61422.7
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 74,
+      "to_i": 80,
+      "start": "2024-01-16T15:18:00+00:00",
+      "end": "2024-01-24T15:39:00+00:00",
+      "pnl_abs": 4222.12,
+      "count": 3
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 95,
+      "to_i": 98,
+      "start": "2024-02-14T15:21:00+00:00",
+      "end": "2024-02-19T17:45:00+00:00",
+      "pnl_abs": -2327.99,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "2:50:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131416-fbae46",
+   "status": "done",
+   "created": "2026-10-23T13:14:16+00:00",
+   "started": "2026-10-23T13:14:16+00:00",
+   "finished": "2026-10-23T13:14:17+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2, slMode=opposite, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "opposite",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 252,
+    "wins": 108,
+    "losses": 144,
+    "draws": 0,
+    "winrate": 42.86,
+    "pnl_abs": 2377.6,
+    "pnl_pct": 4.755,
+    "profit_factor": 1.029,
+    "max_drawdown_abs": 9618.73,
+    "max_drawdown_pct": 18.291,
+    "starting_balance": 50000.0,
+    "final_balance": 52377.6,
+    "gross_abs": 4344.0,
+    "volume_abs": 95149948.0,
+    "break_even_pct": 0.0046,
+    "exits": {
+     "stop_loss": {
+      "n": 143,
+      "pnl_abs": -80639.8
+     },
+     "take_profit": {
+      "n": 109,
+      "pnl_abs": 83017.41
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 185,
+      "to_i": 188,
+      "start": "2024-06-28T13:39:00+00:00",
+      "end": "2024-07-03T15:55:00+00:00",
+      "pnl_abs": 3249.09,
+      "count": 2
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 113,
+      "to_i": 119,
+      "start": "2024-03-18T13:42:00+00:00",
+      "end": "2024-03-26T14:29:00+00:00",
+      "pnl_abs": -4176.47,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "3:11:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131418-a35e90",
+   "status": "done",
+   "created": "2026-10-23T13:14:18+00:00",
+   "started": "2026-10-23T13:14:18+00:00",
+   "finished": "2026-10-23T13:14:19+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2, slMode=opposite, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "opposite",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 237,
+    "wins": 113,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 47.68,
+    "pnl_abs": 22558.39,
+    "pnl_pct": 45.117,
+    "profit_factor": 1.363,
+    "max_drawdown_abs": 2904.65,
+    "max_drawdown_pct": 3.951,
+    "starting_balance": 50000.0,
+    "final_balance": 72558.39,
+    "gross_abs": 23851.0,
+    "volume_abs": 62546609.0,
+    "break_even_pct": 0.0381,
+    "exits": {
+     "stop_loss": {
+      "n": 123,
+      "pnl_abs": -62210.74
+     },
+     "take_profit": {
+      "n": 114,
+      "pnl_abs": 84769.14
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 54,
+      "to_i": 58,
+      "start": "2023-12-26T15:27:00+00:00",
+      "end": "2024-01-04T13:40:00+00:00",
+      "pnl_abs": 3708.4,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 133,
+      "to_i": 137,
+      "start": "2024-04-26T13:51:00+00:00",
+      "end": "2024-05-03T14:13:00+00:00",
+      "pnl_abs": -2056.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "10:16:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131420-2d5f83",
+   "status": "done",
+   "created": "2026-10-23T13:14:20+00:00",
+   "started": "2026-10-23T13:14:20+00:00",
+   "finished": "2026-10-23T13:14:21+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2, slMode=opposite, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "opposite",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 192,
+    "wins": 96,
+    "losses": 96,
+    "draws": 0,
+    "winrate": 50.0,
+    "pnl_abs": 20959.9,
+    "pnl_pct": 41.92,
+    "profit_factor": 1.469,
+    "max_drawdown_abs": 4065.9,
+    "max_drawdown_pct": 6.574,
+    "starting_balance": 50000.0,
+    "final_balance": 70959.9,
+    "gross_abs": 21732.5,
+    "volume_abs": 37384484.5,
+    "break_even_pct": 0.0581,
+    "exits": {
+     "stop_loss": {
+      "n": 94,
+      "pnl_abs": -44720.02
+     },
+     "take_profit": {
+      "n": 98,
+      "pnl_abs": 65679.92
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 116,
+      "to_i": 120,
+      "start": "2024-05-20T14:42:00+00:00",
+      "end": "2024-06-03T17:10:00+00:00",
+      "pnl_abs": 3324.62,
+      "count": 2
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 181,
+      "to_i": 188,
+      "start": "2024-09-16T14:36:00+00:00",
+      "end": "2024-09-25T17:00:00+00:00",
+      "pnl_abs": -3955.19,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "25:45:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131422-5a6c50",
+   "status": "done",
+   "created": "2026-10-23T13:14:22+00:00",
+   "started": "2026-10-23T13:14:22+00:00",
+   "finished": "2026-10-23T13:14:23+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2, slMode=mid, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "mid",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid",
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 257,
+    "wins": 130,
+    "losses": 127,
+    "draws": 0,
+    "winrate": 50.58,
+    "pnl_abs": 8703.56,
+    "pnl_pct": 17.407,
+    "profit_factor": 1.106,
+    "max_drawdown_abs": 9723.46,
+    "max_drawdown_pct": 14.455,
+    "starting_balance": 50000.0,
+    "final_balance": 58703.56,
+    "gross_abs": 12877.5,
+    "volume_abs": 201968760.5,
+    "break_even_pct": 0.0064,
+    "exits": {
+     "take_profit": {
+      "n": 135,
+      "pnl_abs": 90572.98
+     },
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -81869.42
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 35,
+      "to_i": 38,
+      "start": "2023-11-20T14:51:00+00:00",
+      "end": "2023-11-27T02:10:00+00:00",
+      "pnl_abs": 3343.08,
+      "count": 5
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 244,
+      "to_i": 249,
+      "start": "2024-09-12T13:51:00+00:00",
+      "end": "2024-09-19T13:43:00+00:00",
+      "pnl_abs": -3990.28,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "0:46:00",
+    "bars": 118010,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131424-1375ed",
+   "status": "done",
+   "created": "2026-10-23T13:14:24+00:00",
+   "started": "2026-10-23T13:14:24+00:00",
+   "finished": "2026-10-23T13:14:25+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2, slMode=mid, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "mid",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "slMode": "mid",
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 125,
+    "losses": 131,
+    "draws": 0,
+    "winrate": 48.83,
+    "pnl_abs": 10199.36,
+    "pnl_pct": 20.399,
+    "profit_factor": 1.131,
+    "max_drawdown_abs": 6197.52,
+    "max_drawdown_pct": 9.572,
+    "starting_balance": 50000.0,
+    "final_balance": 60199.36,
+    "gross_abs": 13231.0,
+    "volume_abs": 146695100.0,
+    "break_even_pct": 0.009,
+    "exits": {
+     "stop_loss": {
+      "n": 128,
+      "pnl_abs": -77692.14
+     },
+     "take_profit": {
+      "n": 128,
+      "pnl_abs": 87891.49
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 198,
+      "to_i": 204,
+      "start": "2024-07-11T13:54:00+00:00",
+      "end": "2024-07-19T16:38:00+00:00",
+      "pnl_abs": 4333.57,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 243,
+      "to_i": 248,
+      "start": "2024-09-12T13:51:00+00:00",
+      "end": "2024-09-19T14:04:00+00:00",
+      "pnl_abs": -3862.24,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:54:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131426-451260",
+   "status": "done",
+   "created": "2026-10-23T13:14:26+00:00",
+   "started": "2026-10-23T13:14:26+00:00",
+   "finished": "2026-10-23T13:14:27+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2, slMode=mid, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "slMode": "mid",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "slMode": "mid",
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 253,
+    "wins": 117,
+    "losses": 136,
+    "draws": 0,
+    "winrate": 46.25,
+    "pnl_abs": 14398.47,
+    "pnl_pct": 28.797,
+    "profit_factor": 1.191,
+    "max_drawdown_abs": 5823.79,
+    "max_drawdown_pct": 9.272,
+    "starting_balance": 50000.0,
+    "final_balance": 64398.47,
+    "gross_abs": 16751.5,
+    "volume_abs": 113858364.5,
+    "break_even_pct": 0.0147,
+    "exits": {
+     "stop_loss": {
+      "n": 134,
+      "pnl_abs": -75426.04
+     },
+     "take_profit": {
+      "n": 119,
+      "pnl_abs": 89824.51
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 195,
+      "to_i": 201,
+      "start": "2024-07-11T14:12:00+00:00",
+      "end": "2024-07-19T16:38:00+00:00",
+      "pnl_abs": 4624.71,
+      "count": 1
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 54,
+      "to_i": 60,
+      "start": "2023-12-15T15:18:00+00:00",
+      "end": "2023-12-26T15:51:00+00:00",
+      "pnl_abs": -4019.2,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "4:40:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131428-cc9d58",
+   "status": "done",
+   "created": "2026-10-23T13:14:28+00:00",
+   "started": "2026-10-23T13:14:28+00:00",
+   "finished": "2026-10-23T13:14:29+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2.5, slMode=opposite, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "opposite",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 248,
+    "wins": 91,
+    "losses": 157,
+    "draws": 0,
+    "winrate": 36.69,
+    "pnl_abs": 1713.78,
+    "pnl_pct": 3.428,
+    "profit_factor": 1.019,
+    "max_drawdown_abs": 10100.94,
+    "max_drawdown_pct": 18.796,
+    "starting_balance": 50000.0,
+    "final_balance": 51713.78,
+    "gross_abs": 3648.5,
+    "volume_abs": 93617007.5,
+    "break_even_pct": 0.0039,
+    "exits": {
+     "stop_loss": {
+      "n": 157,
+      "pnl_abs": -89524.21
+     },
+     "take_profit": {
+      "n": 91,
+      "pnl_abs": 91238.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 3,
+      "from_i": 56,
+      "to_i": 58,
+      "start": "2023-12-28T14:45:00+00:00",
+      "end": "2024-01-02T15:30:00+00:00",
+      "pnl_abs": 2158.88,
+      "count": 7
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 111,
+      "to_i": 120,
+      "start": "2024-03-18T13:42:00+00:00",
+      "end": "2024-04-02T17:00:00+00:00",
+      "pnl_abs": -6071.23,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "5:16:00",
+    "bars": 118010,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131430-52caa3",
+   "status": "done",
+   "created": "2026-10-23T13:14:30+00:00",
+   "started": "2026-10-23T13:14:30+00:00",
+   "finished": "2026-10-23T13:14:32+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2.5, slMode=opposite, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "opposite",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 221,
+    "wins": 97,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 43.89,
+    "pnl_abs": 26765.79,
+    "pnl_pct": 53.532,
+    "profit_factor": 1.414,
+    "max_drawdown_abs": 3481.44,
+    "max_drawdown_pct": 4.371,
+    "starting_balance": 50000.0,
+    "final_balance": 76765.79,
+    "gross_abs": 27977.0,
+    "volume_abs": 58608062.0,
+    "break_even_pct": 0.0477,
+    "exits": {
+     "stop_loss": {
+      "n": 123,
+      "pnl_abs": -64621.1
+     },
+     "take_profit": {
+      "n": 98,
+      "pnl_abs": 91386.89
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 3,
+      "to_i": 6,
+      "start": "2023-10-05T13:51:00+00:00",
+      "end": "2023-10-10T15:08:00+00:00",
+      "pnl_abs": 3578.04,
+      "count": 2
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 91,
+      "to_i": 95,
+      "start": "2024-03-06T14:51:00+00:00",
+      "end": "2024-03-12T14:23:00+00:00",
+      "pnl_abs": -2101.06,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "15:15:00",
+    "bars": 118010,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131432-f0e8e9",
+   "status": "done",
+   "created": "2026-10-23T13:14:32+00:00",
+   "started": "2026-10-23T13:14:32+00:00",
+   "finished": "2026-10-23T13:14:34+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2.5, slMode=opposite, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "opposite",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 174,
+    "wins": 74,
+    "losses": 100,
+    "draws": 0,
+    "winrate": 42.53,
+    "pnl_abs": 12724.86,
+    "pnl_pct": 25.45,
+    "profit_factor": 1.261,
+    "max_drawdown_abs": 5639.24,
+    "max_drawdown_pct": 9.788,
+    "starting_balance": 50000.0,
+    "final_balance": 62724.86,
+    "gross_abs": 13402.0,
+    "volume_abs": 32765509.0,
+    "break_even_pct": 0.0409,
+    "exits": {
+     "stop_loss": {
+      "n": 98,
+      "pnl_abs": -48765.58
+     },
+     "take_profit": {
+      "n": 76,
+      "pnl_abs": 61490.44
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 139,
+      "to_i": 143,
+      "start": "2024-07-31T14:03:00+00:00",
+      "end": "2024-08-14T12:31:00+00:00",
+      "pnl_abs": 5147.97,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 164,
+      "to_i": 171,
+      "start": "2024-09-16T14:36:00+00:00",
+      "end": "2024-09-25T17:00:00+00:00",
+      "pnl_abs": -3955.19,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "31:52:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131434-a8d473",
+   "status": "done",
+   "created": "2026-10-23T13:14:34+00:00",
+   "started": "2026-10-23T13:14:34+00:00",
+   "finished": "2026-10-23T13:14:36+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2.5, slMode=mid, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "mid",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid",
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 115,
+    "losses": 141,
+    "draws": 0,
+    "winrate": 44.92,
+    "pnl_abs": 10431.55,
+    "pnl_pct": 20.863,
+    "profit_factor": 1.11,
+    "max_drawdown_abs": 7907.3,
+    "max_drawdown_pct": 11.952,
+    "starting_balance": 50000.0,
+    "final_balance": 60431.55,
+    "gross_abs": 14593.5,
+    "volume_abs": 201388304.5,
+    "break_even_pct": 0.0072,
+    "exits": {
+     "take_profit": {
+      "n": 117,
+      "pnl_abs": 105504.88
+     },
+     "stop_loss": {
+      "n": 139,
+      "pnl_abs": -95073.33
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 220,
+      "to_i": 223,
+      "start": "2024-08-12T13:42:00+00:00",
+      "end": "2024-08-15T13:55:00+00:00",
+      "pnl_abs": 3437.65,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 243,
+      "to_i": 248,
+      "start": "2024-09-12T13:51:00+00:00",
+      "end": "2024-09-19T13:43:00+00:00",
+      "pnl_abs": -3990.28,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:06:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131436-cf4ff5",
+   "status": "done",
+   "created": "2026-10-23T13:14:36+00:00",
+   "started": "2026-10-23T13:14:36+00:00",
+   "finished": "2026-10-23T13:14:38+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2.5, slMode=mid, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "mid",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "slMode": "mid",
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 254,
+    "wins": 106,
+    "losses": 148,
+    "draws": 0,
+    "winrate": 41.73,
+    "pnl_abs": 9979.33,
+    "pnl_pct": 19.959,
+    "profit_factor": 1.109,
+    "max_drawdown_abs": 8708.8,
+    "max_drawdown_pct": 13.642,
+    "starting_balance": 50000.0,
+    "final_balance": 59979.33,
+    "gross_abs": 12979.5,
+    "volume_abs": 145172229.5,
+    "break_even_pct": 0.0089,
+    "exits": {
+     "stop_loss": {
+      "n": 146,
+      "pnl_abs": -91244.06
+     },
+     "take_profit": {
+      "n": 108,
+      "pnl_abs": 101223.39
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 196,
+      "to_i": 202,
+      "start": "2024-07-11T13:54:00+00:00",
+      "end": "2024-07-19T17:22:00+00:00",
+      "pnl_abs": 5992.08,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 54,
+      "to_i": 61,
+      "start": "2023-12-19T15:33:00+00:00",
+      "end": "2023-12-29T15:03:00+00:00",
+      "pnl_abs": -4733.76,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "2:44:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131438-7cb38d",
+   "status": "done",
+   "created": "2026-10-23T13:14:38+00:00",
+   "started": "2026-10-23T13:14:38+00:00",
+   "finished": "2026-10-23T13:14:40+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=2.5, slMode=mid, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "slMode": "mid",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "slMode": "mid",
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 249,
+    "wins": 104,
+    "losses": 145,
+    "draws": 0,
+    "winrate": 41.77,
+    "pnl_abs": 24343.11,
+    "pnl_pct": 48.686,
+    "profit_factor": 1.303,
+    "max_drawdown_abs": 5984.82,
+    "max_drawdown_pct": 8.175,
+    "starting_balance": 50000.0,
+    "final_balance": 74343.11,
+    "gross_abs": 26669.5,
+    "volume_abs": 112569280.5,
+    "break_even_pct": 0.0237,
+    "exits": {
+     "stop_loss": {
+      "n": 142,
+      "pnl_abs": -80433.23
+     },
+     "take_profit": {
+      "n": 107,
+      "pnl_abs": 104776.35
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 62,
+      "to_i": 68,
+      "start": "2023-12-29T15:36:00+00:00",
+      "end": "2024-01-09T16:16:00+00:00",
+      "pnl_abs": 6122.23,
+      "count": 2
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 53,
+      "to_i": 61,
+      "start": "2023-12-15T15:18:00+00:00",
+      "end": "2023-12-28T15:40:00+00:00",
+      "pnl_abs": -5154.89,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "6:21:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131440-4772b6",
+   "status": "done",
+   "created": "2026-10-23T13:14:40+00:00",
+   "started": "2026-10-23T13:14:40+00:00",
+   "finished": "2026-10-23T13:14:42+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=3, slMode=opposite, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "opposite",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 245,
+    "wins": 78,
+    "losses": 167,
+    "draws": 0,
+    "winrate": 31.84,
+    "pnl_abs": 370.83,
+    "pnl_pct": 0.742,
+    "profit_factor": 1.004,
+    "max_drawdown_abs": 15673.59,
+    "max_drawdown_pct": 27.023,
+    "starting_balance": 50000.0,
+    "final_balance": 50370.83,
+    "gross_abs": 2279.5,
+    "volume_abs": 92356936.5,
+    "break_even_pct": 0.0025,
+    "exits": {
+     "stop_loss": {
+      "n": 165,
+      "pnl_abs": -94982.06
+     },
+     "take_profit": {
+      "n": 80,
+      "pnl_abs": 95352.89
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 3,
+      "from_i": 42,
+      "to_i": 44,
+      "start": "2023-12-08T14:42:00+00:00",
+      "end": "2023-12-12T20:55:00+00:00",
+      "pnl_abs": 4499.03,
+      "count": 5
+     },
+     "loss": {
+      "n": 11,
+      "from_i": 108,
+      "to_i": 118,
+      "start": "2024-03-15T13:39:00+00:00",
+      "end": "2024-04-02T17:00:00+00:00",
+      "pnl_abs": -6763.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "7:20:00",
+    "bars": 118010,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131442-8470c2",
+   "status": "done",
+   "created": "2026-10-23T13:14:42+00:00",
+   "started": "2026-10-23T13:14:42+00:00",
+   "finished": "2026-10-23T13:14:44+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=3, slMode=opposite, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "opposite",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 203,
+    "wins": 81,
+    "losses": 122,
+    "draws": 0,
+    "winrate": 39.9,
+    "pnl_abs": 27201.67,
+    "pnl_pct": 54.403,
+    "profit_factor": 1.433,
+    "max_drawdown_abs": 4205.44,
+    "max_drawdown_pct": 7.143,
+    "starting_balance": 50000.0,
+    "final_balance": 77201.68,
+    "gross_abs": 28298.0,
+    "volume_abs": 53048958.0,
+    "break_even_pct": 0.0533,
+    "exits": {
+     "stop_loss": {
+      "n": 121,
+      "pnl_abs": -62872.37
+     },
+     "take_profit": {
+      "n": 82,
+      "pnl_abs": 90074.04
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 3,
+      "from_i": 4,
+      "to_i": 6,
+      "start": "2023-10-06T15:09:00+00:00",
+      "end": "2023-10-10T15:34:00+00:00",
+      "pnl_abs": 2313.17,
+      "count": 9
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 54,
+      "to_i": 60,
+      "start": "2024-01-22T15:30:00+00:00",
+      "end": "2024-02-01T15:08:00+00:00",
+      "pnl_abs": -3413.62,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "20:05:00",
+    "bars": 118010,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 2.1
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131446-9226b1",
+   "status": "done",
+   "created": "2026-10-23T13:14:46+00:00",
+   "started": "2026-10-23T13:14:46+00:00",
+   "finished": "2026-10-23T13:14:48+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=3, slMode=opposite, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "opposite",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 151,
+    "wins": 60,
+    "losses": 91,
+    "draws": 0,
+    "winrate": 39.74,
+    "pnl_abs": 16877.31,
+    "pnl_pct": 33.755,
+    "profit_factor": 1.369,
+    "max_drawdown_abs": 9591.33,
+    "max_drawdown_pct": 16.413,
+    "starting_balance": 50000.0,
+    "final_balance": 66877.31,
+    "gross_abs": 17464.5,
+    "volume_abs": 28412981.5,
+    "break_even_pct": 0.0615,
+    "exits": {
+     "stop_loss": {
+      "n": 91,
+      "pnl_abs": -45735.2
+     },
+     "take_profit": {
+      "n": 60,
+      "pnl_abs": 62612.51
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 119,
+      "to_i": 125,
+      "start": "2024-07-29T15:00:00+00:00",
+      "end": "2024-08-19T20:00:00+00:00",
+      "pnl_abs": 7516.01,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 141,
+      "to_i": 148,
+      "start": "2024-09-16T14:36:00+00:00",
+      "end": "2024-09-25T17:00:00+00:00",
+      "pnl_abs": -3955.19,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "40:34:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 2.0
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131450-11664c",
+   "status": "done",
+   "created": "2026-10-23T13:14:50+00:00",
+   "started": "2026-10-23T13:14:50+00:00",
+   "finished": "2026-10-23T13:14:52+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=3, slMode=mid, nyRangeMinutes=5 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "mid",
+     "nyRangeMinutes": 5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "slMode": "mid",
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 107,
+    "losses": 149,
+    "draws": 0,
+    "winrate": 41.8,
+    "pnl_abs": 22458.63,
+    "pnl_pct": 44.917,
+    "profit_factor": 1.221,
+    "max_drawdown_abs": 9110.77,
+    "max_drawdown_pct": 12.754,
+    "starting_balance": 50000.0,
+    "final_balance": 72458.63,
+    "gross_abs": 26620.5,
+    "volume_abs": 201384531.5,
+    "break_even_pct": 0.0132,
+    "exits": {
+     "take_profit": {
+      "n": 109,
+      "pnl_abs": 124029.93
+     },
+     "stop_loss": {
+      "n": 147,
+      "pnl_abs": -101571.3
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 4,
+      "from_i": 220,
+      "to_i": 223,
+      "start": "2024-08-12T13:42:00+00:00",
+      "end": "2024-08-15T13:57:00+00:00",
+      "pnl_abs": 4383.15,
+      "count": 1
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 116,
+      "to_i": 122,
+      "start": "2024-03-18T13:42:00+00:00",
+      "end": "2024-03-26T14:11:00+00:00",
+      "pnl_abs": -5434.05,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:17:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131452-3b8d65",
+   "status": "done",
+   "created": "2026-10-23T13:14:52+00:00",
+   "started": "2026-10-23T13:14:52+00:00",
+   "finished": "2026-10-23T13:14:54+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=3, slMode=mid, nyRangeMinutes=15 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "mid",
+     "nyRangeMinutes": 15
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 15,
+    "slMode": "mid",
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 252,
+    "wins": 94,
+    "losses": 158,
+    "draws": 0,
+    "winrate": 37.3,
+    "pnl_abs": 12729.07,
+    "pnl_pct": 25.458,
+    "profit_factor": 1.128,
+    "max_drawdown_abs": 8696.5,
+    "max_drawdown_pct": 13.881,
+    "starting_balance": 50000.0,
+    "final_balance": 62729.07,
+    "gross_abs": 15705.5,
+    "volume_abs": 144023563.5,
+    "break_even_pct": 0.0109,
+    "exits": {
+     "stop_loss": {
+      "n": 157,
+      "pnl_abs": -99415.55
+     },
+     "take_profit": {
+      "n": 95,
+      "pnl_abs": 112144.62
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 194,
+      "to_i": 199,
+      "start": "2024-07-11T13:54:00+00:00",
+      "end": "2024-07-18T15:13:00+00:00",
+      "pnl_abs": 6585.48,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 52,
+      "to_i": 59,
+      "start": "2023-12-19T15:33:00+00:00",
+      "end": "2023-12-29T15:03:00+00:00",
+      "pnl_abs": -4733.76,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "3:58:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-131454-29a725",
+   "status": "done",
+   "created": "2026-10-23T13:14:54+00:00",
+   "started": "2026-10-23T13:14:54+00:00",
+   "finished": "2026-10-23T13:14:56+00:00",
+   "user": "",
+   "note": "sweep 20261023-131349-1ece: rrRatio=3, slMode=mid, nyRangeMinutes=30 — ORB čistý bez EOD, mriežka RR×SL×range (23.10.2026), okno 20231001-20241001",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "slMode": "mid",
+     "nyRangeMinutes": 30
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 30
+   },
+   "params": {
+    "nyRangeMinutes": 30,
+    "slMode": "mid",
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 244,
+    "wins": 93,
+    "losses": 151,
+    "draws": 0,
+    "winrate": 38.11,
+    "pnl_abs": 28011.26,
+    "pnl_pct": 56.023,
+    "profit_factor": 1.328,
+    "max_drawdown_abs": 6301.79,
+    "max_drawdown_pct": 10.016,
+    "starting_balance": 50000.0,
+    "final_balance": 78011.26,
+    "gross_abs": 30296.0,
+    "volume_abs": 110554124.0,
+    "break_even_pct": 0.0274,
+    "exits": {
+     "stop_loss": {
+      "n": 148,
+      "pnl_abs": -85241.08
+     },
+     "take_profit": {
+      "n": 96,
+      "pnl_abs": 113252.34
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 189,
+      "to_i": 194,
+      "start": "2024-07-11T14:12:00+00:00",
+      "end": "2024-07-18T15:28:00+00:00",
+      "pnl_abs": 6693.63,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 52,
+      "to_i": 60,
+      "start": "2023-12-15T15:18:00+00:00",
+      "end": "2023-12-28T15:40:00+00:00",
+      "pnl_abs": -5154.89,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.183,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "8:24:00",
+    "bars": 118010,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-10-23T13:14:56+00:00"
+}

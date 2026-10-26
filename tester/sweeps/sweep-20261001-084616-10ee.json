@@ -1,0 +1,4518 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20261001-084616-10ee",
+ "strategy": "orb",
+ "created": "2026-10-01T08:46:16+00:00",
+ "user": "tester",
+ "base": {
+  "params": {
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "sessionMode": "ny",
+   "nyStartH": 9,
+   "nyStartM": 30,
+   "nyRangeMinutes": 5,
+   "nyEndH": 14,
+   "nyEndM": 55,
+   "lonStartH": 8,
+   "lonStartM": 0,
+   "lonRangeMinutes": 30,
+   "lonEndH": 16,
+   "lonEndM": 30,
+   "tradeDirection": "Both",
+   "entryMode": "stop",
+   "breakBufferAtr": 0.0,
+   "retestMaxBars": 10,
+   "entryWindowMinutes": 90,
+   "maxTradesPerDay": 1,
+   "minRangePct": 0.15,
+   "maxRangePct": 1.5,
+   "useVolumeFilter": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "minClosePosPct": 50,
+   "weekdaysOnly": false,
+   "emaLen": 200,
+   "emaFilter": false,
+   "emaRangeFilter": false,
+   "emaExit": false,
+   "slMode": "range_pct",
+   "slRangePct": 70,
+   "atrLen": 7,
+   "slAtrMult": 1.0,
+   "slBufferAtr": 0.1,
+   "tpMode": "rr",
+   "rrRatio": 0.5,
+   "measuredMult": 1.0,
+   "tpAtrMult": 2.0,
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "closeAtSessionEnd": true,
+   "riskDollar": 100.0,
+   "showRange": true,
+   "showLevels": true,
+   "showEma": false,
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "minSlDistance": 0.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "orb",
+   "exchange": null,
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "5m",
+   "timerange": "20250910-20260910",
+   "fee": 1.4571736659575088e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": "tester/profiles/ORB_MNQ_STOP_WR55_271obch.json",
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261001-084616-92404f",
+   "status": "done",
+   "created": "2026-10-01T08:46:16+00:00",
+   "started": "2026-10-01T08:46:16+00:00",
+   "finished": "2026-10-01T08:46:16+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=0.5 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 0.5
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 150,
+    "losses": 97,
+    "draws": 0,
+    "winrate": 60.73,
+    "pnl_abs": 1440.83,
+    "pnl_pct": 14.408,
+    "profit_factor": 1.329,
+    "max_drawdown_abs": 568.3,
+    "max_drawdown_pct": 5.219,
+    "starting_balance": 10000.0,
+    "final_balance": 11440.83,
+    "gross_abs": 1826.5,
+    "volume_abs": 26467180.5,
+    "break_even_pct": 0.0069,
+    "exits": {
+     "take_profit": {
+      "n": 222,
+      "pnl_abs": 5705.94
+     },
+     "stop_loss": {
+      "n": 25,
+      "pnl_abs": -4265.12
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 140,
+      "to_i": 150,
+      "start": "2026-04-07T13:45:00+00:00",
+      "end": "2026-04-21T14:11:00+00:00",
+      "pnl_abs": 432.99,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 135,
+      "to_i": 139,
+      "start": "2026-03-30T13:40:00+00:00",
+      "end": "2026-04-06T14:00:00+00:00",
+      "pnl_abs": -232.95,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:04:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084619-b51cd5",
+   "status": "done",
+   "created": "2026-10-01T08:46:19+00:00",
+   "started": "2026-10-01T08:46:19+00:00",
+   "finished": "2026-10-01T08:46:19+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=0.6 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 0.6
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 0.6
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 155,
+    "losses": 92,
+    "draws": 0,
+    "winrate": 62.75,
+    "pnl_abs": 1056.83,
+    "pnl_pct": 10.568,
+    "profit_factor": 1.163,
+    "max_drawdown_abs": 1556.37,
+    "max_drawdown_pct": 13.535,
+    "starting_balance": 10000.0,
+    "final_balance": 11056.83,
+    "gross_abs": 1442.5,
+    "volume_abs": 26467213.5,
+    "break_even_pct": 0.0055,
+    "exits": {
+     "take_profit": {
+      "n": 211,
+      "pnl_abs": 7451.15
+     },
+     "stop_loss": {
+      "n": 36,
+      "pnl_abs": -6394.33
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 112,
+      "to_i": 121,
+      "start": "2026-02-25T14:40:00+00:00",
+      "end": "2026-03-10T14:00:00+00:00",
+      "pnl_abs": 507.48,
+      "count": 2
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 30,
+      "to_i": 34,
+      "start": "2025-10-27T14:05:00+00:00",
+      "end": "2025-11-03T14:40:00+00:00",
+      "pnl_abs": -189.09,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:07:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084622-4b9bd6",
+   "status": "done",
+   "created": "2026-10-01T08:46:22+00:00",
+   "started": "2026-10-01T08:46:22+00:00",
+   "finished": "2026-10-01T08:46:22+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=0.7 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 0.7
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 0.7
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 150,
+    "losses": 97,
+    "draws": 0,
+    "winrate": 60.73,
+    "pnl_abs": 327.32,
+    "pnl_pct": 3.273,
+    "profit_factor": 1.037,
+    "max_drawdown_abs": 1963.33,
+    "max_drawdown_pct": 17.312,
+    "starting_balance": 10000.0,
+    "final_balance": 10327.32,
+    "gross_abs": 713.0,
+    "volume_abs": 26467530.0,
+    "break_even_pct": 0.0027,
+    "exits": {
+     "take_profit": {
+      "n": 197,
+      "pnl_abs": 8990.08
+     },
+     "stop_loss": {
+      "n": 48,
+      "pnl_abs": -8526.03
+     },
+     "session_end": {
+      "n": 2,
+      "pnl_abs": -136.73
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 154,
+      "to_i": 163,
+      "start": "2026-04-27T13:50:00+00:00",
+      "end": "2026-05-08T13:45:00+00:00",
+      "pnl_abs": 579.73,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 9,
+      "to_i": 14,
+      "start": "2025-09-25T13:40:00+00:00",
+      "end": "2025-10-02T13:40:00+00:00",
+      "pnl_abs": -442.17,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:10:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084625-0be608",
+   "status": "done",
+   "created": "2026-10-01T08:46:25+00:00",
+   "started": "2026-10-01T08:46:25+00:00",
+   "finished": "2026-10-01T08:46:25+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=0.8 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 0.8
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 0.8
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 155,
+    "losses": 92,
+    "draws": 0,
+    "winrate": 62.75,
+    "pnl_abs": 484.82,
+    "pnl_pct": 4.848,
+    "profit_factor": 1.047,
+    "max_drawdown_abs": 2247.26,
+    "max_drawdown_pct": 18.984,
+    "starting_balance": 10000.0,
+    "final_balance": 10484.82,
+    "gross_abs": 870.5,
+    "volume_abs": 26467665.5,
+    "break_even_pct": 0.0033,
+    "exits": {
+     "stop_loss": {
+      "n": 55,
+      "pnl_abs": -10038.5
+     },
+     "take_profit": {
+      "n": 190,
+      "pnl_abs": 10660.05
+     },
+     "session_end": {
+      "n": 2,
+      "pnl_abs": -136.73
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 154,
+      "to_i": 163,
+      "start": "2026-04-27T13:50:00+00:00",
+      "end": "2026-05-08T13:45:00+00:00",
+      "pnl_abs": 718.73,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 177,
+      "to_i": 182,
+      "start": "2026-06-01T13:40:00+00:00",
+      "end": "2026-06-08T14:32:00+00:00",
+      "pnl_abs": -994.56,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:13:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084628-e06c6d",
+   "status": "done",
+   "created": "2026-10-01T08:46:28+00:00",
+   "started": "2026-10-01T08:46:28+00:00",
+   "finished": "2026-10-01T08:46:29+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=0.9 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 0.9
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 0.9
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 158,
+    "losses": 89,
+    "draws": 0,
+    "winrate": 63.97,
+    "pnl_abs": 1309.31,
+    "pnl_pct": 13.093,
+    "profit_factor": 1.12,
+    "max_drawdown_abs": 2008.22,
+    "max_drawdown_pct": 16.067,
+    "starting_balance": 10000.0,
+    "final_balance": 11309.31,
+    "gross_abs": 1695.0,
+    "volume_abs": 26468001.0,
+    "break_even_pct": 0.0064,
+    "exits": {
+     "stop_loss": {
+      "n": 59,
+      "pnl_abs": -10633.08
+     },
+     "take_profit": {
+      "n": 183,
+      "pnl_abs": 12133.56
+     },
+     "session_end": {
+      "n": 5,
+      "pnl_abs": -191.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 14,
+      "to_i": 23,
+      "start": "2025-10-02T13:40:00+00:00",
+      "end": "2025-10-16T14:41:00+00:00",
+      "pnl_abs": 347.9,
+      "count": 2
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 10,
+      "to_i": 13,
+      "start": "2025-09-26T14:00:00+00:00",
+      "end": "2025-10-01T13:57:00+00:00",
+      "pnl_abs": -439.28,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:17:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.9
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084631-01e633",
+   "status": "done",
+   "created": "2026-10-01T08:46:31+00:00",
+   "started": "2026-10-01T08:46:31+00:00",
+   "finished": "2026-10-01T08:46:32+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.0
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 157,
+    "losses": 90,
+    "draws": 0,
+    "winrate": 63.56,
+    "pnl_abs": 1772.32,
+    "pnl_pct": 17.723,
+    "profit_factor": 1.147,
+    "max_drawdown_abs": 2096.35,
+    "max_drawdown_pct": 16.103,
+    "starting_balance": 10000.0,
+    "final_balance": 11772.32,
+    "gross_abs": 2158.0,
+    "volume_abs": 26467829.0,
+    "break_even_pct": 0.0082,
+    "exits": {
+     "stop_loss": {
+      "n": 66,
+      "pnl_abs": -11834.2
+     },
+     "take_profit": {
+      "n": 176,
+      "pnl_abs": 13797.68
+     },
+     "session_end": {
+      "n": 5,
+      "pnl_abs": -191.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 154,
+      "to_i": 164,
+      "start": "2026-04-27T13:50:00+00:00",
+      "end": "2026-05-12T13:45:00+00:00",
+      "pnl_abs": 1001.02,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 122,
+      "to_i": 127,
+      "start": "2026-03-11T13:40:00+00:00",
+      "end": "2026-03-18T14:03:00+00:00",
+      "pnl_abs": -581.71,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:19:00",
+    "bars": 70836,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084634-bc89c3",
+   "status": "done",
+   "created": "2026-10-01T08:46:34+00:00",
+   "started": "2026-10-01T08:46:34+00:00",
+   "finished": "2026-10-01T08:46:35+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.1 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.1
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.1
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 153,
+    "losses": 94,
+    "draws": 0,
+    "winrate": 61.94,
+    "pnl_abs": 2377.33,
+    "pnl_pct": 23.773,
+    "profit_factor": 1.181,
+    "max_drawdown_abs": 2478.86,
+    "max_drawdown_pct": 18.411,
+    "starting_balance": 10000.0,
+    "final_balance": 12377.33,
+    "gross_abs": 2763.0,
+    "volume_abs": 26467061.0,
+    "break_even_pct": 0.0104,
+    "exits": {
+     "stop_loss": {
+      "n": 72,
+      "pnl_abs": -12885.47
+     },
+     "take_profit": {
+      "n": 170,
+      "pnl_abs": 15453.96
+     },
+     "session_end": {
+      "n": 5,
+      "pnl_abs": -191.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 154,
+      "to_i": 164,
+      "start": "2026-04-27T13:50:00+00:00",
+      "end": "2026-05-12T13:45:00+00:00",
+      "pnl_abs": 1151.52,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 124,
+      "to_i": 127,
+      "start": "2026-03-13T13:45:00+00:00",
+      "end": "2026-03-18T14:03:00+00:00",
+      "pnl_abs": -475.31,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:22:00",
+    "bars": 70836,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084637-736a02",
+   "status": "done",
+   "created": "2026-10-01T08:46:37+00:00",
+   "started": "2026-10-01T08:46:37+00:00",
+   "finished": "2026-10-01T08:46:38+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.2 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.2
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.2
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 150,
+    "losses": 97,
+    "draws": 0,
+    "winrate": 60.73,
+    "pnl_abs": 2720.83,
+    "pnl_pct": 27.208,
+    "profit_factor": 1.191,
+    "max_drawdown_abs": 2267.89,
+    "max_drawdown_pct": 16.702,
+    "starting_balance": 10000.0,
+    "final_balance": 12720.83,
+    "gross_abs": 3106.5,
+    "volume_abs": 26467053.5,
+    "break_even_pct": 0.0117,
+    "exits": {
+     "stop_loss": {
+      "n": 79,
+      "pnl_abs": -14054.37
+     },
+     "take_profit": {
+      "n": 163,
+      "pnl_abs": 16966.37
+     },
+     "session_end": {
+      "n": 5,
+      "pnl_abs": -191.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 77,
+      "to_i": 85,
+      "start": "2026-01-06T14:50:00+00:00",
+      "end": "2026-01-16T14:54:00+00:00",
+      "pnl_abs": 797.47,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 29,
+      "to_i": 32,
+      "start": "2025-10-24T13:45:00+00:00",
+      "end": "2025-10-30T13:40:00+00:00",
+      "pnl_abs": -310.02,
+      "count": 5
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:25:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084640-c02459",
+   "status": "done",
+   "created": "2026-10-01T08:46:40+00:00",
+   "started": "2026-10-01T08:46:40+00:00",
+   "finished": "2026-10-01T08:46:41+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.3 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.3
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.3
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 139,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 56.28,
+    "pnl_abs": 311.33,
+    "pnl_pct": 3.113,
+    "profit_factor": 1.018,
+    "max_drawdown_abs": 3023.78,
+    "max_drawdown_pct": 23.481,
+    "starting_balance": 10000.0,
+    "final_balance": 10311.33,
+    "gross_abs": 697.0,
+    "volume_abs": 26466807.0,
+    "break_even_pct": 0.0026,
+    "exits": {
+     "stop_loss": {
+      "n": 92,
+      "pnl_abs": -16694.8
+     },
+     "take_profit": {
+      "n": 149,
+      "pnl_abs": 17104.52
+     },
+     "session_end": {
+      "n": 6,
+      "pnl_abs": -98.39
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 111,
+      "to_i": 118,
+      "start": "2026-02-24T14:45:00+00:00",
+      "end": "2026-03-05T15:00:00+00:00",
+      "pnl_abs": 1386.34,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 235,
+      "to_i": 240,
+      "start": "2026-08-24T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -803.28,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:29:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084643-d14777",
+   "status": "done",
+   "created": "2026-10-01T08:46:43+00:00",
+   "started": "2026-10-01T08:46:43+00:00",
+   "finished": "2026-10-01T08:46:44+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.4 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.4
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.4
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 137,
+    "losses": 110,
+    "draws": 0,
+    "winrate": 55.47,
+    "pnl_abs": 96.82,
+    "pnl_pct": 0.968,
+    "profit_factor": 1.005,
+    "max_drawdown_abs": 3117.78,
+    "max_drawdown_pct": 25.033,
+    "starting_balance": 10000.0,
+    "final_balance": 10096.83,
+    "gross_abs": 482.5,
+    "volume_abs": 26467329.5,
+    "break_even_pct": 0.0018,
+    "exits": {
+     "stop_loss": {
+      "n": 98,
+      "pnl_abs": -17866.77
+     },
+     "take_profit": {
+      "n": 142,
+      "pnl_abs": 17987.24
+     },
+     "session_end": {
+      "n": 7,
+      "pnl_abs": -23.64
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 212,
+      "to_i": 221,
+      "start": "2026-07-22T13:45:00+00:00",
+      "end": "2026-08-04T14:38:00+00:00",
+      "pnl_abs": 1517.4,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 235,
+      "to_i": 240,
+      "start": "2026-08-24T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -803.28,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:32:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084646-cdda44",
+   "status": "done",
+   "created": "2026-10-01T08:46:46+00:00",
+   "started": "2026-10-01T08:46:46+00:00",
+   "finished": "2026-10-01T08:46:47+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.5 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.5
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 131,
+    "losses": 116,
+    "draws": 0,
+    "winrate": 53.04,
+    "pnl_abs": -628.66,
+    "pnl_pct": -6.287,
+    "profit_factor": 0.968,
+    "max_drawdown_abs": 2920.99,
+    "max_drawdown_pct": 25.357,
+    "starting_balance": 10000.0,
+    "final_balance": 9371.34,
+    "gross_abs": -243.0,
+    "volume_abs": 26466509.0,
+    "break_even_pct": -0.0009,
+    "exits": {
+     "stop_loss": {
+      "n": 106,
+      "pnl_abs": -19328.78
+     },
+     "take_profit": {
+      "n": 133,
+      "pnl_abs": 18342.21
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 357.9
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:03:00+00:00",
+      "pnl_abs": 1396.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 235,
+      "to_i": 240,
+      "start": "2026-08-24T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -803.28,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:36:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084649-cc26cc",
+   "status": "done",
+   "created": "2026-10-01T08:46:49+00:00",
+   "started": "2026-10-01T08:46:49+00:00",
+   "finished": "2026-10-01T08:46:50+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.6 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.6
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.6
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 125,
+    "losses": 122,
+    "draws": 0,
+    "winrate": 50.61,
+    "pnl_abs": -1222.16,
+    "pnl_pct": -12.222,
+    "profit_factor": 0.941,
+    "max_drawdown_abs": 3301.48,
+    "max_drawdown_pct": 29.147,
+    "starting_balance": 10000.0,
+    "final_balance": 8777.84,
+    "gross_abs": -836.5,
+    "volume_abs": 26466181.5,
+    "break_even_pct": -0.0032,
+    "exits": {
+     "stop_loss": {
+      "n": 112,
+      "pnl_abs": -20527.84
+     },
+     "take_profit": {
+      "n": 125,
+      "pnl_abs": 18755.39
+     },
+     "session_end": {
+      "n": 10,
+      "pnl_abs": 550.29
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:09:00+00:00",
+      "pnl_abs": 1555.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 235,
+      "to_i": 240,
+      "start": "2026-08-24T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -803.28,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:41:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.9
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084652-6af6c3",
+   "status": "done",
+   "created": "2026-10-01T08:46:52+00:00",
+   "started": "2026-10-01T08:46:52+00:00",
+   "finished": "2026-10-01T08:46:53+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.7 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.7
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.7
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 126,
+    "losses": 121,
+    "draws": 0,
+    "winrate": 51.01,
+    "pnl_abs": -924.67,
+    "pnl_pct": -9.247,
+    "profit_factor": 0.957,
+    "max_drawdown_abs": 3261.99,
+    "max_drawdown_pct": 27.745,
+    "starting_balance": 10000.0,
+    "final_balance": 9075.33,
+    "gross_abs": -539.0,
+    "volume_abs": 26466928.0,
+    "break_even_pct": -0.002,
+    "exits": {
+     "stop_loss": {
+      "n": 115,
+      "pnl_abs": -21316.64
+     },
+     "take_profit": {
+      "n": 121,
+      "pnl_abs": 19718.68
+     },
+     "session_end": {
+      "n": 11,
+      "pnl_abs": 673.29
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 109,
+      "to_i": 117,
+      "start": "2026-02-20T14:40:00+00:00",
+      "end": "2026-03-04T15:29:00+00:00",
+      "pnl_abs": 1951.9,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:45:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084655-719aff",
+   "status": "done",
+   "created": "2026-10-01T08:46:55+00:00",
+   "started": "2026-10-01T08:46:55+00:00",
+   "finished": "2026-10-01T08:46:56+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.8 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.8
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.8
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 123,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 49.8,
+    "pnl_abs": -659.18,
+    "pnl_pct": -6.592,
+    "profit_factor": 0.97,
+    "max_drawdown_abs": 3100.5,
+    "max_drawdown_pct": 26.044,
+    "starting_balance": 10000.0,
+    "final_balance": 9340.82,
+    "gross_abs": -273.5,
+    "volume_abs": 26467728.5,
+    "break_even_pct": -0.001,
+    "exits": {
+     "stop_loss": {
+      "n": 117,
+      "pnl_abs": -21688.85
+     },
+     "take_profit": {
+      "n": 117,
+      "pnl_abs": 20440.05
+     },
+     "session_end": {
+      "n": 13,
+      "pnl_abs": 589.62
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:13:00+00:00",
+      "pnl_abs": 1872.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:49:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084658-eec766",
+   "status": "done",
+   "created": "2026-10-01T08:46:58+00:00",
+   "started": "2026-10-01T08:46:58+00:00",
+   "finished": "2026-10-01T08:46:59+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=1.9 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 1.9
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 1.9
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 122,
+    "losses": 125,
+    "draws": 0,
+    "winrate": 49.39,
+    "pnl_abs": 348.83,
+    "pnl_pct": 3.488,
+    "profit_factor": 1.016,
+    "max_drawdown_abs": 3060.51,
+    "max_drawdown_pct": 24.246,
+    "starting_balance": 10000.0,
+    "final_balance": 10348.83,
+    "gross_abs": 734.5,
+    "volume_abs": 26467220.5,
+    "break_even_pct": 0.0028,
+    "exits": {
+     "stop_loss": {
+      "n": 118,
+      "pnl_abs": -21993.58
+     },
+     "take_profit": {
+      "n": 114,
+      "pnl_abs": 21450.29
+     },
+     "session_end": {
+      "n": 15,
+      "pnl_abs": 892.11
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:19:00+00:00",
+      "pnl_abs": 2030.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:54:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084701-67f1e7",
+   "status": "done",
+   "created": "2026-10-01T08:47:01+00:00",
+   "started": "2026-10-01T08:47:01+00:00",
+   "finished": "2026-10-01T08:47:02+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.0
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 117,
+    "losses": 130,
+    "draws": 0,
+    "winrate": 47.37,
+    "pnl_abs": -0.68,
+    "pnl_pct": -0.007,
+    "profit_factor": 1.0,
+    "max_drawdown_abs": 2814.0,
+    "max_drawdown_pct": 23.898,
+    "starting_balance": 10000.0,
+    "final_balance": 9999.32,
+    "gross_abs": 385.0,
+    "volume_abs": 26467974.0,
+    "break_even_pct": 0.0015,
+    "exits": {
+     "stop_loss": {
+      "n": 123,
+      "pnl_abs": -22870.87
+     },
+     "take_profit": {
+      "n": 108,
+      "pnl_abs": 21826.0
+     },
+     "session_end": {
+      "n": 16,
+      "pnl_abs": 1044.19
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:21:00+00:00",
+      "pnl_abs": 2189.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:05:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084704-ba4193",
+   "status": "done",
+   "created": "2026-10-01T08:47:04+00:00",
+   "started": "2026-10-01T08:47:04+00:00",
+   "finished": "2026-10-01T08:47:05+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.1 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.1
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.1
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 112,
+    "losses": 135,
+    "draws": 0,
+    "winrate": 45.34,
+    "pnl_abs": -122.68,
+    "pnl_pct": -1.227,
+    "profit_factor": 0.995,
+    "max_drawdown_abs": 3211.98,
+    "max_drawdown_pct": 27.221,
+    "starting_balance": 10000.0,
+    "final_balance": 9877.32,
+    "gross_abs": 263.0,
+    "volume_abs": 26467627.0,
+    "break_even_pct": 0.001,
+    "exits": {
+     "stop_loss": {
+      "n": 128,
+      "pnl_abs": -23789.14
+     },
+     "take_profit": {
+      "n": 101,
+      "pnl_abs": 22358.18
+     },
+     "session_end": {
+      "n": 18,
+      "pnl_abs": 1308.28
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:22:00+00:00",
+      "pnl_abs": 2349.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:09:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084707-b04de5",
+   "status": "done",
+   "created": "2026-10-01T08:47:07+00:00",
+   "started": "2026-10-01T08:47:07+00:00",
+   "finished": "2026-10-01T08:47:08+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.2 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.2
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.2
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 111,
+    "losses": 136,
+    "draws": 0,
+    "winrate": 44.94,
+    "pnl_abs": 724.32,
+    "pnl_pct": 7.243,
+    "profit_factor": 1.03,
+    "max_drawdown_abs": 2693.98,
+    "max_drawdown_pct": 22.677,
+    "starting_balance": 10000.0,
+    "final_balance": 10724.32,
+    "gross_abs": 1110.0,
+    "volume_abs": 26467889.0,
+    "break_even_pct": 0.0042,
+    "exits": {
+     "stop_loss": {
+      "n": 129,
+      "pnl_abs": -24015.58
+     },
+     "take_profit": {
+      "n": 97,
+      "pnl_abs": 22768.56
+     },
+     "session_end": {
+      "n": 21,
+      "pnl_abs": 1971.33
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:38:00+00:00",
+      "pnl_abs": 2506.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:11:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084710-0b8a3a",
+   "status": "done",
+   "created": "2026-10-01T08:47:10+00:00",
+   "started": "2026-10-01T08:47:10+00:00",
+   "finished": "2026-10-01T08:47:11+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.3 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.3
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.3
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 108,
+    "losses": 139,
+    "draws": 0,
+    "winrate": 43.72,
+    "pnl_abs": -215.17,
+    "pnl_pct": -2.152,
+    "profit_factor": 0.991,
+    "max_drawdown_abs": 4339.97,
+    "max_drawdown_pct": 34.888,
+    "starting_balance": 10000.0,
+    "final_balance": 9784.83,
+    "gross_abs": 170.5,
+    "volume_abs": 26466810.5,
+    "break_even_pct": 0.0006,
+    "exits": {
+     "stop_loss": {
+      "n": 132,
+      "pnl_abs": -24787.21
+     },
+     "take_profit": {
+      "n": 93,
+      "pnl_abs": 22363.43
+     },
+     "session_end": {
+      "n": 22,
+      "pnl_abs": 2208.61
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:45:00+00:00",
+      "pnl_abs": 2665.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:15:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084713-61c5de",
+   "status": "done",
+   "created": "2026-10-01T08:47:13+00:00",
+   "started": "2026-10-01T08:47:13+00:00",
+   "finished": "2026-10-01T08:47:14+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.4 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.4
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.4
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 106,
+    "losses": 141,
+    "draws": 0,
+    "winrate": 42.91,
+    "pnl_abs": -1134.67,
+    "pnl_pct": -11.347,
+    "profit_factor": 0.955,
+    "max_drawdown_abs": 5038.08,
+    "max_drawdown_pct": 42.043,
+    "starting_balance": 10000.0,
+    "final_balance": 8865.33,
+    "gross_abs": -749.0,
+    "volume_abs": 26467315.0,
+    "break_even_pct": -0.0028,
+    "exits": {
+     "stop_loss": {
+      "n": 134,
+      "pnl_abs": -25154.57
+     },
+     "take_profit": {
+      "n": 87,
+      "pnl_abs": 21298.02
+     },
+     "session_end": {
+      "n": 26,
+      "pnl_abs": 2721.88
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T16:01:00+00:00",
+      "pnl_abs": 2825.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:20:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084716-b463f5",
+   "status": "done",
+   "created": "2026-10-01T08:47:16+00:00",
+   "started": "2026-10-01T08:47:16+00:00",
+   "finished": "2026-10-01T08:47:17+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.5 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.5
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 104,
+    "losses": 143,
+    "draws": 0,
+    "winrate": 42.11,
+    "pnl_abs": -1294.67,
+    "pnl_pct": -12.947,
+    "profit_factor": 0.95,
+    "max_drawdown_abs": 5848.57,
+    "max_drawdown_pct": 47.209,
+    "starting_balance": 10000.0,
+    "final_balance": 8705.33,
+    "gross_abs": -909.0,
+    "volume_abs": 26466738.0,
+    "break_even_pct": -0.0034,
+    "exits": {
+     "stop_loss": {
+      "n": 136,
+      "pnl_abs": -25427.77
+     },
+     "take_profit": {
+      "n": 82,
+      "pnl_abs": 20551.88
+     },
+     "session_end": {
+      "n": 29,
+      "pnl_abs": 3581.23
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T16:20:00+00:00",
+      "pnl_abs": 2983.29,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:24:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084720-f9493a",
+   "status": "done",
+   "created": "2026-10-01T08:47:20+00:00",
+   "started": "2026-10-01T08:47:20+00:00",
+   "finished": "2026-10-01T08:47:20+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.6 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.6
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.6
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 102,
+    "losses": 145,
+    "draws": 0,
+    "winrate": 41.3,
+    "pnl_abs": -1221.67,
+    "pnl_pct": -12.217,
+    "profit_factor": 0.953,
+    "max_drawdown_abs": 5736.57,
+    "max_drawdown_pct": 47.388,
+    "starting_balance": 10000.0,
+    "final_balance": 8778.33,
+    "gross_abs": -836.0,
+    "volume_abs": 26467237.0,
+    "break_even_pct": -0.0032,
+    "exits": {
+     "stop_loss": {
+      "n": 138,
+      "pnl_abs": -25816.75
+     },
+     "take_profit": {
+      "n": 79,
+      "pnl_abs": 20934.6
+     },
+     "session_end": {
+      "n": 30,
+      "pnl_abs": 3660.48
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T16:33:00+00:00",
+      "pnl_abs": 3141.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:28:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084723-05198a",
+   "status": "done",
+   "created": "2026-10-01T08:47:23+00:00",
+   "started": "2026-10-01T08:47:23+00:00",
+   "finished": "2026-10-01T08:47:23+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.7 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.7
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.7
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 101,
+    "losses": 146,
+    "draws": 0,
+    "winrate": 40.89,
+    "pnl_abs": -890.18,
+    "pnl_pct": -8.902,
+    "profit_factor": 0.966,
+    "max_drawdown_abs": 5642.07,
+    "max_drawdown_pct": 46.638,
+    "starting_balance": 10000.0,
+    "final_balance": 9109.82,
+    "gross_abs": -504.5,
+    "volume_abs": 26467603.5,
+    "break_even_pct": -0.0019,
+    "exits": {
+     "stop_loss": {
+      "n": 139,
+      "pnl_abs": -26101.74
+     },
+     "take_profit": {
+      "n": 75,
+      "pnl_abs": 20918.26
+     },
+     "session_end": {
+      "n": 33,
+      "pnl_abs": 4293.31
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T16:47:00+00:00",
+      "pnl_abs": 3300.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:31:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084726-eb671b",
+   "status": "done",
+   "created": "2026-10-01T08:47:26+00:00",
+   "started": "2026-10-01T08:47:26+00:00",
+   "finished": "2026-10-01T08:47:26+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.8 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.8
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.8
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 101,
+    "losses": 146,
+    "draws": 0,
+    "winrate": 40.89,
+    "pnl_abs": -127.68,
+    "pnl_pct": -1.277,
+    "profit_factor": 0.995,
+    "max_drawdown_abs": 5373.07,
+    "max_drawdown_pct": 43.519,
+    "starting_balance": 10000.0,
+    "final_balance": 9872.32,
+    "gross_abs": 258.0,
+    "volume_abs": 26467664.0,
+    "break_even_pct": 0.001,
+    "exits": {
+     "stop_loss": {
+      "n": 139,
+      "pnl_abs": -26101.74
+     },
+     "session_end": {
+      "n": 35,
+      "pnl_abs": 4667.4
+     },
+     "take_profit": {
+      "n": 73,
+      "pnl_abs": 21306.66
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T17:00:00+00:00",
+      "pnl_abs": 3458.8,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:34:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084729-e6b985",
+   "status": "done",
+   "created": "2026-10-01T08:47:29+00:00",
+   "started": "2026-10-01T08:47:29+00:00",
+   "finished": "2026-10-01T08:47:29+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=2.9 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 2.9
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 2.9
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 101,
+    "losses": 146,
+    "draws": 0,
+    "winrate": 40.89,
+    "pnl_abs": 788.82,
+    "pnl_pct": 7.888,
+    "profit_factor": 1.03,
+    "max_drawdown_abs": 5140.57,
+    "max_drawdown_pct": 40.206,
+    "starting_balance": 10000.0,
+    "final_balance": 10788.82,
+    "gross_abs": 1174.5,
+    "volume_abs": 26467654.5,
+    "break_even_pct": 0.0044,
+    "exits": {
+     "stop_loss": {
+      "n": 139,
+      "pnl_abs": -26101.74
+     },
+     "session_end": {
+      "n": 36,
+      "pnl_abs": 5037.54
+     },
+     "take_profit": {
+      "n": 72,
+      "pnl_abs": 21853.02
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 214,
+      "to_i": 221,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T17:00:00+00:00",
+      "pnl_abs": 3617.8,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 233,
+      "to_i": 240,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1200.7,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:35:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084732-0e730a",
+   "status": "done",
+   "created": "2026-10-01T08:47:32+00:00",
+   "started": "2026-10-01T08:47:32+00:00",
+   "finished": "2026-10-01T08:47:32+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=5, rrRatio=3 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5,
+     "rrRatio": 3.0
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "rrRatio": 3.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 247,
+    "wins": 98,
+    "losses": 149,
+    "draws": 0,
+    "winrate": 39.68,
+    "pnl_abs": 53.32,
+    "pnl_pct": 0.533,
+    "profit_factor": 1.002,
+    "max_drawdown_abs": 4887.07,
+    "max_drawdown_pct": 39.777,
+    "starting_balance": 10000.0,
+    "final_balance": 10053.32,
+    "gross_abs": 439.0,
+    "volume_abs": 26467909.0,
+    "break_even_pct": 0.0017,
+    "exits": {
+     "stop_loss": {
+      "n": 141,
+      "pnl_abs": -26559.82
+     },
+     "session_end": {
+      "n": 40,
+      "pnl_abs": 5661.11
+     },
+     "take_profit": {
+      "n": 66,
+      "pnl_abs": 20952.02
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 109,
+      "to_i": 113,
+      "start": "2026-02-20T14:40:00+00:00",
+      "end": "2026-02-26T15:15:00+00:00",
+      "pnl_abs": 1509.2,
+      "count": 2
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 9,
+      "to_i": 16,
+      "start": "2025-09-25T13:40:00+00:00",
+      "end": "2025-10-06T15:50:00+00:00",
+      "pnl_abs": -1019.1,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:40:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084735-8f9f9e",
+   "status": "done",
+   "created": "2026-10-01T08:47:35+00:00",
+   "started": "2026-10-01T08:47:35+00:00",
+   "finished": "2026-10-01T08:47:35+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=0.5 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 0.5
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 169,
+    "losses": 64,
+    "draws": 0,
+    "winrate": 72.53,
+    "pnl_abs": 453.32,
+    "pnl_pct": 4.533,
+    "profit_factor": 1.04,
+    "max_drawdown_abs": 2449.5,
+    "max_drawdown_pct": 19.087,
+    "starting_balance": 10000.0,
+    "final_balance": 10453.32,
+    "gross_abs": 817.0,
+    "volume_abs": 24957724.0,
+    "break_even_pct": 0.0033,
+    "exits": {
+     "take_profit": {
+      "n": 186,
+      "pnl_abs": 11568.83
+     },
+     "stop_loss": {
+      "n": 40,
+      "pnl_abs": -10264.79
+     },
+     "session_end": {
+      "n": 7,
+      "pnl_abs": -850.72
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 14,
+      "from_i": 100,
+      "to_i": 113,
+      "start": "2026-02-17T14:55:00+00:00",
+      "end": "2026-03-06T15:13:00+00:00",
+      "pnl_abs": 1188.15,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 30,
+      "to_i": 32,
+      "start": "2025-10-28T13:55:00+00:00",
+      "end": "2025-10-31T14:45:00+00:00",
+      "pnl_abs": -588.06,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:29:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084738-5e87f7",
+   "status": "done",
+   "created": "2026-10-01T08:47:38+00:00",
+   "started": "2026-10-01T08:47:38+00:00",
+   "finished": "2026-10-01T08:47:38+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=0.6 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 0.6
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 0.6
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 166,
+    "losses": 67,
+    "draws": 0,
+    "winrate": 71.24,
+    "pnl_abs": 519.83,
+    "pnl_pct": 5.198,
+    "profit_factor": 1.038,
+    "max_drawdown_abs": 2082.49,
+    "max_drawdown_pct": 16.636,
+    "starting_balance": 10000.0,
+    "final_balance": 10519.83,
+    "gross_abs": 883.5,
+    "volume_abs": 24957134.5,
+    "break_even_pct": 0.0035,
+    "exits": {
+     "take_profit": {
+      "n": 172,
+      "pnl_abs": 14048.19
+     },
+     "stop_loss": {
+      "n": 49,
+      "pnl_abs": -12693.93
+     },
+     "session_end": {
+      "n": 12,
+      "pnl_abs": -834.42
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 14,
+      "from_i": 100,
+      "to_i": 113,
+      "start": "2026-02-17T14:55:00+00:00",
+      "end": "2026-03-06T15:13:00+00:00",
+      "pnl_abs": 1417.15,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 30,
+      "to_i": 32,
+      "start": "2025-10-28T13:55:00+00:00",
+      "end": "2025-10-31T14:45:00+00:00",
+      "pnl_abs": -588.06,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "0:53:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084741-95491a",
+   "status": "done",
+   "created": "2026-10-01T08:47:41+00:00",
+   "started": "2026-10-01T08:47:41+00:00",
+   "finished": "2026-10-01T08:47:41+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=0.7 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 0.7
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 0.7
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 165,
+    "losses": 68,
+    "draws": 0,
+    "winrate": 70.82,
+    "pnl_abs": 2185.33,
+    "pnl_pct": 21.853,
+    "profit_factor": 1.145,
+    "max_drawdown_abs": 1635.76,
+    "max_drawdown_pct": 11.92,
+    "starting_balance": 10000.0,
+    "final_balance": 12185.33,
+    "gross_abs": 2549.0,
+    "volume_abs": 24957267.0,
+    "break_even_pct": 0.0102,
+    "exits": {
+     "take_profit": {
+      "n": 164,
+      "pnl_abs": 16798.68
+     },
+     "stop_loss": {
+      "n": 54,
+      "pnl_abs": -13834.98
+     },
+     "session_end": {
+      "n": 15,
+      "pnl_abs": -778.37
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 14,
+      "from_i": 100,
+      "to_i": 113,
+      "start": "2026-02-17T14:55:00+00:00",
+      "end": "2026-03-06T15:14:00+00:00",
+      "pnl_abs": 1726.15,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 223,
+      "to_i": 226,
+      "start": "2026-08-26T14:00:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -632.87,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:03:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084744-f0020b",
+   "status": "done",
+   "created": "2026-10-01T08:47:44+00:00",
+   "started": "2026-10-01T08:47:44+00:00",
+   "finished": "2026-10-01T08:47:45+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=0.8 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 0.8
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 0.8
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 156,
+    "losses": 77,
+    "draws": 0,
+    "winrate": 66.95,
+    "pnl_abs": 1346.33,
+    "pnl_pct": 13.463,
+    "profit_factor": 1.076,
+    "max_drawdown_abs": 2118.48,
+    "max_drawdown_pct": 15.868,
+    "starting_balance": 10000.0,
+    "final_balance": 11346.33,
+    "gross_abs": 1710.0,
+    "volume_abs": 24956863.0,
+    "break_even_pct": 0.0069,
+    "exits": {
+     "session_end": {
+      "n": 19,
+      "pnl_abs": -846.73
+     },
+     "take_profit": {
+      "n": 150,
+      "pnl_abs": 18562.73
+     },
+     "stop_loss": {
+      "n": 64,
+      "pnl_abs": -16369.66
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 100,
+      "to_i": 111,
+      "start": "2026-02-17T14:55:00+00:00",
+      "end": "2026-03-04T15:21:00+00:00",
+      "pnl_abs": 1806.56,
+      "count": 2
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 223,
+      "to_i": 226,
+      "start": "2026-08-26T14:00:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -632.87,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:13:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084747-6604f9",
+   "status": "done",
+   "created": "2026-10-01T08:47:47+00:00",
+   "started": "2026-10-01T08:47:47+00:00",
+   "finished": "2026-10-01T08:47:48+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=0.9 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 0.9
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 0.9
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 146,
+    "losses": 87,
+    "draws": 0,
+    "winrate": 62.66,
+    "pnl_abs": 378.34,
+    "pnl_pct": 3.783,
+    "profit_factor": 1.019,
+    "max_drawdown_abs": 2769.43,
+    "max_drawdown_pct": 21.271,
+    "starting_balance": 10000.0,
+    "final_balance": 10378.34,
+    "gross_abs": 742.0,
+    "volume_abs": 24956617.0,
+    "break_even_pct": 0.003,
+    "exits": {
+     "session_end": {
+      "n": 24,
+      "pnl_abs": -1116.18
+     },
+     "take_profit": {
+      "n": 137,
+      "pnl_abs": 19874.62
+     },
+     "stop_loss": {
+      "n": 72,
+      "pnl_abs": -18380.1
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 151,
+      "to_i": 162,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-21T14:02:00+00:00",
+      "pnl_abs": 1886.69,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 223,
+      "to_i": 226,
+      "start": "2026-08-26T14:00:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -632.87,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:24:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084750-9cdaee",
+   "status": "done",
+   "created": "2026-10-01T08:47:50+00:00",
+   "started": "2026-10-01T08:47:50+00:00",
+   "finished": "2026-10-01T08:47:51+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.0
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 144,
+    "losses": 89,
+    "draws": 0,
+    "winrate": 61.8,
+    "pnl_abs": 2483.35,
+    "pnl_pct": 24.833,
+    "profit_factor": 1.12,
+    "max_drawdown_abs": 2099.43,
+    "max_drawdown_pct": 14.539,
+    "starting_balance": 10000.0,
+    "final_balance": 12483.35,
+    "gross_abs": 2847.0,
+    "volume_abs": 24956066.0,
+    "break_even_pct": 0.0114,
+    "exits": {
+     "session_end": {
+      "n": 29,
+      "pnl_abs": -367.29
+     },
+     "take_profit": {
+      "n": 131,
+      "pnl_abs": 21430.95
+     },
+     "stop_loss": {
+      "n": 73,
+      "pnl_abs": -18580.31
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 151,
+      "to_i": 161,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-20T15:15:00+00:00",
+      "pnl_abs": 2048.39,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 223,
+      "to_i": 226,
+      "start": "2026-08-26T14:00:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -632.87,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:33:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084753-205576",
+   "status": "done",
+   "created": "2026-10-01T08:47:53+00:00",
+   "started": "2026-10-01T08:47:53+00:00",
+   "finished": "2026-10-01T08:47:54+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.1 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.1
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.1
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 136,
+    "losses": 97,
+    "draws": 0,
+    "winrate": 58.37,
+    "pnl_abs": 993.86,
+    "pnl_pct": 9.939,
+    "profit_factor": 1.043,
+    "max_drawdown_abs": 2397.28,
+    "max_drawdown_pct": 17.902,
+    "starting_balance": 10000.0,
+    "final_balance": 10993.86,
+    "gross_abs": 1357.5,
+    "volume_abs": 24955204.5,
+    "break_even_pct": 0.0054,
+    "exits": {
+     "session_end": {
+      "n": 31,
+      "pnl_abs": -171.6
+     },
+     "take_profit": {
+      "n": 121,
+      "pnl_abs": 22161.62
+     },
+     "stop_loss": {
+      "n": 81,
+      "pnl_abs": -20996.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T15:30:00+00:00",
+      "pnl_abs": 1772.77,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 10,
+      "to_i": 13,
+      "start": "2025-09-25T14:20:00+00:00",
+      "end": "2025-09-30T14:03:00+00:00",
+      "pnl_abs": -807.76,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:43:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084756-37e683",
+   "status": "done",
+   "created": "2026-10-01T08:47:56+00:00",
+   "started": "2026-10-01T08:47:56+00:00",
+   "finished": "2026-10-01T08:47:57+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.2 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.2
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.2
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 129,
+    "losses": 104,
+    "draws": 0,
+    "winrate": 55.36,
+    "pnl_abs": 474.84,
+    "pnl_pct": 4.748,
+    "profit_factor": 1.019,
+    "max_drawdown_abs": 3413.3,
+    "max_drawdown_pct": 24.577,
+    "starting_balance": 10000.0,
+    "final_balance": 10474.84,
+    "gross_abs": 838.5,
+    "volume_abs": 24956724.5,
+    "break_even_pct": 0.0034,
+    "exits": {
+     "session_end": {
+      "n": 36,
+      "pnl_abs": 119.06
+     },
+     "take_profit": {
+      "n": 111,
+      "pnl_abs": 22732.55
+     },
+     "stop_loss": {
+      "n": 86,
+      "pnl_abs": -22376.77
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T16:26:00+00:00",
+      "pnl_abs": 1955.27,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 10,
+      "to_i": 13,
+      "start": "2025-09-25T14:20:00+00:00",
+      "end": "2025-09-30T14:03:00+00:00",
+      "pnl_abs": -807.76,
+      "count": 5
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:53:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084759-cc0708",
+   "status": "done",
+   "created": "2026-10-01T08:47:59+00:00",
+   "started": "2026-10-01T08:47:59+00:00",
+   "finished": "2026-10-01T08:48:00+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.3 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.3
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.3
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 129,
+    "losses": 104,
+    "draws": 0,
+    "winrate": 55.36,
+    "pnl_abs": 1968.85,
+    "pnl_pct": 19.688,
+    "profit_factor": 1.08,
+    "max_drawdown_abs": 2948.21,
+    "max_drawdown_pct": 19.764,
+    "starting_balance": 10000.0,
+    "final_balance": 11968.85,
+    "gross_abs": 2332.5,
+    "volume_abs": 24955853.5,
+    "break_even_pct": 0.0093,
+    "exits": {
+     "session_end": {
+      "n": 42,
+      "pnl_abs": 872.67
+     },
+     "take_profit": {
+      "n": 105,
+      "pnl_abs": 23472.95
+     },
+     "stop_loss": {
+      "n": 86,
+      "pnl_abs": -22376.77
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T16:26:00+00:00",
+      "pnl_abs": 1942.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 10,
+      "to_i": 13,
+      "start": "2025-09-25T14:20:00+00:00",
+      "end": "2025-09-30T14:03:00+00:00",
+      "pnl_abs": -807.76,
+      "count": 5
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:01:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084802-a555cd",
+   "status": "done",
+   "created": "2026-10-01T08:48:02+00:00",
+   "started": "2026-10-01T08:48:02+00:00",
+   "finished": "2026-10-01T08:48:03+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.4 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.4
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.4
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 126,
+    "losses": 107,
+    "draws": 0,
+    "winrate": 54.08,
+    "pnl_abs": 1427.87,
+    "pnl_pct": 14.279,
+    "profit_factor": 1.056,
+    "max_drawdown_abs": 3137.21,
+    "max_drawdown_pct": 21.539,
+    "starting_balance": 10000.0,
+    "final_balance": 11427.87,
+    "gross_abs": 1791.5,
+    "volume_abs": 24954133.5,
+    "break_even_pct": 0.0072,
+    "exits": {
+     "session_end": {
+      "n": 53,
+      "pnl_abs": 2119.07
+     },
+     "take_profit": {
+      "n": 92,
+      "pnl_abs": 22390.46
+     },
+     "stop_loss": {
+      "n": 88,
+      "pnl_abs": -23081.66
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T16:27:00+00:00",
+      "pnl_abs": 2036.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 10,
+      "to_i": 13,
+      "start": "2025-09-25T14:20:00+00:00",
+      "end": "2025-09-30T14:03:00+00:00",
+      "pnl_abs": -807.76,
+      "count": 5
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:14:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084805-13bf01",
+   "status": "done",
+   "created": "2026-10-01T08:48:05+00:00",
+   "started": "2026-10-01T08:48:05+00:00",
+   "finished": "2026-10-01T08:48:06+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.5 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.5
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 121,
+    "losses": 112,
+    "draws": 0,
+    "winrate": 51.93,
+    "pnl_abs": -985.67,
+    "pnl_pct": -9.857,
+    "profit_factor": 0.964,
+    "max_drawdown_abs": 4324.74,
+    "max_drawdown_pct": 32.422,
+    "starting_balance": 10000.0,
+    "final_balance": 9014.33,
+    "gross_abs": -622.0,
+    "volume_abs": 24957127.0,
+    "break_even_pct": -0.0025,
+    "exits": {
+     "session_end": {
+      "n": 58,
+      "pnl_abs": 3408.72
+     },
+     "take_profit": {
+      "n": 81,
+      "pnl_abs": 20664.52
+     },
+     "stop_loss": {
+      "n": 94,
+      "pnl_abs": -25058.91
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T16:28:00+00:00",
+      "pnl_abs": 2164.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 43,
+      "to_i": 47,
+      "start": "2025-11-17T14:55:00+00:00",
+      "end": "2025-11-21T15:01:00+00:00",
+      "pnl_abs": -1703.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:21:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084808-14c66d",
+   "status": "done",
+   "created": "2026-10-01T08:48:08+00:00",
+   "started": "2026-10-01T08:48:08+00:00",
+   "finished": "2026-10-01T08:48:09+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.6 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.6
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.6
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 119,
+    "losses": 114,
+    "draws": 0,
+    "winrate": 51.07,
+    "pnl_abs": -325.67,
+    "pnl_pct": -3.257,
+    "profit_factor": 0.988,
+    "max_drawdown_abs": 3937.24,
+    "max_drawdown_pct": 28.926,
+    "starting_balance": 10000.0,
+    "final_balance": 9674.33,
+    "gross_abs": 38.0,
+    "volume_abs": 24957432.0,
+    "break_even_pct": 0.0002,
+    "exits": {
+     "session_end": {
+      "n": 62,
+      "pnl_abs": 4205.6
+     },
+     "take_profit": {
+      "n": 75,
+      "pnl_abs": 20755.03
+     },
+     "stop_loss": {
+      "n": 96,
+      "pnl_abs": -25286.3
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T16:28:00+00:00",
+      "pnl_abs": 2292.77,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 43,
+      "to_i": 47,
+      "start": "2025-11-17T14:55:00+00:00",
+      "end": "2025-11-21T15:01:00+00:00",
+      "pnl_abs": -1703.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:27:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084811-0db3ef",
+   "status": "done",
+   "created": "2026-10-01T08:48:11+00:00",
+   "started": "2026-10-01T08:48:11+00:00",
+   "finished": "2026-10-01T08:48:12+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.7 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.7
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.7
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 119,
+    "losses": 114,
+    "draws": 0,
+    "winrate": 51.07,
+    "pnl_abs": 432.83,
+    "pnl_pct": 4.328,
+    "profit_factor": 1.016,
+    "max_drawdown_abs": 3549.24,
+    "max_drawdown_pct": 25.384,
+    "starting_balance": 10000.0,
+    "final_balance": 10432.83,
+    "gross_abs": 796.5,
+    "volume_abs": 24957185.5,
+    "break_even_pct": 0.0032,
+    "exits": {
+     "session_end": {
+      "n": 67,
+      "pnl_abs": 4882.08
+     },
+     "take_profit": {
+      "n": 70,
+      "pnl_abs": 20837.05
+     },
+     "stop_loss": {
+      "n": 96,
+      "pnl_abs": -25286.3
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T16:30:00+00:00",
+      "pnl_abs": 2238.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 43,
+      "to_i": 47,
+      "start": "2025-11-17T14:55:00+00:00",
+      "end": "2025-11-21T15:01:00+00:00",
+      "pnl_abs": -1703.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:34:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084814-1a982a",
+   "status": "done",
+   "created": "2026-10-01T08:48:14+00:00",
+   "started": "2026-10-01T08:48:14+00:00",
+   "finished": "2026-10-01T08:48:15+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.8 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.8
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.8
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 119,
+    "losses": 114,
+    "draws": 0,
+    "winrate": 51.07,
+    "pnl_abs": 809.34,
+    "pnl_pct": 8.093,
+    "profit_factor": 1.029,
+    "max_drawdown_abs": 3787.74,
+    "max_drawdown_pct": 25.949,
+    "starting_balance": 10000.0,
+    "final_balance": 10809.34,
+    "gross_abs": 1173.0,
+    "volume_abs": 24956620.0,
+    "break_even_pct": 0.0047,
+    "exits": {
+     "session_end": {
+      "n": 75,
+      "pnl_abs": 7434.19
+     },
+     "take_profit": {
+      "n": 62,
+      "pnl_abs": 18661.45
+     },
+     "stop_loss": {
+      "n": 96,
+      "pnl_abs": -25286.3
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:27:00+00:00",
+      "pnl_abs": 2141.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 43,
+      "to_i": 47,
+      "start": "2025-11-17T14:55:00+00:00",
+      "end": "2025-11-21T15:01:00+00:00",
+      "pnl_abs": -1703.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:41:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084817-b2cbc0",
+   "status": "done",
+   "created": "2026-10-01T08:48:17+00:00",
+   "started": "2026-10-01T08:48:17+00:00",
+   "finished": "2026-10-01T08:48:18+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=1.9 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 1.9
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 1.9
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 117,
+    "losses": 116,
+    "draws": 0,
+    "winrate": 50.21,
+    "pnl_abs": 404.33,
+    "pnl_pct": 4.043,
+    "profit_factor": 1.015,
+    "max_drawdown_abs": 3563.74,
+    "max_drawdown_pct": 25.513,
+    "starting_balance": 10000.0,
+    "final_balance": 10404.33,
+    "gross_abs": 768.0,
+    "volume_abs": 24957215.0,
+    "break_even_pct": 0.0031,
+    "exits": {
+     "session_end": {
+      "n": 81,
+      "pnl_abs": 8751.17
+     },
+     "take_profit": {
+      "n": 55,
+      "pnl_abs": 17223.37
+     },
+     "stop_loss": {
+      "n": 97,
+      "pnl_abs": -25570.21
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:50:00+00:00",
+      "pnl_abs": 2208.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 43,
+      "to_i": 47,
+      "start": "2025-11-17T14:55:00+00:00",
+      "end": "2025-11-21T15:01:00+00:00",
+      "pnl_abs": -1703.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:46:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084820-938ab9",
+   "status": "done",
+   "created": "2026-10-01T08:48:20+00:00",
+   "started": "2026-10-01T08:48:20+00:00",
+   "finished": "2026-10-01T08:48:21+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.0
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 116,
+    "losses": 117,
+    "draws": 0,
+    "winrate": 49.79,
+    "pnl_abs": -335.19,
+    "pnl_pct": -3.352,
+    "profit_factor": 0.988,
+    "max_drawdown_abs": 3689.24,
+    "max_drawdown_pct": 27.626,
+    "starting_balance": 10000.0,
+    "final_balance": 9664.81,
+    "gross_abs": 28.5,
+    "volume_abs": 24958464.5,
+    "break_even_pct": 0.0001,
+    "exits": {
+     "session_end": {
+      "n": 87,
+      "pnl_abs": 10028.38
+     },
+     "take_profit": {
+      "n": 48,
+      "pnl_abs": 15324.14
+     },
+     "stop_loss": {
+      "n": 98,
+      "pnl_abs": -25687.7
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2198.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 43,
+      "to_i": 47,
+      "start": "2025-11-17T14:55:00+00:00",
+      "end": "2025-11-21T15:01:00+00:00",
+      "pnl_abs": -1703.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:59:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084823-5e2ad8",
+   "status": "done",
+   "created": "2026-10-01T08:48:23+00:00",
+   "started": "2026-10-01T08:48:23+00:00",
+   "finished": "2026-10-01T08:48:24+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.1 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.1
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.1
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 116,
+    "losses": 117,
+    "draws": 0,
+    "winrate": 49.79,
+    "pnl_abs": 260.82,
+    "pnl_pct": 2.608,
+    "profit_factor": 1.009,
+    "max_drawdown_abs": 3469.24,
+    "max_drawdown_pct": 25.267,
+    "starting_balance": 10000.0,
+    "final_balance": 10260.82,
+    "gross_abs": 624.5,
+    "volume_abs": 24958093.5,
+    "break_even_pct": 0.0025,
+    "exits": {
+     "session_end": {
+      "n": 91,
+      "pnl_abs": 10954.59
+     },
+     "take_profit": {
+      "n": 44,
+      "pnl_abs": 14993.92
+     },
+     "stop_loss": {
+      "n": 98,
+      "pnl_abs": -25687.7
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2232.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 43,
+      "to_i": 47,
+      "start": "2025-11-17T14:55:00+00:00",
+      "end": "2025-11-21T15:01:00+00:00",
+      "pnl_abs": -1703.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:02:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084826-e1d526",
+   "status": "done",
+   "created": "2026-10-01T08:48:26+00:00",
+   "started": "2026-10-01T08:48:26+00:00",
+   "finished": "2026-10-01T08:48:27+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.2 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.2
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.2
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 115,
+    "losses": 118,
+    "draws": 0,
+    "winrate": 49.36,
+    "pnl_abs": 342.33,
+    "pnl_pct": 3.423,
+    "profit_factor": 1.012,
+    "max_drawdown_abs": 3759.73,
+    "max_drawdown_pct": 26.661,
+    "starting_balance": 10000.0,
+    "final_balance": 10342.33,
+    "gross_abs": 706.0,
+    "volume_abs": 24957410.0,
+    "break_even_pct": 0.0028,
+    "exits": {
+     "session_end": {
+      "n": 95,
+      "pnl_abs": 12049.26
+     },
+     "stop_loss": {
+      "n": 99,
+      "pnl_abs": -25861.9
+     },
+     "take_profit": {
+      "n": 39,
+      "pnl_abs": 14154.97
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2265.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 223,
+      "to_i": 228,
+      "start": "2026-08-26T14:00:00+00:00",
+      "end": "2026-09-02T14:05:00+00:00",
+      "pnl_abs": -945.76,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:04:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084830-0c0d56",
+   "status": "done",
+   "created": "2026-10-01T08:48:30+00:00",
+   "started": "2026-10-01T08:48:30+00:00",
+   "finished": "2026-10-01T08:48:30+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.3 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.3
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.3
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 115,
+    "losses": 118,
+    "draws": 0,
+    "winrate": 49.36,
+    "pnl_abs": 1084.83,
+    "pnl_pct": 10.848,
+    "profit_factor": 1.039,
+    "max_drawdown_abs": 3555.73,
+    "max_drawdown_pct": 24.287,
+    "starting_balance": 10000.0,
+    "final_balance": 11084.83,
+    "gross_abs": 1448.5,
+    "volume_abs": 24957239.5,
+    "break_even_pct": 0.0058,
+    "exits": {
+     "session_end": {
+      "n": 96,
+      "pnl_abs": 12348.81
+     },
+     "stop_loss": {
+      "n": 99,
+      "pnl_abs": -25861.9
+     },
+     "take_profit": {
+      "n": 38,
+      "pnl_abs": 14597.92
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2299.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 223,
+      "to_i": 228,
+      "start": "2026-08-26T14:00:00+00:00",
+      "end": "2026-09-02T14:05:00+00:00",
+      "pnl_abs": -945.76,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:05:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084833-565799",
+   "status": "done",
+   "created": "2026-10-01T08:48:33+00:00",
+   "started": "2026-10-01T08:48:33+00:00",
+   "finished": "2026-10-01T08:48:33+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.4 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.4
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.4
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 114,
+    "losses": 119,
+    "draws": 0,
+    "winrate": 48.93,
+    "pnl_abs": 967.84,
+    "pnl_pct": 9.678,
+    "profit_factor": 1.034,
+    "max_drawdown_abs": 4002.22,
+    "max_drawdown_pct": 26.735,
+    "starting_balance": 10000.0,
+    "final_balance": 10967.84,
+    "gross_abs": 1331.5,
+    "volume_abs": 24956221.5,
+    "break_even_pct": 0.0053,
+    "exits": {
+     "session_end": {
+      "n": 99,
+      "pnl_abs": 13155.81
+     },
+     "stop_loss": {
+      "n": 99,
+      "pnl_abs": -25861.9
+     },
+     "take_profit": {
+      "n": 35,
+      "pnl_abs": 13673.94
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2333.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 180,
+      "to_i": 185,
+      "start": "2026-06-19T14:55:00+00:00",
+      "end": "2026-06-29T15:29:00+00:00",
+      "pnl_abs": -1740.5,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:07:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084836-7ca147",
+   "status": "done",
+   "created": "2026-10-01T08:48:36+00:00",
+   "started": "2026-10-01T08:48:36+00:00",
+   "finished": "2026-10-01T08:48:36+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.5 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.5
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 114,
+    "losses": 119,
+    "draws": 0,
+    "winrate": 48.93,
+    "pnl_abs": 1599.35,
+    "pnl_pct": 15.993,
+    "profit_factor": 1.057,
+    "max_drawdown_abs": 3863.72,
+    "max_drawdown_pct": 24.987,
+    "starting_balance": 10000.0,
+    "final_balance": 11599.35,
+    "gross_abs": 1963.0,
+    "volume_abs": 24955945.0,
+    "break_even_pct": 0.0079,
+    "exits": {
+     "session_end": {
+      "n": 100,
+      "pnl_abs": 13486.35
+     },
+     "stop_loss": {
+      "n": 99,
+      "pnl_abs": -25861.9
+     },
+     "take_profit": {
+      "n": 34,
+      "pnl_abs": 13974.9
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2367.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 180,
+      "to_i": 185,
+      "start": "2026-06-19T14:55:00+00:00",
+      "end": "2026-06-29T15:29:00+00:00",
+      "pnl_abs": -1740.5,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:08:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084839-7e7685",
+   "status": "done",
+   "created": "2026-10-01T08:48:39+00:00",
+   "started": "2026-10-01T08:48:39+00:00",
+   "finished": "2026-10-01T08:48:39+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.6 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.6
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.6
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 114,
+    "losses": 119,
+    "draws": 0,
+    "winrate": 48.93,
+    "pnl_abs": 1264.84,
+    "pnl_pct": 12.648,
+    "profit_factor": 1.045,
+    "max_drawdown_abs": 4302.73,
+    "max_drawdown_pct": 27.639,
+    "starting_balance": 10000.0,
+    "final_balance": 11264.84,
+    "gross_abs": 1628.5,
+    "volume_abs": 24956391.5,
+    "break_even_pct": 0.0065,
+    "exits": {
+     "session_end": {
+      "n": 104,
+      "pnl_abs": 14413.05
+     },
+     "stop_loss": {
+      "n": 99,
+      "pnl_abs": -25861.9
+     },
+     "take_profit": {
+      "n": 30,
+      "pnl_abs": 12713.69
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2400.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 180,
+      "to_i": 185,
+      "start": "2026-06-19T14:55:00+00:00",
+      "end": "2026-06-29T15:29:00+00:00",
+      "pnl_abs": -1740.5,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:11:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084842-a8dcc2",
+   "status": "done",
+   "created": "2026-10-01T08:48:42+00:00",
+   "started": "2026-10-01T08:48:42+00:00",
+   "finished": "2026-10-01T08:48:42+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.7 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.7
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.7
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 113,
+    "losses": 120,
+    "draws": 0,
+    "winrate": 48.5,
+    "pnl_abs": 1007.36,
+    "pnl_pct": 10.074,
+    "profit_factor": 1.036,
+    "max_drawdown_abs": 4227.23,
+    "max_drawdown_pct": 27.748,
+    "starting_balance": 10000.0,
+    "final_balance": 11007.36,
+    "gross_abs": 1371.0,
+    "volume_abs": 24955344.0,
+    "break_even_pct": 0.0055,
+    "exits": {
+     "session_end": {
+      "n": 109,
+      "pnl_abs": 15404.04
+     },
+     "stop_loss": {
+      "n": 99,
+      "pnl_abs": -25861.9
+     },
+     "take_profit": {
+      "n": 25,
+      "pnl_abs": 11465.22
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2434.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 180,
+      "to_i": 185,
+      "start": "2026-06-19T14:55:00+00:00",
+      "end": "2026-06-29T15:29:00+00:00",
+      "pnl_abs": -1740.5,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:14:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084845-d62ba2",
+   "status": "done",
+   "created": "2026-10-01T08:48:45+00:00",
+   "started": "2026-10-01T08:48:45+00:00",
+   "finished": "2026-10-01T08:48:45+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.8 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.8
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.8
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 113,
+    "losses": 120,
+    "draws": 0,
+    "winrate": 48.5,
+    "pnl_abs": 1485.86,
+    "pnl_pct": 14.859,
+    "profit_factor": 1.053,
+    "max_drawdown_abs": 4151.72,
+    "max_drawdown_pct": 26.55,
+    "starting_balance": 10000.0,
+    "final_balance": 11485.86,
+    "gross_abs": 1849.5,
+    "volume_abs": 24955029.5,
+    "break_even_pct": 0.0074,
+    "exits": {
+     "session_end": {
+      "n": 109,
+      "pnl_abs": 15404.04
+     },
+     "stop_loss": {
+      "n": 99,
+      "pnl_abs": -25861.9
+     },
+     "take_profit": {
+      "n": 25,
+      "pnl_abs": 11943.72
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2467.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 180,
+      "to_i": 185,
+      "start": "2026-06-19T14:55:00+00:00",
+      "end": "2026-06-29T15:29:00+00:00",
+      "pnl_abs": -1740.5,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:15:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084848-ddbb61",
+   "status": "done",
+   "created": "2026-10-01T08:48:48+00:00",
+   "started": "2026-10-01T08:48:48+00:00",
+   "finished": "2026-10-01T08:48:48+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=2.9 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 2.9
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 2.9
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 112,
+    "losses": 121,
+    "draws": 0,
+    "winrate": 48.07,
+    "pnl_abs": 1082.38,
+    "pnl_pct": 10.824,
+    "profit_factor": 1.038,
+    "max_drawdown_abs": 4076.72,
+    "max_drawdown_pct": 26.893,
+    "starting_balance": 10000.0,
+    "final_balance": 11082.38,
+    "gross_abs": 1446.0,
+    "volume_abs": 24953835.0,
+    "break_even_pct": 0.0058,
+    "exits": {
+     "session_end": {
+      "n": 110,
+      "pnl_abs": 15552.04
+     },
+     "stop_loss": {
+      "n": 100,
+      "pnl_abs": -26126.87
+     },
+     "take_profit": {
+      "n": 23,
+      "pnl_abs": 11657.21
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 151,
+      "to_i": 159,
+      "start": "2026-05-05T14:25:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 2501.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 180,
+      "to_i": 185,
+      "start": "2026-06-19T14:55:00+00:00",
+      "end": "2026-06-29T15:29:00+00:00",
+      "pnl_abs": -1740.5,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:16:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261001-084851-04075e",
+   "status": "done",
+   "created": "2026-10-01T08:48:51+00:00",
+   "started": "2026-10-01T08:48:51+00:00",
+   "finished": "2026-10-01T08:48:51+00:00",
+   "user": "tester",
+   "note": "sweep 20261001-084616-10ee: nyRangeMinutes=20, rrRatio=3 — sweep RR 0.5-3.0 pre NY range 5 a 20 min, SL 70% rangu",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20,
+     "rrRatio": 3.0
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 30,
+    "per_year": true,
+    "points": 52
+   },
+   "params": {
+    "nyRangeMinutes": 20,
+    "rrRatio": 3.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 110,
+    "losses": 123,
+    "draws": 0,
+    "winrate": 47.21,
+    "pnl_abs": 579.38,
+    "pnl_pct": 5.794,
+    "profit_factor": 1.02,
+    "max_drawdown_abs": 4000.72,
+    "max_drawdown_pct": 27.44,
+    "starting_balance": 10000.0,
+    "final_balance": 10579.38,
+    "gross_abs": 943.0,
+    "volume_abs": 24953551.0,
+    "break_even_pct": 0.0038,
+    "exits": {
+     "session_end": {
+      "n": 111,
+      "pnl_abs": 15543.56
+     },
+     "stop_loss": {
+      "n": 101,
+      "pnl_abs": -26249.55
+     },
+     "take_profit": {
+      "n": 21,
+      "pnl_abs": 11285.36
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 154,
+      "to_i": 159,
+      "start": "2026-05-08T14:00:00+00:00",
+      "end": "2026-05-18T18:55:00+00:00",
+      "pnl_abs": 1818.27,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 180,
+      "to_i": 185,
+      "start": "2026-06-19T14:55:00+00:00",
+      "end": "2026-06-29T15:29:00+00:00",
+      "pnl_abs": -1740.5,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:18:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-10-01T08:48:51+00:00"
+}

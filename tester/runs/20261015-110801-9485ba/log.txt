@@ -1,0 +1,7 @@
+$ emulator MultiCharts NAS100 5m 20250904-20260904 (NAS100_USD-1m.feather)
+emulacia MultiCharts: 68167 barov 5m, 340677 1m, 0 HTF
+  20000/68167 barov, 1406 obchodov
+  40000/68167 barov, 2850 obchodov
+  60000/68167 barov, 4356 obchodov
+hotovo: 4975 obchodov, nerozhodnutelnych minut 1
+kresby: {'dc_upper': 68147, 'dc_lower': 68147, 'demo_entry': 4975, 'tp_box': 4975, 'sl_box': 4975}

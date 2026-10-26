@@ -1,0 +1,22 @@
+$ emulator MultiCharts NAS100 1m 20250904-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: 15m štruktúra a FVG (15m) @15m 218/218
+emulacia MultiCharts: 340677 barov 1m, 340677 1m, 0 HTF
+  20000/340677 barov, 5 obchodov
+  40000/340677 barov, 9 obchodov
+  60000/340677 barov, 12 obchodov
+  80000/340677 barov, 17 obchodov
+  100000/340677 barov, 23 obchodov
+  120000/340677 barov, 27 obchodov
+  140000/340677 barov, 32 obchodov
+  160000/340677 barov, 35 obchodov
+  180000/340677 barov, 41 obchodov
+  200000/340677 barov, 44 obchodov
+  220000/340677 barov, 51 obchodov
+  240000/340677 barov, 54 obchodov
+  260000/340677 barov, 58 obchodov
+  280000/340677 barov, 63 obchodov
+  300000/340677 barov, 68 obchodov
+  320000/340677 barov, 71 obchodov
+  340000/340677 barov, 77 obchodov
+hotovo: 78 obchodov, nerozhodnutelnych minut 0
+kresby: {'pc_choch': 2502, 'pc_htf_fvg': 5059, 'tp_box': 78, 'sl_box': 78, 'pc_fvg': 78, 'pc_entry': 78}

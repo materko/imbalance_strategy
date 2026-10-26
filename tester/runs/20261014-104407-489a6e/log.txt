@@ -1,0 +1,7 @@
+$ emulator MultiCharts NAS100 3m 20260309-20261013 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 100 na 60m @60m 250/250, filter volatility ATR 14 / 100 barov @3m 156/156
+emulacia MultiCharts: 56686 barov 3m, 169960 1m, 0 HTF
+  20000/56686 barov, 19 obchodov
+  40000/56686 barov, 42 obchodov
+hotovo: 59 obchodov, nerozhodnutelnych minut 0
+kresby: {'vo_vwap': 50848, 'orb_box': 128, 'orb_high': 128, 'orb_low': 128, 'orb_entry': 59}

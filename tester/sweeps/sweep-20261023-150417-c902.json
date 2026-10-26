@@ -1,0 +1,4073 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20261023-150417-c902",
+ "strategy": "orb",
+ "created": "2026-10-23T15:04:17+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 0,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "sessionMode": "ny",
+   "nyStartH": 9,
+   "nyStartM": 30,
+   "nyRangeMinutes": 15,
+   "nyEndH": 15,
+   "nyEndM": 55,
+   "lonStartH": 8,
+   "lonStartM": 0,
+   "lonRangeMinutes": 15,
+   "lonEndH": 16,
+   "lonEndM": 30,
+   "tradeDirection": "Both",
+   "entryMode": "stop",
+   "breakBufferAtr": 0.0,
+   "retestMaxBars": 10,
+   "entryWindowMinutes": 0,
+   "maxTradesPerDay": 1,
+   "minRangePct": 0,
+   "maxRangePct": 10,
+   "useVolumeFilter": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "minClosePosPct": 50,
+   "weekdaysOnly": true,
+   "emaLen": 200,
+   "emaFilter": false,
+   "emaRangeFilter": false,
+   "emaExit": false,
+   "slMode": "opposite",
+   "slRangePct": 50.0,
+   "atrLen": 14,
+   "slAtrMult": 1.0,
+   "slBufferAtr": 0.0,
+   "tpMode": "rr",
+   "rrRatio": 1.5,
+   "measuredMult": 1.0,
+   "tpAtrMult": 2.0,
+   "enableTrailing": true,
+   "trailActivationR": 0.5,
+   "trailOffsetR": 0.25,
+   "closeAtSessionEnd": false,
+   "riskDollar": 500,
+   "showRange": true,
+   "showLevels": true,
+   "showEma": false,
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "minSlDistance": 0.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "orb",
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "exchange": null,
+   "timerange": "20250904-20260904",
+   "fee": 1.4586615321780733e-05,
+   "fee_note": "1.5 tick na stranu pri cene 25708.5 = 0.00146 %; odhad: polovica spreadu 0,5 ticku + provizia ~0,5 $ na stranu = 1 tick, spolu 1,5 ticku (0,375 bodu); spread z ohlcv dat nevidno",
+   "ai": null,
+   "wallet": 50000.0,
+   "timeframe_detail": "1m",
+   "profile": null,
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261023-150417-dfe7fc",
+   "status": "done",
+   "created": "2026-10-23T15:04:17+00:00",
+   "started": "2026-10-23T15:04:17+00:00",
+   "finished": "2026-10-23T15:04:18+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=0.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 180,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 70.31,
+    "pnl_abs": 2648.87,
+    "pnl_pct": 5.298,
+    "profit_factor": 1.11,
+    "max_drawdown_abs": 4651.9,
+    "max_drawdown_pct": 8.247,
+    "starting_balance": 50000.0,
+    "final_balance": 52648.87,
+    "gross_abs": 3346.75,
+    "volume_abs": 47843779.0,
+    "break_even_pct": 0.007,
+    "exits": {
+     "trailing_stop": {
+      "n": 195,
+      "pnl_abs": 23554.65
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     },
+     "take_profit": {
+      "n": 5,
+      "pnl_abs": 2448.62
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T15:24:00+00:00",
+      "pnl_abs": 3200.82,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 127,
+      "to_i": 132,
+      "start": "2026-03-06T15:03:00+00:00",
+      "end": "2026-03-13T14:42:00+00:00",
+      "pnl_abs": -1450.94,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "2:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150419-4ffe2a",
+   "status": "done",
+   "created": "2026-10-23T15:04:19+00:00",
+   "started": "2026-10-23T15:04:19+00:00",
+   "finished": "2026-10-23T15:04:20+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=0.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 148,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 57.81,
+    "pnl_abs": 1919.9,
+    "pnl_pct": 3.84,
+    "profit_factor": 1.074,
+    "max_drawdown_abs": 5829.28,
+    "max_drawdown_pct": 10.24,
+    "starting_balance": 50000.0,
+    "final_balance": 51919.9,
+    "gross_abs": 2617.75,
+    "volume_abs": 47842055.25,
+    "break_even_pct": 0.0055,
+    "exits": {
+     "trailing_stop": {
+      "n": 180,
+      "pnl_abs": 14516.95
+     },
+     "take_profit": {
+      "n": 20,
+      "pnl_abs": 10757.35
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3442.2,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 242,
+      "to_i": 249,
+      "start": "2026-08-17T14:21:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -1751.22,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:15:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150421-92e1ed",
+   "status": "done",
+   "created": "2026-10-23T15:04:21+00:00",
+   "started": "2026-10-23T15:04:21+00:00",
+   "finished": "2026-10-23T15:04:22+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=0.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 254,
+    "wins": 103,
+    "losses": 151,
+    "draws": 0,
+    "winrate": 40.55,
+    "pnl_abs": 1402.61,
+    "pnl_pct": 2.805,
+    "profit_factor": 1.038,
+    "max_drawdown_abs": 10751.39,
+    "max_drawdown_pct": 17.543,
+    "starting_balance": 50000.0,
+    "final_balance": 51402.61,
+    "gross_abs": 2094.5,
+    "volume_abs": 47433366.5,
+    "break_even_pct": 0.0044,
+    "exits": {
+     "trailing_stop": {
+      "n": 131,
+      "pnl_abs": -11895.02
+     },
+     "take_profit": {
+      "n": 68,
+      "pnl_abs": 35607.77
+     },
+     "stop_loss": {
+      "n": 54,
+      "pnl_abs": -22594.93
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 95,
+      "to_i": 102,
+      "start": "2026-01-23T15:00:00+00:00",
+      "end": "2026-02-03T17:36:00+00:00",
+      "pnl_abs": 3765.87,
+      "count": 1
+     },
+     "loss": {
+      "n": 18,
+      "from_i": 233,
+      "to_i": 250,
+      "start": "2026-08-06T13:48:00+00:00",
+      "end": "2026-08-31T19:50:00+00:00",
+      "pnl_abs": -4163.57,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "5:51:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150423-009e4c",
+   "status": "done",
+   "created": "2026-10-23T15:04:23+00:00",
+   "started": "2026-10-23T15:04:23+00:00",
+   "finished": "2026-10-23T15:04:24+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=1, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "trailActivationR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 255,
+    "wins": 140,
+    "losses": 115,
+    "draws": 0,
+    "winrate": 54.9,
+    "pnl_abs": -3259.41,
+    "pnl_pct": -6.519,
+    "profit_factor": 0.934,
+    "max_drawdown_abs": 13781.42,
+    "max_drawdown_pct": 23.464,
+    "starting_balance": 50000.0,
+    "final_balance": 46740.59,
+    "gross_abs": -2566.0,
+    "volume_abs": 47537139.0,
+    "break_even_pct": -0.0054,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49517.8
+     },
+     "take_profit": {
+      "n": 24,
+      "pnl_abs": 11559.72
+     },
+     "trailing_stop": {
+      "n": 121,
+      "pnl_abs": 34698.67
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 98,
+      "to_i": 108,
+      "start": "2026-01-26T14:54:00+00:00",
+      "end": "2026-02-09T17:54:00+00:00",
+      "pnl_abs": 3765.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 177,
+      "to_i": 181,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:23:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150425-7c2d2a",
+   "status": "done",
+   "created": "2026-10-23T15:04:25+00:00",
+   "started": "2026-10-23T15:04:25+00:00",
+   "finished": "2026-10-23T15:04:26+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=1, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "trailActivationR": 1,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 254,
+    "wins": 139,
+    "losses": 115,
+    "draws": 0,
+    "winrate": 54.72,
+    "pnl_abs": -5217.19,
+    "pnl_pct": -10.434,
+    "profit_factor": 0.895,
+    "max_drawdown_abs": 14559.48,
+    "max_drawdown_pct": 25.057,
+    "starting_balance": 50000.0,
+    "final_balance": 44782.81,
+    "gross_abs": -4526.75,
+    "volume_abs": 47333952.75,
+    "break_even_pct": -0.0096,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49517.8
+     },
+     "take_profit": {
+      "n": 48,
+      "pnl_abs": 23955.2
+     },
+     "trailing_stop": {
+      "n": 96,
+      "pnl_abs": 20345.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 96,
+      "to_i": 107,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3498.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 176,
+      "to_i": 180,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:39:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150427-5fc6a5",
+   "status": "done",
+   "created": "2026-10-23T15:04:27+00:00",
+   "started": "2026-10-23T15:04:27+00:00",
+   "finished": "2026-10-23T15:04:28+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=1, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 1,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "trailActivationR": 1,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 252,
+    "wins": 119,
+    "losses": 133,
+    "draws": 0,
+    "winrate": 47.22,
+    "pnl_abs": -5322.94,
+    "pnl_pct": -10.646,
+    "profit_factor": 0.895,
+    "max_drawdown_abs": 16554.05,
+    "max_drawdown_pct": 27.425,
+    "starting_balance": 50000.0,
+    "final_balance": 44677.06,
+    "gross_abs": -4638.5,
+    "volume_abs": 46922290.5,
+    "break_even_pct": -0.0099,
+    "exits": {
+     "stop_loss": {
+      "n": 109,
+      "pnl_abs": -48942.29
+     },
+     "take_profit": {
+      "n": 84,
+      "pnl_abs": 42303.75
+     },
+     "trailing_stop": {
+      "n": 58,
+      "pnl_abs": 1030.82
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 94,
+      "to_i": 105,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-10T20:12:00+00:00",
+      "pnl_abs": 4868.53,
+      "count": 1
+     },
+     "loss": {
+      "n": 14,
+      "from_i": 232,
+      "to_i": 245,
+      "start": "2026-08-07T14:06:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -3929.69,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "8:02:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150429-c10901",
+   "status": "done",
+   "created": "2026-10-23T15:04:29+00:00",
+   "started": "2026-10-23T15:04:29+00:00",
+   "finished": "2026-10-23T15:04:30+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=1.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "trailActivationR": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 242,
+    "wins": 118,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.76,
+    "pnl_abs": 2968.87,
+    "pnl_pct": 5.938,
+    "profit_factor": 1.053,
+    "max_drawdown_abs": 13677.67,
+    "max_drawdown_pct": 21.176,
+    "starting_balance": 50000.0,
+    "final_balance": 52968.87,
+    "gross_abs": 3626.5,
+    "volume_abs": 45084218.5,
+    "break_even_pct": 0.008,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55671.01
+     },
+     "take_profit": {
+      "n": 119,
+      "pnl_abs": 58355.1
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 3,
+      "to_i": 15,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T02:56:00+00:00",
+      "pnl_abs": 6757.32,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 189,
+      "to_i": 200,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "11:52:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150431-7d2281",
+   "status": "done",
+   "created": "2026-10-23T15:04:31+00:00",
+   "started": "2026-10-23T15:04:31+00:00",
+   "finished": "2026-10-23T15:04:32+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=1.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "trailActivationR": 1.5,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 242,
+    "wins": 118,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.76,
+    "pnl_abs": 2968.87,
+    "pnl_pct": 5.938,
+    "profit_factor": 1.053,
+    "max_drawdown_abs": 13677.67,
+    "max_drawdown_pct": 21.176,
+    "starting_balance": 50000.0,
+    "final_balance": 52968.87,
+    "gross_abs": 3626.5,
+    "volume_abs": 45084218.5,
+    "break_even_pct": 0.008,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55671.01
+     },
+     "take_profit": {
+      "n": 119,
+      "pnl_abs": 58355.1
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 3,
+      "to_i": 15,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T02:56:00+00:00",
+      "pnl_abs": 6757.32,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 189,
+      "to_i": 200,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "11:52:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150433-53071c",
+   "status": "done",
+   "created": "2026-10-23T15:04:33+00:00",
+   "started": "2026-10-23T15:04:33+00:00",
+   "finished": "2026-10-23T15:04:34+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=1.5, trailActivationR=1.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "trailActivationR": 1.5,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 242,
+    "wins": 118,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.76,
+    "pnl_abs": 2968.87,
+    "pnl_pct": 5.938,
+    "profit_factor": 1.053,
+    "max_drawdown_abs": 13677.67,
+    "max_drawdown_pct": 21.176,
+    "starting_balance": 50000.0,
+    "final_balance": 52968.87,
+    "gross_abs": 3626.5,
+    "volume_abs": 45084218.5,
+    "break_even_pct": 0.008,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55671.01
+     },
+     "take_profit": {
+      "n": 119,
+      "pnl_abs": 58355.1
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 3,
+      "to_i": 15,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T02:56:00+00:00",
+      "pnl_abs": 6757.32,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 189,
+      "to_i": 200,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "11:52:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150435-3598e6",
+   "status": "done",
+   "created": "2026-10-23T15:04:35+00:00",
+   "started": "2026-10-23T15:04:35+00:00",
+   "finished": "2026-10-23T15:04:37+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=0.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 180,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 70.31,
+    "pnl_abs": 2524.12,
+    "pnl_pct": 5.048,
+    "profit_factor": 1.105,
+    "max_drawdown_abs": 4684.15,
+    "max_drawdown_pct": 8.318,
+    "starting_balance": 50000.0,
+    "final_balance": 52524.12,
+    "gross_abs": 3222.0,
+    "volume_abs": 47843869.25,
+    "break_even_pct": 0.0067,
+    "exits": {
+     "trailing_stop": {
+      "n": 199,
+      "pnl_abs": 25104.51
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     },
+     "take_profit": {
+      "n": 1,
+      "pnl_abs": 774.01
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T15:24:00+00:00",
+      "pnl_abs": 3200.82,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 127,
+      "to_i": 132,
+      "start": "2026-03-06T15:03:00+00:00",
+      "end": "2026-03-13T14:42:00+00:00",
+      "pnl_abs": -1450.94,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "2:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150437-29b983",
+   "status": "done",
+   "created": "2026-10-23T15:04:37+00:00",
+   "started": "2026-10-23T15:04:37+00:00",
+   "finished": "2026-10-23T15:04:39+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=0.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 148,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 57.81,
+    "pnl_abs": 2364.89,
+    "pnl_pct": 4.73,
+    "profit_factor": 1.091,
+    "max_drawdown_abs": 6107.69,
+    "max_drawdown_pct": 10.614,
+    "starting_balance": 50000.0,
+    "final_balance": 52364.89,
+    "gross_abs": 3062.75,
+    "volume_abs": 47842309.25,
+    "break_even_pct": 0.0064,
+    "exits": {
+     "trailing_stop": {
+      "n": 191,
+      "pnl_abs": 18876.4
+     },
+     "take_profit": {
+      "n": 9,
+      "pnl_abs": 6842.89
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3336.94,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 242,
+      "to_i": 249,
+      "start": "2026-08-17T14:21:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -1751.22,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:19:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150439-29e10e",
+   "status": "done",
+   "created": "2026-10-23T15:04:39+00:00",
+   "started": "2026-10-23T15:04:39+00:00",
+   "finished": "2026-10-23T15:04:41+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=0.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 252,
+    "wins": 100,
+    "losses": 152,
+    "draws": 0,
+    "winrate": 39.68,
+    "pnl_abs": 4741.75,
+    "pnl_pct": 9.483,
+    "profit_factor": 1.128,
+    "max_drawdown_abs": 10023.41,
+    "max_drawdown_pct": 15.614,
+    "starting_balance": 50000.0,
+    "final_balance": 54741.75,
+    "gross_abs": 5420.5,
+    "volume_abs": 46532637.5,
+    "break_even_pct": 0.0116,
+    "exits": {
+     "trailing_stop": {
+      "n": 151,
+      "pnl_abs": -7754.63
+     },
+     "take_profit": {
+      "n": 46,
+      "pnl_abs": 34806.51
+     },
+     "stop_loss": {
+      "n": 54,
+      "pnl_abs": -22594.93
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 93,
+      "to_i": 100,
+      "start": "2026-01-23T15:00:00+00:00",
+      "end": "2026-02-03T18:59:00+00:00",
+      "pnl_abs": 3141.87,
+      "count": 1
+     },
+     "loss": {
+      "n": 18,
+      "from_i": 231,
+      "to_i": 248,
+      "start": "2026-08-06T13:48:00+00:00",
+      "end": "2026-08-31T19:50:00+00:00",
+      "pnl_abs": -4163.57,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:37:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150441-04dbb3",
+   "status": "done",
+   "created": "2026-10-23T15:04:41+00:00",
+   "started": "2026-10-23T15:04:41+00:00",
+   "finished": "2026-10-23T15:04:43+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=1, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2,
+    "trailActivationR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 255,
+    "wins": 141,
+    "losses": 114,
+    "draws": 0,
+    "winrate": 55.29,
+    "pnl_abs": -3403.04,
+    "pnl_pct": -6.806,
+    "profit_factor": 0.931,
+    "max_drawdown_abs": 13640.73,
+    "max_drawdown_pct": 23.379,
+    "starting_balance": 50000.0,
+    "final_balance": 46596.96,
+    "gross_abs": -2709.62,
+    "volume_abs": 47537469.12,
+    "break_even_pct": -0.0057,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49458.3
+     },
+     "trailing_stop": {
+      "n": 139,
+      "pnl_abs": 43014.99
+     },
+     "take_profit": {
+      "n": 6,
+      "pnl_abs": 3040.27
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 98,
+      "to_i": 108,
+      "start": "2026-01-26T14:54:00+00:00",
+      "end": "2026-02-09T17:54:00+00:00",
+      "pnl_abs": 3746.16,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 177,
+      "to_i": 181,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:23:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150443-876fad",
+   "status": "done",
+   "created": "2026-10-23T15:04:43+00:00",
+   "started": "2026-10-23T15:04:43+00:00",
+   "finished": "2026-10-23T15:04:45+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=1, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2,
+    "trailActivationR": 1,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 253,
+    "wins": 141,
+    "losses": 112,
+    "draws": 0,
+    "winrate": 55.73,
+    "pnl_abs": -4508.39,
+    "pnl_pct": -9.017,
+    "profit_factor": 0.909,
+    "max_drawdown_abs": 14619.73,
+    "max_drawdown_pct": 24.899,
+    "starting_balance": 50000.0,
+    "final_balance": 45491.61,
+    "gross_abs": -3825.5,
+    "volume_abs": 46816342.5,
+    "break_even_pct": -0.0082,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49458.3
+     },
+     "take_profit": {
+      "n": 21,
+      "pnl_abs": 13639.86
+     },
+     "trailing_stop": {
+      "n": 122,
+      "pnl_abs": 31310.04
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 95,
+      "to_i": 106,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3455.53,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 175,
+      "to_i": 179,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "7:05:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150445-8ba3d7",
+   "status": "done",
+   "created": "2026-10-23T15:04:45+00:00",
+   "started": "2026-10-23T15:04:45+00:00",
+   "finished": "2026-10-23T15:04:47+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=1, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 1,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2,
+    "trailActivationR": 1,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 251,
+    "wins": 118,
+    "losses": 133,
+    "draws": 0,
+    "winrate": 47.01,
+    "pnl_abs": -3026.29,
+    "pnl_pct": -6.053,
+    "profit_factor": 0.94,
+    "max_drawdown_abs": 15889.76,
+    "max_drawdown_pct": 26.008,
+    "starting_balance": 50000.0,
+    "final_balance": 46973.71,
+    "gross_abs": -2350.5,
+    "volume_abs": 46329483.5,
+    "break_even_pct": -0.0051,
+    "exits": {
+     "stop_loss": {
+      "n": 109,
+      "pnl_abs": -49010.06
+     },
+     "take_profit": {
+      "n": 55,
+      "pnl_abs": 38554.51
+     },
+     "trailing_stop": {
+      "n": 86,
+      "pnl_abs": 7144.48
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 93,
+      "to_i": 104,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-10T20:12:00+00:00",
+      "pnl_abs": 4105.04,
+      "count": 1
+     },
+     "loss": {
+      "n": 14,
+      "from_i": 231,
+      "to_i": 244,
+      "start": "2026-08-07T14:06:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -3929.69,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "9:21:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150447-b3ecdb",
+   "status": "done",
+   "created": "2026-10-23T15:04:47+00:00",
+   "started": "2026-10-23T15:04:47+00:00",
+   "finished": "2026-10-23T15:04:49+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=1.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2,
+    "trailActivationR": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 240,
+    "wins": 116,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.33,
+    "pnl_abs": 2308.69,
+    "pnl_pct": 4.617,
+    "profit_factor": 1.042,
+    "max_drawdown_abs": 13339.53,
+    "max_drawdown_pct": 21.032,
+    "starting_balance": 50000.0,
+    "final_balance": 52308.69,
+    "gross_abs": 2951.5,
+    "volume_abs": 44068806.5,
+    "break_even_pct": 0.0067,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55422.52
+     },
+     "trailing_stop": {
+      "n": 95,
+      "pnl_abs": 43795.54
+     },
+     "take_profit": {
+      "n": 22,
+      "pnl_abs": 13650.87
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 3,
+      "to_i": 14,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T08:50:00+00:00",
+      "pnl_abs": 6626.07,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 187,
+      "to_i": 198,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "12:13:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150449-9003a7",
+   "status": "done",
+   "created": "2026-10-23T15:04:49+00:00",
+   "started": "2026-10-23T15:04:49+00:00",
+   "finished": "2026-10-23T15:04:51+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=1.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2,
+    "trailActivationR": 1.5,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 240,
+    "wins": 116,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.33,
+    "pnl_abs": 2434.96,
+    "pnl_pct": 4.87,
+    "profit_factor": 1.044,
+    "max_drawdown_abs": 13189.91,
+    "max_drawdown_pct": 20.587,
+    "starting_balance": 50000.0,
+    "final_balance": 52434.96,
+    "gross_abs": 3077.75,
+    "volume_abs": 44067132.25,
+    "break_even_pct": 0.007,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55422.52
+     },
+     "take_profit": {
+      "n": 45,
+      "pnl_abs": 29908.9
+     },
+     "trailing_stop": {
+      "n": 72,
+      "pnl_abs": 27663.79
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 3,
+      "to_i": 14,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T08:50:00+00:00",
+      "pnl_abs": 6619.58,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 187,
+      "to_i": 198,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "13:01:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150451-2b2a63",
+   "status": "done",
+   "created": "2026-10-23T15:04:51+00:00",
+   "started": "2026-10-23T15:04:51+00:00",
+   "finished": "2026-10-23T15:04:53+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2, trailActivationR=1.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2,
+    "trailActivationR": 1.5,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 238,
+    "wins": 113,
+    "losses": 125,
+    "draws": 0,
+    "winrate": 47.48,
+    "pnl_abs": 3836.06,
+    "pnl_pct": 7.672,
+    "profit_factor": 1.068,
+    "max_drawdown_abs": 13897.86,
+    "max_drawdown_pct": 21.237,
+    "starting_balance": 50000.0,
+    "final_balance": 53836.06,
+    "gross_abs": 4474.5,
+    "volume_abs": 43769204.5,
+    "break_even_pct": 0.0102,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55815.79
+     },
+     "take_profit": {
+      "n": 73,
+      "pnl_abs": 51109.97
+     },
+     "trailing_stop": {
+      "n": 42,
+      "pnl_abs": 8257.09
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 3,
+      "to_i": 13,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T08:50:00+00:00",
+      "pnl_abs": 9303.18,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 185,
+      "to_i": 196,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "14:01:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150453-e577d9",
+   "status": "done",
+   "created": "2026-10-23T15:04:53+00:00",
+   "started": "2026-10-23T15:04:53+00:00",
+   "finished": "2026-10-23T15:04:55+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=0.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 180,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 70.31,
+    "pnl_abs": 2725.12,
+    "pnl_pct": 5.45,
+    "profit_factor": 1.113,
+    "max_drawdown_abs": 4684.15,
+    "max_drawdown_pct": 8.289,
+    "starting_balance": 50000.0,
+    "final_balance": 52725.12,
+    "gross_abs": 3423.0,
+    "volume_abs": 47844070.25,
+    "break_even_pct": 0.0072,
+    "exits": {
+     "trailing_stop": {
+      "n": 199,
+      "pnl_abs": 25104.51
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     },
+     "take_profit": {
+      "n": 1,
+      "pnl_abs": 975.01
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T15:24:00+00:00",
+      "pnl_abs": 3200.82,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 127,
+      "to_i": 132,
+      "start": "2026-03-06T15:03:00+00:00",
+      "end": "2026-03-13T14:42:00+00:00",
+      "pnl_abs": -1450.94,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "2:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.5
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150455-87e7fa",
+   "status": "done",
+   "created": "2026-10-23T15:04:55+00:00",
+   "started": "2026-10-23T15:04:55+00:00",
+   "finished": "2026-10-23T15:04:57+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=0.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 148,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 57.81,
+    "pnl_abs": 2952.9,
+    "pnl_pct": 5.906,
+    "profit_factor": 1.114,
+    "max_drawdown_abs": 6107.69,
+    "max_drawdown_pct": 10.502,
+    "starting_balance": 50000.0,
+    "final_balance": 52952.9,
+    "gross_abs": 3650.75,
+    "volume_abs": 47841751.25,
+    "break_even_pct": 0.0076,
+    "exits": {
+     "trailing_stop": {
+      "n": 195,
+      "pnl_abs": 21254.43
+     },
+     "take_profit": {
+      "n": 5,
+      "pnl_abs": 5052.87
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3336.94,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 242,
+      "to_i": 249,
+      "start": "2026-08-17T14:21:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -1751.22,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:21:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150458-f7aa7f",
+   "status": "done",
+   "created": "2026-10-23T15:04:58+00:00",
+   "started": "2026-10-23T15:04:58+00:00",
+   "finished": "2026-10-23T15:04:59+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=0.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 250,
+    "wins": 98,
+    "losses": 152,
+    "draws": 0,
+    "winrate": 39.2,
+    "pnl_abs": 5631.23,
+    "pnl_pct": 11.262,
+    "profit_factor": 1.152,
+    "max_drawdown_abs": 8763.56,
+    "max_drawdown_pct": 13.968,
+    "starting_balance": 50000.0,
+    "final_balance": 55631.23,
+    "gross_abs": 6302.5,
+    "volume_abs": 46019732.5,
+    "break_even_pct": 0.0137,
+    "exits": {
+     "trailing_stop": {
+      "n": 164,
+      "pnl_abs": -2354.1
+     },
+     "take_profit": {
+      "n": 31,
+      "pnl_abs": 30295.47
+     },
+     "stop_loss": {
+      "n": 54,
+      "pnl_abs": -22594.93
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 92,
+      "to_i": 99,
+      "start": "2026-01-23T15:00:00+00:00",
+      "end": "2026-02-03T20:58:00+00:00",
+      "pnl_abs": 2642.86,
+      "count": 1
+     },
+     "loss": {
+      "n": 18,
+      "from_i": 229,
+      "to_i": 246,
+      "start": "2026-08-06T13:48:00+00:00",
+      "end": "2026-08-31T19:50:00+00:00",
+      "pnl_abs": -4163.57,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:59:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150500-fd335b",
+   "status": "done",
+   "created": "2026-10-23T15:05:00+00:00",
+   "started": "2026-10-23T15:05:00+00:00",
+   "finished": "2026-10-23T15:05:01+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=1, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "trailActivationR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 255,
+    "wins": 141,
+    "losses": 114,
+    "draws": 0,
+    "winrate": 55.29,
+    "pnl_abs": -2942.28,
+    "pnl_pct": -5.885,
+    "profit_factor": 0.941,
+    "max_drawdown_abs": 13830.86,
+    "max_drawdown_pct": 23.443,
+    "starting_balance": 50000.0,
+    "final_balance": 47057.72,
+    "gross_abs": -2248.88,
+    "volume_abs": 47537193.88,
+    "break_even_pct": -0.0047,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49458.3
+     },
+     "trailing_stop": {
+      "n": 142,
+      "pnl_abs": 44289.76
+     },
+     "take_profit": {
+      "n": 3,
+      "pnl_abs": 2226.25
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 98,
+      "to_i": 108,
+      "start": "2026-01-26T14:54:00+00:00",
+      "end": "2026-02-09T17:54:00+00:00",
+      "pnl_abs": 3746.16,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 177,
+      "to_i": 181,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:23:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150502-0956f1",
+   "status": "done",
+   "created": "2026-10-23T15:05:02+00:00",
+   "started": "2026-10-23T15:05:02+00:00",
+   "finished": "2026-10-23T15:05:03+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=1, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "trailActivationR": 1,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 252,
+    "wins": 140,
+    "losses": 112,
+    "draws": 0,
+    "winrate": 55.56,
+    "pnl_abs": -4407.92,
+    "pnl_pct": -8.816,
+    "profit_factor": 0.911,
+    "max_drawdown_abs": 14998.48,
+    "max_drawdown_pct": 25.327,
+    "starting_balance": 50000.0,
+    "final_balance": 45592.08,
+    "gross_abs": -3728.0,
+    "volume_abs": 46612532.0,
+    "break_even_pct": -0.008,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49458.3
+     },
+     "take_profit": {
+      "n": 10,
+      "pnl_abs": 8901.47
+     },
+     "trailing_stop": {
+      "n": 132,
+      "pnl_abs": 36148.9
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 95,
+      "to_i": 106,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3324.03,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 174,
+      "to_i": 178,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "7:09:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150504-27811b",
+   "status": "done",
+   "created": "2026-10-23T15:05:04+00:00",
+   "started": "2026-10-23T15:05:04+00:00",
+   "finished": "2026-10-23T15:05:05+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=1, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 1,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "trailActivationR": 1,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 250,
+    "wins": 117,
+    "losses": 133,
+    "draws": 0,
+    "winrate": 46.8,
+    "pnl_abs": -1347.35,
+    "pnl_pct": -2.695,
+    "profit_factor": 0.974,
+    "max_drawdown_abs": 15099.26,
+    "max_drawdown_pct": 24.68,
+    "starting_balance": 50000.0,
+    "final_balance": 48652.65,
+    "gross_abs": -674.5,
+    "volume_abs": 46127939.5,
+    "break_even_pct": -0.0015,
+    "exits": {
+     "stop_loss": {
+      "n": 109,
+      "pnl_abs": -48997.06
+     },
+     "take_profit": {
+      "n": 38,
+      "pnl_abs": 35147.13
+     },
+     "trailing_stop": {
+      "n": 102,
+      "pnl_abs": 12217.8
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 93,
+      "to_i": 104,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-10T20:12:00+00:00",
+      "pnl_abs": 3762.54,
+      "count": 1
+     },
+     "loss": {
+      "n": 14,
+      "from_i": 230,
+      "to_i": 243,
+      "start": "2026-08-07T14:06:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -3929.69,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "10:17:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150506-9de14b",
+   "status": "done",
+   "created": "2026-10-23T15:05:06+00:00",
+   "started": "2026-10-23T15:05:06+00:00",
+   "finished": "2026-10-23T15:05:07+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=1.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "trailActivationR": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 240,
+    "wins": 116,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.33,
+    "pnl_abs": 2994.69,
+    "pnl_pct": 5.989,
+    "profit_factor": 1.054,
+    "max_drawdown_abs": 13105.03,
+    "max_drawdown_pct": 20.539,
+    "starting_balance": 50000.0,
+    "final_balance": 52994.69,
+    "gross_abs": 3637.5,
+    "volume_abs": 44068521.75,
+    "break_even_pct": 0.0083,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55422.52
+     },
+     "trailing_stop": {
+      "n": 111,
+      "pnl_abs": 53037.6
+     },
+     "take_profit": {
+      "n": 6,
+      "pnl_abs": 5094.82
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 3,
+      "to_i": 14,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T11:14:00+00:00",
+      "pnl_abs": 6643.2,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 187,
+      "to_i": 198,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "12:14:00",
+    "bars": 118140,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150508-5e7961",
+   "status": "done",
+   "created": "2026-10-23T15:05:08+00:00",
+   "started": "2026-10-23T15:05:08+00:00",
+   "finished": "2026-10-23T15:05:10+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=1.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "trailActivationR": 1.5,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 239,
+    "wins": 115,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.12,
+    "pnl_abs": 2004.68,
+    "pnl_pct": 4.009,
+    "profit_factor": 1.036,
+    "max_drawdown_abs": 13613.19,
+    "max_drawdown_pct": 21.249,
+    "starting_balance": 50000.0,
+    "final_balance": 52004.68,
+    "gross_abs": 2644.5,
+    "volume_abs": 43863712.0,
+    "break_even_pct": 0.006,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55539.02
+     },
+     "take_profit": {
+      "n": 20,
+      "pnl_abs": 17520.08
+     },
+     "trailing_stop": {
+      "n": 96,
+      "pnl_abs": 39738.83
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 3,
+      "to_i": 14,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T14:09:00+00:00",
+      "pnl_abs": 6629.83,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 186,
+      "to_i": 197,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "13:14:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.9
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150510-2ac901",
+   "status": "done",
+   "created": "2026-10-23T15:05:10+00:00",
+   "started": "2026-10-23T15:05:10+00:00",
+   "finished": "2026-10-23T15:05:12+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=2.5, trailActivationR=1.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "trailActivationR": 1.5,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 237,
+    "wins": 113,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 47.68,
+    "pnl_abs": 6383.02,
+    "pnl_pct": 12.766,
+    "profit_factor": 1.114,
+    "max_drawdown_abs": 13177.39,
+    "max_drawdown_pct": 19.881,
+    "starting_balance": 50000.0,
+    "final_balance": 56383.02,
+    "gross_abs": 7018.5,
+    "volume_abs": 43565829.5,
+    "break_even_pct": 0.0161,
+    "exits": {
+     "stop_loss": {
+      "n": 121,
+      "pnl_abs": -55242.37
+     },
+     "take_profit": {
+      "n": 50,
+      "pnl_abs": 45179.53
+     },
+     "trailing_stop": {
+      "n": 65,
+      "pnl_abs": 16161.08
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 3,
+      "to_i": 13,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T14:09:00+00:00",
+      "pnl_abs": 8586.16,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 184,
+      "to_i": 195,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "15:13:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150512-5d7a82",
+   "status": "done",
+   "created": "2026-10-23T15:05:12+00:00",
+   "started": "2026-10-23T15:05:12+00:00",
+   "finished": "2026-10-23T15:05:14+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=0.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 180,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 70.31,
+    "pnl_abs": 2526.12,
+    "pnl_pct": 5.052,
+    "profit_factor": 1.105,
+    "max_drawdown_abs": 4684.15,
+    "max_drawdown_pct": 8.318,
+    "starting_balance": 50000.0,
+    "final_balance": 52526.12,
+    "gross_abs": 3224.0,
+    "volume_abs": 47843871.25,
+    "break_even_pct": 0.0067,
+    "exits": {
+     "trailing_stop": {
+      "n": 200,
+      "pnl_abs": 25880.52
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T15:24:00+00:00",
+      "pnl_abs": 3200.82,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 127,
+      "to_i": 132,
+      "start": "2026-03-06T15:03:00+00:00",
+      "end": "2026-03-13T14:42:00+00:00",
+      "pnl_abs": -1450.94,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "2:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.9
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150514-3ccfd8",
+   "status": "done",
+   "created": "2026-10-23T15:05:14+00:00",
+   "started": "2026-10-23T15:05:14+00:00",
+   "finished": "2026-10-23T15:05:16+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=0.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 148,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 57.81,
+    "pnl_abs": 2917.4,
+    "pnl_pct": 5.835,
+    "profit_factor": 1.112,
+    "max_drawdown_abs": 6187.27,
+    "max_drawdown_pct": 10.616,
+    "starting_balance": 50000.0,
+    "final_balance": 52917.4,
+    "gross_abs": 3615.25,
+    "volume_abs": 47841780.75,
+    "break_even_pct": 0.0076,
+    "exits": {
+     "trailing_stop": {
+      "n": 198,
+      "pnl_abs": 23769.87
+     },
+     "take_profit": {
+      "n": 2,
+      "pnl_abs": 2501.94
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3336.94,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 242,
+      "to_i": 249,
+      "start": "2026-08-17T14:21:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -1751.22,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:22:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.8
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150516-7c33c7",
+   "status": "done",
+   "created": "2026-10-23T15:05:16+00:00",
+   "started": "2026-10-23T15:05:16+00:00",
+   "finished": "2026-10-23T15:05:18+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=0.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 250,
+    "wins": 98,
+    "losses": 152,
+    "draws": 0,
+    "winrate": 39.2,
+    "pnl_abs": 5552.72,
+    "pnl_pct": 11.105,
+    "profit_factor": 1.15,
+    "max_drawdown_abs": 8772.07,
+    "max_drawdown_pct": 13.85,
+    "starting_balance": 50000.0,
+    "final_balance": 55552.72,
+    "gross_abs": 6224.0,
+    "volume_abs": 46020243.0,
+    "break_even_pct": 0.0135,
+    "exits": {
+     "trailing_stop": {
+      "n": 176,
+      "pnl_abs": 4284.95
+     },
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 23577.91
+     },
+     "stop_loss": {
+      "n": 54,
+      "pnl_abs": -22594.93
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 92,
+      "to_i": 99,
+      "start": "2026-01-23T15:00:00+00:00",
+      "end": "2026-02-03T20:58:00+00:00",
+      "pnl_abs": 2833.86,
+      "count": 1
+     },
+     "loss": {
+      "n": 18,
+      "from_i": 229,
+      "to_i": 246,
+      "start": "2026-08-06T13:48:00+00:00",
+      "end": "2026-08-31T19:50:00+00:00",
+      "pnl_abs": -4163.57,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "7:26:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 2.0
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150518-2ac8ef",
+   "status": "done",
+   "created": "2026-10-23T15:05:18+00:00",
+   "started": "2026-10-23T15:05:18+00:00",
+   "finished": "2026-10-23T15:05:20+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=1, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3,
+    "trailActivationR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 255,
+    "wins": 141,
+    "losses": 114,
+    "draws": 0,
+    "winrate": 55.29,
+    "pnl_abs": -2950.28,
+    "pnl_pct": -5.901,
+    "profit_factor": 0.941,
+    "max_drawdown_abs": 13830.86,
+    "max_drawdown_pct": 23.447,
+    "starting_balance": 50000.0,
+    "final_balance": 47049.72,
+    "gross_abs": -2256.88,
+    "volume_abs": 47536803.88,
+    "break_even_pct": -0.0047,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49458.3
+     },
+     "trailing_stop": {
+      "n": 144,
+      "pnl_abs": 46137.84
+     },
+     "take_profit": {
+      "n": 1,
+      "pnl_abs": 370.18
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 98,
+      "to_i": 108,
+      "start": "2026-01-26T14:54:00+00:00",
+      "end": "2026-02-09T17:54:00+00:00",
+      "pnl_abs": 3746.16,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 177,
+      "to_i": 181,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:23:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150520-c4c2da",
+   "status": "done",
+   "created": "2026-10-23T15:05:20+00:00",
+   "started": "2026-10-23T15:05:20+00:00",
+   "finished": "2026-10-23T15:05:22+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=1, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3,
+    "trailActivationR": 1,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 252,
+    "wins": 140,
+    "losses": 112,
+    "draws": 0,
+    "winrate": 55.56,
+    "pnl_abs": -4521.91,
+    "pnl_pct": -9.044,
+    "profit_factor": 0.909,
+    "max_drawdown_abs": 14825.98,
+    "max_drawdown_pct": 25.089,
+    "starting_balance": 50000.0,
+    "final_balance": 45478.09,
+    "gross_abs": -3842.0,
+    "volume_abs": 46612060.5,
+    "break_even_pct": -0.0082,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49458.3
+     },
+     "take_profit": {
+      "n": 4,
+      "pnl_abs": 3830.38
+     },
+     "trailing_stop": {
+      "n": 138,
+      "pnl_abs": 41106.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 95,
+      "to_i": 106,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3324.03,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 174,
+      "to_i": 178,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "7:11:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150522-ff3b7f",
+   "status": "done",
+   "created": "2026-10-23T15:05:22+00:00",
+   "started": "2026-10-23T15:05:22+00:00",
+   "finished": "2026-10-23T15:05:24+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=1, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 1,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3,
+    "trailActivationR": 1,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 250,
+    "wins": 117,
+    "losses": 133,
+    "draws": 0,
+    "winrate": 46.8,
+    "pnl_abs": -1485.36,
+    "pnl_pct": -2.971,
+    "profit_factor": 0.971,
+    "max_drawdown_abs": 15145.14,
+    "max_drawdown_pct": 24.525,
+    "starting_balance": 50000.0,
+    "final_balance": 48514.64,
+    "gross_abs": -812.5,
+    "volume_abs": 46128448.5,
+    "break_even_pct": -0.0018,
+    "exits": {
+     "stop_loss": {
+      "n": 109,
+      "pnl_abs": -49051.06
+     },
+     "take_profit": {
+      "n": 23,
+      "pnl_abs": 26837.38
+     },
+     "trailing_stop": {
+      "n": 117,
+      "pnl_abs": 20443.54
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 93,
+      "to_i": 104,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-10T20:12:00+00:00",
+      "pnl_abs": 3750.03,
+      "count": 1
+     },
+     "loss": {
+      "n": 14,
+      "from_i": 230,
+      "to_i": 243,
+      "start": "2026-08-07T14:06:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -3929.69,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "10:47:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150524-f32b5c",
+   "status": "done",
+   "created": "2026-10-23T15:05:24+00:00",
+   "started": "2026-10-23T15:05:24+00:00",
+   "finished": "2026-10-23T15:05:26+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=1.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3,
+    "trailActivationR": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 240,
+    "wins": 116,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.33,
+    "pnl_abs": 3586.69,
+    "pnl_pct": 7.173,
+    "profit_factor": 1.064,
+    "max_drawdown_abs": 12544.04,
+    "max_drawdown_pct": 19.65,
+    "starting_balance": 50000.0,
+    "final_balance": 53586.69,
+    "gross_abs": 4229.5,
+    "volume_abs": 44068731.75,
+    "break_even_pct": 0.0096,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55422.52
+     },
+     "trailing_stop": {
+      "n": 113,
+      "pnl_abs": 54885.68
+     },
+     "take_profit": {
+      "n": 4,
+      "pnl_abs": 3838.73
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 3,
+      "to_i": 14,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T11:14:00+00:00",
+      "pnl_abs": 6643.2,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 187,
+      "to_i": 198,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "12:14:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150526-1877a4",
+   "status": "done",
+   "created": "2026-10-23T15:05:26+00:00",
+   "started": "2026-10-23T15:05:26+00:00",
+   "finished": "2026-10-23T15:05:28+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=1.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3,
+    "trailActivationR": 1.5,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 239,
+    "wins": 116,
+    "losses": 123,
+    "draws": 0,
+    "winrate": 48.54,
+    "pnl_abs": 3578.44,
+    "pnl_pct": 7.157,
+    "profit_factor": 1.065,
+    "max_drawdown_abs": 13231.54,
+    "max_drawdown_pct": 20.191,
+    "starting_balance": 50000.0,
+    "final_balance": 53578.44,
+    "gross_abs": 4218.25,
+    "volume_abs": 43862767.25,
+    "break_even_pct": 0.0096,
+    "exits": {
+     "stop_loss": {
+      "n": 121,
+      "pnl_abs": -54883.66
+     },
+     "take_profit": {
+      "n": 10,
+      "pnl_abs": 10590.92
+     },
+     "trailing_stop": {
+      "n": 107,
+      "pnl_abs": 47586.4
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 3,
+      "to_i": 15,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-30T13:43:00+00:00",
+      "pnl_abs": 6689.24,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 186,
+      "to_i": 197,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "13:22:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150528-e7339a",
+   "status": "done",
+   "created": "2026-10-23T15:05:28+00:00",
+   "started": "2026-10-23T15:05:28+00:00",
+   "finished": "2026-10-23T15:05:30+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=3, trailActivationR=1.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 3,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 3,
+    "trailActivationR": 1.5,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 237,
+    "wins": 114,
+    "losses": 123,
+    "draws": 0,
+    "winrate": 48.1,
+    "pnl_abs": 8233.51,
+    "pnl_pct": 16.467,
+    "profit_factor": 1.15,
+    "max_drawdown_abs": 12917.88,
+    "max_drawdown_pct": 18.898,
+    "starting_balance": 50000.0,
+    "final_balance": 58233.51,
+    "gross_abs": 8869.0,
+    "volume_abs": 43566683.0,
+    "break_even_pct": 0.0204,
+    "exits": {
+     "stop_loss": {
+      "n": 119,
+      "pnl_abs": -54287.6
+     },
+     "take_profit": {
+      "n": 32,
+      "pnl_abs": 36241.48
+     },
+     "trailing_stop": {
+      "n": 85,
+      "pnl_abs": 25994.84
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 3,
+      "to_i": 14,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-30T13:59:00+00:00",
+      "pnl_abs": 8222.31,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 184,
+      "to_i": 195,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "16:04:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150530-668dad",
+   "status": "done",
+   "created": "2026-10-23T15:05:30+00:00",
+   "started": "2026-10-23T15:05:30+00:00",
+   "finished": "2026-10-23T15:05:32+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=0.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 180,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 70.31,
+    "pnl_abs": 2526.12,
+    "pnl_pct": 5.052,
+    "profit_factor": 1.105,
+    "max_drawdown_abs": 4684.15,
+    "max_drawdown_pct": 8.318,
+    "starting_balance": 50000.0,
+    "final_balance": 52526.12,
+    "gross_abs": 3224.0,
+    "volume_abs": 47843871.25,
+    "break_even_pct": 0.0067,
+    "exits": {
+     "trailing_stop": {
+      "n": 200,
+      "pnl_abs": 25880.52
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T15:24:00+00:00",
+      "pnl_abs": 3200.82,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 127,
+      "to_i": 132,
+      "start": "2026-03-06T15:03:00+00:00",
+      "end": "2026-03-13T14:42:00+00:00",
+      "pnl_abs": -1450.94,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "2:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150532-467e5a",
+   "status": "done",
+   "created": "2026-10-23T15:05:32+00:00",
+   "started": "2026-10-23T15:05:32+00:00",
+   "finished": "2026-10-23T15:05:34+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=0.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 256,
+    "wins": 148,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 57.81,
+    "pnl_abs": 2749.4,
+    "pnl_pct": 5.499,
+    "profit_factor": 1.106,
+    "max_drawdown_abs": 6187.27,
+    "max_drawdown_pct": 10.647,
+    "starting_balance": 50000.0,
+    "final_balance": 52749.4,
+    "gross_abs": 3447.25,
+    "volume_abs": 47841912.75,
+    "break_even_pct": 0.0072,
+    "exits": {
+     "trailing_stop": {
+      "n": 200,
+      "pnl_abs": 26103.8
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -23354.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 21,
+      "from_i": 88,
+      "to_i": 108,
+      "start": "2026-01-12T14:51:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3336.94,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 242,
+      "to_i": 249,
+      "start": "2026-08-17T14:21:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -1751.22,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:23:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150534-d27645",
+   "status": "done",
+   "created": "2026-10-23T15:05:34+00:00",
+   "started": "2026-10-23T15:05:34+00:00",
+   "finished": "2026-10-23T15:05:36+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=0.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 0.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 248,
+    "wins": 96,
+    "losses": 152,
+    "draws": 0,
+    "winrate": 38.71,
+    "pnl_abs": 783.41,
+    "pnl_pct": 1.567,
+    "profit_factor": 1.021,
+    "max_drawdown_abs": 10199.55,
+    "max_drawdown_pct": 16.99,
+    "starting_balance": 50000.0,
+    "final_balance": 50783.41,
+    "gross_abs": 1444.5,
+    "volume_abs": 45321764.5,
+    "break_even_pct": 0.0032,
+    "exits": {
+     "trailing_stop": {
+      "n": 190,
+      "pnl_abs": 16698.59
+     },
+     "take_profit": {
+      "n": 3,
+      "pnl_abs": 6394.96
+     },
+     "stop_loss": {
+      "n": 54,
+      "pnl_abs": -22594.93
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 90,
+      "to_i": 97,
+      "start": "2026-01-23T15:00:00+00:00",
+      "end": "2026-02-03T20:58:00+00:00",
+      "pnl_abs": 2655.86,
+      "count": 1
+     },
+     "loss": {
+      "n": 18,
+      "from_i": 227,
+      "to_i": 244,
+      "start": "2026-08-06T13:48:00+00:00",
+      "end": "2026-08-31T19:50:00+00:00",
+      "pnl_abs": -4163.57,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "7:40:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150536-42d16c",
+   "status": "done",
+   "created": "2026-10-23T15:05:36+00:00",
+   "started": "2026-10-23T15:05:36+00:00",
+   "finished": "2026-10-23T15:05:39+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=1, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5,
+    "trailActivationR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 255,
+    "wins": 141,
+    "losses": 114,
+    "draws": 0,
+    "winrate": 55.29,
+    "pnl_abs": -2985.28,
+    "pnl_pct": -5.971,
+    "profit_factor": 0.94,
+    "max_drawdown_abs": 13830.86,
+    "max_drawdown_pct": 23.46,
+    "starting_balance": 50000.0,
+    "final_balance": 47014.72,
+    "gross_abs": -2291.88,
+    "volume_abs": 47536838.88,
+    "break_even_pct": -0.0048,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49458.3
+     },
+     "trailing_stop": {
+      "n": 145,
+      "pnl_abs": 46473.02
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 98,
+      "to_i": 108,
+      "start": "2026-01-26T14:54:00+00:00",
+      "end": "2026-02-09T17:54:00+00:00",
+      "pnl_abs": 3746.16,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 177,
+      "to_i": 181,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:23:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 2.1
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150540-d59f24",
+   "status": "done",
+   "created": "2026-10-23T15:05:40+00:00",
+   "started": "2026-10-23T15:05:40+00:00",
+   "finished": "2026-10-23T15:05:42+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=1, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 1,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5,
+    "trailActivationR": 1,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 252,
+    "wins": 140,
+    "losses": 112,
+    "draws": 0,
+    "winrate": 55.56,
+    "pnl_abs": -4956.67,
+    "pnl_pct": -9.913,
+    "profit_factor": 0.9,
+    "max_drawdown_abs": 14942.73,
+    "max_drawdown_pct": 25.424,
+    "starting_balance": 50000.0,
+    "final_balance": 45043.33,
+    "gross_abs": -4276.75,
+    "volume_abs": 46612459.25,
+    "break_even_pct": -0.0092,
+    "exits": {
+     "stop_loss": {
+      "n": 110,
+      "pnl_abs": -49458.3
+     },
+     "trailing_stop": {
+      "n": 142,
+      "pnl_abs": 44501.63
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 95,
+      "to_i": 106,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-09T18:21:00+00:00",
+      "pnl_abs": 3324.03,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 174,
+      "to_i": 178,
+      "start": "2026-05-19T14:06:00+00:00",
+      "end": "2026-05-25T14:29:00+00:00",
+      "pnl_abs": -2189.51,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "7:12:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150543-458dbc",
+   "status": "done",
+   "created": "2026-10-23T15:05:43+00:00",
+   "started": "2026-10-23T15:05:43+00:00",
+   "finished": "2026-10-23T15:05:44+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=1, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 1,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5,
+    "trailActivationR": 1,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 248,
+    "wins": 115,
+    "losses": 133,
+    "draws": 0,
+    "winrate": 46.37,
+    "pnl_abs": -5802.17,
+    "pnl_pct": -11.604,
+    "profit_factor": 0.886,
+    "max_drawdown_abs": 16495.12,
+    "max_drawdown_pct": 28.041,
+    "starting_balance": 50000.0,
+    "final_balance": 44197.83,
+    "gross_abs": -5139.5,
+    "volume_abs": 45430171.5,
+    "break_even_pct": -0.0113,
+    "exits": {
+     "stop_loss": {
+      "n": 109,
+      "pnl_abs": -49051.06
+     },
+     "trailing_stop": {
+      "n": 134,
+      "pnl_abs": 34917.87
+     },
+     "take_profit": {
+      "n": 4,
+      "pnl_abs": 8046.24
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 91,
+      "to_i": 102,
+      "start": "2026-01-23T15:24:00+00:00",
+      "end": "2026-02-10T20:12:00+00:00",
+      "pnl_abs": 3572.03,
+      "count": 1
+     },
+     "loss": {
+      "n": 14,
+      "from_i": 228,
+      "to_i": 241,
+      "start": "2026-08-07T14:06:00+00:00",
+      "end": "2026-08-26T14:27:00+00:00",
+      "pnl_abs": -3929.69,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "11:06:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150545-4abc17",
+   "status": "done",
+   "created": "2026-10-23T15:05:45+00:00",
+   "started": "2026-10-23T15:05:45+00:00",
+   "finished": "2026-10-23T15:05:46+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=1.5, trailOffsetR=0.25 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.25
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5,
+    "trailActivationR": 1.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 240,
+    "wins": 116,
+    "losses": 124,
+    "draws": 0,
+    "winrate": 48.33,
+    "pnl_abs": 3162.69,
+    "pnl_pct": 6.325,
+    "profit_factor": 1.057,
+    "max_drawdown_abs": 12933.04,
+    "max_drawdown_pct": 20.27,
+    "starting_balance": 50000.0,
+    "final_balance": 53162.69,
+    "gross_abs": 3805.5,
+    "volume_abs": 44068377.75,
+    "break_even_pct": 0.0086,
+    "exits": {
+     "stop_loss": {
+      "n": 122,
+      "pnl_abs": -55422.52
+     },
+     "trailing_stop": {
+      "n": 117,
+      "pnl_abs": 58300.42
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 3,
+      "to_i": 14,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-29T11:14:00+00:00",
+      "pnl_abs": 6643.2,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 187,
+      "to_i": 198,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "12:14:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150547-6ad86d",
+   "status": "done",
+   "created": "2026-10-23T15:05:47+00:00",
+   "started": "2026-10-23T15:05:47+00:00",
+   "finished": "2026-10-23T15:05:48+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=1.5, trailOffsetR=0.5 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 0.5
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5,
+    "trailActivationR": 1.5,
+    "trailOffsetR": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 239,
+    "wins": 116,
+    "losses": 123,
+    "draws": 0,
+    "winrate": 48.54,
+    "pnl_abs": 3838.69,
+    "pnl_pct": 7.677,
+    "profit_factor": 1.07,
+    "max_drawdown_abs": 13293.3,
+    "max_drawdown_pct": 20.186,
+    "starting_balance": 50000.0,
+    "final_balance": 53838.69,
+    "gross_abs": 4478.5,
+    "volume_abs": 43862606.0,
+    "break_even_pct": 0.0102,
+    "exits": {
+     "stop_loss": {
+      "n": 121,
+      "pnl_abs": -54883.66
+     },
+     "trailing_stop": {
+      "n": 117,
+      "pnl_abs": 58437.57
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 3,
+      "to_i": 15,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-30T13:43:00+00:00",
+      "pnl_abs": 6689.24,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 186,
+      "to_i": 197,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "13:26:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.6
+   },
+   "error": null
+  },
+  {
+   "run": "20261023-150549-f75cf8",
+   "status": "done",
+   "created": "2026-10-23T15:05:49+00:00",
+   "started": "2026-10-23T15:05:49+00:00",
+   "finished": "2026-10-23T15:05:50+00:00",
+   "user": "",
+   "note": "sweep 20261023-150417-c902: rrRatio=5, trailActivationR=1.5, trailOffsetR=1 — ORB NY 15m SL opačná, trailing mriežka (23.10.2026), okno 20250904-20260904",
+   "tag": {
+    "values": {
+     "rrRatio": 5,
+     "trailActivationR": 1.5,
+     "trailOffsetR": 1
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 45
+   },
+   "params": {
+    "rrRatio": 5,
+    "trailActivationR": 1.5,
+    "trailOffsetR": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 111,
+    "losses": 122,
+    "draws": 0,
+    "winrate": 47.64,
+    "pnl_abs": 5179.1,
+    "pnl_pct": 10.358,
+    "profit_factor": 1.094,
+    "max_drawdown_abs": 13484.88,
+    "max_drawdown_pct": 20.369,
+    "starting_balance": 50000.0,
+    "final_balance": 55179.1,
+    "gross_abs": 5798.5,
+    "volume_abs": 42463903.5,
+    "break_even_pct": 0.0137,
+    "exits": {
+     "stop_loss": {
+      "n": 119,
+      "pnl_abs": -54148.56
+     },
+     "trailing_stop": {
+      "n": 107,
+      "pnl_abs": 47358.82
+     },
+     "take_profit": {
+      "n": 6,
+      "pnl_abs": 11684.05
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 284.78
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 3,
+      "to_i": 13,
+      "start": "2025-09-09T14:03:00+00:00",
+      "end": "2025-09-30T13:59:00+00:00",
+      "pnl_abs": 7028.99,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 180,
+      "to_i": 191,
+      "start": "2026-06-16T13:48:00+00:00",
+      "end": "2026-07-07T01:21:00+00:00",
+      "pnl_abs": -6627.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "16:37:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 1.7
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-10-23T15:05:50+00:00"
+}

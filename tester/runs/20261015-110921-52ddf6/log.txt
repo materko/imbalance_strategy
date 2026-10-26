@@ -1,0 +1,6 @@
+$ emulator MultiCharts NAS100 15m 20250904-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: HTF 60m supertrend + zony @60m 281/281, HTF 240m supertrend + zony @240m 317/317
+emulacia MultiCharts: 22725 barov 15m, 340677 1m, 0 HTF
+  20000/22725 barov, 3 obchodov
+hotovo: 3 obchodov, nerozhodnutelnych minut 0
+kresby: {'dv_st_htf': 22725, 'dv_zone_bear': 261, 'dv_zone_bull': 237, 'dv_st_up': 11320, 'dv_line_bull': 11187, 'dv_bull': 4645, 'dv_line_bear': 3346, 'dv_bear': 2679, 'dv_st_down': 11391, 'dv_armed': 5, 'dv_entry': 3, 'tp_box': 3, 'sl_box': 3}
