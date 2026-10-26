@@ -124,6 +124,11 @@ namespace TradeBot.Strategies.FiboNet
                 else if (f.FieldType == typeof(double?)) f.SetValue(cfg, raw == null ? (double?)null : Json.ToDouble(raw));
                 else f.SetValue(cfg, Convert.ToString(raw, CultureInfo.InvariantCulture));
             }
+            ConfigChoice.Check("levelMode", cfg.levelMode, "zone", "levels");
+            ConfigChoice.Check("entryModel", cfg.entryModel, "imbalance", "pinbar", "any");
+            ConfigChoice.Check("slMode", cfg.slMode, "leg", "pullback");
+            ConfigChoice.Check("tpMode", cfg.tpMode, "extension", "rr");
+            ConfigChoice.Check("tradeDirection", cfg.tradeDirection, "Both", "Long only", "Short only");
             return cfg;
         }
     }

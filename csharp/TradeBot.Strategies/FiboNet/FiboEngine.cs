@@ -76,7 +76,7 @@ namespace TradeBot.Strategies.FiboNet
     }
 
     [TradeBotEngine("fibomgcnet", "Fibo 1.0 MGC (C# jadro)")]
-    public sealed class FiboEngine : IEngine
+    public sealed class FiboEngine : IEngine, IConfigured
     {
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
@@ -85,6 +85,8 @@ namespace TradeBot.Strategies.FiboNet
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private readonly FiboConfig _cfg;
+        /// <summary>Config strategie - `EntryLayers.Wrap` z neho berie defaulty klucov, ktore profil nema.</summary>
+        public object Settings { get { return _cfg; } }
         private readonly InstrumentSpec _inst;
         private readonly int _tf;
         private readonly int _swingTf;
