@@ -245,6 +245,24 @@ def test_stav_route(clr, tmp_path):
     assert host.BridgePoll(h, rid) == "" and str(h) in host.LastError()
 
 
+def test_druhy_exekutor_s_tym_istym_id_sa_neotvori(clr, tmp_path):
+    """EA na druhom grafe (alebo v druhom termináli) by čítalo ten istý cmd.jsonl a každý vstup poslalo dvakrát."""
+    _core, host = clr
+    root = str(tmp_path)
+    exec_id = host.BridgeExecutorId(5012345, "FTMO-Demo")
+    h = host.BridgeExecOpen(root, exec_id)
+    assert h > 0
+    assert host.BridgeExecOpen(root, exec_id) == -1 and "uz bezi" in host.LastError()
+    other = host.BridgeExecOpen(root, host.BridgeExecutorId(5012346, "FTMO-Demo"))
+    assert other > 0                                                   # iný účet = iný exekútor
+    host.BridgeExecClose(h)
+    host.BridgeExecClose(h)                                            # druhé zatvorenie nič nerobí
+    h2 = host.BridgeExecOpen(root, exec_id)                           # po zatvorení (OnDeinit) znova
+    assert h2 > 0
+    host.BridgeExecClose(h2)
+    host.BridgeExecClose(other)
+
+
 def _ms(dt: datetime) -> int:
     return int(dt.timestamp() * 1000)
 

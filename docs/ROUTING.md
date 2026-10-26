@@ -112,7 +112,9 @@ na symbol, ktorý účet nemá (422).
 NQ a NAS100 sa líšia o **basis** (úroky, dividendy do expirácie, bid/ask CFD), a ten sa mení. Absolútne
 ceny z enginu (`e`, `sl`, `tp`) preto nejdú do MT5 priamo:
 
-- Každý príkaz nesie `ref` = poslednú cenu NT inštrumentu v čase príkazu.
+- Každý príkaz nesie `ref` = poslednú cenu NT inštrumentu v čase príkazu (posledný tick, teda close
+  tvoriaceho sa baru, nie zatvorenie posledného uzavretého — vstup uvoľnený uprostred baru by inak
+  dostal cenu posunutú o pohyb od zatvorenia).
 - Exekútor pri vykonaní: `mt5 = mid_MT5_teraz + (cena − ref) × scale`, zaokrúhlené na tick symbolu.
   **Vzdialenosti od aktuálnej ceny ostávajú zachované**, teda aj limitka „5 bodov pod trhom“ a
   SL „20 bodov pod vstupom“.
@@ -153,6 +155,7 @@ Protokol je teda napísaný raz a otestovaný v Pythone cez fasádu ako `test_mt
 | `evt.jsonl` | exekútor, append | `{"seq", "t", "cid", "k": "ack"/"reject"/"placed"/"fill"/"modified"/"cancelled"/"closed"/"snapshot", "id", "price", "price_nt", "qty", "lots", "exit", "err"}` |
 | `nt.hb` | NT, každú 1 s | `{t, session, mode}` (živosť stratégie pre `on_master_lost`) |
 | `exec\mt5exec_<login>-<server>.hb.json` | exekútor, každú 1 s | `{t, v, login, server, margin_mode, connected, trade_allowed, symbols:[…], routes:[…]}` |
+| `exec\mt5exec_<login>-<server>.lock` | exekútor, drží otvorený | výhradný zámok: druhý exekútor s tým istým id (iný graf, iný terminál) sa neotvorí |
 | `exec\…state.json` | exekútor | spracované `seq` za každú route, `cid → ticket`, otvorené pozície route (pre reštart) |
 
 Pravidlá:
@@ -166,6 +169,11 @@ Pravidlá:
   „broker nemal nič“); cakajúci order, ktorý pri `cancel` u brokera už nie je, sa najprv zladí (vyplnil sa? → fill,
   nie `cancelled`); raz za 5 s sa ordery a pozície s magic route bez záznamu prevezmú (`AdoptStrays`), aby nič
   nebežalo bez strážcu a bez hlásenia do NT.
+- **Jeden exekútor na účet.** Druhá inštancia s tým istým id sa nespustí (`exec\<id>.lock`), inak by dva
+  kurzory nad tým istým `cmd.jsonl` poslali každý vstup dvakrát.
+- **Čiastočný fill vstupu:** NT dostane `fill in` s vyplneným objemom a zvyšok orderu exekútor hneď zruší
+  (`note warn`); keby sa zvyšok aj tak stihol vyplniť, príde `pos` s novým celkovým objemom. Zvyšok teda
+  nikdy neostane GTC mimo `cancel` a `life`.
 - **Doručenie vstupu:** `entry` má `exp`, termín, do ktorého sa príkaz smie **odoslať brokerovi**
   (market: 10 s, limit/stop: koniec baru + 1 TF). Neskorší príkaz exekútor odmietne (`reject
   expired`), napríklad keď MT5 hodinu nebežal a market vstup by išiel za úplne inú cenu. Toto nie je

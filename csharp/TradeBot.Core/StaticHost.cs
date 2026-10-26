@@ -437,12 +437,14 @@ public static class StaticHost
         catch (Exception e) { Fail(e); return ""; }
     }
 
-    /// <summary>Otvori exekutor nad `root` (`Common\Files\TradeBot`); handle &gt; 0, alebo -1.</summary>
+    /// <summary>Otvori exekutor nad `root` (`Common\Files\TradeBot`); handle &gt; 0, alebo -1 - aj ked exekutor
+    /// s tym istym id uz bezi (`BridgeExecutor.Lock`).</summary>
     public static int BridgeExecOpen(string root, string executorId)
     {
         try
         {
             BridgeExecutor x = new BridgeExecutor(root, executorId);
+            x.Lock();
             lock (Lock)
             {
                 int h = _next++;
@@ -456,7 +458,13 @@ public static class StaticHost
 
     public static void BridgeExecClose(int handle)
     {
-        lock (Lock) { Execs.Remove(handle); }
+        BridgeExecutor x;
+        lock (Lock)
+        {
+            if (!Execs.TryGetValue(handle, out x)) return;
+            Execs.Remove(handle);
+        }
+        x.Unlock();
     }
 
     /// <summary>Route urcene tomuto exekutorovi ako JSON pole objektov `route.json` s doplnenym `id` (adresar route);

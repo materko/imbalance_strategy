@@ -28,7 +28,8 @@ driver H3. Až potom demo test podľa ROUTING.md.
 `TERMINAL_CONNECTED`, dovtedy len heartbeat), NT V2 + V3 + S1, hub H1 + H2, driver H3 — každé s poznámkou
 *(opravené)* pri náleze. K5 má navyše `AdoptStrays`: raz za 5 s sa ordery a pozície s magic route bez záznamu
 prevezmú podľa komentára. Preložené (NT `check`, MetaEditor 0 chýb), testy `test_live_*`, `test_bridge` prešli;
-naživo stále neoverené. Neopravené ostávajú V4–V5 exekútora, NT V1 + V4 + S2–S6, hub H4–H6 a všetko nižšie.
+naživo stále neoverené. V druhom kole opravené NT V1 a V4–V5 exekútora (test `test_druhy_exekutor_s_tym_istym_id_sa_neotvori`).
+Neopravené ostávajú NT V4 + S2–S6, hub H4–H6 a všetko nižšie.
 
 ## 2. MT5 exekútor (`tradebot/adapters/mt5/TradeBotExecutor.mqh`)
 
@@ -47,8 +48,8 @@ naživo stále neoverené. Neopravené ostávajú V4–V5 exekútora, NT V1 + V4
 - **V1 `HandleModify` 590–598 — kotva je cena orderu, nie fill** *(opravené: kotva `ntEntry`, SL nikdy späť)*. `ntFill = ntEntry + (fill − entry)/scale` a potom `Reanchor(fill, ntFill, …)` sa zjednoduší na `entry + (sl − ntEntry)·scale`. Prvotný SL je však prekotvený od fillu (`OnEntryFill` 679). Long so sklzom 3 b.: SL po fille 183, NT pošle trailing 81 → exekútor položí 182, **stop sa uvoľní**. `HandleModify` nemá „nikdy späť“ (má ho len `TrailOnMinute` 782); to isté po návrate NT, ktorý nevie o trailingu exekútora.
 - **V2** *(opravené)* **`modified` 787 bez `price_nt`**, `Snapshot` dáva SL len v texte (488) — NT po návrate nepozná skutočný stop (vstup do V1).
 - **V3** *(opravené)* **(neisté) `OnInit` 808–809** robí `LoadState → Reconcile` hneď. Ak pri štarte terminálu ešte nie sú pozície/história synchronizované, `Reconcile` vyhlási všetko za `cancelled "u brokera po restarte nie je"` (293–295) → hromadné siroty. `TimeTradeServer` pred pripojením môže dať zlý `fillMs`; `ACCOUNT_LOGIN == 0` by dalo id `mt5exec_0-` na celú reláciu. Driver terminál reštartuje pri každej zmene grafov, cesta je častá. Odložiť do `OnTimer` po `TERMINAL_CONNECTED`.
-- **V4 `StaticHost.BridgeExecOpen` 441–455 bez zámku** — EA na dvoch grafoch = dva kurzory nad tým istým `cmd.jsonl`, každý príkaz dvakrát, dvaja píšu `orders.json`. **Duplicitné vstupy.** Odmietnuť druhú inštanciu s rovnakým id.
-- **V5 čiastočný fill pending orderu 654** len pripočíta `openLots`, nič neemituje (NT nevie o objeme), zvyšok orderu ostane GTC: `cancel` sa ignoruje (447), `life` cancel platí len pre `!filled` → zvyšok sa vyplní kedykoľvek neskôr.
+- **V4 `StaticHost.BridgeExecOpen` 441–455 bez zámku** *(opravené: výhradný `exec\<id>.lock`, `BridgeExecutor.Lock`; drží ho OS, po páde zmizne)* — EA na dvoch grafoch = dva kurzory nad tým istým `cmd.jsonl`, každý príkaz dvakrát, dvaja píšu `orders.json`. **Duplicitné vstupy.** Odmietnuť druhú inštanciu s rovnakým id.
+- **V5 čiastočný fill pending orderu 654** *(opravené: `DropRemainder` zruší zvyšok hneď po fille a v `Guards` skúša znova; ďalšia časť, ktorá sa stihla vyplniť, ide do NT ako `pos` s celkovým objemom; prevzatý order/pozícia berie `ORDER_VOLUME_INITIAL`)* len pripočíta `openLots`, nič neemituje (NT nevie o objeme), zvyšok orderu ostane GTC: `cancel` sa ignoruje (447), `life` cancel platí len pre `!filled` → zvyšok sa vyplní kedykoľvek neskôr.
 
 ### Stredné
 
@@ -80,7 +81,7 @@ naživo stále neoverené. Neopravené ostávajú V4–V5 exekútora, NT V1 + V4
 
 Nič nenecháva pozíciu bez stopu (SL/TP sú v orderi). Vysoké:
 
-- **V1 `SubmitRemote` 2156 — `ref` je zatvorenie posledného baru.** Volá sa aj z `ReleaseParked` (1195–1204) na `fill out` uprostred baru, kým exekútor počíta od `mid` *teraz*. Long limit 100, posledný close 104, SL inej pozície padne pri 98: MT5 dostane `mid + (100 − 104)`, limitka je o 6 b. nižšie a nevyplní sa; pri opačnom pohybe BuyLimit nad trhom → `reject`, vstup preč. Lokálna vetva posiela absolútnu cenu, chyba je len pri route. `ref` = posledný tick NT.
+- **V1 `SubmitRemote` 2156 — `ref` je zatvorenie posledného baru.** *(opravené: `LastTick()` = close tvoriaceho sa baru z BarsRequest, aj pre `modify`)* Volá sa aj z `ReleaseParked` (1195–1204) na `fill out` uprostred baru, kým exekútor počíta od `mid` *teraz*. Long limit 100, posledný close 104, SL inej pozície padne pri 98: MT5 dostane `mid + (100 − 104)`, limitka je o 6 b. nižšie a nevyplní sa; pri opačnom pohybe BuyLimit nad trhom → `reject`, vstup preč. Lokálna vetva posiela absolútnu cenu, chyba je len pri route. `ref` = posledný tick NT.
 - **V2** *(opravené: `Poll(false)` + `CommitCursor()` po `SaveState`)* **`BridgeMaster.Poll` (Bridge.cs 557–566) — kurzor sa uloží pred spracovaním a offset sa posúva v pamäti.** Výnimka z `AtomicWrite` kurzora (po 20 pokusoch, antivírus) zahodí prečítané riadky; pád NT medzi `Poll` a `SaveState` (416) ich stratí tiež. Stratený `fill in`: NT drží vstup ako `RemoteLive`, engine ho neskôr zruší (963–966), exekútor odpovie `ack "uz je vyplneny"`, ktorý NT ignoruje → pozícia v MT5 bez trailingu a výstupov enginu, `OwnNet = 0`, engine smie otvoriť ďalšiu (**dvojitá expozícia**). Kurzor ukladať až po spracovaní a `SaveState`.
 - **V3 snapshot 2292–2299 zahodí platný vstup poslaný po `sync`** *(opravené: `_syncSentMs`)*. `RouteTick` pošle `sync` (2108) a v tej istej iterácii `ProcessBars` pošle `entry`; snapshot ho neobsahuje, NT ho zahodí, potom príde `fill in` neznámeho vstupu → `Close "neznamy vstup"` (2215): **platný obchod sa hneď zavrie**. Nezahadzovať vstupy so `SentMs ≥ čas sync`.
 - **V4 `Apply` 938–942 zahodí vstup pri každom stave ≠ `ok`**, aj pri jednom zlom meraní. Hb exekútora má sekundové `t` a 1 s periódu, rezerva do `StaleMs = 3000` je ~1 s; zaváhanie timera MT5 pri zatvorení baru = vstup sa nepošle a nezopakuje (odchýlka od backtestu). `exp` a kontrola stavu v exekútore (mqh 516–517) ho aj tak chránia; zahadzovať len pri trvalých stavoch (`account_mismatch`, `netting_unsupported`, `symbol_missing`), inak poslať.

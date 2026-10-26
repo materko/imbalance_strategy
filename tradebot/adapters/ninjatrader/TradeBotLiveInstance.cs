@@ -1415,7 +1415,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (!better) continue;
                 if (Routed)
                 {
-                    _route.Modify(NowMs(), kv.Key, Tick(stop), null, bar.Close, "trailing");
+                    _route.Modify(NowMs(), kv.Key, Tick(stop), null, LastTick(), "trailing");
                     Log("TRAIL " + kv.Key + " SL -> " + Tick(stop) + " (MT5)");
                 }
                 else if (Alive(t.Sl))
@@ -2150,8 +2150,19 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
         }
 
-        /// <summary>Vstup do MT5: plan v cenach NinjaTradera, `ref` = zatvorenie posledneho baru (prepocet basis),
-        /// `life` od enginu + nevyplneny vstup plati najdlhsie do konca seansy instrumentu.</summary>
+        /// <summary>Posledny tick NT: close tvoriaceho sa baru grafu (BarsRequest ho prepise pri kazdom ticku),
+        /// inak zatvorenie posledneho podaneho baru. Exekutor ho porovna so svojim `mid` teraz (basis).</summary>
+        private double LastTick()
+        {
+            Series s = _chart ?? _m1Series;
+            if (s != null)
+                lock (s.Gate)
+                    if (s.Bars.Count > 0 && s.Bars[s.Bars.Count - 1].Close > 0) return s.Bars[s.Bars.Count - 1].Close;
+            return _lastClose;
+        }
+
+        /// <summary>Vstup do MT5: plan v cenach NinjaTradera, `ref` = posledny tick (prepocet basis - aj pri vstupe
+        /// uvolnenom uprostred baru), `life` od enginu + nevyplneny vstup plati najdlhsie do konca seansy instrumentu.</summary>
         private void SubmitRemote(string id, Tracked t)
         {
             TB.OrderIntent intent = t.Intent;
@@ -2161,7 +2172,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             long exp = intent.OrderType == TB.OrderType.Market ? now + 10000L : now + Deployment.Tf * 60000L;
             try
             {
-                string cid = _route.Entry(now, intent, _lastClose > 0 ? _lastClose : intent.Plan.Entry, exp);
+                double tick = LastTick();
+                string cid = _route.Entry(now, intent, tick > 0 ? tick : intent.Plan.Entry, exp);
                 t.RemoteLive = true;
                 t.SentMs = now;
                 Log("ENTRY " + id + " -> MT5 " + intent.OrderType + " @" + intent.Plan.Entry + " SL " + intent.Plan.StopLoss + " TP "

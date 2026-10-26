@@ -559,10 +559,12 @@ void AdoptExisting(XOrder &o, ulong ticket, bool isPosition, string cid, string 
      {
       o.entry = PositionGetDouble(POSITION_PRICE_OPEN); o.lots = PositionGetDouble(POSITION_VOLUME);
       o.sl0 = PositionGetDouble(POSITION_SL); o.tp0 = PositionGetDouble(POSITION_TP);
+      // ciastocny fill: zvysok orderu este caka - objem vstupu je povodny objem orderu (OnEntryFill zvysok zrusi)
+      if(OrderSelect(ticket)) o.lots = OrderGetDouble(ORDER_VOLUME_INITIAL);
      }
    else if(OrderSelect(ticket))
      {
-      o.entry = OrderGetDouble(ORDER_PRICE_OPEN); o.lots = OrderGetDouble(ORDER_VOLUME_CURRENT);
+      o.entry = OrderGetDouble(ORDER_PRICE_OPEN); o.lots = OrderGetDouble(ORDER_VOLUME_INITIAL);
       o.sl0 = OrderGetDouble(ORDER_SL); o.tp0 = OrderGetDouble(ORDER_TP);
      }
    o.lastStop = o.sl0; o.lastTp = o.tp0; o.extreme = o.entry;
@@ -805,7 +807,15 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
    for(int i = 0; i < ArraySize(g_xo); i++)
      {
       if(entry == DEAL_ENTRY_IN && g_xo[i].ticket == order && !g_xo[i].filled) { OnEntryFill(i, vol, px, ms, position, ""); break; }
-      if(entry == DEAL_ENTRY_IN && g_xo[i].ticket == order && g_xo[i].filled) { g_xo[i].openLots += vol; break; }   // ciastocny fill dalsej casti
+      if(entry == DEAL_ENTRY_IN && g_xo[i].ticket == order && g_xo[i].filled)
+        {
+         // dalsia cast ciastocne vyplneneho vstupu (zvysok sa nestihol zrusit): NT dostane novy celkovy objem
+         g_xo[i].openLots += vol;
+         Emit(g_xo[i].route, "pos", "", g_xo[i].id, g_xo[i].dir > 0 ? "long" : "short", g_xo[i].fill,
+              NtPrice(g_xo[i], g_xo[i].fill, g_xo[i].entry, g_xo[i].ntEntry), QtyNt(g_xo[i], g_xo[i].openLots), g_xo[i].openLots,
+              g_xo[i].fillMs, "", "dalsia cast vstupu " + Num(vol) + " lotov");
+         break;
+        }
       if(entry != DEAL_ENTRY_IN && g_xo[i].filled && g_xo[i].ticket == position)
         {
          ENUM_DEAL_REASON why = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
@@ -829,6 +839,7 @@ void OnEntryFill(int i, double vol, double px, long ms, ulong position, string t
    string sym = r >= 0 ? g_routes[r].symbol : PositionGetString(POSITION_SYMBOL);
    Emit(g_xo[i].route, "fill", g_xo[i].cid, g_xo[i].id, "in", px, NtPrice(g_xo[i], px, g_xo[i].entry, g_xo[i].ntEntry),
         QtyNt(g_xo[i], vol), vol, ms, "", text);
+   DropRemainder(i);
    // SL/TP od skutocneho fillu (sklz na CFD nezmeni riziko v bodoch)
    if(r < 0 || g_routes[r].price == "same") return;
    double sl = StaticHost::BridgeReanchor(px, g_xo[i].ntEntry, g_xo[i].ntSl, g_routes[r].scale, Tick(sym));
@@ -842,6 +853,28 @@ void OnEntryFill(int i, double vol, double px, long ms, ulong position, string t
      }
    else
       Note(g_xo[i].route, "warn", "prekotvenie SL/TP " + g_xo[i].id + " na fill odmietnute: " + TradeErr() + " - ostavaju z orderu");
+  }
+
+/// Zvysok ciastocne vyplneneho vstupu (order s ticketom pozicie este caka u brokera) sa zrusi: pozicia ostava
+/// s vyplnenym objemom, ktory NT pozna z `fill` / `pos`. Inak by zvysok ostal GTC mimo `cancel` aj `life` (plati
+/// len pre nevyplneny vstup) a vyplnil sa kedykolvek neskor. Neuspech sa skusa kazdu sekundu (Guards).
+void DropRemainder(int i)
+  {
+   ulong t = g_xo[i].ticket;
+   // vyplneny cely objem: order moze byt pri DEAL_ADD este chvilu medzi aktivnymi - nie je co rusit
+   if(t == 0 || g_xo[i].openLots >= g_xo[i].lots - 1e-8 || !OrderSelect(t)) return;
+   double left = OrderGetDouble(ORDER_VOLUME_CURRENT);
+   if(left <= 0) return;
+   if(g_trade.OrderDelete(t) && Sent())
+     {
+      Note(g_xo[i].route, "warn", StringFormat("vstup %s vyplneny ciastocne (%s lotov) - zvysok %s lotov zruseny",
+                                               g_xo[i].id, Num(g_xo[i].openLots), Num(left)));
+      g_xo[i].cancelWanted = false;
+      return;
+     }
+   if(!g_xo[i].cancelWanted)
+      Note(g_xo[i].route, "error", "zvysok ciastocne vyplneneho vstupu " + g_xo[i].id + " sa neda zrusit: " + TradeErr() + " - skusam znova");
+   g_xo[i].cancelWanted = true;
   }
 
 void OnExitFill(int i, double vol, double px, long ms, string exitName)
@@ -886,6 +919,7 @@ void Guards()
            }
          continue;
         }
+      DropRemainder(i);   // zvysok ciastocneho fillu (aj prevzaty po restarte alebo neuspesne zruseny)
       if(g_xo[i].closing)
         {
          if(now >= g_xo[i].closeRetryAt) ClosePosition(i);

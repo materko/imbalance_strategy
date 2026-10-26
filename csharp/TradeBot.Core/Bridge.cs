@@ -9,6 +9,7 @@
 //   <root>\bridge\<instancia>\nt.cursor    master: kam docital evt.jsonl
 //   <root>\bridge\<instancia>\exec.state   exekutor: kam docital cmd.jsonl + vykonane cid (idempotencia cez restart)
 //   <root>\exec\<id exekutora>.hb.json     exekutor kazdu sekundu: ucet, spojenie, symboly, prijate route
+//   <root>\exec\<id exekutora>.lock        exekutor ho drzi otvoreny vyhradne - druha instancia s tym istym id sa neotvori
 //
 // <root> je `Common\Files\TradeBot` terminalu MT5 (`%APPDATA%\MetaQuotes\Terminal\Common\Files\TradeBot`): MQL5
 // sandbox tam vidi cez FILE_COMMON a NinjaTrader tam smie pisat. Obe strany pouzivaju tento isty kod (NinjaTrader
@@ -268,6 +269,11 @@ namespace TradeBot.Core
         public static string ExecHeartbeatPath(string root, string executorId)
         {
             return Path.Combine(Path.Combine(root, ExecDir), executorId + ".hb.json");
+        }
+
+        public static string ExecLockPath(string root, string executorId)
+        {
+            return Path.Combine(Path.Combine(root, ExecDir), executorId + ".lock");
         }
 
         public static long NowMs() { return (long)(DateTime.UtcNow - Epoch).TotalMilliseconds; }
@@ -620,10 +626,35 @@ namespace TradeBot.Core
 
         public readonly string Id;
 
+        private FileStream _lock;
+
         public BridgeExecutor(string root, string executorId)
         {
             _root = root;
             Id = executorId;
+        }
+
+        /// <summary>Vyhradny zamok `exec\&lt;id&gt;.lock` na cely beh: EA s tym istym id na druhom grafe alebo v druhom
+        /// terminali nad tym istym Common\Files by citalo ten isty cmd.jsonl vlastnym kurzorom a kazdy vstup poslalo
+        /// dvakrat. Zamok drzi operacny system, takze po pade procesu zmizne sam. Ked ho drzi iny, vyhodi vynimku.</summary>
+        public void Lock()
+        {
+            if (_lock != null) return;
+            string path = Bridge.ExecLockPath(_root, Id);
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            try { _lock = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
+            catch (IOException)
+            {
+                throw new InvalidOperationException("exekutor " + Id + " uz bezi (iny graf alebo terminal s tym istym uctom) - druhu instanciu odmietam");
+            }
+        }
+
+        /// <summary>Uvolni zamok z `Lock()`.</summary>
+        public void Unlock()
+        {
+            if (_lock == null) return;
+            try { _lock.Dispose(); } catch (IOException) { }
+            _lock = null;
         }
 
         /// <summary>Route (id = nazov adresara) s `route.json` adresovanym tomuto exekutorovi.</summary>
