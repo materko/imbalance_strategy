@@ -639,8 +639,15 @@ namespace TradeBot.Core
         {
             _fixedQty = Flag(cfg, "fixedQty", false);
             _qty = Num(cfg, "qty", 1.0);
-            _skipOverRisk = Flag(cfg, "skipOverRisk", false);
+            _skipOverRisk = CapsRisk(cfg);
             _risk = RiskLimit(cfg);
+        }
+
+        /// <summary>Strop straty plati: velkost z rizika vzdy, pevny pocet (`fixedQty`, `legacyPineSizing`) len so `skipOverRisk`
+        /// (`caps_risk` v `entry_sizing.py`, audit N-LIVE-20).</summary>
+        public static bool CapsRisk(Dictionary<string, object> cfg)
+        {
+            return Flag(cfg, "skipOverRisk", false) || !(Flag(cfg, "fixedQty", false) || Flag(cfg, "legacyPineSizing", false));
         }
 
         /// <summary>Riziko na obchod v $ - prve z poli `riskDollar`, `maxLossDollar`, ktore config ma.</summary>
@@ -704,7 +711,7 @@ namespace TradeBot.Core
                 engine = new EntryConfirmEngine(engine, cfg);
             if (cfg.ContainsKey("entryOrderType") && EngineLayer.Text(cfg, "entryOrderType", "market") != "market")
                 engine = new EntryOrderEngine(engine, cfg);
-            if (EngineLayer.Flag(cfg, "fixedQty", false) || EngineLayer.Flag(cfg, "skipOverRisk", false))
+            if (EngineLayer.Flag(cfg, "fixedQty", false) || (EntrySizingEngine.CapsRisk(cfg) && EntrySizingEngine.RiskLimit(cfg) > 0))
                 engine = new EntrySizingEngine(engine, cfg);
             return engine;
         }

@@ -1,4 +1,5 @@
 {
+  "legacyPineSizing": true,
   "_title": "MNQ futures 1m — VWAP ADX Pullback podľa Pine skriptu (range 8:30-9:00 CT, ADX > 20 a neklesá, TP high 5 / SL low 20)",
   "_strategy": "vwapadxnet",
   "_instrument": "mnq_databento",

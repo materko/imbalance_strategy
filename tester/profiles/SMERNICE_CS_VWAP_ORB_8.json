@@ -1,4 +1,5 @@
 {
+  "legacyPineSizing": true,
   "tickDollarValue": 0.5,
   "closeAtSessionEnd": false,
   "enableTrailing": false,

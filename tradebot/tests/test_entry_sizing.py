@@ -49,7 +49,21 @@ CTX = MarketContext(in_trade_window=True)
 
 def test_bez_prepinacov_sa_engine_nebali():
     e = _Eng(10, 5)
-    assert wrap_entry_sizing(e, _Cfg(skipOverRisk=False)) is e
+    assert wrap_entry_sizing(e, _Cfg(skipOverRisk=False, riskDollar=0.0)) is e   # bez rizika nie je čo stropovať
+
+
+def test_pocet_z_rizika_ma_strop_vzdy():
+    """Audit N-LIVE-20: pri počte z rizika podlaha 1 kontrakt riziko neprebije ani bez `skipOverRisk`."""
+    w = wrap_entry_sizing(_Eng(80, 1), _Cfg(skipOverRisk=False))
+    assert isinstance(w, EntrySizingEngine)
+    assert w.on_bar(_bar(0), None, CTX).orders == []
+
+
+def test_pevny_pocet_bez_prepinaca_obchoduje_aj_nad_riziko():
+    """Pevný počet (NOA, TKS, VWAP ORB): nevyužité `riskDollar` obchody nevynechá, kým `skipOverRisk` nie je zapnutý."""
+    o = wrap_entry_sizing(_Eng(80, 1), _Cfg(fixedQty=True, qty=1, skipOverRisk=False)).on_bar(_bar(0), None, CTX).orders
+    assert len(o) == 1 and o[0].plan.qty == 1
+    assert wrap_entry_sizing(_Eng(80, 1), _Cfg(fixedQty=True, qty=1)).on_bar(_bar(0), None, CTX).orders == []
 
 
 def test_strata_pod_rizikom_prejde_nezmenena():

@@ -9,11 +9,12 @@ tak rovnaká pri SL 30 aj 50 tickov. Dve veci sa tým ale nedajú vyjadriť a ti
 * ``skipOverRisk`` — strop straty: počet sa zaokrúhli nadol na celý krok (ako ho pošle broker) a keď by
   strata na stope aj tak bola väčšia než riziko, obchod sa vynechá. Stáva sa to pri širokom stope, keď
   aj najmenšia pozícia (`min_qty`, na futures 1 kontrakt) stojí viac než riziko, alebo pri pevnom
-  počte. Bez neho sa obchoduje aspoň `min_qty` a strata riziko prekročí.
+  počte. Pri veľkosti z rizika (`fixedQty` vypnutý) platí strop vždy — riziko na obchod je strop, nie
+  odhad (audit N-LIVE-20: podlaha 1 kontrakt ho prebíjala aj naživo); pri pevnom počte len so
+  `skipOverRisk`, inak sa obchoduje `qty` a strata riziko prekročiť smie.
 
 Polia sú v `SizingFields`, predkovi `StrategyConfig`, takže ich má každá stratégia; kto ich deklaruje
-sám (Pine vstup `fixedQty`), má vlastný default. Pri defaultoch (`fixedQty` vypnutý alebo vlastný,
-`skipOverRisk` vypnutý) sa výsledky nemenia. Obal je generický, nasadzujú ho adaptéry ako vonkajší
+sám (Pine vstup `fixedQty`), má vlastný default. Obal je generický, nasadzujú ho adaptéry ako vonkajší
 (nad typ orderu — riziko sa počíta z konečnej ceny vstupu); C# zrkadlo je `EntrySizingEngine`
 v `EntryLayers.cs`.
 """
@@ -28,11 +29,13 @@ from .entry_draw import trade_drawings, with_ids
 from .orders import MarketContext, OrderAction
 from .types import Bar
 
-__all__ = ["SizingFields", "SIZING_FIELD_NAMES", "SIZING_CONSTRAINTS", "sizing_params", "risk_limit",
+__all__ = ["SizingFields", "SIZING_FIELD_NAMES", "SIZING_CONSTRAINTS", "sizing_params", "risk_limit", "caps_risk",
            "EntrySizingEngine", "wrap_entry_sizing"]
 
 #: Mená poľa s rizikom na obchod v $ — prvé, ktoré config má.
 RISK_FIELDS = ("riskDollar", "maxLossDollar")
+#: Prepínače pevného počtu kontraktov — spoločný `fixedQty` a Pine mena (`legacyPineSizing`, `StrategySpec.fixed_size_field`).
+FIXED_SIZE_FIELDS = ("fixedQty", "legacyPineSizing")
 
 
 @dataclass
@@ -61,8 +64,16 @@ def sizing_params(group: str) -> dict[str, dict[str, Any]]:
         "skipOverRisk": dict(group=group, title="Vynechať obchod nad riziko",
                              tooltip="Strop straty: keď by strata na stope bola väčšia než riziko na obchod "
                                      "(široký SL, pri ktorom aj 1 kontrakt stojí viac, alebo pevný počet), "
-                                     "obchod sa nespraví. Vypnuté = obchoduje sa aspoň najmenšia pozícia."),
+                                     "obchod sa nespraví. Pri počte z rizika platí vždy; tu sa zapína pre "
+                                     "pevný počet kontraktov."),
     }
+
+
+def caps_risk(cfg: Any) -> bool:
+    """Strop straty platí: veľkosť z rizika vždy, pevný počet (`fixedQty`, `legacyPineSizing`) len so `skipOverRisk`."""
+    if getattr(cfg, "skipOverRisk", False):
+        return True
+    return not any(getattr(cfg, name, False) for name in FIXED_SIZE_FIELDS)
 
 
 def risk_limit(cfg: Any) -> float:
@@ -91,7 +102,7 @@ class EntrySizingEngine:
         """Plán s konečnou veľkosťou, alebo `None`, keď by strata na stope prekročila riziko."""
         cfg = self.cfg
         qty = float(cfg.qty) if cfg.fixedQty else plan.qty
-        if not cfg.skipOverRisk:
+        if not caps_risk(cfg):
             return plan if qty == plan.qty else replace(plan, qty=qty)
         inst = getattr(self.engine, "inst", None)
         risk = risk_limit(cfg)
@@ -126,6 +137,6 @@ def wrap_entry_sizing(engine: Any, cfg: Any) -> Any:
     """Engine obalený veľkosťou pozície, keď to config chce; inak ten istý engine."""
     if getattr(engine, "native_entry_layers", False):   # C# engine má obaly vstupov v sebe
         return engine
-    if not (getattr(cfg, "fixedQty", False) or getattr(cfg, "skipOverRisk", False)):
+    if not (getattr(cfg, "fixedQty", False) or (caps_risk(cfg) and risk_limit(cfg) > 0)):
         return engine
     return EntrySizingEngine(engine, cfg)

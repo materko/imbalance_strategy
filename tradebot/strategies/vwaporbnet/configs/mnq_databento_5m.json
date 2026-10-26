@@ -1,4 +1,5 @@
 {
+  "legacyPineSizing": true,
   "_title": "MNQ futures 5m — NY range 15 min, vstup ked VWAP (od 9:30 NY) prerazi za range a cena je tam tiez, RR 1,5",
   "_strategy": "vwaporbnet",
   "_instrument": "mnq_databento",

@@ -435,7 +435,8 @@ def _spy_runner(max_wins: int) -> MCRunner:
 
     from tradebot.strategies import get_spec
 
-    return MCRunner(IBSConfig(maxDailyWins=max_wins), MNQ, 3, spec=replace(get_spec("ibs"), engine_factory=_CtxSpy))
+    # bez rizika (0): špión sa nebalí stropom straty a `r.engine` je on sám
+    return MCRunner(IBSConfig(maxDailyWins=max_wins, maxLossDollar=0.0), MNQ, 3, spec=replace(get_spec("ibs"), engine_factory=_CtxSpy))
 
 
 def test_max_daily_wins_po_n_vyhrach_blokuje_az_od_dalsieho_baru_a_novy_den_pusti():

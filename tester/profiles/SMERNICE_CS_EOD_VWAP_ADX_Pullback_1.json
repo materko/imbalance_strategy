@@ -1,4 +1,5 @@
 {
+  "legacyPineSizing": true,
   "useTimeExit": false,
   "orEndHHMM": 845,
   "vwapAnchor": "RTH 8:30 CT",

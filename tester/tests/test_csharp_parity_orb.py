@@ -57,7 +57,9 @@ VARIANTS = {
                                        "entryConfirm": EntryConfirm.PINBAR, "confirmBars": 12,
                                        "confirmPbWickPct": 40, "confirmPbBodyPct": 40},
     "obal_imbalance_nizka_volatilita": {"entryConfirm": EntryConfirm.IMBALANCE, "confirmImbMinAtr": 0.0,
-                                        "volFilter": VolFilter.LOW, "volLookback": 20},
+                                        "volFilter": VolFilter.LOW, "volLookback": 20,
+                                        # pevný kontrakt: v pokojnom trhu by strop straty (počet z rizika) vynechal skoro všetko
+                                        "legacyPineSizing": True},
     # strop straty vynechá zhruba polovicu vstupov (široký SL, pri ktorom aj 1 kontrakt stojí viac než 100 $)
     "obal_strop_straty": {"skipOverRisk": True, "riskDollar": 100.0},
     "obal_pevny_pocet_limitka_strop": {"fixedQty": True, "qty": 2.0, "skipOverRisk": True, "riskDollar": 200.0,
