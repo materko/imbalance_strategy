@@ -147,6 +147,7 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
         deploy_store = DeployStore(live_store.path, clock=state.clock, version=lambda: state.version)
     state.deploy = deploy_store
     app = FastAPI(title="TradeBot hub", version="0.2")
+    app.router.on_shutdown.append(state.flush)   # odložený zápis z heartbeatov (N-HUB-7)
     app.state.hub = state
 
     def auth(request: Request) -> str:

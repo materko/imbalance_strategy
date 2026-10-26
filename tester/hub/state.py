@@ -39,6 +39,9 @@ STALE_UNCOLLECTED = 24 * 3600
 MAX_ATTEMPTS = 2
 #: Ako dlho platí zoznam strojov s live nasadením (dotaz do live DB pri každom pridelení netreba).
 LIVE_CACHE_SECONDS = 5.0
+#: Heartbeat, ktorý nezmenil stav výpočtov (len `last_seen`, záťaž, postup), zapíše `state.json` najviac
+#: raz za toľko sekúnd — pri 2 000 bodoch fronty to bolo ~3 MB každé 3 s na agenta (audit N-HUB-7).
+LAZY_SAVE_SECONDS = 5.0
 
 
 class NoCapacity(Exception):
@@ -91,6 +94,9 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         self.plans: dict[str, dict[str, Any]] = {}
         #: posledné zlyhanie zápisu `state.json` (`_save`), None = zapisuje sa
         self.persist_error: dict[str, str] | None = None
+        #: odložený zápis z heartbeatu (`_save(lazy=True)`): kedy sa naposledy zapisovalo a či niečo čaká
+        self._saved_at = 0.0
+        self._dirty = False
         self._lock = threading.RLock()
         self.root.mkdir(parents=True, exist_ok=True)
         (self.root / "results").mkdir(exist_ok=True)
@@ -133,10 +139,28 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             self.agents[name]["online"] = False  # kým sa znova neohlási
         self._seed_stats()
 
-    def _save(self) -> None:
-        """Stav na disk. Zlyhanie (plný disk, práva) hub nezhodí — beží ďalej z pamäti, ale chyba je
+    def flush(self) -> None:
+        """Odložený zápis z heartbeatov na disk (vypnutie hubu)."""
+        with self._lock:
+            if self._dirty:
+                self._save()
+
+    def _jobs_fingerprint(self, agent: dict[str, Any] | None = None) -> tuple:
+        """Čo heartbeat musí zapísať hneď: stav a agent výpočtov a údaje agenta okrem `last_seen` a záťaže
+        (live hlásenie, accept, verzia...)."""
+        pevne = {k: v for k, v in (agent or {}).items() if k not in ("last_seen", "load")}
+        return tuple((i, j.get("status"), j.get("agent")) for i, j in self.jobs.items()), repr(pevne)
+
+    def _save(self, lazy: bool = False) -> None:
+        """Stav na disk. `lazy` (heartbeat bez zmeny stavu výpočtov): najviac raz za `LAZY_SAVE_SECONDS`. Zlyhanie (plný disk, práva) hub nezhodí — beží ďalej z pamäti, ale chyba je
         v `overview()["persist_error"]` a v udalostiach (raz), aby si ju niekto všimol skôr než po reštarte,
         ktorý by vrátil stav spred zlyhania (audit N-HUB-3)."""
+        now = time.monotonic()
+        if lazy and now - self._saved_at < LAZY_SAVE_SECONDS:
+            self._dirty = True
+            return
+        self._saved_at = now
+        self._dirty = False
         tmp = self.state_file.with_suffix(".tmp")
         try:
             with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
@@ -193,6 +217,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             agent = self.agents.get(name)
             if agent is None:
                 raise KeyError(name)
+            pred = self._jobs_fingerprint(agent)
             inst = body.get("instance")
             if inst and agent.get("online") and agent.get("instance") not in (None, inst):
                 # Dva procesy s jedným menom (webapp agent + headless z toho istého agent.json, alebo
@@ -273,7 +298,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             finished = [self._job_public(j) for j in self.jobs.values()
                         if j.get("submitter") == name and j["status"] in P.FINAL_STATES
                         and not j.get("collected")]
-            self._save()
+            # zmena stavu výpočtu (pridelenie, štart, strata) ide na disk hneď, inak stačí občas
+            self._save(lazy=self._jobs_fingerprint(agent) == pred)
             out = {"assign": assign, "cancel": cancel, "finished": finished,
                    "set_accept": ziadane, "pull": agent.get("update_request"),
                    "heartbeat_seconds": self.heartbeat_seconds, "now": _iso(now)}
@@ -717,16 +743,23 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             return None
         return {**self.drain, "waiting_for": len(self.busy())}
 
-    def _pick_agent(self, demand: int | str, version: str | None = None) -> dict[str, Any] | None:
+    def _pick_agent(self, demand: int | str, version: str | None = None, *,
+                    agents: list[dict[str, Any]] | None = None,
+                    jobs_of: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, Any] | None:
         """Voľný agent — najradšej ten, čo už má commit zadávateľa (bez pullu), a z nich
-        ten s najväčšou rezervou, nech sa záťaž rozloží a nie nakopí."""
+        ten s najväčšou rezervou, nech sa záťaž rozloží a nie nakopí. `agents` a `jobs_of` podá
+        `_dispatch`, aby sa nepočítali znova pre každý výpočet vo fronte."""
         if self.draining:
             return None
-        kandidati = [a for a in self._online_accepting() if P.fits(a, demand, self._agent_jobs(a["name"]))]
+        if agents is None:
+            agents = self._online_accepting()
+        def joby(a: dict[str, Any]) -> list[dict[str, Any]]:
+            return jobs_of[a["name"]] if jobs_of is not None else self._agent_jobs(a["name"])
+        kandidati = [a for a in agents if P.fits(a, demand, joby(a))]
         if not kandidati:
             return None
         def kluc(a: dict[str, Any]) -> tuple[bool, int, str]:
-            b = P.busy(a, self._agent_jobs(a["name"]))
+            b = P.busy(a, joby(a))
             ma_verziu = not version or (a.get("version") or "") == version
             return (ma_verziu, b["slots"] - b["used"], a["name"])
         return max(kandidati, key=kluc)
@@ -737,14 +770,27 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         self.log("job_assigned", job=job["id"], agent=agent["name"], attempt=job["attempts"])
 
     def _dispatch(self) -> None:
-        """Fronta v poradí zadania: čo sa zmestí na niektorého agenta, sa pridelí."""
-        for job_id in list(self.order):
-            job = self.jobs.get(job_id)
-            if job is None or job["status"] != "queued":
-                continue
-            agent = self._pick_agent(job["cores"], job.get("version"))
+        """Fronta v poradí zadania: čo sa zmestí na niektorého agenta, sa pridelí. Agenti a ich výpočty
+        sa zistia raz za volanie, nie pre každý výpočet vo fronte (bolo O(fronta × agenti × výpočty) pod
+        zámkom pri každom heartbeate - audit N-HUB-7)."""
+        if self.draining:
+            return
+        fronta = [j for j in (self.jobs.get(i) for i in self.order) if j is not None and j["status"] == "queued"]
+        if not fronta:
+            return
+        agents = self._online_accepting()
+        if not agents:
+            return
+        jobs_of: dict[str, list[dict[str, Any]]] = {a["name"]: [] for a in agents}
+        for i in self.order:
+            j = self.jobs[i]
+            if j.get("agent") in jobs_of and j["status"] in P.LIVE_STATES and j["status"] != "queued":
+                jobs_of[j["agent"]].append(j)
+        for job in fronta:
+            agent = self._pick_agent(job["cores"], job.get("version"), agents=agents, jobs_of=jobs_of)
             if agent is not None:
                 self._assign(job, agent)
+                jobs_of[agent["name"]].append(job)
 
     def _finish(self, job: dict[str, Any], status: str, *, error: str | None = None,
                 run_ids: list[str] | None = None, has_result: bool = False) -> None:

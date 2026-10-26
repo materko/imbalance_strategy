@@ -2886,10 +2886,10 @@ def test_zlyhanie_zapisu_stavu_je_viditelne(hub, monkeypatch):
         raise OSError(28, "No space left on device")
 
     monkeypatch.setattr(state_mod.os, "replace", pad)
-    state.heartbeat("srv", {"jobs": []})
+    state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
     assert "No space" in state.overview()["persist_error"]["error"]
     monkeypatch.undo()
-    state.heartbeat("srv", {"jobs": []})
+    state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
     assert state.overview()["persist_error"] is None
 
 
