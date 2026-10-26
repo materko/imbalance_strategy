@@ -22,5 +22,6 @@
   "_instrument": "es_databento",
   "_timeframe": "3m",
   "_title": "NY VA ES 2 C# · RR 0,5 · PF 1,35 · WR 73 % · 151 obch/rok · ES 3m · max DD 7 044 $ · posl. rok PF 1,34",
-  "_source_profile": "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_2.json"
+  "_source_profile": "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_2.json",
+  "riskDollar": 500.0
 }

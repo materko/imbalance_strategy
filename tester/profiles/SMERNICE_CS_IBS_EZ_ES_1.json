@@ -121,7 +121,7 @@
     "value": 0.0,
     "unit": "atr"
   },
-  "maxLossDollar": 1000,
+  "maxLossDollar": 500.0,
   "maxDailyWins": 3,
   "tradeDirection": "Indicator",
   "indSupertrend": false,
