@@ -18,6 +18,7 @@
 // Účty a nasadenia (fáza 2b, dole v súbore) idú vždy na hub cez proxy webapp.
 // --------------------------------------------------------------------------- //
 
+const LIVE_FILLS_PAGE = 5000;         // fillov a orderov na jednu požiadavku (server viac nedá)
 const LIVE_POLL_MS = 5000;            // polling, keď stream nejde (starý server, proxy bez SSE)
 const LIVE_SSE_RETRY_MS = 60000;      // po chybe streamu: polling a o minútu stream znova
 const LIVE_DEPLOY_POLL_MS = 15000;    // účty a nasadenia idú z hubu (nie zo zrkadla) — pri streame sa obnovujú takto
@@ -326,12 +327,16 @@ function liveGapsOf(id) {
 /** Fills a smery vstupov inštancie — prírastkovo od posledného rowid, nech sa pri obnove neťahá všetko. */
 async function loadLiveFills(id) {
   const f = lv.fills[id] || (lv.fills[id] = { after: 0, fills: [], dirs: {} });
-  const rows = await api(`/api/live/${encodeURIComponent(id)}/events?after=${f.after}&kinds=fill,order&limit=5000`);
-  for (const r of rows) {
-    f.after = Math.max(f.after, r.id);
-    const ev = r.event;
-    if (ev.k === "fill") f.fills.push(ev);
-    else if (ev.k === "order" && ev.a === "entry") f.dirs[ev.id] = Number(ev.dir ?? (ev.p && ev.p.dir) ?? 1) || 1;
+  // po stránkach, kým server nevráti menej než limit — inak by filly za 5 000. riadkom chýbali navždy (N-FE-3)
+  for (;;) {
+    const rows = await api(`/api/live/${encodeURIComponent(id)}/events?after=${f.after}&kinds=fill,order&limit=${LIVE_FILLS_PAGE}`);
+    for (const r of rows) {
+      f.after = Math.max(f.after, r.id);
+      const ev = r.event;
+      if (ev.k === "fill") f.fills.push(ev);
+      else if (ev.k === "order" && ev.a === "entry") f.dirs[ev.id] = Number(ev.dir ?? (ev.p && ev.p.dir) ?? 1) || 1;
+    }
+    if (rows.length < LIVE_FILLS_PAGE) break;
   }
   // vstupy bez zatvorenia, ktoré už nebežia — server pozná aj bary (cena prešla SL / TP), ako stránka výsledkov
   try { f.lost = (await api(`/api/live/${encodeURIComponent(id)}/lost`)).lost || {}; } catch (e) { f.lost = f.lost || {}; }
@@ -344,19 +349,20 @@ async function loadLiveFills(id) {
 function livePosition(f) {
   if (!f || !f.fills.length) return null;
   const net = {}, firstIn = {};
-  let lastIn = 0;
   for (const x of f.fills) {
     net[x.id] = (net[x.id] || 0) + (x.side === "in" ? 1 : -1) * Number(x.qty || 0);
     if (x.side !== "in") continue;
     const ft = Number(x.ft || x.t || 0);
     if (!(x.id in firstIn)) firstIn[x.id] = ft;
-    lastIn = Math.max(lastIn, ft);
   }
+  // „neskôr vstúpila" len podľa vstupu s iným id — čiastočné vyplnenie toho istého vstupu (qty 2 po 1) nie je
+  // ďalší obchod (N-FE-2); to isté pravidlo má server (`tester/dashboard/live.py`)
+  const laterOther = id => Object.entries(firstIn).some(([o, t]) => o !== id && t > firstIn[id]);
   let qty = 0; const open = [], lost = [];
   for (const [id, q] of Object.entries(net)) {
     if (Math.abs(q) < 1e-9) continue;
     const dir = f.dirs[id] || 1, side = `${id} ${q * dir > 0 ? "long" : "short"} ${Math.abs(q)}`;
-    const why = (f.lost || {})[id] || (q > 0 && firstIn[id] < lastIn ? "neskôr vstúpila do ďalšieho obchodu" : "");
+    const why = (f.lost || {})[id] || (q > 0 && laterOther(id) ? "neskôr vstúpila do ďalšieho obchodu" : "");
     if (why) { lost.push(`${side} bez zatvorenia v telemetrii (${why}) — do pozície sa nepočíta`); continue; }
     qty += q * dir; open.push(side);
   }
