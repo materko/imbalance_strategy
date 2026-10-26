@@ -786,6 +786,10 @@ class Mt5Driver(Driver):
             (self.account_dir(account) / "charts.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1),
                                                                     encoding="utf-8")
         pid = self._running_pid(account)
+        if pid is None:
+            # terminál nebeží (štart zlyhal, spadol, grafy zmizli): heslo v ini nemá na čo čakať —
+            # pred ďalším štartom sa zapíše znova (audit N-LIVE-16)
+            self._drop_password(account)
         if pid is not None and same:
             self._scrub_password(account)
             self._drop_removed_controls(account, None, charts)   # grafy z manifestu bežia ďalej; len odložené
@@ -814,7 +818,11 @@ class Mt5Driver(Driver):
             return
         self._ensure_controls(account, deployments)
         ini = self._write_ini(account, with_password=True)
-        self._start(account, exe, ini, portable)
+        try:
+            self._start(account, exe, ini, portable)
+        except Exception:
+            self._drop_password(account)   # terminál nenaštartoval — heslo nesmie ostať na disku do ďalšieho kola
+            raise
 
     def _drop_removed_controls(self, account: Account, manifest: dict[str, Any] | None, charts: list[dict[str, Any]]) -> None:
         """Zmaže control súbory inštancií, ktoré už nemajú graf: tie z minulého manifestu (`manifest`, len
@@ -833,6 +841,17 @@ class Mt5Driver(Driver):
             if path.exists():
                 path.unlink()
                 self._log(account, f"control súbor {inst} zmazaný (graf už v profile nie je)")
+
+    def _drop_password(self, account: Account) -> None:
+        """Prepíše ini bez hesla hneď (terminál nebeží alebo nenaštartoval)."""
+        ini = self.account_dir(account) / "start.ini"
+        try:
+            if "Password=" not in ini.read_text(encoding="utf-8"):
+                return
+        except OSError:
+            return
+        self._write_ini(account, with_password=False)
+        self._log(account, "heslo z start.ini zmazané (terminál nebeží)")
 
     def _scrub_password(self, account: Account) -> None:
         """Heslo je v ini len na prihlásenie — po `PASSWORD_TTL` s od štartu sa ini prepíše bez neho."""

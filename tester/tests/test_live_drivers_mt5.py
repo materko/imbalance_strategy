@@ -441,6 +441,14 @@ def test_profile_control_secret_and_password_scrub(drv, tmp_path: Path):
     clock.t += 60
     d.ensure_instance(ACC, [d1])
     assert "Password=" not in ini.read_text(encoding="utf-8") and len(procs.started) == 1
+    # audit N-LIVE-16: štart zlyhá — heslo nesmie ostať v ini do ďalšieho kola
+    procs.alive_pids.clear()                          # terminál spadol
+    zly_start = procs.start
+    procs.start = lambda cmd, cwd: (_ for _ in ()).throw(OSError("terminal64.exe sa nespustil"))
+    with pytest.raises(ValueError, match="nespustil"):
+        d.ensure_instance(ACC, [d1])
+    assert "Password=" not in ini.read_text(encoding="utf-8")
+    procs.start = zly_start
     assert secrets.delete("ftmo", d.secrets_root) and not secrets.delete("ftmo", d.secrets_root)
 
 
