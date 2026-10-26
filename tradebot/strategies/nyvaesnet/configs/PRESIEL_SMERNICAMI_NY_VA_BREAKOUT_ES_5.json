@@ -21,5 +21,6 @@
   "_strategy": "nyvaesnet",
   "_instrument": "es_databento",
   "_timeframe": "3m",
-  "_title": "NY VA ES (C#) 5 · RR 0,49 · PF 1,36 · WR 74 % · 151 obch/rok · ES 3m · max DD 7 316 $ · posl. rok PF 1,31"
+  "_title": "NY VA ES (C#) 5 · RR 0,49 · PF 1,36 · WR 74 % · 151 obch/rok · ES 3m · max DD 7 316 $ · posl. rok PF 1,31",
+  "riskDollar": 500.0
 }

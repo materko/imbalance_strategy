@@ -38,6 +38,8 @@ VARIANTS = {
     "zavretie_v_case_strop_skip": {"entryMode": "close", "useCloseTime": True, "closeH": 11, "closeM": 0, "maxSlPoints": 15.0,
                                    "slCapMode": "skip", "maxSlAtr": 0.0, "vaMinPoints": 0.0, "maxTradesPerDay": 3,
                                    "fixedQty": True, "qty": 2.0, "trendFilter": "off", "entryConfirm": "none"},
+    "strop_straty_skipOverRisk": {"entryMode": "close", "skipOverRisk": True, "riskDollar": 300.0, "vaMinPoints": 0.0,
+                                  "maxSlAtr": 0.0, "trendFilter": "off", "entryConfirm": "none", "maxTradesPerDay": 3},
     "retest_len_short_iny_range": {"rangeStartH": 9, "rangeStartM": 45, "rangeEndH": 11, "rangeEndM": 0, "allowLong": False,
                                    "retestBars": 3, "profileRows": 25, "valueAreaPct": 60.0, "vaMinPoints": 0.0,
                                    "vaMaxPoints": 400.0, "entryConfirm": "none", "trendFilter": "off"},

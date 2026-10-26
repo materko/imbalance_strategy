@@ -24,6 +24,7 @@ from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
 from .fvgpolaritymgc import SPEC as FVGPOLARITYMGC_SPEC
 from .fibo import SPEC as FIBO_SPEC
 from .fibomgc import SPEC as FIBOMGC_SPEC
+from .fibomgcnet import SPEC as FIBOMGCNET_SPEC
 from .fpc import SPEC as FPC_SPEC
 from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
@@ -104,6 +105,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     SCALP3MAMGC_SPEC.key: SCALP3MAMGC_SPEC,
     FIBO_SPEC.key: FIBO_SPEC,
     FIBOMGC_SPEC.key: FIBOMGC_SPEC,
+    FIBOMGCNET_SPEC.key: FIBOMGCNET_SPEC,
     SVP_SPEC.key: SVP_SPEC,
     PERCOCO_SPEC.key: PERCOCO_SPEC,
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,

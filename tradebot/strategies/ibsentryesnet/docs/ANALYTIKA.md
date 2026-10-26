@@ -1,6 +1,6 @@
 # Základná analytika — IBS EZ ES (C# jadro) (`ibsentryesnet`)
 
-Zmerané 2026-10-25 na `ES/USD` 3m, engine `multicharts`, poplatok 0.0018 % na stranu (zadané cez --fee), profil `tradebot/strategies/ibsentryesnet/configs/PRESIEL_SMERNICAMI_IBS_EZ_ES_1.json`.
+Zmerané 2026-10-26 na `ES/USD` 3m, engine `multicharts`, poplatok 0.0018 % na stranu (zadané cez --fee), profil `tradebot/strategies/ibsentryesnet/configs/PRESIEL_SMERNICAMI_IBS_EZ_ES_1.json`.
 
 Dokument je **generovaný** — píše ho `cli checkup` celý znova, ručné úpravy sa stratia. Čo tu je a prečo práve to: [docs/ANALYTIKA.md](../../../../docs/ANALYTIKA.md).
 
@@ -17,12 +17,12 @@ python -m tester.webapp.cli checkup \
 ## V čom je dobrá
 
 - zisková v 5 z 5 referenčných okien
-- 824 obchodov spolu — na štatistiku dosť
-- break-even 0.0088 % je nad poplatkom 0.0018 % (rezerva +0.0070 bodu)
-- edge nad poplatkom v 100 % bootstrapových vzoriek
-- drawdown drží: 95. percentil 18.9 %
-- odlíšiteľná od náhody (+7.5 sigma proti náhodnému vstupu)
-- edge drží aj v poslednom období (2025-06 - 2026-08 na 51. percentile toho, čo stratégia vyrobí sama od seba)
+- 588 obchodov spolu — na štatistiku dosť
+- break-even 0.0070 % je nad poplatkom 0.0018 % (rezerva +0.0052 bodu)
+- edge nad poplatkom v 99 % bootstrapových vzoriek
+- drawdown drží: 95. percentil 11.0 %
+- odlíšiteľná od náhody (+4.4 sigma proti náhodnému vstupu)
+- edge drží aj v poslednom období (2025-06 - 2026-08 na 49. percentile toho, čo stratégia vyrobí sama od seba)
 - žiadna vopred známa vlastnosť obchodov výsledok výrazne nekazí — niet čo filtrovať, ladiť sa dá len parametrami
 
 ## Kde má chyby
@@ -35,60 +35,59 @@ Jeden rok o stratégii nepovie nič; rozhoduje **znamienko po rokoch**, nie sú�
 
 | okno | obchodov | PnL % | break-even % | max DD % | WR % | séria +/- | beh |
 |---|---|---|---|---|---|---|---|
-| 20211001-20221001 | 245 | +32.85 | 0.0101 | 7.3 | 73.9 | +13/-6 | `20261025-181915-5d9d47` |
-| 20221001-20231001 | 161 | +14.44 | 0.0065 | 10.6 | 73.3 | +9/-3 | `20261025-181930-cad7ea` |
-| 20231001-20241001 | 124 | +16.17 | 0.0088 | 5.2 | 75.0 | +19/-3 | `20261025-181942-c68ea7` |
-| 20240904-20250904 | 168 | +21.75 | 0.0091 | 12.2 | 72.6 | +10/-3 | `20261025-181954-b95e51` |
-| 20250904-20260904 | 126 | +16.47 | 0.0093 | 6.5 | 74.6 | +13/-5 | `20261025-182009-248b11` |
+| 20211001-20221001 | 174 | +9.02 | 0.0077 | 4.0 | 73.6 | +16/-5 | `20261026-083503-6308f3` |
+| 20221001-20231001 | 141 | +5.55 | 0.0061 | 5.1 | 71.6 | +12/-4 | `20261026-083518-d7cc4e` |
+| 20231001-20241001 | 102 | +0.63 | 0.0024 | 3.9 | 71.6 | +15/-3 | `20261026-083533-da5176` |
+| 20240904-20250904 | 108 | +10.37 | 0.0116 | 3.5 | 75.9 | +10/-3 | `20261026-083548-f178e5` |
+| 20250904-20260904 | 63 | +3.22 | 0.0061 | 2.9 | 73.0 | +9/-3 | `20261026-083603-44e9d7` |
 
-Zisková v **5 z 5** okien, obchodov spolu 824, break-even celkom 0.0088 %.
+Zisková v **5 z 5** okien, obchodov spolu 588, break-even celkom 0.0070 %.
 
 ## Charakter
 
 **Prerazenie (breakout)** (istota priemerná)
 
-- vstup po pohybe v smere obchodu (+0.68 ATR za 5 barov)
-- medián držania 1.7 barov grafu
-- winrate 73.79 %, payoff 0.475
-- 0.46 obchodov za deň
-- šikmosť výnosov -0.969
+- vstup po pohybe v smere obchodu (+0.53 ATR za 5 barov)
+- medián držania 1.3 barov grafu
+- winrate 73.13 %, payoff 0.468
+- 0.33 obchodov za deň
+- šikmosť výnosov -0.502
 
 - **Čo je normálne:** Dlhé série strát sú normálne — platí sa nimi za tie prerazenia, ktoré vyjdú. Winrate pod 40 % je pri tomto type v poriadku.
 - **Na čo pozor:** Falošné prerazenia v úzkom rozsahu. Filter na veľkosť pohybu a na to, či je trh vôbec v rozsahu, býva silnejšia páka než čokoľvek na výstupe.
 - **Čo ladiť:** Prahy vstupu (aká veľká musí byť sviečka/pohyb) a RR. Nie winrate — ten sa dá zvýšiť len skrátením TP, a tým sa stratégia pokazí.
 
-Výstupy: `take_profit` 74.3 %, `stop_loss` 25.7 %
+Výstupy: `take_profit` 73.1 %, `stop_loss` 26.9 %
 
 Čo z čísel vyplýva pre tento typ: [docs/TYPY_STRATEGII.md](../../../../docs/TYPY_STRATEGII.md).
 
 ## Ktorá skupina obchodov kazí výsledok
 
-Ziadna vopred zname vlastnost vysledok vyrazne nekazi (najviac +0.0066 % break-even). Filter ani model tu nema co najst - hladaj radsej v parametroch (hyperopt) alebo v inom podklade.
+Ziadna vopred zname vlastnost vysledok vyrazne nekazi (najviac +0.0097 % break-even). Filter ani model tu nema co najst - hladaj radsej v parametroch (hyperopt) alebo v inom podklade.
 
 
 **Plánovaný RR** (riadi `rrRatio`)
 
 | skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
 |---|---|---|---|---|---|---|
-| do 0.5 R | 752 | 91.3 % | 73.7 | 0.0080 | 0.0154 | +0.0066 |
-| nad 0.5 R | 72 | 8.7 % | 75.0 | 0.0154 | 0.0080 | -0.0008 |
+| do 0.5 R | 527 | 89.6 % | 72.7 | 0.0057 | 0.0167 | +0.0097 |
+| nad 0.5 R | 61 | 10.4 % | 77.0 | 0.0167 | 0.0057 | -0.0013 |
 
-**S trendom, alebo proti** (riadi `useStructureFilter`)
-
-| skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
-|---|---|---|---|---|---|---|
-| s trendom | 550 | 66.7 % | 72.4 | 0.0074 | 0.0117 | +0.0029 |
-| proti trendu | 274 | 33.3 % | 76.6 | 0.0117 | 0.0074 | -0.0014 |
-
-**Deň v týždni**
+**Hodina vstupu (UTC)** (riadi `sess2TradeStartH`)
 
 | skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
 |---|---|---|---|---|---|---|
-| streda | 190 | 23.1 % | 70.5 | 0.0028 | 0.0106 | +0.0018 |
-| pondelok | 108 | 13.1 % | 69.4 | 0.0041 | 0.0095 | +0.0007 |
-| piatok | 175 | 21.2 % | 76.6 | 0.0112 | 0.0082 | -0.0006 |
-| utorok | 162 | 19.7 % | 76.5 | 0.0117 | 0.0081 | -0.0007 |
-| štvrtok | 184 | 22.3 % | 75.0 | 0.0136 | 0.0075 | -0.0013 |
+| do 16 h | 198 | 33.7 % | 69.2 | 0.0027 | 0.0092 | +0.0022 |
+| 16 h – 18 h | 196 | 33.3 % | 74.0 | 0.0073 | 0.0068 | -0.0002 |
+| 18 h – 19 h | 113 | 19.2 % | 77.0 | 0.0109 | 0.0061 | -0.0009 |
+| nad 19 h | 81 | 13.8 % | 75.3 | 0.0116 | 0.0062 | -0.0008 |
+
+**Smer** (riadi `tradeDirection`)
+
+| skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
+|---|---|---|---|---|---|---|
+| long | 329 | 56.0 % | 72.0 | 0.0058 | 0.0086 | +0.0016 |
+| short | 259 | 44.0 % | 74.5 | 0.0086 | 0.0058 | -0.0012 |
 
 Parametre, ktorými sa dá s tým niečo spraviť: `closeAtSessionEnd`, `minSlDistance`, `rrRatio`, `sess2TradeStartH`, `state2MaxBars`, `tradeDirection`, `useStructureFilter`.
 
@@ -98,10 +97,10 @@ Tá istá stratégia s náhodnými vstupmi — rovnako často, rovnakým smerom,
 
 | náhoda | break-even stratégie | break-even náhody | sigma | percentil |
 |---|---|---|---|---|
-| anytime (vstupy kedykoľvek v okne) | 0.0109 % | -0.0001 % ± 0.0015 | +7.49 | 100.0 |
-| session (vstupy v tých istých hodinách, v akých obchoduje stratégia) | 0.0109 % | -0.0001 % ± 0.0017 | +6.50 | 100.0 |
+| anytime (vstupy kedykoľvek v okne) | 0.0070 % | 0.0000 % ± 0.0016 | +4.42 | 100.0 |
+| session (vstupy v tých istých hodinách, v akých obchoduje stratégia) | 0.0070 % | -0.0001 % ± 0.0017 | +4.28 | 100.0 |
 
-Edge je odlisitelny od nahody (7.5 sigma, percentil 100.0).
+Edge je odlisitelny od nahody (4.4 sigma, percentil 100.0).
 
 ## Slabne edge?
 
@@ -109,68 +108,64 @@ Posledné obdobie proti **vlastnej minulosti**: nie proti celkovému číslu (kr
 
 | obdobie | obchodov | za mesiac | WR % | break-even % | percentil |
 |---|---|---|---|---|---|
-| 2021-10 - 2022-12 | 308 | 21.0 | 73.0 | 0.0087 | 48 |
-| 2022-12 - 2024-03 | 148 | 10.1 | 73.7 | 0.0066 | 32 |
-| 2024-03 - 2025-06 | 221 | 15.1 | 74.7 | 0.0103 | 68 |
-| 2025-06 - 2026-08 | 147 | 10.0 | 74.2 | 0.0092 | 51 |
+| 2021-10 - 2022-12 | 225 | 15.3 | 72.0 | 0.0064 | 46 |
+| 2022-12 - 2024-03 | 133 | 9.1 | 72.2 | 0.0043 | 27 |
+| 2024-03 - 2025-06 | 151 | 10.3 | 75.5 | 0.0101 | 78 |
+| 2025-06 - 2026-08 | 79 | 5.4 | 73.4 | 0.0069 | 49 |
 
-Hranice pre úsek veľkosti posledného obdobia: +0.0013 až +0.0164 % (medián 0.0091).
+Hranice pre úsek veľkosti posledného obdobia: -0.0028 až +0.0163 % (medián 0.0070).
 
-**DRZI** — posledné obdobie (2025-06 - 2026-08) je na 51. percentile, teda v medziach +0.0013 až +0.0164 %, ktoré tá istá stratégia vyrobí sama od seba. Úpadok v dátach vidieť nie je. Signálov pritom ubudlo: z 20.97 na 10.01 obchodov za mesiac. To je úpadok tiež, len v break-evene ho vidieť nie je.
+**DRZI** — posledné obdobie (2025-06 - 2026-08) je na 49. percentile, teda v medziach -0.0028 až +0.0163 %, ktoré tá istá stratégia vyrobí sama od seba. Úpadok v dátach vidieť nie je. Signálov pritom ubudlo: z 15.32 na 5.38 obchodov za mesiac. To je úpadok tiež, len v break-evene ho vidieť nie je.
 
 ## Najdlhšie série
 
 Koľko ziskov a koľko strát prišlo **za sebou** — to, čo priemerný winrate zamlčí a čo musí vydržať účet aj ten, kto stratégiu obchoduje. Obchody idú v poradí zatvorenia cez všetky okná; nulový obchod sériu preruší.
 
-**Zisky za sebou: 23** — 2025-07-22T18:24 až 2025-11-03T17:57, spolu +9424.34.
+**Zisky za sebou: 20** — 2024-07-26T18:04 až 2024-09-06T16:19, spolu +3350.82.
 
 | # | vstup | výstup | PnL | % | dôvod |
 |---|---|---|---|---|---|
-| 1 | 2025-07-22T18:24 | 2025-07-22T18:36 | +465.23 | +0.07 | `take_profit` |
-| 2 | 2025-07-23T17:54 | 2025-07-23T18:03 | +327.59 | +0.05 | `take_profit` |
-| 3 | 2025-07-23T18:07 | 2025-07-23T18:14 | +477.58 | +0.07 | `take_profit` |
-| 4 | 2025-07-31T20:03 | 2025-07-31T20:18 | +563.83 | +0.18 | `take_profit` |
-| 5 | 2025-08-01T15:18 | 2025-08-01T15:22 | +340.50 | +0.05 | `take_profit` |
-| 6 | 2025-08-05T16:58 | 2025-08-05T17:25 | +263.88 | +0.08 | `take_profit` |
-| 7 | 2025-08-06T22:12 | 2025-08-06T22:17 | +315.13 | +0.05 | `take_profit` |
-| 8 | 2025-08-14T16:19 | 2025-08-14T16:21 | +414.79 | +0.06 | `take_profit` |
-| 9 | 2025-08-15T16:00 | 2025-08-15T16:01 | +453.44 | +0.05 | `take_profit` |
-| 10 | 2025-08-22T19:51 | 2025-08-24T22:00 | +977.23 | +0.15 | `take_profit` |
-| 11 | 2025-09-17T18:51 | 2025-09-17T18:52 | +319.62 | +0.10 | `take_profit` |
-| 12 | 2025-09-25T15:36 | 2025-09-25T15:40 | +288.30 | +0.09 | `take_profit` |
-| 13 | 2025-10-02T16:05 | 2025-10-02T16:08 | +376.30 | +0.06 | `take_profit` |
-| 14 | 2025-10-09T15:51 | 2025-10-09T16:01 | +413.69 | +0.06 | `take_profit` |
-| 15 | 2025-10-12T23:21 | 2025-10-12T23:22 | +401.63 | +0.06 | `take_profit` |
-| 16 | 2025-10-14T15:42 | 2025-10-14T15:43 | +376.58 | +0.06 | `take_profit` |
-| 17 | 2025-10-14T17:45 | 2025-10-14T17:47 | +326.42 | +0.05 | `take_profit` |
-| 18 | 2025-10-22T18:31 | 2025-10-22T18:38 | +369.47 | +0.11 | `take_profit` |
-| 19 | 2025-10-23T15:59 | 2025-10-23T16:06 | +344.38 | +0.10 | `take_profit` |
-| 20 | 2025-10-30T16:44 | 2025-10-30T17:05 | +463.30 | +0.07 | `take_profit` |
-| 21 | 2025-10-30T20:33 | 2025-10-30T20:37 | +400.42 | +0.12 | `take_profit` |
-| 22 | 2025-10-31T16:42 | 2025-10-31T16:56 | +319.21 | +0.09 | `take_profit` |
-| 23 | 2025-11-03T17:44 | 2025-11-03T17:57 | +425.82 | +0.06 | `take_profit` |
+| 1 | 2024-07-26T18:04 | 2024-07-26T18:11 | +190.33 | +0.07 | `take_profit` |
+| 2 | 2024-07-26T19:41 | 2024-07-26T19:42 | +215.36 | +0.08 | `take_profit` |
+| 3 | 2024-07-26T19:57 | 2024-07-26T19:57 | +177.86 | +0.06 | `take_profit` |
+| 4 | 2024-07-30T22:09 | 2024-07-30T22:09 | +121.65 | +0.04 | `take_profit` |
+| 5 | 2024-08-01T19:15 | 2024-08-01T19:15 | +115.43 | +0.04 | `take_profit` |
+| 6 | 2024-08-08T17:09 | 2024-08-08T17:09 | +171.92 | +0.06 | `take_profit` |
+| 7 | 2024-08-12T17:27 | 2024-08-12T17:44 | +209.33 | +0.08 | `take_profit` |
+| 8 | 2024-08-23T19:48 | 2024-08-23T19:48 | +127.59 | +0.05 | `take_profit` |
+| 9 | 2024-08-28T19:35 | 2024-08-28T19:45 | +196.40 | +0.07 | `take_profit` |
+| 10 | 2024-09-03T17:38 | 2024-09-03T17:43 | +171.47 | +0.06 | `take_profit` |
+| 11 | 2024-09-04T18:36 | 2024-09-04T18:37 | +184.05 | +0.07 | `take_profit` |
+| 12 | 2024-09-04T18:36 | 2024-09-04T18:37 | +184.05 | +0.07 | `take_profit` |
+| 13 | 2024-09-04T19:54 | 2024-09-04T19:54 | +165.29 | +0.06 | `take_profit` |
+| 14 | 2024-09-04T19:54 | 2024-09-04T19:54 | +165.29 | +0.06 | `take_profit` |
+| 15 | 2024-09-05T17:00 | 2024-09-05T17:05 | +134.09 | +0.05 | `take_profit` |
+| 16 | 2024-09-05T17:00 | 2024-09-05T17:05 | +134.09 | +0.05 | `take_profit` |
+| 17 | 2024-09-05T20:18 | 2024-09-05T20:24 | +196.58 | +0.07 | `take_profit` |
+| 18 | 2024-09-05T20:18 | 2024-09-05T20:24 | +196.58 | +0.07 | `take_profit` |
+| 19 | 2024-09-06T16:09 | 2024-09-06T16:19 | +146.74 | +0.05 | `take_profit` |
+| 20 | 2024-09-06T16:09 | 2024-09-06T16:19 | +146.74 | +0.05 | `take_profit` |
 
-**Straty za sebou: 6** — 2021-10-01T15:12 až 2021-10-04T19:51, spolu -4782.80.
+**Straty za sebou: 5** — 2021-10-01T15:12 až 2021-10-04T19:51, spolu -2125.08.
 
 | # | vstup | výstup | PnL | % | dôvod |
 |---|---|---|---|---|---|
-| 1 | 2021-10-01T15:12 | 2021-10-01T15:13 | -990.08 | -0.23 | `stop_loss` |
-| 2 | 2021-10-01T19:54 | 2021-10-01T19:58 | -532.64 | -0.24 | `stop_loss` |
-| 3 | 2021-10-04T15:27 | 2021-10-04T15:32 | -865.02 | -0.20 | `stop_loss` |
-| 4 | 2021-10-04T16:59 | 2021-10-04T17:03 | -690.00 | -0.16 | `stop_loss` |
-| 5 | 2021-10-04T17:30 | 2021-10-04T18:00 | -765.03 | -0.18 | `stop_loss` |
-| 6 | 2021-10-04T19:50 | 2021-10-04T19:51 | -940.03 | -0.22 | `stop_loss` |
+| 1 | 2021-10-01T15:12 | 2021-10-01T15:13 | -495.04 | -0.23 | `stop_loss` |
+| 2 | 2021-10-04T15:27 | 2021-10-04T15:32 | -432.51 | -0.20 | `stop_loss` |
+| 3 | 2021-10-04T16:59 | 2021-10-04T17:03 | -345.00 | -0.16 | `stop_loss` |
+| 4 | 2021-10-04T17:30 | 2021-10-04T18:00 | -382.51 | -0.18 | `stop_loss` |
+| 5 | 2021-10-04T19:50 | 2021-10-04T19:51 | -470.02 | -0.22 | `stop_loss` |
 
 ## Interval okolo výsledku a čo to robí s účtom
 
 Bootstrap po blokoch 10 obchodov, 10 000 opakovaní.
 
-- break-even: namerané **0.0088 %**, medián 0.0088 %, 90 % interval 0.0056–0.0119 %
-- P(edge > poplatok) = **100.0 %**
-- max drawdown: medián 10.0 %, 95. percentil 18.9 %, najhorší 41.7 %
-- najdlhšia séria strát: medián 6, 95. percentil 9 obchodov
+- break-even: namerané **0.0070 %**, medián 0.0070 %, 90 % interval 0.0036–0.0103 %
+- P(edge > poplatok) = **99.4 %**
+- max drawdown: medián 6.0 %, 95. percentil 11.0 %, najhorší 23.1 %
+- najdlhšia séria strát: medián 6, 95. percentil 8 obchodov
 - pravdepodobnosť ruiny účtu: 0.0 %
-- aby 95 % ciest zostalo nad −20 %, riskuj najviac **1 636** na obchod pri účte 60 000
+- aby 95 % ciest zostalo nad −20 %, riskuj najviac **1 461** na obchod pri účte 60 000
 
 Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pretrénovaniu chránia len okná, ktoré optimalizátor nevidel.
 
@@ -182,27 +177,22 @@ Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pr
 
 ## Posudok (AI)
 
-Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť otázok. Text patrí **medzi značky** nižšie, aby ho ďalší `cli checkup` preniesol ďalej.
+> **Posudok je starší než čísla** (písal sa k vzorke `8afca62b`, tu je `71738d76`). Nech ho AI prepíše — čísla nižšie sa medzitým zmenili.
 
-1. **Na čo sa to hodí a na čo nie** — trh, timeframe, režim, veľkosť účtu; kde by to isté číslo znamenalo niečo iné.
-2. **Má to potenciál?** Čo z čísel hovorí, že za tým je skutočný jav, a čo hovorí, že je to vlastnosť vzorky.
-3. **Čo treba dorobiť** v samotnej stratégii — filtre, výstupy, sizing, sviatky a seansy, chýbajúce parametre.
-4. **Čo otestovať ďalej** — konkrétne príkazy (`cli sweep`, `cli matrix`, `cli hyperopt`, druhý engine) a čo by ich výsledok rozhodol.
-5. **Je to použiteľné, alebo je to o ničom?** Odpoveď má byť jednoznačná; „ešte uvidíme" je odpoveď len vtedy, keď je za ňou konkrétny test.
-6. **Čo by som pridal** — nápad, ktorý v stratégii nie je a z týchto čísel dáva zmysel.
 <!-- POSUDOK cisla=8afca62b -->
 
-**C# jadro.** Čísla v dokumente sú totožné s Python predlohou `ibsentryes` (parita bar po bare na ES, `tester/tests/test_csharp_parity_es.py`), posudok predlohy platí. Nasadenie: NinjaTrader `IBSEntryEsNet`, MT5 `IBSEntryEsNet`, profil `PRESIEL_SMERNICAMI_IBS_EZ_ES_1` (prahy v ATR — na MES aj ES rovnaké). Pozor pri CFD: prahy v ATR sa prepočítajú správne, ale krok 8 na US500 dal PF len 1,12.
-**1. Na čo sa to hodí a na čo nie.** Na E-mini S&P 500 (ES, aj MES s menšou pozíciou), 3m graf, ako **skalpovací doplnok k IBS EZ na NQ** — krátke obchody (medián 1,7 baru), WR ~74 %, cieľ ~0,5 R. Hodí sa na prop / menší účet, lebo séria strát je krátka (medián 6, 95. percentil 9) a DD v 95 % ciest do 19 %. Nehodí sa tam, kde je spread a sklz veľký voči cieľu: break-even 0,0088 % je asi päťnásobok poplatku, ale cieľ je pár tickov — na CFD US500 s horším fillom už PF klesá na 1,12 (krok 8). Na pomalé, široké seansy (obed, Ázia) to nie je.
+**C# jadro, riziko 500 $ na ES.** Logika je bar po bare zhodná s Python predlohou `ibsentryes` (`tester/tests/test_csharp_parity_es.py`). **Pozor na veľkosť:** ES má 50 $ za bod a strop straty (obal `entry_sizing`, od 26. 10. platí vždy pri počte z rizika) vynechá obchod, pri ktorom by aj 1 kontrakt na stope stratil viac než 500 $ — preto je tu 588 obchodov namiesto 824 pri riziku 1000 $ (posledný rok 63 namiesto 126).
 
-**2. Má to potenciál?** Áno. Za skutočným javom hovorí: zisk v **5 z 5** okien vrátane odloženého roka (+16,5 %, WR 74,6 %), +7,5 sigma proti náhodnému vstupu v tých istých hodinách, edge v 100 % bootstrapových vzoriek a posledné obdobie na 51. percentile (nič neslabne). Žiadna skupina obchodov (deň, smer trendu, RR) výsledok nekazí — edge nie je schovaný v jednej podskupine. Proti hovorí len to, že **signálov ubúda** (z 21 na 10 za mesiac) a že US500 ide v poslednom roku na nulu (PF 0,99) — jav je teda viazaný na mikroštruktúru futures, nie na index všeobecne.
+**1. Na čo sa to hodí a na čo nie.** Na S&P 500 futures, 3m, skalp s cieľom ~0,5 R, WR 72–76 %. Pri riziku 500 $ patrí na **MES** (5 $ za bod), kde sa vstúpi takmer vždy; na ES s 500 $ prídeš o tretinu obchodov a o väčšinu zisku (rok 23/24 len +0,6 %).
 
-**3. Čo treba dorobiť.** (a) Sledovať frekvenciu: pri 10 obchodoch za mesiac je ročná vzorka malá; ak klesne ešte, profil č. 1 treba znova prepočítať. (b) Streda a pondelok majú break-even 0,003–0,004 % (ostatné dni 0,011–0,014 %) — rozdiel nie je veľký, ale stojí za test vynechania pondelka. (c) Výstupy: 74 % TP, 26 % SL, bez času — zvážiť časový stop pre obchody, ktoré sa do N barov nepohnú (dlhé držanie cez víkend, napr. 22.–24. 8. 2025). (d) Kópia do C# jadra (`ibsentrynet`) s ES profilom pred forward testom.
+**2. Má to potenciál?** Áno: zisk v 5 z 5 okien aj s vynechanými obchodmi, +4,4 sigma proti náhode, edge nad poplatkom v 99 % vzoriek, posledné obdobie na 49. percentile. Pri riziku 1000 $ (všetky obchody) bolo 5 z 5 rokov s PnL +14 až +33 % a +7,5 sigma.
 
-**4. Čo otestovať ďalej.** `cli matrix --pairs ES/USD,US500/USD --timeframes 3m,5m` — či 5m drží rovnaký PF (viac rezervy na sklz). `cli sweep` na `rrRatio` 0,4–0,75 a `minSlDistance` na odloženom roku nie (ten je spotrebovaný) — len na ladení, rozhodne, či plató okolo 0,5 R je široké. Krok 9: forward test na demo účte MES (alebo ES) 4–6 týždňov; rozhoduje, či WR živých obchodov ostane nad 70 % a priemerný sklz pod 1 tick.
+**3. Čo treba dorobiť.** Nástroj MES do zoznamu nástrojov (ten istý cenový rad ako ES, bod 5 $), aby sa backtest dal počítať presne tak, ako sa bude obchodovať pri 500 $.
 
-**5. Je to použiteľné, alebo je to o ničom?** **Použiteľné** — prešlo smernicou celou (kroky 1–8), edge je štatisticky jasný a stabilný po rokoch. Ide do forward testu ako druhý trh k IBS EZ NQ; samostatne ako hlavná stratégia nie, kvôli klesajúcej frekvencii.
+**4. Čo otestovať ďalej.** Backtest na MES s rizikom 500 $ (po pridaní nástroja); natívny hyperopt s oknami a plató; forward test na MES.
 
-**6. Čo by som pridal.** Filter podľa toho, či **NQ potvrdzuje smer** (IBS zóna na ES len keď je NQ na tej istej strane VWAP / otvorenia) — S&P býva oneskorený za Nasdaqom a falošné prierazy na ES často prídu, keď NQ ide opačne. Druhý nápad: pri dvoch obchodoch denne obmedziť druhý len na smer prvého víťazného.
+**5. Je to použiteľné, alebo je to o ničom?** **Použiteľné** — na MES s rizikom 500 $ alebo na ES s rizikom aspoň ~1000 $. Na ES s 500 $ nie, lebo vynechá najlepšie obchody s dlhším stopom.
+
+**6. Čo by som pridal.** Potvrdenie smeru z NQ (prieraz ES len keď NQ ide tým istým smerom).
 
 <!-- POSUDOK KONIEC -->

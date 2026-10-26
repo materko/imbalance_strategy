@@ -73,7 +73,7 @@ PRESETS = {"TradeBotImport.set": ("Presets",), "IBSNet_TB.set": ("Profiles", "Te
            "IBSNet_chart.set": ("Presets",), "IBSNet_live.set": ("Presets",),
            **{f"{t}_live.set": ("Presets",) for t in ("IBSEntryNet", "ORBNet", "VwapOrbNet", "VwapAdxNet", "NoaNet", "TksNet",
                                                       "IBSEntryNetEod", "VwapOrbNetEod", "VwapAdxNetEod", "NoaNetEod", "TksNetEod",
-                                                      "IBSEntryEsNet", "NyVaEsNet")}}
+                                                      "IBSEntryEsNet", "NyVaEsNet", "FiboMgcNet")}}
 
 
 def metaeditor() -> Path | None:
