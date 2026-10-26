@@ -89,6 +89,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         self.forgotten: list[str] = []
         #: Plány zadávateľov („idem dať N výpočtov", `plans.PlansMixin`)
         self.plans: dict[str, dict[str, Any]] = {}
+        #: posledné zlyhanie zápisu `state.json` (`_save`), None = zapisuje sa
+        self.persist_error: dict[str, str] | None = None
         self._lock = threading.RLock()
         self.root.mkdir(parents=True, exist_ok=True)
         (self.root / "results").mkdir(exist_ok=True)
@@ -132,12 +134,24 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         self._seed_stats()
 
     def _save(self) -> None:
+        """Stav na disk. Zlyhanie (plný disk, práva) hub nezhodí — beží ďalej z pamäti, ale chyba je
+        v `overview()["persist_error"]` a v udalostiach (raz), aby si ju niekto všimol skôr než po reštarte,
+        ktorý by vrátil stav spred zlyhania (audit N-HUB-3)."""
         tmp = self.state_file.with_suffix(".tmp")
-        with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
-            json.dump({"agents": self.agents, "jobs": self.jobs, "order": self.order,
-                       "forgotten": self.forgotten, "plans": self.plans},
-                      fh, ensure_ascii=False, indent=1, default=str)
-        os.replace(tmp, self.state_file)
+        try:
+            with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+                json.dump({"agents": self.agents, "jobs": self.jobs, "order": self.order,
+                           "forgotten": self.forgotten, "plans": self.plans},
+                          fh, ensure_ascii=False, indent=1, default=str)
+            os.replace(tmp, self.state_file)
+        except OSError as exc:
+            if self.persist_error is None:
+                self.log("state_save_failed", error=f"{type(exc).__name__}: {exc}")
+            self.persist_error = {"at": _iso(self.clock()), "error": f"{type(exc).__name__}: {exc}"}
+            return
+        if self.persist_error is not None:
+            self.log("state_save_ok", was=self.persist_error.get("error"))
+        self.persist_error = None
 
     def result_path(self, job_id: str) -> Path:
         return self.root / "results" / f"{job_id}.zip"
@@ -179,6 +193,12 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             agent = self.agents.get(name)
             if agent is None:
                 raise KeyError(name)
+            inst = body.get("instance")
+            if inst and agent.get("online") and agent.get("instance") not in (None, inst):
+                # Dva procesy s jedným menom (webapp agent + headless z toho istého agent.json, alebo
+                # proces, ktorý „visel" počas výpadku) by dostali ten istý výpočet (audit N-HUB-2).
+                raise NameTaken(f"agent {name!r} už beží z iného procesu ({agent.get('instance')}) — "
+                                f"tento ({inst}) sa musí ukončiť alebo dostať iné meno")
             now = self.clock()
             if not agent.get("online"):
                 self.log("agent_online", agent=name, version=body.get("version"), how="heartbeat")
@@ -222,6 +242,9 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                 # obchodný), by čakal navždy — späť do fronty, nech ho vezme iný.
                 for job in self._agent_jobs(name):
                     if job["status"] == "assigned" and job["id"] not in hlasene:
+                        # agent ho mohol medzitým vziať - jeho neskorý výsledok prijmeme (N-HUB-4)
+                        if name not in job.setdefault("lost_agents", []):
+                            job["lost_agents"].append(name)
                         job.update({"status": "queued", "agent": None, "missed": 0})
                         self.log("job_requeued", job=job["id"], agent=name,
                                  reason=f"agent {name} výpočty neprijíma")
@@ -888,6 +911,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             zive = [j for j in self.jobs.values() if j["status"] in P.LIVE_STATES]
             return {
                 "agents": [self._agent_public(a) for a in self.agents.values()],
+                # stav sa nedá zapísať na disk (plný disk) - po reštarte by hub zabudol, čo odvtedy pridelil
+                "persist_error": self.persist_error,
                 "online": sum(1 for a in self.agents.values() if a.get("online")),
                 "queued": sum(1 for j in zive if j["status"] == "queued"),
                 "running": sum(1 for j in zive if j["status"] in ("assigned", "running", "cancelling")),

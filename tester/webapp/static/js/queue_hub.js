@@ -104,10 +104,22 @@ function renderHubVersion(hub) {
   const el = $("#hub-version");
   const u = hub.update;
   const ver = hub.version || (u && u.version);
-  el.hidden = !ver;
-  if (!ver) return;
+  const pe = hub.persist_error;   // hub nevie zapísať state.json (plný disk) — audit N-HUB-3
+  el.hidden = !ver && !pe;
+  if (!ver && !pe) return;
+  if (!ver) {
+    el.textContent = "⚠ hub nezapisuje stav"; el.className = "chip warn";
+    el.title = `hub nevie zapísať state.json od ${pe.at}: ${pe.error} — po reštarte by zabudol, čo odvtedy pridelil`;
+    return;
+  }
   const mine = $("#hub-agent-version").textContent;
   let text = `hub ${ver}`, cls = "chip", title = "commit, na ktorom hub beží";
+  if (pe) {
+    text += " · ⚠ nezapisuje stav"; cls = "chip warn";
+    title += `; hub nevie zapísať state.json od ${pe.at}: ${pe.error} — po reštarte by zabudol, čo odvtedy pridelil`;
+    el.textContent = text; el.className = cls; el.title = title;
+    return;
+  }
   if (u && u.pending) {
     text += ` → ${u.pending}`; cls = "chip warn";
     title = `hub má nový kód ${u.pending}: nové výpočty nechá vo fronte a reštartuje sa, keď dobehnú bežiace` +

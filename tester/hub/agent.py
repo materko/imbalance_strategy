@@ -1038,7 +1038,11 @@ class HubAgent:
             status = job.status
         else:
             rec = self.store.find(run_id)
-            status = (rec or {}).get("status") or "failed"
+            if rec is None:
+                # beh zmizol: agent sa reštartoval uprostred (runner je nový, run.json ešte nebol) -
+                # hub ho podľa heartbeatu (beh chýba) zaradí znova alebo odpíše s dôvodom (N-HUB-1)
+                return True, "lost"
+            status = rec.get("status") or "failed"
         if status not in ("done", "failed"):
             return False, status
         if self._live_verifications(run_id):
@@ -1059,6 +1063,16 @@ class HubAgent:
             hotove, status = self._settled(run_id)
             if not hotove:
                 self._final_ticks.pop(job_id, None)
+                continue
+            if status == "lost":
+                # Neodovzdávať „failed" s prázdnou chybou: hub by výpočet odpísal bez druhého pokusu.
+                # Agent ho zabudne (heartbeat ho už nehlási) a hub ho po troch heartbeatoch bez neho vráti
+                # do fronty (`_lost`, raz sa skúsi znova) - aj tomuto agentovi, `_accept` ho už nezahodí.
+                log.warning("hub agent: vypocet %s (beh %s) sa po restarte agenta stratil - vraciam ho hubu",
+                            job_id, run_id)
+                self.state.computing.pop(job_id, None)
+                self._final_ticks.pop(job_id, None)
+                self._save()
                 continue
             n = self._final_ticks.get(job_id, 0) + 1
             self._final_ticks[job_id] = n

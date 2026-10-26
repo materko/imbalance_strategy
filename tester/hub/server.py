@@ -258,6 +258,8 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
         own(who, name)
         try:
             return state.heartbeat(name, req.model_dump())
+        except NameTaken as exc:
+            raise HTTPException(409, str(exc))
         except KeyError:
             raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný — najprv /api/agents/register")
 

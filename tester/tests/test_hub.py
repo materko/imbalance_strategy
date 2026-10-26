@@ -2834,3 +2834,72 @@ def test_wait_survives_hub_outage():
     with pytest.raises(HubError):
         HubClient(Http(), "lap").wait("x", sleep=lambda s: None)
 
+
+
+def test_restart_agenta_uprostred_vypoctu_ho_vrati_do_fronty(hub_api, tmp_path: Path):
+    """Audit N-HUB-1: agent sa reštartuje uprostred behu (nový runner, run.json ešte nie je) — výpočet sa nesmie
+    odovzdať ako failed s prázdnou chybou; hub ho vráti do fronty a ten istý agent ho znova prijme."""
+    from tester.hub.client import HubClient
+
+    c, state, clock = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, store = _agent("srv", tmp_path, http)
+    srv.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload(), queue=True)
+    srv.tick()
+    runner.start_run(next(iter(runner.jobs)))
+    srv.tick()
+    assert state.job(job["id"])["status"] == "running"
+
+    # reboot: nový proces agenta (iná inštancia) s tým istým stavom na disku, ale prázdnym runnerom;
+    # hub ho pustí, až keď starý proces odpíše (timeout) - vtedy výpočet vráti do fronty
+    clock.t += state.agent_timeout + 1
+    srv2, runner2, _ = _agent("srv", tmp_path, http, runner=FakeRunner(store), clock=clock)
+    for _ in range(3):
+        srv2.tick()
+    j = state.job(job["id"])
+    assert j["status"] in ("assigned", "running") and not j.get("error"), j
+    assert j["attempts"] == 2 and len(runner2.jobs) == 1          # druhý pokus u toho istého agenta
+    assert job["id"] in srv2.state.computing
+
+
+def test_heartbeat_druheho_procesu_s_rovnakym_menom_odmietne(hub):
+    """Audit N-HUB-2: proces s iným `instance`, kým pôvodný žije, nedostane jeho výpočty."""
+    from tester.hub.state import NameTaken
+
+    state, _ = hub
+    _reg(state, instance="i1")
+    state.heartbeat("srv", {"instance": "i1", "jobs": []})
+    with pytest.raises(NameTaken):
+        state.heartbeat("srv", {"instance": "i2", "jobs": []})
+    assert state.agents["srv"]["instance"] == "i1"
+
+
+def test_zlyhanie_zapisu_stavu_je_viditelne(hub, monkeypatch):
+    """Audit N-HUB-3: plný disk — hub beží ďalej, ale chyba je v prehľade a v udalostiach."""
+    from tester.hub import state as state_mod
+
+    state, _ = hub
+    _reg(state)
+
+    def pad(*a, **k):
+        raise OSError(28, "No space left on device")
+
+    monkeypatch.setattr(state_mod.os, "replace", pad)
+    state.heartbeat("srv", {"jobs": []})
+    assert "No space" in state.overview()["persist_error"]["error"]
+    monkeypatch.undo()
+    state.heartbeat("srv", {"jobs": []})
+    assert state.overview()["persist_error"] is None
+
+
+def test_neskory_vysledok_po_vrateni_pri_accept_false(hub):
+    """Audit N-HUB-4: agent výpočet vzal a potom vypol `accept` — hub ho vráti do fronty, ale neskorý výsledok
+    od neho prijme (nie 403)."""
+    state, _ = hub
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    state.heartbeat("srv", {"accept": False, "jobs": []})
+    assert state.job(job["id"])["status"] == "queued"
+    out = state.result(job["id"], b"zip", status="done", agent="srv", run_ids=["r1"])
+    assert out["status"] == "done"
