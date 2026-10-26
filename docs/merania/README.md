@@ -25,6 +25,7 @@ Chronologicky:
 | [PARITA_pnl_tradingview_2026-09-08](PARITA_pnl_tradingview_2026-09-08.md) | celkový zisk a % sedia s TradingView, keď kapitál aj páka sedia |
 | [PARITA_ibsninja_2026-09-20](PARITA_ibsninja_2026-09-20.md) | IBSNinja (C# jadro) dáva to isté čo IBS: 0 rozdielov bar po bare na 5 oknách, 149 obchodov zhodných obchod po obchode |
 | [BURZA_tester_vs_binance_2026-09-09](BURZA_tester_vs_binance_2026-09-09.md) | fiktívna burza dá obchod po obchode to isté, čo Binance |
+| [PREPOCET_po_audite_2026-10-26](PREPOCET_po_audite_2026-10-26.md) | prepočet po N-CORE-1/2/3 a N-LIVE-20: IBS sa pohne v 0–2 oknách z piatich, emulátor bez zmeny; syntetický trh sa zmenil pre iné 3m dáta, nie pre opravu |
 
 Súhrn, kam sa merania dopracovali, je v [README repozitára](../../README.md) v sekcii
 „Kde sme s výsledkami". Parita s TradingView (nie meranie edge) je v
