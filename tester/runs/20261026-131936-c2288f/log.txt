@@ -1,0 +1,9 @@
+$ emulator MultiCharts MNQ 5m 20221001-20231001 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: likvidita, swingy a FVG @5m 1200/1200
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 70689 barov 5m, 353442 1m, 0 HTF
+  20000/70689 barov, 37 obchodov
+  40000/70689 barov, 83 obchodov
+  60000/70689 barov, 137 obchodov
+hotovo: 168 obchodov, nerozhodnutelnych minut 0
+kresby: {'sf_struct': 510, 'sf_fvg': 319, 'sf_liq_sell': 1027, 'sf_sweep': 1525, 'sf_liq_buy': 1000, 'tp_box': 168, 'sl_box': 168, 'sf_entry': 168}
