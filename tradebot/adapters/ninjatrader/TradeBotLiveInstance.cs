@@ -311,6 +311,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                     catch (Exception e) { Note("error", "strazca SL - " + e.Message); }
                     try { if (_live) { EodByClock(); FeedWatch(); } }
                     catch (Exception e) { Note("error", "strazca feedu / EOD - " + e.Message); }
+                    try { if (_live) OldContractCheck(); }
+                    catch (Exception e) { Log("kontrola stareho kontraktu - " + e.Message); }
                     SaveState();
                     try { if (_live) SpoolBroker(); }
                     catch (Exception e) { Log("pozicia uctu do telemetrie - " + e.Message); }
@@ -1077,6 +1079,38 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// vyplneny aspon 10 s (PositionUpdate chodi po fille neskor). Ked ma na instrumente poziciu ina
         /// instancia, ucet flat nie je a toto nezasiahne.
         /// </summary>
+        private DateTime _oldContractAt = DateTime.MinValue;
+        private string _oldContractWarned = "";
+
+        /// <summary>
+        /// Rollover: po zmene symbolu nasadenia (MNQ 12-26 -> MNQ 03-27) ostava pozicia a jej SL/TP na starom kontrakte.
+        /// Instancia ich nespravuje (trailing, EOD, strazca SL) a zavriet ich nemoze - prikazy posiela na novy kontrakt,
+        /// kde by zatvorenie otvorilo novu poziciu. Preto aspon alarm, kym tam nieco je (audit N-LIVE-22).
+        /// </summary>
+        private void OldContractCheck()
+        {
+            if ((DateTime.UtcNow - _oldContractAt).TotalSeconds < 30) return;
+            _oldContractAt = DateTime.UtcNow;
+            string master = _inst.MasterInstrument.Name;
+            List<string> stare = new List<string>();
+            lock (_account.Positions)
+                foreach (Position p in _account.Positions)
+                    if (p.Instrument != null && p.Instrument.MasterInstrument.Name == master && p.Instrument.FullName != _inst.FullName
+                        && p.MarketPosition != MarketPosition.Flat)
+                        stare.Add(p.Instrument.FullName + " pozicia " + (p.MarketPosition == MarketPosition.Long ? "long " : "short ") + p.Quantity);
+            lock (_account.Orders)
+                foreach (Order o in _account.Orders)
+                    if (o.Instrument != null && o.Instrument.MasterInstrument.Name == master && o.Instrument.FullName != _inst.FullName
+                        && Alive(o) && !string.IsNullOrEmpty(o.Name) && o.Name.Contains(":"))
+                        stare.Add(o.Instrument.FullName + " order " + o.Name);
+            string text = string.Join(", ", stare.ToArray());
+            if (text == _oldContractWarned) return;
+            _oldContractWarned = text;
+            if (text.Length > 0)
+                Note("error", "rollover: na starom kontrakte ostalo " + text + " - instancia to nespravuje (SL/TP, trailing, EOD), "
+                     + "zavri to rucne v NinjaTraderi");
+        }
+
         private void ReconcileExternal()
         {
             // Pri vypadku spojenia `_account.Positions` chvilu pozicie nema (kym sa ucet nezosynchronizuje) - bez tejto
