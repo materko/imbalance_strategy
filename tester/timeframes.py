@@ -30,13 +30,15 @@ sa 1m pregeneroval) a chytilo sa to až na obchodoch so stratou 40× väčšou, 
 
 Preto sa odvodený súbor prerobí aj vtedy, keď je **starší než jeho 1m zdroj**. Platí to
 len pre súbory, ktoré sú v `.derived.json`, teda pre tie, ktoré sme vyrobili sami:
-stiahnutý timeframe v tom zozname nie je a prepísať sa preto nemôže.
+stiahnutý timeframe v tom zozname nie je a prepísať sa preto nemôže. Runner webapp to kontroluje
+pred každým behom (`ensure(only_stale=True)`), nie len pri štarte — 1m sa môže zmeniť aj počas behu webapp.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from tradebot.core.candles import timeframe_minutes as minutes
@@ -116,8 +118,12 @@ def _zastarany(out: Path, src: Path, nase: set[str]) -> bool:
 
 
 def ensure(root: Path | None = None, config: Path | None = None, force: bool = False,
-           verbose: bool = True, manifest: Path | None = None) -> list[Path]:
-    """Doplní chýbajúce timeframy z 1m. Vráti, čo vzniklo."""
+           verbose: bool = True, manifest: Path | None = None, only_stale: bool = False) -> list[Path]:
+    """Doplní chýbajúce timeframy z 1m a prerobí zastarané odvodené. Vráti, čo vzniklo.
+
+    `only_stale` — len prerobiť odvodené súbory staršie než ich 1m zdroj, chýbajúce nedopĺňať;
+    to volá runner pred každým behom, lebo 1m sa môže zmeniť aj počas behu webapp (audit N-DATA-2).
+    """
     import pandas as pd  # noqa: F401  (drží sa lenivo, aby import modulu nebol drahý)
 
     from tradebot.core.candles import resample_ohlcv
@@ -129,13 +135,17 @@ def ensure(root: Path | None = None, config: Path | None = None, force: bool = F
     made: list[Path] = []
     for src, outs in targets(base, config).items():
         todo = [(out, tf) for out, tf in zip(outs, wanted(config))
-                if force or not out.exists() or _zastarany(out, src, nase)]
+                if _zastarany(out, src, nase)
+                or (not only_stale and (force or not out.exists()))]
         if not todo:
             continue
         df = pd.read_feather(src)
         for out, tf in todo:
             part = resample_ohlcv(df, minutes(tf))
-            part.to_feather(out)
+            # cez dočasný súbor — súbežný beh nesmie načítať rozpísaný feather
+            tmp = out.with_name(out.name + ".tmp")
+            part.to_feather(tmp)
+            os.replace(tmp, out)
             made.append(out)
             if verbose:
                 print(f"  {out.relative_to(base).as_posix()}  {len(part):>8} barov  "

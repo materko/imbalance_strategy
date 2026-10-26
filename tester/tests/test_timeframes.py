@@ -160,6 +160,34 @@ def test_prerobeny_1m_zdroj_prepise_odvodeny_timeframe(sklad, config):
     assert len(pd.read_feather(odvodeny)) == 240 != stary
 
 
+def test_pred_behom_sa_prerobi_len_zastarane_chybajuce_nie(sklad, config):
+    """Runner volá `only_stale` pred každým behom (audit N-DATA-2): 1m sa zmení počas behu webapp
+    a odvodený TF ide s ním — chýbajúce TF dopĺňa štart, nie každý beh."""
+    import os, time
+
+    manifest = sklad / ".derived.json"
+    assert tf.ensure(sklad, config, verbose=False, manifest=manifest, only_stale=True) == []
+    assert tf.missing(sklad, config), "only_stale chýbajúce nedopĺňa"
+    made = tf.ensure(sklad, config, verbose=False, manifest=manifest)
+    odvodeny = next(p for p in made if p.name.endswith("-5m.feather"))
+    m1(1200).to_feather(sklad / "binance" / "spot" / "BTC_USDT-1m.feather")
+    os.utime(odvodeny, (time.time() - 60, time.time() - 60))
+    znova = tf.ensure(sklad, config, verbose=False, manifest=manifest, only_stale=True)
+    assert odvodeny in znova and len(pd.read_feather(odvodeny)) == 240
+    assert not list(sklad.rglob("*.tmp"))
+
+
+def test_runner_pred_behom_obnovi_zastarane_tf(monkeypatch):
+    from tester.webapp import runner as runner_mod
+
+    volania = []
+    monkeypatch.setattr(tf, "ensure", lambda **kw: volania.append(kw) or [Path("X-5m.feather")])
+    log: list[str] = []
+    runner_mod._refresh_derived(log)
+    assert volania == [{"verbose": False, "only_stale": True}]
+    assert "X-5m.feather" in log[-1]
+
+
 def test_stiahnuty_timeframe_sa_neprepise_ani_ked_je_starsi_nez_1m(sklad, config):
     """To isté pravidlo sa nesmie dotknúť dát z burzy — tie v `.derived.json` nie sú."""
     import os, time

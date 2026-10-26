@@ -97,6 +97,25 @@ class Job:
         }
 
 
+#: Odvodené TF prerába naraz len jeden worker.
+_DERIVED_LOCK = threading.Lock()
+
+
+def _refresh_derived(log: list[str]) -> None:
+    """Prerobí odvodené TF, ktorých 1m zdroj sa zmenil po štarte webapp (nový import, `data_archive
+    merge`) — inak beh pobeží na starom 3m a novom 1m detaile (audit N-DATA-2). Bez zmeny sú to len `stat`."""
+    from .. import timeframes
+
+    with _DERIVED_LOCK:
+        try:
+            made = timeframes.ensure(verbose=False, only_stale=True)
+        except Exception as exc:  # noqa: BLE001 - beh nech skúsi bežať; povie to log
+            log.append(f"POZOR: odvodené timeframy sa nepodarilo obnoviť: {exc}")
+            return
+    if made:
+        log.append("1m zdroj sa zmenil, prerobené odvodené TF: " + ", ".join(p.name for p in made))
+
+
 @lru_cache(maxsize=1)
 def _code_version() -> str:
     """Commit kódu, ktorý tento proces naozaj prehráva — zistený raz pri prvom behu, lebo po
@@ -265,6 +284,7 @@ class BacktestRunner(HyperoptJobMixin):
         job.status = "running"
         job.started = datetime.now(timezone.utc).isoformat(timespec="seconds")
         t0 = time.time()
+        _refresh_derived(job.log_lines)
         instrument = instrument_for_pair(job.settings["pair"])
         profile = write_profile(job.id, job.params, instrument, job.settings.get("strategy") or "ibs")
         # Engine si volí tester; keď nepovie, rozhodne to, čo je na disku (tester.engines).
