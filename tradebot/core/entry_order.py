@@ -24,7 +24,7 @@ from enum import Enum
 from typing import Any
 
 from .engine import EngineOutput
-from .orders import MarketContext, OrderAction, OrderIntent
+from .orders import MarketContext, OrderAction, OrderIntent, entry_fills
 from .types import Bar, Direction, OrderType
 from .entry_draw import deleted, moved, relevel, trade_drawings, with_ids
 
@@ -72,7 +72,7 @@ class EntryOrderEngine:
     def __init__(self, engine: Any, cfg: Any) -> None:
         self.engine = engine
         self.cfg = cfg
-        self._pending: tuple[str, int, float, list] | None = None   #: (id, index, cena limitky, kresba obchodu)
+        self._pending: tuple[str, int, float, list, Direction] | None = None   #: (id, index, cena limitky, kresba obchodu, smer)
         self._dropped: set[str] = set()
         self._idx = -1
 
@@ -117,8 +117,10 @@ class EntryOrderEngine:
         pos = ctx.position_size if ctx is not None else 0.0
         orders: list[OrderIntent] = []
         if self._pending is not None:
-            oid, at, price, objs = self._pending
-            if pos != 0.0 or bar.low <= price <= bar.high:
+            oid, at, price, objs, smer = self._pending
+            # to isté pravidlo ako adaptéry (`entry_fills`): bar, ktorý limitku preskočí gapom, ju vyplní
+            # tiež — inak by obal limitku po vyplnení zrušil a zmazal kresbu (audit N-CORE-5)
+            if pos != 0.0 or entry_fills(OrderType.LIMIT, smer, price, bar.low, bar.high):
                 out.drawings += moved(objs, bar.time)    # vyplnila sa — kresba začína na bare vyplnenia
                 self._pending = None
             elif self._idx - at >= int(self.cfg.limitValidBars):
@@ -136,7 +138,7 @@ class EntryOrderEngine:
                     self._dropped.add(o.order_id)
                     continue
                 relevel(objs, lim.plan)
-                self._pending = (lim.order_id, self._idx, lim.plan.entry, objs)
+                self._pending = (lim.order_id, self._idx, lim.plan.entry, objs, lim.plan.direction)
                 orders.append(lim)
                 continue
             if o.action is OrderAction.CANCEL and self._pending is not None and o.order_id == self._pending[0]:

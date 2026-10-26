@@ -71,6 +71,18 @@ def test_cena_prejde_limitkou_a_obchod_sa_zavrie_v_tom_istom_bare_je_vyplnenie()
     assert w._pending is None or w._pending[0] != "e0"
 
 
+def test_gap_cez_limitku_a_round_trip_v_jednom_bare_je_vyplnenie():
+    """Bar celý pod longovou limitkou 106 (gap) ju vyplní ako u adaptérov (`entry_fills`) — obal
+    ju nesmie po platnosti zrušiť ako nevyplnenú (audit N-CORE-5)."""
+    w = EntryOrderEngine(_Eng(), _Cfg(limitValidBars=1))
+    ctx = MarketContext(in_trade_window=True)
+    w.on_bar(_bar(0), None, ctx)
+    gap = Bar(time=1, open=95, high=99, low=90, close=96, volume=1)   # pod limitkou aj pod stopom
+    out = w.on_bar(gap, None, ctx)
+    assert not any(o.action is OrderAction.CANCEL and o.order_id == "e0" for o in out.orders)
+    assert w._pending is None or w._pending[0] != "e0"
+
+
 class _DrawEng(_Eng):
     """Ako _Eng, ale kreslí TP / SL boxy a štítok vstupu a hlási, čo mu obal povedal."""
 

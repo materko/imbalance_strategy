@@ -535,6 +535,7 @@ namespace TradeBot.Core
         private string _pendingId;   // cakajuca limitka: id, index, cena, kresba obchodu
         private int _pendingAt;
         private double _pendingPrice;
+        private bool _pendingLong;
         private List<DrawCommand> _pendingObjs;
         private HashSet<string> _dropped = new HashSet<string>();
         private int _idx = -1;
@@ -585,7 +586,8 @@ namespace TradeBot.Core
             List<OrderIntent> orders = new List<OrderIntent>();
             if (_pendingId != null)
             {
-                if (pos != 0.0 || (bar.Low <= _pendingPrice && _pendingPrice <= bar.High))
+                // to iste pravidlo ako adaptery (`entry_fills`): bar, ktory limitku preskoci gapom, ju vyplni tiez (audit N-CORE-5)
+                if (pos != 0.0 || (_pendingLong ? bar.Low <= _pendingPrice : bar.High >= _pendingPrice))
                 {
                     o.Drawings.AddRange(EntryDraw.Moved(_pendingObjs, bar.Time));   // vyplnila sa - kresba zacina na bare vyplnenia
                     _pendingId = null;
@@ -613,6 +615,7 @@ namespace TradeBot.Core
                     }
                     EntryDraw.Relevel(objs, lim.Plan);
                     _pendingId = lim.OrderId; _pendingAt = _idx; _pendingPrice = lim.Plan.Entry; _pendingObjs = objs;
+                    _pendingLong = lim.Plan.Direction == Direction.Long;
                     orders.Add(lim);
                     continue;
                 }
