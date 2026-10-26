@@ -62,8 +62,18 @@ def fast_forward(branch: str = "main") -> dict[str, Any]:
     Klon hubu je jednorazový (vzniká pri prvom štarte kontajnera a nikto doň nepíše),
     takže sa neriešia lokálne zmeny — a keďže je plytký, `pull --ff-only` by na ňom
     neprešiel: nový commit nemá v tomto klone spoločného predka.
+
+    Na klone so zmenenými sledovanými súbormi (`hub serve --update` na vývojárskom klone) sa odmietne —
+    `reset --hard` by necommitnuté zmeny zmazal (audit N-HUB-6). Nesledované súbory reset nechá.
     """
     try:
+        st = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=str(REPO),
+                            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
+        zmenene = [line[3:].strip() for line in st.stdout.splitlines() if line.strip()]
+        if st.returncode != 0 or zmenene:
+            return {"ok": False, "output": "necommitnuté zmeny, aktualizácia by ich zmazala: "
+                    + (", ".join(zmenene[:5]) + (" …" if len(zmenene) > 5 else "") if zmenene
+                       else (st.stderr or "").strip()[-200:])}
         # `--filter=blob:none`: keď je klon chudý (sparse-checkout, viď `hub-entrypoint.sh`),
         # nech aj aktualizácia ťahá len to, čo je vo výbere — nie 2 GB sviečok.
         f = subprocess.run(["git", "fetch", "--depth", "1", "--filter=blob:none", "origin", branch],

@@ -419,7 +419,8 @@ Výpadok je pár sekúnd: agenti heartbeat zopakujú a keď ich hub medzitým za
 prihlásia znova. Karta Hub ukazuje pri agentoch, na akom kóde hub beží a či čaká na reštart
 (`hub A → B`). Keby niektorý výpočet bežal neúmerne dlho, poistka je
 `TRADEBOT_HUB_UPDATE_MAX_WAIT` (minúty; 0 = čakaj, koľko treba). Vypnúť sa to dá
-`TRADEBOT_HUB_UPDATE=0`, mimo Dockeru sa to zapína `--update MIN`.
+`TRADEBOT_HUB_UPDATE=0`, mimo Dockeru sa to zapína `--update MIN`. Na klone so zmenenými sledovanými
+súbormi (vývojársky klon) sa aktualizácia odmietne a v logu povie, ktoré súbory by `reset --hard` zmazal.
 
 **Rebuild image treba len pri zmene `Dockerfile.hub`** (alebo závislostí) — zmena kódu
 hubu sa dostane do prevádzky sama. Klon vo volume je jednorazový: nikto doň nepíše, preto

@@ -2909,3 +2909,23 @@ def test_neskory_vysledok_po_vrateni_pri_accept_false(hub):
     assert state.job(job["id"])["status"] == "queued"
     out = state.result(job["id"], b"zip", status="done", agent="srv", run_ids=["r1"])
     assert out["status"] == "done"
+
+
+def test_fast_forward_odmietne_strom_s_necommitnutymi_zmenami(tmp_path: Path, monkeypatch):
+    """`hub serve --update` na vývojárskom klone: reset --hard by zmazal rozpracovaný kód (audit N-HUB-6)."""
+    import subprocess
+
+    from tester.hub import update as upd
+
+    def git(*a):
+        subprocess.run(["git", *a], cwd=tmp_path, check=True, capture_output=True)
+
+    git("init", "-q")
+    (tmp_path / "kod.py").write_text("x = 1\n", encoding="utf-8")
+    git("add", "kod.py")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init")
+    (tmp_path / "kod.py").write_text("x = 2\n", encoding="utf-8")
+    monkeypatch.setattr(upd, "REPO", tmp_path)
+    out = upd.fast_forward()
+    assert not out["ok"] and "kod.py" in out["output"]
+    assert (tmp_path / "kod.py").read_text(encoding="utf-8") == "x = 2\n"
