@@ -193,6 +193,7 @@ Všetky merania po rokoch: [docs/merania/](docs/merania/README.md).
 
 - [GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md) — golden test: zóny, obchody, kresby, Elliott sedia na cent
 - [AUDIT_pine_2026-09-05.md](docs/AUDIT_pine_2026-09-05.md) — systematický prechod Pine skriptu, čo chýbalo
+- [AUDIT_routing_2026-10-26.md](docs/AUDIT_routing_2026-10-26.md) — audit smerovania NT → MT5 exekútor pred overením naživo
 - [OPRAVY_adapter_2026-09-05.md](docs/OPRAVY_adapter_2026-09-05.md) — štyri opravy Freqtrade adaptéra a ich vplyv
 - [tv_settings_2026-09-03.md](docs/tv_settings_2026-09-03.md), [chart_reference_BTCUSD_3m.md](docs/chart_reference_BTCUSD_3m.md) — nastavenia grafu a čo stratégia kreslí
 
