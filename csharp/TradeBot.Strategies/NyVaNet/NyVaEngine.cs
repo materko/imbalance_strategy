@@ -71,7 +71,7 @@ namespace TradeBot.Strategies.NyVaNet
     }
 
     [TradeBotEngine("nyvaesnet", "NY VA BREAKOUT ES (C# jadro)")]
-    public sealed class NyVaEngine : IEngine
+    public sealed class NyVaEngine : IEngine, IConfigured
     {
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
@@ -81,6 +81,8 @@ namespace TradeBot.Strategies.NyVaNet
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private readonly NyVaConfig _cfg;
+        /// <summary>Config strategie - `EntryLayers.Wrap` z neho berie defaulty klucov, ktore profil nema.</summary>
+        public object Settings { get { return _cfg; } }
         private readonly InstrumentSpec _inst;
         private readonly int _tf;
         private readonly long _stepMs;

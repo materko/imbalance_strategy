@@ -20,7 +20,7 @@ using TradeBot.Strategies.IbsNet;
 namespace TradeBot.Strategies.VwapAdxNet
 {
     [TradeBotEngine("vwapadxnet", "VWAP ADX Pullback (C#)")]
-    public sealed class VwapAdxEngine : IEngine
+    public sealed class VwapAdxEngine : IEngine, IConfigured
     {
         private const string Ct = "America/Chicago";
         private const string LongColor = "#10b981";
@@ -33,6 +33,8 @@ namespace TradeBot.Strategies.VwapAdxNet
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private readonly VwapAdxConfig _cfg;
+        /// <summary>Config strategie - `EntryLayers.Wrap` z neho berie defaulty klucov, ktore profil nema.</summary>
+        public object Settings { get { return _cfg; } }
         private readonly InstrumentSpec _inst;
         private readonly int _chartTfMinutes;
         private readonly long _stepMs;

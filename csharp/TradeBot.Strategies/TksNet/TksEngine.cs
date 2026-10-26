@@ -121,12 +121,14 @@ namespace TradeBot.Strategies.TksNet
     }
 
     [TradeBotEngine("tksnet", "TKS 1.0 (C#)")]
-    public sealed class TksEngine : IEngine
+    public sealed class TksEngine : IEngine, IConfigured
     {
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
 
         private readonly TksConfig _cfg;
+        /// <summary>Config strategie - `EntryLayers.Wrap` z neho berie defaulty klucov, ktore profil nema.</summary>
+        public object Settings { get { return _cfg; } }
         private readonly InstrumentSpec _inst;
         private readonly int _tf;
         private readonly long _stepMs;

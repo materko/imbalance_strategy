@@ -19,7 +19,7 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.NoaNet
 {
     [TradeBotEngine("noanet", "NOA 1.0 (C#)")]
-    public sealed class NoaEngine : IEngine
+    public sealed class NoaEngine : IEngine, IConfigured
     {
         private const string Ny = "America/New_York";
         private const int OpenMin = 9 * 60 + 30;
@@ -35,6 +35,8 @@ namespace TradeBot.Strategies.NoaNet
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private readonly NoaConfig _cfg;
+        /// <summary>Config strategie - `EntryLayers.Wrap` z neho berie defaulty klucov, ktore profil nema.</summary>
+        public object Settings { get { return _cfg; } }
         private readonly InstrumentSpec _inst;
         private readonly int _tf;
         private readonly long _stepMs;

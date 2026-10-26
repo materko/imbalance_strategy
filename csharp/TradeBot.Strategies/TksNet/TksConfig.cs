@@ -79,6 +79,8 @@ namespace TradeBot.Strategies.TksNet
             }
             if (cfg.slMode != "swing" && cfg.slMode != "atr" && cfg.slMode != "points")
                 throw new ArgumentException("TKS: neznamy slMode '" + cfg.slMode + "' (swing / atr / points)");
+            ConfigChoice.Check("tradeDirection", cfg.tradeDirection, "Both", "Long only", "Short only");
+            ConfigChoice.Check("slMode", cfg.slMode, "swing", "atr", "points");
             return cfg;
         }
     }

@@ -81,6 +81,12 @@ poradí ako Python adaptéry. Most do Pythonu to hlási (`CSharpEngine.native_en
 C# engine druhý raz nebalia. Parita obalov sa overuje na ORBNet aj VWAP ORB (`test_csharp_parity_orb.py`,
 `test_csharp_parity_vwaporb.py`). Do 13. 10. 2026 ich ORBNet naživo nemal — v testoch áno.
 
+Obaly sa zapínajú podľa **hodnôt** configu, nie podľa toho, či je kľúč v profile: chýbajúci kľúč = default
+ako v Pythone (obaly `off` / `none` / `market`, veľkosť pozície — `fixedQty`, `riskDollar`… — z configu
+stratégie cez `IConfigured`). Ručne upravený alebo starý profil v `TradeBot\profiles\` tak obchoduje to isté
+ako úplný `to_dict()` (`tester/tests/test_csharp_partial_profile.py`). Neznáma hodnota enumu (`"Limit"`
+namiesto `"limit"`) je chyba pri stavbe enginu (`ConfigChoice`), nie ticho default.
+
 ### Predhistória naživo
 
 Indikátory na vlastnom TF (filter trendu EMA na 60m, ADX/Supertrend IBS) sa v backteste sejú (`Warmup.add_seeded`);

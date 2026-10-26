@@ -12,9 +12,11 @@ using TradeBot.Strategies.IbsNet.Ta;
 namespace TradeBot.Strategies.IbsNet
 {
     [TradeBotEngine("ibsnet", "IBSNet Imbalance Breakout (C#)")]
-    public class IbsEngine : IEngine
+    public class IbsEngine : IEngine, IConfigured
     {
         public readonly IbsConfig Cfg;
+        /// <summary>Config strategie - `EntryLayers.Wrap` z neho berie defaulty klucov, ktore profil nema.</summary>
+        public object Settings { get { return Cfg; } }
         protected readonly InstrumentSpec _inst;
         protected readonly int _chartTfMinutes;
         protected readonly long _stepMs;

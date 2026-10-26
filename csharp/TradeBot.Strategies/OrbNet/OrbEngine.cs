@@ -25,7 +25,7 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.OrbNet
 {
     [TradeBotEngine("orbnet", "ORBNet Opening Range Breakout (C#)")]
-    public class OrbEngine : IEngine
+    public class OrbEngine : IEngine, IConfigured
     {
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
@@ -65,6 +65,8 @@ namespace TradeBot.Strategies.OrbNet
         }
 
         public readonly OrbConfig Cfg;
+        /// <summary>Config strategie - `EntryLayers.Wrap` z neho berie defaulty klucov, ktore profil nema.</summary>
+        public object Settings { get { return Cfg; } }
         private readonly InstrumentSpec _inst;
         private readonly int _chartTfMinutes;
         protected readonly long _stepMs;

@@ -69,6 +69,7 @@ namespace TradeBot.Strategies.NoaNet
                 else if (f.FieldType == typeof(double)) f.SetValue(cfg, Json.ToDouble(raw));
                 else f.SetValue(cfg, Convert.ToString(raw, CultureInfo.InvariantCulture));
             }
+            ConfigChoice.Check("tradeDirection", cfg.tradeDirection, "Both", "Long only", "Short only");
             return cfg;
         }
     }

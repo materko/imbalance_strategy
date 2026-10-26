@@ -80,6 +80,7 @@ namespace TradeBot.Strategies.VwapAdxNet
                 else if (f.FieldType == typeof(double)) f.SetValue(cfg, Json.ToDouble(raw));
                 else f.SetValue(cfg, Convert.ToString(raw, CultureInfo.InvariantCulture));
             }
+            ConfigChoice.Check("vwapAnchor", cfg.vwapAnchor, "RTH 8:30 CT", "Polnoc CT");
             return cfg;
         }
     }

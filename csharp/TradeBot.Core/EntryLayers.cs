@@ -701,19 +701,70 @@ namespace TradeBot.Core
     /// `wrap_entry_sizing` v tom istom poradi, v akom ich nasadzuju Python adaptery.</summary>
     public static class EntryLayers
     {
+        /// <summary>Polia velkosti pozicie, ktorych default je pri kazdej strategii iny (NOA `fixedQty=true`,
+        /// IBS `maxLossDollar=350`...). Chybaju v profile -> berie sa default z configu strategie (`IConfigured`).</summary>
+        public static readonly string[] StrategyDefaultKeys = { "fixedQty", "qty", "skipOverRisk", "legacyPineSizing", "riskDollar", "maxLossDollar" };
+
+        /// <summary>
+        /// Obaly vstupov sa zapinaju podla HODNOT configu, nie podla pritomnosti klucov (audit N-CS-1): chybajuci kluc
+        /// = default ako v Pythone - obalov `off`/`none`/`market`, velkosti pozicie zo strategie. NinjaTrader a MT5
+        /// citaju profil zo suboru a rucne upraveny alebo stary profil nema vsetky kluce z `cfg.to_dict()`.
+        /// </summary>
         public static IEngine Wrap(IEngine engine, Dictionary<string, object> cfg, int chartTfMinutes)
         {
             if (cfg == null) return engine;
-            if (cfg.ContainsKey("trendFilter") && cfg.ContainsKey("trendTF")
-                && (EngineLayer.Text(cfg, "trendFilter", "off") != "off" || EngineLayer.Text(cfg, "volFilter", "off") != "off"))
+            cfg = WithStrategyDefaults(cfg, EngineLayer.Unwrap(engine) as IConfigured);
+            // neznama hodnota = chyba, nie ticho default (audit N-CS-2: "Limit" s velkym L by obchodoval market)
+            ConfigChoice.Check("trendFilter", EngineLayer.Text(cfg, "trendFilter", "off"), "off", "with", "against");
+            ConfigChoice.Check("volFilter", EngineLayer.Text(cfg, "volFilter", "off"), "off", "low", "high");
+            ConfigChoice.Check("entryConfirm", EngineLayer.Text(cfg, "entryConfirm", "none"), "none", "imbalance", "pinbar", "any");
+            ConfigChoice.Check("entryOrderType", EngineLayer.Text(cfg, "entryOrderType", "market"), "market", "limit");
+            if (EngineLayer.Text(cfg, "trendFilter", "off") != "off" || EngineLayer.Text(cfg, "volFilter", "off") != "off")
                 engine = new EntryFilterEngine(engine, cfg, chartTfMinutes);
-            if (cfg.ContainsKey("entryConfirm") && EngineLayer.Text(cfg, "entryConfirm", "none") != "none")
+            if (EngineLayer.Text(cfg, "entryConfirm", "none") != "none")
                 engine = new EntryConfirmEngine(engine, cfg);
-            if (cfg.ContainsKey("entryOrderType") && EngineLayer.Text(cfg, "entryOrderType", "market") != "market")
+            if (EngineLayer.Text(cfg, "entryOrderType", "market") != "market")
                 engine = new EntryOrderEngine(engine, cfg);
             if (EngineLayer.Flag(cfg, "fixedQty", false) || (EntrySizingEngine.CapsRisk(cfg) && EntrySizingEngine.RiskLimit(cfg) > 0))
                 engine = new EntrySizingEngine(engine, cfg);
             return engine;
         }
+
+        /// <summary>Kopia `cfg` doplnena o `StrategyDefaultKeys`, ktore v nej chybaju a config strategie ich ma ako verejne pole.</summary>
+        public static Dictionary<string, object> WithStrategyDefaults(Dictionary<string, object> cfg, IConfigured strategy)
+        {
+            object settings = strategy != null ? strategy.Settings : null;
+            if (settings == null) return cfg;
+            Dictionary<string, object> full = null;
+            foreach (string key in StrategyDefaultKeys)
+            {
+                if (cfg.ContainsKey(key)) continue;
+                System.Reflection.FieldInfo f = settings.GetType().GetField(key, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                if (f == null) continue;
+                object v = f.GetValue(settings);
+                if (!(v is bool) && !(v is double)) continue;
+                if (full == null) full = new Dictionary<string, object>(cfg);
+                full[key] = v;
+            }
+            return full ?? cfg;
+        }
+    }
+
+    /// <summary>Hodnota enumu z profilu musi byt jedna z povolenych - presne ako Python enum (`ValueError`), inak
+    /// by NinjaTrader / MT5 s preklepom v profile obchodoval default (audit N-CS-2).</summary>
+    public static class ConfigChoice
+    {
+        public static void Check(string field, string value, params string[] allowed)
+        {
+            foreach (string a in allowed) if (a == value) return;
+            throw new ArgumentException("pole " + field + ": neznama hodnota '" + value + "' (povolene: " + string.Join(", ", allowed) + ")");
+        }
+    }
+
+    /// <summary>Engine strategie s rozparsovanym configom - `EntryLayers.Wrap` z neho berie defaulty klucov,
+    /// ktore v profile chybaju (verejne polia s menom kluca JSON).</summary>
+    public interface IConfigured
+    {
+        object Settings { get; }
     }
 }
