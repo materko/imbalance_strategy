@@ -37,6 +37,14 @@ CASES = [
     ("noanet", None, "mnq_databento", "2025-01-01", "2025-03-01", {}),
     ("tksnet", None, "mnq_databento", "2025-01-01", "2025-03-01", {}),
     ("tksneteod", None, "mnq_databento", "2025-01-01", "2025-03-01", {}),
+    # audit N-CS-6: každá C# stratégia aj EOD kópia, nie len pôvodná sada
+    ("ibsentryneteod", "multicharts_mnq_3m", "mnq_databento", "2025-01-01", "2025-03-01", {}),
+    ("noaneteod", None, "mnq_databento", "2025-01-01", "2025-03-01", {}),
+    ("vwapadxneteod", None, "mnq_databento", "2025-01-01", "2025-02-01", {}),
+    ("ibsentryesnet", None, "es_databento", "2025-01-01", "2025-03-01", {}),
+    ("nyvaesnet", None, "es_databento", "2025-01-01", "2025-03-01", {}),
+    ("fibomgcnet", None, "mgc_databento", "2025-01-01", "2025-03-01", {}),
+    ("sdeurnet", None, "6e_databento", "2025-01-01", "2025-03-01", {}),
 ]
 
 
