@@ -111,22 +111,31 @@ def _empty_frame():
     return livedata.load_candles("-", "-", "1m", Path("-"))   # prázdny rámec v tvare sviečok
 
 
-def _layer(sources: list[tuple[str, Any]], step: str) -> tuple[list[Any], dict[str, int]]:
+def _layer(sources: list[tuple[str, Any]], step: str, full: int = 0) -> tuple[list[Any], dict[str, int]]:
     """Po baroch TF grafu: každý bar z prvého zdroja v poradí, ktorý ho má (zdroje sa v bare nemiešajú —
-    objem ani detail by inak neseděli). Vráti kúsky rámcov a počty barov podľa zdroja."""
+    objem ani detail by inak neseděli). Vráti kúsky rámcov a počty barov podľa zdroja.
+
+    Zdroj s menom končiacim `!` berie len **úplné** košíky (`full` minút) — neúplný živý 1m košík (2 z 5
+    minút, výpadok spojenia) nesmie prebiť úplný bar grafu (audit N-DATA-3). Rovnaký zdroj bez `!` ďalej
+    v poradí berie, čo ostalo."""
     import pandas as pd
 
     taken: set = set()
     parts, counts = [], {}
     for name, df in sources:
+        uplne = name.endswith("!")
+        name = name.rstrip("!")
         if df is None or not len(df):
-            counts[name] = 0
+            counts.setdefault(name, 0)
             continue
         buckets = df["date"].dt.floor(step)
         keep = ~buckets.isin(taken)
+        if uplne and full > 1:
+            pocet = df["date"].groupby(buckets).transform("nunique")
+            keep &= pocet >= full
         chosen = df[keep]
         new = set(buckets[keep])
-        counts[name] = len(new)
+        counts[name] = counts.get(name, 0) + len(new)
         taken |= new
         if len(chosen):
             parts.append(chosen)
@@ -135,7 +144,7 @@ def _layer(sources: list[tuple[str, Any]], step: str) -> tuple[list[Any], dict[s
 
 def combined_minutes(official, live_m1, live_chart, boundary_ms: int, chart_tf: int):
     """Rámec pre emulátor po baroch TF grafu. Pred hranicou stiahnuté 1m, kde chýbajú (stiahnuté končia
-    skôr), živé; za hranicou živé 1m, inak živý bar grafu, inak stiahnuté 1m. Vráti (rámec, počty barov
+    skôr), živé; za hranicou úplný živý 1m košík, inak živý bar grafu, inak stiahnuté 1m, inak neúplné živé 1m. Vráti (rámec, počty barov
     grafu za hranicou podľa zdroja + `before_live`, koľko barov pred hranicou je zo živých dát)."""
     import pandas as pd
 
@@ -147,10 +156,11 @@ def combined_minutes(official, live_m1, live_chart, boundary_ms: int, chart_tf: 
             return None
         return df[df["date"] >= b] if after else df[df["date"] < b]
 
-    pre, pre_counts = _layer([("official", cut(official, False)), ("live_1m", cut(live_m1, False)),
-                              ("live_chart", cut(live_chart, False))], step)
-    post, counts = _layer([("live_1m", cut(live_m1, True)), ("live_chart", cut(live_chart, True)),
-                           ("official", cut(official, True))], step)
+    tf = int(chart_tf)
+    pre, pre_counts = _layer([("official", cut(official, False)), ("live_1m!", cut(live_m1, False)),
+                              ("live_chart", cut(live_chart, False)), ("live_1m", cut(live_m1, False))], step, tf)
+    post, counts = _layer([("live_1m!", cut(live_m1, True)), ("live_chart", cut(live_chart, True)),
+                           ("official", cut(official, True)), ("live_1m", cut(live_m1, True))], step, tf)
     counts["before_live"] = pre_counts.get("live_1m", 0) + pre_counts.get("live_chart", 0)
     frames = pre + post
     if not frames:

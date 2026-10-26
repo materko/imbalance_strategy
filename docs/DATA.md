@@ -473,12 +473,13 @@ PY -m tester.livesim <inštancia> --pair MNQ/USD   # hranica, zdroje sviečok, s
 **Spojenie so stiahnutými dátami** robí až čítanie (`tester.livesim`, karta Diverzifikácia → Živé behy).
 Hranica je začiatok prvého živého behu s profilom; po baroch TF grafu platí:
 
-| | 1. | 2. | 3. |
-|---|---|---|---|
-| pred hranicou | stiahnuté 1m | živé 1m | živý bar grafu |
-| za hranicou | živé 1m | živý bar grafu | stiahnuté 1m |
+| | 1. | 2. | 3. | 4. |
+|---|---|---|---|---|
+| pred hranicou | stiahnuté 1m | úplné živé 1m | živý bar grafu | neúplné živé 1m |
+| za hranicou | úplné živé 1m | živý bar grafu | stiahnuté 1m | neúplné živé 1m |
 
-Zdroje sa v jednom bare grafu nemiešajú (objem ani 1m detail by inak nesedeli). Kde živý beh nemá 1m
+Zdroje sa v jednom bare grafu nemiešajú (objem ani 1m detail by inak nesedeli). Živý 1m košík je **úplný**,
+keď má všetky minúty baru grafu — neúplný (výpadok spojenia, 2 z 5 minút) neprebije úplný bar grafu. Kde živý beh nemá 1m
 (staršie verzie adaptérov), simulácia ide po baroch grafu bez 1m detailu a stránka to povie. Trh stiahnutých
 dát sa vyberie podľa symbolu živého behu (`US100.cash` → `NAS100/USD` z Dukascopy, `MNQ` → `MNQ/USD`
 z Databento), inak pár nastavenia. Vyšší TF sa skladá výhradne cez `tradebot/core/candles.py`.

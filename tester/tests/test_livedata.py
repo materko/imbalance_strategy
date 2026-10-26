@@ -110,6 +110,19 @@ def test_combined_minutes_poradie_zdrojov() -> None:
     assert counts["before_live"] == 1 and counts["official"] == 0 and counts["live_chart"] == 0
 
 
+def test_neuplny_zivy_1m_kosik_neprebije_bar_grafu() -> None:
+    """Živé 1m s výpadkom (2 z 3 minút) nesmie nahradiť úplný bar grafu (audit N-DATA-3);
+    bez baru grafu a stiahnutých dát je to stále lepšie ako nič."""
+    T0 = T0_3M
+    b = T0
+    live_m1 = _frame(T0, 2, 1, 2.0)                         # bar T0..T0+2m má len 2 minúty
+    live_chart = _frame(T0, 1, 3, 3.0)
+    df, counts = livesim.combined_minutes(None, live_m1, live_chart, b, 3)
+    assert df["open"].tolist() == [3.0] and counts["live_chart"] == 1 and counts["live_1m"] == 0
+    df, counts = livesim.combined_minutes(None, live_m1, None, b, 3)
+    assert df["open"].tolist() == [2.0, 2.0] and counts["live_1m"] == 1
+
+
 def test_match_trades_smer_a_cas() -> None:
     real = [{"open": "2026-10-20T14:00:00Z", "dir": "long", "entry": 100.0, "pnl": 50.0, "reason": "sltp", "pts": 5.0},
             {"open": "2026-10-20T18:00:00Z", "dir": "short", "entry": 200.0, "pnl": -10.0, "reason": "stop_loss", "pts": -1.0}]
@@ -138,7 +151,8 @@ def test_api_livedata_behy_a_pohlad(tmp_path: Path, monkeypatch) -> None:
     assert (run["instance"], run["profile"], run["trades"], run["engine"]) == (INST, "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1", 1, "vwaporbnet")
     v = c.get("/api/diversify/livedata/view", params={"instance": INST, "profile": run["profile"]}).json()
     assert v["boundary"] == "2026-10-14T17:46:40Z" and len(v["real"]) == 1 and "configs" not in v["instance"]
-    assert v["chart"]["after"] and v["sources"]["live_1m"] == 2   # T0 nie je na hranici 3m baru
+    # 1m T0..T0+2 padnú pre nezarovnané T0 do dvoch neúplných 3m košíkov — vyhrajú úplné bary grafu (N-DATA-3)
+    assert v["chart"]["after"] and v["sources"]["live_chart"] == 2 and v["sources"]["live_1m"] == 0
     assert c.get("/api/diversify/livedata/view", params={"instance": "nie"}).status_code == 404
 
 
