@@ -77,10 +77,21 @@ def _short(exc: BaseException) -> str:
     return text[:500]
 
 
+def _spool_position(instance: str) -> float | None:
+    """Otvorené množstvo inštancie zo spoolu tohto stroja (`update.position_from_spool`), None = nevedno."""
+    from .spool import default_roots
+    from .update import position_from_spool
+
+    return position_from_spool(default_roots(), instance)
+
+
 class Reconciler:
     def __init__(self, drivers: dict[str, Driver], state_path: Path | None = None, *,
-                 by: str = "hub", clock=time.time) -> None:
+                 by: str = "hub", clock=time.time, position=None) -> None:
         self.drivers: dict[str, Driver] = dict(drivers)
+        #: `instance -> otvorené množstvo | None` — rušené nasadenie s otvorenou pozíciou sa neodoberie
+        #: (audit N-LIVE-15); predvolene zo spoolu stroja ako brána aktualizácie kódu
+        self.position = position or _spool_position
         self.state_path = Path(state_path or LIVE_APPLY_STATE)
         self.by = by
         self.clock = clock
@@ -238,6 +249,12 @@ class Reconciler:
         # zmizlo z hubu (zmazané) — odstrániť; čo už bolo neaktívne, je odstránené z minula
         vanished = [Deployment.from_dict(d) for d in prev_desired.get("deployments") or []
                     if isinstance(d, dict) and d.get("id") and d["id"] not in current_ids and d.get("active", True)]
+        # podržané pre otvorenú pozíciu (`_hold_open`) — z hubu medzitým zmizli alebo ich hub po deaktivácii
+        # zmazal, ale graf stále beží: posúdia sa znova, kým sa pozícia nezavrie
+        uz = {d.id for d in vanished}
+        vanished += [Deployment.from_dict(d) for i, d in (self.state.get("held") or {}).items()
+                     if isinstance(d, dict) and i not in current_ids and i not in uz]
+        self._held: dict[str, dict[str, Any]] = {}
 
         applied: dict[str, dict[str, Any]] = {}
         account_status: dict[str, dict[str, Any]] = {}
@@ -295,6 +312,9 @@ class Reconciler:
                     entry["instance"] = dep.instance
                     if not dep.active:
                         self._retire_old_instance(drv, acc, dep, predtym, kept)
+                        if dep.instance not in kept and self._hold_open(drv, dep, entry, active_ok):
+                            applied[dep.id] = entry
+                            continue
                         if dep.instance not in kept:
                             drv.remove_instance(acc, dep)
                         touched = True
@@ -325,6 +345,11 @@ class Reconciler:
                     if drv.instance_of(acc, dep) in kept:
                         log.info("live apply: nasadenie %s z hubu zmizlo, jeho inštanciu drží iné aktívne — ostáva", dep.id)
                         continue
+                    dep.instance = drv.instance_of(acc, dep)
+                    entry = self._entry(dep, "ok", "")
+                    if self._hold_open(drv, dep, entry, active_ok):
+                        applied[dep.id] = entry   # nasadenie sa v stave drží, kým sa pozícia nezavrie
+                        continue
                     drv.remove_instance(acc, dep)
                     touched = True
                     log.info("live apply: nasadenie %s z hubu zmizlo — odstránené", dep.id)
@@ -341,6 +366,7 @@ class Reconciler:
             if touched:
                 self._logged.pop(f"inštancia {acc_id}", None)
 
+        self.state["held"] = self._held
         self.state["desired"] = {"accounts": [_scrub(a) for a in desired.get("accounts") or [] if isinstance(a, dict)],
                                  "deployments": [d for d in desired.get("deployments") or [] if isinstance(d, dict)]}
         self.state["applied"] = applied
@@ -349,6 +375,25 @@ class Reconciler:
         self.state["updated"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
         self._check_issues()
         self._save()
+
+    def _hold_open(self, drv: Driver, dep: Deployment, entry: dict[str, Any], active_ok: list[Deployment]) -> bool:
+        """Rušené nasadenie, ktorého inštancia má otvorenú pozíciu: graf ostane v pauze (alebo vo flatten, keď
+        ho tak človek nastavil) — EA pozíciu dovedie stopom, cieľom, trailingom a EOD, len neotvorí novú.
+        Odobratie grafu a reštart terminálu by pozíciu nechali bez správy (audit N-LIVE-15). True = podržané."""
+        try:
+            pos = self.position(dep.instance)
+        except Exception:  # noqa: BLE001 - pozícia sa nedá zistiť: radšej podržať, než zavrieť graf naslepo
+            pos = None
+            log.warning("live apply: pozícia %s sa nedá zistiť", dep.instance, exc_info=True)
+        if not pos:
+            return False
+        held = dataclasses.replace(dep, mode="flatten" if dep.mode == "flatten" else "paused", active=True)
+        entry["control"] = str(drv.write_control(held))
+        entry["held"] = f"otvorená pozícia {pos:g} — graf ostáva v režime {held.mode}, odoberie sa po jej zatvorení"
+        active_ok.append(held)
+        self._held[dep.id] = {**(dep.raw or dataclasses.asdict(dep)), "active": True}
+        self._warn_once(f"podržané {dep.id}", entry["held"])
+        return True
 
     @staticmethod
     def _entry(dep: Deployment, status: str, error: str) -> dict[str, Any]:

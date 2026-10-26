@@ -388,6 +388,9 @@ Poradie okolo control súboru je vec bezpečnosti, lebo adaptéry berú **chýba
 - `remove_instance` control **nemaže**, ale prepne na `paused` (`flatten` neprebíja) a odloží; zmaže ho až
   `ensure_instance` — MT5 po zavretí terminálu s tým grafom, NT až v kole, keď inštancia už nebola
   v `deploy.json` (AddOn ju medzitým zastavil);
+- rušené nasadenie (deaktivované alebo zmazané), ktorého inštancia má podľa spoolu **otvorenú pozíciu**,
+  sa neodoberie: graf ostane v `paused` (alebo `flatten`, keď ho tak človek nastavil), EA pozíciu dovedie
+  a odoberie sa až v cykle po jej zatvorení — `apply_state.json` ho drží v `held`, aj keď ho hub zmaže;
 - stav agenta (`apply_state.json`) si ku každému nasadeniu pamätá `instance` a cestu control súboru;
   keď sa id inštancie zmení (iný login/server účtu), starý control ide tou istou cestou
   (`remove_instance`), nie ostane ako sirota. MT5 driver má identitu účtu aj v manifeste grafov

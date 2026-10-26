@@ -562,3 +562,30 @@ def test_hub_agent_reconciler_driver_end_to_end(tmp_path: Path, monkeypatch):
     agent.tick()
     applied = c.get(f"/api/live/deployments/{d2['id']}", headers=H).json()["applied"]
     assert applied["status"] == "ok" and applied["error"] == "nenabehla: ucet 1 sa do 60 s nepripojil (15:01:03 UTC)"
+
+
+def test_zrusene_nasadenie_s_otvorenou_poziciou_drzi_graf_v_pauze(tmp_path: Path):
+    """Audit N-LIVE-15: deaktivácia či zmazanie nasadenia odobrali graf a reštartovali terminál bez ohľadu na
+    pozíciu. S otvorenou pozíciou ostáva graf v pauze (EA ju dovedie), odoberie sa až po jej zatvorení —
+    aj keď hub medzitým nasadenie zmaže."""
+    pozicie: dict[str, float | None] = {}
+    drv = FakeDriver()
+    rec = Reconciler({"mt5": drv}, tmp_path / "s.json", position=lambda inst: pozicie.get(inst))
+    rec.run(desired(dep("d1")))
+    inst = rec.state["applied"]["d1"]["instance"]
+    pozicie[inst] = 1.0
+    drv.calls.clear()
+    rec.run(desired(dep("d1", active=False)))
+    assert kinds(drv.calls, "remove_instance") == []
+    assert ("write_control", "d1", inst, "paused") in drv.calls
+    assert kinds(drv.calls, "ensure_instance") == [("ensure_instance", "ftmo", ("d1",))]
+    assert "otvorená pozícia" in rec.state["applied"]["d1"]["held"]
+    drv.calls.clear()
+    rec.run(desired())                                    # hub nasadenie zmazal, pozícia stále beží
+    assert kinds(drv.calls, "remove_instance") == [] and "d1" in rec.state["held"]
+    pozicie[inst] = None                                  # pozícia zatvorená
+    drv.calls.clear()
+    rec.run(desired())
+    assert kinds(drv.calls, "remove_instance") == [("remove_instance", "ftmo", "d1")]
+    assert rec.state["held"] == {}
+    rec.run(desired())                                    # už sa neodstraňuje znova
