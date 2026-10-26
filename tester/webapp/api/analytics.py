@@ -240,14 +240,16 @@ def build(ctx: AppContext) -> APIRouter:
         out.sort(key=lambda g: g["runs"], reverse=True)
         return out
 
-    def _windows_of(run_ids: list[str]) -> dict[str, dict[str, Any]]:
+    def _windows_of(run_ids: list[str], slim: dict[str, dict[str, Any]] | None = None) -> dict[str, dict[str, Any]]:
         """`okno -> {run_id, trades, edge, pnl_pct}` — pri viacerých behoch v jednom okne
-        ten s najviac obchodmi (ako v `paper`), edge je break-even mínus poplatok behu."""
+        ten s najviac obchodmi (ako v `paper`), edge je break-even mínus poplatok behu.
+        `slim` = záznamy z indexu (bez equity krivky) načítané raz za request; celé `run.json` sa
+        pre každý beh skupiny nečíta (pri 5 000 behoch 5 000 čítaní - audit N-WEB-9)."""
         from ... import hyperopt as ho
 
         out: dict[str, dict[str, Any]] = {}
         for run_id in run_ids:
-            rec = store.get(run_id)
+            rec = (slim or {}).get(run_id) or store.get(run_id)
             if not rec:
                 continue
             okno = (rec.get("settings") or {}).get("timerange")
@@ -271,11 +273,12 @@ def build(ctx: AppContext) -> APIRouter:
 
         ref = list(ho.REFERENCE_WINDOWS)
         tituly = profile_titles(strategy)
+        slim = {r["id"]: r for r in store.all()}
         nastavenia: dict[str, dict[str, Any]] = {}
         for trh in _config_groups(strategy):
             kluc_nast = trh["key"].split("|", 1)[0]
             pair, tf = trh["pairs"][0], trh["timeframes"][0]
-            okna = _windows_of(trh["run_ids"])
+            okna = _windows_of(trh["run_ids"], slim)
             kladne = sum(1 for w in ref if w in okna and (okna[w]["edge"] or 0) > 0)
             # Popis nastavenia: `_title` profilu, keď ho má; inak meno súboru bez cesty.
             meno = str(trh["profile"]).replace("\\", "/").rsplit("/", 1)[-1].removesuffix(".json")
@@ -320,7 +323,7 @@ def build(ctx: AppContext) -> APIRouter:
             # to isté nastavenie, nie rozdiel „alertOnState2=null vs false".
             parametre = {}
             for n in skupina:
-                rec = store.get(n["markets"][0]["sample"]) or {}
+                rec = slim.get(n["markets"][0]["sample"]) or store.get(n["markets"][0]["sample"]) or {}
                 parametre[n["key"]] = {**defaults_of(rec), **(rec.get("params") or {})}
             kluce = {k for p in parametre.values() for k in p}
             hodnoty = {k: [json.dumps(p.get(k), sort_keys=True, default=str) for p in parametre.values()]
@@ -331,7 +334,7 @@ def build(ctx: AppContext) -> APIRouter:
                            key=lambda k: (-len(set(hodnoty[k])), k))
             # Do názvu ide, čím sa nastavenie líši od najbežnejšej hodnoty skupiny - to, čo
             # majú všetky ostatné rovnako, nastavenie nerozlíši.
-            bezne = {k: max(set(hodnoty[k]), key=hodnoty[k].count) for k in rozne}
+            bezne = {k: max(sorted(set(hodnoty[k])), key=hodnoty[k].count) for k in rozne}   # zhoda: stále tá istá
             dump = lambda v: json.dumps(v, sort_keys=True, default=str)  # noqa: E731
             for n in skupina:
                 moje = parametre[n["key"]]

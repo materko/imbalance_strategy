@@ -343,12 +343,25 @@ class RunStore:
     def tagged(self, kind: str, batch_id: str | None = None) -> list[dict[str, Any]]:
         """Body celku zo `sweeps/` a staré behy s tou istou značkou, ktoré ešte ležia
         v histórii (pred `cli prune`). Starý beh má prednosť — má aj obchody."""
-        stare = [r for r in self.all()
-                 if ((r.get("settings") or {}).get(kind) or {}).get("id")
-                 and (batch_id is None or r["settings"][kind]["id"] == batch_id)]
+        stare = self._tagged_runs(kind, batch_id)
         videne = {r["id"] for r in stare}
         nove = [r for r in self.batches.records(kind, batch_id) if r.get("id") not in videne]
         return stare + nove
+
+    def _tagged_runs(self, kind: str, batch_id: str | None) -> list[dict[str, Any]]:
+        """Behy histórie so značkou `settings.<kind>.id` — filter v sqlite (`json_extract`), nie deserializácia
+        celej histórie v Pythone pri každom volaní (pri 37 k behoch ~1 s, viac razy na request - N-WEB-8)."""
+        if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", kind) and self.index.sync():
+            cesta = f"$.settings.{kind}.id"
+            try:
+                if batch_id is None:
+                    return self.index.records("json_extract(slim, ?) IS NOT NULL", [cesta])
+                return self.index.records("json_extract(slim, ?) = ?", [cesta, batch_id])
+            except sqlite3.Error:
+                pass
+        return [r for r in self.all()
+                if ((r.get("settings") or {}).get(kind) or {}).get("id")
+                and (batch_id is None or r["settings"][kind]["id"] == batch_id)]
 
     def find(self, run_id: str) -> dict[str, Any] | None:
         """Beh z histórie, alebo bod celku (so značkou `batch`) — alebo `None`."""
