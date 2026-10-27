@@ -466,8 +466,100 @@ function liveSorted(list) {
   }).map(([i]) => i);
 }
 
+// Skupiny tabuľky inštancií: jeden účet na platforme (ten istý login na NT a MT5 sú dva účty). Hlavička
+// skupiny nesie súhrn riadkov pod ňou, takže zbalená skupina povie to podstatné aj bez nich. Zbalené
+// skupiny si pamätá prehliadač (localStorage), poradie skupín ide podľa ich prvej inštancie v triedení.
+const LIVE_COLLAPSED_KEY = "tradebot.live.collapsed";
+const liveGroupKey = i => `${i.platform || ""}|${i.account || ""}`;
+
+function liveCollapsedSave() {
+  try { localStorage.setItem(LIVE_COLLAPSED_KEY, JSON.stringify([...lv.collapsed])); } catch (_) { /* súkromné okno */ }
+}
+
+function liveToggleGroup(key) {
+  if (lv.collapsed.has(key)) lv.collapsed.delete(key); else lv.collapsed.add(key);
+  liveCollapsedSave();
+  renderLiveList();
+}
+
+/** Názov účtu z hubu (sekcia Účty): cez nasadenie inštancie, inak podľa platformy a loginu. */
+function liveAccountLabel(i) {
+  const dep = ld.deployments.find(d => d.instance === i.id);
+  const acc = ld.accounts.find(a => dep ? a.id === dep.account
+    : a.platform === i.platform && [a.id, String(a.login), `${a.login}-${a.server}`].includes(String(i.account)));
+  return acc && acc.label && acc.label !== i.account ? acc.label : "";
+}
+
+/** Rôzne hodnoty do bunky súhrnu: najviac `max`, zvyšok ako „+N", celý zoznam v title. */
+function liveUniqCell(vals, max = 3) {
+  const u = [...new Set(vals.filter(v => v !== null && v !== undefined && v !== ""))].sort(liveTxt);
+  if (!u.length) return "—";
+  const txt = u.slice(0, max).map(v => esc(v)).join(", ") + (u.length > max ? ` <span class="muted">+${u.length - max}</span>` : "");
+  return u.length > max ? `<span title="${esc(u.join(", "))}">${txt}</span>` : txt;
+}
+
+/** Pozícia podľa symbolu („MNQ +2 · MES −1", „flat"); `null` → „—". */
+function liveBySymbolText(bySym) {
+  if (bySym === null) return "—";
+  const n = Object.entries(bySym).filter(([, q]) => Math.abs(q) > 1e-9).sort(([a], [b]) => liveTxt(a, b));
+  return n.length ? n.map(([s, q]) => `${esc(s)} ${q > 0 ? "+" : ""}${q}`).join(" · ") : "flat";
+}
+
+function liveGroupRow(key, members, collapsed) {
+  const first = members[0];
+  const stavy = { live: 0, closed: 0, silent: 0 };
+  for (const i of members) stavy[liveState(i)]++;
+  const chips = [
+    stavy.live ? `<span class="chip ok" title="ping alebo udalosť do 3 min">${stavy.live} živ${stavy.live === 1 ? "á" : (stavy.live <= 4 ? "é" : "ých")}</span>` : "",
+    stavy.closed ? `<span class="chip ok" title="platforma pinguje, ale bary nechodia — trh je zatvorený">${stavy.closed} trh zatvorený</span>` : "",
+    stavy.silent ? `<span class="chip" title="bez pingu aj udalosti — platforma spadla, zamrzla alebo stratégia nebeží">${stavy.silent} ticho</span>` : "",
+  ].filter(Boolean);
+  const tester = members.filter(i => i.hello && i.hello.tester).length;
+  if (tester) chips.push(`<span class="chip warn" title="beží v Strategy Testeri / Analyzeri">tester ${tester}</span>`);
+  const diery = members.filter(i => liveGapsOf(i.id).length).length;
+  if (diery) chips.push(`<span class="chip bad" title="${diery} z ${members.length} inštancií má diery v dátach — detail v riadku">chýbajú dáta</span>`);
+
+  // pozícia z fillov a u brokera po symboloch; pri NinjaTraderi (`account`) hlási každá inštancia celý účet
+  // na inštrumente — berie sa najčerstvejší ping, pri MT5 (`magic`) len svoj EA — sčíta sa
+  let pos = null, lost = 0, broker = null, zle = 0, fills = 0, bar = 0;
+  const brokerT = {};
+  for (const i of members) {
+    const f = lv.fills[i.id], p = livePosition(f), sym = i.symbol || "?";
+    fills += liveFillsToday(f);
+    bar = Math.max(bar, Number(i.last_bar_ms) || 0);
+    if (p) { pos = pos || {}; pos[sym] = (pos[sym] || 0) + p.qty; lost += p.lost.length; }
+    const b = liveBroker(i);
+    if (!b) continue;
+    broker = broker || {};
+    if (b.scope === "account") {
+      if ((Number(b.t) || 0) >= (brokerT[sym] ?? -1)) { broker[sym] = b.qty; brokerT[sym] = Number(b.t) || 0; }
+    } else broker[sym] = (broker[sym] || 0) + b.qty;
+    if (Math.abs(b.qty - b.expected) > 1e-9) zle++;
+  }
+  const label = liveAccountLabel(first);
+  const selected = collapsed && members.some(i => i.id === lv.selected);
+  return `<tr class="live-group${selected ? " hl" : ""}" data-group="${esc(key)}" title="${collapsed ? "rozbaliť" : "zbaliť"} účet">
+    <td><span class="live-caret">${collapsed ? "▸" : "▾"}</span>${chips.join(" ") || "—"}</td>
+    <td>${esc(first.platform || "—")}</td>
+    <td><b>${esc(first.account || "—")}</b>${label ? ` <span class="muted small">${esc(label)}</span>` : ""}
+      <span class="chip" title="inštancií na účte">${members.length}</span></td>
+    <td><b>${liveUniqCell(members.map(i => i.symbol))}</b></td>
+    <td>${liveUniqCell(members.map(i => i.tf ? i.tf + "m" : ""))}</td>
+    <td>${liveUniqCell(members.map(i => i.strategy), 2)}</td>
+    <td>${liveUniqCell(members.map(i => i.profile), 1)}</td>
+    <td>${liveUniqCell(members.map(i => i.host), 2)}</td>
+    <td>${liveUniqCell(members.map(i => i.agent), 2)}</td>
+    <td title="${bar ? utc(bar) + " UTC — najčerstvejší bar účtu" : ""}">${bar ? `${liveAge(bar, lv.now)} <span class="muted">${utc(bar).slice(5, 16)}</span>` : "—"}</td>
+    <td class="num" title="súčet odhadov z fillov po symboloch">${liveBySymbolText(pos)}${lost ? ` <span class="chip warn" title="vstup bez zatvorenia v telemetrii — detail v riadku">?</span>` : ""}</td>
+    <td class="num" title="u brokera po symboloch (NinjaTrader: celý účet na inštrumente, MT5: súčet EA)">${liveBySymbolText(broker)}${zle ? ` <span class="chip bad" title="${zle} z ${members.length} inštancií nesedí s odhadom z fillov — detail v riadku">≠</span>` : ""}</td>
+    <td class="num">${fills}</td></tr>`;
+}
+
 function renderLiveList() {
   if (lv.sort === undefined) lv.sort = liveSortLoad();
+  if (!lv.collapsed) {
+    try { lv.collapsed = new Set(JSON.parse(localStorage.getItem(LIVE_COLLAPSED_KEY) || "[]")); } catch (_) { lv.collapsed = new Set(); }
+  }
   for (const th of $$("#live-table th.sort")) {
     th.dataset.dir = lv.sort && lv.sort.k === th.dataset.k ? lv.sort.dir : "";
     th.onclick = () => liveSortClick(th.dataset.k);
@@ -483,20 +575,40 @@ function renderLiveList() {
   $("#live-count").className = `chip ${alive ? "ok" : ""}`;
   $("#live-empty").hidden = !!list.length;
   $("#live-table").parentElement.hidden = !list.length;
-  $("#live-table tbody").innerHTML = list.map(i => {
-    const f = lv.fills[i.id];
-    const pos = livePosition(f);
-    const posTxt = livePosText(pos);
-    return `<tr data-live="${esc(i.id)}" class="${i.id === lv.selected ? "hl" : ""}">
-      <td>${liveStatusChip(i)}</td><td>${esc(i.platform || "—")}</td><td>${esc(i.account || "—")}</td>
-      <td><b>${esc(i.symbol || "—")}</b></td><td>${i.tf ? i.tf + "m" : "—"}</td><td>${esc(i.strategy || "—")}</td>
-      <td>${esc(i.profile || "—")}</td><td>${esc(i.host || "—")}</td><td>${esc(i.agent || "—")}</td>
-      <td title="${i.last_bar_ms ? utc(i.last_bar_ms) + " UTC (otvorenie baru)" : ""}">${i.last_bar_ms ? `${liveAge(i.last_bar_ms, lv.now)} <span class="muted">${utc(i.last_bar_ms).slice(5, 16)}</span>` : "—"}</td>
-      <td class="num" title="${pos ? esc(pos.open.join(", ") || "flat") : "žiadne vyplnenia"}">${posTxt}</td>
-      <td class="num">${liveBrokerText(liveBroker(i))}</td>
-      <td class="num">${liveFillsToday(f)}</td></tr>`;
+  const groups = new Map();
+  for (const i of list) {
+    const k = liveGroupKey(i);
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(i);
+  }
+  const fold = $("#live-fold-all"), vsetky = [...groups.keys()].every(k => lv.collapsed.has(k));
+  fold.hidden = groups.size < 2;
+  fold.textContent = vsetky ? "rozbaliť všetky" : "zbaliť všetky";
+  fold.onclick = () => {
+    for (const k of groups.keys()) { if (vsetky) lv.collapsed.delete(k); else lv.collapsed.add(k); }
+    liveCollapsedSave();
+    renderLiveList();
+  };
+  $("#live-table tbody").innerHTML = [...groups].map(([k, members]) => {
+    const zbalena = lv.collapsed.has(k);
+    return liveGroupRow(k, members, zbalena) + (zbalena ? "" : members.map(liveInstanceRow).join(""));
   }).join("");
-  for (const tr of $$("#live-table tbody tr")) tr.onclick = () => openLiveDetail(tr.dataset.live);
+  for (const tr of $$("#live-table tbody tr[data-live]")) tr.onclick = () => openLiveDetail(tr.dataset.live);
+  for (const tr of $$("#live-table tbody tr[data-group]")) tr.onclick = () => liveToggleGroup(tr.dataset.group);
+}
+
+function liveInstanceRow(i) {
+  const f = lv.fills[i.id];
+  const pos = livePosition(f);
+  const posTxt = livePosText(pos);
+  return `<tr data-live="${esc(i.id)}" class="live-member${i.id === lv.selected ? " hl" : ""}">
+    <td>${liveStatusChip(i)}</td><td class="muted">${esc(i.platform || "—")}</td><td class="muted">${esc(i.account || "—")}</td>
+    <td><b>${esc(i.symbol || "—")}</b></td><td>${i.tf ? i.tf + "m" : "—"}</td><td>${esc(i.strategy || "—")}</td>
+    <td>${esc(i.profile || "—")}</td><td>${esc(i.host || "—")}</td><td>${esc(i.agent || "—")}</td>
+    <td title="${i.last_bar_ms ? utc(i.last_bar_ms) + " UTC (otvorenie baru)" : ""}">${i.last_bar_ms ? `${liveAge(i.last_bar_ms, lv.now)} <span class="muted">${utc(i.last_bar_ms).slice(5, 16)}</span>` : "—"}</td>
+    <td class="num" title="${pos ? esc(pos.open.join(", ") || "flat") : "žiadne vyplnenia"}">${posTxt}</td>
+    <td class="num">${liveBrokerText(liveBroker(i))}</td>
+    <td class="num">${liveFillsToday(f)}</td></tr>`;
 }
 
 async function openLiveDetail(id) {
@@ -738,6 +850,7 @@ async function loadLiveDeploy() {
     ]);
     ld.accounts = accounts; ld.deployments = deployments; ld.agents = agents;
     $("#ld-error").hidden = true;
+    renderLiveList();   // názvy účtov v hlavičkách skupín
   } catch (e) {
     $("#ld-error").textContent = `hub: ${e.message}`; $("#ld-error").hidden = false;
     return;

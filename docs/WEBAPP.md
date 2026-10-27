@@ -610,7 +610,12 @@ posledného baru, odhad pozície (vstupy − výstupy z fillov podľa id, smer z
 nebeží — neskôr ďalší vstup, alebo cena prešla jeho SL / TP, `/api/live/<inštancia>/lost` —, sa nepočíta a ukáže
 sa ako „?“ s dôvodom), pozícia **u brokera** z pingu platformy (`hb.pos`, docs/LIVE.md „Ping“; ≠ pri nezhode s odhadom,
 — pri staršom kóde AddOnu / EA) a počet
-fillov za dnešný deň UTC. Klik otvorí detail: Plotly sviečky z posledných 500 barov, kresby
+fillov za dnešný deň UTC. Riadky sú zoskupené po účtoch (platforma + účet, názov z Účtov hubu); klik na
+hlavičku účtu ho zbalí / rozbalí („zbaliť všetky“ pri nadpise), zbalené účty si pamätá prehliadač. Hlavička
+nesie súhrn účtu, takže zbalený účet ukáže to podstatné aj bez riadkov: počty podľa stavu (+ tester, chýbajúce
+dáta), počet inštancií, rôzne symboly / TF / stratégie / profily / stroje / agentov (nad limit „+N“, celé v tooltipe),
+najčerstvejší bar, pozíciu z fillov a u brokera po symboloch („MNQ +2 · MES −1“ / flat; „?“ a ≠ ako v riadkoch)
+a súčet fillov dnes. Klik na riadok inštancie otvorí detail: Plotly sviečky z posledných 500 barov, kresby
 enginu zlúčené podľa `id` (tie isté vrstvy a štýly ako graf behu — `objectTraces` z
 `chart.js`), vyplnenia ako značky (▲ long, ▼ short, × výstup), tabuľky posledných orderov a
 fillov (posun SL/TP otvorenej pozície je riadok „posun SL/TP“ a oranžový stupienok na grafe),

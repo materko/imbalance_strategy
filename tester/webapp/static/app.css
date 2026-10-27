@@ -756,6 +756,11 @@ table.dv-table th.sort { cursor: pointer; text-decoration: underline dotted; }
 #live-table th.sort { cursor: pointer; user-select: none; }
 #live-table th.sort[data-dir="1"]::after { content: " ▲"; }
 #live-table th.sort[data-dir="-1"]::after { content: " ▼"; }
+#live-table tr.live-group td { background: var(--surface-alt); border-top: 1px solid var(--line); }
+#live-table tr.live-group:hover td { background: var(--surface-hover); }
+#live-table tr.live-group.hl td { background: var(--surface-changed); }
+#live-table .live-caret { display: inline-block; width: 1.1em; color: var(--muted); }
+#live-table tr.live-member td:first-child { padding-left: calc(8px + 1.1em); }
 table.dv-table td.dv-audit { white-space: normal; min-width: 320px; font-size: 12px; }
 table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(--card); border-radius: 6px; min-width: 50px; }
 .dv-kv { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 13px; margin: 0; }
