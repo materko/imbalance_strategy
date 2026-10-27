@@ -300,3 +300,27 @@ def test_store_ma_vykonne_pragmy(tmp_path: Path):
     st = LiveStore(tmp_path / "l.sqlite")
     pragma = {k: st._db.execute(f"PRAGMA {k}").fetchone()[0] for k in ("journal_mode", "synchronous", "cache_size")}
     assert pragma == {"journal_mode": "wal", "synchronous": 1, "cache_size": -131072}
+
+
+def test_checkpoint_wal_ide_na_pozadi(tmp_path: Path, monkeypatch):
+    """Checkpoint WAL (na NAS-e aj desiatky sekúnd s fsync) nerobí zapisujúca dávka, ale vlákno na pozadí."""
+    import time as _time
+
+    from tradebot.live import store as st_mod
+
+    monkeypatch.setattr(st_mod, "CHECKPOINT_SECONDS", 0.05)
+    st = LiveStore(tmp_path / "l.sqlite")
+    try:
+        assert st._db.execute("PRAGMA wal_autocheckpoint").fetchone()[0] == 0
+        hello = {"seq": 1, "t": 1_790_000_000_000, "k": "hello", "schema": 1, "platform": "ninjatrader",
+                 "account": "Sim101", "symbol": "MNQ", "tf": 3, "strategy": "ibsnet", "profile": "p", "session": "s1",
+                 "host": "PC", "tester": False, "config": {}, "instrument": {}}
+        st.ingest("a", "i", "s1", [hello])
+        koniec = _time.time() + 5
+        while not st.checkpoint_stats and _time.time() < koniec:
+            _time.sleep(0.05)
+        kp = st.stats()["checkpoint"]
+        assert kp["last_s"] is not None and kp["wal_pages"] >= 0
+    finally:
+        st.close()
+    assert not st._checkpointer.is_alive() or st._stop.is_set()

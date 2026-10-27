@@ -116,6 +116,8 @@ _PRAGMAS = ("PRAGMA synchronous=NORMAL; PRAGMA cache_size=-131072; PRAGMA mmap_s
 #: Spojenia na čítanie (jedno na vlákno): menšia vlastná cache, stránky zdieľa mmap; zapisovať nesmú.
 _READ_PRAGMAS = ("PRAGMA cache_size=-16384; PRAGMA mmap_size=268435456; PRAGMA temp_store=MEMORY; "
                  "PRAGMA query_only=1;")
+#: Ako často vlákno na pozadí prenesie WAL do DB (zápis to sám nerobí, `wal_autocheckpoint=0`).
+CHECKPOINT_SECONDS = 10.0
 
 
 class LiveStore:
@@ -130,9 +132,11 @@ class LiveStore:
         #: odpovedal aj na `GET instances` sekundy.
         self._local = threading.local()
         self._readers: list[sqlite3.Connection] = []
-        self._readers_lock = threading.Lock()
+        self._readers_lock = threading.Lock()   # nie zámok zápisu — prvé čítanie vlákna nesmie čakať na ingest
         #: (čas, udalostí, nových, čakanie na zámok s, zápis s) posledných dávok — `stats()`
-        self.ingest_stats: collections.deque[tuple[float, int, int, float, float]] = collections.deque(maxlen=2000)   # nie zámok zápisu — prvé čítanie vlákna nesmie čakať na ingest
+        self.ingest_stats: collections.deque[tuple[float, int, int, float, float]] = collections.deque(maxlen=2000)
+        #: (čas, trvanie s, stránok WAL, prenesených) checkpointov na pozadí — `stats()`
+        self.checkpoint_stats: collections.deque[tuple[float, float, int, int]] = collections.deque(maxlen=200)
         self._db.row_factory = sqlite3.Row
         with self._lock:
             self._db.executescript("PRAGMA journal_mode=WAL;" + _PRAGMAS + _DDL)
@@ -141,14 +145,37 @@ class LiveStore:
                 if col not in mam:
                     self._db.execute(f"ALTER TABLE instances ADD COLUMN {col} {typ}")
             self._db.commit()
+            # Checkpoint WAL (prenos stránok do DB + fsync) nerobí zapisujúca dávka, ale vlákno na pozadí: na NAS-e
+            # trval aj desiatky sekúnd a dávka agenta počas neho držala zámok (zápis 2000 udalostí raz 64 s, inak 0,2 s).
+            self._db.execute("PRAGMA wal_autocheckpoint=0")
+        self._stop = threading.Event()
+        self._checkpointer = threading.Thread(target=self._checkpoint_loop, name="live-store-checkpoint", daemon=True)
+        self._checkpointer.start()
 
     def close(self) -> None:
+        self._stop.set()
         with self._lock:
             self._db.close()
         with self._readers_lock:
             for db in self._readers:
                 db.close()
             self._readers.clear()
+
+    def _checkpoint_loop(self) -> None:
+        """Každých `CHECKPOINT_SECONDS` pasívny checkpoint vlastným spojením — zápis neblokuje (prenesie, čo môže),
+        WAL sa po úplnom prenose začne písať od začiatku. Chyba (zamknutá DB, disk) sa skúsi v ďalšom kole."""
+        db: sqlite3.Connection | None = None
+        while not self._stop.wait(CHECKPOINT_SECONDS):
+            try:
+                if db is None:
+                    db = sqlite3.connect(str(self.path), check_same_thread=False)
+                t = time.perf_counter()
+                _, wal, prenesene = db.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+                self.checkpoint_stats.append((time.time(), time.perf_counter() - t, int(wal), int(prenesene)))
+            except sqlite3.Error:
+                continue
+        if db is not None:
+            db.close()
 
     @contextmanager
     def _read(self) -> Iterator[sqlite3.Connection]:
@@ -195,7 +222,11 @@ class LiveStore:
             return {"calls": len(r), "events": sum(x[1] for x in r), "accepted": sum(x[2] for x in r),
                     "wait_s": round(sum(x[3] for x in r), 3), "write_s": round(sum(x[4] for x in r), 3),
                     "max_write_s": round(max((x[4] for x in r), default=0.0), 3)}
+        kp = list(self.checkpoint_stats)
         return {"last_60s": suhrn(60), "last_600s": suhrn(600),
+                "checkpoint": {"last_s": round(kp[-1][1], 3) if kp else None,
+                               "max_600s": round(max((x[1] for x in kp if now - x[0] <= 600), default=0.0), 3),
+                               "wal_pages": kp[-1][2] if kp else None, "moved_pages": kp[-1][3] if kp else None},
                 "recent": [{"t": round(x[0], 1), "events": x[1], "accepted": x[2], "wait_s": round(x[3], 3),
                             "write_s": round(x[4], 3)} for x in riadky[-20:]]}
 
