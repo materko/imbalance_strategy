@@ -505,6 +505,14 @@ Rovnako sa zastaví, keď git v týchto adresároch **ignoruje** niečo iné ne�
 spôsobil, že Push behy ticho vynechával.
 Autor commitu je meno testera z hlavičky.
 
+Upravený profil Push pred commitom porovná s verziou v gite. Profil sa upravuje na mieste:
+keď ho niečo načíta, klon sa medzitým aktualizuje (Pull, agent hubu) a potom ho to zapíše späť,
+nesie starý obsah a Push by ním vrátil novší commit. Pred týmto doplnkom takto vypadlo
+`legacyPineSizing` z 11 profilov smernice (da77cb74c). Push preto doplní z gitu hodnotu configu,
+ktorá v súbore **chýba** (zrušené polia stratégie smú chýbať), a hodnotu, ktorá sa **vrátila**
+na stav spred commitu iného autora. Výstup Push vypíše každú takú opravu. Metadáta (`_title`,
+`_comment`…) a vlastné zmeny testera nechá tak.
+
 **Prihlásenie do GitHubu.** Webapp beží bez terminálu, takže sa git nemá koho spýtať na
 heslo — bez uložených údajov Push spadne na `could not read Username … Device not
 configured` (macOS) a aplikácia rovno vypíše návod. Stačí sa prihlásiť raz:

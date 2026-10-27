@@ -597,6 +597,83 @@ def test_git_pull_rebases_onto_origin_ref_not_fetch_head(monkeypatch):
     assert not any(a[0] == "pull" for a in calls)
 
 
+def _sh(cwd: Path, *args: str) -> str:
+    import subprocess
+
+    return subprocess.run(["git", *args], cwd=str(cwd), check=True, capture_output=True, text=True,
+                          encoding="utf-8").stdout
+
+
+def _klon(tmp_path: Path, origin: Path, name: str, author: str) -> Path:
+    _sh(tmp_path, "clone", "-q", str(origin), name)
+    repo = tmp_path / name
+    _sh(repo, "config", "user.name", author)
+    _sh(repo, "config", "user.email", f"{author}@example.com")
+    _sh(repo, "config", "core.autocrlf", "false")
+    return repo
+
+
+def _profil(repo: Path, data: dict, *, indent=1) -> Path:
+    path = repo / "tester" / "profiles" / "P.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=indent), encoding="utf-8")
+    return path
+
+
+def test_git_push_vrati_do_profilu_co_prepisala_stara_kopia(tmp_path: Path, monkeypatch):
+    """da77cb74c: niečo načítalo profil, klon sa medzitým aktualizoval (pull) a ono ho zapísalo
+    späť s novým titulkom, ale bez `legacyPineSizing` z novšieho commitu iného autora. Push musí
+    hodnoty z HEAD doplniť a povedať to — a nechať, čo tester naozaj zmenil."""
+    from tester.webapp import gitsync
+
+    origin = tmp_path / "origin.git"
+    _sh(tmp_path, "init", "-q", "--bare", "-b", "main", str(origin))
+    tester = _klon(tmp_path, origin, "tester", "IBS")
+    stary = {"_strategy": "ibs", "riskDollar": 100, "rrRatio": 2.0, "directionIndicator": "x", "_title": "PF 1,5"}
+    _profil(tester, stary)
+    _sh(tester, "add", "-A")
+    _sh(tester, "commit", "-qm", "profil")
+    _sh(tester, "push", "-q", "origin", "HEAD:main")
+
+    dev = _klon(tmp_path, origin, "dev", "materko")
+    _profil(dev, {"_strategy": "ibs", "legacyPineSizing": True, "riskDollar": 150, "rrRatio": 2.0,
+                  "directionIndicator": "x", "_title": "PF 1,5"})
+    _sh(dev, "commit", "-qam", "legacy sizing")
+    _sh(dev, "push", "-q", "origin", "HEAD:main")
+
+    for name, d in (("RUNS_DIR", "runs"), ("SWEEPS_DIR", "sweeps"), ("ANALYTICS_DIR", "analytics"),
+                    ("ARCHIVE_DIR", "archive")):
+        monkeypatch.setattr(gitsync, name, tester / "tester" / d)
+    monkeypatch.setattr(gitsync, "PROFILES_DIR", tester / "tester" / "profiles")
+    monkeypatch.setattr(gitsync, "REPO", tester)
+    monkeypatch.delenv("IBS_GIT_BRANCH", raising=False)
+    monkeypatch.delenv("TRADEBOT_GIT_BRANCH", raising=False)
+    assert gitsync.pull()["ok"]
+
+    # stará kópia s novým titulkom; directionIndicator je zrušené pole — to profil stratiť smie
+    zapis = {k: v for k, v in stary.items() if k != "directionIndicator"}
+    path = _profil(tester, {**zapis, "rrRatio": 3.0, "_title": "PF 1,2"})
+    r = gitsync.push(author="IBS")
+    assert r["ok"], r["output"]
+    assert "legacyPineSizing chýbal, doplnený true" in r["output"]
+    assert "riskDollar vrátený na 100, ponechaný 150" in r["output"] and "materko" in r["output"]
+    assert "rrRatio" not in r["output"] and "directionIndicator" not in r["output"]
+
+    _sh(dev, "fetch", "-q")
+    na_githube = json.loads(_sh(dev, "show", "origin/main:tester/profiles/P.json"))
+    assert na_githube == {"_strategy": "ibs", "legacyPineSizing": True, "riskDollar": 150, "rrRatio": 3.0,
+                          "_title": "PF 1,2"}
+    assert list(na_githube) == ["_strategy", "legacyPineSizing", "riskDollar", "rrRatio", "_title"]
+    assert path.read_text(encoding="utf-8").startswith('{\n "_strategy"')     # odsadenie súboru ostalo
+
+    # vlastnú zmenu tester vrátiť smie: rrRatio 3.0 je jeho, návrat na 2.0 sa neopravuje
+    _profil(tester, {**json.loads(path.read_text(encoding="utf-8")), "rrRatio": 2.0})
+    r = gitsync.push(author="IBS")
+    assert r["ok"], r["output"]
+    assert "doplnené späť" not in r["output"]
+    assert json.loads(path.read_text(encoding="utf-8"))["rrRatio"] == 2.0
+
+
 def test_git_recognizes_missing_github_login():
     """Webapp beží bez terminálu — git sa nemá koho spýtať na heslo. Musí to povedať
     ako návod, nie ako „fatal: could not read Username… Device not configured"."""

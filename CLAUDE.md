@@ -145,6 +145,9 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    a vlastné profily (`tester/profiles/`). Vlastný profil si tester uloží tlačidlom
    **Uložiť ako profil** — z formulára (aj so zvoleným TF) alebo z detailu behu; tam sa
    dá aj premenovať a zmazať. Profily repozitára v `tradebot/strategies/<stratégia>/configs/` sa nemenia.
+   Vlastné profily neprepisuj skriptom zo skôr načítanej kópie (napr. hromadne titulky): klon sa
+   medzitým aktualizuje a zápis by vrátil novšie hodnoty. Push ich síce doplní z gitu
+   ([docs/WEBAPP.md](docs/WEBAPP.md)), ale profil čítaj až tesne pred zápisom.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
 6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/tester/`:
    futures perpetuály `BTC/USDT:USDT`, `ETH/USDT:USDT` (v ponuke `BTCUSDT.P`,

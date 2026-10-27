@@ -18,18 +18,26 @@ klon práve stojí: keď webapp bežala z vývojárskeho worktree, história sko
 vetve `claude/...` a v `main` po nej nebolo ani stopy. Ak by pritom mala vetva
 commity mimo `runs/` a `profiles/`, Push to odmietne — kód testera do `main`
 nepatrí, ten ide cez pull request.
+
+Upravený profil Push pred commitom porovná s HEAD (`_restore_profiles`): hodnotu configu, ktorú
+súbor stratil alebo vrátil na stav spred cudzieho commitu, doplní z HEAD a povie to. Profil
+sa upravuje na mieste — keď ho niečo načíta, klon sa medzitým aktualizuje (Pull, agent hubu)
+a potom ho to zapíše späť, nesie starý obsah; Push by ho inak ticho commitol a vrátil tak
+novší commit (da77cb74c vyhodil `legacyPineSizing` z 11 profilov smernice).
 """
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 from pathlib import Path
 from typing import Any
 
+from tester.atomic import write_json_atomic
 from tradebot.core.env import getenv
 from tradebot.core.paths import ANALYTICS_DIR, ARCHIVE_DIR, REPO, SWEEPS_DIR
-from .profiles import PROFILES_DIR
+from .profiles import LEGACY_STRATEGY, PROFILES_DIR
 from .store import RUNS_DIR
 
 
@@ -208,6 +216,113 @@ def _message(changed: list[str]) -> str:
     return text
 
 
+#: Koľko commitov profilu dozadu sa hľadá ten, ktorý hodnotu v HEAD nastavil.
+_PROFILE_HISTORY = 30
+
+_MISSING = object()
+
+
+def _retired_fields(strategy: str) -> set[str]:
+    """Zrušené polia stratégie — tie profil stratiť smie (webapp ich do nového profilu nedá)."""
+    try:
+        from tradebot.strategies import get_spec
+
+        return set(get_spec(strategy).config_cls.RETIRED_FIELDS)
+    except Exception:  # neznáma stratégia: Push kvôli tomu nepadne, len nič neodpustí
+        return set()
+
+
+def _json_at(rev: str, path: str) -> dict[str, Any] | None:
+    r = _git("show", f"{rev}:{path}")
+    if r.returncode != 0:
+        return None
+    try:
+        data = json.loads(r.stdout)
+    except json.JSONDecodeError:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _last_change(path: str, key: str, value: Any) -> tuple[str, str, Any] | None:
+    """Commit, ktorý `key` v profile nastavil na `value` (stav v HEAD): (sha, autor, hodnota predtým)."""
+    log = _git("log", f"-n{_PROFILE_HISTORY}", "--format=%H%x09%an", "--", path)
+    if log.returncode != 0:
+        return None
+    for line in log.stdout.splitlines():
+        sha, _, author = line.partition("\t")
+        before = _json_at(f"{sha}^", path) or {}
+        if before.get(key, _MISSING) != value:
+            return sha, author, before.get(key, _MISSING)
+    return None
+
+
+def _insert_like(work: dict[str, Any], head: dict[str, Any], restored: dict[str, Any]) -> dict[str, Any]:
+    """`work` s doplnenými kľúčmi — chýbajúci ide za kľúč, za ktorým je v HEAD, nech je diff len ten riadok."""
+    out = dict(work)
+    order = list(head)
+    for key, value in restored.items():
+        if key in out:
+            out[key] = value
+            continue
+        keys = list(out)
+        before = [k for k in order[:order.index(key)] if k in out]
+        at = keys.index(before[-1]) + 1 if before else 0
+        out = dict([*((k, out[k]) for k in keys[:at]), (key, value), *((k, out[k]) for k in keys[at:])])
+    return out
+
+
+def _restore_profiles(changed: list[str], me: str) -> list[str]:
+    """Vráti do upravených profilov, čo z HEAD stratili, a zoznam opráv do výstupu Push.
+
+    Kontrolujú sa hodnoty configu (kľúče bez podtržníka), nie metadáta: nový `_title` či `_comment`
+    je legitímna úprava. Doplní sa kľúč, ktorý v súbore chýba (webapp zapisuje celý config, sama
+    ho nevyhodí — okrem zrušených polí stratégie), a hodnota, ktorá sa rovná stavu spred commitu
+    iného autora, než je `me`; vlastnú zmenu tester vrátiť smie.
+    """
+    prefix = Path(PROFILES_DIR).relative_to(REPO).as_posix() + "/"
+    notes: list[str] = []
+    for line in changed:
+        code, path = line[:2], line[3:].strip().strip('"').replace("\\", "/")
+        if "M" not in code or " -> " in path or not path.startswith(prefix) or not path.endswith(".json"):
+            continue
+        head = _json_at("HEAD", path)
+        file = REPO / path
+        try:
+            text = file.read_text(encoding="utf-8")
+            work = json.loads(text)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if head is None or not isinstance(work, dict):
+            continue
+        retired = _retired_fields(str(work.get("_strategy") or head.get("_strategy") or LEGACY_STRATEGY))
+        restored: dict[str, Any] = {}
+        for key, value in head.items():
+            if key.startswith("_") or key in retired or work.get(key, _MISSING) == value:
+                continue
+            change = _last_change(path, key, value)
+            od = f" (od {change[0][:7]}, {change[1]})" if change else ""
+            if key not in work:
+                restored[key] = value
+                notes.append(f"{path}: {key} chýbal, doplnený {json.dumps(value, ensure_ascii=False)}{od}")
+            elif change and change[1] != me and work[key] == change[2]:
+                restored[key] = value
+                notes.append(f"{path}: {key} vrátený na {json.dumps(work[key], ensure_ascii=False)}, "
+                             f"ponechaný {json.dumps(value, ensure_ascii=False)}{od}")
+        if restored:
+            lines = text.split("\n")
+            indent = len(lines[1]) - len(lines[1].lstrip(" ")) if len(lines) > 1 else None
+            write_json_atomic(file, _insert_like(work, head, restored), indent=indent or None,
+                              newline=text.endswith("\n"))
+    return notes
+
+
+def _restore_note(notes: list[str]) -> str:
+    if not notes:
+        return ""
+    return ("Profily mali starší obsah než GitHub (prepísané z kópie spred aktualizácie klonu) — "
+            "hodnoty z GitHubu sú doplnené späť:\n  " + "\n  ".join(notes) + "\n")
+
+
 def _pull_rebase(br: str) -> list[subprocess.CompletedProcess]:
     """`fetch` + `rebase --autostash origin/<vetva>` namiesto `pull --rebase origin <vetva>`.
 
@@ -240,11 +355,16 @@ def push(message: str | None = None, author: str | None = None) -> dict[str, Any
     if ignorovane:
         return {"ok": False, "output": _ignored_note(ignorovane), **status()}
     changed = _git("status", "--porcelain", "--", *paths).stdout.splitlines() if paths else []
+    oprava = _restore_note(_restore_profiles(changed, author or user_name()))
+
+    def _res(ok: bool, out: str) -> dict[str, Any]:
+        return {"ok": ok, "output": oprava + out, **status()}
+
     if changed:
         a = _git("add", "-A", "--", *paths)
         steps.append(a)
         if a.returncode != 0:
-            return {"ok": False, "output": _out(*steps), **status()}
+            return _res(False, _out(*steps))
         msg = message or _message(changed)
         args = ["commit", "-m", msg, "--", *paths]
         if author:
@@ -252,26 +372,26 @@ def push(message: str | None = None, author: str | None = None) -> dict[str, Any
         c = _git(*args)
         steps.append(c)
         if c.returncode != 0:
-            return {"ok": False, "output": _out(*steps), **status()}
+            return _res(False, _out(*steps))
         # Čo ostalo necommitnuté, by Push ticho nechal doma — to sa hlási, nie prehltne.
         ostalo = _git("status", "--porcelain", "--", *paths).stdout.splitlines()
         if ostalo:
             note = (f"Push zrušený: po commite ostalo necommitnutých {len(ostalo)} zmien v histórii:\n  "
                     + "\n  ".join(ostalo[:10]))
-            return {"ok": False, "output": _out(*steps) + chr(10) + note, **status()}
+            return _res(False, _out(*steps) + chr(10) + note)
     steps += _pull_rebase(br)
     if steps[-1].returncode != 0:
-        return {"ok": False, "output": _out(*steps), **status()}
+        return _res(False, _out(*steps))
     foreign = _foreign_commits(br)
     if foreign:
         note = (f"Push zrušený: vetva {branch()} má oproti origin/{br} commity mimo histórie "
                 f"behov ({', '.join(foreign)}). Kód z testerského klonu do {br} neposielam "
                 "— rieš to pull requestom.")
-        return {"ok": False, "output": _out(*steps) + chr(10) + note, **status()}
+        return _res(False, _out(*steps) + chr(10) + note)
     q = _git("push", "origin", f"HEAD:{br}")
     steps.append(q)
     out = _out(*steps)
     if q.returncode != 0 and _auth_failed(out):
         # commit ostáva lokálne — po prihlásení stačí kliknúť Push znova
         out += chr(10) + AUTH_HELP
-    return {"ok": q.returncode == 0, "output": out, **status()}
+    return _res(q.returncode == 0, out)
