@@ -1175,6 +1175,20 @@ def test_update_request_waits_for_running_job_then_pulls_and_restarts(hub_api, t
     assert state.job(j1["id"])["status"] == "done"
 
 
+def test_failed_pull_forgotten_once_agent_runs_other_code(hub):
+    """Zlyhaný pull nevisí navždy: keď agent hlási inú verziu (pull ručne, reštart), hub ho zabudne."""
+    state, _ = hub
+    state.register("srv", instance="i1", cores=4, slots=1, accept=True, version="aaa111")
+    ziadost = state.request_update("srv")["update_request"]
+    state.heartbeat("srv", {"instance": "i1", "jobs": [], "version": "aaa111",
+                            "pull_done": {"request": ziadost, "ok": False, "version": "aaa111", "output": "conflict"}})
+    assert state.overview()["agents"][0]["pull_result"]["ok"] is False
+    state.heartbeat("srv", {"instance": "i1", "jobs": [], "version": "aaa111"})
+    assert state.overview()["agents"][0]["pull_result"]["ok"] is False   # stále starý kód
+    state.heartbeat("srv", {"instance": "i1", "jobs": [], "version": "bbb222"})
+    assert state.overview()["agents"][0]["pull_result"] is None
+
+
 def test_update_request_refused_for_live_machine(hub):
     state, _ = hub
     state.register("obchod", instance="i9", cores=4, slots=0, accept=False, role="live")

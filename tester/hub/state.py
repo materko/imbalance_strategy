@@ -240,6 +240,12 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             if isinstance(hotovy, dict) and hotovy.get("request") == agent.get("update_request"):
                 agent.pop("update_request", None)
                 agent["pull_result"] = {k: hotovy.get(k) for k in ("ok", "at", "version", "output")}
+            # Zlyhaný pull prestane platiť, keď agent medzitým beží na inom kóde (pull ručne,
+            # reštart z nového klonu) — inak by čip „pull zlyhal" visel navždy.
+            zly = agent.get("pull_result")
+            if (isinstance(zly, dict) and not zly.get("ok") and body.get("version")
+                    and body["version"] != zly.get("version")):
+                agent.pop("pull_result", None)
             agent["load"] = dict(body.get("load") or {})
             if body.get("instance"):
                 agent["instance"] = body["instance"]

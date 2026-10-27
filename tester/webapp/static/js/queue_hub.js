@@ -325,13 +325,16 @@ function hubCodeChip(ver, code) {
 }
 
 /** Tlačidlo „pull + reštart" agenta a stav posledného pokynu (live stroj má vlastné nasadenie). */
-function hubUpdateCell(a) {
+function hubUpdateCell(a, code) {
   if (a.role === "live" || !a.online) return "";
   const p = a.pull_result;
+  // starý hub zlyhaný pull nezabúda — keď je agent na poslednom main, už nič neznamená
+  const aktualny = code && a.version && code.versions[a.version] && !code.versions[a.version].behind;
+  const zlyhal = p && !p.ok && p.version === a.version && !aktualny;
   if (a.update_request) return `<span class="chip warn" title="pokyn ${esc(a.update_request)}: dopočíta, git pull, reštart">aktualizuje sa</span> `;
   const tip = p ? `posledný pull ${p.at || ""}: ${p.ok ? "ok" : "zlyhal"} → ${p.version || "?"}${p.output ? "\n" + p.output : ""}` : "";
   return `<button class="ghost small" data-hub-update="${esc(a.name)}" title="dopočítať, git pull a reštart${tip ? "\n" + esc(tip) : ""}">⟳</button>`
-    + (p && !p.ok ? ` <span class="chip bad" title="${esc(tip)}">pull zlyhal</span>` : "") + " ";
+    + (zlyhal ? ` <span class="chip bad" title="${esc(tip)}">pull zlyhal</span>` : "") + " ";
 }
 
 function anoNie(v) {
@@ -437,7 +440,7 @@ async function renderHub() {
       <td>${esc(a.version || "–")} ${hubCodeChip(a.version, hub.code)}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
       <td>${anoNie(a.accept)}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${anoNie(a.accept_request)}` : ""}</td>
       <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td>
-      <td>${hubUpdateCell(a)}${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");
+      <td>${hubUpdateCell(a, hub.code)}${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");
     for (const b of $$("[data-hub-update]")) b.onclick = async () => {
       const meno = b.dataset.hubUpdate, vsetci = meno === "*";
       if (!confirm(`${vsetci ? "Všetci online počítajúci agenti" : `Agent „${meno}"`} prestane brať nové výpočty, `

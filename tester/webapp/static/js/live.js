@@ -420,9 +420,17 @@ function liveStatusChip(inst) {
   return `${chip}${tester}${diera}`;
 }
 
+/** Poradie tabuľky inštancií: platforma, účet, symbol, TF, stratégia, profil (prázdne na koniec). */
+function liveOrder(a, b) {
+  const txt = (x, y) => (!x - !y) || String(x || "").localeCompare(String(y || ""), "sk", { numeric: true, sensitivity: "base" });
+  return txt(a.platform, b.platform) || txt(a.account, b.account) || txt(a.symbol, b.symbol)
+    || (!a.tf - !b.tf) || ((Number(a.tf) || 0) - (Number(b.tf) || 0))
+    || txt(a.strategy, b.strategy) || txt(a.profile, b.profile) || txt(a.id, b.id);
+}
+
 function renderLiveList() {
   const stare = lv.instances.filter(liveStale);
-  const list = lv.showStale ? lv.instances : lv.instances.filter(i => !liveStale(i));
+  const list = (lv.showStale ? lv.instances : lv.instances.filter(i => !liveStale(i))).slice().sort(liveOrder);
   const st = $("#live-stale");
   st.hidden = !stare.length;
   st.innerHTML = stare.length ? `<a href="#">${lv.showStale ? "skryť" : "ukázať"} ${stare.length} ${stare.length === 1 ? "starú inštanciu" : (stare.length <= 4 ? "staré inštancie" : "starých inštancií")}</a> — bez aktívneho nasadenia a bez udalosti viac než ${LIVE_STALE_DAYS} dni` : "";
