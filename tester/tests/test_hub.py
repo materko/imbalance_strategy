@@ -528,13 +528,14 @@ def test_sparse_rules_pick_code_and_drop_ballast(tmp_path: Path):
 
 
 def test_hub_entrypoint_uses_the_same_rules():
-    """Pravidlá pre hub sú v `sparse.HUB_RULES` aj v entrypointe — nech sa nerozídu."""
+    """Entrypoint berie pravidlá z klonu (`sparse.HUB_RULES`); záložný zoznam pre prvý štart sa s nimi nesmie rozísť."""
     from tradebot.core.paths import REPO
 
     from tester.hub import sparse
 
     text = (REPO / "docker" / "hub-entrypoint.sh").read_text(encoding="utf-8")
-    zo_skriptu = text.split("--stdin <<'PRAVIDLA'")[1].split("PRAVIDLA")[0].strip().splitlines()
+    assert "from tester.hub.sparse import HUB_RULES" in text
+    zo_skriptu = text.split("cat <<'PRAVIDLA'")[1].split("PRAVIDLA")[0].strip().splitlines()
     assert [r.strip() for r in zo_skriptu] == list(sparse.HUB_RULES)
 
 
