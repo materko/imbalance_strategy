@@ -330,6 +330,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             # fáza 2c: z akého commitu je kód každej platformy a ako dopadla posledná aktualizácia
             "installed": {str(k): (str(v) if v else None) for k, v in installed.items()} if isinstance(installed, dict) else {},
             "code_update": dict(code_update) if isinstance(code_update, dict) else None,
+            # odosielanie spoolu (čakajúce bajty, dávka, chyba) — backlog po reštarte platforiem
+            "ship": dict(zive["ship"]) if isinstance(zive.get("ship"), dict) else None,
         }
         if self.deploy is not None:
             ex = zive.get("exec_symbols")
@@ -525,7 +527,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         stav = {p: {"installed": installed.get(p), "state": self.code_state_for(self.version, installed.get(p))}
                 for p in sorted(set(drivers) | set(installed))}
         return {"drivers": drivers, "instances": len(zive.get("instances") or []),
-                "installed": installed, "code_state": stav, "code_update": zive.get("code_update")}
+                "installed": installed, "code_state": stav, "code_update": zive.get("code_update"),
+                "ship": zive.get("ship")}
 
     def _sweep(self) -> None:
         """Agenti bez heartbeatu sú offline a ich výpočty sa vrátia do fronty alebo zlyhajú."""

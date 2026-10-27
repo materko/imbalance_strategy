@@ -133,6 +133,7 @@ class LiveStore:
         now = self.clock()
         accepted = 0
         with self._lock, self._db:
+            stav: dict[str, Any] | None = None   # riadok inštancie počas dávky — do DB raz na konci
             for ev in events:
                 try:
                     validate(ev)
@@ -141,7 +142,7 @@ class LiveStore:
                 if ev["k"] == "hb":
                     if self._ping(agent, instance, session, ev):
                         accepted += 1
-                        self._touch(agent, instance, session, ev, now)
+                        stav = self._touch(stav, agent, instance, session, ev, now)
                     continue
                 cur = self._db.execute(
                     "INSERT OR IGNORE INTO events (agent, instance, session, seq, t, kind, bt, body) "
@@ -153,7 +154,11 @@ class LiveStore:
                 if cur.rowcount != 1:
                     continue
                 accepted += 1
-                self._touch(agent, instance, session, ev, now)
+                stav = self._touch(stav, agent, instance, session, ev, now)
+            if stav is not None and stav["sets"]:
+                sets = stav["sets"]
+                cols = ", ".join(f"{k} = ?" for k in sets)
+                self._db.execute(f"UPDATE instances SET {cols} WHERE id = ?", (*sets.values(), instance))
         return accepted
 
     def _ping(self, agent: str, instance: str, session: str, ev: dict[str, Any]) -> bool:
@@ -170,26 +175,35 @@ class LiveStore:
             (agent, instance, session, ev["t"], json.dumps(ev, separators=(",", ":"), ensure_ascii=False)))
         return True
 
-    def _touch(self, agent: str, instance: str, session: str, ev: dict[str, Any], now: float) -> None:
-        row = self._db.execute("SELECT last_t, last_bar_ms, last_hb FROM instances WHERE id = ?", (instance,)).fetchone()
-        if row is None:
-            self._db.execute(
-                "INSERT INTO instances (id, agent, first_seen, last_seen, last_t, last_session) VALUES (?, ?, ?, ?, ?, ?)",
-                (instance, agent, now, now, ev["t"], session))
-            row = {"last_t": ev["t"], "last_bar_ms": 0, "last_hb": 0}
-        sets: dict[str, Any] = {"last_seen": now, "agent": agent}
-        if ev["t"] >= row["last_t"]:
+    def _touch(self, stav: dict[str, Any] | None, agent: str, instance: str, session: str, ev: dict[str, Any],
+               now: float) -> dict[str, Any]:
+        """Nová udalosť do riadku inštancie — v pamäti (`stav`: posledné hodnoty a čo zapísať); `ingest` ho zapíše
+        jedným UPDATE za dávku. Predtým SELECT + UPDATE pri každej udalosti — po reštarte platforiem desaťtisíce
+        a hub na NAS-e dávku 2000 udalostí nestihol do timeoutu agenta."""
+        if stav is None:
+            row = self._db.execute("SELECT last_t, last_bar_ms, last_hb FROM instances WHERE id = ?", (instance,)).fetchone()
+            if row is None:
+                self._db.execute(
+                    "INSERT INTO instances (id, agent, first_seen, last_seen, last_t, last_session) VALUES (?, ?, ?, ?, ?, ?)",
+                    (instance, agent, now, now, ev["t"], session))
+                row = {"last_t": ev["t"], "last_bar_ms": 0, "last_hb": 0}
+            stav = {"last_t": row["last_t"], "last_bar_ms": int(row["last_bar_ms"] or 0),
+                    "last_hb": int(row["last_hb"] or 0), "sets": {}}
+        sets: dict[str, Any] = stav["sets"]
+        sets.update(last_seen=now, agent=agent)
+        if ev["t"] >= stav["last_t"]:
             sets.update(last_t=ev["t"], last_session=session)
+            stav["last_t"] = ev["t"]
         if ev["k"] == "hello":
             sets.update(platform=ev["platform"], account=ev["account"], symbol=ev["symbol"], tf=int(ev["tf"]),
                         strategy=ev["strategy"], profile=str(ev.get("profile") or ""), host=str(ev.get("host") or ""),
                         hello=json.dumps(ev, separators=(",", ":"), ensure_ascii=False))
-        elif ev["k"] == "hb" and ev["t"] >= int(row["last_hb"] or 0):
+        elif ev["k"] == "hb" and ev["t"] >= stav["last_hb"]:
             sets.update(last_hb=ev["t"], hb=json.dumps(ev, separators=(",", ":"), ensure_ascii=False))
-        elif ev["k"] == "bar" and int(ev["bt"]) >= int(row["last_bar_ms"] or 0):
-            sets["last_bar_ms"] = int(ev["bt"])
-        cols = ", ".join(f"{k} = ?" for k in sets)
-        self._db.execute(f"UPDATE instances SET {cols} WHERE id = ?", (*sets.values(), instance))
+            stav["last_hb"] = ev["t"]
+        elif ev["k"] == "bar" and int(ev["bt"]) >= stav["last_bar_ms"]:
+            sets["last_bar_ms"] = stav["last_bar_ms"] = int(ev["bt"])
+        return stav
 
     # -- čítanie -------------------------------------------------------------- #
 

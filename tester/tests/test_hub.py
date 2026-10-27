@@ -2620,7 +2620,8 @@ def test_agent_posiela_spool_vo_vlastnom_vlakne(hub_api, tmp_path: Path, monkeyp
         assert srv.watch_spool() is True and srv._ship.is_set() and not srv._work.is_set()
         srv.work()                                    # riadiace kroky — spool nechá vláknu odosielania
         assert c.app.state.live.cursor() == 0
-        srv._live.batch_events, srv._live.max_batches = 5, 2
+        srv._live.batch_events = srv._live.batch_now = 5
+        srv._live.max_batches = 2
         assert srv._ship_live() is True               # backlog: kolo vyčerpalo čítania, ďalšie hneď
         assert c.app.state.live.cursor() == 10
         while srv._ship_live():
@@ -2743,7 +2744,7 @@ def test_live_deploy_heartbeat_nesie_pozadovany_stav_a_prijme_applied(tmp_path: 
     ov = c.get("/api/status", headers=H("hlavny")).json()
     assert ov["live_instances"] == 1
     ag = {a["name"]: a for a in c.get("/api/agents", headers=H("hlavny")).json()}
-    assert ag["trade-pc"]["live"] == {"drivers": ["mt5"], "instances": 1, "installed": {}, "code_update": None,
+    assert ag["trade-pc"]["live"] == {"drivers": ["mt5"], "instances": 1, "installed": {}, "code_update": None, "ship": None,
                                       "code_state": {"mt5": {"installed": None, "state": "unknown"}}}   # fáza 2c: bez markera
     assert ag["iny-pc"]["live"] is None
     # cudzí agent nemôže potvrdiť cudzie nasadenie

@@ -795,6 +795,16 @@ function ldCodeChip(cs, wanted) {
   return `<span class="chip" title="platforma nehlási installed.json (kód nainštalovaný ručne pred fázou 2c, alebo nikdy)">kód: neznámy</span>`;
 }
 
+/** Odosielanie spoolu agenta (`live.ship`): čip, keď čaká viac než 1 MB (backlog histórie po reštarte platforiem)
+ *  alebo posledný POST zlyhal; inak nič. */
+function ldShipChip(ship) {
+  if (!ship) return "";
+  const mb = (Number(ship.pending_bytes) || 0) / 1048576;
+  const tip = `spool čaká ${mb.toFixed(1)} MB, dávka ${ship.batch ?? "?"} udalostí${ship.last_ok ? `, posledné odoslanie ${liveAge(ship.last_ok * 1000, Date.now())}` : ""}${ship.last_error ? `\n${ship.last_error}` : ""}`;
+  if (ship.last_error) return ` <span class="chip bad" title="${esc(tip)}">spool: chyba</span>`;
+  return mb >= 1 ? ` <span class="chip warn" title="${esc(tip)}">spool ${mb.toFixed(0)} MB</span>` : "";
+}
+
 /** Posledná aktualizácia kódu, ktorú agent hlásil (`live.code_update`): stav, verzia, dôvod. */
 function ldCodeUpdateCell(a) {
   const cu = a.live && a.live.code_update;
@@ -830,7 +840,7 @@ function renderLiveAgents() {
     const dis = ld.admin && a.online ? "" : "disabled";
     const stav = `<span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.updating ? ' <span class="chip warn" title="agent práve mení kód alebo ťahá commit">mení kód</span>' : ""}${a.needs_restart ? ' <span class="chip warn" title="agent má na disku nový kód a čaká na reštart (headless sa reštartuje sám, webapp reštartuj ručne)">reštart</span>' : ""}`;
     const verzia = a.version ? `<code title="${esc(a.version)}">${esc(String(a.version).slice(0, 7))}</code>${mine && a.version !== mine ? ` <span class="muted small" title="webapp ${esc(mine)}">≠ webapp</span>` : ""}` : "—";
-    return `<tr class="plain" data-agent="${esc(a.name)}"><td><b>${esc(a.name)}</b></td><td>${stav}</td><td>${verzia}</td>
+    return `<tr class="plain" data-agent="${esc(a.name)}"><td><b>${esc(a.name)}</b></td><td>${stav}${ldShipChip(a.live && a.live.ship)}</td><td>${verzia}</td>
       <td>${platformy}</td><td>${ldCodeUpdateCell(a)}</td>
       <td class="ld-actions" style="white-space:nowrap">
         <label class="inline small" title="preskočiť bránu: kód sa vymení, aj keď nasadenia obchodujú alebo majú pozíciu — MT5 terminál sa reštartuje s pozíciou u brokera"><input type="checkbox" class="ld-force"> aj s otvorenými pozíciami</label>

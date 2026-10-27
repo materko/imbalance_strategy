@@ -21,9 +21,15 @@ __all__ = ["LiveShipper", "EVENTS_PATH"]
 log = logging.getLogger(__name__)
 
 
-#: Udalostí na jeden POST. Réžia požiadavky na hub (100–200 ms cez verejnú adresu, občas sekundy) prevýši
-#: spracovanie (hub zapíše 500 udalostí za ~12 ms) — po 500 dobiehala história po reštarte platforiem ~240/s.
+#: Udalostí na jeden POST najviac. Réžia požiadavky na hub (100–200 ms cez verejnú adresu, občas sekundy)
+#: prevýši spracovanie — po 500 dobiehala história po reštarte platforiem ~240/s. Veľkosť sa ale prispôsobuje
+#: (`BATCH_START` → dvojnásobok, kým hub odpovie do `BATCH_FAST` s; polovica, keď je pomalý alebo POST zlyhá):
+#: hub na NAS-e pod záťažou nestihol 2000 udalostí do timeoutu agenta (30 s) a tú istú dávku dostával dookola.
 BATCH_EVENTS = 2000
+BATCH_START = 500
+BATCH_MIN = 50
+BATCH_FAST = 3.0
+BATCH_SLOW = 10.0
 
 
 class LiveShipper:
@@ -35,6 +41,8 @@ class LiveShipper:
         self.http = getattr(self.transport, "http", self.transport)
         self.agent = agent
         self.batch_events = max(1, int(batch_events))
+        #: Aktuálna veľkosť dávky (prispôsobuje sa odozve hubu, strop `batch_events`).
+        self.batch_now = min(BATCH_START, self.batch_events)
         self.max_batches = max(1, int(max_batches))
         self.clock = clock
         self.last_ok: float | None = None
@@ -58,15 +66,22 @@ class LiveShipper:
         sent = accepted = rounds = 0
         error: str | None = None
         for _ in range(self.max_batches):
-            batches = self.reader.read(self.batch_events)
+            batches = self.reader.read(self.batch_now)
             if not batches:
                 break
             rounds += 1
+            zaciatok = time.monotonic()
             try:
                 odpoved = self.transport.push_events(self.agent, self.batches_body(batches))
             except Exception as exc:  # noqa: BLE001 - hub mimo, sieť, 4xx/5xx — kurzor ostáva
                 error = f"{type(exc).__name__}: {exc}"
+                self.batch_now = max(min(BATCH_MIN, self.batch_events), self.batch_now // 2)
                 break
+            trvanie = time.monotonic() - zaciatok
+            if trvanie > BATCH_SLOW:
+                self.batch_now = max(min(BATCH_MIN, self.batch_events), self.batch_now // 2)
+            elif trvanie < BATCH_FAST:
+                self.batch_now = min(self.batch_events, self.batch_now * 2)
             for b in batches:
                 self.reader.commit(b)
             n = sum(len(b.events) for b in batches)
@@ -82,6 +97,6 @@ class LiveShipper:
         return {"sent": sent, "accepted": accepted, "rounds": rounds, "error": error}
 
     def status(self) -> dict[str, Any]:
-        return {"agent": self.agent, "last_ok": self.last_ok, "last_error": self.last_error,
+        return {"agent": self.agent, "last_ok": self.last_ok, "last_error": self.last_error, "batch": self.batch_now,
                 "sent_total": self.sent_total, "accepted_total": self.accepted_total,
                 "reader": self.reader.status()}
