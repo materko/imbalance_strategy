@@ -1,4 +1,5 @@
 {
+ "legacyPineSizing": true,
  "tickDollarValue": 0.5,
  "closeAtSessionEnd": false,
  "enableTrailing": false,
@@ -29,5 +30,5 @@
  "_strategy": "vwaporb",
  "_instrument": "mnq_databento",
  "_timeframe": "5m",
- "_title": "VWAP ORB 8 · RR 2 · PF 1,06 · WR 35 % · 195 obch/rok · MNQ 5m · max DD 1 284 $ · posl. rok PF 3,34"
+ "_title": "VWAP ORB 8 · RR 2 · PF 1,35 · WR 40 % · 195 obch/rok · MNQ 5m · max DD 4 444 $ · posl. rok PF 1,36"
 }

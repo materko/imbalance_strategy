@@ -1,4 +1,5 @@
 {
+ "legacyPineSizing": true,
  "useTimeExit": false,
  "orEndHHMM": 845,
  "vwapAnchor": "RTH 8:30 CT",
@@ -18,5 +19,5 @@
  "_strategy": "vwapadx",
  "_instrument": "mnq_databento",
  "_timeframe": "3m",
- "_title": "VWAP ADX 2 · PF 1,60 · WR 65 % · 172 obch/rok · MNQ 3m · max DD 660 $ · posl. rok PF 1,73"
+ "_title": "VWAP ADX 2 · PF 1,60 · WR 77 % · 172 obch/rok · MNQ 3m · max DD 1 988 $ · posl. rok PF 1,31"
 }
