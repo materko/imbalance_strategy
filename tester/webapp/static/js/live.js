@@ -21,7 +21,7 @@
 const LIVE_FILLS_PAGE = 5000;         // fillov a orderov na jednu požiadavku (server viac nedá)
 const LIVE_POLL_MS = 5000;            // polling, keď stream nejde (starý server, proxy bez SSE)
 const LIVE_SSE_RETRY_MS = 60000;      // po chybe streamu: polling a o minútu stream znova
-const LIVE_DEPLOY_POLL_MS = 15000;    // účty a nasadenia idú z hubu (nie zo zrkadla) — pri streame sa obnovujú takto
+const LIVE_DEPLOY_POLL_MS = 5000;     // účty a nasadenia idú z hubu (nie zo zrkadla) — pri streame sa obnovujú takto; živosť z hubu dopĺňa stream (`ldLive`)
 const LIVE_WINDOW_BARS = 500;         // „aktuálny" detail drží toľko barov (ako snapshot servera)
 const LIVE_FILLS_LAYER = { id: "fills", title: "Vyplnenia u brokera", kinds: [], sw: BLUE, hollow_kinds: [] };
 const LIVE_MODIFY_COLOR = "#ff9800";
@@ -112,6 +112,7 @@ function liveApplyInstances(d) {
   if (d.cursor) lv.cursor = Math.max(lv.cursor, d.cursor);
   $("#live-error").hidden = true;
   liveChip(); renderLiveStatus(); renderLiveList();
+  if (ld.deployments.length && !lv.selected) renderLiveDeploy();   // živosť nasadení zo streamu (`ldLive`), nie až z hubu
   if (lv.selected && lv.snap) { renderLiveCards(lv.snap); $("#live-detail-status").innerHTML = liveStatusChip(lv.snap.instance); }
 }
 
@@ -745,8 +746,19 @@ async function loadLiveDeploy() {
   if ($("#ld-audit-box").open) loadLiveAudit().catch(() => {});
 }
 
+/** Živosť nasadenia: čerstvejší z hubu (`dep.live`, obnova každých `LIVE_DEPLOY_POLL_MS`) a zo zrkadla tejto webapp
+ *  (`lv.instances`, prichádza streamom hneď) — inak stav v Nasadeniach zaostával za zoznamom inštancií nad ním. */
+function ldLive(dep) {
+  const hub = dep.live || {};
+  const inst = lv.instances.find(i => i.id === dep.instance);
+  if (!inst || (Number(inst.last_t) || 0) <= (Number(hub.last_t) || 0)) return hub;
+  const state = liveState(inst);
+  return { ...hub, seen: true, alive: state !== "silent", state, last_t: inst.last_t, last_bar_ms: inst.last_bar_ms,
+           last_hb: inst.last_hb, session: inst.last_session, host: inst.host || hub.host };
+}
+
 function ldStatusChip(dep) {
-  const a = dep.applied, live = dep.live || {};
+  const a = dep.applied, live = ldLive(dep);
   if (!dep.active) {
     return a && a.status === "removed" ? `<span class="chip" title="agent inštanciu z platformy odstránil">odstránené</span>`
       : `<span class="chip warn" title="čaká, kým agent inštanciu z platformy odstráni">odstraňuje sa</span>`;
@@ -908,7 +920,7 @@ function renderLiveDeploy() {
   const accById = Object.fromEntries(ld.accounts.map(a => [a.id, a]));
   const deps = ld.deployments;
   const key = JSON.stringify([ld.admin, ld.accounts, Object.keys(ld.profiles), ld.agents, lv.deploy && lv.deploy.version, lv.deploy && lv.deploy.pushed,
-    deps.map(d => [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, d.live && d.live.alive, d.live && d.live.state, d.live && d.live.last_bar_ms, d.code_state])]);
+    deps.map(d => { const l = ldLive(d); return [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, l.alive, l.state, l.last_bar_ms, l.seen, d.code_state]; })]);
   const instances = new Set(lv.instances.map(i => i.id));
   if (key !== ld.key) {
     ld.key = key;
@@ -917,7 +929,7 @@ function renderLiveDeploy() {
     $("#ld-deployments").parentElement.hidden = !deps.length;
     $("#ld-deployments tbody").innerHTML = deps.map(d => {
       const acc = accById[d.account] || {};
-      const live = d.live || {};
+      const live = ldLive(d);
       const dis = ld.admin && d.active ? "" : "disabled";
       const inst = instances.has(d.instance)
         ? `<a href="#" data-inst="${esc(d.instance)}" title="otvoriť detail inštancie">${esc(d.instance)}</a>`
