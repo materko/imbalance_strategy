@@ -51,7 +51,6 @@ services:
     volumes:
       - ../tester:/app/tester
       - ../data:/app/data
-      - ../data_archive:/app/data_archive:ro
       - ../deploy/freqtrade:/app/deploy/freqtrade
       - ../tradebot:/app/tradebot:ro
       - ../.git:/app/.git:ro
