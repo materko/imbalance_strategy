@@ -25,8 +25,9 @@ import json
 import sqlite3
 import threading
 import time
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 from .schema import SchemaError, validate
 
@@ -111,6 +112,9 @@ def liveness(inst: dict[str, Any], now_ms: float) -> str:
 #: stratiť posledné dávky — zrkadlo ich ukáže ako dieru).
 _PRAGMAS = ("PRAGMA synchronous=NORMAL; PRAGMA cache_size=-131072; PRAGMA mmap_size=268435456; "
             "PRAGMA temp_store=MEMORY;")
+#: Spojenia na čítanie (jedno na vlákno): menšia vlastná cache, stránky zdieľa mmap; zapisovať nesmú.
+_READ_PRAGMAS = ("PRAGMA cache_size=-16384; PRAGMA mmap_size=268435456; PRAGMA temp_store=MEMORY; "
+                 "PRAGMA query_only=1;")
 
 
 class LiveStore:
@@ -120,6 +124,12 @@ class LiveStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         self._db = sqlite3.connect(str(self.path), check_same_thread=False)
+        #: Čítanie ide cez vlastné spojenie každého vlákna, bez zámku zápisu (WAL dovolí čítať popri zápise) —
+        #: inak export pre päť zrkadiel webapp, zoznamy a zápis dávok agenta čakali jeden na druhého a hub
+        #: odpovedal aj na `GET instances` sekundy.
+        self._local = threading.local()
+        self._readers: list[sqlite3.Connection] = []
+        self._readers_lock = threading.Lock()   # nie zámok zápisu — prvé čítanie vlákna nesmie čakať na ingest
         self._db.row_factory = sqlite3.Row
         with self._lock:
             self._db.executescript("PRAGMA journal_mode=WAL;" + _PRAGMAS + _DDL)
@@ -132,6 +142,30 @@ class LiveStore:
     def close(self) -> None:
         with self._lock:
             self._db.close()
+        with self._readers_lock:
+            for db in self._readers:
+                db.close()
+            self._readers.clear()
+
+    @contextmanager
+    def _read(self) -> Iterator[sqlite3.Connection]:
+        """Spojenie na čítanie pre toto vlákno, v jednej čítacej transakcii (konzistentný pohľad naprieč dopytmi)."""
+        db = getattr(self._local, "db", None)
+        if db is None:
+            db = sqlite3.connect(str(self.path), check_same_thread=False)
+            db.row_factory = sqlite3.Row
+            db.executescript(_READ_PRAGMAS)
+            self._local.db = db
+            with self._readers_lock:
+                self._readers.append(db)
+        if db.in_transaction:   # vnorené čítanie (snapshot → instance) ide v tej istej transakcii
+            yield db
+            return
+        db.execute("BEGIN")
+        try:
+            yield db
+        finally:
+            db.execute("COMMIT")
 
     # -- zápis ---------------------------------------------------------------- #
 
@@ -223,13 +257,13 @@ class LiveStore:
         return d
 
     def instances(self) -> list[dict[str, Any]]:
-        with self._lock:
-            rows = self._db.execute("SELECT * FROM instances ORDER BY last_t DESC, id").fetchall()
+        with self._read() as db:
+            rows = db.execute("SELECT * FROM instances ORDER BY last_t DESC, id").fetchall()
         return [self._instance_row(r) for r in rows]
 
     def instance(self, instance: str) -> dict[str, Any] | None:
-        with self._lock:
-            r = self._db.execute("SELECT * FROM instances WHERE id = ?", (instance,)).fetchone()
+        with self._read() as db:
+            r = db.execute("SELECT * FROM instances WHERE id = ?", (instance,)).fetchone()
         return self._instance_row(r) if r is not None else None
 
     @staticmethod
@@ -252,8 +286,8 @@ class LiveStore:
             args.extend(kinds)
         sql += " ORDER BY id LIMIT ?"
         args.append(max(1, int(limit)))
-        with self._lock:
-            rows = self._db.execute(sql, args).fetchall()
+        with self._read() as db:
+            rows = db.execute(sql, args).fetchall()
         return [self._event_row(r) for r in rows]
 
     def gaps(self, instance: str | None = None) -> list[dict[str, Any]]:
@@ -263,13 +297,13 @@ class LiveStore:
         z čísiel poznať nedá. Najprv lacný `GROUP BY` (počet ≠ rozsah), okno `LAG` len nad
         behmi, kde niečo chýba. Ping (`seq = 0`) sa nepočíta."""
         where, args = ("WHERE seq > 0 AND instance = ?", [instance]) if instance else ("WHERE seq > 0", [])
-        with self._lock:
-            podozrive = self._db.execute(
+        with self._read() as db:
+            podozrive = db.execute(
                 f"SELECT instance, session FROM events {where} GROUP BY instance, session "
                 "HAVING COUNT(*) != MAX(seq) - MIN(seq) + 1 OR MIN(seq) > 1", args).fetchall()
             out: list[dict[str, Any]] = []
             for r in podozrive:
-                rows = self._db.execute(
+                rows = db.execute(
                     "SELECT seq, LAG(seq) OVER (ORDER BY seq) AS prev FROM events "
                     "WHERE instance = ? AND session = ? AND seq > 0 ORDER BY seq", (r["instance"], r["session"])).fetchall()
                 for x in rows:
@@ -284,22 +318,22 @@ class LiveStore:
                      limit: int = 5000) -> list[dict[str, Any]]:
         """Udalosti jedného behu so `seq` v `first..last` (vrátane) v tvare `export` — na
         doplnenie diery v zrkadle."""
-        with self._lock:
-            rows = self._db.execute(
+        with self._read() as db:
+            rows = db.execute(
                 "SELECT * FROM events WHERE instance = ? AND session = ? AND seq BETWEEN ? AND ? "
                 "ORDER BY seq LIMIT ?", (instance, session, int(first), int(last), max(1, int(limit)))).fetchall()
         return [self._event_row(r, with_agent=True) for r in rows]
 
     def export(self, after: int = 0, limit: int = 5000) -> list[dict[str, Any]]:
         """Riadky od `after` (rowid) pre zrkadlo — s menom agenta, nech ho zrkadlo zachová."""
-        with self._lock:
-            rows = self._db.execute("SELECT * FROM events WHERE id > ? ORDER BY id LIMIT ?",
+        with self._read() as db:
+            rows = db.execute("SELECT * FROM events WHERE id > ? ORDER BY id LIMIT ?",
                                     (int(after), max(1, int(limit)))).fetchall()
         return [self._event_row(r, with_agent=True) for r in rows]
 
     def cursor(self) -> int:
-        with self._lock:
-            r = self._db.execute("SELECT COALESCE(MAX(id), 0) AS m FROM events").fetchone()
+        with self._read() as db:
+            r = db.execute("SELECT COALESCE(MAX(id), 0) AS m FROM events").fetchone()
         return int(r["m"])
 
     def sessions(self, instance: str) -> list[dict[str, Any]]:
@@ -311,8 +345,8 @@ class LiveStore:
         if inst is None:
             return []
         now_ms = self.clock() * 1000.0
-        with self._lock:
-            rows = self._db.execute(
+        with self._read() as db:
+            rows = db.execute(
                 "SELECT session, MIN(t) AS first_t, MAX(t) AS last_t, MAX(agent) AS agent, "
                 "SUM(kind = 'bar') AS bars, SUM(kind = 'fill') AS fills, SUM(kind = 'order') AS orders, "
                 "MIN(CASE WHEN kind = 'bar' THEN bt END) AS first_bar_ms, "
@@ -322,10 +356,10 @@ class LiveStore:
                 (instance,)).fetchall()
             out: list[dict[str, Any]] = []
             for r in rows:
-                hello = self._db.execute(
+                hello = db.execute(
                     "SELECT body FROM events WHERE instance = ? AND session = ? AND kind = 'hello' ORDER BY id LIMIT 1",
                     (instance, r["session"])).fetchone()
-                bye = self._db.execute(
+                bye = db.execute(
                     "SELECT body FROM events WHERE instance = ? AND session = ? AND kind = 'bye' ORDER BY id DESC LIMIT 1",
                     (instance, r["session"])).fetchone()
                 h = json.loads(hello["body"]) if hello is not None else {}
@@ -367,10 +401,10 @@ class LiveStore:
         # filter na session ide do každého dopytu rovnako; bez session je prázdny
         ses_sql = " AND session = ?" if session else ""
         ses_args: tuple[Any, ...] = (session,) if session else ()
-        with self._lock:
+        with self._read() as db:
             # posledných N **rôznych** barov: ten istý bar sa po reštarte zopakuje (prehratie
             # predhistórie), platí posledný zápis — inak by okno po reštarte bolo kratšie
-            bar_rows = self._db.execute(
+            bar_rows = db.execute(
                 f"SELECT body FROM events WHERE instance = ? AND kind = 'bar'{ses_sql} AND id IN "
                 f"(SELECT MAX(id) FROM events WHERE instance = ? AND kind = 'bar'{ses_sql} GROUP BY bt) "
                 "ORDER BY bt DESC LIMIT ?",
@@ -384,16 +418,17 @@ class LiveStore:
             since = bar_list[0]["bt"] if bar_list else 0
 
             def kind(k: str, time_col: str = "bt") -> list[dict[str, Any]]:
-                rows = self._db.execute(
-                    f"SELECT body FROM events WHERE instance = ? AND kind = ?{ses_sql} AND "
-                    f"COALESCE(json_extract(body, '$.{time_col}'), 0) >= ? ORDER BY id",
-                    (instance, k, *ses_args, since)).fetchall()
+                with self._read() as db:
+                    rows = db.execute(
+                        f"SELECT body FROM events WHERE instance = ? AND kind = ?{ses_sql} AND "
+                        f"COALESCE(json_extract(body, '$.{time_col}'), 0) >= ? ORDER BY id",
+                        (instance, k, *ses_args, since)).fetchall()
                 return [json.loads(r["body"]) for r in rows]
 
-            stat = self._db.execute(
+            stat = db.execute(
                 f"SELECT body FROM events WHERE instance = ? AND kind = 'stat'{ses_sql} ORDER BY id DESC LIMIT 1",
                 (instance, *ses_args)).fetchone()
-            notes = self._db.execute(
+            notes = db.execute(
                 f"SELECT body FROM events WHERE instance = ? AND kind IN ('note', 'bye'){ses_sql} "
                 "ORDER BY id DESC LIMIT 20",
                 (instance, *ses_args)).fetchall()

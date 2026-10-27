@@ -213,7 +213,7 @@ public sealed class LiveSpool : IDisposable {
 | modul | čo |
 |---|---|
 | `schema.py` | konštanty (`SCHEMA`, druhy), `instance_id(...)` (to isté ako C#), `parse_line`, `validate(event)` |
-| `store.py` | `LiveStore(path)` nad sqlite — jeden kód pre hub aj zrkadlo webapp (API nižšie) |
+| `store.py` | `LiveStore(path)` nad sqlite — jeden kód pre hub aj zrkadlo webapp (API nižšie). Zápis (`ingest`) ide jedným spojením pod zámkom, čítanie (`export`, `instances`, `snapshot`, …) vlastným spojením každého vlákna v čítacej transakcii bez zámku (WAL); cache 128 MB, `synchronous=NORMAL` — na NAS-e inak dávka agenta držala zámok sekundy a zrkadlá webapp aj zoznamy na ňu čakali |
 | `spool.py` | `default_roots()` (NT + MT5 + env), `SpoolReader(roots, cursor_path)`: `read(max_events)` → `Batch(instance, session, path, events, end_offset)`, `commit(batch)`; neúplný posledný riadok (bez `\n`) sa nečíta |
 | `shipper.py` | `LiveShipper(reader, http, agent)`: `pump(max_batches)` → `POST /api/live/events` po 500–2000 udalostí (`BATCH_START` → `BATCH_EVENTS`, podľa odozvy hubu), telo zbalené gzipom (~14× menšie; hub ho rozbalí middlewarom `GzipRequests`, starší hub dostane holé), kurzor posunie len po 200; `status()` (aj `batch`). Agent ho volá vo vlastnom vlákne (`hub-agent-ship`), nie medzi nasadeniami a novým kódom |
 | `__main__.py` | `python -m tradebot.live status|tail|ship` na ručné overenie |
