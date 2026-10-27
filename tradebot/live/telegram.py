@@ -398,8 +398,11 @@ def _sym(symbol: Any) -> str:
 
 
 def label(ctx: dict[str, Any]) -> str:
-    """Krátke meno inštancie do správy (HTML): **US100** vwaporbnet · MT5 — účet a TF sú v /status."""
-    return f"<b>{_e(_sym(ctx.get('symbol')))}</b> {_e(ctx.get('strategy') or '?')} · {_e(_platform(ctx.get('platform')))}"
+    """Krátke meno inštancie do správy (HTML): **US100** vwaporbnet · MT5 · 1514925336-FTMO-Demo — účet ako
+    v Live tabe (z `hello`), aby bolo vidno, kde order je (tá istá stratégia beží na viacerých účtoch); TF je v /status."""
+    ucet = f" · {_e(ctx['account'])}" if ctx.get("account") else ""
+    return (f"<b>{_e(_sym(ctx.get('symbol')))}</b> {_e(ctx.get('strategy') or '?')} · "
+            f"{_e(_platform(ctx.get('platform')))}{ucet}")
 
 
 def _side(d: Any) -> str:
@@ -1404,7 +1407,9 @@ class TelegramCommands:
         poz, cak = [], []
         for i in inst:
             ctx = self._ctx(i["instance"])
-            meno = f"<b>{_e(_sym(i.get('symbol')))}</b> {_e(i.get('strategy'))} ({_e(_platform(i.get('platform')))})"
+            ucet = f" · {_e(i['account'])}" if i.get("account") else ""
+            meno = (f"<b>{_e(_sym(i.get('symbol')))}</b> {_e(i.get('strategy'))} "
+                    f"({_e(_platform(i.get('platform')))}{ucet})")
             poz += [f"• {meno}: {_e(_pos_text(x, ctx))}" for x in _positions(ctx)]
             cak += [f"• {meno}: {_e(_side(x.get('dir')))} {_e(x.get('ot') or '')} @ {_e(_num(x.get('e')))} "
                     f"SL {_e(_num(x.get('sl')))} TP {_e(_num(x.get('tp')))} × {_e(_num(x.get('q')))}" for x in _pending(ctx)]

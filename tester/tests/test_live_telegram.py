@@ -89,13 +89,13 @@ def test_format_vstup_vystup_s_pnl_a_filtre():
     assert format_event(ctx, entry(2), CFG) is None                                     # signály vypnuté
     assert "📍 <b>Signál SHORT</b>" in format_event(dict(ctx), entry(2), TelegramConfig(token="t", signals=True))
     vstup = format_event(ctx, fill(3, "in", 29152.0), CFG)
-    assert vstup == "🟢 <b>VSTUP SHORT</b> × 0.14 @ 29152\n<b>US100</b> vwaporbnet · MT5 · SL 29851.44 · TP 28802.33"
+    assert vstup == "🟢 <b>VSTUP SHORT</b> × 0.14 @ 29152\n<b>US100</b> vwaporbnet · MT5 · A · SL 29851.44 · TP 28802.33"
     vystup = format_event(ctx, fill(4, "out", 28802.0, exit_="sltp"), CFG)
-    assert vystup == "✅ <b>VÝSTUP SHORT</b> × 0.14 @ 28802 · <b>+49.00 $</b> (+350.00 b)\n<b>US100</b> vwaporbnet · MT5 (sltp)"
+    assert vystup == "✅ <b>VÝSTUP SHORT</b> × 0.14 @ 28802 · <b>+49.00 $</b> (+350.00 b)\n<b>US100</b> vwaporbnet · MT5 · A (sltp)"
     assert ctx["open"] == {} and "US100.cash" not in vystup        # z bodky by Telegram urobil odkaz
     # note podľa úrovne (escapovaná), štart/koniec/režim tu správu nedávajú (idú súhrnom)
     assert format_event(ctx, {"k": "note", "text": "x", "level": "info"}, CFG) is None
-    assert format_event(ctx, {"k": "note", "text": "a<b", "level": "warn"}, CFG) == "⚠️ <b>US100</b> vwaporbnet · MT5\na&lt;b"
+    assert format_event(ctx, {"k": "note", "text": "a<b", "level": "warn"}, CFG) == "⚠️ <b>US100</b> vwaporbnet · MT5 · A\na&lt;b"
     for ev in ({"k": "control", "mode": "paused"}, {"k": "hello"}, {"k": "bye"}, {"k": "bar"}):
         assert format_event(ctx, ev, CFG) is None
 
@@ -401,6 +401,7 @@ def test_ordery_pozicie_cakajuce_vstupy_a_nerealizovany_zisk(tmp_path: Path):
     cmd = TelegramCommands(bot, CFG, state, ctl, clock=lambda: 1000.0)
     text, _ = cmd.orders_view()
     assert "SHORT 0.14 @ 29152 · SL 29500 TP 28802.33 · teraz 29100 (+52.00 b, +7.28 $)" in text
+    assert "vwaporbnet (MT5 · A):" in text                               # z akého účtu
     assert text.count("@ 29152.03") == 1 and "Limit" in text           # orb:2 čaká, orb:3 zrušený, orb:1 vyplnený
     assert "SHORT 0.14" in cmd.status_view()[0] and "čaká 1" in cmd.status_view()[0]
     # nový beh tej istej inštancie (reštart terminálu) si pozíciu u brokera nechá, zámery nie

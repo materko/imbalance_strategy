@@ -599,15 +599,16 @@ posúva ho až po odoslaní; čo už odišlo, si pamätá podľa `(instance, ses
 takže výpadok Telegramu uprostred dávky nič nezdvojí. **Prvý štart** (bez stavu) prehrá históriu bez
 odosielania — pozná zámery vstupov a otvorené pozície, ale nespamuje starými obchodmi.
 
-Správy sú HTML, meno inštancie je krátke (**US100** vwaporbnet · MT5 — symbol po prvú bodku či medzeru, inak by
-Telegram z `US100.cash` urobil odkaz; účet a TF sú v 📊 Stav).
+Správy sú HTML, meno inštancie je krátke (**US100** vwaporbnet · MT5 · 1514925336-FTMO-Demo — symbol po prvú bodku či medzeru, inak by
+Telegram z `US100.cash` urobil odkaz; za platformou účet z `hello`, lebo tá istá stratégia beží na viacerých
+účtoch; TF je v 📊 Stav).
 
 | udalosť | správa |
 |---|---|
-| `fill` `in` | `🟢 VSTUP SHORT × 0.14 @ 29152.03` / `US100 vwaporbnet · MT5 · SL … · TP …` — SL/TP zo zámeru vstupu |
-| `fill` `out` | `✅/❌ VÝSTUP SHORT × 0.14 @ 28802.33 · +48.96 $ (+349.70 b)` / `US100 vwaporbnet · MT5 (sltp)` — P&L z priemernej ceny vstupu a `instrument.point_value` z `hello` |
+| `fill` `in` | `🟢 VSTUP SHORT × 0.14 @ 29152.03` / `US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo · SL … · TP …` — SL/TP zo zámeru vstupu |
+| `fill` `out` | `✅/❌ VÝSTUP SHORT × 0.14 @ 28802.33 · +48.96 $ (+349.70 b)` / `US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo (sltp)` — P&L z priemernej ceny vstupu a `instrument.point_value` z `hello` |
 | `order` `entry` (`ready`, len so `signals`) | `📍 Signál SHORT Market @ … × …` / `… · SL … · TP …` |
-| `note` od úrovne `notes` | `⚠️ US100 vwaporbnet · MT5` / text (escapovaný) |
+| `note` od úrovne `notes` | `⚠️ US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo` / text (escapovaný) |
 | `hello`, `bye`, `control` (zmena režimu) | **súhrn**: `🔄 Reštart · MT5 · US100: ibsentrynet, vwapadxnet, vwaporbnet`, `▶️ Spustené …`, `⏹ Zastavené … (dôvod)`, `⏸ Pauza …`, `▶️ Obchoduje …`, `⛔ Flatten …` |
 | chyba nasadenia z reconcilera (`applied.error`, raz za 30 s) | `⚠️ Nenabehli: ibsentrynet MNQ NT8, vwapadxnet MNQ NT8, …` / *príčina* — zoskupené podľa príčiny; po náprave `✅ Znova v poriadku: …` |
 
