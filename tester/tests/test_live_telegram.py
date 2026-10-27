@@ -187,6 +187,29 @@ def test_restart_troch_strategii_je_jeden_suhrn_po_utichnuti(tmp_path: Path):
     assert bot.sent[-1][1] == "⏸ <b>Pauza</b> · MT5 · <b>US100</b>: vwaporbnet" and len(bot.sent) == 2
 
 
+def test_restart_s_dlhou_predhistoriou_je_jeden_suhrn(tmp_path: Path):
+    """Po reštarte každá inštancia prehrá tisíce barov; po 500 udalostiach na kolo dobiehali hello jednotlivých
+    inštancií minúty po sebe a súhrn reštartu chodil po kúskoch. Jedno kolo číta, kým je čo."""
+    root = tmp_path / "spool"
+    t = [1000.0]
+    bot = FakeBot()
+    n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), bot, CFG, TelegramState(tmp_path / "s.json"),
+                     clock=lambda: t[0])
+    for k in range(3):
+        write(root, [hello(session=f"a{k}")], session=f"a{k}", inst=f"{INST}{k}")
+    n.pump()
+    for k in range(3):
+        write(root, [{"seq": 2, "t": 2, "k": "bye", "reason": "deinit"}], session=f"a{k}", inst=f"{INST}{k}")
+        historia = [{"seq": s, "t": 3, "k": "bar", "bt": 1_790_000_000_000 + s * 180_000, "o": 1.0, "h": 2.0,
+                     "l": 0.5, "c": 1.5, "v": 1, "ready": False} for s in range(2, 3002)]
+        write(root, [hello(session=f"b{k}"), *historia], session=f"b{k}", inst=f"{INST}{k}")
+    n.pump()                                                # jedno kolo prečíta všetkých 9000+ udalostí
+    assert n.reader.read(1) == []
+    t[0] += 31
+    n.pump()
+    assert [x[1] for x in bot.sent] == ["🔄 <b>Reštart</b> · MT5 · <b>US100</b>: vwaporbnet, vwaporbnet, vwaporbnet"]
+
+
 def test_restart_a_stop_nesu_kto_ich_urobil(tmp_path: Path):
     """Zmena nasadenia (`by`) alebo nový kód na stroj (`requested_by`) z hubu → súhrn štartu a stopu ukáže kto."""
     root = tmp_path / "spool"

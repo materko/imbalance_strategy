@@ -611,7 +611,10 @@ Telegram z `US100.cash` urobil odkaz; účet a TF sú v 📊 Stav).
 | `hello`, `bye`, `control` (zmena režimu) | **súhrn**: `🔄 Reštart · MT5 · US100: ibsentrynet, vwapadxnet, vwaporbnet`, `▶️ Spustené …`, `⏹ Zastavené … (dôvod)`, `⏸ Pauza …`, `▶️ Obchoduje …`, `⛔ Flatten …` |
 | chyba nasadenia z reconcilera (`applied.error`, raz za 30 s) | `⚠️ Nenabehli: ibsentrynet MNQ NT8, vwapadxnet MNQ NT8, …` / *príčina* — zoskupené podľa príčiny; po náprave `✅ Znova v poriadku: …` |
 
-Obchody a varovania jedného kola idú v jednej správe (odsek na udalosť). Štart, koniec a režim sa zbierajú
+Obchody a varovania jedného kola idú v jednej správe (odsek na udalosť). Kolo číta spool po 2000 udalostí
+znova a znova, kým je čo, najviac 2 s (`PUMP_EVENTS`, `PUMP_SECONDS`) — po reštarte platforiem prehratá
+história (~135 000 udalostí na 14 inštancií) inak dobiehala po 500 každé 3 s štvrť hodiny a štarty
+jednotlivých inštancií prišli v niekoľkých súhrnoch. Štart, koniec a režim sa zbierajú
 v stave (`life`) a odídu súhrnom, keď 30 s nič nepribudlo (`LIFE_QUIET`, najneskôr po 3 min) — reštart
 terminálu s tromi EA je tak jeden riadok, nie deväť správ. Reštart = koniec a znova štart v jednej
 zbierke; režim sa hlási len pri zmene (EA ho potvrdzuje pri každom štarte). Kto to spôsobil, stojí pri

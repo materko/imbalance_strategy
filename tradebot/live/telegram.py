@@ -549,6 +549,9 @@ def _chunks(texty: list[str], sep: str = "\n") -> list[str]:
 #: trvá desiatky sekúnd) — alebo najneskôr po `LIFE_MAX` od prvej udalosti.
 LIFE_QUIET = 30.0
 LIFE_MAX = 180.0
+#: Koľko udalostí jedno čítanie spoolu a koľko sekúnd najviac jedno kolo `pump` (číta znova, kým je čo).
+PUMP_EVENTS = 2000
+PUMP_SECONDS = 2.0
 #: Ako sa súhrn číta: druh → (ikona, nadpis); poradie = poradie riadkov.
 LIFE_KINDS = {"restart": ("🔄", "Reštart"), "start": ("▶️", "Spustené"), "stop": ("⏹", "Zastavené"),
               "paused": ("⏸", "Pauza"), "enabled": ("▶️", "Obchoduje"), "flatten": ("⛔", "Flatten")}
@@ -720,15 +723,27 @@ class LiveNotifier:
                 self.last_error = f"chat {chat}: {exc}"
                 log.warning("telegram: správa do chatu %s sa nedá doručiť, preskakujem: %s", chat, exc)
 
-    def pump(self, max_events: int = 500) -> dict[str, Any]:
-        """Jedno kolo: prečítaj, pošli, potvrď. Obchody a varovania z celého kola idú jednou správou (každý
-        obchod vlastný odsek); súhrn životného cyklu, keď dozrel. Chyba Telegramu = kurzor stojí, ďalšie kolo
-        to pošle znova (odoslané `seq` sa nezdvojí)."""
+    def pump(self, max_events: int = PUMP_EVENTS, budget: float = PUMP_SECONDS) -> dict[str, Any]:
+        """Jedno kolo: prečítaj, pošli, potvrď — a znova, kým je v spoole čo čítať, najviac `budget` sekúnd.
+        Po reštarte platforiem prehratá história (desaťtisíce udalostí, správy z nej nie sú) inak dobiehala
+        po 500 udalostiach každé 3 s aj štvrť hodiny a súhrn reštartu chodil po kúskoch. Obchody a varovania
+        z celého kola idú jednou správou (každý obchod vlastný odsek); súhrn životného cyklu, keď dozrel.
+        Chyba Telegramu = kurzor stojí, ďalšie kolo to pošle znova (odoslané `seq` sa nezdvojí)."""
         if not self.state.data.get("initialized"):
             self._skip_history()
             return {"sent": 0, "skipped_history": True}
-        sent = 0
         self.last_error = None   # trvalá chyba jedného chatu v tomto kole ho znova nastaví (`_send_all`)
+        koniec = time.monotonic() + budget
+        sent = 0
+        while True:
+            r = self._pump_once(max_events)
+            sent += r["sent"]
+            if r.get("error") or not r["read"] or time.monotonic() >= koniec:
+                return {"sent": sent, "error": r.get("error")}
+
+    def _pump_once(self, max_events: int) -> dict[str, Any]:
+        """Jedno čítanie spoolu: správy pošle a dávky potvrdí; `read` = koľko udalostí prišlo."""
+        sent = 0
         batches = self.reader.read(max_events)
         # `messages` mení kontext (otvorené vstupy, zbierka životného cyklu) — pri chybe Telegramu sa kurzor
         # neposunie a to isté kolo príde znova, takže zmeny sa musia vrátiť, inak by sa vstup započítal
@@ -749,7 +764,7 @@ class LiveNotifier:
             self.last_error = str(exc)
             self.state.data.update(zaloha)
             self.state.save()
-            return {"sent": sent, "error": self.last_error}
+            return {"sent": sent, "error": self.last_error, "read": 0}
         for batch, riadky in riadky_po:
             if riadky:
                 kluc = f"{batch.instance}|{batch.session}"
@@ -758,7 +773,7 @@ class LiveNotifier:
         if batches or sent:
             self.state.save()
         self.sent_total += sent
-        return {"sent": sent, "error": None}
+        return {"sent": sent, "error": None, "read": sum(len(b.events) for b in batches)}
 
     def report_issues(self, issues: dict[str, tuple[str, str]]) -> int:
         """Chyby nasadení z reconcilera (`dep → (popis, chyba)`) zoskupené podľa príčiny: nová/zmenená chyba =
