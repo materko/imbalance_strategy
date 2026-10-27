@@ -25,11 +25,13 @@ git config --global --add safe.directory "$DIR" 2>/dev/null || true
 # fetch (`--depth 1`), **partial clone** (`--filter=blob:none` — obsah súborov mimo
 # výberu sa ani nesťahuje) a **sparse-checkout** so zoznamom z `tester/hub/sparse.py`
 # (HUB_RULES). Z deviatich gigabajtov ostane pár megabajtov.
-# Pravidlá sa berú z klonu (`HUB_RULES` v tester/hub/sparse.py), aby zmena adresárov v repozitári
-# nepotrebovala nový image; zoznam nižšie platí len pri prvom štarte, keď klon ešte nie je.
-PY_RULES='from tester.hub.sparse import HUB_RULES; print(chr(10).join(HUB_RULES))'
+# Pravidlá sú `HUB_RULES` z tester/hub/sparse.py **v práve stiahnutom commite** (FETCH_HEAD), nie
+# v tom, čo je v klone: musia platiť už pri `reset --hard` naň, inak reset stiahne, čo nový commit
+# pridal mimo starého výberu (27. 10. 2026 po presune pod data/ 1,8 GB). Zmena adresárov tak
+# nepotrebuje nový image; zoznam nižšie platí, len keď sa pravidlá z commitu nedajú prečítať.
+PY_RULES='import sys; from tester.hub.sparse import hub_rules_at; r = hub_rules_at("FETCH_HEAD", sys.argv[1]); print(chr(10).join(r)) if r else sys.exit(1)'
 pravidla() {
-    if [ -f "$DIR/tester/hub/sparse.py" ] && (cd "$DIR" && PYTHONPATH="$DIR" python -c "$PY_RULES") 2>/dev/null; then
+    if (cd /app && PYTHONPATH=/app python -c "$PY_RULES" "$DIR") 2>/dev/null; then
         return 0
     fi
     cat <<'PRAVIDLA'
@@ -48,8 +50,6 @@ PRAVIDLA
 }
 
 nastav_vyber() {
-    git -C "$DIR" config remote.origin.promisor true
-    git -C "$DIR" config remote.origin.partialclonefilter blob:none
     git -C "$DIR" sparse-checkout init --no-cone
     pravidla | git -C "$DIR" sparse-checkout set --no-cone --stdin
 }
@@ -61,9 +61,11 @@ stiahni() {
             && git init -q "$DIR" \
             && git -C "$DIR" remote add origin "$REPO_URL" || return 1
     fi
+    git -C "$DIR" config remote.origin.promisor true
+    git -C "$DIR" config remote.origin.partialclonefilter blob:none
+    git -C "$DIR" fetch -q --depth 1 --filter=blob:none origin "$BRANCH" || return 1
     nastav_vyber || return 1
-    git -C "$DIR" fetch -q --depth 1 --filter=blob:none origin "$BRANCH" \
-        && git -C "$DIR" reset -q --hard FETCH_HEAD
+    git -C "$DIR" reset -q --hard FETCH_HEAD
 }
 
 if ! stiahni; then

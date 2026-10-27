@@ -41,6 +41,7 @@ from tradebot.core.paths import REPO
 
 from . import gitcode
 from . import protocol as P
+from . import sparse
 
 __all__ = ["Updater", "DrainWatch", "DEFAULT_INTERVAL"]
 
@@ -82,6 +83,14 @@ def fast_forward(branch: str = "main") -> dict[str, Any]:
                            timeout=180)
         if f.returncode != 0:
             return {"ok": False, "output": (f.stderr or f.stdout).strip()[-300:]}
+        # Klon s pravidlami hubu dostane pravidlá nového commitu pred resetom — reset so starými by stiahol,
+        # čo nový commit pridal mimo starého výberu (presun adresárov). Iný výber (vývojársky klon) sa nemení.
+        teraz = sparse.show(repo=str(REPO))["rules"]
+        nove = sparse.hub_rules_at("FETCH_HEAD", repo=str(REPO))
+        if teraz and nove and teraz != nove and teraz == sparse.hub_rules_at("HEAD", repo=str(REPO)):
+            a = sparse.apply(nove, filter_blobs=False, repo=str(REPO))
+            if not a["ok"]:
+                return {"ok": False, "output": "sparse-checkout: " + a["output"][-300:]}
         r = subprocess.run(["git", "reset", "--hard", "FETCH_HEAD"], cwd=str(REPO),
                            capture_output=True, text=True, encoding="utf-8", errors="replace",
                            timeout=60)

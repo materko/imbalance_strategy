@@ -528,13 +528,16 @@ def test_sparse_rules_pick_code_and_drop_ballast(tmp_path: Path):
 
 
 def test_hub_entrypoint_uses_the_same_rules():
-    """Entrypoint berie pravidlá z klonu (`sparse.HUB_RULES`); záložný zoznam pre prvý štart sa s nimi nesmie rozísť."""
+    """Entrypoint berie pravidlá zo stiahnutého commitu (`sparse.hub_rules_at`) a nastaví ich pred resetom;
+    záložný zoznam sa s `HUB_RULES` nesmie rozísť."""
     from tradebot.core.paths import REPO
 
     from tester.hub import sparse
 
     text = (REPO / "docker" / "hub-entrypoint.sh").read_text(encoding="utf-8")
-    assert "from tester.hub.sparse import HUB_RULES" in text
+    assert 'hub_rules_at("FETCH_HEAD"' in text
+    stiahni = text.split("stiahni() {")[1]
+    assert stiahni.index("fetch -q") < stiahni.index("nastav_vyber") < stiahni.index("reset -q --hard")
     zo_skriptu = text.split("cat <<'PRAVIDLA'")[1].split("PRAVIDLA")[0].strip().splitlines()
     assert [r.strip() for r in zo_skriptu] == list(sparse.HUB_RULES)
 
@@ -3098,6 +3101,53 @@ def test_fast_forward_odmietne_strom_s_necommitnutymi_zmenami(tmp_path: Path, mo
     out = upd.fast_forward()
     assert not out["ok"] and "kod.py" in out["output"]
     assert (tmp_path / "kod.py").read_text(encoding="utf-8") == "x = 2\n"
+
+
+def test_fast_forward_prepne_pravidla_hubu_pred_resetom(tmp_path: Path, monkeypatch):
+    """Nový commit presunie súbory do adresára, ktorý jeho `HUB_RULES` vyraďujú: klon hubu ich po aktualizácii
+    nesmie mať v strome (pred opravou reset bežal so starými pravidlami a stiahol 1,8 GB sviečok)."""
+    import shutil
+    import subprocess
+
+    from tester.hub import sparse
+    from tester.hub import update as upd
+
+    if not shutil.which("git"):
+        pytest.skip("bez gitu")
+    origin, klon = tmp_path / "origin", tmp_path / "klon"
+
+    def git(cwd, *a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=cwd, check=True,
+                              capture_output=True, text=True)
+
+    def zapis(rel, text):
+        f = origin / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(text, encoding="utf-8")
+
+    origin.mkdir()
+    git(origin, "init", "-q", "-b", "main")
+    zapis("tester/hub/sparse.py", 'HUB_RULES = ("/*", "!/data_archive/**")\n')
+    zapis("data_archive/btc.feather", "x")
+    zapis("kod.py", "x = 1\n")
+    git(origin, "add", "-A")
+    git(origin, "commit", "-qm", "1")
+    git(tmp_path, "clone", "-q", str(origin), str(klon))
+    assert sparse.apply(["/*", "!/data_archive/**"], filter_blobs=False, repo=str(klon))["ok"]
+
+    # presun pod data/ a pravidlá na novú cestu
+    git(origin, "mv", "data_archive", "data")
+    zapis("tester/hub/sparse.py", 'BALLAST = ("/tester/runs/**",)\n'
+          'HUB_RULES = ("/*", "!/data/**", *(f"!{p}" for p in BALLAST))\n')
+    git(origin, "commit", "-qam", "2")
+
+    monkeypatch.setattr(upd, "REPO", klon)
+    out = upd.fast_forward()
+    assert out["ok"], out["output"]
+    assert (klon / "kod.py").exists()
+    assert not (klon / "data").exists()
+    assert sparse.show(repo=str(klon))["rules"] == ["/*", "!/data/**", "!/tester/runs/**"]
+    assert sparse.hub_rules_at("HEAD", repo=str(klon)) == ["/*", "!/data/**", "!/tester/runs/**"]
 
 
 def test_sparse_migrate_legacy_rewrites_old_data_paths(monkeypatch):

@@ -27,12 +27,13 @@ Na stroji, ktorý je aj tester, sa preto `--no-history` nedáva.
 
 from __future__ import annotations
 
+import ast
 import subprocess
 from typing import Any
 
 from tradebot.core.paths import REPO
 
-__all__ = ["build_rules", "apply", "show", "off", "migrate_legacy", "BALLAST", "HUB_RULES"]
+__all__ = ["build_rules", "apply", "show", "off", "migrate_legacy", "hub_rules_at", "BALLAST", "HUB_RULES"]
 
 #: Adresáre, ktoré počítajúci agent nepotrebuje ani raz: cudzia história behov a všetko,
 #: čo sa z nej odvodzuje. Vlastné behy si píše sám (nie sú v gite, kým ich nepushne).
@@ -108,6 +109,30 @@ def migrate_legacy(repo: str | None = None) -> dict[str, Any] | None:
     if not rules or nove == rules:
         return None
     return apply(nove, filter_blobs=False, repo=repo)
+
+
+def hub_rules_at(rev: str = "FETCH_HEAD", repo: str | None = None) -> list[str] | None:
+    """`HUB_RULES` tak, ako sú v commite `rev` — `None`, keď sa nedajú zistiť.
+
+    Klon hubu musí dostať pravidlá nového commitu **pred** `reset --hard` naň: reset so starými stiahne
+    a zapíše všetko, čo nový commit pridal mimo starého výberu (27. 10. 2026 po presune pod `data/` 1,8 GB
+    sviečok). Zo súboru sa vykonajú len priradenia konštánt (MENO = …), modul sa neimportuje — v `rev`
+    môže závisieť od kódu, ktorý v strome ešte nie je.
+    """
+    r = _git("show", f"{rev}:tester/hub/sparse.py", repo=repo)
+    if r.returncode != 0:
+        return None
+    try:
+        konstanty = [n for n in ast.parse(r.stdout).body if isinstance(n, ast.Assign)
+                     and all(isinstance(t, ast.Name) and t.id.isupper() for t in n.targets)]
+        ns: dict[str, Any] = {"__builtins__": {}}
+        exec(compile(ast.Module(body=konstanty, type_ignores=[]), "sparse.py", "exec"), ns)  # noqa: S102
+    except Exception:   # noqa: BLE001 — čokoľvek iné ako čisté konštanty: pravidlá nepoznám
+        return None
+    rules = ns.get("HUB_RULES")
+    if not isinstance(rules, (tuple, list)) or not rules or not all(isinstance(x, str) for x in rules):
+        return None
+    return list(rules)
 
 
 def off(repo: str | None = None) -> dict[str, Any]:

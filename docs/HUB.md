@@ -406,10 +406,13 @@ Kód hubu **nie je z image**, ale z plytkého klonu vo volume `hub_code`, ktorý
 štarte vyrobí `docker/hub-entrypoint.sh` (`git init` + `fetch --depth 1` + `reset`;
 repozitár je verejný, takže bez tokenu). Hub nepočíta, takže ten klon je rovno chudý
 (`--filter=blob:none` + sparse-checkout, pravidlá sú `sparse.HUB_RULES`): bez sviečok,
-bez histórie behov, bez C# jadra — pár megabajtov namiesto deviatich gigabajtov. Bežiaci hub si ho potom drží aktuálny sám
-(`tester/hub/update.py`):
+bez histórie behov, bez C# jadra — pár megabajtov namiesto deviatich gigabajtov. Pravidlá sa berú
+**zo stiahnutého commitu** a nastavia sa pred resetom (`sparse.hub_rules_at("FETCH_HEAD")`), entrypoint
+aj aktualizácia za behu — so starými by reset po presune adresárov stiahol, čo nový commit pridal mimo
+starého výberu (27. 10. 2026 tak do `hub_code` pribudlo 1,8 GB sviečok). Bežiaci hub si klon potom drží
+aktuálny sám (`tester/hub/update.py`):
 
-1. každých `TRADEBOT_HUB_UPDATE` minút (default 5) `git fetch` + `reset --hard` na
+1. každých `TRADEBOT_HUB_UPDATE` minút (default 5) `git fetch`, pravidlá nového commitu a `reset --hard` na
    `origin/${TRADEBOT_HUB_BRANCH:-main}`,
 2. keď sa `HEAD` zmenil, **prestane prideľovať** výpočty z fronty a **počká, kým dobehnú
    bežiace** — žiadny výpočet v stave `assigned`, `running` ani `cancelling` (každých 10 s
