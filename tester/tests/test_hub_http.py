@@ -256,3 +256,23 @@ def test_hub_rozbali_gzip_telo_a_zly_odmietne(tmp_path):
     assert r.status_code == 200 and r.json() == {"accepted": 1}
     r = c.post("/api/live/events", content=b"toto nie je gzip", headers=H)
     assert r.status_code == 400 and "gzip" in r.json()["detail"]
+
+
+def test_hub_stats_prijmu(tmp_path):
+    """`GET /api/live/stats`: koľko dávok a udalostí hub zapísal, čakanie na zámok a trvanie zápisu."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub.server import create_hub_app
+    from tester.hub.state import HubState
+
+    c = TestClient(create_hub_app(HubState(tmp_path / "hub", token="t")))
+    H = {"Authorization": "Bearer t"}
+    hello = {"seq": 1, "t": 1_790_000_000_000, "k": "hello", "schema": 1, "platform": "ninjatrader",
+             "account": "Sim101", "symbol": "MNQ", "tf": 3, "strategy": "ibsnet", "profile": "p", "session": "s1",
+             "host": "PC", "tester": False, "config": {}, "instrument": {}}
+    c.post("/api/live/events", json={"agent": "a", "batches": [{"instance": "i", "session": "s1", "events": [hello]}]},
+           headers=H)
+    st = c.get("/api/live/stats", headers=H).json()
+    assert st["last_60s"]["calls"] == 1 and st["last_60s"]["events"] == 1 and st["last_60s"]["accepted"] == 1
+    assert st["recent"][0]["events"] == 1 and st["recent"][0]["write_s"] >= 0

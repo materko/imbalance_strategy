@@ -21,6 +21,7 @@ nenarastie o 1440 riadkov denne na inštanciu. Stav inštancie nesie `last_hb` (
 
 from __future__ import annotations
 
+import collections
 import json
 import sqlite3
 import threading
@@ -129,7 +130,9 @@ class LiveStore:
         #: odpovedal aj na `GET instances` sekundy.
         self._local = threading.local()
         self._readers: list[sqlite3.Connection] = []
-        self._readers_lock = threading.Lock()   # nie zámok zápisu — prvé čítanie vlákna nesmie čakať na ingest
+        self._readers_lock = threading.Lock()
+        #: (čas, udalostí, nových, čakanie na zámok s, zápis s) posledných dávok — `stats()`
+        self.ingest_stats: collections.deque[tuple[float, int, int, float, float]] = collections.deque(maxlen=2000)   # nie zámok zápisu — prvé čítanie vlákna nesmie čakať na ingest
         self._db.row_factory = sqlite3.Row
         with self._lock:
             self._db.executescript("PRAGMA journal_mode=WAL;" + _PRAGMAS + _DDL)
@@ -171,7 +174,32 @@ class LiveStore:
 
     def ingest(self, agent: str, instance: str, session: str, events: Iterable[dict[str, Any]]) -> int:
         """Uloží udalosti jednej session; vráti, koľko bolo **nových**. Rozbitý riadok (schéma)
-        sa preskočí — jeden zlý riadok nesmie zastaviť celú dávku ani posun kurzora."""
+        sa preskočí — jeden zlý riadok nesmie zastaviť celú dávku ani posun kurzora. Čakanie na zámok
+        a trvanie zápisu idú do `ingest_stats` (diagnostika hubu, `GET /api/live/stats`)."""
+        events = list(events)
+        t0 = time.perf_counter()
+        with self._lock:
+            t1 = time.perf_counter()
+            accepted = self._ingest(agent, instance, session, events)
+            self.ingest_stats.append((time.time(), len(events), accepted, t1 - t0, time.perf_counter() - t1))
+        return accepted
+
+    def stats(self) -> dict[str, Any]:
+        """Zápisy za poslednú minútu a 10 minút: počet dávok, udalostí (nových), čakanie na zámok a zápis (s)."""
+        now = time.time()
+        with self._lock:
+            riadky = list(self.ingest_stats)
+
+        def suhrn(okno: float) -> dict[str, Any]:
+            r = [x for x in riadky if now - x[0] <= okno]
+            return {"calls": len(r), "events": sum(x[1] for x in r), "accepted": sum(x[2] for x in r),
+                    "wait_s": round(sum(x[3] for x in r), 3), "write_s": round(sum(x[4] for x in r), 3),
+                    "max_write_s": round(max((x[4] for x in r), default=0.0), 3)}
+        return {"last_60s": suhrn(60), "last_600s": suhrn(600),
+                "recent": [{"t": round(x[0], 1), "events": x[1], "accepted": x[2], "wait_s": round(x[3], 3),
+                            "write_s": round(x[4], 3)} for x in riadky[-20:]]}
+
+    def _ingest(self, agent: str, instance: str, session: str, events: list[dict[str, Any]]) -> int:
         now = self.clock()
         accepted = 0
         with self._lock, self._db:

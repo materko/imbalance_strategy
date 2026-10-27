@@ -363,19 +363,29 @@ def test_shipper_davka_sa_prisposobi_odozve_hubu(reader, tmp_path: Path, monkeyp
     from tradebot.live import shipper as sh
 
     r, root = reader
-    hub = FakeHub(LiveStore(tmp_path / "hub.sqlite"))
+    hodiny = [0.0]
+    oneskorenia = [1.0, 20.0, 1.0]                          # trvanie POST-u: rýchlo, pomaly, rýchlo
+
+    class Hub(FakeHub):
+        def post(self, path, body=None):
+            if self.down:
+                raise OSError("hub je mimo")
+            hodiny[0] += oneskorenia.pop(0)
+            return super().post(path, body)
+
+    hub = Hub(LiveStore(tmp_path / "hub.sqlite"))
     s = LiveShipper(r, hub, "nt-pc", batch_events=400, max_batches=1)
     assert s.batch_now == 400                               # strop menší než štart
     s.batch_now = 100
     f = spool_file(root, INST, "a1b2c3d4")
     f.write_bytes(line(hello(1, "a1b2c3d4")) + b"".join(line(bar(2 + i, i)) for i in range(1000)))
-    hodiny = iter([0.0, 1.0, 10.0, 30.0, 30.0, 31.0])        # POST: 1 s, 20 s, 1 s
-    monkeypatch.setattr(sh, "time", SimpleNamespace(monotonic=lambda: next(hodiny)))   # len hodiny shippera
+    monkeypatch.setattr(sh, "time", SimpleNamespace(monotonic=lambda: hodiny[0]))   # len hodiny shippera
     assert s.pump()["sent"] == 100 and s.batch_now == 200   # rýchlo → dvojnásobok
     assert s.pump()["sent"] == 200 and s.batch_now == 100   # pomaly → polovica
     assert s.pump()["sent"] == 100 and s.batch_now == 200
+    st = s.status()
+    assert st["post_ms"] == 1000 and st["read_ms"] == 0 and st["files"] == 1
     hub.down = True
-    monkeypatch.setattr(sh, "time", SimpleNamespace(monotonic=lambda: 0.0))
     assert s.pump()["error"] and s.batch_now == 100         # chyba → polovica
     assert LiveShipper(r, hub, "nt-pc").batch_now == sh.BATCH_START
 

@@ -812,7 +812,10 @@ function ldCodeChip(cs, wanted) {
 function ldShipChip(ship) {
   if (!ship) return "";
   const mb = (Number(ship.pending_bytes) || 0) / 1048576;
-  const tip = `spool čaká ${mb.toFixed(1)} MB, dávka ${ship.batch ?? "?"} udalostí${ship.last_ok ? `, posledné odoslanie ${liveAge(ship.last_ok * 1000, Date.now())}` : ""}${ship.last_error ? `\n${ship.last_error}` : ""}`;
+  const ms = v => (v == null ? "?" : `${Math.round(v)} ms`);
+  const tip = `spool čaká ${mb.toFixed(1)} MB, dávka ${ship.batch ?? "?"} udalostí${ship.last_ok ? `, posledné odoslanie ${liveAge(ship.last_ok * 1000, Date.now())}` : ""}`
+    + (ship.post_ms != null ? `\nna dávku: čítanie spoolu ${ms(ship.read_ms)}, POST na hub ${ms(ship.post_ms)}; ${Math.round(ship.rate || 0)} udalostí/s; súborov v spoole ${ship.files ?? "?"}` : "")
+    + (ship.last_error ? `\n${ship.last_error}` : "");
   if (ship.last_error) return ` <span class="chip bad" title="${esc(tip)}">spool: chyba</span>`;
   return mb >= 1 ? ` <span class="chip warn" title="${esc(tip)}">spool ${mb.toFixed(0)} MB</span>` : "";
 }

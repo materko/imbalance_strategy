@@ -566,7 +566,8 @@ class HubAgent:
             try:
                 st = self._live.status()
                 out["ship"] = {"pending_bytes": int((st.get("reader") or {}).get("pending_bytes") or 0),
-                               "batch": st.get("batch"), "last_ok": st.get("last_ok"), "last_error": st.get("last_error")}
+                               "batch": st.get("batch"), "last_ok": st.get("last_ok"), "last_error": st.get("last_error"),
+                               **{k: st.get(k) for k in ("read_ms", "post_ms", "rate", "files")}}
             except Exception as exc:  # noqa: BLE001
                 log.debug("hub agent: stav odosielania spoolu: %s", exc)
         # fáza 2c: z akého commitu je kód platforiem a ako dopadla posledná aktualizácia

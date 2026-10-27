@@ -99,6 +99,8 @@ class SpoolReader:
         self.cursor: dict[str, int] = self._load_cursor()
         #: session podľa prvého `hello` v súbore (cache; keď hello chýba, z názvu súboru)
         self._sessions: dict[str, str] = {}
+        #: Koľko súborov našlo posledné prehľadanie spoolu (diagnostika odosielania).
+        self.files = 0
 
     # -- kurzor ------------------------------------------------------------- #
 
@@ -135,19 +137,34 @@ class SpoolReader:
     def scan(self) -> list[tuple[str, Path]]:
         """`(instance, súbor)` pre všetky `<koreň>/<instance>/*.jsonl`, v poradí (instance, názov)
         — názov začína UTC časom štartu, takže staršie súbory idú prvé."""
-        najdene: list[tuple[str, Path]] = []
+        return [(i, p) for i, p, _ in self.scan_sizes()]
+
+    def scan_sizes(self) -> list[tuple[str, Path, int]]:
+        """Ako `scan`, aj s veľkosťou. `os.scandir` dá typ aj veľkosť z adresára bez ďalšieho volania — predtým
+        `is_dir`/`is_file`/`stat` pri každom súbore v každom čítaní (po dňoch reštartov tisíce súborov, na Windows
+        VM sekundy). Do posledného súboru inštancie ale platforma práve píše a NTFS adresárový záznam veľkosť
+        otvoreného súboru aktualizuje oneskorene — ten jeden sa `stat`-uje naozaj."""
+        najdene: list[tuple[str, Path, int]] = []
         for root in self.roots:
             try:
-                instancie = [p for p in root.iterdir() if p.is_dir()]
+                instancie = [e for e in os.scandir(root) if e.is_dir()]
             except OSError:
                 continue
             for inst in instancie:
                 try:
-                    subory = [p for p in inst.iterdir() if p.is_file() and p.suffix == ".jsonl"]
+                    subory = sorted((e for e in os.scandir(inst.path) if e.name.endswith(".jsonl") and e.is_file()),
+                                    key=lambda e: e.name)
                 except OSError:
                     continue
-                najdene.extend((inst.name, p) for p in subory)
-        return sorted(najdene, key=lambda t: (t[0], t[1].name))
+                for k, e in enumerate(subory):
+                    try:
+                        velkost = os.stat(e.path).st_size if k == len(subory) - 1 else e.stat().st_size
+                    except OSError:
+                        continue
+                    najdene.append((inst.name, Path(e.path), velkost))
+        najdene.sort(key=lambda t: (t[0], t[1].name))
+        self.files = len(najdene)
+        return najdene
 
     def _session_of(self, path: Path, events: list[dict[str, Any]]) -> str:
         kluc = str(path)
@@ -183,15 +200,11 @@ class SpoolReader:
         uprostred súboru). Nič neposúva — na to je `commit`."""
         out: list[Batch] = []
         zvysok = max(1, int(max_events))
-        for instance, path in self.scan():
+        for instance, path, velkost in self.scan_sizes():
             if zvysok <= 0:
                 break
             kluc = str(path)
             start = self.cursor.get(kluc, 0)
-            try:
-                velkost = path.stat().st_size
-            except OSError:
-                continue
             if velkost <= start:
                 continue
             try:
@@ -233,11 +246,7 @@ class SpoolReader:
         """Korene, súbory a koľko bajtov ešte čaká za kurzorom."""
         subory = []
         cakaju = 0
-        for instance, path in self.scan():
-            try:
-                velkost = path.stat().st_size
-            except OSError:
-                continue
+        for instance, path, velkost in self.scan_sizes():
             offset = self.cursor.get(str(path), 0)
             pending = max(0, velkost - offset)
             cakaju += pending

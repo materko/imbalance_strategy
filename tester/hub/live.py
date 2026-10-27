@@ -93,6 +93,11 @@ def add_live_routes(app: FastAPI, state: Any, store: LiveStore, auth: Callable[.
                                session: str | None = None, who: str = Depends(auth)):
         return store.snapshot(instance, bars=bars, session=session or None)
 
+    @app.get("/api/live/stats")
+    def live_stats(who: str = Depends(auth)):
+        """Diagnostika príjmu: koľko dávok a udalostí hub zapísal, koľko čakal na zámok a koľko trval zápis."""
+        return store.stats()
+
     @app.get("/api/live/export")
     def live_export(after: int = Query(0, ge=0), limit: int = Query(5000, ge=1, le=50000),
                     who: str = Depends(auth)):

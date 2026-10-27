@@ -49,6 +49,10 @@ class LiveShipper:
         self.last_error: str | None = None
         self.sent_total = 0
         self.accepted_total = 0
+        #: Diagnostika posledného kola: priemer čítania spoolu a POST-u na dávku (ms), udalostí/s.
+        self.read_ms: float | None = None
+        self.post_ms: float | None = None
+        self.rate: float | None = None
 
     @staticmethod
     def batches_body(batches: list[Batch]) -> list[dict[str, Any]]:
@@ -65,8 +69,12 @@ class LiveShipper:
         Pri chybe skončí bez posunu kurzora — ďalšie kolo to skúsi znova od toho istého miesta."""
         sent = accepted = rounds = 0
         error: str | None = None
+        cit = posl = 0.0
+        kolo = time.monotonic()
         for _ in range(self.max_batches):
+            t0 = time.monotonic()
             batches = self.reader.read(self.batch_now)
+            cit += time.monotonic() - t0
             if not batches:
                 break
             rounds += 1
@@ -78,6 +86,7 @@ class LiveShipper:
                 self.batch_now = max(min(BATCH_MIN, self.batch_events), self.batch_now // 2)
                 break
             trvanie = time.monotonic() - zaciatok
+            posl += trvanie
             if trvanie > BATCH_SLOW:
                 self.batch_now = max(min(BATCH_MIN, self.batch_events), self.batch_now // 2)
             elif trvanie < BATCH_FAST:
@@ -92,11 +101,15 @@ class LiveShipper:
             self.last_error = None
         if error is not None:
             self.last_error = error
+        if rounds:
+            self.read_ms, self.post_ms = cit / rounds * 1000, posl / rounds * 1000
+            self.rate = sent / max(1e-6, time.monotonic() - kolo)
         self.sent_total += sent
         self.accepted_total += accepted
         return {"sent": sent, "accepted": accepted, "rounds": rounds, "error": error}
 
     def status(self) -> dict[str, Any]:
         return {"agent": self.agent, "last_ok": self.last_ok, "last_error": self.last_error, "batch": self.batch_now,
+                "read_ms": self.read_ms, "post_ms": self.post_ms, "rate": self.rate, "files": self.reader.files,
                 "sent_total": self.sent_total, "accepted_total": self.accepted_total,
                 "reader": self.reader.status()}
