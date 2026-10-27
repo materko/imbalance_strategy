@@ -473,3 +473,43 @@ def test_rozbity_spool_sa_otvori_znova(static_host, tmp_path):
     kinds = [e["k"] for e in events]
     assert kinds[0] == "hello" and kinds[1] == "note" and events[1]["level"] == "warn"
     assert any(e["k"] == "note" and e.get("text") == "po obnove" for e in events)
+
+
+def test_restart_nezapise_znova_m1_ani_historicke_bary(static_host, tmp_path):
+    """Po reštarte inštancia prehrá predhistóriu znova — `m1` a historické bary (`ready:false`), ktoré predošlý
+    beh už zapísal, nový beh do spoolu nedá (bary len pri tom istom profile a configu). Zámery, prechody
+    a kresby idú ďalej, `seq` je bez dier. V Testeri sa nič nevynecháva."""
+    from System import Object, String
+    from System.Collections.Generic import Dictionary
+
+    from TradeBot.Core import Bar as CsBar
+    from TradeBot.Core import LiveSpool
+    from tradebot.live import schema
+
+    T0, M = 1_790_000_000_000, 60_000
+
+    def beh(profile, n_bars, n_live, n_min, tester=False):
+        sp = LiveSpool(str(tmp_path), "mt5", "A", "S", 3, "ibsnet", profile, tester, Dictionary[String, Object](), None)
+        assert not sp.Broken, sp.LastError
+        for k in range(n_min):
+            sp.Minute(T0 + k * M, 1.0, 2.0, 0.5, 1.5, 1.0)
+        for k in range(n_bars):
+            sp.Bar(CsBar(T0 + k * 3 * M, 1.0, 2.0, 0.5, 1.5, 1.0), None, k >= n_bars - n_live, 0)
+        sp.Close("deinit")
+        ev = [schema.parse_line(x) for x in open(sp.Path, encoding="utf-8").read().splitlines()]
+        assert [e["seq"] for e in ev] == list(range(1, len(ev) + 1))
+        return sp, [e["bt"] for e in ev if e["k"] == "bar"], [e["bt"] for e in ev if e["k"] == "m1"]
+
+    a, bary, m1 = beh("p", 6, 1, 10)
+    assert len(bary) == 6 and len(m1) == 10 and a.SkippedBars == 0
+    import time as _t
+    _t.sleep(1.1)                                              # iný názov súboru (sekundy v čase štartu)
+    b, bary, m1 = beh("p", 8, 1, 12)                           # prehrá 7 historických + 1 živý, 12 minút
+    assert bary == [T0 + k * 3 * M for k in (6, 7)]            # historický bar 6 (za predošlým) a živý 7
+    assert m1 == [T0 + k * M for k in (10, 11)] and b.SkippedBars == 6 and b.SkippedMinutes == 10
+    _t.sleep(1.1)
+    c, bary, m1 = beh("iny", 8, 1, 12)                         # iný profil: bary všetky, m1 nie
+    assert len(bary) == 8 and m1 == [] and c.SkippedBars == 0 and c.SkippedMinutes == 12
+    _t.sleep(1.1)
+    d, bary, m1 = beh("p", 8, 1, 12, tester=True)              # Tester: všetko
+    assert len(bary) == 8 and len(m1) == 12

@@ -18,6 +18,12 @@
 // `seq` (nesie posledne pridelene cislo), takze `seq` ostava bez dier, hoci hub z pingov drzi len
 // posledny; hned sa flushuje, aby ho agent videl aj mimo realtime.
 //
+// Restart bez duplicit: pri starte si spool precita chvost poslednych suborov instancie (`PreviousFiles`)
+// a zapamata si posledny `m1` a posledny bar grafu predosleho behu (bar len z behu s tym istym profilom
+// a configom - bar nesie aj `mb` enginu). Pri prehravani predhistorie potom tie `m1` a historicke bary
+// (`ready:false`), ktore uz v spoole su, nezapise znova - po restarte 14 instancii to bolo ~70 % udalosti,
+// ktore hub uz mal. Zamery, prechody a kresby z prehravania idu ako doteraz; `seq` ostava bez dier.
+//
 // Jazyk je zamerne C# 5 a len BCL (csc.exe z .NET Frameworku, NinjaTrader, Mono).
 using System;
 using System.Collections.Generic;
@@ -36,6 +42,10 @@ namespace TradeBot.Core
         public const int DefaultHeartbeatMs = 60000;
         /// <summary>Kolko minut 1m barov (`m1`) spred startu adapter posle pri prehravani predhistorie (3 dni).</summary>
         public const int MinuteBackfill = 3 * 1440;
+        /// <summary>Kolko najnovsich suborov instancie sa pri starte pozrie, co predosly beh uz zapisal.</summary>
+        public const int PreviousFiles = 20;
+        /// <summary>Najviac tolko bajtov od konca suboru sa pri tom cita (posledny bar a `m1` su na chvoste).</summary>
+        public const int PreviousTailBytes = 8 * 1024 * 1024;
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -57,6 +67,8 @@ namespace TradeBot.Core
         private bool _closed;
         private long _bars;
         private long _lastBarMs;
+        // co uz zapisal predosly beh instancie (`ReadPrevious`): po tieto casy sa m1 a historicke bary nepisu
+        private long _prevBarMs = long.MinValue, _prevMinuteMs = long.MinValue;
         private string _mode = "";
         // pozicia u brokera (`Broker`) - ide do kazdeho `hb`
         private bool _brokerKnown;
@@ -75,6 +87,9 @@ namespace TradeBot.Core
         public string Path { get { lock (_gate) { return _path; } } }
         public bool Broken { get; private set; }
         public string LastError { get; private set; }
+        /// <summary>Kolko historickych barov a `m1` sa nezapisalo, lebo ich predosly beh uz ma (diagnostika, testy).</summary>
+        public long SkippedBars { get; private set; }
+        public long SkippedMinutes { get; private set; }
 
         /// <summary>Flush po kazdom riadku (nazivo); inak kazdych `FlushEvery` riadkov a pri zatvoreni.</summary>
         public bool Realtime
@@ -160,9 +175,101 @@ namespace TradeBot.Core
             {
                 if (_root.Length == 0) throw new ArgumentException("koren spoolu je prazdny");
                 _dir = System.IO.Path.Combine(_root, Instance);
+                try { ReadPrevious(); }
+                catch (Exception) { _prevBarMs = _prevMinuteMs = long.MinValue; }   // bez toho len pise vsetko ako predtym
                 lock (_gate) { OpenFile(DateTime.UtcNow); Arm(); }
             }
             catch (Exception e) { Break(e); }
+        }
+
+        // ------------------------------------------------------------------ //
+        // Predosly beh
+        // ------------------------------------------------------------------ //
+
+        /// <summary>Posledny `m1` (z hocijakeho behu) a posledny bar grafu (z behu s tym istym profilom a configom)
+        /// v najnovsich `PreviousFiles` suboroch instancie - maximum cez subory: kazdy beh pise predhistoriu
+        /// suvisle od svojho startu, takze vsetko pred tym casom uz v spoole je. V Testeri nic.</summary>
+        private void ReadPrevious()
+        {
+            if (_tester || !Directory.Exists(_dir)) return;
+            string[] files = Directory.GetFiles(_dir, "*.jsonl");
+            Array.Sort(files, StringComparer.Ordinal);
+            string mine = ConfigText(_profile, _config);
+            for (int i = files.Length - 1; i >= 0 && i >= files.Length - PreviousFiles; i--)
+            {
+                Dictionary<string, object> hello = FirstEvent(files[i]);
+                if (hello == null || Json.GetString(hello, "k", "") != "hello" || Json.GetBool(hello, "tester", false)) continue;
+                bool same = ConfigText(Json.GetString(hello, "profile", ""), Json.Get(hello, "config")) == mine;
+                long bar, minute;
+                TailTimes(files[i], out bar, out minute);
+                if (minute > _prevMinuteMs) _prevMinuteMs = minute;
+                if (same && bar > _prevBarMs) _prevBarMs = bar;
+            }
+        }
+
+        private static string ConfigText(string profile, object config)
+        {
+            JsonWriter w = new JsonWriter();
+            w.BeginArray();
+            w.Value(profile ?? "");
+            WriteAny(w, config ?? new Dictionary<string, object>());
+            w.EndArray();
+            return w.ToString();
+        }
+
+        private static Dictionary<string, object> FirstEvent(string path)
+        {
+            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            using (StreamReader r = new StreamReader(fs, new UTF8Encoding(false)))
+            {
+                string line = r.ReadLine();
+                return string.IsNullOrEmpty(line) ? null : Json.ParseObject(line);
+            }
+        }
+
+        /// <summary>`bt` posledneho baru grafu a posledneho `m1` v subore (long.MinValue = nie je) - cita od konca
+        /// po blokoch, najviac `PreviousTailBytes`; neuplny posledny riadok (zapisovac uprostred) sa preskoci.</summary>
+        private static void TailTimes(string path, out long bar, out long minute)
+        {
+            bar = minute = long.MinValue;
+            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            {
+                long end = fs.Length, start = end, limit = Math.Max(0, end - PreviousTailBytes);
+                string carry = "";
+                const int block = 256 * 1024;
+                while (start > limit && (bar == long.MinValue || minute == long.MinValue))
+                {
+                    long from = Math.Max(limit, start - block);
+                    byte[] buf = new byte[start - from];
+                    fs.Seek(from, SeekOrigin.Begin);
+                    int n = 0;
+                    while (n < buf.Length) { int k = fs.Read(buf, n, buf.Length - n); if (k <= 0) break; n += k; }
+                    string text = Encoding.UTF8.GetString(buf, 0, n) + carry;
+                    string[] lines = text.Split('\n');
+                    // prvy kus je koniec riadku, ktory zacal v skorsom bloku - spracuje sa s nim v dalsom kole
+                    int first = from > limit ? 1 : 0;
+                    carry = from > limit ? lines[0] : "";
+                    // posledny kus bez `\n` na konci suboru = zapisovac je uprostred riadku
+                    int last = lines.Length - 1;
+                    if (start == end) last--;
+                    for (int j = last; j >= first; j--)
+                    {
+                        string line = lines[j];
+                        bool isBar = bar == long.MinValue && line.IndexOf("\"k\":\"bar\"", StringComparison.Ordinal) >= 0;
+                        bool isMin = minute == long.MinValue && line.IndexOf("\"k\":\"m1\"", StringComparison.Ordinal) >= 0;
+                        if (!isBar && !isMin) continue;
+                        Dictionary<string, object> ev;
+                        try { ev = Json.ParseObject(line); }
+                        catch (Exception) { continue; }
+                        object bt = Json.Get(ev, "bt");
+                        if (bt == null) continue;
+                        long t = (long)Json.ToDouble(bt);
+                        if (isBar) bar = t; else minute = t;
+                        if (bar != long.MinValue && minute != long.MinValue) break;
+                    }
+                    start = from;
+                }
+            }
         }
 
         // ------------------------------------------------------------------ //
@@ -325,11 +432,17 @@ namespace TradeBot.Core
                     if (Off() || bar == null) return;
                     _bars++;
                     _lastBarMs = bar.Time;
-                    JsonWriter w = Begin("bar");
-                    w.Key("bt").Value(bar.Time).Key("o").Value(bar.Open).Key("h").Value(bar.High).Key("l").Value(bar.Low);
-                    w.Key("c").Value(bar.Close).Key("v").Value(bar.Volume).Key("ready").Value(ready).Key("mb").Value(marketBias);
-                    if (output != null && output.CloseSession) w.Key("cs").Value(true);
-                    End(w);
+                    JsonWriter w;
+                    if (!ready && bar.Time <= _prevBarMs)
+                        SkippedBars++;   // predosly beh s tym istym profilom ho uz zapisal
+                    else
+                    {
+                        w = Begin("bar");
+                        w.Key("bt").Value(bar.Time).Key("o").Value(bar.Open).Key("h").Value(bar.High).Key("l").Value(bar.Low);
+                        w.Key("c").Value(bar.Close).Key("v").Value(bar.Volume).Key("ready").Value(ready).Key("mb").Value(marketBias);
+                        if (output != null && output.CloseSession) w.Key("cs").Value(true);
+                        End(w);
+                    }
                     if (output == null) return;
                     foreach (OrderIntent i in output.Orders)
                     {
@@ -367,6 +480,7 @@ namespace TradeBot.Core
                 lock (_gate)
                 {
                     if (Off()) return;
+                    if (barMs <= _prevMinuteMs) { SkippedMinutes++; return; }   // predosly beh ho uz zapisal
                     JsonWriter w = Begin("m1");
                     w.Key("bt").Value(barMs).Key("o").Value(open).Key("h").Value(high).Key("l").Value(low);
                     w.Key("c").Value(close).Key("v").Value(volume);
