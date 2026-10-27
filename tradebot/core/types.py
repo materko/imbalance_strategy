@@ -15,7 +15,6 @@ from typing import ClassVar, Literal
 
 __all__ = [
     "Bar",
-    "HTFWindow",
     "Direction",
     "TradeDirection",
     "SnapMode",

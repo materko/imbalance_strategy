@@ -213,6 +213,13 @@ function archetypesHtml(list, aktivny) {
         prečo to vyšlo. Podrobne: docs/TYPY_STRATEGII.md</p></details>`;
 }
 
+/** Bunka s edge (break-even mínus poplatok): zelená nad nulou, červená pod. */
+function edgeCell(w) {
+  if (!w || w.edge === null || w.edge === undefined) return "<td>—</td>";
+  const znak = w.edge > 0 ? "+" : "";
+  return `<td class="${w.edge > 0 ? "pos" : "neg"}" title="${w.trades} obchodov · beh ${esc(w.run_id)}">${znak}${fmt(w.edge, 4)}</td>`;
+}
+
 function renderAnalytics(r) {
   // Okná behov: bez nich nie je vidieť, že "40 behov" je päť rokov, alebo štyridsaťkrát
   // ten istý rok s inými parametrami.
