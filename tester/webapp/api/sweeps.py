@@ -15,7 +15,7 @@ from tradebot.strategies import STRATEGIES, get_spec
 from ..batches import strip_tag
 from ..runner import check_market_rules
 from ..store import strategy_of
-from .common import SECONDS_PER_YEAR, clean_user, goal_note, fmt_value
+from .common import SECONDS_PER_YEAR, clean_user, fmt_value
 from .context import AppContext
 from .models import SweepRequest, ReplayRequest
 from .settings import run_settings

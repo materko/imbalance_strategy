@@ -26,8 +26,7 @@ from ..orb.config import (CONSTRAINTS as ORB_CONSTRAINTS, ENUM_FIELDS as ORB_ENU
 from ..vwapdrift.config import VwapAnchor, VwapPeriod
 from tradebot.core.entry_confirm import ENTRY_CONFIRM_CONSTRAINTS, ENTRY_CONFIRM_ENUMS
 from tradebot.core.entry_filter import ENTRY_FILTER_CONSTRAINTS, ENTRY_FILTER_ENUMS
-from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
-                                          EntryOrderFields)
+from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS)
 
 __all__ = ["VwapOrbConfig", "VwapRule", "ExitMode", "EntryTiming", "CONFIG_DIR"]
 

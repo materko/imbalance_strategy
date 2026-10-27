@@ -32,6 +32,21 @@ include = ["tradebot*"]
 [tool.setuptools.package-data]
 tradebot = ["strategies/*/configs/*.json", "strategies/*/docs/sources/*.pine", "core/*.json"]
 
+[tool.ruff]
+# Behy, archívy a dáta nie sú kód; worktrees v .claude/ sú kópie repozitára
+extend-exclude = ["tester/runs", "tester/archive", "data_archive", "data_live", ".claude"]
+
+[tool.ruff.lint]
+# Chyby (pyflakes + syntax), nie štýl: kontroluje to CI (.github/workflows/lint.yml)
+select = ["E4", "E7", "E9", "F"]
+# import až po úprave sys.path / kontrole prostredia, `a; b` v krátkych riadkoch, mená l/O
+# vo vzorcoch z Pine a lambda priradená do mena sú tu zámerne
+ignore = ["E402", "E702", "E741", "E731"]
+
+[tool.ruff.lint.per-file-ignores]
+# Signály MultiCharts: `from PowerLanguage import *` je predpísaný vzor študie
+"deploy/multicharts/*.py" = ["F403", "F405"]
+
 [tool.pytest.ini_options]
 # tradebot/tests = produkt, tester/tests = nastroje Testera a porovnavacie (golden) testy
 testpaths = ["tradebot/tests", "tester/tests"]

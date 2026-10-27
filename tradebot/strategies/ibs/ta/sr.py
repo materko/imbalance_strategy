@@ -20,7 +20,7 @@ vzťahu k aktuálnej cene — prerazená resistance sa často stane novým suppo
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from tradebot.core.drawing import (
     PAL,

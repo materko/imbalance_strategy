@@ -10,7 +10,6 @@ sú v `tester/tests/test_timeframes.py` a `tradebot/tests/test_freqtrade_timefra
 
 from __future__ import annotations
 
-from pathlib import Path
 
 import pytest
 

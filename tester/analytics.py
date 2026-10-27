@@ -80,7 +80,6 @@ __all__ = [
 
 @lru_cache(maxsize=None)
 def _pine_defaults(strategy: str) -> dict[str, Any]:
-    from tradebot.strategies import get_spec
 
     try:
         return get_spec(strategy).config_cls().to_dict()

@@ -517,5 +517,5 @@ def _verdict(out: dict[str, Any]) -> tuple[str, str]:
         f"NEJASNE: na premiešanom trhu je break-even kladný v {kladnych} z {n} okien "
         f"(medián {synt:+.4f} %"
         + (f" oproti {realny:+.4f} % na skutočnom" if realny is not None else "") + "). "
-        f"Nie je to dosť na obvinenie enginu ani na jeho očistenie — dobehni viac okien "
-        f"alebo viac obchodov." + doplnok)
+        "Nie je to dosť na obvinenie enginu ani na jeho očistenie — dobehni viac okien "
+        "alebo viac obchodov." + doplnok)

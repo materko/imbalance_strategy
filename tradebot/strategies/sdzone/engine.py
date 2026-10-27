@@ -29,7 +29,7 @@ Engine je čistý: žiadne I/O, žiadny globálny stav, všetko je v ``self``.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -42,7 +42,7 @@ from tradebot.core.risk import TradePlan, TrailingPlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 
 from .config import EntryMode, SDZoneConfig, SlMode, TpMode, ZoneMode
-from .drawing import SD_BASE, SD_DEMAND, SD_ENTRY, SD_PATTERN, SD_SUPPLY
+from .drawing import SD_DEMAND, SD_ENTRY, SD_PATTERN, SD_SUPPLY
 
 __all__ = ["SDZoneEngine"]
 

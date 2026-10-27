@@ -2127,7 +2127,7 @@ def test_headless_agent_restarts_when_code_on_disk_changed(hub_api, tmp_path: Pa
     srv.restart_on_pull = True
     srv.tick()
     client = HubClient(http, "lap")
-    job = client.submit("backtest", _payload(), version="aaa111")
+    client.submit("backtest", _payload(), version="aaa111")
     srv.tick()
     assert len(runner.jobs) == 1 and not srv.needs_restart
     run_id = next(iter(runner.jobs))
@@ -2792,7 +2792,7 @@ def test_live_deploy_ozije_z_heartbeatu_kym_udalosti_dobiehaju(tmp_path: Path):
     H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
     c.post("/api/live/accounts", json={"agent": "trade-pc", "platform": "ninjatrader", "label": "Sim", "login": "Sim101"},
            headers=H("hlavny"))
-    d = c.post("/api/live/deployments", json={"account": "sim", "strategy": "ibsnet", "symbol": "MNQ 12-26", "tf": 3, "profile": "p"},
+    c.post("/api/live/deployments", json={"account": "sim", "strategy": "ibsnet", "symbol": "MNQ 12-26", "tf": 3, "profile": "p"},
                headers=H("hlavny")).json()
     t_bar = _live_bar(2, 0)
     c.post("/api/live/events", json={"agent": "trade-pc", "batches": [{"instance": LIVE_INST, "session": "a1b2c3d4",

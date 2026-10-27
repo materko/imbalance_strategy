@@ -26,6 +26,7 @@ miesto, kde tú asymetriu treba vedieť.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from tradebot.core.paths import FREQTRADE_DIR, TESTER_DATA
 from tradebot.core.types import InstrumentSpec

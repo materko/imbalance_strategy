@@ -127,7 +127,6 @@ def _finish(out: Split, skupiny: dict[str, list[dict[str, Any]]],
             vsetky: list[dict[str, Any]], min_bucket: int) -> Split | None:
     """Doplní skupinám čísla vrátane toho, čo by sa stalo bez nich."""
     celok = break_even_pct(vsetky)
-    zvysne = {id(t) for kus in skupiny.values() if len(kus) >= min_bucket for t in kus}
     for label, kus in skupiny.items():
         if len(kus) < min_bucket:
             continue

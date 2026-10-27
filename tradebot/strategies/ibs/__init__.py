@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
-from ..base import REPO, StrategySpec
+from ..base import StrategySpec
 #: Zdrojové skripty stratégie (Pine) — pri nej, aby bol balík sebestačný.
 SOURCES = Path(__file__).resolve().parent / "docs" / "sources"
 

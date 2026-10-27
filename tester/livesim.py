@@ -118,7 +118,6 @@ def _layer(sources: list[tuple[str, Any]], step: str, full: int = 0) -> tuple[li
     Zdroj s menom končiacim `!` berie len **úplné** košíky (`full` minút) — neúplný živý 1m košík (2 z 5
     minút, výpadok spojenia) nesmie prebiť úplný bar grafu (audit N-DATA-3). Rovnaký zdroj bez `!` ďalej
     v poradí berie, čo ostalo."""
-    import pandas as pd
 
     taken: set = set()
     parts, counts = [], {}

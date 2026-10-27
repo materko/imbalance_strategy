@@ -22,7 +22,6 @@ from freqtrade.enums import CandleType, RunMode
 
 from tradebot.adapters.freqtrade.runner import EngineRunner
 from tradebot.core.candles import resample_ohlcv, timeframe_minutes, timeframe_name
-from tradebot.strategies import get_spec
 from tradebot.tests.test_warmup import HOUR, MIN, T_START, _ibs_strategy, _m1, _state
 
 PAIR = "BTC/USDT:USDT"

@@ -1594,7 +1594,6 @@ def test_diversify_live_vrati_obchody_zo_zrkadla_webapp(tmp_path: Path):
 def test_vypnutie_webapp_zabije_beh_a_zapise_ho(tmp_path):
     """Audit N-WEB-1: Ctrl+C / reštart počas behu — Freqtrade podproces nesmie ostať sirotou a beh musí byť
     v histórii ako failed s dôvodom, nie zmiznúť."""
-    import subprocess
     import sys
     import time as _t
 

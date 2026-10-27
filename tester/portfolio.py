@@ -50,8 +50,8 @@ Dve zjednodušenia, ktoré treba poznať:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Sequence
 
 from tradebot.core.money import row_money, row_point_value

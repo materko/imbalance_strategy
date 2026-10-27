@@ -37,6 +37,9 @@ Bez obmedzení. Platia len konvencie repozitára:
 - Zmeny jadra musia prejsť `pytest` vrátane golden testov proti TradingView
   (`tester/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default zhodný
   s Pine a sú v `PORT_ONLY_FIELDS` configu stratégie (`tradebot/strategies/<key>/config.py`).
+- Pred pushom musí prejsť lint, ktorý na GitHube púšťa `.github/workflows/lint.yml`: `ruff check .`
+  (pravidlá v `pyproject.toml`), ESLint skriptov webapp (`tester/webapp/eslint.config.mjs`, príkaz
+  v jeho hlavičke) a preklad C# jadra (`python -m tradebot.adapters.csharp.build --force`).
 - Nová stratégia = balík `tradebot/strategies/<key>/` + riadok v registry; celý postup,
   kontrakt enginu a definícia hotového sú v [docs/STRATEGIE.md](docs/STRATEGIE.md).
   Popisy parametrov pre formulár sú v `params.py` pri stratégii; **Pine zdroj sa robí

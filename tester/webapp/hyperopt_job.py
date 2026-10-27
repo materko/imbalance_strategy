@@ -9,12 +9,16 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from tradebot.core.paths import REPO, FREQTRADE_USER_DIR as USER_DIR
 from tradebot.core.types import INSTRUMENTS
 from tradebot.strategies import get_spec
 
 from .. import engines
+
+if TYPE_CHECKING:  # runner importuje tento mixin, za behu by to bol cyklus
+    from .runner import Job
 
 
 class HyperoptJobMixin:

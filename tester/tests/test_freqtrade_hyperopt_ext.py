@@ -7,9 +7,8 @@ webapp. Posledný test pustí skutočný Freqtrade (krátke okná), aby bolo ist
 
 from __future__ import annotations
 
-import json
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pytest
 

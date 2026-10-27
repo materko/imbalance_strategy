@@ -104,7 +104,7 @@ class _DrawEng(_Eng):
 
 
 def test_nevyplnena_limitka_zmaze_kresbu_a_strategia_sa_to_dozvie():
-    from tradebot.core.drawing import DrawBox, DrawDelete, DrawRegistry
+    from tradebot.core.drawing import DrawBox, DrawRegistry
     eng = _DrawEng()
     w = EntryOrderEngine(eng, _Cfg())
     ctx = MarketContext(in_trade_window=True)

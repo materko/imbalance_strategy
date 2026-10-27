@@ -13,7 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from tradebot.core.clock import ClockState, SessionClock
-from tradebot.core.drawing import DrawBox, DrawCommand, DrawKind
+from tradebot.core.drawing import DrawBox, DrawKind
 from tradebot.core.drawing import Palette as PAL
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory

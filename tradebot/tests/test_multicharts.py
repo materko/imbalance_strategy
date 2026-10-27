@@ -155,9 +155,8 @@ def test_trailing_extrem_nie_je_nan(runner):
     """NaN sentinel by pri odmaskovaných FPU výnimkách v MultiCharts zhodil CalcBar."""
     import math
 
-    from tradebot.core.risk import TrailingPlan
 
-    plan = _live_order(runner)
+    _live_order(runner)
     assert runner._open_extreme is None
     runner.on_bar(bar(T0 + MIN3), position_size=2.0)
     assert runner._open_extreme is None or not math.isnan(runner._open_extreme)

@@ -11,7 +11,7 @@ import pytest
 
 from tradebot.core import Bar, MarketContext, OrderAction
 from tradebot.core.types import INSTRUMENTS, Direction, OrderType
-from tradebot.strategies.trendlines import EntryMode, TrendlineConfig, TrendlineEngine
+from tradebot.strategies.trendlines import TrendlineConfig, TrendlineEngine
 
 #: utorok 2025-09-02 14:00 UTC — pracovný deň, `weekdaysOnly` nič neodfiltruje
 T0 = 1_756_821_600_000

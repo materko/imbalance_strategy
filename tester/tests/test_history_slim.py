@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 
 from tradebot.core import IBSConfig
-from tester.webapp.batches import BatchStore, batch_tag
+from tester.webapp.batches import batch_tag
 from tester.webapp.store import CHART_FILE, PLAN_FILE, RunStore
 
 T0 = 1_736_121_600_000  # 2025-01-06 00:00 UTC

@@ -34,7 +34,6 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .drivers.base import Account, Driver
-from .schema import CONTROL_MODES
 
 __all__ = ["CodeUpdater", "position_from_spool", "gate_reasons", "SAFE_MODES"]
 

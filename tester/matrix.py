@@ -28,10 +28,10 @@ ale závery z nej nepatria nikam.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Iterable, Sequence
 
-from tradebot.core.types import INSTRUMENTS, SizeSpec
+from tradebot.core.types import INSTRUMENTS
 from tradebot.strategies import get_spec
 
 from . import sweep as sweep_mod

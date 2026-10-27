@@ -7,9 +7,8 @@ nedopĺňa nič: mlčanie kalendára sa nesmie čítať ako pokojný deň.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date
 
-import pytest
 
 from tester import calendar as cal
 

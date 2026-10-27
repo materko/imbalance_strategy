@@ -210,7 +210,7 @@ def compute(store: Any, run_id: str, *, log: Callable[[str], None] = print,
         raise ValueError("hyperopt nemá graf — kresby majú jeho overovacie behy")
     strategy = strategy_of(rec)
     inst_key = nast.get("instrument") or instrument_for_pair(nast["pair"])
-    inst = INSTRUMENTS[inst_key]
+    INSTRUMENTS[inst_key]  # neznámy nástroj = KeyError skôr, než sa začne počítať
     engine = nast.get("engine") or engines.FREQTRADE
     params = effective_params(rec.get("params") or {}, strategy)
     stored = store.trades(run_id)

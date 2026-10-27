@@ -268,7 +268,6 @@ class AIMixin(IStrategy):
         Bez zapnutej AI vrstvy alebo bez predikcie sa nemení nič — parita s Pine tak
         ostáva presne tam, kde bola.
         """
-        import numpy as np
 
         nastavenie = settings_of(getattr(self, "config", {}))
         prah = float(nastavenie.get("min_probability") or 0.0)

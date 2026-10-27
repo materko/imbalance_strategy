@@ -273,7 +273,7 @@ def test_update_meni_len_mode_profil_a_active(store: DeployStore):
 
 def test_heslo_dostane_kazdy_stroj_s_nasadenim_raz_za_verziu(store: DeployStore):
     a = store.upsert_account({"platform": "mt5", "label": "IC", "login": "1", "server": "S"}, by="r", password="tajne")
-    b = store.upsert_account({"platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r")
+    store.upsert_account({"platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r")
     d = store.create_deployment({"account": a["id"], "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
                                  "tf": 3, "profile": "p1"}, by="r")
     assert store.account(a["id"])["secret_waiting"] == ["trade-pc"]

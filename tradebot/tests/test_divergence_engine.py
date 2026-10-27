@@ -12,8 +12,8 @@ import pytest
 
 from tradebot.adapters.freqtrade import EngineRunner
 from tradebot.core import BTCUSDT_BINANCE, Bar, DrawKind, MarketContext, OrderAction
-from tradebot.core.types import Direction, OrderType, TradeDirection
-from tradebot.strategies.divergence import DivergenceConfig, DivergenceEngine, EntryMode
+from tradebot.core.types import Direction, OrderType
+from tradebot.strategies.divergence import DivergenceConfig, DivergenceEngine
 from tradebot.strategies.divergence.divergence import DivHits, DivergenceDetector
 from tradebot.strategies.divergence.htf import TFAggregator
 from tradebot.strategies.divergence.ta import HeikinAshi, Pivots, Supertrend

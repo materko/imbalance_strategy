@@ -13,7 +13,7 @@ import pytest
 from tradebot.core import load_profile
 from tradebot.core.types import INSTRUMENTS
 from tester import engines
-from tester.hyperopt import build_plan, overrides, verdict
+from tester.hyperopt import build_plan, verdict
 from tester.native import NativeRunner, summary_of
 from tester.native_hyperopt import (UNUSABLE, config_json, loss_of, run_search, verify, walk_forward)
 

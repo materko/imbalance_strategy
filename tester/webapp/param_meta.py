@@ -22,7 +22,7 @@ from typing import Any
 
 from tradebot.core.entry_sizing import SIZING_FIELD_NAMES
 from tradebot.core.types import SizeSpec
-from tradebot.strategies import STRATEGIES, StrategySpec, get_spec
+from tradebot.strategies import StrategySpec, get_spec
 from tradebot.strategies.ibs import SPEC as IBS_SPEC
 
 REPO = Path(__file__).resolve().parents[2]

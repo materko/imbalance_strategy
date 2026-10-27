@@ -11,7 +11,7 @@ import math
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import ClassVar, Literal
+from typing import Literal
 
 __all__ = [
     "Bar",

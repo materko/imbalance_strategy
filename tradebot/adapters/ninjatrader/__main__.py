@@ -46,7 +46,7 @@ from typing import Any, Callable
 
 from tradebot.adapters.csharp.build import BuildError, ensure_built, find_compiler
 from tradebot.core.config import load_profile
-from tradebot.core.paths import CSHARP_DIR, CSHARP_DLL, NINJATRADER_DIR
+from tradebot.core.paths import CSHARP_DIR, NINJATRADER_DIR
 from tradebot.core.version import repo_version
 from tradebot.strategies import STRATEGIES
 

@@ -22,7 +22,7 @@ Engine je čistý: žiadne I/O, žiadny globálny stav, všetko je v ``self``.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from zoneinfo import ZoneInfo
 

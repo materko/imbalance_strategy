@@ -8,7 +8,6 @@ tak vznikli neplatné čísla v REZIM_filtre_btcusdt_2026-09-10.md.
 
 from __future__ import annotations
 
-import pytest
 
 from tester import analytics as an
 

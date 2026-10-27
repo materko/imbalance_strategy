@@ -152,7 +152,8 @@ def test_prerobeny_1m_zdroj_prepise_odvodeny_timeframe(sklad, config):
 
     zdroj = sklad / "binance" / "spot" / "BTC_USDT-1m.feather"
     m1(1200).to_feather(zdroj)                       # dvakrát toľko minút než predtým
-    import os, time
+    import os
+    import time
     os.utime(odvodeny, (time.time() - 60, time.time() - 60))
 
     znova = tf.ensure(sklad, config, verbose=False, manifest=manifest)
@@ -163,7 +164,8 @@ def test_prerobeny_1m_zdroj_prepise_odvodeny_timeframe(sklad, config):
 def test_pred_behom_sa_prerobi_len_zastarane_chybajuce_nie(sklad, config):
     """Runner volá `only_stale` pred každým behom (audit N-DATA-2): 1m sa zmení počas behu webapp
     a odvodený TF ide s ním — chýbajúce TF dopĺňa štart, nie každý beh."""
-    import os, time
+    import os
+    import time
 
     manifest = sklad / ".derived.json"
     assert tf.ensure(sklad, config, verbose=False, manifest=manifest, only_stale=True) == []
@@ -190,7 +192,8 @@ def test_runner_pred_behom_obnovi_zastarane_tf(monkeypatch):
 
 def test_stiahnuty_timeframe_sa_neprepise_ani_ked_je_starsi_nez_1m(sklad, config):
     """To isté pravidlo sa nesmie dotknúť dát z burzy — tie v `.derived.json` nie sú."""
-    import os, time
+    import os
+    import time
 
     manifest = sklad / ".derived.json"
     cudzi = sklad / "binance" / "spot" / "BTC_USDT-5m.feather"

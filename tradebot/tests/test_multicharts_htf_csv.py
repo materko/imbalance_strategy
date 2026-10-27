@@ -55,7 +55,7 @@ def test_feed_until_pusti_len_uzavrete_bary(csv: Path):
     assert "3 barov 5m" in feed.describe()
 
 
-def test_studia_bez_data2_krmi_htf_z_csv(csv: Path, fake_dotnet, monkeypatch):
+def test_studia_bez_data2_krmi_htf_z_csv(csv: Path, fake_dotnet, monkeypatch):  # noqa: F811 — pytest fixture
     from tradebot.adapters.multicharts import signal as sig_mod
 
     monkeypatch.setattr(sig_mod.TradebotSignal, "HTF_CSV", str(csv))
@@ -70,7 +70,7 @@ def test_studia_bez_data2_krmi_htf_z_csv(csv: Path, fake_dotnet, monkeypatch):
     assert fed == [T0] and s._stats["htf"] == 1  # len 5m bar zavrety do 00:06
 
 
-def test_bez_data2_a_bez_csv_ostava_chyba(fake_dotnet, monkeypatch):
+def test_bez_data2_a_bez_csv_ostava_chyba(fake_dotnet, monkeypatch):  # noqa: F811 — pytest fixture
     from tradebot.adapters.multicharts import signal as sig_mod
 
     monkeypatch.setattr(sig_mod.TradebotSignal, "HTF_CSV", None)

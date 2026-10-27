@@ -186,8 +186,6 @@ def pre_entry_moves(trades: Sequence[dict[str, Any]], pair: str, timeframe: str,
     from .webapp.chart import series
 
     ts, cols = series(pair, timeframe)
-    minutes = timeframe_minutes(timeframe)
-    krok = minutes * 60_000
     close, high, low = cols["close"], cols["high"], cols["low"]
 
     out: list[float] = []

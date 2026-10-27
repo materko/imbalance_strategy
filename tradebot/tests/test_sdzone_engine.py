@@ -192,7 +192,7 @@ def _baza_a_impulz(e: SDZoneEngine, i0: int = 30) -> int:
 
 def test_nula_vypne_odchod_zona_vznika_na_impulze():
     e = _engine(legOutMinAtr=0)
-    i = _baza_a_impulz(e)
+    _baza_a_impulz(e)
     z = zona(e, "RBR")
     assert z.born_bar == e.history.bar_index and z.fresh and not e._candidates
 

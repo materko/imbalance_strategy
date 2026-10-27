@@ -71,7 +71,6 @@ def load(path: Path):
 
 def _fig(stats, trades, change):
     """Krivka ako v Strategy Testeri: kumulatívny PnL, buy and hold, stĺpce."""
-    import plotly.graph_objects as go
     from plotly.subplots import make_subplots
 
     start = float(stats["starting_balance"])

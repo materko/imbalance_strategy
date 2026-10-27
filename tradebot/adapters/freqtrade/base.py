@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from pandas import DataFrame, Series
 

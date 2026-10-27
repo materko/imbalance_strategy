@@ -38,7 +38,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
-from tradebot.adapters.freqtrade.hyperplan import Plan, knowledge, span
+from tradebot.adapters.freqtrade.hyperplan import Plan, knowledge, span  # noqa: F401 — span volá hyperopt_job ako ho.span
 from tradebot.core.paths import REPO
 from tradebot.strategies import get_spec
 

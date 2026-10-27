@@ -235,14 +235,12 @@ class NyVaEngine:
 
         # ---- range a profil ------------------------------------------------ #
         in_range = cfg.range_start <= cur < cfg.range_end
-        just_built = False
         if in_range:
             if not self.prev_in:
                 self.bars, self.range_ms, self.built = [], bar.time, False
             self.bars.append((bar.high, bar.low, bar.volume))
         elif self.prev_in and self.bars and not self.built:
             self._build(out, bar)
-            just_built = True
         self.prev_in = in_range
 
         # ---- zavretie v čase ----------------------------------------------- #

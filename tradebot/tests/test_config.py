@@ -12,7 +12,6 @@ from pathlib import Path
 import pytest
 
 from tradebot.core import (
-    BTCUSD_COINBASE,
     BTCUSDT_BINANCE,
     MNQ,
     ConfigError,
@@ -21,7 +20,7 @@ from tradebot.core import (
     list_profiles,
     load_profile,
 )
-from tradebot.strategies.ibs.config import CONFIG_DIR, PORT_ONLY_FIELDS, SIZE_FIELDS, TradeDirection
+from tradebot.strategies.ibs.config import CONFIG_DIR, SIZE_FIELDS, TradeDirection
 
 
 # --------------------------------------------------------------------------- #

@@ -621,7 +621,7 @@ def test_atr_pokracuje_wilderovym_vyhladenim():
 
 def test_engine_dopln_atr_ked_ho_volajuci_neposle():
     """Bez tohto boli všetky prahy v jednotke `atr` nulové — filtre vypnuté."""
-    from tradebot.core import BarHistory, IBSConfig, IBSEngine
+    from tradebot.core import IBSConfig, IBSEngine
     from tradebot.core.types import BTCUSDT_BINANCE
 
     cfg = IBSConfig()

@@ -8,9 +8,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 
-from tradebot.live.drivers.base import Account, Driver
+from tradebot.live.drivers.base import Driver
 from tradebot.live.schema import instance_id
 from tradebot.live.update import CodeUpdater, gate_reasons, position_from_spool
 
