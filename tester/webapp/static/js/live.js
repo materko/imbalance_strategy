@@ -467,18 +467,19 @@ function liveSorted(list) {
 }
 
 // Skupiny tabuľky inštancií: jeden účet na platforme (ten istý login na NT a MT5 sú dva účty). Hlavička
-// skupiny nesie súhrn riadkov pod ňou, takže zbalená skupina povie to podstatné aj bez nich. Zbalené
-// skupiny si pamätá prehliadač (localStorage), poradie skupín ide podľa ich prvej inštancie v triedení.
-const LIVE_COLLAPSED_KEY = "tradebot.live.collapsed";
+// skupiny nesie súhrn riadkov pod ňou, takže zbalená skupina povie to podstatné aj bez nich. Predvolene
+// je každá skupina zbalená, rozbalené si pamätá prehliadač (localStorage), aj nový účet tak príde zbalený;
+// poradie skupín ide podľa ich prvej inštancie v triedení.
+const LIVE_EXPANDED_KEY = "tradebot.live.expanded";
 const liveGroupKey = i => `${i.platform || ""}|${i.account || ""}`;
 
-function liveCollapsedSave() {
-  try { localStorage.setItem(LIVE_COLLAPSED_KEY, JSON.stringify([...lv.collapsed])); } catch (_) { /* súkromné okno */ }
+function liveExpandedSave() {
+  try { localStorage.setItem(LIVE_EXPANDED_KEY, JSON.stringify([...lv.expanded])); } catch (_) { /* súkromné okno */ }
 }
 
 function liveToggleGroup(key) {
-  if (lv.collapsed.has(key)) lv.collapsed.delete(key); else lv.collapsed.add(key);
-  liveCollapsedSave();
+  if (lv.expanded.has(key)) lv.expanded.delete(key); else lv.expanded.add(key);
+  liveExpandedSave();
   renderLiveList();
 }
 
@@ -557,8 +558,8 @@ function liveGroupRow(key, members, collapsed) {
 
 function renderLiveList() {
   if (lv.sort === undefined) lv.sort = liveSortLoad();
-  if (!lv.collapsed) {
-    try { lv.collapsed = new Set(JSON.parse(localStorage.getItem(LIVE_COLLAPSED_KEY) || "[]")); } catch (_) { lv.collapsed = new Set(); }
+  if (!lv.expanded) {
+    try { lv.expanded = new Set(JSON.parse(localStorage.getItem(LIVE_EXPANDED_KEY) || "[]")); } catch (_) { lv.expanded = new Set(); }
   }
   for (const th of $$("#live-table th.sort")) {
     th.dataset.dir = lv.sort && lv.sort.k === th.dataset.k ? lv.sort.dir : "";
@@ -581,16 +582,16 @@ function renderLiveList() {
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k).push(i);
   }
-  const fold = $("#live-fold-all"), vsetky = [...groups.keys()].every(k => lv.collapsed.has(k));
+  const fold = $("#live-fold-all"), vsetky = [...groups.keys()].every(k => !lv.expanded.has(k));
   fold.hidden = groups.size < 2;
   fold.textContent = vsetky ? "rozbaliť všetky" : "zbaliť všetky";
   fold.onclick = () => {
-    for (const k of groups.keys()) { if (vsetky) lv.collapsed.delete(k); else lv.collapsed.add(k); }
-    liveCollapsedSave();
+    for (const k of groups.keys()) { if (vsetky) lv.expanded.add(k); else lv.expanded.delete(k); }
+    liveExpandedSave();
     renderLiveList();
   };
   $("#live-table tbody").innerHTML = [...groups].map(([k, members]) => {
-    const zbalena = lv.collapsed.has(k);
+    const zbalena = !lv.expanded.has(k);
     return liveGroupRow(k, members, zbalena) + (zbalena ? "" : members.map(liveInstanceRow).join(""));
   }).join("");
   for (const tr of $$("#live-table tbody tr[data-live]")) tr.onclick = () => openLiveDetail(tr.dataset.live);
