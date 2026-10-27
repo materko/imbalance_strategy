@@ -75,6 +75,17 @@ def test_check_preklada_adapter_aj_addon():
     assert "IBSNet.cs" in names and "ORBNet.cs" in names
     assert all(f.is_file() for f in files)
     assert any(f.name == "Live.cs" for f in files)   # LiveSpool (spool + control udalosti) ide s jadrom
+    # graf naživo: feed inštancie ide s AddOnom, indikátor TradeBotLiveView do Indicators
+    assert "TradeBotLiveFeed.cs" in names and "TradeBotLiveView.cs" in names
+
+
+def test_install_da_indikator_do_indicators(nt_dir: Path, monkeypatch):
+    monkeypatch.setattr(ntcli, "check", lambda nt_dir, say=print: None)
+    custom = nt_dir / "bin" / "Custom"
+    (custom / "Strategies").mkdir()            # NinjaTrader ho má vždy, Indicators doplní install
+    out = ntcli.install(nt_dir, [], say=lambda _t: None)
+    assert (custom / "Indicators" / "TradeBotLiveView.cs").is_file()
+    assert (Path(out["target"]) / "TradeBotLiveFeed.cs").is_file() and (Path(out["target"]) / "TradeBotLiveInstance.cs").is_file()
 
 
 @pytest.fixture

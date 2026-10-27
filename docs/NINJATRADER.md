@@ -359,7 +359,7 @@ profilu: iný `profile` inštanciu nereštartuje, prepne sa za behu, keď je fla
 | fily | `Account.ExecutionUpdate` filtrované na vlastné mená; `fill` `in`/`out` s menom výstupu `Stop loss` / `Profit target` / `tb_close` / `tb_session_end` / `tb_flatten` |
 | spool | `LiveSpool` v `TradeBot\spool\ninjatrader_<účet>_<symbol>_<TF>m_<kľúč>\` (symbol = `MasterInstrument.Name`, teda `MNQ`), `tester:false`; pri konci `stat` + `bye` (`removed`, `changed`, `terminated`, `superseded`, `profile_switch`) |
 | control | `TradeBot\control\<inštancia>.json` každé 2 s a pri každom bare, režimy ako v Strategy; **zmena profilu** (keď je flat) = nový engine, nová session spoolu a **história z BarsRequest sa prehrá znova** — čerstvý štart, aj iný informatívny TF (nový BarsRequest); **nové parametre pri rovnakom názve** (hub prepíše `profiles\<stratégia>\<profil>.json`, názov sa nemení) inštancia zistí podľa mtime súboru každé 2 s a prepne ich rovnako — bez nej by bežala na starých až do reštartu |
-| kresby | nekreslia sa (nie je graf) — idú len do spoolu, webapp karta Live ich ukáže |
+| kresby | AddOn graf nemá — idú do spoolu (webapp karta Live) a do feedu pre indikátor `TradeBotLiveView` (nižšie „Graf naživo“) |
 | flatten po reštarte | režim `flatten` z control súboru sa po prevzatí obchodov spred reštartu (`RestoreState`) uplatní aj na ne |
 | zastavenie | zruší čakajúce vstupy, **pozíciu nechá** (jej SL/TP sú GTC ordery na účte), zatvorí BarsRequesty a spool; flatten je vec control súboru |
 | generácie | po rekompilácii NT inštancuje AddOn znova, ale staré vlákno nezmizne — každá generácia si zapíše token do `AppDomain` a stará sa zastaví (`bye superseded`), inak by bežali dve kópie |
@@ -415,7 +415,7 @@ aj `deploy/agent/install-agent.ps1`, a keď na stroji predsa chýba, agent si ju
 **Obmedzenia** (poctivo):
 
 - Ordery sú **GTC** (Strategy mala tiež GTC); `Day` by NinjaTrader zrušil na konci dňa, a s `paused` by sa nevrátili.
-- Bez grafu, bez kreslenia; Playback Connection nie je podporovaný (čas z `Globals.Now` a `BarsRequest`
+- Bez vlastného grafu (kresby ukáže indikátor `TradeBotLiveView`, nižšie); Playback Connection nie je podporovaný (čas z `Globals.Now` a `BarsRequest`
   na Playback neoverené).
 - Seedované indikátory (Supertrend/ADX na vlastnom TF) sa nesejú — rozbehnú sa na histórii grafu ako v Strategy.
 - Vlastnú pozíciu z predošlého behu AddOn **prevezme** (nižšie „Reštart s otvorenými obchodmi“); cudziu (z grafu,
@@ -505,6 +505,33 @@ Zmena `route` je zmena záznamu, takže inštancia sa reštartuje. Čo inštanci
 
 Preložené proti NinjaTraderu 8 (`check`), **naživo ešte nebežalo** — overí sa spolu s exekútorom na MT5 demo
 (ROUTING.md, „Ručný test exekútora“).
+
+#### Graf naživo: indikátor `TradeBotLiveView`
+
+AddOn nemá graf, takže kresby enginu, ordery a fily by v NinjaTraderi nebolo vidno. Každá inštancia ich preto drží
+v `LiveViewFeed` (`TradeBotLiveFeed.cs`) a zverejní ho v `LiveViews` — statický zoznam v tom istom procese
+NinjaTradera. Indikátor **TradeBotLiveView** (`install` ho dáva do `bin\Custom\Indicators`) si na grafe nájde feed
+podľa inštrumentu (`MasterInstrument.Name`, MNQ graf ukáže MNQ 12-26 aj 03-27) a TF grafu a kreslí:
+
+| | |
+|---|---|
+| kresby | zóny, TP/SL boxy, štítky, čiary, pásy — to isté ako chart stratégia (`Paint`), čas otvorenia baru inštancie + TF |
+| ordery | čakajúci vstup sivou prerušovanou, pozícia modrou plnou, SL červenou, TP zelenou — od odoslania / vyplnenia po posledný bar, s popisom `ibsnet L1 SL` |
+| fily | vstup long šípka hore, short šípka dole, výstup zlatý kosoštvorec (posledných 500 na inštanciu) |
+
+Vlastnosti: **Strategia** (kľúč, prázdne = všetky inštancie na inštrumente a TF, napr. tri stratégie na MNQ 3m naraz),
+**Ucet**, **TF inštancie** (0 = TF grafu; graf iného TF, napr. 1m, potrebuje TF inštancie vyplnené), **Dni dozadu**
+(predvolene 5 — staršie kresby sa nekreslia, na dlhej histórii by spomalili graf) a prepínače kresieb, orderov, filov
+a pozadia seáns. Indikátor len zobrazuje: nič neposiela, inštanciu neovplyvní; zatvorenie grafu ju nezastaví.
+Nastavenie si NinjaTrader pamätá vo workspace, takže sa pridáva raz.
+
+Synchronizácia: pri každom ticku a raz za sekundu (System.Timers.Timer → `TriggerCustomEvent`, keď trh stojí). Feed
+drží aktuálny stav objektov a log id zmenených objektov; indikátor dostane len zmeny od posledného čítania. Nové
+prehratie histórie (nový profil) alebo zhustenie logu zvýši epochu a reštart inštancie dá nový feed — indikátor vtedy
+svoje kresby zmaže a nakreslí všetko znova. Po rekompilácii (nový kód) AddOn spustí novú generáciu a indikátor sa
+napojí sám, keď inštancia znova nabehne. Bez inštancie ukáže v rohu grafu, čo hľadá.
+
+Preložené proti NinjaTraderu 8 (`check`), **na živom grafe ešte neoverené**.
 
 ### Test v Strategy Analyzeri proti Testeru
 

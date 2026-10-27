@@ -240,6 +240,8 @@ namespace NinjaTrader.NinjaScript.AddOns
         private readonly Dictionary<string, int> _dailyWinsSeen = new Dictionary<string, int>();
         private TB.LiveSpool _spool;
         private bool _spoolErrorPrinted;
+        /// <summary>Co instancia ukazuje na grafe NinjaTradera (indikator TradeBotLiveView) - kresby, ordery, fily.</summary>
+        private LiveViewFeed _view;
         /// <summary>Predhistoria je prehrata, dalsie bary su nazivo (ready, stale guard, control kazde 2 s).</summary>
         private bool _live;
         private int _chartBars, _htfBars, _engineBars;
@@ -377,6 +379,44 @@ namespace NinjaTrader.NinjaScript.AddOns
             Note(level, text);
         }
 
+        /// <summary>Fill do spoolu aj do feedu grafu (indikator TradeBotLiveView).</summary>
+        private void SpoolFill(long ms, string id, bool entry, string exitName, double price, double qty, bool ready)
+        {
+            if (_view != null)
+            {
+                Tracked t;
+                bool? isLong = null;
+                if (_orders.TryGetValue(id ?? "", out t) && t.Intent.Plan != null) isLong = t.Intent.Plan.Direction == TB.Direction.Long;
+                _view.AddFill(ms, id, entry, isLong, price, qty, exitName);
+            }
+            if (_spool != null) { _spool.Fill(ms, id, entry, exitName, price, qty, ready); SpoolCheck(); }
+        }
+
+        /// <summary>Ordery instancie do feedu grafu: cakajuce vstupy a pozicie so SL/TP (feed zmenu pozna sam).</summary>
+        private void PublishView()
+        {
+            if (_view == null) return;
+            List<LiveViewOrder> list = new List<LiveViewOrder>();
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+            {
+                Tracked t = kv.Value;
+                if (t.Intent.Plan == null) continue;
+                if (t.Filled ? t.OpenQty <= 0 : !t.Parked && !EntryAlive(t)) continue;
+                LiveViewOrder o = new LiveViewOrder();
+                o.Id = kv.Key;
+                o.Long = t.Intent.Plan.Direction == TB.Direction.Long;
+                o.Filled = t.Filled;
+                o.Parked = t.Parked;
+                o.Entry = t.Intent.Plan.Entry;
+                o.Stop = t.LastStop > 0 ? t.LastStop : t.Intent.Plan.StopLoss;
+                o.Target = t.Intent.Plan.TakeProfit;
+                o.Qty = t.Filled ? t.OpenQty : (int)Math.Max(1, Math.Round(t.Intent.Plan.Qty));
+                o.SinceMs = t.Filled && t.FilledMs > 0 ? t.FilledMs : t.SentMs;
+                list.Add(o);
+            }
+            _view.SetOrders(list);
+        }
+
         private void SpoolCheck()
         {
             if (_spool == null) return;
@@ -436,6 +476,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                     try { if (_live && !Routed) OldContractCheck(); }
                     catch (Exception e) { Log("kontrola stareho kontraktu - " + e.Message); }
                     SaveState();
+                    try { PublishView(); }
+                    catch (Exception e) { Log("ordery pre graf - " + e.Message); }
                     try { if (_live) SpoolBroker(); }
                     catch (Exception e) { Log("pozicia uctu do telemetrie - " + e.Message); }
                     if ((DateTime.UtcNow - lastControl).TotalSeconds >= ControlPeriodSeconds)
@@ -457,6 +499,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             finally
             {
                 UnpublishNet();
+                if (_view != null) LiveViews.Remove(_view);
                 Finished = true;
                 FinishedAt = DateTime.UtcNow;
                 if (Status != "failed") Status = "stopped";
@@ -512,6 +555,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             _stepMs = d.Tf * 60000L;
             _instance = TB.LiveSpool.InstanceId("ninjatrader", _account.Name, _instrumentName, d.Tf, d.Strategy);
             _statePath = Path.Combine(TradeBotLiveAddOn.StateDir, _instance + ".json");
+            _view = new LiveViewFeed(_instance, d.Strategy, _instrumentName, d.Tf, _account.Name);
+            LiveViews.Publish(_view);
             if (d.Route != null && !OpenRoute()) return false;
 
             try
@@ -734,6 +779,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (_chart == null) return;
             _replays++;
             _live = false;
+            if (_view != null) _view.Reset();
             _chart.Fed = 0;
             if (_htfSeries != null) _htfSeries.Fed = 0;
             _engineBars = 0;
@@ -843,16 +889,17 @@ namespace NinjaTrader.NinjaScript.AddOns
                          + (int)(now - c.Time).TotalSeconds + " s) - bez vstupu");
             }
             if (_spool != null) { _spool.Bar(bar, output, ready, ctx.MarketBias); SpoolCheck(); }
+            if (_view != null) _view.Draw(output.Drawings);
             foreach (TB.OrderIntent intent in output.Orders) Apply(intent, ready);
             if (output.CloseSession) Flatten("tb_session_end");
 
             int total;
             lock (_chart.Gate) total = _chart.Bars.Count;
-            if (_spool != null && (_live || index >= total - 2))
+            if ((_spool != null || _view != null) && (_live || index >= total - 2))
             {
                 List<TB.DrawCommand> finals = _engine.FinalDrawings(bar);
-                _spool.FinalDrawings(bar, finals);
-                SpoolCheck();
+                if (_view != null) _view.Draw(finals);
+                if (_spool != null) { _spool.FinalDrawings(bar, finals); SpoolCheck(); }
             }
 
             int winsNow;
@@ -1341,7 +1388,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (!t.Filled || t.OpenQty <= 0) continue;
                 Note("warn", "pozicia " + kv.Key + " (" + t.OpenQty + " ks) zavreta mimo strategie (napr. Chart Trader Close / Flatten) - "
                      + "zapisany vystup 'close' @" + price.ToString(CultureInfo.InvariantCulture) + (known ? "" : " (cena posledneho baru)"));
-                if (_spool != null) { _spool.Fill(ms, kv.Key, false, "close", price, t.OpenQty, _live); SpoolCheck(); }
+                SpoolFill(ms, kv.Key, false, "close", price, t.OpenQty, _live);
                 if (Alive(t.Sl)) CancelOrder(t.Sl);
                 if (Alive(t.Tp)) CancelOrder(t.Tp);
                 _orders.Remove(kv.Key);
@@ -1576,7 +1623,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 t.Parked = false;
                 t.OpenQty += qty;
                 Log("FILL in " + name + " @" + price + " x" + qty);
-                if (_spool != null) { _spool.Fill(execMs, name, true, "", price, qty, _live); SpoolCheck(); }
+                SpoolFill(execMs, name, true, "", price, qty, _live);
                 ParkOthers(name);
                 EnsureExits(name, t);
                 return;
@@ -1593,7 +1640,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             string suffix = name.Substring(colon + 1);
             string exitName = ExitName(suffix);
             Log("FILL out " + id + " " + exitName + " @" + price + " x" + qty);
-            if (_spool != null) { _spool.Fill(execMs, id, false, exitName, price, qty, _live); SpoolCheck(); }
+            SpoolFill(execMs, id, false, exitName, price, qty, _live);
             t.OpenQty -= qty;
             if (t.OpenQty > 0) return;
             // druhy z OCO dvojice zrusi NT sam; keby nie, stiahni ho
@@ -2009,7 +2056,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                         if (firstMs == 0) firstMs = ms;
                         inQty += x.Quantity;
                         value += x.Price * x.Quantity;
-                        if (_spool != null) { _spool.Fill(ms, id, true, "", x.Price, x.Quantity, true); SpoolCheck(); }
+                        SpoolFill(ms, id, true, "", x.Price, x.Quantity, true);
                     }
                     if (inQty == 0) continue;
                     inMs = firstMs;
@@ -2025,7 +2072,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     string suffix = x.Name.Substring(id.Length + 1);
                     outQty += x.Quantity;
                     Log("RESTORE " + id + ": vystup pocas vypadku " + ExitName(suffix) + " @" + x.Price + " x" + x.Quantity);
-                    if (_spool != null) { _spool.Fill(ms, id, false, ExitName(suffix), x.Price, x.Quantity, true); SpoolCheck(); }
+                    SpoolFill(ms, id, false, ExitName(suffix), x.Price, x.Quantity, true);
                     CountWin(plan, suffix, x.Price, ms);
                 }
                 Order sl = Named(working, id + ":sl"), tp = Named(working, id + ":tp");
@@ -2342,7 +2389,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     t.RemoteLive = false;
                     t.OpenQty = qty;
                     Log("FILL in " + id + " @" + px + " x" + qty + " (MT5 " + mt5Price + ", lots " + lots + ")");
-                    if (_spool != null) { _spool.Fill(ft, id, true, "", px, qty, _live); SpoolCheck(); }
+                    SpoolFill(ft, id, true, "", px, qty, _live);
                     ParkOthers(id);
                     return;
                 }
@@ -2350,7 +2397,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 string exitName = RouteExitName(TB.Json.GetString(ev, "exit", ""), t.Closing);
                 Log("FILL out " + id + " " + exitName + " @" + px + " x" + qty + " (MT5 " + mt5Price + ", lots " + lots + ")");
                 if (qty <= 0) return;   // cast pod jeden kontrakt - prirata sa k dalsiemu vystupu
-                if (_spool != null) { _spool.Fill(ft, id, false, exitName, px, qty, _live); SpoolCheck(); }
+                SpoolFill(ft, id, false, exitName, px, qty, _live);
                 t.OpenQty -= qty;
                 if (t.OpenQty > 0) return;
                 _orders.Remove(id);

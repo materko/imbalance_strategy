@@ -62,8 +62,10 @@ ADAPTER_DIR = Path(__file__).resolve().parent
 ADAPTER_FILE = ADAPTER_DIR / "TradeBotStrategy.cs"
 #: AddOn (štartuje s NinjaTraderom, sonda behu bez človeka) — ide do `bin\\Custom\\AddOns\\TradeBot`.
 ADDON_FILE = ADAPTER_DIR / "TradeBotLiveAddOn.cs"
-#: Všetky zdrojáky AddOnu (supervízor + jedna inštancia enginu).
-ADDON_FILES = (ADDON_FILE, ADAPTER_DIR / "TradeBotLiveInstance.cs")
+#: Všetky zdrojáky AddOnu (supervízor + jedna inštancia enginu + čo inštancia ukazuje na grafe).
+ADDON_FILES = (ADDON_FILE, ADAPTER_DIR / "TradeBotLiveInstance.cs", ADAPTER_DIR / "TradeBotLiveFeed.cs")
+#: Indikátor, ktorý na grafe kreslí inštanciu AddOnu (kresby, ordery, fily) — ide do `bin\\Custom\\Indicators`.
+VIEW_FILE = ADAPTER_DIR / "TradeBotLiveView.cs"
 #: Zdrojáky C# jadra, ktoré idú do NinjaTradera (hostiteľ pre stdio most nie).
 CORE_DIRS = ("TradeBot.Core", "TradeBot.Strategies")
 CONTROL_MODES = ("enabled", "paused", "flatten")
@@ -108,7 +110,7 @@ def check_sources() -> list[Path]:
     """Všetko, čo NinjaTrader po `install` prekladá: jadro, adaptér, AddOn, šablóny."""
     core = [f for d in CORE_DIRS for f in sorted((CSHARP_DIR / d).rglob("*.cs"))]
     templates = sorted(NINJATRADER_DIR.glob("*.cs"))
-    return [*core, ADAPTER_FILE, *ADDON_FILES, *templates]
+    return [*core, ADAPTER_FILE, *ADDON_FILES, VIEW_FILE, *templates]
 
 
 def check(nt_dir: Path, *, say: Callable[[str], None] = print) -> None:
@@ -207,6 +209,8 @@ def install(nt_dir: Path, extra_profiles: list[str], *, say: Callable[[str], Non
     for f in ADDON_FILES:
         shutil.copy2(f, target / f.name)
     shutil.copy2(ADAPTER_FILE, custom / "Strategies" / ADAPTER_FILE.name)
+    (custom / "Indicators").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(VIEW_FILE, custom / "Indicators" / VIEW_FILE.name)
     for stale in STALE_TEMPLATES:   # šablóny spred premenovania by sa preložili, ale ich kľúč už engine nepozná
         (custom / "Strategies" / stale).unlink(missing_ok=True)
     templates = sorted(NINJATRADER_DIR.glob("*.cs"))
@@ -214,6 +218,7 @@ def install(nt_dir: Path, extra_profiles: list[str], *, say: Callable[[str], Non
         shutil.copy2(t, custom / "Strategies" / t.name)
     n = export_profiles(nt_dir, extra_profiles)
     say(f"OK: jadro + AddOn ({ADDON_FILE.stem}) -> {target}\n"
+        f"OK: indikátor {VIEW_FILE.stem} -> {custom / 'Indicators'}\n"
         f"OK: adaptér + šablóny ({', '.join(t.stem for t in templates)}) -> {custom / 'Strategies'}\n"
         f"OK: {n} profilov -> {nt_dir / 'TradeBot' / 'profiles'}\n"
         "Teraz v NinjaTraderi: New > NinjaScript Editor > F5 (preklad) — alebo `compile` / driver agenta.")
