@@ -149,7 +149,9 @@ nepridelí (`update_request`), agent dopočíta, čo beží, spraví `git pull` 
 nahlási v heartbeate (`pull_done` → `pull_result`, pri chybe čip „pull zlyhal"); headless
 sa potom reštartuje sám, webapp sama, keď sa kód v gite zmenil (`TRADEBOT_AUTO_RESTART`).
 Obchodný stroj (rola `live`) nie — ten má „Nový kód na stroji". Docker agent s
-`TRADEBOT_HUB_PULL=off` nahlási, že pull treba spraviť na hostiteľovi.
+`TRADEBOT_HUB_PULL=off` nahlási, že pull treba spraviť na hostiteľovi; s `TRADEBOT_HUB_PULL=host`
+pošle pokyn hostiteľovi (`tester/hub_pull_request`), ten hneď pullne a agent nahlási jeho
+výsledok (viď „Headless agent" nižšie).
 
 Po pulle si agent **zloží nové dáta z archívu** (`data_archive merge`, dopočet timeframov)
 — rovnaký commit tak znamená rovnaké páry aj timeframy u každého agenta.
@@ -443,6 +445,29 @@ nerobí** (`TRADEBOT_HUB_PULL=off`) — rob ho na hostiteľovi; agent zmenu kód
 spozná, dočíta, čo počíta, odhlási sa a skončí, a `restart: unless-stopped` ho zdvihne na
 novom kóde. Výpočet s commitom, ktorý hostiteľ ešte nepullol, zlyhá s chybou, ktorá to
 povie. Push/Pull histórie behov sa robí z hostiteľa.
+
+**Pull na hostiteľovi — časovač aj hneď na ⟳.** Pull robí `docker/host-pull.sh <klon>` (ako
+používateľ, ktorému klon patrí). Spúšťa ho systemd jednotka z časovača (napr. každých 10 min) a
+s `TRADEBOT_HUB_PULL=host` (v `.env` alebo override) aj path jednotka: tlačidlo ⟳ na karte Hub
+zapíše pokyn do `tester/hub_pull_request`, path jednotka spustí pull hneď a skript dá výsledok
+do `tester/hub_pull_result` (pokyn, návratový kód, výstup). Agent ho nahlási hubu (pri chybe čip
+„pull zlyhal" s výstupom gitu); keď hostiteľ do 3 min neodpovie, nahlási, že path jednotka chýba.
+Bez nej nastav `off` — ⟳ potom len povie, že kód stiahne časovač.
+
+```ini
+# /etc/systemd/system/tradebot-agent-pull.service
+[Service]
+Type=oneshot
+User=morky
+ExecStart=/bin/sh /cesta/klon/docker/host-pull.sh /cesta/klon
+
+# /etc/systemd/system/tradebot-agent-pull.path   (systemctl enable --now …path)
+[Path]
+PathChanged=/cesta/klon/tester/hub_pull_request
+Unit=tradebot-agent-pull.service
+[Install]
+WantedBy=paths.target
+```
 
 **Vlastné úpravy na tomto stroji.** Compose súbory v `docker/` sú spoločné a verzované;
 nemeň ich, keď ide len o tento server. Nastavenia sa dajú zmeniť bez dotyku gitu:

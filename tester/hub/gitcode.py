@@ -6,7 +6,8 @@ Rovnaký beh na inom commite dá iné čísla, takže výpočet nesie **verziu k
 - `version()`      — commit, na ktorom klon stojí (`git rev-parse --short HEAD`),
 - `has_version(c)` — je commit `c` v histórii HEAD? (`git merge-base --is-ancestor`),
 - `pull()`         — `git fetch` + `rebase --autostash origin/main`, to isté, čo Pull vo webapp
-                     (`tester.webapp.gitsync`),
+                     (`tester.webapp.gitsync`); v kontajneri (`TRADEBOT_HUB_PULL=host`) ho robí
+                     hostiteľ na pokyn (`request_host_pull`, `host_pull_result`),
 - `versus_main(vs)`— o koľko commitov je každá verzia za `origin/main` (karta Hub, agenti),
 - `dirty_code()`   — necommitnuté zmeny v kóde (nie v histórii behov): taký klon posiela
                      verziu, ktorá jeho kód nepopisuje, a CLI na to upozorní.
@@ -17,12 +18,14 @@ Verzia je commit celého repozitára, nie číslo stratégie — stratégie, jad
 
 from __future__ import annotations
 
+import os
 import subprocess
 from typing import Any
 
-from tradebot.core.paths import REPO
+from tradebot.core.paths import HUB_PULL_REQUEST, HUB_PULL_RESULT, REPO
 
-__all__ = ["version", "has_version", "is_ancestor", "on_remote", "versus_main", "pull", "dirty_code"]
+__all__ = ["version", "has_version", "is_ancestor", "on_remote", "versus_main", "pull", "pull_mode",
+           "request_host_pull", "host_pull_result", "dirty_code"]
 
 #: Čo sa nepovažuje za kód: história behov, profily a analytiky testera idú cez Push.
 _DATA_PREFIXES = ("tester/runs/", "tester/profiles/", "tester/analytics/", "data_archive/", "docs/")
@@ -110,11 +113,48 @@ def versus_main(versions: list[str], fetch: bool = True) -> dict[str, Any] | Non
         return None
 
 
-def pull_enabled() -> bool:
-    """`TRADEBOT_HUB_PULL=off` (Docker agent): kód je mount z hostiteľa, pull sa robí tam."""
+def pull_mode() -> str:
+    """Kto robí `git pull` tohto klonu: `on` agent sám, `host` hostiteľ kontajnera na pokyn
+    (`TRADEBOT_HUB_PULL=host`, `docker/host-pull.sh`), `off` hostiteľ len svojím časovačom."""
     from tradebot.core.env import getenv
 
-    return (getenv("HUB_PULL") or "on").strip().lower() not in ("off", "0", "false", "no", "nie")
+    v = (getenv("HUB_PULL") or "on").strip().lower()
+    if v == "host":
+        return "host"
+    return "off" if v in ("off", "0", "false", "no", "nie") else "on"
+
+
+def pull_enabled() -> bool:
+    """Ťahá agent kód sám? V kontajneri nie — kód je mount z hostiteľa, pull sa robí tam."""
+    return pull_mode() == "on"
+
+
+def request_host_pull(request: str) -> None:
+    """Pokyn hostiteľovi „sprav git pull hneď" (⟳ na karte Hub): zapíše `request` do
+    `HUB_PULL_REQUEST`; systemd path jednotka hostiteľa naň spustí `docker/host-pull.sh`."""
+    HUB_PULL_REQUEST.parent.mkdir(parents=True, exist_ok=True)
+    tmp = HUB_PULL_REQUEST.with_name(HUB_PULL_REQUEST.name + ".tmp")
+    tmp.write_text(request + "\n", encoding="utf-8")
+    os.replace(tmp, HUB_PULL_REQUEST)
+
+
+def host_pull_result(request: str) -> dict[str, Any] | None:
+    """Výsledok pullu, ktorý hostiteľ spravil po pokyne `request`, alebo `None`, kým nie je.
+
+    `HUB_PULL_RESULT` píše `docker/host-pull.sh`: prvý riadok = pokyn, ktorý bol v súbore pred
+    pullom (aj pri behu z časovača), druhý = návratový kód `git pull`, zvyšok = jeho výstup."""
+    try:
+        riadky = HUB_PULL_RESULT.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return None
+    if len(riadky) < 2 or riadky[0].strip() != request:
+        return None
+    vystup = "\n".join(riadky[2:]).strip()
+    try:
+        ok = int(riadky[1].strip()) == 0
+    except ValueError:
+        ok = False
+    return {"ok": ok, "output": vystup or ("git pull na hostiteľovi ok" if ok else "git pull na hostiteľovi zlyhal")}
 
 
 def pull() -> dict[str, Any]:
@@ -122,7 +162,7 @@ def pull() -> dict[str, Any]:
     from ..webapp import gitsync
 
     if not pull_enabled():
-        return {"ok": False, "output": "git pull je na tomto agentovi vypnutý (TRADEBOT_HUB_PULL=off, "
+        return {"ok": False, "output": f"git pull je na tomto agentovi vypnutý (TRADEBOT_HUB_PULL={pull_mode()}, "
                                        "kontajner) — sprav `git pull` na hostiteľovi"}
     try:
         return gitsync.pull()

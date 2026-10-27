@@ -111,6 +111,8 @@ MIN_MAX_SECONDS = 600.0
 
 #: Ako často sa pomalé vlákno pozrie, či je preň práca (aj bez pokynu z ticku).
 WORK_POLL_SECONDS = 2.0
+#: Ako dlho čaká agent v kontajneri na pull, ktorý na pokyn ⟳ robí hostiteľ (`TRADEBOT_HUB_PULL=host`).
+HOST_PULL_TIMEOUT = 180.0
 
 #: Koľkokrát sa výsledok skúsi odovzdať hubu, ktorý výpočet nepozná (404), než sa odloží
 #: do `undelivered`. Hub po reštarte môže mať stav ešte nenačítaný — pár tickov mu dáme.
@@ -232,6 +234,7 @@ class HubAgent:
         #: Pokyn hubu „aktualizuj sa" (čas pokynu) a čo sme z neho naposledy spravili.
         self._pull_request: str | None = None
         self._pull_done: dict[str, Any] | None = None
+        self._host_pull_since: tuple[float, str] | None = None   # pokyn hostiteľovi na pull: kedy, z akej verzie
         #: Hotové výpočty zadávateľa, ktoré treba stiahnuť (zip) — robí to pomalé vlákno.
         self._collect_queue: list[dict[str, Any]] = []
         self._collecting: set[str] = set()
@@ -939,13 +942,18 @@ class HubAgent:
 
     def _do_requested_pull(self) -> None:
         """Pokyn hubu „aktualizuj sa": keď dobehne, čo počítame, `git pull` (+ dáta) a reštart —
-        headless sa reštartuje sám, webapp sama, keď sa kód v gite zmenil (`_watch_code`)."""
+        headless sa reštartuje sám, webapp sama, keď sa kód v gite zmenil (`_watch_code`).
+
+        V kontajneri s `TRADEBOT_HUB_PULL=host` pull spraví hostiteľ: agent mu zapíše pokyn
+        a v ďalších kolách čaká na jeho výsledok (najviac `HOST_PULL_TIMEOUT`), vlákno neblokuje."""
         ziadost = self._pull_request
         if ziadost is None or self.state.computing or self._pull_for is not None:
             return
+        r = self._host_pull(ziadost) if gitcode.pull_mode() == "host" else gitcode.pull()
+        if r is None:
+            return
         try:
-            r = gitcode.pull()
-            pred = self.version
+            pred = r.get("before") or self.version
             self.version = gitcode.version() or self.version
             if r.get("ok") and self.version != pred:
                 self.code_changed = True
@@ -961,6 +969,29 @@ class HubAgent:
             self._pull_request = None
             if self.updating == "pull":
                 self.updating = None
+
+    def _host_pull(self, ziadost: str) -> dict[str, Any] | None:
+        """Pull na hostiteľovi: prvé kolo zapíše pokyn, ďalšie čakajú na výsledok; `None` = ešte nie."""
+        r = gitcode.host_pull_result(ziadost)
+        if r is not None:
+            # verzia pred pullom: `tick` medzitým `self.version` prepísal na tú z disku
+            pred = self._host_pull_since[1] if self._host_pull_since else None
+            self._host_pull_since = None
+            return {**r, "before": pred}
+        if self._host_pull_since is None:
+            try:
+                gitcode.request_host_pull(ziadost)
+            except OSError as exc:
+                return {"ok": False, "output": f"pokyn na pull pre hostiteľa sa nedal zapísať: {exc}"}
+            self._host_pull_since = (self.clock(), self.version)
+            log.info("hub agent: pokyn na git pull poslaný hostiteľovi")
+            return None
+        if self.clock() - self._host_pull_since[0] < HOST_PULL_TIMEOUT:
+            return None
+        self._host_pull_since = None
+        return {"ok": False, "output": f"hostiteľ do {HOST_PULL_TIMEOUT:.0f} s na pokyn nestiahol kód — beží na ňom "
+                                       "systemd path jednotka s docker/host-pull.sh (docs/HUB.md)? Inak kód "
+                                       "stiahne až jeho časovač"}
 
     def _sync_data(self) -> None:
         """Po pulle: čo pribudlo v `data_archive/`, zložiť do skladu, a dopočítať timeframy.

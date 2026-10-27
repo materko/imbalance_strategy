@@ -2024,6 +2024,92 @@ def test_gitcode_pull_can_be_disabled(monkeypatch):
     assert r["ok"] is False and "hostite" in r["output"]
     monkeypatch.setenv("TRADEBOT_HUB_PULL", "on")
     assert gitcode.pull_enabled()
+    monkeypatch.setenv("TRADEBOT_HUB_PULL", "host")
+    assert gitcode.pull_mode() == "host" and not gitcode.pull_enabled()
+
+
+def _host_files(monkeypatch, tmp_path: Path):
+    from tester.hub import gitcode
+
+    req, res = tmp_path / "hub_pull_request", tmp_path / "hub_pull_result"
+    monkeypatch.setattr(gitcode, "HUB_PULL_REQUEST", req)
+    monkeypatch.setattr(gitcode, "HUB_PULL_RESULT", res)
+    monkeypatch.setenv("TRADEBOT_HUB_PULL", "host")
+    return req, res
+
+
+def test_host_pull_result_belongs_to_request(monkeypatch, tmp_path: Path):
+    """Výsledok z hostiteľa platí len pre pokyn, ktorý bol v súbore pred jeho pullom."""
+    from tester.hub import gitcode
+
+    req, res = _host_files(monkeypatch, tmp_path)
+    gitcode.request_host_pull("r1")
+    assert req.read_text(encoding="utf-8").strip() == "r1"
+    assert gitcode.host_pull_result("r1") is None                 # hostiteľ ešte nič
+    res.write_text("r0\n0\n", encoding="utf-8")                    # beh časovača pred pokynom
+    assert gitcode.host_pull_result("r1") is None
+    res.write_text("r1\n1\nerror: cannot pull with rebase\n", encoding="utf-8")
+    assert gitcode.host_pull_result("r1") == {"ok": False, "output": "error: cannot pull with rebase"}
+    res.write_text("r1\n0\n\n", encoding="utf-8")
+    assert gitcode.host_pull_result("r1")["ok"] is True
+
+
+def test_host_script_uses_paths_from_paths_py():
+    """docker/host-pull.sh nevie čítať paths.py — mená súborov musia sedieť ručne."""
+    from tradebot.core import paths
+
+    skript = (paths.REPO / "docker" / "host-pull.sh").read_text(encoding="utf-8")
+    for p in (paths.HUB_PULL_REQUEST, paths.HUB_PULL_RESULT):
+        assert f'"$repo/{p.relative_to(paths.REPO).as_posix()}"' in skript
+
+
+def test_update_request_in_container_asks_host_to_pull(hub_api, tmp_path: Path, monkeypatch):
+    """⟳ pri agentovi s `TRADEBOT_HUB_PULL=host`: pokyn ide hostiteľovi, výsledok z neho na hub."""
+    from tester.hub import gitcode
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    req, res = _host_files(monkeypatch, tmp_path)
+    na_disku = {"v": "aaa111"}
+    monkeypatch.setattr(gitcode, "version", lambda: na_disku["v"])
+    monkeypatch.setattr(gitcode, "pull", lambda: pytest.fail("v kontajneri sa nepulluje"))
+    srv, _, _ = _agent("srv", tmp_path, http)
+    srv.restart_on_pull = True
+    srv.tick()
+    ziadost = state.request_update("srv")["update_request"]
+    srv.tick()                                        # pokyn prevezme
+    srv.tick()                                        # a zapíše hostiteľovi
+    assert req.read_text(encoding="utf-8").strip() == ziadost and srv.updating
+    srv.tick()
+    assert state.overview()["agents"][0]["update_request"] == ziadost   # čaká na hostiteľa
+
+    na_disku["v"] = "bbb222"                         # hostiteľ pullol (docker/host-pull.sh)
+    res.write_text(f"{ziadost}\n0\n", encoding="utf-8")
+    srv.tick()                                        # `tick` už vidí nový kód — reštart aj tak
+    srv.tick()
+    assert srv.needs_restart and not srv.updating
+    a = state.overview()["agents"][0]
+    assert a["update_request"] is None and a["pull_result"]["ok"] and a["pull_result"]["version"] == "bbb222"
+
+
+def test_update_request_in_container_gives_up_when_host_is_silent(hub_api, tmp_path: Path, monkeypatch):
+    from tester.hub import agent as agent_mod, gitcode
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    _host_files(monkeypatch, tmp_path)
+    monkeypatch.setattr(gitcode, "version", lambda: "aaa111")
+    clock = Clock()
+    srv, _, _ = _agent("srv", tmp_path, http, clock=clock)
+    srv.tick()
+    state.request_update("srv")
+    srv.tick()
+    srv.tick()
+    clock.t += agent_mod.HOST_PULL_TIMEOUT + 1
+    srv.tick()
+    srv.tick()
+    r = state.overview()["agents"][0]["pull_result"]
+    assert r["ok"] is False and "host-pull.sh" in r["output"] and not srv.updating
 
 
 def test_headless_agent_restarts_when_code_on_disk_changed(hub_api, tmp_path: Path, monkeypatch):

@@ -43,7 +43,8 @@ services:
       TRADEBOT_HUB_ACCEPT: ${TRADEBOT_HUB_ACCEPT:-true}
       TRADEBOT_HUB_SEND: ${TRADEBOT_HUB_SEND:-false}
       TRADEBOT_HUB_MAX_PARALLEL: ${TRADEBOT_HUB_MAX_PARALLEL:-0}
-      TRADEBOT_HUB_PULL: "off"
+      # off = pull len časovačom hostiteľa; host = aj hneď na ⟳ z karty Hub (docker/host-pull.sh, docs/HUB.md)
+      TRADEBOT_HUB_PULL: ${TRADEBOT_HUB_PULL:-off}
     env_file:
       - path: ../.env
         required: false
