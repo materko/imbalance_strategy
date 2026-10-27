@@ -157,7 +157,11 @@ o viac než 3 min starší než posledná udalosť), je živá, kým posledná u
 3 min (`HB_ALIVE_MS`), nezávisle od TF; keď k tomu bar neprišiel dlhšie než 4 bary TF, je to
 **trh zatvorený** (platforma beží, trh stojí). Bez pingu, ani udalosti 3 min = **ticho** — platforma
 spadla alebo zamrzla. Inštancia bez pingov (starý kód, Tester) sa posudzuje ako predtým: živá, kým
-posledná udalosť nie je staršia než 3 bary TF.
+posledná udalosť nie je staršia než 3 bary TF. Nasadenie (`live.state` na hube) berie čerstvejší z dvoch
+zdrojov: udalosti, ktoré už do hubu došli, a stav spoolu, ktorý agent hlási v heartbeate (`live.instances`,
+koniec posledného súboru na stroji). Po reštarte platformy totiž prehratá história (desiatky tisíc barov,
+kresieb a 1m predhistórie na 14 inštancií, ~135 000 udalostí) dobieha do hubu aj 10 min a dovtedy by
+nasadenie ukazovalo „ok“, hoci stratégia beží; karta inštancií (zrkadlo webapp) ukáže živú až po dobehnutí.
 
 ## C# (`csharp/TradeBot.Core/Live.cs`)
 

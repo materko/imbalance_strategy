@@ -2658,6 +2658,33 @@ def test_live_deploy_zoznam_spaja_applied_a_instanciu_zo_spoolu(tmp_path: Path):
     assert row["applied"]["config_hash"] == "stary" != row["config_hash"]
 
 
+def test_live_deploy_ozije_z_heartbeatu_kym_udalosti_dobiehaju(tmp_path: Path):
+    """Po reštarte platformy idú do hubu desaťtisíce udalostí prehratej histórie a nové ešte nedošli —
+    nasadenie má byť živé hneď, ako agent v heartbeate nahlási čerstvý ping zo spoolu."""
+    c, state, clock, t_agent, live = _deploy_hub(tmp_path)
+    H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
+    c.post("/api/live/accounts", json={"agent": "trade-pc", "platform": "ninjatrader", "label": "Sim", "login": "Sim101"},
+           headers=H("hlavny"))
+    d = c.post("/api/live/deployments", json={"account": "sim", "strategy": "ibsnet", "symbol": "MNQ 12-26", "tf": 3, "profile": "p"},
+               headers=H("hlavny")).json()
+    t_bar = _live_bar(2, 0)
+    c.post("/api/live/events", json={"agent": "trade-pc", "batches": [{"instance": LIVE_INST, "session": "a1b2c3d4",
+                                                                       "events": [_live_hello(), t_bar]}]}, headers=H(t_agent))
+    clock.t = t_bar["t"] / 1000.0 + 20 * 60      # udalosti v hube 20 min staré
+    assert c.get("/api/live/deployments", headers=H(t_agent)).json()[0]["live"]["alive"] is False
+    teraz = int(clock.t * 1000)
+    c.post("/api/agents/trade-pc/heartbeat", json={"jobs": [], "live": {"instances": [
+        {"instance": LIVE_INST, "session": "e5f6a7b8", "last_t": teraz - 2000, "last_hb": teraz - 2000,
+         "last_bar_ms": teraz - 60_000, "mode": "enabled", "profile": "p"}]}}, headers=H(t_agent))
+    row = c.get("/api/live/deployments", headers=H(t_agent)).json()[0]
+    assert row["live"]["alive"] is True and row["live"]["state"] == "live"
+    assert row["live"]["session"] == "e5f6a7b8" and row["live"]["last_hb"] == teraz - 2000 and row["live"]["host"] == "PC"
+    # agent hlási starší stav než hub má z udalostí → platí hub
+    c.post("/api/agents/trade-pc/heartbeat", json={"jobs": [], "live": {"instances": [
+        {"instance": LIVE_INST, "session": "a1b2c3d4", "last_t": 1, "mode": "enabled", "profile": "p"}]}}, headers=H(t_agent))
+    assert c.get("/api/live/deployments", headers=H(t_agent)).json()[0]["live"]["last_t"] == t_bar["t"]
+
+
 def test_hub_app_deploy_store_v_tom_istom_subore_ako_live(tmp_path: Path):
     pytest.importorskip("fastapi")
     from tester.hub.server import create_hub_app

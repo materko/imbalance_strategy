@@ -197,11 +197,29 @@ def add_deploy_routes(app: FastAPI, state: Any, deploy: DeployStore, store: Live
         dep["code_state"] = {"installed": installed, "state": stav}
         return dep
 
+    def _reported(dep: dict[str, Any]) -> dict[str, Any] | None:
+        """Inštancia nasadenia, ako ju agent naposledy hlásil v heartbeate (`live.instances`), alebo None."""
+        if not dep.get("instance") or not dep.get("agent") or not hasattr(state, "live_state"):
+            return None
+        hlasene = state.live_state(dep["agent"]) or {}
+        return next((i for i in hlasene.get("instances") or [] if i.get("instance") == dep["instance"]), None)
+
     def _with_live(dep: dict[str, Any]) -> dict[str, Any]:
         """K nasadeniu inštancia zo spoolu: videná? živá (`liveness`: ping alebo udalosť nedávno)? `state`
         `live` / `closed` (pinguje, trh stojí) / `silent`."""
         _with_code(dep)
         inst = store.instance(dep["instance"]) if dep.get("instance") else None
+        # Stav spoolu z heartbeatu agenta (koniec posledného súboru na stroji) je čerstvý hneď — udalosti
+        # po reštarte dobiehajú za ním aj 10 min (prehratá história desiatok tisíc udalostí), a dovtedy by
+        # nasadenie ukazovalo „ok“ namiesto „živá“.
+        hlasene = _reported(dep)
+        if hlasene is not None and int(hlasene.get("last_t") or 0) > int((inst or {}).get("last_t") or 0):
+            inst = {**(inst or {"host": None}), "last_t": hlasene.get("last_t"),
+                    "last_session": hlasene.get("session") or (inst or {}).get("last_session"),
+                    "profile": hlasene.get("profile") or (inst or {}).get("profile"),
+                    "tf": (inst or {}).get("tf") or dep.get("tf"),
+                    **{k: max(int(hlasene.get(k) or 0), int((inst or {}).get(k) or 0)) or None
+                       for k in ("last_bar_ms", "last_hb")}}
         if inst is None:
             dep["live"] = {"seen": False, "alive": False, "state": "silent", "last_t": None, "last_bar_ms": None, "last_hb": None,
                            "session": None, "profile": None, "host": None}
