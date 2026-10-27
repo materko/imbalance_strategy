@@ -1,6 +1,6 @@
 """Natívne behy C# stratégií na emulátore MultiCharts — pracovné procesy, súhrn ako história, behy bez histórie.
 
-Jedno miesto pre všetko, čo počíta emulátor MultiCharts v C# (`csharp/TradeBot.Backtest`) namiesto
+Jedno miesto pre všetko, čo počíta emulátor MultiCharts v C# (`tradebot/csharp/TradeBot.Backtest`) namiesto
 Python emulátora:
 
 * `POOL` — pracovné procesy `TradeBot.Host.exe` (op `backtest`) zdieľané celým procesom (hyperopt,

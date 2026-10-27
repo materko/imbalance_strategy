@@ -11,7 +11,7 @@ súbor vznikal len pri importe surového Dukascopy exportu (`tester.dukas_import
 pre pár, ktorý cez ten import neprešiel (krypto z burzy), sa nedal vyrobiť vôbec.
 
 Teraz sa robí z **toho istého skladu 1m sviečok**, aký číta Freqtrade aj emulátor
-(`data/tester/<zdroj>/<trh>/…`, zložený z `data_archive/`). Vďaka tomu je v QuoteManageri
+(`data/tester/<zdroj>/<trh>/…`, zložený z `data/archive/`). Vďaka tomu je v QuoteManageri
 presne to, na čom bežali backtesty — nie druhá kópia z inej cesty.
 
 ### Formát

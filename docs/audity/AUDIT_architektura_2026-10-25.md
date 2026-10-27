@@ -46,10 +46,10 @@ potom stratu stavu pri páde (N-WEB-1, N-HUB-1, N-DATA-1, atomické zápisy), po
 |---|---|---|
 | jadro a backtest adaptéry | `tradebot/core` 4,1 k riadkov, `tradebot/adapters/{freqtrade,multicharts,csharp}` | exekučný kontrakt, fill model, sizing, peniaze, warmup, DST, výkon slučiek |
 | stratégie | `tradebot/strategies` 38 k riadkov, 58 kľúčov v registry | vzorky `ibs`, `orb`, `vwaporb`, `noa`, `tks`; opakujúce sa vzory |
-| C# jadro | `csharp/` 11,9 k riadkov, 8 C# stratégií, most, native pool | parita s Pythonom, culture, zaokrúhľovanie, alokácie, protokol mosta |
+| C# jadro | `tradebot/csharp/` 11,9 k riadkov, 8 C# stratégií, most, native pool | parita s Pythonom, culture, zaokrúhľovanie, alokácie, protokol mosta |
 | webapp + CLI | `tester/webapp` 18,8 k riadkov, 16 routerov, 96 endpointov | fronta, perzistencia, index, súbežnosť, API kontrakt |
 | hub + agent + telemetria | `tester/hub` 7 k riadkov, `tradebot/live/{transport,shipper,spool,journal,store}` | obnova spojenia, stav na disku, idempotencia, zámky |
-| live obchodovanie | `tradebot/adapters/{ninjatrader,mt5}`, `csharp/TradeBot.Core/{Live,StaticHost}.cs`, `tradebot/live/*` | reštart s pozíciou, ordery, control, Telegram, tajomstvá |
+| live obchodovanie | `tradebot/adapters/{ninjatrader,mt5}`, `tradebot/csharp/TradeBot.Core/{Live,StaticHost}.cs`, `tradebot/live/*` | reštart s pozíciou, ordery, control, Telegram, tajomstvá |
 | frontend + dáta | `tester/webapp/static/js`, importéry, `data_archive`, `timeframes`, `livedata`, `livesim` | SSE/polling, pollery, skladanie TF, archív, front-month |
 
 Metóda: čítanie kódu šiestimi nezávislými audítormi (jeden na oblasť) s povinnosťou uviesť
@@ -86,7 +86,7 @@ flowchart TB
         strat -. "engine_factory pre *net" .-> bridge
     end
 
-    subgraph CS["C# (csharp/, C# 5, bez NuGet)"]
+    subgraph CS["C# (tradebot/csharp/, C# 5, bez NuGet)"]
         tbcore["TradeBot.Core<br/>IEngine, EngineRegistry, EngineHost,<br/>EntryLayers, EodCloseEngine, SessionClock,<br/>Json, Live (LiveSpool), StaticHost"]
         tbstrat["TradeBot.Strategies<br/>IbsNet, OrbNet, IbsEntryNet, VwapOrbNet,<br/>VwapAdxNet, NoaNet, TksNet, NyVaNet"]
         tbbt["TradeBot.Backtest<br/>Feather, CandleOps, McEmulator,<br/>NativeBacktest"]
@@ -245,7 +245,7 @@ kurzor sa posúva až po 200 od hubu, sklad je idempotentný, zrkadlo dopytuje d
 
 | úložisko | formát | píše | číta | atomicky? |
 |---|---|---|---|---|
-| `data_archive/tester/<zdroj>/<trh>/<stem>.<rok>.feather` | feather, 1 súbor/rok, **jediné dáta v gite** | importéry (`write_years`), `data_archive split` | `merge` | nie — prepis celého roka (N-DATA-1) |
+| `data/archive/tester/<zdroj>/<trh>/<stem>.<rok>.feather` | feather, 1 súbor/rok, **jediné dáta v gite** | importéry (`write_years`), `data_archive split` | `merge` | nie — prepis celého roka (N-DATA-1) |
 | `data/tester/…` + `.derived.json` | feather 1m + odvodené TF | `merge`, `timeframes.ensure`, adaptér `ensure_timeframe` | enginy, webapp graf | evidencia odvodených, split ich preskočí |
 | `tester/runs/<id>/{run,trades,plan}.json, log.txt` | JSON, git | `RunStore.save` | webapp, CLI, analytika | **nie** (N-WEB-4) |
 | `tester/runs/.index/runs.sqlite3` | sqlite WAL, odvodený | `RunIndex.put/sync` | `page/where/records` | self-healing, po chybe natrvalo `ok=False` (N-WEB-6) |
@@ -254,7 +254,7 @@ kurzor sa posúva až po 200 od hubu, sklad je idempotentný, zrkadlo dopytuje d
 | `tester/hub_data/state.json`, `results/*.zip`, `events.jsonl`, `tokens.json`, `live.sqlite` | JSON / zip / sqlite WAL | hub | hub, webapp (export) | state/tokens áno; zip nie |
 | `tester/agent.json`, `agent_state.json`, `tester/live/cursor.json` | JSON | agent | agent | state/cursor áno; `agent.json` **nie** |
 | spool `<platform>/TradeBot/spool/<instance>/*.jsonl` | JSONL, append-only, `schema: 1` | platforma (`LiveSpool`) | agent, webapp na obchodnom PC | flush po riadku, nikdy sa nemaže |
-| `tester/live/mirror.sqlite`, `data_live/{candles,trades,instances}` | sqlite / feather po mesiacoch | `LiveMirror`, `livedata.export` | karta Live, Diverzifikácia | hub plugin pushuje uzavreté mesiace |
+| `tester/live/mirror.sqlite`, `data/live/{candles,trades,instances}` | sqlite / feather po mesiacoch | `LiveMirror`, `livedata.export` | karta Live, Diverzifikácia | hub plugin pushuje uzavreté mesiace |
 
 ## 4. API a protokoly
 
@@ -356,7 +356,7 @@ obchod má `stop_last=85`, `take_profit=105`, SL 90 sa nikdy nezasiahne. `emulat
 podľa id; v `_exit_fill` po vyplnení vnútri minúty riešiť jednoznačný zásah stopu.
 
 **N-CS-1 (LG, CONFIRMED sondou) — C# zapína obaly vstupov podľa prítomnosti kľúčov v JSON, Python podľa
-hodnôt configu.** `csharp/TradeBot.Core/EntryLayers.cs:698-710` (`Wrap`: `cfg.ContainsKey("trendFilter")
+hodnôt configu.** `tradebot/csharp/TradeBot.Core/EntryLayers.cs:698-710` (`Wrap`: `cfg.ContainsKey("trendFilter")
 && cfg.ContainsKey("trendTF")`, `ContainsKey("entryConfirm")`, `ContainsKey("entryOrderType")`,
 `Flag(cfg, "fixedQty")`) vs. `tradebot/core/entry_filter.py:217-222` (`getattr(cfg, "trendTF")` má
 vždy default). Sonda: `{"trendFilter":"with"}` bez `trendTF` → C# bez filtra, Python s

@@ -1,7 +1,7 @@
 """ORBNet — ORB (Opening Range Breakout) s jadrom v C#.
 
-Logika je prepis `tradebot/strategies/orb` do C# (`csharp/TradeBot.Strategies/OrbNet`) nad
-generickým C# jadrom (`csharp/TradeBot.Core`). To isté jadro spúšťajú dva adaptéry:
+Logika je prepis `tradebot/strategies/orb` do C# (`tradebot/csharp/TradeBot.Strategies/OrbNet`) nad
+generickým C# jadrom (`tradebot/csharp/TradeBot.Core`). To isté jadro spúšťajú dva adaptéry:
 
 * **NinjaTrader 8** natívne — `tradebot/adapters/ninjatrader` (NinjaScript), šablóna
   `deploy/ninjatrader/ORBNet.cs`;

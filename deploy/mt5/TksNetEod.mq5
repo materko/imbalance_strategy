@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //| TksNetEod - (EOD 15:59 NY) TKS 1.0 (NQ Kompas) s jadrom v C# (.NET) ako Expert Advisor MetaTrader 5                    |
 //|                                                                                                   |
-//| Tento subor je len ukazovatel: cela logika je v C# jadre (`csharp/TradeBot.Strategies/TksNet`, |
+//| Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/csharp/TradeBot.Strategies/TksNet`, |
 //| prelozene `TradeBot.dll` v MQL5\Libraries) a vsetko okolo MetaTradera v generickom adapteri        |
 //| (`tradebot/adapters/mt5/TradeBotEA.mqh`, v MQL5\Include\TradeBot). Instalacia:                    |
 //|                                                                                                   |

@@ -1,4 +1,4 @@
-"""Zostavenie C# jadra — `csharp/bin/TradeBot.dll` a `TradeBot.Host.exe`.
+"""Zostavenie C# jadra — `tradebot/csharp/bin/TradeBot.dll` a `TradeBot.Host.exe`.
 
 Zdrojáky sú zámerne C# 5 bez NuGet závislostí, takže na Windows stačí `csc.exe`, ktorý je
 súčasťou .NET Frameworku (netreba .NET SDK ani Visual Studio); na macOS/Linuxe to isté

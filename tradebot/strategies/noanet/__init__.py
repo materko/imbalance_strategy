@@ -1,6 +1,6 @@
 """NOA 1.0 (C# jadro) — NOA 1.0 (Noise Area, Concretum) s jadrom v C#, aby bežala aj naživo v NinjaTraderi a MT5.
 
-Logika je prepis `tradebot/strategies/noa` do C# (`csharp/TradeBot.Strategies/NoaNet`) nad generickým C# jadrom
+Logika je prepis `tradebot/strategies/noa` do C# (`tradebot/csharp/TradeBot.Strategies/NoaNet`) nad generickým C# jadrom
 (obaly vstupov `EntryLayers.cs`). To isté jadro spúšťajú NinjaTrader 8 (`deploy/ninjatrader/NoaNet.cs`), MetaTrader 5
 (`deploy/mt5/NoaNet.mq5`) aj Freqtrade a emulátor MultiCharts cez most `tradebot/adapters/csharp`.
 

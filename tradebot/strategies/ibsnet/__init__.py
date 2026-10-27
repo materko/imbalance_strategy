@@ -1,7 +1,7 @@
 """IBSNet — IBS Imbalance Breakout s jadrom v C#.
 
-Logika je prepis `tradebot/strategies/ibs` do C# (`csharp/TradeBot.Strategies/IbsNet`) nad
-generickým C# jadrom (`csharp/TradeBot.Core`). To isté jadro spúšťajú dva adaptéry:
+Logika je prepis `tradebot/strategies/ibs` do C# (`tradebot/csharp/TradeBot.Strategies/IbsNet`) nad
+generickým C# jadrom (`tradebot/csharp/TradeBot.Core`). To isté jadro spúšťajú dva adaptéry:
 
 * **NinjaTrader 8** natívne — `tradebot/adapters/ninjatrader` (NinjaScript), šablóna
   `deploy/ninjatrader/IBSNet.cs`;

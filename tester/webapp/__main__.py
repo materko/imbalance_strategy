@@ -11,7 +11,7 @@ import sys
 #: Súbory, ktorých zmena si vyžaduje reštart (kód a jeho statické súbory), a čo sa nepočíta —
 #: história behov, profily a archív sa menia pri každom Pushi a reštart nepotrebujú.
 _CODE_EXT = (".py", ".js", ".html", ".css", ".json")
-_NOT_CODE = ("tester/runs/", "tester/profiles/", "tester/archive/", "data_archive/", "docs/")
+_NOT_CODE = ("tester/runs/", "tester/profiles/", "tester/archive/", "data/archive/", "docs/")
 
 
 def code_signature() -> str | None:
@@ -86,7 +86,7 @@ def main() -> int:
     # spadol az na "No history for ... found".
     chyba = data_archive.missing()
     if chyba:
-        print(f"Chyba {len(chyba)} pracovnych suborov - skladam ich z data_archive/ ...", flush=True)
+        print(f"Chyba {len(chyba)} pracovnych suborov - skladam ich z data/archive/ ...", flush=True)
         data_archive.main(["merge"])
 
     # Vyssie timeframy si Freqtrade z 1m nedopocita, chce subor na disku. Zoznam je

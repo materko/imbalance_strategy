@@ -163,7 +163,7 @@ koniec posledného súboru na stroji). Po reštarte platformy totiž prehratá h
 kresieb a 1m predhistórie na 14 inštancií, ~135 000 udalostí) dobieha do hubu aj 10 min a dovtedy by
 nasadenie ukazovalo „ok“, hoci stratégia beží; karta inštancií (zrkadlo webapp) ukáže živú až po dobehnutí.
 
-## C# (`csharp/TradeBot.Core/Live.cs`)
+## C# (`tradebot/csharp/TradeBot.Core/Live.cs`)
 
 `TradeBot.Core.LiveSpool` — C# 5, len BCL, **nikdy nevyhodí výnimku do obchodného vlákna**:
 každá metóda chytá `Exception`, pri chybe zapíše `LastError`, vypne sa (`Broken = true`) a ďalšie
@@ -441,7 +441,7 @@ nepovinné **Id účtu** (placeholder ukazuje slug názvu, ktorý by hub spravil
 
 „Nasadiť“ ponúka **len stratégie s C# jadrom** (`StrategySpec.csharp_dir`, v `/api/meta` príznak `csharp`) —
 NinjaTrader aj MT5 spúšťajú C# engine; pythonová stratégia sa na live dostane až portom do
-`csharp/TradeBot.Strategies`. **Symbol a TF sú nepovinné**: prázdne doplní webapp z profilu
+`tradebot/csharp/TradeBot.Strategies`. **Symbol a TF sú nepovinné**: prázdne doplní webapp z profilu
 (`tradebot.live.symbols`, `GET /api/live/deploy-defaults` = placeholder formulára) — TF z `_timeframe`,
 symbol z `_instrument` pre platformu účtu: najprv symbol, ktorý už na tom účte beží s rovnakým základom,
 inak NinjaTrader front-month kvartálneho CME kontraktu (`MNQ 12-26`, roll 8 dní pred tretím piatkom) a
@@ -737,7 +737,7 @@ sa / padá N min / visí N min / <problém, ktorý plugin sám hlási>` a `🟢 
 - `tester/tests/test_mt5_static_host.py` — `Spool*` cez reflexiu: súbor vznikne, `hello`+`bar`+`fill`
   +`order/modify` sú platné podľa `schema.validate`, `Version() == 5`, slot v id inštancie (`InstanceIdSlot`, `SpoolOpenSlot`),
   1m bary `SpoolMinute` (`m1`), EOD podľa hodín (`EodDue`), obnova rozbitého spoolu po `ReopenSeconds`.
-- `tester/tests/test_livedata.py` — export skladu do `data_live` (1m aj bary grafu, behy z Testera von, nič sa
+- `tester/tests/test_livedata.py` — export skladu do `data/live` (1m aj bary grafu, behy z Testera von, nič sa
   neprepíše), čítanie git + hub, `sync_hub`, plugin hubu `livedata` (ponuka mimo gitu, mesačný push do
   lokálneho bare repa), súbory pluginu cez API, poradie zdrojov sviečok okolo hranice, párovanie, API webapp.
 - `python -m tradebot.adapters.ninjatrader check` a `python -m tradebot.adapters.mt5 check` prekladajú.

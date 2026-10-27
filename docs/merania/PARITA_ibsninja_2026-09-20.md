@@ -1,7 +1,7 @@
 # Parita IBSNinja (C# jadro) s IBS (Python) — 2026-09-20
 
-`ibsninja` je prepis stratégie `ibs` do C# (`csharp/TradeBot.Strategies/IbsNinja` nad
-`csharp/TradeBot.Core`), aby tá istá logika bežala natívne v NinjaTraderi 8 a zároveň pod Freqtrade
+`ibsninja` je prepis stratégie `ibs` do C# (`tradebot/csharp/TradeBot.Strategies/IbsNinja` nad
+`tradebot/csharp/TradeBot.Core`), aby tá istá logika bežala natívne v NinjaTraderi 8 a zároveň pod Freqtrade
 cez most `tradebot/adapters/csharp` ([NINJATRADER.md](../NINJATRADER.md)). Otázka merania: **dáva C#
 jadro to isté čo Python engine?** Nie „podobné výsledky" — to isté, na každom bare.
 
@@ -152,7 +152,7 @@ konci spadne na GIL, návratový kód 127 a webapp by beh označila za zlyhaný)
   (`python -m tradebot.adapters.ninjatrader check`), ale beh v NinjaTraderi zatiaľ nikto neurobil.
   Prvé porovnanie má byť počet zón a vstupov proti Freqtrade behu na tých istých dátach.
 - Parita je vlastnosť, ktorá sa stráca potichu: každá zmena logiky v `ibs` sa musí urobiť aj
-  v `csharp/…/IbsNinja`. Stráži to `tester/tests/test_csharp_parity.py` (syntetické bary so všetkým
+  v `tradebot/csharp/…/IbsNinja`. Stráži to `tester/tests/test_csharp_parity.py` (syntetické bary so všetkým
   zapnutým, oba transporty, golden okno) a `tradebot/tests/test_csharp_core.py` (C# config má každé
   pole Python configu s rovnakým defaultom).
 

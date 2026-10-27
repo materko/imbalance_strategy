@@ -9,10 +9,10 @@
 ### Kam to patrí v ceste dát
 Importér je **jeden na zdroj** a robí vždy to isté: vyčistí surový súbor, prevedie ho do
 feather v tom timeframe, v akom sú surové dáta (Dukascopy = 1m), rozdelí po rokoch a uloží
-do `data_archive/`. Tam jeho práca končí — v archíve je len to, čo naozaj prišlo zo zdroja.
+do `data/archive/`. Tam jeho práca končí — v archíve je len to, čo naozaj prišlo zo zdroja.
 
-    raw  ->  import (čistenie, feather v TF zdroja, split po rokoch)  ->  data_archive/
-    data_archive/  ->  merge  ->  data/tester/  ->  vyššie TF, export pre QuoteManager
+    raw  ->  import (čistenie, feather v TF zdroja, split po rokoch)  ->  data/archive/
+    data/archive/  ->  merge  ->  data/tester/  ->  vyššie TF, export pre QuoteManager
 
 Zvyšok si spraví Tester sám: `tester.data_archive merge` zloží pracovné súbory,
 `tester.timeframes` (alebo Freqtrade adaptér počas behu) dopočíta vyššie timeframy a
@@ -289,7 +289,7 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--fix-scale", action="store_true", help="opraviť riadky s cenou ×1000 / ÷1000")
     ap.add_argument("--keep-padding", action="store_true", help="nevyhadzovať ploché opakované bary")
     ap.add_argument("--archive", type=Path, default=TESTER_ARCHIVE,
-                    help="kam ročné feather súbory (default data_archive/tester/)")
+                    help="kam ročné feather súbory (default data/archive/tester/)")
     ap.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre Tester")
     ap.add_argument("--replace", action="store_true",
                     help="roky z exportu prepísať celé (inak sa zlúčia s tým, čo v archíve už je)")

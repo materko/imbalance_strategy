@@ -3,13 +3,13 @@
 Dva stromy a jedno pravidlo medzi nimi:
 
 ```
-data_archive/tester/<zdroj>/<trh>/  po rokoch, LEN z burzy alebo z raw exportu   v gite
+data/archive/tester/<zdroj>/<trh>/  po rokoch, LEN z burzy alebo z raw exportu   v gite
 data/tester/<zdroj>/<trh>/          sklad sviečok: zložené z archívu + dopočítané  gitignored
 data/quotemanager/<zdroj>/          ASCII export na import do QuoteManagera        gitignored
-data_live/                          sviečky a obchody zo stratégií naživo (§D)    v gite (push z hubu)
+data/live/                          sviečky a obchody zo stratégií naživo (§D)    v gite (push z hubu)
 ```
 
-**Do `data_archive/` ide výhradne to, čo naozaj prišlo z burzy alebo z raw dát** — píše doň
+**Do `data/archive/` ide výhradne to, čo naozaj prišlo z burzy alebo z raw dát** — píše doň
 `split` (a `dukas_import` pri importe surového exportu). Nič dopočítané: vyššie timeframy
 poskladané z 1m sú evidované a `split` ich preskočí.
 
@@ -72,7 +72,7 @@ do histórie ďalších 86 MB, ktoré sa už nedajú odstrániť bez prepísania
 Rok, ktorý sa skončil, sa už nikdy nezmení, takže jeho blob v histórii existuje raz:
 
 ```
-data_archive/tester/binance/futures/
+data/archive/tester/binance/futures/
     BTC_USDT_USDT-1m-futures.2019.feather    4.7 MB
     ...
     BTC_USDT_USDT-1m-futures.2026.feather    9.8 MB   <- jediný, ktorý sa mení
@@ -95,7 +95,7 @@ TIMERANGE=20260801-20260905 ./deploy/freqtrade/scripts/download-data.sh
 SKIP_COINBASE=1 DAYS=180 ./deploy/freqtrade/scripts/download-data.sh
 ```
 
-Skripty volajú `split` samy, takže po stiahnutí stačí commitnúť `data_archive/tester/`.
+Skripty volajú `split` samy, takže po stiahnutí stačí commitnúť `data/archive/tester/`.
 
 ### Sťahujú sa len oficiálne timeframy búrz
 
@@ -187,13 +187,13 @@ Priamo použiteľný nie je. Všetko potrebné spraví jeden príkaz:
 
 alebo priamo `PY -m tester.dukas_import <csv> --symbol NAS100`. Import robí vždy to isté
 a nič viac: **vyčistí** surový súbor, spraví z neho **feather v timeframe zdroja** (Dukascopy
-= 1m), **rozdelí po rokoch** a uloží do `data_archive/`. Tam jeho práca končí.
+= 1m), **rozdelí po rokoch** a uloží do `data/archive/`. Tam jeho práca končí.
 Rok, ktorý už v archíve je, sa s exportom **zlúči** (pri tom istom čase vyhrá nový) — čiastočný
 export (len október) zvyšok roka nezmaže; celý rok prepíše len `--replace`. Zápis je atomický
 (platí pre `dukas_import`, `bento_import` aj `ibkr_import`).
 
 ```
-raw  ->  import (čistenie, feather, split po rokoch)  ->  data_archive/  (commituje sa)
+raw  ->  import (čistenie, feather, split po rokoch)  ->  data/archive/  (commituje sa)
 ```
 
 Všetko ostatné je odvodené a robí si to Tester sám z archívu:
@@ -332,7 +332,7 @@ Import (`tester.bento_import`) robí:
 4. Čas baru ostáva časom otvorenia (UTC); objem je **burzový**, inštrument má
    `has_real_volume=True` a objemový filter má na ňom zmysel (na Dukascopy nie).
 
-Zvyšok je rovnaký ako pri Dukascopy: ročné feathery do `data_archive/tester/databento/futures/`,
+Zvyšok je rovnaký ako pri Dukascopy: ročné feathery do `data/archive/tester/databento/futures/`,
 merge, dopočet TF, ASCII pre QuoteManager. Symbol musí byť v
 `tradebot/core/instruments_databento.json` (tick, hodnota bodu, náklad v tickoch; MNQ:
 tick 0,25, bod 2 $, náklad 1,5 ticku = pol spreadu a provízia). V Testeri je to pár
@@ -388,7 +388,7 @@ Symbol musí byť v `tradebot/core/instruments_ibkr.json` (tick 0,01, bod 1 $ = 
 náklad v tickoch). Trh je `futures` len v zmysle „dá sa shortovať a páčiť" (maržový
 účet) — na spote by Tester shorty odmietol. V Testeri je to pár `AAPL/USD` (v ponuke
 `AAPL`) na „burze" MultiCharts, beh ide emulátorom. Ročné feathery sú v
-`data_archive/tester/ibkr/futures/`.
+`data/archive/tester/ibkr/futures/`.
 
 Prepínače: `--symbol` (opakovateľný), `--from` / `--to`, `--archive`, `--no-merge`.
 
@@ -436,20 +436,20 @@ v MultiCharts, nie na PnL.
 Stratégie nasadené v NinjaTraderi a MetaTraderi 5 posielajú cez live telemetriu ([LIVE.md](LIVE.md)) bary
 grafu, **1m bary symbolu** (`m1`, nezávisle od TF grafu, po štarte aj 3 dni späť) a vyplnenia u brokera.
 **Drží ich hub** (plugin `livedata`, [HUB.md „Pluginy“](HUB.md)): `tester.livedata` prepisuje jeho sklad
-telemetrie (`live.sqlite`) do stromu v tvare `data_live/` — **oddelene od stiahnutých dát**: nič odtiaľ nejde
-do `data/` ani do `data_archive/` a stiahnuté sa tým nikdy neprepíše.
+telemetrie (`live.sqlite`) do stromu v tvare `data/live/` — **oddelene od stiahnutých dát**: nič odtiaľ nejde
+do `data/` ani do `data/archive/` a stiahnuté sa tým nikdy neprepíše.
 
 ```
-data_live/candles/<platforma>/<symbol>/1m-<YYYY-MM>.feather    z `m1` (stĺpce ako Freqtrade: date UTC, OHLCV)
-data_live/candles/<platforma>/<symbol>/<tf>-<YYYY-MM>.feather  bary grafu z `bar` (aj staršie behy bez `m1`)
-data_live/trades/<inštancia>/<YYYY-MM>.feather                 obchody u brokera s profilom behu (mesiac zatvorenia)
-data_live/instances/<inštancia>.json                           platforma, účet, symbol, TF, behy, config profilov
+data/live/candles/<platforma>/<symbol>/1m-<YYYY-MM>.feather    z `m1` (stĺpce ako Freqtrade: date UTC, OHLCV)
+data/live/candles/<platforma>/<symbol>/<tf>-<YYYY-MM>.feather  bary grafu z `bar` (aj staršie behy bez `m1`)
+data/live/trades/<inštancia>/<YYYY-MM>.feather                 obchody u brokera s profilom behu (mesiac zatvorenia)
+data/live/instances/<inštancia>.json                           platforma, účet, symbol, TF, behy, config profilov
 ```
 
 | kde | čo | kto píše |
 |---|---|---|
 | hub `hub_data/plugins/livedata/data_live/` | všetko, každých 5 min zo `live.sqlite` | plugin `livedata` |
-| repozitár `data_live/` (v gite) | **uzavreté mesiace** — push raz za mesiac, od `push_day`. dňa (2.) | plugin `livedata`, vlastný klon |
+| repozitár `data/live/` (v gite) | **uzavreté mesiace** — push raz za mesiac, od `push_day`. dňa (2.) | plugin `livedata`, vlastný klon |
 | webapp `tester/live/data_live_hub/` (gitignored) | čo hub ešte nepushol: bežiaci mesiac, mesiac pred pushom | webapp z hubu (`sync_hub`) |
 
 - Mesiac na súbor: uzavretý mesiac sa už nemení, takže jeho blob je v gite raz. Neskoro doručené dáta za už
@@ -457,16 +457,16 @@ data_live/instances/<inštancia>.json                           platforma, úče
 - Viac inštancií na tom istom symbole sa zlúči podľa času; čo už v súbore je, **vyhráva** (bar po reštarte
   sa zopakuje pri prehrávaní predhistórie). Obchody a behy, ktoré zo skladu vypadnú, v súboroch ostanú.
 - Behy zo Strategy Testera / Analyzera (`hello.tester`) sa vynechajú.
-- **Webapp** číta `data_live/` z gitu (po Pull) a každých 5 minút si od hubu stiahne súbory, ktorých obsah
+- **Webapp** číta `data/live/` z gitu (po Pull) a každých 5 minút si od hubu stiahne súbory, ktorých obsah
   v gite ešte nie je (`GET /api/plugins/livedata/files`). Čítanie dá oba korene dokopy, súbor z hubu má
   prednosť. Stiahnutý súbor zmaže až vtedy, keď ho má git s tým istým obsahom — medzi pushom hubu a Pull
-  nič nechýba. Webapp `data_live/` **nepushuje** (Push vo webapp ho nechá tak). Bez hubu webapp exportuje
+  nič nechýba. Webapp `data/live/` **nepushuje** (Push vo webapp ho nechá tak). Bez hubu webapp exportuje
   vlastné zrkadlo do `tester/live/data_live_hub/` (`TRADEBOT_LIVE_EXPORT=0` to vypne).
 
 ```bash
 PY -m tester.livedata sync        # webapp: z hubu, čo ešte nie je v gite
 PY -m tester.livedata status      # inštancie, obchody, rozsah sviečok (git + hub)
-PY -m tester.livedata export --mirror <sklad> --root <adresár>   # sklad telemetrie -> strom data_live
+PY -m tester.livedata export --mirror <sklad> --root <adresár>   # sklad telemetrie -> strom data/live
 PY -m tester.livesim <inštancia> --pair MNQ/USD   # hranica, zdroje sviečok, simulácia vs. naživo
 ```
 

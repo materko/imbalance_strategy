@@ -158,13 +158,16 @@ def test_missing_bez_archivu_nic_nehlasi(dirs):
 
 
 def test_pracovne_data_su_gitignored_a_archiv_nie():
-    """`data/` je celé odvodené (archív + dopočet), takže do gitu nesmie ísť nič z neho.
+    """V `data/` je v gite len archív a živé dáta; pracovný sklad a exporty sú odvodené a do gitu nesmú.
 
-    Archív naopak áno — je to jediná vec z dát, ktorú repozitár nesie.
+    Archív a živé dáta nikdy nie sú pracovným stromom `split`/`merge` (docs/DIRECTORIES.md).
     """
-    from tradebot.core.paths import DATA, DATA_ARCHIVE, REPO
+    from tradebot.core.paths import ARCHIVE_ROOTS, DATA, DATA_ARCHIVE, LIVE_DATA, REPO
 
-    pravidla = (REPO / ".gitignore").read_text(encoding="utf-8").splitlines()
-    assert "data/" in [r.strip() for r in pravidla]
-    assert not any(r.strip().startswith(("data_archive", "!data")) for r in pravidla)
-    assert DATA_ARCHIVE.name == "data_archive" and DATA.name == "data"
+    pravidla = [r.strip() for r in (REPO / ".gitignore").read_text(encoding="utf-8").splitlines()]
+    assert {"/data/*", "!/data/archive/", "!/data/live/"} <= set(pravidla)
+    assert "data/" not in pravidla
+    assert DATA_ARCHIVE == DATA / "archive"
+    for archiv, praca in ARCHIVE_ROOTS:
+        assert not archiv.is_relative_to(praca) and not praca.is_relative_to(archiv)
+        assert not LIVE_DATA.is_relative_to(praca)

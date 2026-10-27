@@ -3,7 +3,7 @@
 Kód hubu je plytký klon, ktorý `tester.hub.update` každých pár minút tvrdo prepíše na `origin/main` (a vo
 verejnom repozitári je bez tokenu), takže commitovať doň nejde. Plugin si preto drží vlastný klon
 `hub_data/plugins/livedata/repo`: plytký (`--depth 1`), partial (`--filter=blob:none`) a sparse len na
-`data_live/` — pár megabajtov. Pred každým pushom ho prepíše na najnovší `origin/<vetva>`, nakopíruje
+`data/live/` — pár megabajtov. Pred každým pushom ho prepíše na najnovší `origin/<vetva>`, nakopíruje
 súbory, commitne a pushne; keď medzitým pushol niekto iný (non-fast-forward), skúsi to celé znova.
 """
 
@@ -64,7 +64,7 @@ def _prepare(repo: Path, remote: str, sub: str) -> None:
 
 
 def push_files(repo: Path, remote: str, branch: str, src_root: Path, rels: list[str], message: str,
-               author: str, *, sub: str = "data_live", log: Callable[[str], None] | None = None,
+               author: str, *, sub: str = "data/live", log: Callable[[str], None] | None = None,
                ssh_key: Path | None = None) -> str:
     """Skopíruje `src_root/<rel>` do `<klon>/<sub>/<rel>`, commitne a pushne na `branch`.
     `ssh_key` = deploy kľúč pre `remote` v tvare `git@github.com:…` (inak HTTPS s tokenom v URL).

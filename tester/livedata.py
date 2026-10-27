@@ -1,7 +1,7 @@
 """Živé dáta: sviečky a skutočné obchody zo stratégií, ktoré bežali naživo (NinjaTrader, MT5).
 
 Zdroj je sklad live telemetrie (`LiveStore`, docs/LIVE.md) — na hube `live.sqlite`, vo webapp jej zrkadlo.
-Export ho prepisuje do stromu v tvare `data_live/` — **oddelene** od stiahnutých dát (`data/`, `data_archive/`),
+Export ho prepisuje do stromu v tvare `data/live/` — **oddelene** od stiahnutých dát (`data/`, `data/archive/`),
 ktoré sa tým nikdy nezmenia:
 
 * ``candles/<platforma>/<symbol>/<tf>-<YYYY-MM>.feather`` — 1m z udalostí ``m1`` (adaptér ich posiela
@@ -15,15 +15,15 @@ ktoré sa tým nikdy nezmenia:
 Kto čo drží:
 
 * **hub** (plugin `livedata`, `tester/hub/plugins/livedata`) exportuje `live.sqlite` do svojho adresára
-  a **uzavreté mesiace raz za mesiac pushne do gitu** (`LIVE_DATA` = `data_live/` v repozitári),
-* **webapp** číta `data_live/` z gitu a to, čo hub ešte nepushol, si od neho stiahne (`sync_hub`) do
+  a **uzavreté mesiace raz za mesiac pushne do gitu** (`LIVE_DATA` = `data/live/` v repozitári),
+* **webapp** číta `data/live/` z gitu a to, čo hub ešte nepushol, si od neho stiahne (`sync_hub`) do
   `LIVE_DATA_HUB` (gitignored). Čítanie (`instances`, `trades`, `load_candles`) dá oba korene dokopy;
   súbor z hubu má prednosť. Bez hubu webapp do `LIVE_DATA_HUB` exportuje vlastné zrkadlo.
 
 Behy zo Strategy Testera / Analyzera (``hello.tester``) sa vynechajú — nie sú to živé dáta. Súbor sa zapíše,
 len keď sa jeho obsah zmenil.
 
-    python -m tester.livedata export --root <adresár>   # sklad / zrkadlo -> strom data_live
+    python -m tester.livedata export --root <adresár>   # sklad / zrkadlo -> strom data/live
     python -m tester.livedata sync                      # z hubu, čo ešte nie je v gite
     python -m tester.livedata status                    # čo je k dispozícii (git + hub)
 """
@@ -549,7 +549,7 @@ def _status(root: Path | None) -> None:
 def main(argv: Iterable[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m tester.livedata", description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
-    e = sub.add_parser("export", help="sklad live telemetrie -> strom data_live")
+    e = sub.add_parser("export", help="sklad live telemetrie -> strom data/live")
     e.add_argument("--mirror", default=str(LIVE_MIRROR), help="zrkadlo webapp alebo live.sqlite hubu")
     e.add_argument("--root", default=str(LIVE_DATA_HUB), help="kam (predvolene tester/live/data_live_hub)")
     sub.add_parser("sync", help="z hubu (tester/agent.json), čo ešte nie je v gite")

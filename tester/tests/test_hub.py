@@ -496,8 +496,8 @@ def test_sparse_rules_pick_code_and_drop_ballast(tmp_path: Path):
         pytest.skip("bez gitu")
     repo = tmp_path / "klon"
     subory = ["tradebot/core/paths.py", "tester/hub/agent.py", "tester/profiles/moj.json",
-              "docs/HUB.md", "data_archive/tester/binance/futures/BTC-1m-2025.feather",
-              "data_archive/tester/dukascopy/futures/NAS100-1m-2025.feather",
+              "docs/HUB.md", "data/archive/tester/binance/futures/BTC-1m-2025.feather",
+              "data/archive/tester/dukascopy/futures/NAS100-1m-2025.feather",
               "tester/runs/20260920-1/run.json", "tester/analytics/a.json", "tester/sweeps/s.json"]
     for rel in subory:
         f = repo / rel
@@ -513,12 +513,12 @@ def test_sparse_rules_pick_code_and_drop_ballast(tmp_path: Path):
     assert r["ok"], r["output"]
     zostalo = {rel for rel in subory if (repo / rel).exists()}
     assert zostalo == {"tradebot/core/paths.py", "tester/hub/agent.py", "tester/profiles/moj.json",
-                       "docs/HUB.md", "data_archive/tester/binance/futures/BTC-1m-2025.feather"}
+                       "docs/HUB.md", "data/archive/tester/binance/futures/BTC-1m-2025.feather"}
     assert sparse.show(repo=str(repo))["on"]
 
     # celý archív, ale bez cudzích behov
     sparse.apply(sparse.build_rules(None, history=False), filter_blobs=False, repo=str(repo))
-    assert (repo / "data_archive/tester/dukascopy/futures/NAS100-1m-2025.feather").exists()
+    assert (repo / "data/archive/tester/dukascopy/futures/NAS100-1m-2025.feather").exists()
     assert not (repo / "tester/runs/20260920-1/run.json").exists()
 
     # a späť celý strom
@@ -543,10 +543,10 @@ def test_sparse_build_rules():
     from tester.hub import sparse
 
     assert sparse.build_rules() == ["/*"]                       # nič sa nevyradí
-    assert sparse.build_rules([]) == ["/*", "!/data_archive/**"]
+    assert sparse.build_rules([]) == ["/*", "!/data/archive/**"]
     assert sparse.build_rules(["binance", " dukascopy "]) == [
-        "/*", "!/data_archive/**", "/data_archive/tester/binance/**",
-        "/data_archive/tester/dukascopy/**"]
+        "/*", "!/data/archive/**", "/data/archive/tester/binance/**",
+        "/data/archive/tester/dukascopy/**"]
     bez = sparse.build_rules(None, history=False)
     assert bez[0] == "/*" and "!/tester/runs/**" in bez and "!/tester/sweeps/**" in bez
 
@@ -3098,3 +3098,18 @@ def test_fast_forward_odmietne_strom_s_necommitnutymi_zmenami(tmp_path: Path, mo
     out = upd.fast_forward()
     assert not out["ok"] and "kod.py" in out["output"]
     assert (tmp_path / "kod.py").read_text(encoding="utf-8") == "x = 2\n"
+
+
+def test_sparse_migrate_legacy_rewrites_old_data_paths(monkeypatch):
+    """Klon nastavený pred presunom pod `data/` dostane tie isté pravidlá na nové cesty; nový klon nič."""
+    from tester.hub import sparse
+
+    stare = ["/*", "!/data_archive/**", "/data_archive/tester/binance/**", "!/tester/runs/**"]
+    volane = []
+    monkeypatch.setattr(sparse, "show", lambda repo=None: {"rules": list(stare)})
+    monkeypatch.setattr(sparse, "apply", lambda rules, **kw: volane.append((list(rules), kw)) or {"ok": True})
+    assert sparse.migrate_legacy() == {"ok": True}
+    assert volane == [(["/*", "!/data/archive/**", "/data/archive/tester/binance/**", "!/tester/runs/**"],
+                       {"filter_blobs": False, "repo": None})]
+    monkeypatch.setattr(sparse, "show", lambda repo=None: {"rules": sparse.build_rules(["binance"])})
+    assert sparse.migrate_legacy() is None

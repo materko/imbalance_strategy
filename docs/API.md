@@ -156,7 +156,7 @@ Polia a odpovede sú v `/docs`; tu je, na čo ktorá skupina je.
 |---|---|
 | `GET/POST /api/analytics/history` · `GET/DELETE /api/analytics/history/{id}` | uložené analytiky (záver s odkazmi na behy, nie obchody) |
 | `POST /api/analytics/history/{id}/note` · `GET …/{id}/zadanie` · `POST …/{id}/posudok` | poznámka, čísla s otázkami pre AI, zápis posudku |
-| `GET /api/diversify/trades` · `/live` · `/livedata` · `/livedata/view` | Diverzifikácia: obchody behov, inštancie naživo, živé behy z `data_live` |
+| `GET /api/diversify/trades` · `/live` · `/livedata` · `/livedata/view` | Diverzifikácia: obchody behov, inštancie naživo, živé behy z `data/live` |
 | `GET /api/git/status` · `POST /api/git/pull` · `POST /api/git/push` | Pull a Push z hlavičky (Push len `runs/`, `sweeps/`, `profiles/`, `analytics/`, `archive/`) |
 | `GET /api/hub` · `POST/DELETE /api/hub/config` · `POST /api/hub/token` | stav hubu a agentov, pripojenie webapp k hubu |
 | `POST /api/hub/jobs` · `/runs` · `/hyperopts` · `GET /api/hub/jobs[/{id}]` · `POST …/{id}/cancel` | zadania na hub ([HUB.md](HUB.md)) |

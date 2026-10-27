@@ -372,7 +372,7 @@ nginx). `TRADEBOT_HUB_BIND=0.0.0.0` ho dá priamo na sieť, ale potom ide token 
 
 ### Chudý klon: čo agent z repozitára vôbec ťahá
 
-Repozitár nesie aj dáta: `data_archive/` (~2 GB sviečok po rokoch) a `tester/runs/`
+Repozitár nesie aj dáta: `data/archive/` (~2 GB sviečok po rokoch) a `tester/runs/`
 (história behov, dnes cez 6 GB). Tester ich chce, ale **stroj, ktorý len počíta, z nich
 potrebuje nanajvýš archív toho, na čom počíta** — a každý `git pull` mu ich aj tak ťahá.
 
@@ -439,7 +439,7 @@ docker compose --env-file .env -f docker/docker-compose.agent.yml logs -f
 ```
 
 Kontajner mountuje z hostiteľa `tester/` (história, stav agenta), `data/` a
-`data_archive/` (sklad sviečok; chýbajúce si zloží pri štarte), `deploy/freqtrade/`,
+`data/archive/` (sklad sviečok; chýbajúce si zloží pri štarte), `deploy/freqtrade/`,
 `tradebot/` (read-only) a `.git/` (read-only, len na verziu). **`git pull` sa v kontajneri
 nerobí** (`TRADEBOT_HUB_PULL=off`) — rob ho na hostiteľovi; agent zmenu kódu na disku
 spozná, dočíta, čo počíta, odhlási sa a skončí, a `restart: unless-stopped` ho zdvihne na
@@ -584,7 +584,7 @@ v registry. Plugin = balík `tester/hub/plugins/<meno>/`, ktorý vystaví `PLUGI
 |---|---|
 | `watchdog` | stroje s aktívnym nasadením, ktoré sa neozvali / znova hlásia, a ostatné pluginy, keď sa nenačítali, padajú dlhšie ako 5 min, visia alebo samy hlásia `problem` (docs/LIVE.md, „Strážca (hub)“) |
 | `ff_calendar` | červené (High impact) správy z kalendára ForexFactory → upozornenie do Telegramu pred udalosťou |
-| `livedata` | živé dáta stratégií (sviečky vrátane 1m, obchody) zo `live.sqlite` do mesačných feather; uzavreté mesiace raz za mesiac push do gitu (`data_live/`), zvyšok ponúka webapp (docs/DATA.md §D) |
+| `livedata` | živé dáta stratégií (sviečky vrátane 1m, obchody) zo `live.sqlite` do mesačných feather; uzavreté mesiace raz za mesiac push do gitu (`data/live/`), zvyšok ponúka webapp (docs/DATA.md §D) |
 
 **Kontrakt.** `PluginHost` dá každému pluginu vlastné vlákno a volá `tick()` každých `interval`
 sekúnd; výnimka hub nezhodí, zapíše sa do stavu (`errors`, `error_since`, `last_error`) a ohlási ju
@@ -617,8 +617,8 @@ Každých 5 minút prepíše sklad telemetrie hubu (`live.sqlite`) do `hub_data/
 (`tester.livedata`: mesačné feather sviečok — aj 1m `m1` — a obchodov, popisy inštancií; docs/DATA.md §D).
 
 - **Push do gitu**: od `push_day`. dňa mesiaca (UTC, predvolene 2.) idú súbory **uzavretých** mesiacov a popisy
-  inštancií do `data_live/` na `branch`. Z vlastného klonu `hub_data/plugins/livedata/repo` (plytký, partial,
-  sparse len `data_live/`), nie z klonu, z ktorého hub beží — ten si `update` tvrdo prepisuje. Predbehnutý push
+  inštancií do `data/live/` na `branch`. Z vlastného klonu `hub_data/plugins/livedata/repo` (plytký, partial,
+  sparse len `data/live/`), nie z klonu, z ktorého hub beží — ten si `update` tvrdo prepisuje. Predbehnutý push
   (iný commit) sa zopakuje. Commit vznikne len pri zmene obsahu; zlyhaný push sa skúša každú hodinu a po dni ho
   ohlási strážca.
 - **Webapp** si cez `GET /api/plugins/livedata/files` stiahne súbory, ktorých obsah v gite ešte nie je.
@@ -783,6 +783,6 @@ z formulára), `POST /api/hub/accept` (prepínač prijímania) a
   zdieľané úložisko by bol zásah do jeho privátneho API. Namiesto toho sa dá pustiť
   ten istý hyperopt s rôznym `--seed` na rôznych agentoch — keď skončia na tom istom plató,
   je to silnejší signál než jedno hľadanie s viac epochami.
-- Nesynchronizuje dáta. Každý agent musí mať zložený sklad sviečok (`data_archive
+- Nesynchronizuje dáta. Každý agent musí mať zložený sklad sviečok (`data/archive
   merge`); kód si pullne sám (viď „Verzia kódu"), ale len to, čo je v `main`.
 - Nerobí TLS ani používateľov — token per agent je identita, šifrovanie dá reverse proxy.

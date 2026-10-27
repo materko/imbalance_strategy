@@ -1,4 +1,4 @@
-"""`NyVaEsNetConfig` — tie isté parametre ako NY VA BREAKOUT ES; číta ich C# jadro (`csharp/TradeBot.Strategies/NyVaNet/NyVaConfig.cs`).
+"""`NyVaEsNetConfig` — tie isté parametre ako NY VA BREAKOUT ES; číta ich C# jadro (`tradebot/csharp/TradeBot.Strategies/NyVaNet/NyVaConfig.cs`).
 
 Vlastná trieda existuje len preto, že registry hľadá stratégiu podľa triedy configu (`spec_for_config`).
 """

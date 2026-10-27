@@ -1,6 +1,6 @@
 """Plugin `livedata` (docs/DATA.md §D): živé dáta stratégií drží hub a uzavreté mesiace raz za mesiac pushne do gitu.
 
-Každý tick (`interval`) prepíše sklad telemetrie hubu (`live.sqlite`) do stromu `data_live/` vo svojom
+Každý tick (`interval`) prepíše sklad telemetrie hubu (`live.sqlite`) do stromu `data/live/` vo svojom
 adresári (`tester.livedata.export`: mesačné feather sviečok a obchodov, popis inštancií). Webapp si cez
 `GET /api/plugins/livedata/files` stiahne to, čo **ešte nie je v gite** (súbor, ktorého obsah sa líši od
 naposledy pushnutého) — bežiaci mesiac a mesiac, ktorý čaká na push.
@@ -47,7 +47,7 @@ def _month_now(now: float) -> tuple[str, str, int]:
 
 
 class LiveData(HubPlugin):
-    title = "Živé dáta (data_live)"
+    title = "Živé dáta (data/live)"
     interval = 300.0
     max_tick = 1800.0   # prvý export veľkého skladu a push trvajú
 

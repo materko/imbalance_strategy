@@ -1,6 +1,6 @@
 """EOD kópie C# stratégií (`<kľúč>eod`) proti predlohe — o 15:59 New York je všetko zavreté, inak to isté.
 
-`EodCloseEngine` (`csharp/TradeBot.Core/EodClose.cs`) obalí engine predlohy aj s jeho obalmi vstupov. Kontroluje sa:
+`EodCloseEngine` (`tradebot/csharp/TradeBot.Core/EodClose.cs`) obalí engine predlohy aj s jeho obalmi vstupov. Kontroluje sa:
 
 * **až po prvý zásah EOD** sú ordery, kresby aj koniec seansy bar po bare tie isté ako pri predlohe (mimo okna sa
   nesmie zmeniť nič) — prvý rozdiel smie byť len na bare v okne EOD;

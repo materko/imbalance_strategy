@@ -44,7 +44,7 @@ z futures pri obchodovaní CFD.
 - **Jadro ani adaptéry nepoznajú konkrétny trh ani indikátor menom.** Stratégia v configu
   deklaruje, aké série potrebuje; adaptér ich doručí. Tá istá deklarácia platí pre backtest
   (Freqtrade, emulátor MultiCharts) aj živý beh — stratégia sa píše pre všetky enginy naraz.
-- **C# 5 bez NuGet, len BCL** (`csharp/TradeBot.Core`), aby to preložil `csc.exe`, NinjaTrader aj
+- **C# 5 bez NuGet, len BCL** (`tradebot/csharp/TradeBot.Core`), aby to preložil `csc.exe`, NinjaTrader aj
   Mono. MT5 to volá cez `StaticHost` (globálny namespace, len primitívne typy).
 
 ## Architektúra
@@ -224,7 +224,7 @@ z jadra; adaptér `TradeBotStrategy.cs` dostane rovnaké `extraSeries`.
 
 Najjednoduchší odberateľ, zároveň vzor pre ďalších: číta feed a ukladá ho do feather v **tvare
 archívu** (`date` UTC, `open, high, low, close, volume`; 1m; jeden súbor na rok), takže ho prečíta
-všetko, čo dnes číta `data_archive/tester/`.
+všetko, čo dnes číta `data/archive/tester/`.
 
 ```
 data_feed\                                  koreň v tradebot/core/paths.py, v .gitignore (dáta neopúšťajú stroj)

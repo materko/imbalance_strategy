@@ -1,6 +1,6 @@
-"""Čítanie feather v C# (`csharp/TradeBot.Backtest/Feather.cs`) musí dať bit po bite to, čo pyarrow.
+"""Čítanie feather v C# (`tradebot/csharp/TradeBot.Backtest/Feather.cs`) musí dať bit po bite to, čo pyarrow.
 
-Natívny backtest v C# číta sviečky priamo z `data/` a `data_archive/` — keby sa čítač v čomkoľvek
+Natívny backtest v C# číta sviečky priamo z `data/` a `data/archive/` — keby sa čítač v čomkoľvek
 rozišiel s pyarrow (jednotka času, null, LZ4 blok cez hranicu), C# beh by počítal nad inými
 dátami než Python emulátor a parita by nič neznamenala.
 """
@@ -128,7 +128,7 @@ def test_zstd_is_refused_clearly(cs, tmp_path):
 def _archive_samples() -> list[str]:
     """Jeden reálny súbor z každého zdroja (jednotky času ms/us/ns, 1m s viac blokmi LZ4)."""
     out: dict[str, str] = {}
-    for root in ("data_archive/tester", "data/tester"):
+    for root in ("data/archive/tester", "data/tester"):
         for path in sorted(glob.glob(str(REPO / root / "*" / "*" / "*-1m*.feather"))):
             out.setdefault(path.replace("\\", "/").split("/")[-3], path)
     return sorted(out.values())

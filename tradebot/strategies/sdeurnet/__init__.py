@@ -1,6 +1,6 @@
 """SD ZÓNY EURUSD (C# jadro) — SD ZÓNY EURUSD s jadrom v C#, aby bežala naživo v NinjaTraderi a MT5 na 6E / M6E.
 
-Logika je prepis `tradebot/strategies/sdeur` do C# (`csharp/TradeBot.Strategies/SdEurNet`, kľúč `sdeurnet`) s obalmi
+Logika je prepis `tradebot/strategies/sdeur` do C# (`tradebot/csharp/TradeBot.Strategies/SdEurNet`, kľúč `sdeurnet`) s obalmi
 vstupov z `EntryLayers`. Zhodu s Python predlohou `sdeur` bar po bare stráži `tester/tests/test_csharp_parity_6e.py`.
 """
 

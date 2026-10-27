@@ -4,8 +4,8 @@ Tá istá stratégia ako `vwaporbnet` (VWAP ORB 1.5 (C# jadro)), len o 15:59 New
 koniec obchodného dňa, ako to chcú prop firmy na futures. Okno je vždy v čase New York: aj v týždňoch, keď sa letný čas
 v USA a v Európe mení v iný deň, sa zatvára o 15:59 NY (u nás vtedy 20:59), nikdy nie neskôr.
 
-Logiku robí C# obal `EodCloseEngine` (`csharp/TradeBot.Core/EodClose.cs`) nad enginom predlohy; trieda s kľúčom
-`vwaporbneteod` je v `csharp/TradeBot.Strategies/VwapOrbNet`. Mimo okna EOD sú ordery a kresby bit po bite tie isté ako pri `vwaporbnet`
+Logiku robí C# obal `EodCloseEngine` (`tradebot/csharp/TradeBot.Core/EodClose.cs`) nad enginom predlohy; trieda s kľúčom
+`vwaporbneteod` je v `tradebot/csharp/TradeBot.Strategies/VwapOrbNet`. Mimo okna EOD sú ordery a kresby bit po bite tie isté ako pri `vwaporbnet`
 (`tester/tests/test_csharp_eod.py`). Parametre, profily a kresby sú zhodné s predlohou.
 """
 

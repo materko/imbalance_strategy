@@ -1,17 +1,18 @@
 """Kde v repozitári čo leží — jediné miesto, kde sú cesty napísané.
 
 ```
-data_archive/tester/<zdroj>/<trh>/   sviečky po rokoch — v gite
-data/tester/<zdroj>/<trh>/          pracovná podoba tých istých — gitignored
-data/quotemanager/<zdroj>/          ASCII exporty na import do QuoteManagera — gitignored
-deploy/freqtrade/                 čo potrebuje Freqtrade: configy búrz, skripty, user_data
-deploy/multicharts/               čo potrebuje MultiCharts: šablóny štúdií, setup
-deploy/ninjatrader/               čo potrebuje NinjaTrader 8: šablóny stratégií, inštalácia
-deploy/mt5/                       čo potrebuje MetaTrader 5: šablóny Expert Advisorov nad C# jadrom
-csharp/                           jadro a stratégie v C# (NinjaTrader natívne, MT5 cez .NET import, Freqtrade cez most)
-tester/runs/, tester/profiles/   história behov a configy testerov — v gite (bez kresieb)
-tester/sweeps/                    výsledky mriežok, matíc a overení hyperoptu — v gite
-tester/runs/.charts/              kresby behov pre graf, prepočítané na vyžiadanie — gitignored
+data/archive/tester/<zdroj>/<trh>/  sviečky po rokoch — v gite
+data/live/                         uzavreté mesiace sviečok a obchodov z naživo — v gite (pushuje hub)
+data/tester/<zdroj>/<trh>/         pracovná podoba archívu — gitignored
+data/quotemanager/<zdroj>/         ASCII exporty na import do QuoteManagera — gitignored
+deploy/freqtrade/                  čo potrebuje Freqtrade: configy búrz, skripty, user_data
+deploy/multicharts/                čo potrebuje MultiCharts: šablóny štúdií, setup
+deploy/ninjatrader/                čo potrebuje NinjaTrader 8: šablóny stratégií, inštalácia
+deploy/mt5/                        čo potrebuje MetaTrader 5: šablóny Expert Advisorov nad C# jadrom
+tradebot/csharp/                   jadro a stratégie v C# (NinjaTrader natívne, MT5 cez .NET import, Freqtrade cez most)
+tester/runs/, tester/profiles/     história behov a configy testerov — v gite (bez kresieb)
+tester/sweeps/                     výsledky mriežok, matíc a overení hyperoptu — v gite
+tester/runs/.charts/               kresby behov pre graf, prepočítané na vyžiadanie — gitignored
 ```
 
 Dáta sa delia podľa toho, **kto ich konzumuje** — nie podľa engine. `tester/` je sklad
@@ -65,7 +66,8 @@ REPO = Path(__file__).resolve().parents[2]
 
 # -- Dáta ------------------------------------------------------------------- #
 
-#: Koreň všetkých dát. Podadresár = konzument, nie platforma.
+#: Koreň všetkých dát (docs/DIRECTORIES.md). V gite sú len `archive/` a `live/`; ostatné podadresáre sú
+#: odvodené a pomenované podľa konzumenta, nie platformy.
 DATA = REPO / "data"
 #: Sklad sviečok, `data/tester/<zdroj>/<trh>/…` — odvodený z archívu, gitignored.
 TESTER_DATA = DATA / "tester"
@@ -76,17 +78,17 @@ DERIVED_MANIFEST = TESTER_DATA / ".derived.json"
 QUOTEMANAGER_DATA = DATA / "quotemanager"
 #: Textové súbory na import histórie do NinjaTradera (`tester.ninjatrader export`) — výstup zo skladu.
 NINJATRADER_DATA = DATA / "ninjatrader"
-#: To isté po rokoch a v gite. **Zrkadlí `data/` cestu za cestou**, takže `split`/`merge`
+#: Stiahnuté sviečky po rokoch, v gite. **`archive/tester/` zrkadlí `tester/` cestu za cestou**, takže `split`/`merge`
 #: je obyčajné kopírovanie koreň na koreň a nikde sa cesty neprekladajú. Uzavretý rok sa
 #: už nezmení, takže jeho blob v histórii existuje raz; celý súbor by pribudol pri každom
 #: sťahovaní znova.
-DATA_ARCHIVE = REPO / "data_archive"
+DATA_ARCHIVE = DATA / "archive"
 #: Dáta zo stratégií, ktoré bežali naživo (NinjaTrader, MT5): sviečky a skutočné obchody z live telemetrie
 #: (`tester.livedata`, docs/DATA.md „Živé dáta“). Drží ich hub (plugin `livedata`) a **uzavreté mesiace**
-#: raz za mesiac pushne sem do gitu — **oddelene** od stiahnutých: nič odtiaľto nejde do `data/` ani do
-#: `data_archive/` a stiahnuté sa nikdy neprepíše. Spája ich až čítanie (`tester.livesim`): stiahnuté po
+#: raz za mesiac pushne sem do gitu — **oddelene** od stiahnutých: nič odtiaľto nejde do `data/tester/` ani do
+#: `data/archive/` a stiahnuté sa nikdy neprepíše. Spája ich až čítanie (`tester.livesim`): stiahnuté po
 #: začiatok živého behu, odtiaľ to, čo stratégia naozaj videla.
-LIVE_DATA = Path(getenv("LIVE_DATA") or REPO / "data_live")
+LIVE_DATA = Path(getenv("LIVE_DATA") or DATA / "live")
 #: `<platforma>/<symbol>/<tf>-<YYYY-MM>.feather` — 1m z `m1`, TF grafu z `bar`; mesiac na súbor, nech sa
 #: uzavretý mesiac v gite už nemení.
 LIVE_CANDLES = LIVE_DATA / "candles"
@@ -115,7 +117,7 @@ MT5_DIR = DEPLOY_DIR / "mt5"
 
 #: Jadro a stratégie v C# (`TradeBot.Core`, `TradeBot.Strategies`) — beží v NinjaTraderi
 #: natívne a pod Freqtrade cez most `tradebot/adapters/csharp`.
-CSHARP_DIR = REPO / "csharp"
+CSHARP_DIR = REPO / "tradebot" / "csharp"
 #: Preložené assembly — gitignored, most si ich zostaví sám (`tradebot.adapters.csharp.build`).
 CSHARP_BIN = CSHARP_DIR / "bin"
 CSHARP_DLL = CSHARP_BIN / "TradeBot.dll"
@@ -229,10 +231,11 @@ MERANIA_DIR = DOCS_DIR / "merania"
 
 # -- Archív ----------------------------------------------------------------- #
 
-#: Dvojica (archív, pracovný strom) pre `data_archive split|merge`. Keďže archív zrkadlí
-#: `data/`, stačí jediná — zoznam ostáva, aby sa testy dali púšťať nad dočasným adresárom.
+#: Dvojica (archív, pracovný strom) pre `data_archive split|merge`. Keďže `archive/tester/` zrkadlí
+#: `tester/`, stačí jediná, a `data/archive/` ani `data/live/` sa nikdy nestanú pracovným stromom;
+#: zoznam ostáva, aby sa testy dali púšťať nad dočasným adresárom.
 #: Sklad sviečok v archíve — zrkadlo `TESTER_DATA`. Importéry píšu sem, nie o úroveň
-#: vyššie: `data_archive/<zdroj>/…` by `merge` do `data/tester/` nepreniesol.
+#: vyššie: `data/archive/<zdroj>/…` by `merge` do `data/tester/` nepreniesol.
 TESTER_ARCHIVE = DATA_ARCHIVE / "tester"
 
-ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = ((DATA_ARCHIVE, DATA),)
+ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = ((TESTER_ARCHIVE, TESTER_DATA),)

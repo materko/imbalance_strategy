@@ -28,7 +28,7 @@ __all__ = ["version", "has_version", "is_ancestor", "on_remote", "versus_main", 
            "request_host_pull", "host_pull_result", "dirty_code"]
 
 #: Čo sa nepovažuje za kód: história behov, profily a analytiky testera idú cez Push.
-_DATA_PREFIXES = ("tester/runs/", "tester/profiles/", "tester/analytics/", "data_archive/", "docs/")
+_DATA_PREFIXES = ("tester/runs/", "tester/profiles/", "tester/analytics/", "data/archive/", "docs/")
 
 
 def _git(*args: str) -> subprocess.CompletedProcess:

@@ -7,7 +7,6 @@ __pycache__
 .pytest_cache
 # Data ani archiv nejdu do image - compose ich mountuje
 data
-data_archive
 deploy/freqtrade/user_data/backtest_results
 deploy/freqtrade/user_data/logs
 tester/runs

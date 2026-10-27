@@ -1,7 +1,7 @@
 // NoaNetEod - NOA 1.0 (Noise Area) s jadrom v C# ako strategia NinjaTrader 8.
 // EOD: o 15:59 New York (21:59 nasho casu) zavrie vsetko a do 18:00 NY nevstupi - pre prop ucty (`EodCloseEngine`).
 //
-// Tento subor je len ukazovatel: cela logika je v C# jadre (`csharp/TradeBot.Strategies/NoaNet`)
+// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/csharp/TradeBot.Strategies/NoaNet`)
 // a vsetko okolo NinjaTradera v generickom adapteri (`tradebot/adapters/ninjatrader/TradeBotStrategy.cs`).
 // Instalacia (skopiruje jadro, adapter, tuto sablonu a profily do Documents\NinjaTrader 8):
 //

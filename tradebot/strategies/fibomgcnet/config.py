@@ -1,4 +1,4 @@
-"""`FiboMgcNetConfig` — tie isté parametre ako Fibo 1.0 (MGC); číta ich C# jadro (`csharp/TradeBot.Strategies/FiboNet/FiboConfig.cs`).
+"""`FiboMgcNetConfig` — tie isté parametre ako Fibo 1.0 (MGC); číta ich C# jadro (`tradebot/csharp/TradeBot.Strategies/FiboNet/FiboConfig.cs`).
 
 Vlastná trieda existuje len preto, že registry hľadá stratégiu podľa triedy configu (`spec_for_config`).
 """

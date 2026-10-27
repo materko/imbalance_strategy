@@ -1,7 +1,7 @@
 """SD ZÓNY EURUSD 1.0 — supply / demand zóny z noci na 1 h, limitka na hrane pri prvom návrate v Londýne.
 
 Zadanie používateľa 26. 10. 2026 (Euro FX futures 6E, „najpodstatnejšia je kvalita zón"). Python predloha pre C# jadro
-`sdeurnet` (`csharp/TradeBot.Strategies/SdEurNet`); zhodu bar po bare stráži `tester/tests/test_csharp_parity_6e.py`.
+`sdeurnet` (`tradebot/csharp/TradeBot.Strategies/SdEurNet`); zhodu bar po bare stráži `tester/tests/test_csharp_parity_6e.py`.
 """
 
 from __future__ import annotations

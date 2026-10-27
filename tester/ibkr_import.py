@@ -28,7 +28,7 @@ dividendy nie. Objem je v akciách, tiež prepočítaný splitom.
    ceny mimo mriežky ticku, najväčší skok medzi dňami (neupravený split by bol desiatky %).
 
 Ďalej je to tá istá cesta ako pri Dukascopy a Databento: feather po rokoch do
-`data_archive/tester/ibkr/futures/` (trh `futures` = dá sa shortovať, nie futures
+`data/archive/tester/ibkr/futures/` (trh `futures` = dá sa shortovať, nie futures
 kontrakt), `tester.data_archive merge` zloží pracovný súbor, vyššie TF si Tester
 dopočíta. Symbol musí byť v `tradebot/core/instruments_ibkr.json`.
 """
@@ -235,7 +235,7 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--from", dest="date_from", help="YYYY-MM-DD, vrátane (UTC)")
     ap.add_argument("--to", dest="date_to", help="YYYY-MM-DD, vrátane (UTC)")
     ap.add_argument("--archive", type=Path, default=TESTER_ARCHIVE,
-                    help="kam ročné feather súbory (default data_archive/tester/)")
+                    help="kam ročné feather súbory (default data/archive/tester/)")
     ap.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre Tester")
     ap.add_argument("--replace", action="store_true",
                     help="roky z exportu prepísať celé (inak sa zlúčia s tým, čo v archíve už je)")

@@ -21,15 +21,18 @@ deploy/freqtrade/user_data/hyperopt_results/
 # Natrenovane modely a cache predikcii FreqAI: generuje ich kazdy beh s --ai,
 # su velke a z receptu (config + data) vzniknu znova.
 deploy/freqtrade/user_data/models/
-# Cele data/ je odvodene a do gitu nejde nikdy: data/tester/ sa zlozi z archivu
+# data/ su vsetky data. Do gitu ide len data/archive/ a data/live/, zvysok je odvodeny:
+# data/tester/ sa zlozi z archivu
 # (`python -m tester.data_archive merge`), chybajuce timeframy sa dopocitaju z 1m
 # (`python -m tester.timeframes`, pripadne si ich poskladá strategia za behu) a
 # data/quotemanager/ je z toho isteho dalsi export. Tester si cely strom pri prvom
 # spusteni vyrobi sam.
-# V gite je len data_archive/ - po rokoch a VYHRADNE to, co prislo z burzy alebo
+# data/archive/ je po rokoch a VYHRADNE to, co prislo z burzy alebo
 # z raw exportu. Uzavrety rok sa uz nemeni, takze jeho blob v historii existuje raz;
 # cely subor by pri kazdom stiahnuti pribudol znova.
-data/
+/data/*
+!/data/archive/
+!/data/live/
 deploy/freqtrade/user_data/strategies/*.json
 deploy/freqtrade/user_data/hyperopt.lock
 
@@ -63,7 +66,9 @@ tester/hub_delivered/
 .claude/
 
 # Prelozene C# jadro - most si ho zostavi sam (python -m tradebot.adapters.csharp.build)
-csharp/bin/
+tradebot/csharp/bin/
+# Pozostatok z klonov pred presunom do tradebot/csharp/ (27. 10. 2026) - git ho pri pulle nezmaze
+/csharp/bin/
 
 # rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu
 .tradebot-role

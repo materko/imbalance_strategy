@@ -3,7 +3,7 @@
 Repozitár je TradeBot — rámec pre porty TradingView stratégií do Pythonu (generické jadro
 `tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout",
 „Market Structure BOS / CHoCH" a ukážková „Demo Donchian Breakout" —, Freqtrade
-a MultiCharts adaptéry; „IBSNet", „ORBNet", „IBS Entry Zone (C#)", „VWAP ORB (C#)", „VWAP ADX Pullback (C#)", „NOA 1.0 (C#)" a „TKS 1.0 (C#)" sú IBS, ORB, IBS Entry Zone, VWAP ORB, VWAP ADX Pullback, NOA a TKS s jadrom v C# (.NET, `csharp/`), ktoré spúšťajú
+a MultiCharts adaptéry; „IBSNet", „ORBNet", „IBS Entry Zone (C#)", „VWAP ORB (C#)", „VWAP ADX Pullback (C#)", „NOA 1.0 (C#)" a „TKS 1.0 (C#)" sú IBS, ORB, IBS Entry Zone, VWAP ORB, VWAP ADX Pullback, NOA a TKS s jadrom v C# (.NET, `tradebot/csharp/`), ktoré spúšťajú
 NinjaTrader 8, MetaTrader 5 (`tradebot/adapters/mt5`) aj Freqtrade cez most `tradebot/adapters/csharp`) plus webová aplikácia
 pre testerov (`tester/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
@@ -58,13 +58,13 @@ Bez obmedzení. Platia len konvencie repozitára:
   ich napíše z behov v histórii; záver dopisuje človek) s číslami **po rokoch** na piatich
   referenčných oknách (`20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
-- Sťahujú a commitujú sa len oficiálne timeframy búrz (po rokoch v `data_archive/tester/`);
+- Sťahujú a commitujú sa len oficiálne timeframy búrz (po rokoch v `data/archive/tester/`);
   zvyšok podľa [`tester/timeframes.json`](tester/timeframes.json) dopočíta `tester.timeframes`
   z 1m pri štarte webapp a čo aj tak chýba, si poskladá stratégia sama
   (`TradebotStrategyBase.ensure_timeframe`, len v backteste/hyperopte) — nič stiahnuté sa
   neprepíše a dopočítané do archívu nejde. Sviečky (aj 1m `m1`) a obchody zo stratégií naživo drží
-  hub (plugin `livedata`) a uzavreté mesiace raz za mesiac pushne oddelene do `data_live/`; webapp
-  si zvyšok berie z hubu (`tester.livedata`) a `data_live/` nepushuje; so stiahnutými ich spája až čítanie
+  hub (plugin `livedata`) a uzavreté mesiace raz za mesiac pushne oddelene do `data/live/`; webapp
+  si zvyšok berie z hubu (`tester.livedata`) a `data/live/` nepushuje; so stiahnutými ich spája až čítanie
   (`tester.livesim`, Diverzifikácia → Živé behy) — [docs/DATA.md §D](docs/DATA.md).
   Freqtrade beží len na TF, ktoré pozná jeho burza (2m a 4m sú preto len pre emulátor).
   Surový export spracuje importér zdroja — `tester.dukas_import` pre Dukascopy CFD
@@ -75,12 +75,12 @@ Bez obmedzení. Platia len konvencie repozitára:
   nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
   zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
   podrobne [docs/DATA.md](docs/DATA.md).
-- Stratégia s jadrom v C# (`csharp/TradeBot.Strategies/<Meno>`, dnes `ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`, `vwapadxnet`, `noanet`, `tksnet` a ich kópie `<kľúč>eod` so zatvorením o 15:59 NY pre prop účty — `EodCloseEngine`): C# 5 bez NuGet
+- Stratégia s jadrom v C# (`tradebot/csharp/TradeBot.Strategies/<Meno>`, dnes `ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`, `vwapadxnet`, `noanet`, `tksnet` a ich kópie `<kľúč>eod` so zatvorením o 15:59 NY pre prop účty — `EodCloseEngine`): C# 5 bez NuGet
   (prekladá ho `csc.exe` z .NET Frameworku, Mono aj NinjaTrader), jadro ani adaptéry (NinjaTrader,
   MT5, most) nepoznajú stratégiu menom (`[TradeBotEngine("kľúč")]`), a zmena logiky musí prejsť paritou
   bar po bare proti Python predlohe (`python -m tester.compare.csharp_parity`,
-  `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `csharp/…/IbsNet`, v `orb` v `csharp/…/OrbNet`, v `ibsentry` v `csharp/…/IbsEntryNet`,
-  vo `vwaporb` v `csharp/…/VwapOrbNet`, vo `vwapadx` v `csharp/…/VwapAdxNet`, v `noa` v `csharp/…/NoaNet`, v `tks` v `csharp/…/TksNet`, v obaloch vstupov `tradebot/core/entry_*.py` v `csharp/TradeBot.Core/EntryLayers.cs`.
+  `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `tradebot/csharp/…/IbsNet`, v `orb` v `tradebot/csharp/…/OrbNet`, v `ibsentry` v `tradebot/csharp/…/IbsEntryNet`,
+  vo `vwaporb` v `tradebot/csharp/…/VwapOrbNet`, vo `vwapadx` v `tradebot/csharp/…/VwapAdxNet`, v `noa` v `tradebot/csharp/…/NoaNet`, v `tks` v `tradebot/csharp/…/TksNet`, v obaloch vstupov `tradebot/core/entry_*.py` v `tradebot/csharp/TradeBot.Core/EntryLayers.cs`.
   [docs/NINJATRADER.md](docs/NINJATRADER.md). MetaTrader 5 volá tú istú DLL cez statickú fasádu
   `StaticHost` (jediná trieda v globálnom namespace — MQL5 iné nevidí) z Expert Advisora v MQL5 (`tradebot/adapters/mt5`, šablóny `deploy/mt5`);
   fasáda musí dávať to isté, čo most (`tester/tests/test_mt5_static_host.py`) — [docs/MT5.md](docs/MT5.md).
@@ -158,7 +158,7 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    medzitým aktualizuje a zápis by vrátil novšie hodnoty. Push ich síce doplní z gitu
    ([docs/WEBAPP.md](docs/WEBAPP.md)), ale profil čítaj až tesne pred zápisom.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
-6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/tester/`:
+6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data/archive/tester/`:
    futures perpetuály `BTC/USDT:USDT`, `ETH/USDT:USDT` (v ponuke `BTCUSDT.P`,
    `ETHUSDT.P`) a spot `BTC/USDT`, `ETH/USDT` (`BTCUSDT`, `ETHUSDT`), 2019–2026,
    a „burza" **MultiCharts** s Dukascopy CFD `NAS100/USD` (v ponuke `NAS100`), 2021–2026 —

@@ -1,5 +1,5 @@
 // Citanie feather suborov (Arrow IPC file format, feather v2) bez NuGet - sviecky v `data/`
-// a `data_archive/` pise pandas/pyarrow (Freqtrade, importery). Format:
+// a `data/archive/` pise pandas/pyarrow (Freqtrade, importery). Format:
 //
 //   "ARROW1" .. spravy (Schema, RecordBatch...) .. Footer (FlatBuffers) | int32 dlzka footera | "ARROW1"
 //

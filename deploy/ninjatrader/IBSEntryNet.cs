@@ -1,6 +1,6 @@
 // IBSEntryNet - IBS Entry Zone s jadrom v C# ako strategia NinjaTrader 8.
 //
-// Tento subor je len ukazovatel: cela logika je v C# jadre (`csharp/TradeBot.Strategies/IbsEntryNet` nad
+// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/csharp/TradeBot.Strategies/IbsEntryNet` nad
 // `IbsNet`) a vsetko okolo NinjaTradera v generickom adapteri (`tradebot/adapters/ninjatrader/TradeBotStrategy.cs`).
 // Instalacia (skopiruje jadro, adapter, tuto sablonu a profily do Documents\NinjaTrader 8):
 //

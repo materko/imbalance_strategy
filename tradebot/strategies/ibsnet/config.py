@@ -20,4 +20,4 @@ CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 @dataclass
 class IBSNetConfig(IBSConfig):
     """Config IBSNet — polia, defaulty a kontroly dedí z IBS; číta ich C# jadro
-    (`csharp/TradeBot.Strategies/IbsNet/IbsConfig.cs`)."""
+    (`tradebot/csharp/TradeBot.Strategies/IbsNet/IbsConfig.cs`)."""

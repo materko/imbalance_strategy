@@ -4,7 +4,7 @@ Repozitár sú **dva celky**:
 
 | | čo to je | kde |
 |---|---|---|
-| **TradeBot** | produkt, ktorý obchoduje: generické jadro, registry stratégií a tenké adaptéry — **Freqtrade** (krypto), **MultiCharts** (Python študia), **NinjaTrader 8** a **MetaTrader 5** (stratégie s jadrom v C#). Jadro ani adaptéry nepoznajú stratégiu menom — všetko ide cez `StrategySpec`. | [`tradebot/`](tradebot), [`csharp/`](csharp) |
+| **TradeBot** | produkt, ktorý obchoduje: generické jadro, registry stratégií a tenké adaptéry — **Freqtrade** (krypto), **MultiCharts** (Python študia), **NinjaTrader 8** a **MetaTrader 5** (stratégie s jadrom v C#). Jadro je v Pythone aj v C# (`tradebot/csharp/`); jadro ani adaptéry nepoznajú stratégiu menom — všetko ide cez `StrategySpec`. | [`tradebot/`](tradebot) |
 | **TradeBot Tester** | čím sa to skúša: dáta, backtesty do zdieľanej histórie, webová aplikácia, analytika a smernica testovania, porovnania platforiem, **hub** na počítanie na viac strojoch a **Live** karta s telemetriou bežiacich stratégií. | [`tester/`](tester) |
 
 Závislosť ide jedným smerom — Tester importuje `tradebot`, produkt o Testeri nevie.
@@ -13,7 +13,7 @@ Závislosť ide jedným smerom — Tester importuje `tradebot`, produkt o Tester
 TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predloha, oba enginy)
                                          │  parita bar po bare
                                          ▼
-                                  csharp/…/<Meno>Net  (C# 5 jadro)
+                                  tradebot/csharp/…/<Meno>Net  (C# 5 jadro)
                                          │
               ┌──────────────────────────┼───────────────────────────┐
          NinjaTrader 8             MetaTrader 5 (EA)          Freqtrade / webapp (most)
@@ -91,7 +91,7 @@ Pred pushom musí prejsť lint z [`.github/workflows/lint.yml`](.github/workflow
 
 ### Dáta
 
-Archív sviečok je po rokoch v [`data_archive/tester/`](data_archive/tester), len oficiálne
+Archív sviečok je po rokoch v [`data/archive/tester/`](data/archive/tester), len oficiálne
 timeframy zdrojov; vyššie TF si Tester dopočíta z 1m sám
 ([`tester/timeframes.json`](tester/timeframes.json)):
 
@@ -102,7 +102,7 @@ timeframy zdrojov; vyššie TF si Tester dopočíta z 1m sám
 | Dukascopy | CFD: indexy (NAS100, US500, DJ30, DAX, JP225), forex, zlato, komodity | `./dukas-import.sh` · `.\dukas-import.ps1` |
 | IBKR | americké akcie Mag7, 1m RTH | `./ibkr-import.sh` · `.\ibkr-import.ps1` |
 
-Sviečky a obchody stratégií naživo drží hub a uzavreté mesiace pushne do `data_live/`.
+Sviečky a obchody stratégií naživo drží hub a uzavreté mesiace pushne do `data/live/`.
 Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md).
 
 ---
@@ -145,11 +145,10 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 | | |
 |---|---|
-| [`tradebot/`](tradebot) | produkt v Pythone — `core/` jadro, `strategies/<key>/` jeden sebestačný balík na stratégiu (kód, profily, dokumenty), `adapters/` (Freqtrade, MultiCharts, most do C#, NinjaTrader, MT5), `live/` telemetria a nasadenie |
-| [`csharp/`](csharp) | C# jadro (`TradeBot.Core`), prepisy stratégií (`TradeBot.Strategies/<Meno>Net`), `TradeBot.Host`, natívny backtest |
+| [`tradebot/`](tradebot) | celý produkt — `core/` jadro v Pythone, `csharp/` jadro a prepisy stratégií v C#, `strategies/<key>/` jeden sebestačný balík na stratégiu (kód, profily, dokumenty), `adapters/` (Freqtrade, MultiCharts, most do C#, NinjaTrader, MT5), `live/` telemetria a nasadenie |
 | [`tester/`](tester) | Tester — webapp, hub a agenti, analytika, importy dát; jeho dáta v gite: `runs/`, `profiles/`, `archive/`, `sweeps/`, `analytics/` |
 | [`deploy/`](deploy), [`docker/`](docker) | čo sa inštaluje do platforiem (Freqtrade, MultiCharts, NinjaTrader, MT5, agent) a kontajnery |
-| [`data_archive/`](data_archive/tester), `data_live/` | sviečky po rokoch zo zdrojov; uzavreté mesiace z naživo |
+| [`data/`](data) | všetky dáta — v gite `archive/` (sviečky po rokoch zo zdrojov) a `live/` (uzavreté mesiace z naživo), ostatné sa dopočíta lokálne |
 | [`docs/`](docs) | príručky naprieč stratégiami; datované v `merania/`, `audity/`, `prieskum/` |
 | spúšťače v koreni | `webapp.*`, `dukas-import.*`, `bento-import.*`, `ibkr-import.*`, `install-macos.sh` |
 

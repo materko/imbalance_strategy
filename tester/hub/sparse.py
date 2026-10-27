@@ -6,7 +6,7 @@
     python -m tester.hub sparse --no-data             # žiadny archív (dáta už mám zložené)
     python -m tester.hub sparse --off                 # späť celý strom
 
-Repozitár nesie aj **dáta**: `data_archive/` (2 GB sviečok po rokoch) a `tester/runs/`
+Repozitár nesie aj **dáta**: `data/archive/` (2 GB sviečok po rokoch) a `tester/runs/`
 (história behov, dnes cez 6 GB). Tester ich chce, agent, ktorý len počíta, z nich
 potrebuje nanajvýš archív toho, na čom počíta — a hub nič z toho. Každý `git pull` ich
 pritom ťahá všetkým.
@@ -32,7 +32,7 @@ from typing import Any
 
 from tradebot.core.paths import REPO
 
-__all__ = ["build_rules", "apply", "show", "off", "BALLAST", "HUB_RULES"]
+__all__ = ["build_rules", "apply", "show", "off", "migrate_legacy", "BALLAST", "HUB_RULES"]
 
 #: Adresáre, ktoré počítajúci agent nepotrebuje ani raz: cudzia história behov a všetko,
 #: čo sa z nej odvodzuje. Vlastné behy si píše sám (nie sú v gite, kým ich nepushne).
@@ -41,7 +41,7 @@ BALLAST = ("/tester/runs/**", "/tester/archive/**", "/tester/analytics/**",
 
 #: Hub nepočíta nič — nepotrebuje ani archív, ani behy, ani C# jadro.
 #: Ani živé dáta v gite: tie pushuje vlastný plugin `livedata` z vlastného stromu a vlastného klonu.
-#: Staré cesty (`data_archive/`, `data_live/`, `csharp/`) ostávajú, kým ich má niektorý klon v histórii,
+#: Staré cesty (`data/archive/`, `data/live/`, `tradebot/csharp/`) ostávajú, kým ich má niektorý klon v histórii,
 #: aby hub po presune pod `data/` a `tradebot/csharp/` nestiahol 2 GB sviečok (docs/DIRECTORIES.md).
 HUB_RULES = ("/*", "!/data/**", "!/tradebot/csharp/**", "!/data_archive/**", "!/data_live/**", "!/csharp/**",
              *(f"!{p}" for p in BALLAST))
@@ -60,11 +60,11 @@ def build_rules(data: list[str] | None = None, history: bool = True) -> list[str
     """
     rules = ["/*"]
     if data is not None:
-        rules.append("!/data_archive/**")
+        rules.append("!/data/archive/**")
         for zdroj in data:
             zdroj = zdroj.strip().strip("/")
             if zdroj:
-                rules.append(f"/data_archive/tester/{zdroj}/**")
+                rules.append(f"/data/archive/tester/{zdroj}/**")
     if not history:
         rules += [f"!{p}" for p in BALLAST]
     return rules
@@ -85,6 +85,27 @@ def apply(rules: list[str] | tuple[str, ...], *, filter_blobs: bool = True,
     kroky.append(r)
     vystup = "\n".join((k.stdout + k.stderr).strip() for k in kroky if (k.stdout + k.stderr).strip())
     return {"ok": all(k.returncode == 0 for k in kroky), "rules": list(rules), "output": vystup}
+
+
+#: Cesty pred presunom pod `data/` a `tradebot/csharp/` (27. 10. 2026) → nové (docs/DIRECTORIES.md).
+LEGACY_PATHS = (("/data_archive/", "/data/archive/"), ("/data_live/", "/data/live/"))
+
+
+def migrate_legacy(repo: str | None = None) -> dict[str, Any] | None:
+    """Klon s pravidlami na staré cesty prepne na nové; `None`, keď nie je čo meniť.
+
+    Bez toho by agent s `--data binance` po presune archívu pod `data/archive/` mal v strome celý
+    archív (pravidlo `/*` zahrnie nový `data/`) a staré pravidlo by už nič nevyraďovalo.
+    """
+    rules = show(repo)["rules"]
+    nove = []
+    for r in rules:
+        for stare, nova in LEGACY_PATHS:
+            r = r.replace(stare, nova)
+        nove.append(r)
+    if not rules or nove == rules:
+        return None
+    return apply(nove, filter_blobs=False, repo=repo)
 
 
 def off(repo: str | None = None) -> dict[str, Any]:

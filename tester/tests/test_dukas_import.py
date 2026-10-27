@@ -1,7 +1,7 @@
 """Import Dukascopy CSV — čistenie (vypchávka, mierka, okno), 1m feather do archívu.
 
 Importér má jedinú úlohu: zo surového exportu spraviť čisté 1m sviečky a rozdeliť ich po
-rokoch do `data_archive/`. Vyššie timeframy ani ASCII pre QuoteManager tu už nevznikajú —
+rokoch do `data/archive/`. Vyššie timeframy ani ASCII pre QuoteManager tu už nevznikajú —
 tie si Tester vyrobí z archívu (`tester.timeframes`, `tester.quotemanager`).
 """
 
@@ -126,7 +126,7 @@ def test_fix_scale_deli_a_nasobi_tisicom(tmp_path):
 
 
 def test_store_rozdeli_po_rokoch_a_zlozi_pracovny_subor(tmp_path):
-    """Archív je zrkadlo skladu: `data_archive/tester/<zdroj>/<trh>/` ↔ `data/tester/…`."""
+    """Archív je zrkadlo skladu: `data/archive/tester/<zdroj>/<trh>/` ↔ `data/tester/…`."""
     df, _ = frame(
         tmp_path,
         "2024-12-31 23:59:00,1,2,0.5,1.5,1",
@@ -178,10 +178,10 @@ def test_nas100_profil_sedi_s_mnq_v_cenovych_bodoch():
 
 
 def test_archiv_je_zrkadlom_skladu_sviecok():
-    """Import píše do `data_archive/tester/`, nie o úroveň vyššie.
+    """Import píše do `data/archive/tester/`, nie o úroveň vyššie.
 
-    Regresia: importér písal do `data_archive/<zdroj>/`, kam sa `merge` (ktorý mapuje
-    `data_archive/` na `data/`) nikdy nepozrel — dáta boli v archíve, ale Tester ich nevidel.
+    Regresia: importér písal do `data/archive/<zdroj>/`, kam sa `merge` (ktorý mapuje
+    `data/archive/` na `data/`) nikdy nepozrel — dáta boli v archíve, ale Tester ich nevidel.
     """
     import inspect
 

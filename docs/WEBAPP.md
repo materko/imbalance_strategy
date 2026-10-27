@@ -85,7 +85,7 @@ docker compose -f docker/docker-compose.yml run --rm --service-ports webapp
 Než začne počúvať, dorobí, čo chýba, a povie to na konzole:
 
 1. **sviečky z archívu** — `data_archive merge`, keď v `data/tester/` chýba čokoľvek, čo
-   je v `data_archive/` (nestačí, že tam je „aspoň niečo": s jediným rozbaleným zdrojom by
+   je v `data/archive/` (nestačí, že tam je „aspoň niečo": s jediným rozbaleným zdrojom by
    bola ponuka párov poloprázdna);
 2. **vyššie timeframy z 1m** — podľa [`tester/timeframes.json`](../tester/timeframes.json),
    dnes 2m, 3m, 4m, 5m, 15m, 30m, 1h, 4h, 1d, 1w. Freqtrade si ich z 1m nedopočíta, chce
@@ -447,7 +447,7 @@ uložený z takého behu (aj „Stiahnuť profil") ich doplní dnešnými defaul
 
 Všetko v gite je čitateľný JSON, jeden adresár na beh a jeden súbor na mriežku, takže sa to
 mergeuje bez konfliktov. Sviečky sa k behu neukladajú — čítajú sa z pracovných `data/`
-platformy (v gite ako `data_archive/tester/`), takže graf funguje aj pre beh stiahnutý od
+platformy (v gite ako `data/archive/tester/`), takže graf funguje aj pre beh stiahnutý od
 iného testera.
 
 `log.txt` ostáva v gite: je skrátený na ~400 riadkov (priemer ~12 kB, v gite zbalený na
@@ -547,7 +547,7 @@ korelácie dvojíc, kontrola dát (z ktorých behov, čo sa zahodilo, prekryté 
 a denník obchodov a dní s filtrom. Deň je dátum zatvorenia v UTC, ako na stránke
 výsledkov. Výber si stránka pamätá v prehliadači.
 
-**Živé behy.** Keď má nastavenie v živých dátach ([DATA.md §D](DATA.md): `data_live/` z gitu + čo hub ešte
+**Živé behy.** Keď má nastavenie v živých dátach ([DATA.md §D](DATA.md): `data/live/` z gitu + čo hub ešte
 nepushol) živý beh s tým istým profilom
 (rovnaké párovanie mena ako Live diverzifikácia, aj stratégie, ktoré už nebežia; každý profil inštancie
 je samostatný beh), Prepočítať ho pripojí: `GET /api/diversify/livedata` vymenuje behy,

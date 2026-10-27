@@ -1,5 +1,5 @@
 """Diverzifikácia: obchody vybraných nastavení pre spoločný prepočet (`/api/diversify`), obchody
-živých stratégií pre kartu Naživo (`/api/diversify/live`) a živé behy zo skladu `data_live` k nastaveniam
+živých stratégií pre kartu Naživo (`/api/diversify/live`) a živé behy zo skladu `data/live` k nastaveniam
 (`/api/diversify/livedata`: skutočné obchody, sviečky za hranicou živého behu a simulácia toho obdobia)."""
 
 from __future__ import annotations
@@ -114,7 +114,7 @@ def build(ctx: AppContext) -> APIRouter:
 
     @router.get("/api/diversify/livedata")
     def diversify_livedata():
-        """Živé behy v `data_live` (aj stratégie, ktoré už nebežia): jeden riadok na inštanciu × profil
+        """Živé behy v `data/live` (aj stratégie, ktoré už nebežia): jeden riadok na inštanciu × profil
         s obdobím a počtom skutočných obchodov. Párovanie s nastavením robí stránka (meno profilu)."""
         from tester import livedata
 

@@ -200,7 +200,7 @@ def cmd_agent(args: argparse.Namespace) -> int:
 
     cfg = _cfg_or_die()
     if data_archive.missing():
-        print("Skladam data z data_archive/ ...", flush=True)
+        print("Skladam data z data/archive/ ...", flush=True)
         data_archive.main(["merge"])
     if timeframes.missing():
         print("Skladam chybajuce timeframy z 1m ...", flush=True)
@@ -584,7 +584,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--data", help="ktoré zdroje archívu ťahať (binance,dukascopy,…); "
                                   "bez prepínača sa nemení")
     p.add_argument("--no-data", dest="no_data", action="store_true",
-                   help="neťahať `data_archive` vôbec (sklad `data/` na disku ostáva)")
+                   help="neťahať `data/archive` vôbec (sklad `data/` na disku ostáva)")
     p.add_argument("--history", dest="history", action="store_true", default=None,
                    help="ťahať aj cudziu históriu behov (default, keď sa nepovie inak)")
     p.add_argument("--no-history", dest="history", action="store_false",

@@ -1,6 +1,6 @@
 """Živé obdobie stratégie: stiahnuté sviečky + sviečky zo živého behu, skutočné obchody a simulácia.
 
-Pre jednu inštanciu zo skladu živých dát (`tester.livedata`, `data_live/`) poskladá:
+Pre jednu inštanciu zo skladu živých dát (`tester.livedata`, `data/live/`) poskladá:
 
 * **hranicu** — začiatok prvého živého behu s profilom inštancie; dovtedy sú to stiahnuté dáta (história),
   odtiaľ to, čo stratégia naozaj videla,
@@ -245,7 +245,7 @@ def _chart_bars(df, tf: int) -> list[list[Any]]:
 def live_view(inst_id: str, *, profile: str | None = None, pair: str | None = None, root: Path | str | None = None,
               simulate: bool = True, chart: bool = True) -> dict[str, Any]:
     """Všetko pre Diverzifikáciu k jednej živej inštancii (pozri docstring modulu). Výsledok sa cache-uje
-    podľa súborov `data_live`, ktoré doň vstúpili — nový bar alebo obchod znamená nový výpočet."""
+    podľa súborov `data/live`, ktoré doň vstúpili — nový bar alebo obchod znamená nový výpočet."""
     import pandas as pd
 
     roots = livedata._roots(root)   # git + to, čo je len na hube; alebo zadaný strom
@@ -350,7 +350,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("instance")
     ap.add_argument("--profile", help="profil živého behu (inak posledný profil inštancie)")
     ap.add_argument("--pair", help="trh stiahnutých dát, napr. MNQ/USD (inak _instrument profilu)")
-    ap.add_argument("--root", default=None, help="strom živých dát (predvolene git data_live + čo je len na hube)")
+    ap.add_argument("--root", default=None, help="strom živých dát (predvolene git data/live + čo je len na hube)")
     args = ap.parse_args(argv)
     v = live_view(args.instance, profile=args.profile, pair=args.pair, root=args.root, chart=False)
     m = v["match"] or {"pairs": [], "only_real": [], "only_sim": []}

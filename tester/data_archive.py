@@ -15,11 +15,11 @@ nezmení, takže jeho blob v histórii existuje raz. Denne rastie iba súbor za
 aktuálny rok.
 
 ### Ako sa to používa
-Archív (`data_archive/tester/`) je to, čo je v gite. Pracovné súbory (`data/`) sú z neho
+Archív (`data/archive/tester/`) je to, čo je v gite. Pracovné súbory (`data/`) sú z neho
 odvodené a v `.gitignore`.
 
-    stiahnutie dat  ->  data/  ->  split  ->  data_archive/tester/  ->  commit
-    klon            ->  data_archive/tester/  ->  merge  ->  data/  ->  backtest
+    stiahnutie dat  ->  data/  ->  split  ->  data/archive/tester/  ->  commit
+    klon            ->  data/archive/tester/  ->  merge  ->  data/  ->  backtest
 
 Platformy majú vlastné korene (`tradebot.core.paths.ARCHIVE_ROOTS`) — burzové sviečky
 pod `deploy/freqtrade/user_data/`, Dukascopy 1m sviečky pod
@@ -71,7 +71,7 @@ SYNTHETIC_SOURCE = "synthetic"
 
 def split_root(archive: Path, data: Path, verbose: bool = True,
                skip: set[Path] | frozenset[Path] = frozenset()) -> list[Path]:
-    """`data/` -> `data_archive/tester/` jedného koreňa, jeden súbor na rok.
+    """`data/` -> `data/archive/tester/` jedného koreňa, jeden súbor na rok.
 
     `skip` sú odvodené timeframy (`tester.timeframes`) — prepočítané 1m sviečky, ktoré
     do gitu nepatria: v archíve má byť len to, čo prišlo z burzy alebo z raw exportu,
@@ -136,7 +136,7 @@ def missing(roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
 
 
 def merge_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
-    """`data_archive/tester/` -> `data/` jedného koreňa."""
+    """`data/archive/tester/` -> `data/` jedného koreňa."""
     import pandas as pd
 
     groups: dict[Path, list[Path]] = {}
@@ -163,7 +163,7 @@ def merge_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
 
 def split(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None,
           skip: set[Path] | None = None) -> list[Path]:
-    """`data/` -> `data_archive/tester/` vo všetkých koreňoch. Vráti zapísané súbory."""
+    """`data/` -> `data/archive/tester/` vo všetkých koreňoch. Vráti zapísané súbory."""
     ignore = set(timeframes.derived()) if skip is None else set(skip)
     written: list[Path] = []
     for archive, data in roots if roots is not None else ROOTS:
@@ -173,7 +173,7 @@ def split(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = No
 
 
 def merge(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
-    """`data_archive/tester/` -> `data/` vo všetkých koreňoch. Vráti zložené súbory."""
+    """`data/archive/tester/` -> `data/` vo všetkých koreňoch. Vráti zložené súbory."""
     out: list[Path] = []
     for archive, data in roots if roots is not None else ROOTS:
         if archive.exists():

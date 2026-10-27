@@ -20,4 +20,4 @@ CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 @dataclass
 class ORBNetConfig(ORBConfig):
     """Config ORBNet — polia, defaulty a kontroly dedí z ORB; číta ich C# jadro
-    (`csharp/TradeBot.Strategies/OrbNet/OrbConfig.cs`)."""
+    (`tradebot/csharp/TradeBot.Strategies/OrbNet/OrbConfig.cs`)."""

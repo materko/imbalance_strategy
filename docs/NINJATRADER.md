@@ -6,12 +6,12 @@ ktorá má ísť do NinjaTradera, má preto **jadro v C#** — a to isté jadro 
 aby sa dalo testovať, merať a porovnávať tým istým náradím ako všetko ostatné.
 
 ```
-csharp/TradeBot.Core/                 generické C# jadro (zrkadlo tradebot/core): Bar, InstrumentSpec, SizeSpec,
+tradebot/csharp/TradeBot.Core/                 generické C# jadro (zrkadlo tradebot/core): Bar, InstrumentSpec, SizeSpec,
                                       BarHistory, SessionClock, kresby, ordery, TradePlan, Warmup, IEngine, register
-csharp/TradeBot.Strategies/<Meno>/    stratégia v C# — trieda s [TradeBotEngine("kľúč")] nad IEngine
-csharp/TradeBot.Host/                 TradeBot.Host.exe — engine ako proces (stdio most, Mono)
-csharp/TradeBot.Backtest/             natívny backtest v C# (len v TradeBot.dll, do NinjaTradera nejde):
-                                      Feather.ReadCandles — feather z data/ a data_archive/ (Arrow IPC + LZ4,
+tradebot/csharp/TradeBot.Strategies/<Meno>/    stratégia v C# — trieda s [TradeBotEngine("kľúč")] nad IEngine
+tradebot/csharp/TradeBot.Host/                 TradeBot.Host.exe — engine ako proces (stdio most, Mono)
+tradebot/csharp/TradeBot.Backtest/             natívny backtest v C# (len v TradeBot.dll, do NinjaTradera nejde):
+                                      Feather.ReadCandles — feather z data/ a data/archive/ (Arrow IPC + LZ4,
                                       bez NuGet; ZSTD a feather v1 odmietne), zhoda s pyarrow v test_csharp_feather.py;
                                       CandleOps = resample_ohlcv, McEmulator = emulátor MultiCharts (MCRunner + emulate,
                                       seeding, HTF feeder), NativeBacktest.RunFileJson — vstup z Pythonu; obchody
@@ -33,22 +33,22 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 
 | kľúč | predloha | C# | NinjaTrader šablóna |
 |---|---|---|---|
-| **`ibsnet`** | `ibs` (IBS Imbalance Breakout) | `csharp/TradeBot.Strategies/IbsNet` | `deploy/ninjatrader/IBSNet.cs` |
-| **`orbnet`** | `orb` (Opening Range Breakout) | `csharp/TradeBot.Strategies/OrbNet` | `deploy/ninjatrader/ORBNet.cs` |
-| **`ibsentrynet`** | `ibsentry` (IBS Entry Zone) | `csharp/TradeBot.Strategies/IbsEntryNet` (dedí z `IbsNet`) | `deploy/ninjatrader/IBSEntryNet.cs` |
-| **`vwaporbnet`** | `vwaporb` (VWAP ORB 1.5) | `csharp/TradeBot.Strategies/VwapOrbNet` (dedí z `OrbNet`) | `deploy/ninjatrader/VwapOrbNet.cs` |
-| **`vwapadxnet`** | `vwapadx` (VWAP ADX Pullback) | `csharp/TradeBot.Strategies/VwapAdxNet` (ADX z `IbsNet`) | `deploy/ninjatrader/VwapAdxNet.cs` |
-| **`noanet`** | `noa` (NOA 1.0, Noise Area) | `csharp/TradeBot.Strategies/NoaNet` | `deploy/ninjatrader/NoaNet.cs` |
-| **`tksnet`** | `tks` (TKS 1.0, NQ Kompas) | `csharp/TradeBot.Strategies/TksNet` | `deploy/ninjatrader/TksNet.cs` |
-| **`ibsentryneteod`** | `ibsentrynet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/IbsEntryNet/IbsEntryEodEngine.cs` | `deploy/ninjatrader/IBSEntryNetEod.cs` |
-| **`vwaporbneteod`** | `vwaporbnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/VwapOrbNet/VwapOrbEodEngine.cs` | `deploy/ninjatrader/VwapOrbNetEod.cs` |
-| **`vwapadxneteod`** | `vwapadxnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/VwapAdxNet/VwapAdxEodEngine.cs` | `deploy/ninjatrader/VwapAdxNetEod.cs` |
-| **`noaneteod`** | `noanet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/NoaNet/NoaEodEngine.cs` | `deploy/ninjatrader/NoaNetEod.cs` |
-| **`tksneteod`** | `tksnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/TksNet/TksEodEngine.cs` | `deploy/ninjatrader/TksNetEod.cs` |
-| **`ibsentryesnet`** | `ibsentryes` (IBS EZ ES, S&P 500) | `csharp/TradeBot.Strategies/IbsEntryNet/IbsEntryEsEngine.cs` | `deploy/ninjatrader/IBSEntryEsNet.cs` |
-| **`nyvaesnet`** | `nyvaes` (NY VA BREAKOUT ES) | `csharp/TradeBot.Strategies/NyVaNet` | `deploy/ninjatrader/NyVaEsNet.cs` |
-| **`fibomgcnet`** | `fibomgc` (Fibo 1.0 MGC) | `csharp/TradeBot.Strategies/FiboNet` | `deploy/ninjatrader/FiboMgcNet.cs` |
-| **`sdeurnet`** | `sdeur` (SD ZÓNY EURUSD) | `csharp/TradeBot.Strategies/SdEurNet` | `deploy/ninjatrader/SdEurNet.cs` |
+| **`ibsnet`** | `ibs` (IBS Imbalance Breakout) | `tradebot/csharp/TradeBot.Strategies/IbsNet` | `deploy/ninjatrader/IBSNet.cs` |
+| **`orbnet`** | `orb` (Opening Range Breakout) | `tradebot/csharp/TradeBot.Strategies/OrbNet` | `deploy/ninjatrader/ORBNet.cs` |
+| **`ibsentrynet`** | `ibsentry` (IBS Entry Zone) | `tradebot/csharp/TradeBot.Strategies/IbsEntryNet` (dedí z `IbsNet`) | `deploy/ninjatrader/IBSEntryNet.cs` |
+| **`vwaporbnet`** | `vwaporb` (VWAP ORB 1.5) | `tradebot/csharp/TradeBot.Strategies/VwapOrbNet` (dedí z `OrbNet`) | `deploy/ninjatrader/VwapOrbNet.cs` |
+| **`vwapadxnet`** | `vwapadx` (VWAP ADX Pullback) | `tradebot/csharp/TradeBot.Strategies/VwapAdxNet` (ADX z `IbsNet`) | `deploy/ninjatrader/VwapAdxNet.cs` |
+| **`noanet`** | `noa` (NOA 1.0, Noise Area) | `tradebot/csharp/TradeBot.Strategies/NoaNet` | `deploy/ninjatrader/NoaNet.cs` |
+| **`tksnet`** | `tks` (TKS 1.0, NQ Kompas) | `tradebot/csharp/TradeBot.Strategies/TksNet` | `deploy/ninjatrader/TksNet.cs` |
+| **`ibsentryneteod`** | `ibsentrynet` + EOD 15:59 NY | `tradebot/csharp/TradeBot.Strategies/IbsEntryNet/IbsEntryEodEngine.cs` | `deploy/ninjatrader/IBSEntryNetEod.cs` |
+| **`vwaporbneteod`** | `vwaporbnet` + EOD 15:59 NY | `tradebot/csharp/TradeBot.Strategies/VwapOrbNet/VwapOrbEodEngine.cs` | `deploy/ninjatrader/VwapOrbNetEod.cs` |
+| **`vwapadxneteod`** | `vwapadxnet` + EOD 15:59 NY | `tradebot/csharp/TradeBot.Strategies/VwapAdxNet/VwapAdxEodEngine.cs` | `deploy/ninjatrader/VwapAdxNetEod.cs` |
+| **`noaneteod`** | `noanet` + EOD 15:59 NY | `tradebot/csharp/TradeBot.Strategies/NoaNet/NoaEodEngine.cs` | `deploy/ninjatrader/NoaNetEod.cs` |
+| **`tksneteod`** | `tksnet` + EOD 15:59 NY | `tradebot/csharp/TradeBot.Strategies/TksNet/TksEodEngine.cs` | `deploy/ninjatrader/TksNetEod.cs` |
+| **`ibsentryesnet`** | `ibsentryes` (IBS EZ ES, S&P 500) | `tradebot/csharp/TradeBot.Strategies/IbsEntryNet/IbsEntryEsEngine.cs` | `deploy/ninjatrader/IBSEntryEsNet.cs` |
+| **`nyvaesnet`** | `nyvaes` (NY VA BREAKOUT ES) | `tradebot/csharp/TradeBot.Strategies/NyVaNet` | `deploy/ninjatrader/NyVaEsNet.cs` |
+| **`fibomgcnet`** | `fibomgc` (Fibo 1.0 MGC) | `tradebot/csharp/TradeBot.Strategies/FiboNet` | `deploy/ninjatrader/FiboMgcNet.cs` |
+| **`sdeurnet`** | `sdeur` (SD ZÓNY EURUSD) | `tradebot/csharp/TradeBot.Strategies/SdEurNet` | `deploy/ninjatrader/SdEurNet.cs` |
 
 Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb`, `vwapadx`, `noa`, `tks`, `ibsentryes`, `nyvaes`, `fibomgc` a `sdeur`,
 ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/SMERNICE_CS_<názov>_<n>.json` (vlastný prefix — export rannej úlohy
@@ -62,7 +62,7 @@ adaptéry nepoznajú; config aj engine ho odmietnu.
 Kópie `<kľúč>eod` (`ibsentryneteod`, `vwaporbneteod`, `vwapadxneteod`, `noaneteod`, `tksneteod`) sú tie isté stratégie, len o **15:59
 New York** (21:59 nášho času) zavrú každú otvorenú pozíciu, zrušia čakajúce vstupné ordery a do **18:00 NY** (nový
 obchodný deň CME) nevstúpia — prop firmy na futures nechcú pozíciu cez koniec dňa. Robí to generický obal
-`EodCloseEngine` (`csharp/TradeBot.Core/EodClose.cs`); trieda kópie v priečinku predlohy (napr. `NoaEodEngine`) len postaví
+`EodCloseEngine` (`tradebot/csharp/TradeBot.Core/EodClose.cs`); trieda kópie v priečinku predlohy (napr. `NoaEodEngine`) len postaví
 engine predlohy a dá ho doň. Zatvára sa na poslednom bare, ktorý sa zatvára najneskôr o 15:59 NY (3m: 15:57, 5m: 15:55,
 1m: 15:59). Okno je v čase New York, takže v týždňoch s rozdielnym prechodom na letný čas je to u nás 20:59, nikdy nie
 neskôr. Obaly vstupov (limitka, potvrdenie, filter) nasadí EOD obal pod seba, aby ani čakajúca limitka nevyslala vstup
@@ -77,7 +77,7 @@ nepríde (reconnect, zamrznutý feed), od 15:58:30 NY sa pozícia zavrie a čaka
 Filter trendu a volatility (`trendFilter`, `volFilter`), potvrdenie vstupu sviečkou (`entryConfirm`) a limitka
 namiesto market vstupu (`entryOrderType`) sú v Pythone obaly, ktoré nasadzujú adaptéry Freqtrade a MultiCharts
 (`tradebot/core/entry_*.py`). Živý NinjaTrader a MT5 však spúšťajú len C# engine — preto ich má aj C# jadro
-(`csharp/TradeBot.Core/EntryLayers.cs`) a nasadzuje ich **`EngineRegistry.Create`** podľa configu, v tom istom
+(`tradebot/csharp/TradeBot.Core/EntryLayers.cs`) a nasadzuje ich **`EngineRegistry.Create`** podľa configu, v tom istom
 poradí ako Python adaptéry. Most do Pythonu to hlási (`CSharpEngine.native_entry_layers`), takže Python obaly
 C# engine druhý raz nebalia. Parita obalov sa overuje na ORBNet aj VWAP ORB (`test_csharp_parity_orb.py`,
 `test_csharp_parity_vwaporb.py`). Do 13. 10. 2026 ich ORBNet naživo nemal — v testoch áno.
@@ -136,7 +136,7 @@ python3 -m tester.compare.csharp_replay verify replay.jsonl                     
 Na stroji s celým prostredím to isté (a viac) robí `pytest tester/tests/test_csharp_parity.py` — tam sa
 C# pod Mono porovnáva priamo s Python enginom. Dve pasce, ktoré test pod Mono našiel a sú opravené:
 preklad sa robil v systémovom `/tmp` a `os.replace` cez hranicu zväzku padá (teraz vedľa cieľa), a DLL
-z `mcs` nenabehne na .NET Frameworku (viaže sa na metódy, ktoré tam nie sú) — preto `csharp/bin/.built-by`
+z `mcs` nenabehne na .NET Frameworku (viaže sa na metódy, ktoré tam nie sú) — preto `tradebot/csharp/bin/.built-by`
 a preklad z iného systému v zdieľanom adresári sa berie ako zastaraný.
 
 Čísla idú dnu ako natívne `double` (pythonnet) alebo ako bitový vzor (stdio) a von ako `G17` — cestou
@@ -154,8 +154,8 @@ Dve veci, na ktoré most narazil a ktoré v ňom preto sú:
   `tradebot.core.clr.tame_shutdown()` tesne pred ním zavolá `gc.freeze()`. Volá sa po každom načítaní
   CLR — v moste aj pri `import clr` v MultiCharts adaptéri, lebo v testoch ho ako prvý načíta ten.
 
-Preklad rieši most sám: `csharp/bin/TradeBot.dll` sa zostaví pri prvom použití a vždy, keď je niektorý
-`.cs` novší (`python -m tradebot.adapters.csharp.build [--force]`). `csharp/bin/` je v `.gitignore`.
+Preklad rieši most sám: `tradebot/csharp/bin/TradeBot.dll` sa zostaví pri prvom použití a vždy, keď je niektorý
+`.cs` novší (`python -m tradebot.adapters.csharp.build [--force]`). `tradebot/csharp/bin/` je v `.gitignore`.
 DLL sa do procesu načíta z bajtov, takže ju bežiaci beh nezamkne. `setup.ps1`/`setup.sh` inštalujú
 pythonnet (`pip install -e .[csharp]`), `install-macos.sh` aj Mono.
 
@@ -575,7 +575,7 @@ Ovládanie okna NinjaTradera je pre AI asistenta len na čítanie — import a R
 
 ## Ako pridať ďalšiu stratégiu s C# jadrom
 
-1. `csharp/TradeBot.Strategies/<Meno>/` — config (`*Config.cs`, polia menom zhodné s Python configom),
+1. `tradebot/csharp/TradeBot.Strategies/<Meno>/` — config (`*Config.cs`, polia menom zhodné s Python configom),
    engine s `[TradeBotEngine("kľúč", "titulok")]` a konštruktorom
    `(Dictionary<string, object> config, InstrumentSpec inst, int chartTfMinutes)`.
    Variant existujúcej C# stratégie (ako `vwaporb` z `orb`) dedí: config z jej configu (`Fill<T>`, vlastné

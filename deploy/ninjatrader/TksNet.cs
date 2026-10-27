@@ -1,6 +1,6 @@
 // TksNet - TKS 1.0 (NQ Kompas) s jadrom v C# ako strategia NinjaTrader 8.
 //
-// Tento subor je len ukazovatel: cela logika je v C# jadre (`csharp/TradeBot.Strategies/TksNet`)
+// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/csharp/TradeBot.Strategies/TksNet`)
 // a vsetko okolo NinjaTradera v generickom adapteri (`tradebot/adapters/ninjatrader/TradeBotStrategy.cs`).
 // Instalacia (skopiruje jadro, adapter, tuto sablonu a profily do Documents\NinjaTrader 8):
 //

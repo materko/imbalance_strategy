@@ -125,7 +125,7 @@ Iný port: `TRADEBOT_WEB_PORT=9000 ./webapp.sh` (a potom `--url http://127.0.0.1
 ```bash
 PY -m tester.webapp.cli push          # najprv odlož vlastné behy (viď nižšie)
 git pull --rebase --autostash      # v koreni repozitára
-PY -m tester.data_archive merge # ak pull priniesol nové dáta v data_archive/tester/
+PY -m tester.data_archive merge # ak pull priniesol nové dáta v data/archive/tester/
 PY -m pytest -q                    # voliteľné: overenie (~30 s, 300+ testov)
 ```
 

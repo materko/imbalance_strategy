@@ -21,7 +21,7 @@ git config --global --add safe.directory "$DIR" 2>/dev/null || true
 # preto init + fetch + reset.
 #
 # Hub je len rozdeľovač práce: nepočíta, takže z repozitára nepotrebuje ani sviečky
-# (`data_archive`, 2 GB), ani históriu behov (`tester/runs`, cez 6 GB). Preto plytký
+# (`data/archive`, 2 GB), ani históriu behov (`tester/runs`, cez 6 GB). Preto plytký
 # fetch (`--depth 1`), **partial clone** (`--filter=blob:none` — obsah súborov mimo
 # výberu sa ani nesťahuje) a **sparse-checkout** so zoznamom z `tester/hub/sparse.py`
 # (HUB_RULES). Z deviatich gigabajtov ostane pár megabajtov.

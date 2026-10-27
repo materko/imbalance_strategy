@@ -16,7 +16,7 @@
 #
 # Čo agent potrebuje z hostiteľa (mounty):
 #   tester/           história behov (výsledky sa odtiaľto balia pre hub), agent_state.json
-#   data/, data_archive/  sklad sviečok; chýbajúce si agent pri štarte zloží z archívu
+#   data/, data/archive/  sklad sviečok; chýbajúce si agent pri štarte zloží z archívu
 #   deploy/freqtrade/ configy búrz a user_data (výsledky Freqtradu, plány hyperoptu)
 #   tradebot/         jadro, read-only — zmena kódu bez rebuildu
 #   .git/             read-only, len na čítanie verzie (commit) — `git pull` rob na hostiteľovi;

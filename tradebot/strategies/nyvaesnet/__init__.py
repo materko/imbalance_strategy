@@ -1,6 +1,6 @@
 """NY VA BREAKOUT ES (C# jadro) — NY VA BREAKOUT ES s jadrom v C#, aby bežala naživo v NinjaTraderi a MT5 na ES / MES.
 
-Logika je prepis `tradebot/strategies/nyva` do C# (`csharp/TradeBot.Strategies/NyVaNet`, kľúč `nyvaesnet`) s obalmi
+Logika je prepis `tradebot/strategies/nyva` do C# (`tradebot/csharp/TradeBot.Strategies/NyVaNet`, kľúč `nyvaesnet`) s obalmi
 vstupov z `EntryLayers` (trend, potvrdenie pin barom / imbalance, limitka). Profily `PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_1–5`
 prešli smernicou na ES (25. 10. 2026, kroky 1–7; US500 v kroku 8 nie — len futures). Zhodu s Python predlohou
 `nyvaes` bar po bare stráži `tester/tests/test_csharp_parity_es.py`.

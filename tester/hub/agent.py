@@ -141,6 +141,15 @@ CODE_RETRY_BLOCKED = 60.0
 CODE_RETRY_ERROR = 300.0
 
 
+def _migrate_sparse() -> None:
+    try:
+        from . import sparse
+        r = sparse.migrate_legacy()
+        if r is not None:
+            log.info("hub agent: pravidlá chudého klonu prepnuté na nové cesty (%s)", "ok" if r["ok"] else r["output"])
+    except Exception as exc:   # klon bez gitu alebo len na čítanie (Docker) je v poriadku
+        log.debug("hub agent: sparse migrácia preskočená: %s", exc)
+
 class TelegramHubViews:
     """Pohľady pluginov hubu pre Telegram agenta (📅 Udalosti …) — vlastné spojenie s krátkym timeoutom,
     aby čakanie na hub nebrzdilo heartbeat ani long-poll príkazov."""
@@ -257,6 +266,8 @@ class HubAgent:
 
     def start(self) -> None:
         self._stop.clear()
+        # Klon nastavený pred presunom dát pod data/ (docs/DIRECTORIES.md): pravidlá chudého klonu na nové cesty.
+        threading.Thread(target=_migrate_sparse, name="hub-agent-sparse", daemon=True).start()
         if self._thread is None or not self._thread.is_alive():
             self._thread = threading.Thread(target=self._loop, name="hub-agent", daemon=True)
             self._thread.start()
@@ -1037,7 +1048,7 @@ class HubAgent:
                                        "stiahne až jeho časovač"}
 
     def _sync_data(self) -> None:
-        """Po pulle: čo pribudlo v `data_archive/`, zložiť do skladu, a dopočítať timeframy.
+        """Po pulle: čo pribudlo v `data/archive/`, zložiť do skladu, a dopočítať timeframy.
 
         Rovnaký commit = rovnaké dáta pre všetkých agentov — ale len keď si ich agent po
         pulle aj rozbalí; inak by beh na novom páre spadol až vo Freqtrade.

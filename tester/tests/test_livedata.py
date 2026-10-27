@@ -278,7 +278,7 @@ def test_plugin_hubu_exportuje_ponuka_mimo_gitu_a_pushne_uzavrety_mesiac(tmp_pat
     assert host.run_once("livedata")
     assert _git("rev-list", "--count", "main", cwd=bare) == "2"
     tree = set(_git("ls-tree", "-r", "--name-only", "main", cwd=bare).splitlines())
-    assert {f"data_live/{x}" for x in offered} <= tree and "README.md" in tree
+    assert {f"data/live/{x}" for x in offered} <= tree and "README.md" in tree
     assert "Pridaj živé dáta za " + month.strftime("%Y-%m") in _git("log", "-1", "--format=%s", "main", cwd=bare)
     assert host.files("livedata") == [] and p.status()["last_commit"]
     # ďalšie kolo bez zmien nič necommitne

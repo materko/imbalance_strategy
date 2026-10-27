@@ -1,6 +1,6 @@
 """Transport medzi Pythonom a C# jadrom — dva spôsoby, jeden protokol.
 
-`EngineHost` (csharp/TradeBot.Core/EngineHost.cs) berie jednoduché typy a vracia jeden JSON
+`EngineHost` (tradebot/csharp/TradeBot.Core/EngineHost.cs) berie jednoduché typy a vracia jeden JSON
 na bar. Volá sa buď **v procese** cez pythonnet (rýchle, ~µs na bar), alebo ako **samostatný
 proces** `TradeBot.Host.exe` cez stdin/stdout (bez závislosti; na macOS/Linuxe pod Mono).
 Výber: `TRADEBOT_CSHARP_BRIDGE=inproc|stdio`, inak pythonnet, keď je nainštalovaný.

@@ -126,7 +126,7 @@ SETS=ES:2019:2026 python p1.py      # veľkosti pohybov, profil dňa, kedy vznik
 SETS=ES:2019:2026 python p2.py      # trend vs návrat, ORB, gapy, noc
 SYMS=ES python p3.py                # FVG a SD zóny proti náhodným úrovniam
 ```
-(Ak sa súbory volajú inak, napr. `MES_USD-1m`, použi `SETS=MES:...`; `load.py` hľadá `data_archive/tester/databento/futures/<SYM>_USD-1m.<rok>.feather`.)
+(Ak sa súbory volajú inak, napr. `MES_USD-1m`, použi `SETS=MES:...`; `load.py` hľadá `data/archive/tester/databento/futures/<SYM>_USD-1m.<rok>.feather`.)
 Na ES navyše doplniť (skutočný objem burzy to umožní): Initial Balance (prieraz, predĺženie 1–2× IB, po časoch), Value Area / POC
 predošlého dňa a pravidlo 80 %, VWAP (dotyky, návrat od ±1/2 σ), typy dní (trend / range / dvojité rozdelenie), FVG po veľkosti
 (> 1 ATR) a v zónach, dni FOMC / CPI / NFP, expirácie a rolovanie, režimy volatility (realizovaná vol. 5/20 dní), London 3:00 a Ázia.
