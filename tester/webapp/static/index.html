@@ -479,10 +479,12 @@
       a buď má ten stroj agenta hubu (<code>tester/agent.json</code>) a táto webapp hub nastavený,
       alebo webapp beží priamo na ňom.</div>
     <div class="scroll"><table id="live-table" class="runs"><thead><tr>
-      <th>stav</th><th>platforma</th><th>účet</th><th>symbol</th><th>TF</th><th>stratégia</th><th>profil</th>
-      <th>stroj</th><th>agent</th><th>posledný bar</th><th class="num" title="odhad z fillov: vstupy − výstupy podľa id">pozícia</th>
-      <th class="num" title="pozícia, ktorú hlási platforma z účtu (ping hb) — NinjaTrader celý účet na inštrumente, MT5 pozície s magic tohto EA">u brokera</th>
-      <th class="num" title="vyplnenia u brokera za dnešný deň (UTC)">fills dnes</th></tr></thead><tbody></tbody></table></div>
+      <th class="sort" data-k="state">stav</th><th class="sort" data-k="platform">platforma</th><th class="sort" data-k="account">účet</th>
+      <th class="sort" data-k="symbol">symbol</th><th class="sort" data-k="tf">TF</th><th class="sort" data-k="strategy">stratégia</th>
+      <th class="sort" data-k="profile">profil</th><th class="sort" data-k="host">stroj</th><th class="sort" data-k="agent">agent</th>
+      <th class="sort" data-k="bar">posledný bar</th><th class="num sort" data-k="pos" title="odhad z fillov: vstupy − výstupy podľa id">pozícia</th>
+      <th class="num sort" data-k="broker" title="pozícia, ktorú hlási platforma z účtu (ping hb) — NinjaTrader celý účet na inštrumente, MT5 pozície s magic tohto EA">u brokera</th>
+      <th class="num sort" data-k="fills" title="vyplnenia u brokera za dnešný deň (UTC)">fills dnes</th></tr></thead><tbody></tbody></table></div>
     <div id="live-stale" class="muted small" hidden></div>
   </div>
 

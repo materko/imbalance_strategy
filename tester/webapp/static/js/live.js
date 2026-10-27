@@ -420,17 +420,59 @@ function liveStatusChip(inst) {
   return `${chip}${tester}${diera}`;
 }
 
-/** Poradie tabuľky inštancií: platforma, účet, symbol, TF, stratégia, profil (prázdne na koniec). */
+const liveTxt = (x, y) => String(x).localeCompare(String(y), "sk", { numeric: true, sensitivity: "base" });
+
+/** Predvolené poradie tabuľky inštancií: platforma, účet, symbol, TF, stratégia, profil (prázdne na koniec). */
 function liveOrder(a, b) {
-  const txt = (x, y) => (!x - !y) || String(x || "").localeCompare(String(y || ""), "sk", { numeric: true, sensitivity: "base" });
+  const txt = (x, y) => (!x - !y) || liveTxt(x || "", y || "");
   return txt(a.platform, b.platform) || txt(a.account, b.account) || txt(a.symbol, b.symbol)
     || (!a.tf - !b.tf) || ((Number(a.tf) || 0) - (Number(b.tf) || 0))
     || txt(a.strategy, b.strategy) || txt(a.profile, b.profile) || txt(a.id, b.id);
 }
 
+/** Hodnota stĺpca na triedenie klikom na hlavičku (`data-k`); null/"" ide vždy na koniec. */
+const LIVE_SORT = {
+  state: i => ({ live: 0, closed: 1, silent: 2 })[liveState(i)],
+  platform: i => i.platform, account: i => i.account, symbol: i => i.symbol, tf: i => Number(i.tf) || null,
+  strategy: i => i.strategy, profile: i => i.profile, host: i => i.host, agent: i => i.agent,
+  bar: i => i.last_bar_ms || null,
+  pos: i => { const p = livePosition(lv.fills[i.id]); return p ? p.qty : null; },
+  broker: i => { const b = liveBroker(i); return b ? b.qty : null; },
+  fills: i => liveFillsToday(lv.fills[i.id]),
+};
+const LIVE_SORT_KEY = "tradebot.live.sort";
+
+function liveSortLoad() {
+  try { return JSON.parse(localStorage.getItem(LIVE_SORT_KEY) || "null"); } catch (_) { return null; }
+}
+
+/** Klik na hlavičku: prvý vzostupne, druhý zostupne, tretí späť na predvolené poradie. */
+function liveSortClick(k) {
+  const s = lv.sort;
+  lv.sort = !s || s.k !== k ? { k, dir: 1 } : (s.dir === 1 ? { k, dir: -1 } : null);
+  try { localStorage.setItem(LIVE_SORT_KEY, JSON.stringify(lv.sort)); } catch (_) { /* súkromné okno */ }
+  renderLiveList();
+}
+
+function liveSorted(list) {
+  const s = lv.sort, f = s && LIVE_SORT[s.k];
+  if (!f) return list.slice().sort(liveOrder);
+  return list.map(i => [i, f(i)]).sort(([a, x], [b, y]) => {
+    const prazdne = (x === null || x === undefined || x === "") - (y === null || y === undefined || y === "");
+    if (prazdne) return prazdne;
+    const c = typeof x === "number" && typeof y === "number" ? x - y : liveTxt(x, y);
+    return c * s.dir || liveOrder(a, b);
+  }).map(([i]) => i);
+}
+
 function renderLiveList() {
+  if (lv.sort === undefined) lv.sort = liveSortLoad();
+  for (const th of $$("#live-table th.sort")) {
+    th.dataset.dir = lv.sort && lv.sort.k === th.dataset.k ? lv.sort.dir : "";
+    th.onclick = () => liveSortClick(th.dataset.k);
+  }
   const stare = lv.instances.filter(liveStale);
-  const list = (lv.showStale ? lv.instances : lv.instances.filter(i => !liveStale(i))).slice().sort(liveOrder);
+  const list = liveSorted(lv.showStale ? lv.instances : lv.instances.filter(i => !liveStale(i)));
   const st = $("#live-stale");
   st.hidden = !stare.length;
   st.innerHTML = stare.length ? `<a href="#">${lv.showStale ? "skryť" : "ukázať"} ${stare.length} ${stare.length === 1 ? "starú inštanciu" : (stare.length <= 4 ? "staré inštancie" : "starých inštancií")}</a> — bez aktívneho nasadenia a bez udalosti viac než ${LIVE_STALE_DAYS} dni` : "";

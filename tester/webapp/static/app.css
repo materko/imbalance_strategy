@@ -753,6 +753,9 @@ table.dv-table .l { text-align: left; }
 table.dv-table tr.sum td { font-weight: 700; background: var(--surface-alt); }
 table.dv-table td.warn { color: var(--amber); font-weight: 600; }
 table.dv-table th.sort { cursor: pointer; text-decoration: underline dotted; }
+#live-table th.sort { cursor: pointer; user-select: none; }
+#live-table th.sort[data-dir="1"]::after { content: " ▲"; }
+#live-table th.sort[data-dir="-1"]::after { content: " ▼"; }
 table.dv-table td.dv-audit { white-space: normal; min-width: 320px; font-size: 12px; }
 table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(--card); border-radius: 6px; min-width: 50px; }
 .dv-kv { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 13px; margin: 0; }
