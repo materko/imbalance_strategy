@@ -7,6 +7,7 @@ overuje, že klient nerobí nové TCP spojenie na každú požiadavku (pretáča
 
 from __future__ import annotations
 
+import gzip
 import http.client
 import json
 import threading
@@ -42,7 +43,16 @@ class _Handler(BaseHTTPRequestHandler):
         body = self.rfile.read(n) if n else b""
         srv.requests.append((self.command, self.path, self.client_address[1],
                              self.headers.get("Authorization"), body))
-        if self.path.endswith("/missing"):
+        srv.accept_encoding.append(self.headers.get("Accept-Encoding"))
+        if self.path.endswith("/gz") and "gzip" in (self.headers.get("Accept-Encoding") or ""):
+            data = gzip.compress(json.dumps({"ok": True, "zbalene": True}).encode())
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+        elif self.path.endswith("/missing"):
             self._reply(404, {"detail": "nie je"})
         elif self.path.startswith("/api/jobs") and self.command == "POST":
             self._reply(409, {"detail": {"message": "nikto voľný", "eta_start_seconds": 60}})
@@ -62,6 +72,7 @@ def server():
     srv = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     srv.daemon_threads = True
     srv.requests = []
+    srv.accept_encoding = []
     srv.drop_after_reply = False
     t = threading.Thread(target=srv.serve_forever, daemon=True)
     t.start()
@@ -165,3 +176,36 @@ def test_vlakna_maju_vlastne_spojenie(server):
     t.join()
     h.get("/api/health")
     assert len({r[2] for r in server.requests}) == 2
+
+
+def test_gzip_odpovede_klient_rozbali_zip_vysledku_nepyta(server):
+    """Export udalostí pre zrkadlo (~1,3 MB na 5000) hub zbalí, keď klient povie `Accept-Encoding: gzip`;
+    zip výsledku (`get_bytes`) sa nebalí znova."""
+    h = HubHttp(_url(server), token="t")
+    assert h.get("/api/live/gz") == {"ok": True, "zbalene": True}
+    assert server.accept_encoding[-1] == "gzip"
+    h.get_bytes("/api/jobs/x/result")
+    assert "gzip" not in (server.accept_encoding[-1] or "")   # http.client sám pošle `identity`
+
+
+def test_hub_export_gzip_a_rovnake_data(tmp_path):
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub.server import create_hub_app
+    from tester.hub.state import HubState
+
+    app = create_hub_app(HubState(tmp_path / "hub", token="t"))
+    c = TestClient(app)
+    H = {"Authorization": "Bearer t"}
+    hello = {"seq": 1, "t": 1_790_000_000_000, "k": "hello", "schema": 1, "platform": "ninjatrader",
+             "account": "Sim101", "symbol": "MNQ", "tf": 3, "strategy": "ibsnet", "profile": "p", "session": "s1",
+             "host": "PC", "tester": False, "config": {}, "instrument": {}}
+    bary = [{"seq": s, "t": 1_790_000_000_000 + s, "k": "bar", "bt": 1_790_000_000_000 + s * 180_000, "o": 1.0,
+             "h": 2.0, "l": 0.5, "c": 1.5, "v": 3, "ready": False, "mb": 0} for s in range(2, 202)]
+    c.post("/api/live/events", json={"agent": "a", "batches": [{"instance": "i", "session": "s1",
+                                                                "events": [hello, *bary]}]}, headers=H)
+    zbalene = c.get("/api/live/export?after=0", headers={**H, "Accept-Encoding": "gzip"})
+    holy = c.get("/api/live/export?after=0", headers={**H, "Accept-Encoding": "identity"})
+    assert zbalene.headers.get("content-encoding") == "gzip" and "content-encoding" not in holy.headers
+    assert zbalene.json() == holy.json() and len(holy.json()) == 201 and holy.json()[1]["event"]["k"] == "bar"

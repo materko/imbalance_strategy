@@ -2590,6 +2590,46 @@ def test_agent_heartbeat_podla_hubu_a_strazca_spoolu(hub_api, tmp_path: Path, mo
     assert srv.watch_spool() is False                # odoslanie samo spool nemení
 
 
+def test_agent_posiela_spool_vo_vlastnom_vlakne(hub_api, tmp_path: Path, monkeypatch):
+    """Grafové dáta (po reštarte platforiem desaťtisíce udalostí) nesmú zdržať nasadenia ani nový kód: s vláknom
+    odosielania `work()` spool neposiela, strážca budí `_ship` a kolo, ktoré vyčerpalo čítania, pýta ďalšie hneď."""
+    import json as _json
+    import threading
+
+    c, state, clock = hub_api
+    http = FakeHttp(c, "tajne")
+    root = tmp_path / "spool"
+    root.mkdir()
+    monkeypatch.setenv("TRADEBOT_LIVE_SPOOL", str(root))
+    srv, _, _ = _agent("srv", tmp_path, http)
+    srv.live_cursor = tmp_path / "srv" / "live-cursor.json"
+    srv.tick()                                        # shipper vznikne (bez vlákien posiela work())
+    stoj = threading.Event()
+    srv._shipper_thread = threading.Thread(target=stoj.wait, daemon=True)   # „bežiace“ vlákno odosielania
+    srv._shipper_thread.start()
+    try:
+        assert srv.watch_spool() is False             # prvý pohľad si len zapamätá odtlačok
+        d = root / LIVE_INST
+        d.mkdir()
+        with open(d / "20260928-100000_a1b2c3d4.jsonl", "ab") as fh:
+            fh.write(_json.dumps(_live_hello()).encode() + b"\n")
+            for i in range(29):
+                fh.write(_json.dumps(_live_bar(2 + i, i)).encode() + b"\n")
+        srv._work.clear()
+        srv._ship.clear()
+        assert srv.watch_spool() is True and srv._ship.is_set() and not srv._work.is_set()
+        srv.work()                                    # riadiace kroky — spool nechá vláknu odosielania
+        assert c.app.state.live.cursor() == 0
+        srv._live.batch_events, srv._live.max_batches = 5, 2
+        assert srv._ship_live() is True               # backlog: kolo vyčerpalo čítania, ďalšie hneď
+        assert c.app.state.live.cursor() == 10
+        while srv._ship_live():
+            pass
+        assert c.app.state.live.cursor() == 30
+    finally:
+        stoj.set()
+
+
 # --------------------------------------------------------------------------- #
 # live nasadenia (docs/LIVE.md, fáza 2b): účty, nasadenia, heartbeat `live`
 # --------------------------------------------------------------------------- #

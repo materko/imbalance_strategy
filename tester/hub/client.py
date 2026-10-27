@@ -21,6 +21,7 @@ zavrel, sa zahodí a požiadavka ide raz znova na novom.
 
 from __future__ import annotations
 
+import gzip
 import http.client
 import json
 import select
@@ -120,11 +121,18 @@ class HubHttp:
         self._proxied = bool(urllib.request.getproxies().get(self._scheme)) \
             and not urllib.request.proxy_bypass(self._host)
 
-    def _headers(self, content_type: str | None = None) -> dict[str, str]:
+    def _headers(self, content_type: str | None = None, gzip_ok: bool = True) -> dict[str, str]:
         h = {"Authorization": f"Bearer {self.token}"} if self.token else {}
         if content_type:
             h["Content-Type"] = content_type
+        if gzip_ok:
+            # JSON udalostí (export pre zrkadlo, ~1,3 MB na 5000) hub zbalí ~10×; zip výsledku nie (`get_bytes`)
+            h["Accept-Encoding"] = "gzip"
         return h
+
+    @staticmethod
+    def _unzip(body: bytes, headers: Any) -> bytes:
+        return gzip.decompress(body) if (headers.get("content-encoding") or "").lower() == "gzip" else body
 
     @staticmethod
     def _error(status: int, telo: bytes, method: str, path: str) -> HubError:
@@ -185,16 +193,17 @@ class HubHttp:
             conn.close()
 
     def _call(self, method: str, path: str, data: bytes | None = None,
-              content_type: str | None = None, timeout: float | None = None) -> tuple[bytes, str]:
+              content_type: str | None = None, timeout: float | None = None,
+              gzip_ok: bool = True) -> tuple[bytes, str]:
         if self._proxied:
-            return self._call_urllib(method, path, data, content_type, timeout)
-        headers = self._headers(content_type)
+            return self._call_urllib(method, path, data, content_type, timeout, gzip_ok)
+        headers = self._headers(content_type, gzip_ok)
         for pokus in (1, 2):
             conn, reused = self._connection(timeout or self.timeout)
             try:
                 conn.request(method, self._prefix + path, body=data, headers=headers)
                 r = conn.getresponse()
-                body = r.read()
+                body = self._unzip(r.read(), r.headers)
             except _STALE as exc:
                 self.close()
                 if reused and pokus == 1:
@@ -206,28 +215,28 @@ class HubHttp:
             if r.will_close:
                 self.close()
             if 300 <= r.status < 400:  # presmerovanie (proxy pred hubom) — postará sa urllib
-                return self._call_urllib(method, path, data, content_type, timeout)
+                return self._call_urllib(method, path, data, content_type, timeout, gzip_ok)
             if r.status >= 400:
                 raise self._error(r.status, body, method, path)
             return body, r.headers.get("content-type", "")
         raise AssertionError("nedosiahnuteľné")
 
     def _call_urllib(self, method: str, path: str, data: bytes | None,
-                     content_type: str | None, timeout: float | None) -> tuple[bytes, str]:
+                     content_type: str | None, timeout: float | None, gzip_ok: bool = True) -> tuple[bytes, str]:
         req = urllib.request.Request(self.url + path, data=data, method=method,
-                                     headers=self._headers(content_type))
+                                     headers=self._headers(content_type, gzip_ok))
         try:
             with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
-                return r.read(), r.headers.get("content-type", "")
+                return self._unzip(r.read(), r.headers), r.headers.get("content-type", "")
         except urllib.error.HTTPError as exc:
-            raise self._error(exc.code, exc.read(), method, path) from None
+            raise self._error(exc.code, self._unzip(exc.read(), exc.headers), method, path) from None
 
     def get(self, path: str) -> Any:
         data, ct = self._call("GET", path)
         return json.loads(data) if "json" in ct else data.decode("utf-8", "replace")
 
     def get_bytes(self, path: str) -> bytes:
-        return self._call("GET", path, timeout=max(self.timeout, 300))[0]
+        return self._call("GET", path, timeout=max(self.timeout, 300), gzip_ok=False)[0]
 
     def post(self, path: str, body: dict[str, Any] | None = None) -> Any:
         data, ct = self._call("POST", path, json.dumps(body or {}).encode("utf-8"), "application/json")

@@ -215,7 +215,7 @@ public sealed class LiveSpool : IDisposable {
 | `schema.py` | konštanty (`SCHEMA`, druhy), `instance_id(...)` (to isté ako C#), `parse_line`, `validate(event)` |
 | `store.py` | `LiveStore(path)` nad sqlite — jeden kód pre hub aj zrkadlo webapp (API nižšie) |
 | `spool.py` | `default_roots()` (NT + MT5 + env), `SpoolReader(roots, cursor_path)`: `read(max_events)` → `Batch(instance, session, path, events, end_offset)`, `commit(batch)`; neúplný posledný riadok (bez `\n`) sa nečíta |
-| `shipper.py` | `LiveShipper(reader, http, agent)`: `pump(max_batches)` → `POST /api/live/events`, kurzor posunie len po 200; `status()` |
+| `shipper.py` | `LiveShipper(reader, http, agent)`: `pump(max_batches)` → `POST /api/live/events` po 2000 udalostí (`BATCH_EVENTS`), kurzor posunie len po 200; `status()`. Agent ho volá vo vlastnom vlákne (`hub-agent-ship`), nie medzi nasadeniami a novým kódom |
 | `__main__.py` | `python -m tradebot.live status|tail|ship` na ručné overenie |
 
 `LiveStore`:
@@ -244,7 +244,7 @@ Hub (`tester/hub/live.py`, pripája `create_hub_app`), auth ako ostatné (token 
 | GET | `/api/live/instances/{id}/sessions` | behy inštancie (`LiveStore.sessions`) |
 | GET | `/api/live/instances/{id}/events?after=&kinds=&limit=&session=` | riadky |
 | GET | `/api/live/instances/{id}/snapshot?bars=&session=` | snapshot (so `session=` len ten beh) |
-| GET | `/api/live/export?after=&limit=` | riadky pre zrkadlo |
+| GET | `/api/live/export?after=&limit=` | riadky pre zrkadlo (rovno `json.dumps`; s `Accept-Encoding: gzip` zbalené ~14×) |
 | GET | `/api/live/range?instance=&session=&first=&last=&limit=` | seq `first..last` jedného behu — doplnenie diery v zrkadle |
 | GET | `/api/live/gaps?instance=` | diery v seq na hube (diagnostika) |
 

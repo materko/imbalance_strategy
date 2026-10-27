@@ -24,12 +24,14 @@ Jedno kolo `work()`:
 2. **pullne** kód, keď naň čaká pridelený výpočet (viď nižšie),
 3. **vyzdvihne** výsledky výpočtov, ktoré tento agent sám zadal (zip do vlastnej histórie,
    `ack` hubu),
-4. **pošle live telemetriu** (`_ship_live`, docs/LIVE.md): keď je na stroji spool NinjaTradera
-   alebo MT5 (`tradebot.live.default_roots`), `LiveShipper` ho odošle na hub a kurzor posunie
-   až po 200; korene sa preverujú každú minútu, nech sa platforma nainštalovaná neskôr chytí.
-   Aby bar nečakal na heartbeat, **tretie, ľahké vlákno** (`_spool_watch_loop`) každú sekundu
-   pozrie veľkosti súborov spoolu (`SpoolReader.status()`, len `stat`) a keď narástli, zobudí
-   pomalé vlákno hneď (`_work`); heartbeat ostáva ako poistka,
+4. **pošle live telemetriu** (`_ship_live`, docs/LIVE.md) — vo **vlastnom vlákne** (`_ship_loop`),
+   nie v `work()`: keď je na stroji spool NinjaTradera alebo MT5 (`tradebot.live.default_roots`),
+   `LiveShipper` ho odošle na hub a kurzor posunie až po 200; korene sa preverujú každú minútu, nech
+   sa platforma nainštalovaná neskôr chytí. Grafové dáta (po reštarte platforiem desaťtisíce udalostí
+   prehratej histórie, kolo `pump` aj 40 s) tak nezdržia riadiace kroky nižšie — nasadenia, nový kód
+   a pull. Aby bar nečakal na heartbeat, **ľahké vlákno** (`_spool_watch_loop`) každú sekundu pozrie
+   veľkosti súborov spoolu (`SpoolReader.status()`, len `stat`) a keď narástli, zobudí odosielanie
+   hneď (`_ship`); heartbeat ostáva ako poistka. Bez vlákien (testy) posiela `work()` sám,
 5. **zosúladí nasadenia** (`_apply_live`, docs/LIVE.md fáza 2b): heartbeat prinesie v `live`
    účty a nasadenia tohto agenta, `Reconciler` s drivermi platforiem (`tradebot.live.drivers`)
    ich zapíše na disk platformy a spustí terminál; čo sa podarilo, ide v `live.applied`
@@ -244,6 +246,9 @@ class HubAgent:
         self._thread: threading.Thread | None = None
         self._worker: threading.Thread | None = None
         self._watcher: threading.Thread | None = None
+        #: Odosielanie spoolu na hub — vlastné vlákno, aby backlog grafových dát nezdržal nasadenia a nový kód.
+        self._ship = threading.Event()
+        self._shipper_thread: threading.Thread | None = None
         #: Kedy sa naposledy upratovali odovzdané behy (`None` = ešte nie, prvé kolo aj
         #: presunie cudzie behy spred `tester.hub.delivered`).
         self._delivered_at: float | None = None
@@ -259,6 +264,9 @@ class HubAgent:
             self._worker = threading.Thread(target=self._work_loop, name="hub-agent-work",
                                             daemon=True)
             self._worker.start()
+        if self._shipper_thread is None or not self._shipper_thread.is_alive():
+            self._shipper_thread = threading.Thread(target=self._ship_loop, name="hub-agent-ship", daemon=True)
+            self._shipper_thread.start()
         if self._watcher is None or not self._watcher.is_alive():
             self._watcher = threading.Thread(target=self._spool_watch_loop, name="hub-agent-spool",
                                              daemon=True)
@@ -271,6 +279,7 @@ class HubAgent:
     def stop(self) -> None:
         self._stop.set()
         self._work.set()
+        self._ship.set()
 
     @property
     def heartbeat_seconds(self) -> int:
@@ -308,7 +317,7 @@ class HubAgent:
         zmena = self._spool_stamp is not None and stamp != self._spool_stamp
         self._spool_stamp = stamp
         if zmena:
-            self._work.set()
+            (self._ship if self._has_shipper() else self._work).set()
         return zmena
 
     # -- Telegram ----------------------------------------------------------- #
@@ -412,6 +421,25 @@ class HubAgent:
     def _has_worker(self) -> bool:
         return self._worker is not None and self._worker.is_alive()
 
+    def _has_shipper(self) -> bool:
+        return self._shipper_thread is not None and self._shipper_thread.is_alive()
+
+    def _ship_loop(self) -> None:
+        """Vlákno odosielania spoolu: zobudí ho strážca spoolu alebo heartbeat; kým ostáva backlog (kolo
+        vyčerpalo všetky čítania), ide hneď ďalšie kolo."""
+        while not self._stop.is_set():
+            if not self._ship.wait(WORK_POLL_SECONDS):
+                continue
+            self._ship.clear()
+            if self._stop.is_set():
+                return
+            try:
+                if self._ship_live():
+                    self._ship.set()
+            except Exception as exc:  # noqa: BLE001 - vlákno nesmie umrieť
+                log.warning("hub agent: odosielanie spoolu zlyhalo: %s: %s", type(exc).__name__, exc)
+                self._stop.wait(5.0)
+
     def _work_loop(self) -> None:
         while not self._stop.is_set():
             if not self._work.wait(WORK_POLL_SECONDS):
@@ -425,8 +453,11 @@ class HubAgent:
         """Jedno kolo pomalej práce. Beží **mimo heartbeatu** — zip s výsledkom, sťahovanie
         výsledku a hlavne `git pull` s dopočítaním dát trvajú aj minúty a hub by medzitým
         agenta vyhlásil za mŕtveho (`agent_timeout` je 45 s) a jeho výpočty dal inému."""
-        for krok in (self._upload_finished, self._ship_live, self._apply_live, self._update_code, self._do_pull, self._do_requested_pull,
-                     self._drain_collects, self._tidy_delivered):
+        kroky = [self._upload_finished, self._apply_live, self._update_code, self._do_pull, self._do_requested_pull,
+                 self._drain_collects, self._tidy_delivered]
+        if not self._has_shipper():   # bez vlákien (testy, jeden krok) posiela spool aj toto kolo
+            kroky.insert(1, self._ship_live)
+        for krok in kroky:
             try:
                 krok()
             except Exception as exc:  # noqa: BLE001 - jeden krok nesmie zhodiť vlákno
@@ -455,17 +486,19 @@ class HubAgent:
         log.info("hub agent: live spool %s", ", ".join(str(r) for r in roots))
         return self._live
 
-    def _ship_live(self) -> None:
+    def _ship_live(self) -> bool:
         """Spool platforiem → hub. Chyba (hub mimo) sa zaloguje raz na jej znenie — kurzor stojí
-        a ďalšie kolo to skúsi znova; nikdy nevyhodí výnimku von."""
+        a ďalšie kolo to skúsi znova; nikdy nevyhodí výnimku von. Vráti True, keď kolo vyčerpalo všetky
+        čítania (v spoole ostáva backlog a má ísť hneď ďalšie)."""
         shipper = self._live_shipper()
         if shipper is None:
-            return
+            return False
         r = shipper.pump()
         chyba = r.get("error")
         if chyba and chyba != self._live_error:
             log.warning("hub agent: live telemetria sa nedá poslať: %s", chyba)
         self._live_error = chyba
+        return not chyba and int(r.get("rounds") or 0) >= shipper.max_batches
 
     def live_status(self) -> dict[str, Any]:
         """Stav live telemetrie pre webapp a CLI: kde je spool, či sa posiela a čo reconciler aplikoval."""
@@ -644,6 +677,7 @@ class HubAgent:
         # tu sa len povie, že je čo robiť. Keď agent nebeží na vláknach (testy, jeden krok),
         # sa spraví hneď, ale až po heartbeate.
         self._work.set()
+        self._ship.set()
         try:
             if not self.registered:
                 self._register()

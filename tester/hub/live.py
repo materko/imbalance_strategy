@@ -17,9 +17,10 @@ hub posiela v heartbeate, kým ho nepotvrdí; `DELETE` ho stiahne.
 
 from __future__ import annotations
 
+import json
 from typing import Any, Callable
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 
 from tradebot.live.deploy import DEFAULT_MODE, Conflict, DeployError, DeployStore, NotFound
@@ -95,7 +96,9 @@ def add_live_routes(app: FastAPI, state: Any, store: LiveStore, auth: Callable[.
     @app.get("/api/live/export")
     def live_export(after: int = Query(0, ge=0), limit: int = Query(5000, ge=1, le=50000),
                     who: str = Depends(auth)):
-        return store.export(after=after, limit=limit)
+        # rovno `json.dumps`: `jsonable_encoder` FastAPI prechádza 5000 vnorených udalostí ~8× pomalšie
+        return Response(json.dumps(store.export(after=after, limit=limit), separators=(",", ":"), ensure_ascii=False),
+                        media_type="application/json")
 
     @app.get("/api/live/gaps")
     def live_gaps(instance: str | None = None, who: str = Depends(auth)):

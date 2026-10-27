@@ -21,8 +21,13 @@ __all__ = ["LiveShipper", "EVENTS_PATH"]
 log = logging.getLogger(__name__)
 
 
+#: Udalostí na jeden POST. Réžia požiadavky na hub (100–200 ms cez verejnú adresu, občas sekundy) prevýši
+#: spracovanie (hub zapíše 500 udalostí za ~12 ms) — po 500 dobiehala história po reštarte platforiem ~240/s.
+BATCH_EVENTS = 2000
+
+
 class LiveShipper:
-    def __init__(self, reader: SpoolReader, transport: Any, agent: str, *, batch_events: int = 500,
+    def __init__(self, reader: SpoolReader, transport: Any, agent: str, *, batch_events: int = BATCH_EVENTS,
                  max_batches: int = 20, clock=time.time) -> None:
         self.reader = reader
         self.transport = as_transport(transport)

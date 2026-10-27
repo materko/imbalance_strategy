@@ -58,6 +58,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
@@ -147,6 +148,10 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
         deploy_store = DeployStore(live_store.path, clock=state.clock, version=lambda: state.version)
     state.deploy = deploy_store
     app = FastAPI(title="TradeBot hub", version="0.2")
+    # Odpovede s JSON-om udalostí (zrkadlo webapp ťahá po 5000 = ~1,3 MB) sa gzipujú ~10×, keď o to klient
+    # požiada (`Accept-Encoding: gzip`, HubHttp to robí) — inak by päť webapp počas backlogu po reštarte
+    # platforiem zahltilo upload a CPU hubu a agentove POSTy by čakali. Starí klienti dostanú to isté ako doteraz.
+    app.add_middleware(GZipMiddleware, minimum_size=4096, compresslevel=5)
     app.router.on_shutdown.append(state.flush)   # odložený zápis z heartbeatov (N-HUB-7)
     app.state.hub = state
 
