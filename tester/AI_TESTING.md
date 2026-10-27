@@ -929,6 +929,11 @@ Nie je to prekvapenie: analytika už skôr ukázala to isté z druhej strany —
 známa vlastnosť obchodov výsledok výrazne nekazí, takže nie je čo filtrovať. Model má
 zmysel skúšať tam, kde je nálepiek rádovo viac.
 
+### Ako to dopadlo na IBS Entry Zone (MNQ)
+To isté aj na profile IBS EZ, ktorý prešiel smernicou (MNQ 3m, 10/2021–9/2026, riziko 500 $). Bez AI je PF 1,50, s filtrom pri prahu 0,80 PF 1,48 (lepšie 2 z 5 rokov) a so škálovaním veľkosti PF 1,47 (lepšie 1 z 5 rokov, prepad +45 %).
+Na MNQ treba `--wallet 2000000`, inak Freqtrade odmietne všetky vstupy. Podrobne aj s postupom, ako pokračovať:
+[docs/merania/AI_filter_IBS_EZ_MNQ_2026-10-27.md](../docs/merania/AI_filter_IBS_EZ_MNQ_2026-10-27.md).
+
 ## 10. Čo nerobiť
 
 - Needituj `tradebot/core`, adaptéry ani referenčné profily kvôli tomu, aby beh „vyšiel".

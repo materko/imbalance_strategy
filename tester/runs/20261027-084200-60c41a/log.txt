@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/tester/runs/.profiles/config.ai.usd.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy IBSEntryZoneStrategy --cache none --export trades --timerange 20211001-20260904 --pairs MNQ/USD --timeframe 3m --dry-run-wallet 2000000.0 --fee 1.755e-05 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/databento --freqaimodel LightGBMClassifier --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261027-084200-60c41a
+2026-10-27 09:42:00,849 - freqtrade - INFO - freqtrade 2026.8
+2026-10-27 09:42:01,321 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/tester/runs/.profiles/config.ai.usd.cfd.json ...
+2026-10-27 09:42:01,322 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-10-27 09:42:01,322 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-10-27 09:42:01,323 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-10-27 09:42:01,323 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/databento ...
+2026-10-27 09:42:01,323 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261027-084200-60c41a as backtest directory ...
+2026-10-27 09:42:01,325 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-10-27 09:42:01,496 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSEntryZoneStrategy from 
+'/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/IBSEntryZoneStrategy.py'...
+2026-10-27 09:42:01,496 - tradebot.adapters.freqtrade.base - WARNING - ibsentry config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-10-27 09:42:02,128 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-10-27 09:42:02,129 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-10-27 09:42:05,311 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSEntryZoneStrategy
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/freqai/prediction_models/LightGBMClassifier.py'...
+2026-10-27 09:42:07,270 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 3m, data starts at 2019-09-22 22:00:00
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1633046400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1648598400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1664150400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1679702400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1695254400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1710806400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1726358400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1741910400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1757462400_prediction.feather
+/Users/martin/document/IBS/deploy/freqtrade/user_data/models/tb-ibsentry-5c08271cb4/backtesting_predictions/cb_mnq_1773014400_prediction.feather
+2026-10-27 09:43:24,589 - tradebot.strategies.ibs.freqtrade - INFO - IBS MNQ/USD: 1214221 barov, 1214221 HTF barov, 200 zon, 1322 signalov (707 long / 615 short)
+2026-10-27 09:43:26,092 - tradebot.adapters.freqtrade.base - INFO - ibsentry MNQ/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20261027-084200-60c41a.chart.json.gz (483911 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261027-084200-60c41a/backtest-result-2026-10-27_08-43-44.meta.json"
+Result for strategy IBSEntryZoneStrategy
+│ IBSEntryZoneStrategy │    882 │         0.03 │      52189.690 │         2.61 │      0:47:00 │  642     0   240  72.8 │ 5857.597 USD  0.29% │
+…
+│ ibsentry:1652982840000 │                roi │      1 │         0.26 │        186.487 │         0.01 │          0:13:00 │    1     0     0   100 │
+│ ibsentry:1772641800000 │                roi │      1 │         0.12 │        185.987 │         0.01 │          0:08:00 │    1     0     0   100 │
+│ ibsentry:1770219000000 │                roi │      1 │         0.18 │        183.463 │         0.01 │          0:01:00 │    1     0     0   100 │
+│ ibsentry:1785177900000 │                roi │      1 │         0.11 │        183.083 │         0.01 │          0:04:00 │    1     0     0   100 │
+│ ibsentry:1782918000000 │                roi │      1 │         0.15 │        182.232 │         0.01 │          0:12:00 │    1     0     0   100 │
+│ ibsentry:1780500960000 │                roi │      1 │         0.15 │        182.224 │         0.01 │          0:07:00 │    1     0     0   100 │
+│ ibsentry:1637937720000 │                roi │      1 │         0.28 │        181.727 │         0.01 │          0:19:00 │    1     0     0   100 │
+│ ibsentry:1643208660000 │                roi │      1 │         0.31 │        181.449 │         0.01 │          0:07:00 │    1     0     0   100 │
+│ ibsentry:1770314220000 │                roi │      1 │         0.18 │        181.002 │         0.01 │          0:10:00 │    1     0     0   100 │
+│ ibsentry:1637687880000 │                roi │      1 │         0.11 │        180.607 │         0.01 │          0:02:00 │    1     0     0   100 │
+│ ibsentry:1694010420000 │                roi │      1 │         0.29 │        180.362 │         0.01 │          1:59:00 │    1     0     0   100 │
+│ ibsentry:1725567300000 │                roi │      1 │         0.24 │        178.864 │         0.01 │          2:59:00 │    1     0     0   100 │
+│ ibsentry:1743773400000 │                roi │      1 │         0.24 │        177.454 │         0.01 │          0:01:00 │    1     0     0   100 │
+│ ibsentry:1678735980000 │                roi │      1 │         0.18 │        176.594 │         0.01 │          0:06:00 │    1     0     0   100 │
+│ ibsentry:1744213500000 │                roi │      1 │         0.25 │        175.560 │         0.01 │          0:22:00 │    1     0     0   100 │
+│ ibsentry:1644607440000 │                roi │      1 │          0.2 │        174.704 │         0.01 │          0:08:00 │    1     0     0   100 │
+│ ibsentry:1771000200000 │                roi │      1 │         0.18 │        174.508 │         0.01 │          0:12:00 │    1     0     0   100 │
+│ ibsentry:1781192520000 │                roi │      1 │         0.15 │        174.477 │         0.01 │          0:10:00 │    1     0     0   100 │
+│ ibsentry:1749788280000 │                roi │      1 │         0.08 │        173.635 │         0.01 │          1:30:00 │    1     0     0   100 │
+│ ibsentry:1673366040000 │                roi │      1 │         0.39 │        173.423 │         0.01 │          3:03:00 │    1     0     0   100 │
+│ ibsentry:1652972400000 │                roi │      1 │         0.36 │        173.318 │         0.01 │          0:32:00 │    1     0     0   100 │
+│ ibsentry:1764087660000 │                roi │      1 │         0.17 │        172.986 │         0.01 │          0:29:00 │    1     0     0   100 │
+│ ibsentry:1786121100000 │                roi │      1 │         0.15 │        172.819 │         0.01 │          2:22:00 │    1     0     0   100 │
+│ ibsentry:1660312800000 │                roi │      1 │         0.16 │        172.232 │         0.01 │          0:07:00 │    1     0     0   100 │
+│ ibsentry:1635344640000 │                roi │      1 │         0.18 │        171.427 │         0.01 │          0:27:00 │    1     0     0   100 │
+│ ibsentry:1766079360000 │                roi │      1 │         0.17 │        170.969 │         0.01 │          0:01:00 │    1     0     0   100 │
+│ ibsentry:1634932800000 │                roi │      1 │         0.08 │        170.967 │         0.01 │          0:33:00 │    1     0     0   100 │
+│ ibsentry:1633700880000 │                roi │      1 │         0.29 │        170.397 │         0.01 │          0:51:00 │    1     0     0   100 │
+│ ibsentry:1782502380000 │                roi │      1 │         0.14 │        169.857 │         0.01 │          0:07:00 │    1     0     0   100 │
+│ ibsentry:1712944800000 │                roi │      1 │         0.09 │        169.830 │         0.01 │          0:35:00 │    1     0     0   100 │
+│ ibsentry:1637605080000 │                roi │      1 │          0.1 │        169.195 │         0.01 │          0:11:00 │    1     0     0   100 │
+│ ibsentry:1725038460000 │                roi │      1 │         0.09 │        168.171 │         0.01 │          0:33:00 │    1     0     0   100 │
+│ ibsentry:1651853340000 │                roi │      1 │         0.33 │        166.731 │         0.01 │          0:07:00 │    1     0     0   100 │
+│ ibsentry:1652282820000 │                roi │      1 │         0.34 │        166.270 │         0.01 │          0:07:00 │    1     0     0   100 │
+│ ibsentry:1785343680000 │                roi │      1 │         0.15 │        165.130 │         0.01 │          0:06:00 │    1     0     0   100 │
+│ ibsentry:1715698800000 │                roi │      1 │         0.15 │        161.855 │         0.01 │          0:14:00 │    1     0     0   100 │
+│ ibsentry:1743718320000 │                roi │      1 │         0.11 │        160.764 │         0.01 │          0:06:00 │    1     0     0   100 │
+│ ibsentry:1707404040000 │                roi │      1 │         0.09 │        159.935 │         0.01 │          0:08:00 │    1     0     0   100 │
+│ ibsentry:1772634600000 │                roi │      1 │          0.1 │        155.255 │         0.01 │          0:02:00 │    1     0     0   100 │
+│ ibsentry:1744136820000 │                roi │      1 │         0.44 │        153.010 │         0.01 │          0:04:00 │    1     0     0   100 │
+│ ibsentry:1781028360000 │                roi │      1 │         0.26 │        152.471 │         0.01 │          0:11:00 │    1     0     0   100 │
+│ ibsentry:1648220040000 │                roi │      1 │         0.17 │        151.395 │         0.01 │          0:03:00 │    1     0     0   100 │
+│ ibsentry:1744036920000 │                roi │      1 │         0.44 │        151.282 │         0.01 │          0:02:00 │    1     0     0   100 │
+│ ibsentry:1641315600000 │                roi │      1 │         0.15 │        150.371 │         0.01 │          0:57:00 │    1     0     0   100 │
+│ ibsentry:1644610140000 │                roi │      1 │         0.26 │        150.000 │         0.01 │          0:20:00 │    1     0     0   100 │
+│ ibsentry:1764869220000 │                roi │      1 │          0.1 │        149.891 │         0.01 │          0:37:00 │    1     0     0   100 │
+│ ibsentry:1698156180000 │                roi │      1 │         0.08 │        149.761 │         0.01 │          0:02:00 │    1     0     0   100 │
+│ ibsentry:1651498380000 │                roi │      1 │         0.29 │        147.203 │         0.01 │          0:05:00 │    1     0     0   100 │
+│ ibsentry:1654006860000 │                roi │      1 │         0.08 │        146.144 │         0.01 │          0:00:00 │    1     0     0   100 │
+│ ibsentry:1701095400000 │                roi │      1 │         0.11 │        144.470 │         0.01 │          0:02:00 │    1     0     0   100 │
+│ ibsentry:1651071600000 │                roi │      1 │         0.55 │        142.839 │         0.01 │          0:29:00 │    1     0     0   100 │
+│ ibsentry:1781105580000 │                roi │      1 │         0.25 │        141.484 │         0.01 │          0:12:00 │    1     0     0   100 │
+│ ibsentry:1730476080000 │                roi │      1 │         0.12 │        141.240 │         0.01 │          0:52:00 │    1     0     0   100 │
+│ ibsentry:1706802480000 │                roi │      1 │         0.13 │        139.574 │         0.01 │          0:02:00 │    1     0     0   100 │
+│ ibsentry:1646235360000 │                roi │      1 │         0.49 │        139.008 │         0.01 │          0:28:00 │    1     0     0   100 │
+│ ibsentry:1741621140000 │                roi │      1 │         0.17 │        136.246 │         0.01 │          0:14:00 │    1     0     0   100 │
+│ ibsentry:1652363100000 │                roi │      1 │         0.57 │        135.667 │         0.01 │          0:21:00 │    1     0     0   100 │
+│ ibsentry:1645715340000 │                roi │      1 │          0.5 │        133.821 │         0.01 │          0:05:00 │    1     0     0   100 │
+│ ibsentry:1714592520000 │                roi │      3 │         0.01 │        132.975 │         0.01 │          0:00:00 │    2     0     1  66.7 │
+│ ibsentry:1782400860000 │                roi │      1 │         0.22 │        131.420 │         0.01 │          0:07:00 │    1     0     0   100 │
+│ ibsentry:1770319800000 │                roi │      1 │         0.26 │        130.008 │         0.01 │          0:52:00 │    1     0     0   100 │
+│ ibsentry:1785430440000 │                roi │      1 │         0.11 │        126.050 │         0.01 │          0:03:00 │    1     0     0   100 │
+│ ibsentry:1785516480000 │                roi │      1 │         0.11 │        126.016 │         0.01 │          0:07:00 │    1     0     0   100 │
+│ ibsentry:1741370580000 │                roi │      1 │         0.31 │        125.591 │         0.01 │          0:12:00 │    1     0     0   100 │
+│ ibsentry:1783001700000 │                roi │      1 │         0.21 │        124.885 │         0.01 │          0:03:00 │    1     0     0   100 │
+│ ibsentry:1781033400000 │                roi │      1 │         0.21 │        124.464 │         0.01 │          0:19:00 │    1     0     0   100 │
+│ ibsentry:1779377940000 │                roi │      1 │         0.11 │        124.373 │         0.01 │          0:02:00 │    1     0     0   100 │
+│ ibsentry:1782739800000 │                roi │      1 │         0.21 │        123.154 │         0.01 │          0:03:00 │    1     0     0   100 │
+│ ibsentry:1692723780000 │                roi │      1 │         0.13 │        114.572 │         0.01 │          0:09:00 │    1     0     0   100 │
+│ ibsentry:1740499560000 │                roi │      1 │         0.09 │        110.347 │         0.01 │          0:18:00 │    1     0     0   100 │
+│ ibsentry:1659535200000 │                roi │      3 │         0.02 │        110.104 │         0.01 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1744651260000 │                roi │      1 │         0.29 │        108.912 │         0.01 │          0:29:00 │    1     0     0   100 │
+│ ibsentry:1643039280000 │                roi │      1 │         0.38 │        106.275 │         0.01 │          0:19:00 │    1     0     0   100 │
+│ ibsentry:1773159840000 │                roi │      1 │          0.1 │        104.989 │         0.01 │          0:09:00 │    1     0     0   100 │
+│ ibsentry:1720715220000 │                roi │      1 │         0.13 │        103.599 │         0.01 │          0:06:00 │    1     0     0   100 │
+│ ibsentry:1782400500000 │                roi │      3 │         0.01 │         99.095 │          0.0 │          0:00:00 │    2     0     1  66.7 │
+│ ibsentry:1785423600000 │                roi │      3 │         0.01 │         98.017 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1652362200000 │                roi │      1 │         0.38 │         90.434 │          0.0 │          0:01:00 │    1     0     0   100 │
+│ ibsentry:1741797720000 │                roi │      1 │         0.23 │         89.863 │          0.0 │          1:10:00 │    1     0     0   100 │
+│ ibsentry:1741803480000 │                roi │      1 │         0.22 │         87.361 │          0.0 │          0:20:00 │    1     0     0   100 │
+│ ibsentry:1678887540000 │                roi │      3 │         0.01 │         85.282 │          0.0 │          0:00:00 │    2     0     1  66.7 │
+│ ibsentry:1773093780000 │                roi │      3 │         0.01 │         80.985 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1641915180000 │                roi │      1 │         0.25 │         78.408 │          0.0 │          0:05:00 │    1     0     0   100 │
+│ ibsentry:1675791720000 │                roi │      3 │         0.03 │         71.510 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1668539160000 │ trailing_stop_loss │      1 │         0.03 │         67.862 │          0.0 │         18:48:00 │    1     0     0   100 │
+│ ibsentry:1645024320000 │                roi │      3 │         0.01 │         57.261 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1770911460000 │                roi │      3 │         0.01 │         54.059 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1637764560000 │                roi │      3 │         0.01 │         42.699 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1784814660000 │                roi │      3 │         0.01 │         26.807 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1744896600000 │ trailing_stop_loss │      1 │         0.02 │         11.412 │          0.0 │          0:01:00 │    1     0     0   100 │
+│ ibsentry:1743778980000 │                roi │      3 │          0.0 │          1.828 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1645802100000 │                roi │      3 │          0.0 │          0.618 │          0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1650986280000 │                roi │      3 │         -0.0 │        -17.747 │         -0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1642784760000 │                roi │      3 │        -0.01 │        -78.155 │         -0.0 │          0:00:00 │    2     0     1  66.7 │
+│ ibsentry:1665415080000 │                roi │      3 │        -0.01 │        -86.845 │         -0.0 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1640010960000 │ trailing_stop_loss │      1 │        -0.05 │        -96.551 │         -0.0 │          0:00:00 │    0     0     1     0 │
+│ ibsentry:1654867800000 │                roi │      3 │        -0.04 │       -119.156 │        -0.01 │          0:00:00 │    1     0     2  33.3 │
+│ ibsentry:1744896600000 │          stop_loss │      2 │        -0.08 │       -120.178 │        -0.01 │          0:00:00 │    0     0     2     0 │
+│ ibsentry:1722864600000 │          stop_loss │      1 │        -0.55 │       -195.239 │        -0.01 │          0:01:00 │    0     0     1     0 │
+│ ibsentry:1741098960000 │          stop_loss │      1 │        -0.62 │       -252.927 │        -0.01 │          0:20:00 │    0     0     1     0 │
+│ ibsentry:1654006860000 │          stop_loss │      1 │        -0.15 │       -258.184 │        -0.01 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1724876640000 │          stop_loss │      1 │        -0.68 │       -263.354 │        -0.01 │          1:33:00 │    0     0     1     0 │
+│ ibsentry:1744136820000 │          stop_loss │      1 │        -0.78 │       -273.736 │        -0.01 │          0:00:00 │    0     0     1     0 │
+│ ibsentry:1647889020000 │ trailing_stop_loss │      1 │        -0.49 │       -276.969 │        -0.01 │          0:54:00 │    0     0     1     0 │
+│ ibsentry:1744180020000 │          stop_loss │      1 │        -0.82 │       -279.697 │        -0.01 │          0:32:00 │    0     0     1     0 │
+│ ibsentry:1741877460000 │          stop_loss │      1 │        -0.36 │       -283.729 │        -0.01 │          0:14:00 │    0     0     1     0 │
+│ ibsentry:1726686900000 │          stop_loss │      1 │        -0.19 │       -293.528 │        -0.01 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1744037640000 │          stop_loss │      1 │        -0.84 │       -294.742 │        -0.01 │          0:05:00 │    0     0     1     0 │
+│ ibsentry:1726070040000 │ trailing_stop_loss │      1 │        -0.28 │       -309.898 │        -0.02 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1784212020000 │          stop_loss │      1 │        -0.53 │       -312.063 │        -0.02 │          1:35:00 │    0     0     1     0 │
+│ ibsentry:1744648920000 │          stop_loss │      1 │        -0.21 │       -315.296 │        -0.02 │          0:05:00 │    0     0     1     0 │
+│ ibsentry:1644851340000 │          stop_loss │      1 │        -0.56 │       -318.000 │        -0.02 │          0:26:00 │    0     0     1     0 │
+│ ibsentry:1763480880000 │          stop_loss │      1 │        -0.67 │       -325.202 │        -0.02 │          0:34:00 │    0     0     1     0 │
+│ ibsentry:1727967420000 │ trailing_stop_loss │      1 │        -0.42 │       -338.767 │        -0.02 │          0:40:00 │    0     0     1     0 │
+│ ibsentry:1773420480000 │          stop_loss │      1 │        -0.23 │       -339.645 │        -0.02 │          0:08:00 │    0     0     1     0 │
+│ ibsentry:1775484900000 │          stop_loss │      1 │        -0.35 │       -344.414 │        -0.02 │          0:31:00 │    0     0     1     0 │
+│ ibsentry:1652191560000 │          stop_loss │      1 │        -1.39 │       -347.372 │        -0.02 │          0:32:00 │    0     0     1     0 │
+│ ibsentry:1741705020000 │          stop_loss │      1 │        -0.46 │       -352.720 │        -0.02 │          0:07:00 │    0     0     1     0 │
+│ ibsentry:1785250620000 │ trailing_stop_loss │      1 │        -0.32 │       -352.870 │        -0.02 │          0:18:00 │    0     0     1     0 │
+│ ibsentry:1741277340000 │          stop_loss │      1 │        -0.44 │       -356.868 │        -0.02 │          0:10:00 │    0     0     1     0 │
+│ ibsentry:1654008840000 │          stop_loss │      1 │        -0.08 │       -366.959 │        -0.02 │          0:01:00 │    0     0     1     0 │
+│ ibsentry:1718976600000 │          stop_loss │      1 │        -0.18 │       -369.521 │        -0.02 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1656512100000 │ trailing_stop_loss │      1 │        -0.79 │       -369.603 │        -0.02 │          0:27:00 │    0     0     1     0 │
+│ ibsentry:1773927000000 │ trailing_stop_loss │      1 │        -0.38 │       -375.394 │        -0.02 │          0:21:00 │    0     0     1     0 │
+│ ibsentry:1780935480000 │          stop_loss │      1 │        -0.32 │       -379.160 │        -0.02 │          0:13:00 │    0     0     1     0 │
+│ ibsentry:1639751760000 │ trailing_stop_loss │      1 │        -0.61 │       -380.171 │        -0.02 │          0:10:00 │    0     0     1     0 │
+│ ibsentry:1770940800000 │          stop_loss │      1 │        -0.39 │       -383.481 │        -0.02 │          0:41:00 │    0     0     1     0 │
+│ ibsentry:1773331560000 │          stop_loss │      1 │         -0.4 │       -395.463 │        -0.02 │          0:12:00 │    0     0     1     0 │
+│ ibsentry:1651863960000 │ trailing_stop_loss │      1 │        -0.79 │       -397.737 │        -0.02 │          0:29:00 │    0     0     1     0 │
+│ ibsentry:1646325360000 │ trailing_stop_loss │      1 │        -0.29 │       -402.348 │        -0.02 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1769642460000 │          stop_loss │      1 │        -0.26 │       -406.016 │        -0.02 │          0:34:00 │    0     0     1     0 │
+│ ibsentry:1760635620000 │          stop_loss │      1 │        -0.41 │       -408.493 │        -0.02 │          0:33:00 │    0     0     1     0 │
+│ ibsentry:1744383060000 │          stop_loss │      1 │        -0.55 │       -408.597 │        -0.02 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1744821720000 │          stop_loss │      1 │        -0.22 │       -414.017 │        -0.02 │          0:15:00 │    0     0     1     0 │
+│ ibsentry:1674746100000 │          stop_loss │      1 │        -0.58 │       -415.023 │        -0.02 │          0:36:00 │    0     0     1     0 │
+│ ibsentry:1646405820000 │          stop_loss │      1 │         -0.5 │       -415.421 │        -0.02 │          0:11:00 │    0     0     1     0 │
+│ ibsentry:1735315920000 │ trailing_stop_loss │      1 │        -0.32 │       -415.485 │        -0.02 │          0:14:00 │    0     0     1     0 │
+│ ibsentry:1681493400000 │ trailing_stop_loss │      1 │        -0.27 │       -416.396 │        -0.02 │          0:24:00 │    0     0     1     0 │
+│ ibsentry:1778871060000 │          stop_loss │      1 │        -0.24 │       -418.681 │        -0.02 │          0:17:00 │    0     0     1     0 │
+│ ibsentry:1662145200000 │          stop_loss │      1 │        -0.25 │       -418.966 │        -0.02 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1781109360000 │          stop_loss │      1 │        -0.37 │       -429.037 │        -0.02 │          0:07:00 │    0     0     1     0 │
+│ ibsentry:1722873780000 │          stop_loss │      1 │        -0.17 │       -432.414 │        -0.02 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1678717980000 │          stop_loss │      1 │         -0.6 │       -433.027 │        -0.02 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1645713000000 │          stop_loss │      3 │        -0.28 │       -434.554 │        -0.02 │          0:00:00 │    0     0     3     0 │
+│ ibsentry:1742405940000 │          stop_loss │      1 │        -0.28 │       -439.563 │        -0.02 │          0:18:00 │    0     0     1     0 │
+│ ibsentry:1738649700000 │ trailing_stop_loss │      1 │        -0.26 │       -439.924 │        -0.02 │          0:50:00 │    0     0     1     0 │
+│ ibsentry:1642526280000 │          stop_loss │      1 │        -0.16 │       -441.668 │        -0.02 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1773332460000 │          stop_loss │      1 │        -0.45 │       -442.460 │        -0.02 │          1:31:00 │    0     0     1     0 │
+│ ibsentry:1657725480000 │          stop_loss │      1 │        -0.17 │       -449.101 │        -0.02 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1670342940000 │          stop_loss │      1 │        -0.28 │       -457.206 │        -0.02 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1744126740000 │          stop_loss │      1 │        -0.63 │       -457.532 │        -0.02 │          0:10:00 │    0     0     1     0 │
+│ ibsentry:1722872160000 │          stop_loss │      1 │        -0.64 │       -464.543 │        -0.02 │          0:11:00 │    0     0     1     0 │
+│ ibsentry:1722868200000 │          stop_loss │      1 │        -0.33 │       -465.025 │        -0.02 │          0:01:00 │    0     0     1     0 │
+│ ibsentry:1666023120000 │          stop_loss │      1 │        -0.17 │       -465.344 │        -0.02 │          0:07:00 │    0     0     1     0 │
+│ ibsentry:1749597300000 │          stop_loss │      1 │        -0.27 │       -466.162 │        -0.02 │          1:22:00 │    0     0     1     0 │
+│ ibsentry:1654841520000 │          stop_loss │      1 │        -0.16 │       -466.377 │        -0.02 │          0:52:00 │    0     0     1     0 │
+│ ibsentry:1779112440000 │          stop_loss │      1 │        -0.41 │       -476.099 │        -0.02 │          0:09:00 │    0     0     1     0 │
+│ ibsentry:1735573680000 │ trailing_stop_loss │      1 │        -0.38 │       -481.439 │        -0.02 │          0:27:00 │    0     0     1     0 │
+│ ibsentry:1772721720000 │          stop_loss │      1 │        -0.24 │       -483.047 │        -0.02 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1731340440000 │          stop_loss │      1 │        -0.23 │       -487.444 │        -0.02 │          1:16:00 │    0     0     1     0 │
+│ ibsentry:1654698060000 │          stop_loss │      1 │        -0.48 │       -487.571 │        -0.02 │          2:02:00 │    0     0     1     0 │
+│ ibsentry:1762878420000 │ trailing_stop_loss │      1 │        -0.24 │       -493.098 │        -0.02 │          0:50:00 │    0     0     1     0 │
+│ ibsentry:1774362420000 │ trailing_stop_loss │      1 │        -0.21 │       -503.404 │        -0.03 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1679331960000 │ trailing_stop_loss │      1 │         -0.2 │       -503.683 │        -0.03 │          0:07:00 │    0     0     1     0 │
+│ ibsentry:1661781960000 │          stop_loss │      1 │        -0.21 │       -513.805 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1657719540000 │ trailing_stop_loss │      1 │        -0.44 │       -516.484 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1772224560000 │ trailing_stop_loss │      1 │        -0.26 │       -516.932 │        -0.03 │          0:19:00 │    0     0     1     0 │
+│ ibsentry:1768411800000 │          stop_loss │      1 │        -0.17 │       -517.614 │        -0.03 │          0:13:00 │    0     0     1     0 │
+│ ibsentry:1779207120000 │ trailing_stop_loss │      1 │        -0.22 │       -518.021 │        -0.03 │          0:10:00 │    0     0     1     0 │
+│ ibsentry:1713533400000 │          stop_loss │      1 │        -0.25 │       -520.358 │        -0.03 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1646769420000 │ trailing_stop_loss │      1 │        -0.39 │       -522.121 │        -0.03 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1686323160000 │          stop_loss │      1 │        -0.36 │       -522.620 │        -0.03 │          0:17:00 │    0     0     1     0 │
+│ ibsentry:1674573660000 │ trailing_stop_loss │      1 │        -0.55 │       -523.267 │        -0.03 │          5:37:00 │    0     0     1     0 │
+│ ibsentry:1703104200000 │          stop_loss │      1 │        -0.17 │       -523.619 │        -0.03 │          0:10:00 │    0     0     1     0 │
+│ ibsentry:1772464860000 │          stop_loss │      1 │        -0.21 │       -523.737 │        -0.03 │          0:05:00 │    0     0     1     0 │
+│ ibsentry:1666194660000 │          stop_loss │      1 │        -0.47 │       -523.925 │        -0.03 │          0:17:00 │    0     0     1     0 │
+│ ibsentry:1639753560000 │          stop_loss │      1 │        -0.21 │       -528.841 │        -0.03 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1768325400000 │          stop_loss │      1 │         -0.2 │       -529.105 │        -0.03 │          0:19:00 │    0     0     1     0 │
+│ ibsentry:1749224880000 │          stop_loss │      1 │        -0.31 │       -534.115 │        -0.03 │          1:04:00 │    0     0     1     0 │
+│ ibsentry:1663349760000 │          stop_loss │      1 │        -0.28 │       -534.639 │        -0.03 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1741110660000 │          stop_loss │      1 │        -0.19 │       -538.494 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1664547300000 │          stop_loss │      1 │        -0.48 │       -538.945 │        -0.03 │          0:08:00 │    0     0     1     0 │
+│ ibsentry:1772635680000 │          stop_loss │      1 │        -0.27 │       -538.994 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1645194600000 │          stop_loss │      1 │        -0.19 │       -539.949 │        -0.03 │          0:01:00 │    0     0     1     0 │
+│ ibsentry:1665429300000 │          stop_loss │      1 │        -0.41 │       -544.636 │        -0.03 │          0:39:00 │    0     0     1     0 │
+│ ibsentry:1774624500000 │          stop_loss │      1 │        -0.29 │       -546.605 │        -0.03 │          0:05:00 │    0     0     1     0 │
+│ ibsentry:1779895800000 │          stop_loss │      1 │        -0.23 │       -548.401 │        -0.03 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1760463900000 │          stop_loss │      1 │        -0.16 │       -551.236 │        -0.03 │          1:45:00 │    0     0     1     0 │
+│ ibsentry:1643986800000 │          stop_loss │      1 │        -0.27 │       -553.034 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1765471860000 │          stop_loss │      1 │        -0.27 │       -555.096 │        -0.03 │          0:26:00 │    0     0     1     0 │
+│ ibsentry:1642188420000 │ trailing_stop_loss │      1 │        -0.36 │       -560.345 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1710165240000 │          stop_loss │      1 │        -0.18 │       -578.484 │        -0.03 │          0:01:00 │    0     0     1     0 │
+│ ibsentry:1724250960000 │          stop_loss │      1 │        -0.36 │       -579.580 │        -0.03 │          0:13:00 │    0     0     1     0 │
+│ ibsentry:1782234540000 │          stop_loss │      1 │        -0.24 │       -582.376 │        -0.03 │          0:41:00 │    0     0     1     0 │
+│ ibsentry:1633368420000 │ trailing_stop_loss │      1 │        -0.25 │       -583.937 │        -0.03 │          0:36:00 │    0     0     1     0 │
+│ ibsentry:1723144140000 │          stop_loss │      1 │        -0.32 │       -583.981 │        -0.03 │          0:19:00 │    0     0     1     0 │
+│ ibsentry:1675879560000 │          stop_loss │      1 │        -0.46 │       -584.413 │        -0.03 │          0:30:00 │    0     0     1     0 │
+│ ibsentry:1698762960000 │          stop_loss │      1 │        -0.41 │       -585.050 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1727458020000 │ trailing_stop_loss │      1 │        -0.24 │       -587.414 │        -0.03 │          0:30:00 │    0     0     1     0 │
+│ ibsentry:1768415580000 │ trailing_stop_loss │      1 │        -0.23 │       -588.843 │        -0.03 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1757519280000 │          stop_loss │      1 │        -0.15 │       -589.444 │        -0.03 │          0:28:00 │    0     0     1     0 │
+│ ibsentry:1649780100000 │          stop_loss │      1 │         -0.3 │       -591.438 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1717092900000 │          stop_loss │      1 │        -0.18 │       -592.294 │        -0.03 │          1:02:00 │    0     0     1     0 │
+│ ibsentry:1769018400000 │ trailing_stop_loss │      1 │        -0.29 │       -593.003 │        -0.03 │          0:45:00 │    0     0     1     0 │
+│ ibsentry:1638821880000 │          stop_loss │      1 │        -0.27 │       -595.787 │        -0.03 │          0:26:00 │    0     0     1     0 │
+│ ibsentry:1741098600000 │          stop_loss │      1 │        -0.37 │       -597.718 │        -0.03 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1748025180000 │          stop_loss │      1 │        -0.24 │       -599.858 │        -0.03 │          0:46:00 │    0     0     1     0 │
+│ ibsentry:1662656760000 │ trailing_stop_loss │      1 │        -0.35 │       -600.868 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1771967160000 │ trailing_stop_loss │      1 │        -0.24 │       -603.690 │        -0.03 │          3:42:00 │    0     0     1     0 │
+│ ibsentry:1751384340000 │          stop_loss │      1 │        -0.19 │       -606.142 │        -0.03 │          0:32:00 │    0     0     1     0 │
+│ ibsentry:1633539960000 │          stop_loss │      1 │        -0.26 │       -608.044 │        -0.03 │          0:13:00 │    0     0     1     0 │
+│ ibsentry:1636140780000 │          stop_loss │      1 │        -0.21 │       -608.831 │        -0.03 │          0:55:00 │    0     0     1     0 │
+│ ibsentry:1712683260000 │          stop_loss │      1 │        -0.21 │       -610.260 │        -0.03 │          0:36:00 │    0     0     1     0 │
+│ ibsentry:1663863300000 │          stop_loss │      1 │        -0.33 │       -610.339 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1707317640000 │ trailing_stop_loss │      1 │        -0.22 │       -613.814 │        -0.03 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1686770640000 │          stop_loss │      1 │        -0.51 │       -614.250 │        -0.03 │          0:23:00 │    0     0     1     0 │
+│ ibsentry:1663944840000 │          stop_loss │      1 │        -0.34 │       -614.393 │        -0.03 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1741070880000 │          stop_loss │      1 │        -0.19 │       -615.538 │        -0.03 │          0:17:00 │    0     0     1     0 │
+│ ibsentry:1722271140000 │          stop_loss │      1 │         -0.2 │       -618.845 │        -0.03 │          0:09:00 │    0     0     1     0 │
+│ ibsentry:1668539160000 │          stop_loss │      1 │        -0.24 │       -619.626 │        -0.03 │          0:00:00 │    0     0     1     0 │
+│ ibsentry:1787583780000 │ trailing_stop_loss │      1 │        -0.21 │       -620.107 │        -0.03 │          0:23:00 │    0     0     1     0 │
+│ ibsentry:1655395740000 │          stop_loss │      1 │        -0.21 │       -621.182 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1744295940000 │          stop_loss │      1 │        -0.24 │       -625.222 │        -0.03 │          0:00:00 │    0     0     1     0 │
+│ ibsentry:1763534700000 │          stop_loss │      1 │        -0.16 │       -625.789 │        -0.03 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1664289720000 │          stop_loss │      1 │        -0.55 │       -626.522 │        -0.03 │          0:37:00 │    0     0     1     0 │
+│ ibsentry:1658761920000 │ trailing_stop_loss │      1 │        -0.36 │       -628.933 │        -0.03 │          0:18:00 │    0     0     1     0 │
+│ ibsentry:1703260800000 │          stop_loss │      1 │        -0.17 │       -629.115 │        -0.03 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1746715320000 │          stop_loss │      1 │        -0.17 │       -629.171 │        -0.03 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1633100760000 │          stop_loss │      1 │        -0.22 │       -630.261 │        -0.03 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1653405300000 │ trailing_stop_loss │      1 │        -0.39 │       -632.085 │        -0.03 │          0:27:00 │    0     0     1     0 │
+│ ibsentry:1737996300000 │          stop_loss │      1 │         -0.3 │       -632.447 │        -0.03 │          0:07:00 │    0     0     1     0 │
+│ ibsentry:1671049800000 │          stop_loss │      1 │         -0.3 │       -632.969 │        -0.03 │          0:01:00 │    0     0     1     0 │
+│ ibsentry:1675442340000 │          stop_loss │      1 │        -0.25 │       -634.011 │        -0.03 │          0:07:00 │    0     0     1     0 │
+│ ibsentry:1673015580000 │          stop_loss │      1 │        -0.36 │       -634.106 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1697733720000 │          stop_loss │      1 │        -0.24 │       -634.962 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1665766800000 │          stop_loss │      1 │        -0.33 │       -636.839 │        -0.03 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1774825020000 │          stop_loss │      1 │         -0.2 │       -637.890 │        -0.03 │          0:32:00 │    0     0     1     0 │
+│ ibsentry:1732890600000 │          stop_loss │      1 │        -0.22 │       -640.246 │        -0.03 │          0:11:00 │    0     0     1     0 │
+│ ibsentry:1654016760000 │          stop_loss │      1 │        -0.32 │       -643.139 │        -0.03 │          0:08:00 │    0     0     1     0 │
+│ ibsentry:1634045400000 │          stop_loss │      1 │         -0.2 │       -643.900 │        -0.03 │          0:01:00 │    0     0     1     0 │
+│ ibsentry:1678987440000 │          stop_loss │      1 │        -0.23 │       -647.769 │        -0.03 │          0:23:00 │    0     0     1     0 │
+│ ibsentry:1653074460000 │          stop_loss │      1 │        -0.26 │       -652.249 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1687790700000 │          stop_loss │      1 │        -0.27 │       -656.452 │        -0.03 │          0:17:00 │    0     0     1     0 │
+│ ibsentry:1724076900000 │          stop_loss │      1 │        -0.24 │       -657.133 │        -0.03 │          0:14:00 │    0     0     1     0 │
+│ ibsentry:1686772080000 │          stop_loss │      1 │        -0.31 │       -658.452 │        -0.03 │          0:08:00 │    0     0     1     0 │
+│ ibsentry:1719861840000 │ trailing_stop_loss │      1 │        -0.21 │       -659.086 │        -0.03 │          0:25:00 │    0     0     1     0 │
+│ ibsentry:1741194720000 │          stop_loss │      1 │        -0.16 │       -659.111 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1665588060000 │ trailing_stop_loss │      1 │        -0.23 │       -659.679 │        -0.03 │          0:18:00 │    0     0     1     0 │
+│ ibsentry:1741369500000 │          stop_loss │      1 │        -0.24 │       -660.840 │        -0.03 │          0:05:00 │    0     0     1     0 │
+│ ibsentry:1743442560000 │          stop_loss │      1 │        -0.25 │       -663.955 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1662148440000 │          stop_loss │      1 │        -0.34 │       -666.637 │        -0.03 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1708975260000 │          stop_loss │      1 │        -0.17 │       -668.410 │        -0.03 │          1:09:00 │    0     0     1     0 │
+│ ibsentry:1788453540000 │          stop_loss │      1 │        -0.16 │       -668.999 │        -0.03 │          0:38:00 │    0     0     1     0 │
+│ ibsentry:1775456820000 │ trailing_stop_loss │      1 │         -0.2 │       -669.778 │        -0.03 │          0:20:00 │    0     0     1     0 │
+│ ibsentry:1670440860000 │          stop_loss │      1 │        -0.16 │       -671.190 │        -0.03 │          0:10:00 │    0     0     1     0 │
+│ ibsentry:1652715180000 │          stop_loss │      1 │        -0.35 │       -674.871 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1680618780000 │          stop_loss │      1 │        -0.36 │       -675.021 │        -0.03 │          0:26:00 │    0     0     1     0 │
+│ ibsentry:1673620200000 │          stop_loss │      1 │        -0.27 │       -679.834 │        -0.03 │          0:02:00 │    0     0     1     0 │
+│ ibsentry:1780601220000 │          stop_loss │      1 │        -0.16 │       -687.015 │        -0.03 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1782147960000 │          stop_loss │      1 │        -0.16 │       -690.388 │        -0.03 │          0:11:00 │    0     0     1     0 │
+│ ibsentry:1670599260000 │          stop_loss │      1 │        -0.23 │       -692.846 │        -0.03 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1692828000000 │          stop_loss │      1 │        -0.23 │       -695.755 │        -0.03 │          0:13:00 │    0     0     1     0 │
+│ ibsentry:1717181460000 │          stop_loss │      1 │        -0.17 │       -696.170 │        -0.03 │          0:12:00 │    0     0     1     0 │
+│ ibsentry:1666277820000 │          stop_loss │      1 │        -0.44 │       -698.546 │        -0.03 │          0:28:00 │    0     0     1     0 │
+│ ibsentry:1668439980000 │          stop_loss │      1 │        -0.19 │       -701.242 │        -0.04 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1644871680000 │ trailing_stop_loss │      1 │        -0.35 │       -703.372 │        -0.04 │          2:29:00 │    0     0     1     0 │
+│ ibsentry:1769022180000 │ trailing_stop_loss │      1 │         -0.2 │       -705.278 │        -0.04 │          0:21:00 │    0     0     1     0 │
+│ ibsentry:1785266100000 │ trailing_stop_loss │      1 │        -0.18 │       -706.618 │        -0.04 │          0:12:00 │    0     0     1     0 │
+│ ibsentry:1784922480000 │          stop_loss │      1 │        -0.18 │       -706.896 │        -0.04 │          0:10:00 │    0     0     1     0 │
+│ ibsentry:1722879180000 │          stop_loss │      1 │        -0.18 │       -706.992 │        -0.04 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1691165160000 │ trailing_stop_loss │      1 │        -0.16 │       -708.021 │        -0.04 │          0:16:00 │    0     0     1     0 │
+│ ibsentry:1675958040000 │          stop_loss │      1 │        -0.17 │       -712.079 │        -0.04 │          0:05:00 │    0     0     1     0 │
+│ ibsentry:1657036980000 │ trailing_stop_loss │      1 │        -0.31 │       -712.923 │        -0.04 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1686165480000 │          stop_loss │      1 │        -0.18 │       -714.108 │        -0.04 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1783453140000 │ trailing_stop_loss │      1 │        -0.17 │       -714.281 │        -0.04 │          0:13:00 │    0     0     1     0 │
+│ ibsentry:1633538520000 │          stop_loss │      1 │        -0.24 │       -715.246 │        -0.04 │          0:22:00 │    0     0     1     0 │
+│ ibsentry:1653071040000 │          stop_loss │      1 │        -0.24 │       -718.782 │        -0.04 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1664897580000 │          stop_loss │      1 │        -0.18 │       -719.392 │        -0.04 │          0:06:00 │    0     0     1     0 │
+│ ibsentry:1668437460000 │          stop_loss │      1 │        -0.18 │       -719.511 │        -0.04 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1653926400000 │ trailing_stop_loss │      1 │        -0.17 │       -720.444 │        -0.04 │          0:26:00 │    0     0     1     0 │
+│ ibsentry:1654120800000 │          stop_loss │      1 │        -0.29 │       -723.798 │        -0.04 │          1:40:00 │    0     0     1     0 │
+│ ibsentry:1670953320000 │          stop_loss │      1 │        -0.23 │       -725.849 │        -0.04 │          0:04:00 │    0     0     1     0 │
+│ ibsentry:1667484360000 │          stop_loss │      1 │        -0.21 │       -731.768 │        -0.04 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1678734360000 │ trailing_stop_loss │      1 │        -0.19 │       -733.343 │        -0.04 │          0:03:00 │    0     0     1     0 │
+│ ibsentry:1640010960000 │          stop_loss │      1 │         -0.4 │       -753.570 │        -0.04 │          0:00:00 │    0     0     1     0 │
+│ ibsentry:1658500740000 │          stop_loss │      1 │         -0.2 │       -790.124 │        -0.04 │          0:05:00 │    0     0     1     0 │
+│ ibsentry:1652376420000 │          stop_loss │      1 │        -0.31 │       -801.147 │        -0.04 │          0:00:00 │    0     0     1     0 │
+│ ibsentry:1721766960000 │          stop_loss │      1 │        -0.43 │       -859.495 │        -0.04 │          1:21:00 │    0     0     1     0 │
+│ ibsentry:1698433020000 │ trailing_stop_loss │      1 │        -0.71 │      -1005.012 │        -0.05 │  2 days, 3:00:00 │    0     0     1     0 │
+│ ibsentry:1738856160000 │          stop_loss │      3 │        -0.15 │      -1330.628 │        -0.07 │          0:01:00 │    0     0     3     0 │
+│                  TOTAL │                    │    882 │         0.03 │      52189.690 │         2.61 │          0:47:00 │  642     0   240  72.8 │
+└────────────────────────┴────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2021-10-01 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 882 / 0.49                                │
+│ Starting balance                       │ 2000000 USD                               │
+│ Final balance                          │ 2052189.69 USD                            │
+│ Absolute profit                        │ 52189.69 USD                              │
+│ Total profit %                         │ 2.61%                                     │
+│ CAGR %                                 │ 0.52%                                     │
+│ Sharpe (closed trades)                 │ 1.60                                      │
+│ Sortino (closed trades)                │ 2.57                                      │
+│ Calmar (closed trades)                 │ 9.55                                      │
+│ SQN                                    │ 5.07                                      │
+│ Mean profit p-value                    │ 4.942e-07                                 │
+│ Profit factor                          │ 1.47                                      │
+│ Expectancy (Ratio)                     │ 59.17 (0.13)                              │
+│ Avg. daily profit                      │ 29.01 USD                                 │
+│ Avg. stake amount                      │ 223619.844 USD                            │
+│ Market change                          │ 100.59%                                   │
+│ Total trade volume                     │ 394477028.43 USD                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 449 / 433                                 │
+│ Long / Short profit %                  │ 1.42% / 1.19%                             │
+│ Long / Short profit USD                │ 28468.121 / 23721.568                     │
+│                                        │                                           │
+│ Best Pair                              │ MNQ/USD 2.61%                             │
+│ Worst Pair                             │ MNQ/USD 2.61%                             │
+│ Best trade                             │ MNQ/USD 0.58%                             │
+│ Worst trade                            │ MNQ/USD -1.39%                            │
+│ Best day                               │ 1191.873 USD                              │
+│ Worst day                              │ -1965.109 USD                             │
+│ Days win/draw/lose                     │ 365 / 1285 / 149                          │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:00 / 2d 11:18 / 0d 00:53            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 2d 03:00 / 0d 00:30            │
+│ Max Consecutive Wins / Loss            │ 18 / 4                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 212 / 0                                   │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 1997280.898 USD / 2052858.689 USD         │
+│ Max % of account underwater            │ 0.29%                                     │
+│ Absolute drawdown                      │ 5857.597 USD (0.29%)                      │
+│ Drawdown duration                      │ 85 days 00:58:00                          │
+│ Profit at drawdown start               │ 17818.555 USD                             │
+│ Profit at drawdown end                 │ 11960.958 USD                             │
+│ Drawdown start                         │ 2022-09-20 19:36:00                       │
+│ Drawdown end                           │ 2022-12-14 20:34:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 1997280.898 USD / 2052858.689 USD         │
+│ Min/Max balance dates (wallet balance) │ 2021-10-12 13:36:00 / 2026-09-03 13:36:00 │
+│ Max % of account underwater (balance)  │ 0.29%                                     │
+│ Absolute drawdown (wallet balance)     │ 5857.597 USD (0.29%)                      │
+│ Drawdown duration                      │ 85 days 00:57:00                          │
+│ Profit at drawdown start               │ 17818.555 USD                             │
+│ Profit at drawdown end                 │ 11960.958 USD                             │
+│ Drawdown start                         │ 2022-09-20 19:39:00                       │
+│ Drawdown end                           │ 2022-12-14 20:36:00                       │
+│ Sharpe (daily wallet balance)          │ 2.30                                      │
+│ Sortino (daily wallet balance)         │ 1.90                                      │
+│ Calmar (daily wallet balance)          │ 9.55                                      │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2021-10-01 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                               STRATEGY SUMMARY                                                               
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃             Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃            Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ IBSEntryZoneStrategy │    882 │         0.03 │      52189.690 │         2.61 │      0:47:00 │  642     0   240  72.8 │ 5857.597 USD  0.29% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴─────────────────────┘
