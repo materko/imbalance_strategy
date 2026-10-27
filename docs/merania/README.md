@@ -28,7 +28,7 @@ Chronologicky:
 | [PREPOCET_po_audite_2026-10-26](PREPOCET_po_audite_2026-10-26.md) | prepočet po N-CORE-1/2/3 a N-LIVE-20: IBS sa pohne v 0–2 oknách z piatich, emulátor bez zmeny; syntetický trh sa zmenil pre iné 3m dáta, nie pre opravu |
 
 Súhrn, kam sa merania dopracovali, je v [README repozitára](../../README.md) v sekcii
-„Kde sme s výsledkami". Parita s TradingView (nie meranie edge) je v
+„Kde sme". Parita s TradingView (nie meranie edge) je v
 [GOLDEN_binance_2026-08-24](../GOLDEN_binance_2026-08-24.md),
 [AUDIT_pine_2026-09-05](../AUDIT_pine_2026-09-05.md) a
 [OPRAVY_adapter_2026-09-05](../OPRAVY_adapter_2026-09-05.md).

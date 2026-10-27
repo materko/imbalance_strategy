@@ -86,7 +86,7 @@ PY -m tester.webapp.cli show <run_id> [--json]
 Kľúčové číslo je **break-even poplatok** (% na stranu): koľko smie burza brať, aby beh
 vyšiel na nulu; koľko berie tá burza, závisí od trhu (krypto 0,05 %, CFD spread).
 Referenčné hodnoty pre `*_ny_sl` profil sú
-v README („Kde sme s výsledkami"). PnL v % závisí od sizingu a peňaženky, break-even nie.
+v README („Kde sme"). PnL v % závisí od sizingu a peňaženky, break-even nie.
 Pri záveroch pozeraj **znamienko po rokoch**, nie súčet.
 
 ## Webapp: spustiť, overiť, reštartovať, zastaviť

@@ -94,6 +94,12 @@ Bez obmedzení. Platia len konvencie repozitára:
 - Vyšší TF sa z 1m skladá výhradne cez `tradebot/core/candles.py` (webapp graf, simulátor,
   emulátor, súbory pre Freqtrade) — keby sa pravidlo rozišlo, porovnanie platforiem prestane
   niečo znamenať. Freqtrade si TF sám nedopočíta, pre `--timeframe` chce súbor na disku.
+- **README.md je výklad repozitára a musí sedieť.** Pri každej významnej zmene — nová stratégia
+  (aj C# prepis), platforma, adaptér, služba hubu / plugin, zdroj dát, nový dokument do rozcestníka
+  alebo zmena stavu v „Kde sme" — uprav README v tom istom commite: tabuľku stratégií (počet a
+  zaradenie podľa `STRATEGIA_TRH_TYP`), rozcestník, mapu repozitára a dátum v „Kde sme". Mapa
+  repozitára je len v README (docs/RUNNING.md na ňu odkazuje). Pred koncom úlohy si over, že README
+  neopisuje stav, ktorý zmena práve zrušila.
 - Commity v štýle histórie: slovenská veta v imperatíve, čo a prečo.
 - Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tester.webapp.cli run`
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.

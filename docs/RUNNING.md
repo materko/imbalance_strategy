@@ -8,8 +8,10 @@ nemiešalo, čo platí pre ktorú:
 | **spúšťať backtesty a pozerať históriu** (aj na Dukascopy symboloch) | [WEBAPP.md](WEBAPP.md) — Tester, webová aplikácia |
 | **krypto: prostredie, backtest, hyperopt, Docker, server** | [FREQTRADE.md](FREQTRADE.md) |
 | **MultiCharts: študia, QuoteManager, emulátor** | [MULTICHARTS.md](MULTICHARTS.md) |
-| **NinjaTrader 8, C# jadro, stratégia IBSNet** | [NINJATRADER.md](NINJATRADER.md) |
+| **NinjaTrader 8 a stratégie s jadrom v C#** | [NINJATRADER.md](NINJATRADER.md) |
 | **MetaTrader 5 nad tým istým C# jadrom (Expert Advisor)** | [MT5.md](MT5.md) |
+| **stratégia v NinjaTraderi, ordery v MT5** | [ROUTING.md](ROUTING.md) |
+| **telemetria bežiacich stratégií (karta Live)** | [LIVE.md](LIVE.md) |
 | **zdieľať trhy medzi NinjaTraderom a MT5 (feed pre indikátory, návrh)** | [FEED.md](FEED.md) |
 | **dáta: odkiaľ sú, archív, Dukascopy import, nový symbol** | [DATA.md](DATA.md) |
 | **testovať z CLI (aj pre AI)** | [../tester/AI_TESTING.md](../tester/AI_TESTING.md) |
@@ -45,37 +47,4 @@ Všetko sa spúšťa **z koreňa repozitára**. `PY` = Python z `.venv`:
 
 ## Mapa repozitára
 
-```
-tradebot/                       PRODUKT - to, co obchoduje
-  core/                         Bar, InstrumentSpec, config, kreslenie, hodiny, candles, paths
-  strategies/<key>/             jedna strategia = jeden SEBESTACNY balik (STRATEGIE.md):
-                                engine, config, meta, configs/ (profily), docs/sources/ (Pine)
-  adapters/freqtrade/           genericka IStrategy + EngineRunner
-  adapters/multicharts/         TradebotSignal, MCRunner, emulator, kreslenie
-  adapters/csharp/              most do C# jadra (pythonnet | TradeBot.Host.exe), preklad csharp/
-  adapters/ninjatrader/         NinjaScript adapter (C#) + instalacia do NinjaTradera
-csharp/                      jadro a strategie v C# (TradeBot.Core, TradeBot.Strategies/IbsNet)
-  configs/<key>/                referencne profily
-  tests/                        testy produktu
-deploy/freqtrade/            configy burz, skripty, user_data/ (data, vysledky, shim)
-deploy/multicharts/          sablony studii, setup skript, data_archive/tester/<zdroj>/
-
-tester/                         TESTER - cim sa to skusa
-  webapp/                       aplikacia pre testerov + CLI (vyber engine)
-  engines.py                    freqtrade | multicharts emulator + kde maju data
-  AI_TESTING.md                 ako sa testuje z prikazoveho riadku
-  compare/                      scan_zones, scan_trades, mc_log_trades, mc_compare
-  dukas_import.py               import surovych exportov: cistenie, 1m feather, archiv
-  bento_import.py               import Databento (CME futures): kontrakty -> front-month, archiv
-  ibkr_import.py                import IBKR (akcie, RTH): New York -> UTC, bez vypchavky, archiv
-  timeframes.py                 dopocet vyssich TF z 1m (tester/timeframes.json)
-  quotemanager.py               ASCII export pre QuoteManager (MultiCharts)
-  data_archive.py               rocny archiv sviecok
-  report.py, fees.py, plot.py   reporty a metriky
-  tests/                        testy nastrojov + golden parita s TradingView
-  runs/, profiles/              historia behov a configy testerov (v gite)
-  scripts/                      spustac webapp
-
-docker/                         Dockerfile.core, Dockerfile.freqtrade, docker-compose.yml
-docs/                           navody, architektura, parita; merania v docs/merania/
-```
+Je v [README](../README.md#mapa-repozitára) — na jednom mieste, aby sa nerozišla.
