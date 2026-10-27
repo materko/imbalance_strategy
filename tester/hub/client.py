@@ -24,6 +24,7 @@ from __future__ import annotations
 import gzip
 import http.client
 import json
+import logging
 import select
 import ssl
 import threading
@@ -87,6 +88,10 @@ class NoCapacityError(HubError):
 #: s novým spojením (iný zdrojový port), spolu najviac `CONNECT_ATTEMPTS`-krát.
 CONNECT_TIMEOUT = 5.0
 CONNECT_ATTEMPTS = 3
+#: Telo POST-u od tejto veľkosti ide zbalené (`Content-Encoding: gzip`) — malé (heartbeat) nemá zmysel baliť.
+GZIP_POST_MIN = 16384
+
+log = logging.getLogger(__name__)
 
 #: Server zavrel nečinné spojenie (keep-alive timeout) práve vtedy, keď išla požiadavka.
 _STALE = (http.client.RemoteDisconnected, ConnectionResetError, ConnectionAbortedError, BrokenPipeError)
@@ -117,14 +122,18 @@ class HubHttp:
         self._prefix = parts.path
         self._ssl: ssl.SSLContext | None = None
         self._local = threading.local()
+        #: Rozbalí hub telo POST-u s `Content-Encoding: gzip`? None = ešte nevieme (prvý veľký POST to zistí).
+        self._gzip_post: bool | None = None
         # Cez proxy (HTTP_PROXY a spol.) ostáva pôvodná cesta cez urllib.
         self._proxied = bool(urllib.request.getproxies().get(self._scheme)) \
             and not urllib.request.proxy_bypass(self._host)
 
-    def _headers(self, content_type: str | None = None, gzip_ok: bool = True) -> dict[str, str]:
+    def _headers(self, content_type: str | None = None, gzip_ok: bool = True, encoding: str | None = None) -> dict[str, str]:
         h = {"Authorization": f"Bearer {self.token}"} if self.token else {}
         if content_type:
             h["Content-Type"] = content_type
+        if encoding:
+            h["Content-Encoding"] = encoding
         if gzip_ok:
             # JSON udalostí (export pre zrkadlo, ~1,3 MB na 5000) hub zbalí ~10×; zip výsledku nie (`get_bytes`)
             h["Accept-Encoding"] = "gzip"
@@ -194,10 +203,10 @@ class HubHttp:
 
     def _call(self, method: str, path: str, data: bytes | None = None,
               content_type: str | None = None, timeout: float | None = None,
-              gzip_ok: bool = True) -> tuple[bytes, str]:
+              gzip_ok: bool = True, encoding: str | None = None) -> tuple[bytes, str]:
         if self._proxied:
-            return self._call_urllib(method, path, data, content_type, timeout, gzip_ok)
-        headers = self._headers(content_type, gzip_ok)
+            return self._call_urllib(method, path, data, content_type, timeout, gzip_ok, encoding)
+        headers = self._headers(content_type, gzip_ok, encoding)
         for pokus in (1, 2):
             conn, reused = self._connection(timeout or self.timeout)
             try:
@@ -215,16 +224,17 @@ class HubHttp:
             if r.will_close:
                 self.close()
             if 300 <= r.status < 400:  # presmerovanie (proxy pred hubom) — postará sa urllib
-                return self._call_urllib(method, path, data, content_type, timeout, gzip_ok)
+                return self._call_urllib(method, path, data, content_type, timeout, gzip_ok, encoding)
             if r.status >= 400:
                 raise self._error(r.status, body, method, path)
             return body, r.headers.get("content-type", "")
         raise AssertionError("nedosiahnuteľné")
 
     def _call_urllib(self, method: str, path: str, data: bytes | None,
-                     content_type: str | None, timeout: float | None, gzip_ok: bool = True) -> tuple[bytes, str]:
+                     content_type: str | None, timeout: float | None, gzip_ok: bool = True,
+                     encoding: str | None = None) -> tuple[bytes, str]:
         req = urllib.request.Request(self.url + path, data=data, method=method,
-                                     headers=self._headers(content_type, gzip_ok))
+                                     headers=self._headers(content_type, gzip_ok, encoding))
         try:
             with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
                 return self._unzip(r.read(), r.headers), r.headers.get("content-type", "")
@@ -239,7 +249,21 @@ class HubHttp:
         return self._call("GET", path, timeout=max(self.timeout, 300), gzip_ok=False)[0]
 
     def post(self, path: str, body: dict[str, Any] | None = None) -> Any:
-        data, ct = self._call("POST", path, json.dumps(body or {}).encode("utf-8"), "application/json")
+        raw = json.dumps(body or {}).encode("utf-8")
+        if len(raw) >= GZIP_POST_MIN and self._gzip_post is not False:
+            # Dávka spoolu (2000 udalostí ~900 kB) ide zo stroja na verejnú adresu hubu aj ~110 kB/s — zbalená ~14×
+            # menšia. Hub bez podpory (starší kód) ju odmietne ako zlý JSON: raz sa pošle holá a klient si to zapamätá.
+            try:
+                data, ct = self._call("POST", path, gzip.compress(raw, 5), "application/json", encoding="gzip")
+                self._gzip_post = True
+            except HubError as exc:
+                if self._gzip_post is not None or exc.status not in (400, 415, 422):
+                    raise
+                data, ct = self._call("POST", path, raw, "application/json")
+                self._gzip_post = False
+                log.info("hub klient: hub nerozbalí gzip telo — posielam nezbalené")
+        else:
+            data, ct = self._call("POST", path, raw, "application/json")
         return json.loads(data) if "json" in ct else data.decode("utf-8", "replace")
 
     def post_bytes(self, path: str, data: bytes) -> Any:

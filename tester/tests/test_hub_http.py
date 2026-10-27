@@ -44,6 +44,13 @@ class _Handler(BaseHTTPRequestHandler):
         srv.requests.append((self.command, self.path, self.client_address[1],
                              self.headers.get("Authorization"), body))
         srv.accept_encoding.append(self.headers.get("Accept-Encoding"))
+        srv.content_encoding.append(self.headers.get("Content-Encoding"))
+        if self.path.endswith("/stary") and self.headers.get("Content-Encoding") == "gzip":
+            self._reply(422, {"detail": "JSON decode error"})   # hub bez podpory gzip tela
+            return
+        if self.headers.get("Content-Encoding") == "gzip":
+            body = gzip.decompress(body)
+            srv.requests[-1] = (*srv.requests[-1][:4], body)
         if self.path.endswith("/gz") and "gzip" in (self.headers.get("Accept-Encoding") or ""):
             data = gzip.compress(json.dumps({"ok": True, "zbalene": True}).encode())
             self.send_response(200)
@@ -73,6 +80,7 @@ def server():
     srv.daemon_threads = True
     srv.requests = []
     srv.accept_encoding = []
+    srv.content_encoding = []
     srv.drop_after_reply = False
     t = threading.Thread(target=srv.serve_forever, daemon=True)
     t.start()
@@ -209,3 +217,42 @@ def test_hub_export_gzip_a_rovnake_data(tmp_path):
     holy = c.get("/api/live/export?after=0", headers={**H, "Accept-Encoding": "identity"})
     assert zbalene.headers.get("content-encoding") == "gzip" and "content-encoding" not in holy.headers
     assert zbalene.json() == holy.json() and len(holy.json()) == 201 and holy.json()[1]["event"]["k"] == "bar"
+
+
+def test_velky_post_ide_zbaleny_starsi_hub_dostane_holy(server):
+    """Dávka spoolu (~1 MB) ide zbalená; hub, ktorý gzip telo nerozbalí (422), ju dostane raz holú a klient
+    si zapamätá, že ďalšie už nebalí. Malé telá (heartbeat) sa nebalia nikdy."""
+    from tester.hub import client as hc
+
+    velke = {"events": [{"seq": i, "k": "bar", "t": 1_790_000_000_000 + i} for i in range(2000)]}
+    h = HubHttp(_url(server), token="t")
+    assert h.post("/api/live/events", velke)["ok"] is True
+    assert server.content_encoding[-1] == "gzip" and json.loads(server.requests[-1][4]) == velke
+    h.post("/api/agents/x/heartbeat", {"a": 1})
+    assert server.content_encoding[-1] is None
+
+    stary = HubHttp(_url(server), token="t")
+    assert stary.post("/api/live/stary", velke)["ok"] is True
+    assert server.content_encoding[-2:] == ["gzip", None] and stary._gzip_post is False
+    stary.post("/api/live/stary", velke)
+    assert server.content_encoding[-1] is None and len(json.dumps(velke)) > hc.GZIP_POST_MIN
+
+
+def test_hub_rozbali_gzip_telo_a_zly_odmietne(tmp_path):
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub.server import create_hub_app
+    from tester.hub.state import HubState
+
+    app = create_hub_app(HubState(tmp_path / "hub", token="t"))
+    c = TestClient(app)
+    H = {"Authorization": "Bearer t", "Content-Type": "application/json", "Content-Encoding": "gzip"}
+    hello = {"seq": 1, "t": 1_790_000_000_000, "k": "hello", "schema": 1, "platform": "ninjatrader",
+             "account": "Sim101", "symbol": "MNQ", "tf": 3, "strategy": "ibsnet", "profile": "p", "session": "s1",
+             "host": "PC", "tester": False, "config": {}, "instrument": {}}
+    telo = {"agent": "a", "batches": [{"instance": "i", "session": "s1", "events": [hello]}]}
+    r = c.post("/api/live/events", content=gzip.compress(json.dumps(telo).encode()), headers=H)
+    assert r.status_code == 200 and r.json() == {"accepted": 1}
+    r = c.post("/api/live/events", content=b"toto nie je gzip", headers=H)
+    assert r.status_code == 400 and "gzip" in r.json()["detail"]

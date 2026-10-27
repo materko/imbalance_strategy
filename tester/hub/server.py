@@ -55,6 +55,8 @@ v tom istom súbore): mutácie len s hlavným tokenom, agent si svoj diel berie 
 
 from __future__ import annotations
 
+import json
+import zlib
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
@@ -136,6 +138,56 @@ class SubmitRequest(BaseModel):
     plan_done: int | None = None
 
 
+#: Najviac toľko bajtov smie mať rozbalené telo POST-u (dávka spoolu 2000 udalostí má ~1 MB) — proti zip bombe.
+GZIP_REQUEST_MAX = 64 * 1024 * 1024
+
+
+class GzipRequests:
+    """ASGI middleware: telo s `Content-Encoding: gzip` rozbalí a aplikácii ho podá ako obyčajné (bez tej hlavičky,
+    so správnym `Content-Length`). Agent tak posiela dávky spoolu ~14× menšie; ostatné požiadavky idú bez zmeny."""
+
+    def __init__(self, app: Any) -> None:
+        self.app = app
+
+    async def __call__(self, scope: dict, receive: Any, send: Any) -> None:
+        if scope.get("type") != "http" or not any(
+                k == b"content-encoding" and v.strip().lower() == b"gzip" for k, v in scope.get("headers") or []):
+            await self.app(scope, receive, send)
+            return
+        kusy = []
+        while True:
+            msg = await receive()
+            if msg["type"] != "http.request":
+                return   # klient odišiel
+            kusy.append(msg.get("body", b""))
+            if not msg.get("more_body"):
+                break
+        try:
+            d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+            telo = d.decompress(b"".join(kusy), GZIP_REQUEST_MAX)
+            chyba = "rozbalené telo je väčšie než povolené" if d.unconsumed_tail else ""
+        except zlib.error as exc:
+            telo, chyba = b"", f"zlý gzip: {exc}"
+        if chyba:
+            data = json.dumps({"detail": chyba}).encode()
+            await send({"type": "http.response.start", "status": 413 if "väčšie" in chyba else 400,
+                        "headers": [(b"content-type", b"application/json"), (b"content-length", str(len(data)).encode())]})
+            await send({"type": "http.response.body", "body": data})
+            return
+        hlavicky = [(k, v) for k, v in scope["headers"] if k not in (b"content-encoding", b"content-length")]
+        hlavicky.append((b"content-length", str(len(telo)).encode()))
+        podane = False
+
+        async def receive_rozbalene() -> dict:
+            nonlocal podane
+            if not podane:
+                podane = True
+                return {"type": "http.request", "body": telo, "more_body": False}
+            return await receive()
+
+        await self.app({**scope, "headers": hlavicky}, receive_rozbalene, send)
+
+
 def create_hub_app(state: HubState | None = None, live_store: LiveStore | None = None,
                    deploy_store: DeployStore | None = None) -> FastAPI:
     """`live_store` a `deploy_store` sa dajú podstrčiť (testy); inak je `live.sqlite` vedľa
@@ -152,6 +204,8 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
     # požiada (`Accept-Encoding: gzip`, HubHttp to robí) — inak by päť webapp počas backlogu po reštarte
     # platforiem zahltilo upload a CPU hubu a agentove POSTy by čakali. Starí klienti dostanú to isté ako doteraz.
     app.add_middleware(GZipMiddleware, minimum_size=4096, compresslevel=5)
+    # a naopak: dávky spoolu od agenta prídu zbalené (`Content-Encoding: gzip`), linka zo stroja je pomalá
+    app.add_middleware(GzipRequests)
     app.router.on_shutdown.append(state.flush)   # odložený zápis z heartbeatov (N-HUB-7)
     app.state.hub = state
 
