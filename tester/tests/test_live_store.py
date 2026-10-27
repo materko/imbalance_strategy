@@ -293,3 +293,10 @@ def test_stary_subor_dostane_stlpce_pingu(tmp_path: Path):
     assert st.instance("x")["last_hb"] == 0 and st.instance("x")["hb"] == {}
     assert st.ingest("srv", INST, "a1b2c3d4", [hello(), hb(1, BT0 + 5)]) == 2
     assert st.instance(INST)["last_hb"] == BT0 + 5
+
+
+def test_store_ma_vykonne_pragmy(tmp_path: Path):
+    """Hub na NAS-e: veľká cache a bez `fsync` pri každom commite — inak dávka 2000 udalostí držala zámok ~10 s."""
+    st = LiveStore(tmp_path / "l.sqlite")
+    pragma = {k: st._db.execute(f"PRAGMA {k}").fetchone()[0] for k in ("journal_mode", "synchronous", "cache_size")}
+    assert pragma == {"journal_mode": "wal", "synchronous": 1, "cache_size": -131072}

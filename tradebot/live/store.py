@@ -105,6 +105,14 @@ def liveness(inst: dict[str, Any], now_ms: float) -> str:
     return "live"
 
 
+#: Výkon na hube (NAS, milióny udalostí, 4 indexy): predvolená cache sqlite (2 MB) nútila každé vloženie čítať
+#: stránky indexov z disku a `fsync` pri každom commite — dávka 2000 udalostí držala zámok ~10 s a ostatné
+#: požiadavky čakali. Vo WAL je `synchronous=NORMAL` bezpečné voči pádu procesu (pri výpadku prúdu sa môžu
+#: stratiť posledné dávky — zrkadlo ich ukáže ako dieru).
+_PRAGMAS = ("PRAGMA synchronous=NORMAL; PRAGMA cache_size=-131072; PRAGMA mmap_size=268435456; "
+            "PRAGMA temp_store=MEMORY;")
+
+
 class LiveStore:
     def __init__(self, path: Path | str, *, clock=time.time) -> None:
         self.path = Path(path)
@@ -114,7 +122,7 @@ class LiveStore:
         self._db = sqlite3.connect(str(self.path), check_same_thread=False)
         self._db.row_factory = sqlite3.Row
         with self._lock:
-            self._db.executescript("PRAGMA journal_mode=WAL;" + _DDL)
+            self._db.executescript("PRAGMA journal_mode=WAL;" + _PRAGMAS + _DDL)
             mam = {r["name"] for r in self._db.execute("PRAGMA table_info(instances)")}
             for col, typ in _ADDED_COLS.items():
                 if col not in mam:
