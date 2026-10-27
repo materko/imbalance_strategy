@@ -47,4 +47,4 @@ Všetko sa spúšťa **z koreňa repozitára**. `PY` = Python z `.venv`:
 
 ## Mapa repozitára
 
-Je v [README](../README.md#mapa-repozitára) — na jednom mieste, aby sa nerozišla.
+Koncept a podrobná mapa sú v [DIRECTORIES.md](DIRECTORIES.md), skratka v [README](../README.md#mapa-repozitára).

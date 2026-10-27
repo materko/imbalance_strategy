@@ -16,7 +16,7 @@ z tej množiny, nie osobitné volanie.
 ### HTF okno
 Zámerne sa nepoužíva `Data2` séria priamo, ale ten istý `htf_window_opens()` ako
 vo Freqtrade — inak by sa obe platformy rozišli práve v tom mieste, ktoré nás
-na TradingView stálo najviac času (viď docs/GOLDEN_binance_2026-08-24.md).
+na TradingView stálo najviac času (viď docs/audity/GOLDEN_binance_2026-08-24.md).
 """
 
 from __future__ import annotations

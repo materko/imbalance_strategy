@@ -486,10 +486,10 @@ kto ju písal.
 
 ## Rozpracované zadania
 
-Stratégia, ktorá sa ešte len má postaviť, má zadanie v `docs/zadania/` — úplné
-natoľko, aby sa dalo otvoriť v samostatnom sedení bez ďalšieho kontextu. Dnes tam
-žiadne otvorené nie je; [tržná štruktúra](zadania/STRUKTURA_strategia.md) je hotová
-a v registry ako `structure`.
+Stratégia, ktorá sa ešte len má postaviť, má zadanie v `tradebot/strategies/<key>/docs/ZADANIE.md` —
+úplné natoľko, aby sa dalo otvoriť v samostatnom sedení bez ďalšieho kontextu (vzor:
+[tržná štruktúra](../tradebot/strategies/structure/docs/ZADANIE.md), dnes hotová ako `structure`).
+Kam čo patrí: [DIRECTORIES.md](DIRECTORIES.md).
 
 ## Časté chyby
 

@@ -498,7 +498,7 @@ def test_sparse_rules_pick_code_and_drop_ballast(tmp_path: Path):
     subory = ["tradebot/core/paths.py", "tester/hub/agent.py", "tester/profiles/moj.json",
               "docs/HUB.md", "data_archive/tester/binance/futures/BTC-1m-2025.feather",
               "data_archive/tester/dukascopy/futures/NAS100-1m-2025.feather",
-              "tester/runs/20260920-1/run.json", "tester/analytics/a.json", "projekty/ORB/stav.md"]
+              "tester/runs/20260920-1/run.json", "tester/analytics/a.json", "tester/sweeps/s.json"]
     for rel in subory:
         f = repo / rel
         f.parent.mkdir(parents=True, exist_ok=True)
@@ -547,7 +547,7 @@ def test_sparse_build_rules():
         "/*", "!/data_archive/**", "/data_archive/tester/binance/**",
         "/data_archive/tester/dukascopy/**"]
     bez = sparse.build_rules(None, history=False)
-    assert bez[0] == "/*" and "!/tester/runs/**" in bez and "!/projekty/**" in bez
+    assert bez[0] == "/*" and "!/tester/runs/**" in bez and "!/tester/sweeps/**" in bez
 
 
 def test_updater_restarts_hub_only_when_nothing_is_computing(hub):

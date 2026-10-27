@@ -6,7 +6,7 @@ Stav (26. 10. 2026): **fáza 1 hotová** — protokol v jadre (`csharp/TradeBot.
 ale na MT5 účte ešte neoverené. **Fáza 3 napísaná:** AddOn NinjaTradera smeruje ordery do exekútora podľa
 `route` v `deploy.json`, preložené proti NinjaTraderu 8. **Fáza 4 hotová:** route sa zadáva pri nasadení vo
 webapp, hub k nej pridá exekútor a drivery ho nasadia. Celé NT → MT5 ešte naživo nebežalo (fáza 5); audit kódu
-pred ňou s nálezmi na opravu je v [AUDIT_routing_2026-10-26.md](AUDIT_routing_2026-10-26.md). Cieľ: pri každom živom nasadení si zvoliť, kde idú
+pred ňou s nálezmi na opravu je v [AUDIT_routing_2026-10-26.md](audity/AUDIT_routing_2026-10-26.md). Cieľ: pri každom živom nasadení si zvoliť, kde idú
 ordery — **na ten istý účet, na ktorom stratégia beží** (dnešné správanie), alebo **remote** na iný
 terminál na tom istom stroji, dnes MT5. Stratégia (engine, bary, zóny, kresby, telemetria) ostáva
 v NinjaTraderi na dátach, na ktorých bola testovaná; MT5 je len vykonávač.

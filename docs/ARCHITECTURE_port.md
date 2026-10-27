@@ -4,7 +4,7 @@ Cieľ: **jedna implementácia logiky**, dva tenké adaptéry. Rovnaké obchody a
 na oboch platformách aj v TradingView.
 
 Referenčný zdroj pravdy: [`tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`](../tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine) +
-[`tv_settings_2026-09-03.md`](tv_settings_2026-09-03.md).
+[`tv_settings_2026-09-03.md`](../tradebot/strategies/ibs/docs/tradingview/tv_settings_2026-09-03.md).
 
 ---
 
@@ -421,7 +421,7 @@ Každý adaptér má `DrawSink`, ktorý to premení na natívne objekty. Farby/�
 (referenčný beh: 17 obchodov, 8W/9L, 47 %) a uložíme do `tests/golden/`. Test prebehne engine
 nad tými istými dátami a porovná: čas vstupu, smer, entry, SL, TP, qty, výsledok — a navyše
 počet a súradnice nakreslených zón. Scény na ručnú kontrolu sú v
-[`chart_reference_BTCUSD_3m.md`](chart_reference_BTCUSD_3m.md).
+[`chart_reference_BTCUSD_3m.md`](../tradebot/strategies/ibs/docs/tradingview/chart_reference_BTCUSD_3m.md).
 
 ---
 

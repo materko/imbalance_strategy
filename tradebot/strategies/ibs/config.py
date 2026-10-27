@@ -6,7 +6,7 @@ aj tu, a JSON profil sedí s tým, čo vidno v TradingView paneli. Vlastný nov�
 (`InstrumentSpec`, `SizeSpec`, engine) používa bežný Python štýl.
 
 Zdroj hodnôt a rozsahov: `tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`, sekcia INPUTS (riadky 41–219).
-Nastavenia z grafu, ktoré sa líšia od Pine defaultov, sú v `docs/tv_settings_2026-09-03.md`.
+Nastavenia z grafu, ktoré sa líšia od Pine defaultov, sú v `tradebot/strategies/ibs/docs/tradingview/tv_settings_2026-09-03.md`.
 
 **PickMyTrade sa neportuje** (rozhodnutie z 2026-09-04). Vypadlo teda päť Pine vstupov:
 `pmtToken`, `pmtAccountId`, `pmtStratName`, `pmtMarketOrderType` a `trailFreqPct`
@@ -477,7 +477,7 @@ class IBSConfig(StrategyConfig):
     #: otvoriť ľubovoľne veľkú pozíciu. Vo Freqtrade je to limit, ktorý sa NAOZAJ
     #: uplatní: risk-based sizing z `maxLossDollar` chce na BTC pri tesnom SL
     #: notional v státisícoch USDT, takže pri páke 1 sa stake oreže a `maxLossDollar`
-    #: sa vôbec neuplatní. Viď docs/GOLDEN_binance_2026-08-24.md.
+    #: sa vôbec neuplatní. Viď docs/audity/GOLDEN_binance_2026-08-24.md.
     leverage: float = 1.0
 
 

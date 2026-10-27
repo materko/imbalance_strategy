@@ -233,7 +233,7 @@ def test_profile_loads_and_validates(name):
 
 @pytest.mark.parametrize("name", ["multicharts_mnq_3m", "golden_coinbase_btcusd_3m", "golden_binance_btcusdt_3m"])
 def test_profiles_apply_the_five_chart_overrides(name):
-    """Všetky profily vychádzajú z rovnakých nastavení grafu (docs/tv_settings_2026-09-03.md)."""
+    """Všetky profily vychádzajú z rovnakých nastavení grafu (tradebot/strategies/ibs/docs/tradingview/tv_settings_2026-09-03.md)."""
     cfg, _ = load_profile(name)
     assert cfg.enablePinBarEntry is True
     assert cfg.enableTrailing is True

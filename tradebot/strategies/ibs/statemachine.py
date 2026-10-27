@@ -180,7 +180,7 @@ class StateMachine:
 
         Bez toho zóny v STATE 0 žijú donekonečna a hromadia sa — v porovnaní
         s TradingView to na BTCUSDT.P znamenalo 7× viac Pin Bar vstupov a 6× viac
-        SKIP-ov (viď docs/GOLDEN_binance_2026-08-24.md).
+        SKIP-ov (viď docs/audity/GOLDEN_binance_2026-08-24.md).
         """
         for z in self.book.zones:
             if not z.used and bar.time >= z.expires_ms:

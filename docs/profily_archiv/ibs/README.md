@@ -129,7 +129,7 @@ Ako `--set` pre CLI:
 
 ### `btcusdt_3m_binance_struct`  (btcusdt_binance)
 
-BINANCE BTCUSDT.P 3m - najlepsia konfiguracia zo systematickeho hladania (2026-09-04).  Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20, zapnuty struktury filter (BOS/CHoCH) a obchodovanie z S/R aj likviditnych zon. Vsetky tri entry modely zapnute.  POZOR - toto NIE JE odporucanie na obchodovanie. Priemerny break-even poplatok je 0,045 % na stranu (spolu cez pat rokov 0,040 %) proti 0,05 %, ktore berie Binance; dva z piatich rokov su po poplatkoch ziskove a sucet za pat rokov je prakticky nula. Detaily v docs/merania/FILTRE_vstupu_2026-09-04.md, cisla po opravach adaptera v docs/OPRAVY_adapter_2026-09-05.md.
+BINANCE BTCUSDT.P 3m - najlepsia konfiguracia zo systematickeho hladania (2026-09-04).  Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20, zapnuty struktury filter (BOS/CHoCH) a obchodovanie z S/R aj likviditnych zon. Vsetky tri entry modely zapnute.  POZOR - toto NIE JE odporucanie na obchodovanie. Priemerny break-even poplatok je 0,045 % na stranu (spolu cez pat rokov 0,040 %) proti 0,05 %, ktore berie Binance; dva z piatich rokov su po poplatkoch ziskove a sucet za pat rokov je prakticky nula. Detaily v docs/merania/FILTRE_vstupu_2026-09-04.md, cisla po opravach adaptera v docs/audity/OPRAVY_adapter_2026-09-05.md.
 
 Odchýlky od Pine defaultov:
 
@@ -156,7 +156,7 @@ Ako `--set` pre CLI:
 
 ### `btcusdt_3m_binance_ny`  (btcusdt_binance)
 
-BINANCE BTCUSDT.P 3m - najlepsia najdena konfiguracia (2026-09-05).  Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20, strukturny filter (BOS/CHoCH), obchodovanie z S/R aj likviditnych zon, a VYPNUTA londynska seansa - tam stratégia edge nema (break-even -0,0007 % za pat rokov), len riedi vysledok a plati poplatky.  Break-even poplatok 0,088 % na stranu proti 0,05 %, ktore berie Binance ako taker. Styri z piatich rokov su po realnych poplatkoch ziskove, spolu +17,0 %, max DD 7,1 %. Detaily v docs/merania/SEANSY_2026-09-05.md; cisla po opravach adaptera (timeout limitky) v docs/OPRAVY_adapter_2026-09-05.md.
+BINANCE BTCUSDT.P 3m - najlepsia najdena konfiguracia (2026-09-05).  Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20, strukturny filter (BOS/CHoCH), obchodovanie z S/R aj likviditnych zon, a VYPNUTA londynska seansa - tam stratégia edge nema (break-even -0,0007 % za pat rokov), len riedi vysledok a plati poplatky.  Break-even poplatok 0,088 % na stranu proti 0,05 %, ktore berie Binance ako taker. Styri z piatich rokov su po realnych poplatkoch ziskove, spolu +17,0 %, max DD 7,1 %. Detaily v docs/merania/SEANSY_2026-09-05.md; cisla po opravach adaptera (timeout limitky) v docs/audity/OPRAVY_adapter_2026-09-05.md.
 
 Odchýlky od Pine defaultov:
 

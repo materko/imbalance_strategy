@@ -588,7 +588,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--history", dest="history", action="store_true", default=None,
                    help="ťahať aj cudziu históriu behov (default, keď sa nepovie inak)")
     p.add_argument("--no-history", dest="history", action="store_false",
-                   help="neťahať tester/runs, archive, analytics, sweeps ani projekty")
+                   help="neťahať tester/runs, archive, analytics ani sweeps")
     p.add_argument("--off", action="store_true", help="späť celý strom")
     p.set_defaults(func=cmd_sparse)
 

@@ -59,7 +59,7 @@ def pivot(
     ZHODU, vpravo vyžaduje prísne nižšie high (resp. vyššie low). S obojstranne
     prísnym porovnaním sa zahadzujú pivoty, ktoré TradingView nájde — na
     Elliott zigzagu to znamenalo 32 z 41 bodov namiesto 41 z 41
-    (docs/GOLDEN_binance_2026-08-24.md).
+    (docs/audity/GOLDEN_binance_2026-08-24.md).
 
     Pozor na indexovanie: `history[0]` je NAJNOVŠÍ bar, takže index menší než
     `length` je vpravo od pivota v čase, nie vľavo.

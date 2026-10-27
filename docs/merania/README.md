@@ -29,6 +29,6 @@ Chronologicky:
 
 Súhrn, kam sa merania dopracovali, je v [README repozitára](../../README.md) v sekcii
 „Kde sme". Parita s TradingView (nie meranie edge) je v
-[GOLDEN_binance_2026-08-24](../GOLDEN_binance_2026-08-24.md),
-[AUDIT_pine_2026-09-05](../AUDIT_pine_2026-09-05.md) a
-[OPRAVY_adapter_2026-09-05](../OPRAVY_adapter_2026-09-05.md).
+[GOLDEN_binance_2026-08-24](../audity/GOLDEN_binance_2026-08-24.md),
+[AUDIT_pine_2026-09-05](../audity/AUDIT_pine_2026-09-05.md) a
+[OPRAVY_adapter_2026-09-05](../audity/OPRAVY_adapter_2026-09-05.md).

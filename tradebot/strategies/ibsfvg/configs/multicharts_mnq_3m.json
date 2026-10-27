@@ -5,7 +5,7 @@
     "Obsahuje LEN odchylky od Pine defaultov; zvysok doplni IBSConfig.",
     "Vsetky velkostne parametre su hole cisla = presne Pine spravanie (unit 'abs'/'ticks'),",
     "takze tento profil ma byt bit-identicky s TradingView backtestom.",
-    "Zdroj hodnot: docs/tv_settings_2026-09-03.md (5 odchylok od Pine defaultov)."
+    "Zdroj hodnot: tradebot/strategies/ibs/docs/tradingview/tv_settings_2026-09-03.md (5 odchylok od Pine defaultov)."
   ],
   "_instrument": "mnq",
   "_timeframe": "3m",

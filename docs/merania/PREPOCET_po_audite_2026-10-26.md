@@ -1,6 +1,6 @@
 # Prepočet meraní po oprave auditu (N-CORE-1/2/3, N-LIVE-20) — 2026-10-26
 
-Audit architektúry ([AUDIT_architektura_2026-10-25](../AUDIT_architektura_2026-10-25.md)) zmenil
+Audit architektúry ([AUDIT_architektura_2026-10-25](../audity/AUDIT_architektura_2026-10-25.md)) zmenil
 dve veci, ktoré môžu pohnúť číslami starších meraní:
 
 - **N-CORE-1/2/3** (`64fe7cfbc`): Freqtrade dáva market vstup za cenu, ktorú navrhne sám (`proposed_rate`,
@@ -97,7 +97,7 @@ break-even pri risk sizingu neuvádzal.
 
 ## SEANSY — BTC `btcusdt_3m_binance_ny` a `btcusdt_3m_binance_struct` (1 BTC)
 
-Dokument je spred opráv adaptéra z 5. 9. ([OPRAVY_adapter](../OPRAVY_adapter_2026-09-05.md)). Na
+Dokument je spred opráv adaptéra z 5. 9. ([OPRAVY_adapter](../audity/OPRAVY_adapter_2026-09-05.md)). Na
 porovnanie s „len NY“ je preto vedľa stĺpec „pred“ z OPTIMALIZACIA §1, ktorý je už po nich.
 
 | okno | NY obch. | NY break-even % SEANSY / OPTIM. / nové | NY PnL % OPTIM. → nové | NY beh |

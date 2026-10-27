@@ -207,7 +207,7 @@ def test_mt5_driver_da_exekutorovi_graf_bez_profilu(drv):  # noqa: F811
 
 
 # --------------------------------------------------------------------------- #
-# nízke nálezy auditu smerovania (docs/AUDIT_routing_2026-10-26.md, časť 4)
+# nízke nálezy auditu smerovania (docs/audity/AUDIT_routing_2026-10-26.md, časť 4)
 
 
 def test_alias_na_koren_futures_vyhra_nad_tabulkou():

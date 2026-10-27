@@ -152,7 +152,7 @@ okien, 146 obchodov, break-even 0,1058 %, 4,6 sigma, bootstrap aj Monte Carlo vy
 miesta rovnako ako v [analytike IBS](../../ibs/docs/ANALYTIKA.md) (tabuľky skupín sa líšia len preto,
 že analytika medzičasom pribrala vlastnosť „s trendom / proti"). Nie je to náhoda ani šťastie vzorky:
 C# jadro dáva na každom bare to isté čo Python engine, na rovnosť
-([meranie parity](../../../../docs/merania/PARITA_ibsnet_2026-09-20.md)). Verdikt o myšlienke je
+([meranie parity](../../../../docs/merania/PARITA_ibsninja_2026-09-20.md)). Verdikt o myšlienke je
 preto ten istý ako pri IBS — použiteľný kandidát s edge dvojnásobným oproti poplatku a s tenkou
 vzorkou (≈30 obchodov za rok). Čo je tu naozaj otvorené, nie je stratégia, ale **platforma**: dôvod,
 prečo IBSNet existuje, je NinjaTrader, a tam ešte nebežala ani raz.

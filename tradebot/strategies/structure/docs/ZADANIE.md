@@ -95,7 +95,7 @@ nedá odporúčanie k riziku.
 
 ## Kde čo patrí
 
-Presný postup je v [docs/STRATEGIE.md](../STRATEGIE.md) — **prečítaj si ho celý, toto ho
+Presný postup je v [docs/STRATEGIE.md](../../../../docs/STRATEGIE.md) — **prečítaj si ho celý, toto ho
 nenahrádza.** Ako živý vzor slúži `tradebot/strategies/demo_breakout/`: je to najmenšia
 úplná stratégia v repozitári, má všetko od Pine zdroja po posudok.
 
@@ -123,7 +123,7 @@ to stráži).
 
 ## Kedy je hotová
 
-Checklist z [STRATEGIE.md](../STRATEGIE.md) platí celý:
+Checklist z [STRATEGIE.md](../../../../docs/STRATEGIE.md) platí celý:
 
 | # | čo | ako to overiť |
 |---|---|---|
@@ -147,7 +147,7 @@ dopredu, a všetko ostatné je potom bezcenné.
 referenčných oknách. Na premiešanom trhu má vyjsť **nula**. Keby tam štruktúrna stratégia
 zarábala, znamená to, že „štruktúra" v nej je len tvar barov a nie správanie účastníkov —
 a to je nález, ktorý treba napísať skôr, než sa čokoľvek ladí. Podrobne
-[AI_TESTING.md §8j](../../tester/AI_TESTING.md).
+[AI_TESTING.md §8j](../../../../tester/AI_TESTING.md).
 
 **11. Matica trhov.** `cli matrix --strategy structure --pairs all --timeframes 3m`.
 Štruktúra je tvrdenie o tom, ako sa trhy chovajú — ak platí, má platiť na viacerých.

@@ -1,7 +1,7 @@
 # Audit smerovania príkazov: dáta v NinjaTraderi, ordery v MT5
 
 Dátum: 26. 10. 2026. Auditovaný commit: `20e2d1de4` (`main`). Audit kódu fáz 1–4 z
-[ROUTING.md](ROUTING.md) (jadro mosta, NT AddOn, MT5 exekútor, hub, drivery, webapp) z pohľadu
+[ROUTING.md](../ROUTING.md) (jadro mosta, NT AddOn, MT5 exekútor, hub, drivery, webapp) z pohľadu
 logiky, rýchlosti, spracovania chýb a programátorskej kvality. Nič z toho ešte nebežalo naživo
 (fáza 5), takže nálezy sú z čítania kódu; čo sa dalo, je overené testom alebo odvodením s konkrétnym
 scenárom. „Neisté“ znamená, že správanie platformy nie je z kódu jednoznačné.

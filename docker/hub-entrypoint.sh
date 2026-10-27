@@ -38,7 +38,6 @@ nastav_vyber() {
 !/tester/archive/**
 !/tester/analytics/**
 !/tester/sweeps/**
-!/projekty/**
 PRAVIDLA
 }
 

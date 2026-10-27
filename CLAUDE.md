@@ -97,9 +97,12 @@ Bez obmedzení. Platia len konvencie repozitára:
 - **README.md je výklad repozitára a musí sedieť.** Pri každej významnej zmene — nová stratégia
   (aj C# prepis), platforma, adaptér, služba hubu / plugin, zdroj dát, nový dokument do rozcestníka
   alebo zmena stavu v „Kde sme" — uprav README v tom istom commite: tabuľku stratégií (počet a
-  zaradenie podľa `STRATEGIA_TRH_TYP`), rozcestník, mapu repozitára a dátum v „Kde sme". Mapa
-  repozitára je len v README (docs/RUNNING.md na ňu odkazuje). Pred koncom úlohy si over, že README
-  neopisuje stav, ktorý zmena práve zrušila.
+  zaradenie podľa `STRATEGIA_TRH_TYP`), rozcestník, mapu repozitára a dátum v „Kde sme". Pred
+  koncom úlohy si over, že README neopisuje stav, ktorý zmena práve zrušila.
+- **Čo kam patrí, určuje [docs/DIRECTORIES.md](docs/DIRECTORIES.md).** Koreň repozitára má pevný zoznam
+  položiek (nový adresár v koreni len zmenou DIRECTORIES.md a README); všetko o jednej stratégii
+  (zadanie, projekt ladenia, Pine, poznámky k nastaveniam) ide do `tradebot/strategies/<key>/docs/`,
+  do `docs/` len príručky naprieč stratégiami a datované `merania/`, `audity/`, `prieskum/`.
 - Commity v štýle histórie: slovenská veta v imperatíve, čo a prečo.
 - Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tester.webapp.cli run`
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.

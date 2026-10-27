@@ -197,7 +197,7 @@ PY -m tester.compare.csharp_parity --profile docs/profily_archiv/ibs/btcusdt_3m_
 
 Oba enginy bežia v tom istom `EngineRunner` (rovnaký model vyplnenia, HTF feeder, seeding) a na každom
 bare sa porovnajú ordery, kresby, udalosti stavu, koniec seansy aj hodiny. Výsledok a čísla behov:
-[merania/PARITA_ibsnet_2026-09-20.md](merania/PARITA_ibsnet_2026-09-20.md). V `pytest` to stráži
+[merania/PARITA_ibsninja_2026-09-20.md](merania/PARITA_ibsninja_2026-09-20.md). V `pytest` to stráži
 `tester/tests/test_csharp_parity.py` (syntetické bary so všetkým zapnutým, oba transporty, golden okno).
 
 ORBNet proti ORB (burza `nas100` = Dukascopy NAS100 zo skladu, `mnq` = Databento MNQ):
@@ -208,7 +208,7 @@ PY -m tester.compare.csharp_parity --python orb --csharp orbnet --profile nas100
 
 V Strategy Analyzeri (MNQ 12-26, 2026-03-01 – 09-10) sedí 207 z 207 vstupov s Testerom
 (`tester.ninjatrader compare --strategy orbnet --profile nas100_dukascopy_3m`).
-Výsledok: [merania/PARITA_orbnet_2026-09-24.md](merania/PARITA_orbnet_2026-09-24.md), v `pytest`
+Výsledok: [merania/PARITA_orbninja_2026-09-24.md](merania/PARITA_orbninja_2026-09-24.md), v `pytest`
 `tester/tests/test_csharp_parity_orb.py`. Pri ORB sa ukázala ďalšia pasca: Python 3.12 `sum()` nad
 floatmi nie je cyklus, ale kompenzovaná (Neumaierova) suma — kde predloha píše `sum(...)`, C# volá
 `PyMath.Sum`, kde píše cyklus, C# píše cyklus.
@@ -569,7 +569,7 @@ okne: 83 vstupov, 2 438 udalostí stavu.
 Stav k 2026-09-20: prvý beh v Strategy Analyzeri prebehol a **signály sedia s Testerom úplne** —
 83 z 83 vstupov (bar, cena, SL, TP, veľkosť) a 1 988 z 1 988 prechodov stavov zón; výsledok sa líši len
 fill modelom (78 obchodov, +6 974 $, PF 1,87 proti 71, +6 150 $, PF 1,861 v emulátore). Čísla:
-[merania/PARITA_ibsnet_2026-09-20.md](merania/PARITA_ibsnet_2026-09-20.md). Neoverené ostáva: živý
+[merania/PARITA_ibsninja_2026-09-20.md](merania/PARITA_ibsninja_2026-09-20.md). Neoverené ostáva: živý
 graf (realtime prechod, kreslenie) a shorty v NinjaTraderi (profil MNQ je long-only; trailing v ňom zapnutý je).
 Ovládanie okna NinjaTradera je pre AI asistenta len na čítanie — import a Run musí naklikať človek.
 

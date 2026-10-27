@@ -2,7 +2,7 @@
 
 Spoločné majú to, že ich referenčná konfigurácia nikdy nespustila, takže parita
 s TradingView sedela aj bez nich. Zoznam a spôsob hľadania je v
-`docs/AUDIT_pine_2026-09-05.md`.
+`docs/audity/AUDIT_pine_2026-09-05.md`.
 """
 
 from __future__ import annotations

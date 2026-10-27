@@ -83,8 +83,8 @@ oprava 2 môže zmeniť SL/TP obchodov, ktoré mali susedný signál.
 # Výsledok po opravách
 
 Prebehnuté s Freqtrade 2026.8, `--timeframe-detail 1m`, na tých istých piatich
-oknách ako v [SEANSY_2026-09-05.md](merania/SEANSY_2026-09-05.md) a
-[FILTRE_vstupu_2026-09-04.md](merania/FILTRE_vstupu_2026-09-04.md).
+oknách ako v [SEANSY_2026-09-05.md](../merania/SEANSY_2026-09-05.md) a
+[FILTRE_vstupu_2026-09-04.md](../merania/FILTRE_vstupu_2026-09-04.md).
 
 ## Golden okno: parita drží
 

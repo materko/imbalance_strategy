@@ -37,7 +37,7 @@ __all__ = ["build_rules", "apply", "show", "off", "BALLAST", "HUB_RULES"]
 #: Adresáre, ktoré počítajúci agent nepotrebuje ani raz: cudzia história behov a všetko,
 #: čo sa z nej odvodzuje. Vlastné behy si píše sám (nie sú v gite, kým ich nepushne).
 BALLAST = ("/tester/runs/**", "/tester/archive/**", "/tester/analytics/**",
-           "/tester/sweeps/**", "/projekty/**")
+           "/tester/sweeps/**")
 
 #: Hub nepočíta nič — nepotrebuje ani archív, ani behy, ani C# jadro.
 #: Ani živé dáta v gite: tie pushuje vlastný plugin `livedata` z vlastného stromu a vlastného klonu.

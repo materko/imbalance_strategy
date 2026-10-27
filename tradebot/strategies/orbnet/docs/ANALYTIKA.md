@@ -187,7 +187,7 @@ ORBNet je prepis `orb` do C#, nie nová stratégia: päť referenčných okien d
 obchodov, PnL, winrate aj break-even** ako checkup `orb` z 2026-09-10 (129/123/131/132/133 obchodov,
 +0.57/+2.42/−8.23/+8.41/+13.70 %). Iný max DD a sigma sú rozdiel verzie reportu a náhodných vstupov
 v teste proti náhode, nie stratégie — bar po bare a obchod po obchode je zhoda overená
-([merania/PARITA_orbnet_2026-09-24.md](../../../../docs/merania/PARITA_orbnet_2026-09-24.md)).
+([merania/PARITA_orbninja_2026-09-24.md](../../../../docs/merania/PARITA_orbninja_2026-09-24.md)).
 Všetko, čo platí o edge ORB, platí preto aj tu; posudok nižšie je posudok ORB.
 
 **1. Na čo sa to hodí a na čo nie.**
