@@ -9,8 +9,8 @@ deploy/freqtrade/                  čo potrebuje Freqtrade: configy búrz, skrip
 deploy/multicharts/                čo potrebuje MultiCharts: šablóny štúdií, setup
 deploy/ninjatrader/                čo potrebuje NinjaTrader 8: šablóny stratégií, inštalácia
 deploy/mt5/                        čo potrebuje MetaTrader 5: šablóny Expert Advisorov nad C# jadrom
-tradebot/core/csharp/              C# runtime (NinjaTrader natívne, MT5 cez .NET import, Freqtrade cez most)
-tradebot/strategies/<kľúč>/csharp/ C# implementácia stratégie vedľa jej Python predlohy
+tradebot/core/ports/csharp/              C# runtime (NinjaTrader natívne, MT5 cez .NET import, Freqtrade cez most)
+tradebot/strategies/<kľúč>/ports/csharp/ C# implementácia stratégie vedľa jej Python predlohy
 tester/runs/, tester/profiles/     história behov a configy testerov — v gite (bez kresieb)
 tester/sweeps/                     výsledky mriežok, matíc a overení hyperoptu — v gite
 tester/runs/.charts/               kresby behov pre graf, prepočítané na vyžiadanie — gitignored
@@ -116,11 +116,11 @@ MT5_DIR = DEPLOY_DIR / "mt5"
 
 # -- C# jadro ---------------------------------------------------------------- #
 
-#: Balíky stratégií; C# implementácia stratégie je v `<kľúč>/csharp/` vedľa Python predlohy.
+#: Balíky stratégií; C# implementácia stratégie je v `<kľúč>/ports/csharp/` vedľa Python predlohy.
 STRATEGIES_DIR = REPO / "tradebot" / "strategies"
 #: C# runtime (`TradeBot.Core`, `TradeBot.Backtest`, `TradeBot.Host`) vedľa Python runtime v `tradebot/core` —
 #: beží v NinjaTraderi a MT5 natívne a pod Freqtrade cez most `tradebot/adapters/csharp`.
-CSHARP_DIR = REPO / "tradebot" / "core" / "csharp"
+CSHARP_DIR = REPO / "tradebot" / "core" / "ports" / "csharp"
 #: Preložené assembly — gitignored, most si ich zostaví sám (`tradebot.adapters.csharp.build`).
 CSHARP_BIN = CSHARP_DIR / "bin"
 CSHARP_DLL = CSHARP_BIN / "TradeBot.dll"

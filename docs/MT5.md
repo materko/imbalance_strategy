@@ -1,12 +1,12 @@
 # MetaTrader 5 nad C# jadrom
 
 Štvrtý hostiteľ toho istého C# jadra (po Freqtrade moste, NinjaTraderi a stdio hostiteľovi).
-IBSNet a ORBNet sa pre MT5 **neprepisujú**: `tradebot/core/csharp/TradeBot.Core` a `tradebot/strategies/<kľúč>/csharp/`
+IBSNet a ORBNet sa pre MT5 **neprepisujú**: `tradebot/core/ports/csharp/TradeBot.Core` a `tradebot/strategies/<kľúč>/ports/csharp/`
 nepoznajú žiadnu platformu, MT5 dostane preloženú `TradeBot.dll` a Expert Advisor v MQL5 je len
 ďalší adaptér okolo nej — presne ako `TradeBotStrategy.cs` v NinjaTraderi.
 
 ```
-tradebot/core/csharp/TradeBot.Core/StaticHost.cs        statická fasáda (globálny namespace): engine pod handle, vstupy/výstupy ako EngineHost
+tradebot/core/ports/csharp/TradeBot.Core/StaticHost.cs        statická fasáda (globálny namespace): engine pod handle, vstupy/výstupy ako EngineHost
 tradebot/adapters/mt5/TradeBotEA.mqh      generický Expert Advisor (bary → engine → JSON → CTrade), export signálov
 tradebot/adapters/mt5/TradeBotJson.mqh    minimálny JSON parser (MQL5 JSON nečíta)
 tradebot/adapters/mt5/TradeBotDraw.mqh    DrawCommand → objekty grafu (zóny, čiary, popisky, pozadie, update, delete)
@@ -16,7 +16,7 @@ tradebot/adapters/mt5/presets/*.set       parametre skriptu a EA (tester, kresle
 deploy/mt5/ini/*.ini                      štartovacie ini terminálu: import symbolu, beh v Strategy Testeri, živý beh bez človeka
 tradebot/adapters/mt5/__main__.py         inštalácia do terminálu (DLL, include, šablóny, skript, profily), csv, run, control
 tester/tests/test_mt5_static_host.py      fasáda musí dať bar po bare to isté, čo most do Freqtrade
-tradebot/core/csharp/TradeBot.Core/Bridge.cs            smerovanie príkazov: stratégia v NinjaTraderi, ordery v MT5 exekútore (StaticHost.Bridge*, docs/ROUTING.md)
+tradebot/core/ports/csharp/TradeBot.Core/Bridge.cs            smerovanie príkazov: stratégia v NinjaTraderi, ordery v MT5 exekútore (StaticHost.Bridge*, docs/ROUTING.md)
 tradebot/adapters/mt5/TradeBotExecutor.mqh  exekútor bez stratégie (šablóna deploy/mt5/TradeBotExecutor.mq5): jeden na účet, všetky
                                           symboly route, len hedging; ručný test `python -m tradebot.live.bridge` (docs/ROUTING.md)
 ```
@@ -142,7 +142,7 @@ python -m tradebot.adapters.mt5 profiles         # len znova vyexportuje profily
 `install` spustí `metaeditor64.exe /compile` sám (MetaEditor číta .NET DLL len z `Libraries`
 terminálu, preto sa mimo neho prekladať nedá); v termináli
 `Tools > Options > Expert Advisors > Allow DLL imports`. EA sa spúšťa na **minútovom** grafe
-(M3 pre `multicharts_mnq_3m`), informatívny TF si berie sám. Po zmene v `tradebot/core/csharp/` stačí `install`
+(M3 pre `multicharts_mnq_3m`), informatívny TF si berie sám. Po zmene v `tradebot/core/ports/csharp/` stačí `install`
 — DLL je ale zamknutá, kým EA beží, najprv ho z grafu odstráň.
 
 Strategy Tester: model „Every tick based on real ticks“ je fill model MT5, nie Freqtrade ani
@@ -526,5 +526,5 @@ s falošnými procesmi (`test_live_drivers_mt5.py`).
 ## Záloha bez .NET importu
 
 Keby import zlyhal (MT5 pod Wine na macu), `TradeBot.Host.exe` už hovorí JSON riadkami cez stdio
-(`tradebot/core/csharp/TradeBot.Host`) a MQL5 vie otvoriť named pipe (`FileOpen("\\\\.\\pipe\\…")`); adaptér by
+(`tradebot/core/ports/csharp/TradeBot.Host`) a MQL5 vie otvoriť named pipe (`FileOpen("\\\\.\\pipe\\…")`); adaptér by
 posielal tie isté správy ako most v režime `stdio`. Zatiaľ nie je.

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //| NoaNet - NOA 1.0 (Noise Area) s jadrom v C# (.NET) ako Expert Advisor MetaTrader 5                    |
 //|                                                                                                   |
-//| Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/noa/csharp`, |
+//| Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/noa/ports/csharp`, |
 //| prelozene `TradeBot.dll` v MQL5\Libraries) a vsetko okolo MetaTradera v generickom adapteri        |
 //| (`tradebot/adapters/mt5/TradeBotEA.mqh`, v MQL5\Include\TradeBot). Instalacia:                    |
 //|                                                                                                   |

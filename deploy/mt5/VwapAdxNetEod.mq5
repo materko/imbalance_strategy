@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //| VwapAdxNetEod - (EOD 15:59 NY) VWAP ADX Pullback s jadrom v C# (.NET) ako Expert Advisor MetaTrader 5                    |
 //|                                                                                                   |
-//| Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/vwapadx/csharp`, |
+//| Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/vwapadx/ports/csharp`, |
 //| prelozene `TradeBot.dll` v MQL5\Libraries) a vsetko okolo MetaTradera v generickom adapteri        |
 //| (`tradebot/adapters/mt5/TradeBotEA.mqh`, v MQL5\Include\TradeBot). Instalacia:                    |
 //|                                                                                                   |

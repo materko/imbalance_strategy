@@ -40,12 +40,11 @@ __all__ = ["build_rules", "apply", "show", "off", "migrate_legacy", "hub_rules_a
 BALLAST = ("/tester/runs/**", "/tester/archive/**", "/tester/analytics/**",
            "/tester/sweeps/**")
 
-#: Hub nepočíta nič — nepotrebuje ani archív, ani behy, ani C# (runtime v `tradebot/core/csharp/`, stratégie
-#: v `tradebot/strategies/<kľúč>/csharp/`).
+#: Hub nepočíta nič — nepotrebuje ani archív, ani behy, ani prepisy do iných jazykov (`ports/` jadra aj stratégií).
 #: Ani živé dáta v gite: tie pushuje vlastný plugin `livedata` z vlastného stromu a vlastného klonu.
 #: Staré cesty (`data_archive/`, `data_live/`, `csharp/`) ostávajú, kým ich má niektorý klon v histórii,
 #: aby hub po presune pod `data/` a `tradebot/` nestiahol 2 GB sviečok (docs/DIRECTORIES.md).
-HUB_RULES = ("/*", "!/data/**", "!/tradebot/core/csharp/**", "!/tradebot/strategies/*/csharp/**",
+HUB_RULES = ("/*", "!/data/**", "!/tradebot/core/ports/**", "!/tradebot/strategies/*/ports/**",
              "!/data_archive/**", "!/data_live/**", "!/csharp/**",
              *(f"!{p}" for p in BALLAST))
 

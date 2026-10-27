@@ -1,7 +1,7 @@
 """VWAP ORB (C# jadro) — VWAP ORB 1.5 s jadrom v C#, aby bežala aj naživo v NinjaTraderi a MetaTraderi 5.
 
-Logika je prepis `tradebot/strategies/vwaporb` do C# (`tradebot/strategies/vwaporb/csharp`) nad ORBNet
-(`tradebot/strategies/orb/csharp`) a generickým C# jadrom (`tradebot/core/csharp/TradeBot.Core`, seansový VWAP
+Logika je prepis `tradebot/strategies/vwaporb` do C# (`tradebot/strategies/vwaporb/ports/csharp`) nad ORBNet
+(`tradebot/strategies/orb/ports/csharp`) a generickým C# jadrom (`tradebot/core/ports/csharp/TradeBot.Core`, seansový VWAP
 `SessionVwap.cs`, obaly vstupov `EntryLayers.cs`). To isté jadro spúšťajú:
 
 * **NinjaTrader 8** — `tradebot/adapters/ninjatrader`, šablóna `deploy/ninjatrader/VwapOrbNet.cs`;
@@ -49,7 +49,7 @@ SPEC = StrategySpec(
     kind_titles=KIND_TITLES,
     default_timeframe="5m",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=STRATEGIES_DIR / "vwaporb" / "csharp",
+    csharp_dir=STRATEGIES_DIR / "vwaporb" / "ports" / "csharp",
     logic_of="orbnet",  # C# engine dedí z orbnet: polia predlohy číta jej C# kód
     freqtrade_class="VwapOrbNetStrategy",
     multicharts_class="VwapOrbNetSignal",

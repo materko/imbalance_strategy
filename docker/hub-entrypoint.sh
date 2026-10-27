@@ -37,8 +37,8 @@ pravidla() {
     cat <<'PRAVIDLA'
 /*
 !/data/**
-!/tradebot/core/csharp/**
-!/tradebot/strategies/*/csharp/**
+!/tradebot/core/ports/**
+!/tradebot/strategies/*/ports/**
 !/data_archive/**
 !/data_live/**
 !/csharp/**

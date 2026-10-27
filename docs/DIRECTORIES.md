@@ -1,8 +1,9 @@
 # Repository layout: what goes where
 
 In force since 27 Oct 2026. The layout follows one concept (below): the name of a directory
-tells you **what a thing is**, never which language it is written in, and everything that
-belongs to one thing lives in one place.
+tells you **what a thing is**, and everything that belongs to one thing lives in one place.
+Python is the main implementation; implementations in other languages are ports and are
+kept together in `ports/<language>/` of the thing they port.
 
 ## The concept
 
@@ -10,44 +11,51 @@ belongs to one thing lives in one place.
 
 | term | what it is | today |
 |---|---|---|
-| **engine** | an implementation of the strategy logic and its runtime, in one language | Python, C# |
+| **runtime** | the core in one language: the contract, orders, sessions, candles, drawing, warmup | Python (`tradebot/core/`), C# (`tradebot/core/ports/csharp/`) |
+| **strategy** | the trading logic; implements the contract (`Engine`: one call per closed bar → order intents, drawings) in one or more languages | `tradebot/strategies/<key>/`, ports in `…/ports/<language>/` |
 | **platform** | where a strategy runs or trades | Freqtrade, MultiCharts, NinjaTrader 8, MetaTrader 5; TradingView is the origin (Pine) |
 | **simulator** | a backtest with a platform's fill model | Freqtrade backtesting, MultiCharts emulator, NinjaTrader Strategy Analyzer, MT5 Strategy Tester |
-| **adapter** | the code that connects an engine to a platform | `tradebot/adapters/<platform>/` |
+| **adapter** | the code that connects a runtime to a platform | `tradebot/adapters/<platform>/` |
+| **port** | an implementation in another language than Python; must match Python bar by bar | `ports/<language>/` |
 | **strategy key** | the name of one strategy logic (`ibs`, `orb`, …) | see "Known deviations" |
 
-Engine and platform are independent axes. **An engine runs natively in the platform's own
+Runtime and platform are independent axes. **A strategy runs natively in the platform's own
 runtime**: Python platforms (Freqtrade — backtest and live crypto —, any future Python
-framework, the Tester and its simulators) run the Python engine; .NET platforms (NinjaTrader 8,
-MT5 through the DLL, MultiCharts .NET as the target) run the C# engine, because Python hosted
-inside a foreign process is held back by its global interpreter lock. Both engines are
-production engines. Python is also the reference: golden tests run against TradingView and
-every other engine must match Python bar by bar (parity). The Python→C# bridge
-(`tradebot/adapters/csharp`) lets C# strategies run on Python platforms for backtests and parity.
+framework, the Tester and its simulators) run the Python runtime; .NET platforms
+(NinjaTrader 8, MT5 through the DLL, MultiCharts .NET as the target) run the C# runtime,
+because Python hosted inside a foreign process is held back by its global interpreter lock.
+Both runtimes trade in production. Python is also the reference: golden tests run against
+TradingView and every port must match Python bar by bar (parity). The Python→C# bridge
+(`tradebot/adapters/csharp`) lets C# ports run on Python platforms for backtests and parity.
 
-### One thing, one directory, languages inside
+### Python is the main implementation, ports sit in `ports/`
 
-A thing (the core runtime, one strategy) is one directory. Its implementations in different
-languages sit **together** in that directory:
+Every thing that has code (the core, one strategy) is one directory:
 
-- Python sits directly in the package, because the package *is* a Python package and Python
-  is the host language of the repository (registry, StrategySpec, Tester, CLIs).
-- Every other language has a subdirectory named after the language: `csharp/` today.
+- **Python sits directly in it.** The package *is* a Python package and Python is the host
+  language of the repository (registry, StrategySpec, Tester, CLIs) and the reference.
+- **Every other language is a port in `ports/<language>/`.** One look tells you which
+  languages a strategy exists in, and the ports never mix with `configs/` or `docs/`.
 
 ```
 tradebot/core/                     the runtime
 ├── *.py                           contract + Python runtime
-└── csharp/                        C# runtime
+└── ports/
+    └── csharp/                    C# runtime (TradeBot.Core, TradeBot.Backtest, TradeBot.Host)
 tradebot/strategies/ibs/           one strategy
-├── __init__.py, config.py, params.py, configs/, docs/   description: spec, parameters, profiles, docs
-├── engine.py, statemachine.py, ta/ …                     Python implementation
-└── csharp/                                               C# implementation (IbsEngine.cs, Ta/ …)
+├── __init__.py, config.py, params.py, meta.py   what the strategy is: spec, parameters
+├── engine.py, statemachine.py, ta/ …            Python implementation (main, reference)
+├── configs/                                     profiles
+├── docs/                                        documents, Pine
+└── ports/
+    ├── csharp/                                  C# port (IbsEngine.cs, Ta/ …)
+    └── rust/                                    one day
 ```
 
-A new language (say Rust) means `tradebot/core/rust/`, `tradebot/strategies/<key>/rust/`
-and a bridge in `tradebot/adapters/`. Nothing else moves. The build collects the sources
-wherever they lie (`tradebot.adapters.csharp.build` takes `core/csharp/` and every
-`strategies/*/csharp/`).
+A new language (say Rust) means `tradebot/core/ports/rust/`,
+`tradebot/strategies/<key>/ports/rust/` and a bridge in `tradebot/adapters/`. Nothing else
+moves. The build collects the sources wherever they lie (`tradebot.adapters.csharp.build`
+takes `core/ports/csharp/` and every `strategies/*/ports/csharp/`).
 
 ### Dependencies point one way
 
@@ -66,32 +74,32 @@ strategies only through `StrategySpec`, never by name. A new platform is one new
   carries a template per strategy (`deploy/multicharts/*_Signal.py`,
   `deploy/freqtrade/user_data/strategies/*.py`). The adapters should derive them from
   `StrategySpec`.
-- **`--engine freqtrade|multicharts`** names a platform, not an engine; it should become
-  `--platform`, with the old switch kept as an alias.
-- **The key encodes more than the logic.** `ibsnet` is `ibs` on the C# engine, `…eod` adds a
+- **`--engine freqtrade|multicharts`** names a platform. It should become `--platform`, the
+  language of a run `--runtime python|csharp`, with the old switch kept as an alias.
+- **The key encodes more than the logic.** `ibsnet` is `ibs` on the C# runtime, `…eod` adds a
   15:59 NY close for prop accounts, `…es`/`…mgc` a market. The target: key = logic; the spec
-  lists the engines a strategy has (`engines=("python", "csharp")`), EOD is a parameter, a
+  lists the runtimes a strategy has (`runtimes=("python", "csharp")`), EOD is a parameter, a
   market is a profile (a separate key only when the market brings its own logic or parameters).
   Old keys stay as aliases (`tradebot.strategies.ALIASES`), so the run history is not rewritten.
   Until then each C# key has a thin package (`ibsnet`, `ibsneteod`, …) whose SPEC points to the
-  C# implementation in the package of its Python original (`csharp_dir`).
-- **MultiCharts still runs the Python engine** (the first-generation adapter). As a .NET
-  platform it belongs on the C# engine, like NinjaTrader and MT5.
+  port in the package of its Python original (`csharp_dir`).
+- **MultiCharts still runs the Python runtime** (the first-generation adapter). As a .NET
+  platform it belongs on the C# runtime, like NinjaTrader and MT5.
 
 ## Five rules
 
 1. **The repository root has a fixed list of entries** (table below). A new top-level
    directory is added only by changing this document and the README. Working projects,
    experiments and notes never go to the root.
-2. **The whole product is in `tradebot/`**: the runtime in `core/` (Python and `csharp/`),
-   strategies in `strategies/`, platforms in `adapters/`, live operations in `live/`.
-3. **One thing, one directory, languages inside** — Python directly, other languages in a
-   subdirectory named after the language (`csharp/`).
+2. **The whole product is in `tradebot/`**: the runtime in `core/`, strategies in
+   `strategies/`, platforms in `adapters/`, live operations in `live/`.
+3. **Python is the main implementation, other languages are ports** in `ports/<language>/`
+   of the thing they port (`core/ports/csharp/`, `strategies/<key>/ports/csharp/`).
 4. **All data is in `data/`.** Git carries only `data/archive/` (downloaded candles) and
    `data/live/` (closed months from live trading); everything else under `data/` is derived
    locally and ignored.
 5. **Anything that belongs to a single strategy goes into its package**
-   `tradebot/strategies/<key>/`: code in every language, profiles, analytics, brief, Pine
+   `tradebot/strategies/<key>/`: its code and ports, profiles, analytics, brief, Pine
    source, tuning project, notes on settings. `docs/` holds only what applies across strategies.
 
 ## Repository root
@@ -109,7 +117,7 @@ strategies only through `StrategySpec`, never by name. A new platform is one new
 | `pyproject.toml`, `.github/`, `.gitignore`, `.gitattributes`, `.dockerignore`, `.env.example` | project settings, lint in CI | configuration |
 
 Local only, ignored by git: `.venv/`, `data/tester/`, `data/quotemanager/`,
-`data/ninjatrader/`, `tradebot/core/csharp/bin/`, `reports/`, `tester/hub_data/`,
+`data/ninjatrader/`, `tradebot/core/ports/csharp/bin/`, `reports/`, `tester/hub_data/`,
 `tester/live/`, `tester/agent.json`, `tester/runs/.index/`, `.claude/`, `.ibs-role`.
 
 ## Where does a new file go
@@ -120,7 +128,7 @@ Local only, ignored by git: `.venv/`, `data/tester/`, `data/quotemanager/`,
 | a brief for a strategy that is yet to be built | `tradebot/strategies/<key>/docs/ZADANIE.md` |
 | a tuning project for one strategy (sweeps, candidates, findings) | `tradebot/strategies/<key>/docs/projekt/` |
 | Pine source, TradingView settings screenshots | `tradebot/strategies/<key>/docs/sources/`, `…/docs/tradingview/` |
-| a C# implementation of a strategy | `tradebot/strategies/<original key>/csharp/` + for now a thin `<key>net` package and wrappers in `deploy/ninjatrader/`, `deploy/mt5/` |
+| a C# port of a strategy | `tradebot/strategies/<original key>/ports/csharp/` + for now a thin `<key>net` package and wrappers in `deploy/ninjatrader/`, `deploy/mt5/` |
 | a profile that belongs to the repository (golden, starting point) | `tradebot/strategies/<key>/configs/` |
 | a tester's own profile | `tester/profiles/` (the "Uložiť ako profil" button) |
 | candles from a new source | `data/archive/tester/<source>/` via an importer, never by hand |
@@ -130,7 +138,7 @@ Local only, ignored by git: `.venv/`, `data/tester/`, `data/quotemanager/`,
 | a manual that will be kept up to date | `docs/<TOPIC>.md` + a line in the README index |
 | a new data source importer | `tester/<source>_import.py` + wrappers in the root |
 | a hub plugin | `tester/hub/plugins/<name>/` ([HUB.md](HUB.md)) |
-| an implementation in a new language | `tradebot/core/<language>/`, `tradebot/strategies/<key>/<language>/`, a bridge in `tradebot/adapters/` |
+| a port to a new language | `tradebot/core/ports/<language>/`, `tradebot/strategies/<key>/ports/<language>/`, a bridge in `tradebot/adapters/` |
 | a new platform | `tradebot/adapters/<platform>/` (+ `deploy/<platform>/` for what is installed into it) |
 | a path the code will read | `tradebot/core/paths.py` — nowhere else |
 
@@ -141,8 +149,8 @@ Local only, ignored by git: `.venv/`, `data/tester/`, `data/quotemanager/`,
 ```
 imbalance_strategy/
 ├── tradebot/        PRODUCT — what trades
-│   ├── core/        runtime: engine contract + Python runtime; csharp/ = C# runtime
-│   ├── strategies/  registry + one package per strategy (Python implementation, csharp/ where it exists)
+│   ├── core/        runtime: contract + Python runtime; ports/csharp/ = C# runtime
+│   ├── strategies/  registry + one package per strategy (Python implementation, ports/<language>/)
 │   ├── adapters/    one directory per platform: Freqtrade, MultiCharts (+ emulator), NinjaTrader, MT5;
 │   │                plus the Python→C# bridge
 │   ├── live/        live telemetry, deployment to trading PCs, order routing, Telegram
@@ -178,7 +186,7 @@ core/
 ├── env.py               TRADEBOT_* environment variables (old IBS_* still accepted)
 ├── version.py           short HEAD commit of the code
 ├── paths.py             every path in the repository — the only place paths are written
-└── csharp/              the C# runtime:
+└── ports/csharp/        the C# runtime:
     ├── TradeBot.Core/       engine contract, bar history, orders, sessions, VWAP, MAs, warmup, drawing,
     │                        EntryLayers, EodClose (15:59 NY close for prop accounts), Bridge (NT → MT5 routing),
     │                        Live (telemetry spool), StaticHost (static facade MQL5 can call)
@@ -188,8 +196,8 @@ core/
 ```
 
 C# 5, no NuGet: compiled by `csc.exe` from .NET Framework, by Mono and by NinjaTrader
-(`python -m tradebot.adapters.csharp.build`, which takes `core/csharp/` and every
-`strategies/*/csharp/`). NinjaTrader gets the core and the strategies as sources
+(`python -m tradebot.adapters.csharp.build`, which takes `core/ports/csharp/` and every
+`strategies/*/ports/csharp/`). NinjaTrader gets the core and the strategies as sources
 (`TradeBot.Strategies/<key>/` in its AddOn folder); MT5 gets the DLL.
 
 ### `tradebot/strategies/` — registry and strategy packages
@@ -207,23 +215,23 @@ strategies/
     ├── meta.py, drawing.py   metadata for the web app; what the strategy draws
     ├── freqtrade.py, multicharts.py, hyperopt.py   platform glue and hyperopt space (to move to adapters/)
     ├── ta/, htf.py, data.py  strategy-specific indicators, higher-TF feeder, extra symbols (where needed)
-    ├── csharp/          the C# implementation, where it exists: <Name>Engine.cs, <Name>Config.cs, …,
-    │                    each engine class tagged [TradeBotEngine("key")]; must match Python bar by bar
     ├── configs/         profiles that belong to the repository (golden, starting points)
-    └── docs/
-        ├── VYSVETLIVKA.md    what the strategy does, in plain words
-        ├── ANALYTIKA.md      baseline analytics and verdict (`cli checkup`)
-        ├── ZADANIE.md, PORT.md   brief / what changed in the port (where it applies)
-        ├── sources/          Pine source (only on request)
-        ├── tradingview/      reference settings and drawings from TradingView
-        └── projekt/, <topic>/    tuning project, notes on particular settings (e.g. ibs/docs/rrr05/)
+    ├── docs/
+    │   ├── VYSVETLIVKA.md    what the strategy does, in plain words
+    │   ├── ANALYTIKA.md      baseline analytics and verdict (`cli checkup`)
+    │   ├── ZADANIE.md, PORT.md   brief / what changed in the port (where it applies)
+    │   ├── sources/          Pine source (only on request)
+    │   ├── tradingview/      reference settings and drawings from TradingView
+    │   └── projekt/, <topic>/    tuning project, notes on particular settings (e.g. ibs/docs/rrr05/)
+    └── ports/           implementations in other languages, where they exist
+        └── csharp/      <Name>Engine.cs, <Name>Config.cs, …, each engine class tagged
+                         [TradeBotEngine("key")]; must match Python bar by bar
 ```
 
-C# implementations live in the package of their Python original: `ibs/csharp`, `orb/csharp`,
-`ibsentry/csharp`, `vwaporb/csharp`, `vwapadx/csharp`, `noa/csharp`, `tks/csharp`,
-`fibo/csharp`, `nyva/csharp`, `sdeur/csharp`. For now every C# key also has a thin package
-(`ibsnet`, `orbnet`, `…net`, `…neteod`) with its SPEC (`csharp_dir` points to the original's
-`csharp/`), profiles and analytics — see "Known deviations".
+C# ports live in the package of their Python original: `ibs`, `orb`, `ibsentry`, `vwaporb`,
+`vwapadx`, `noa`, `tks`, `fibo`, `nyva` and `sdeur` have `ports/csharp/`. For now every C# key
+also has a thin package (`ibsnet`, `orbnet`, `…net`, `…neteod`) with its SPEC (`csharp_dir`
+points to the original's `ports/csharp/`), profiles and analytics — see "Known deviations".
 
 ### `tradebot/adapters/` and `tradebot/live/`
 
@@ -233,11 +241,11 @@ adapters/
 │                        per-trade SL/TP/size callbacks, hyperopt plans, FreqAI filter, dry/live run
 ├── multicharts/         MultiCharts study (the only file touching PowerLanguage .NET), MCRunner,
 │                        drawing, Data2 from CSV, and the MultiCharts emulator that runs anywhere
-├── csharp/              bridge to the C# core (pythonnet or TradeBot.Host.exe) and its build
+├── csharp/              bridge to the C# runtime (pythonnet or TradeBot.Host.exe) and its build
 ├── ninjatrader/         NinjaScript strategy + live add-on and feed, installer and compile check
 └── mt5/                 MQL5 Expert Advisor, drawing, order executor, .set presets, installer
 live/
-├── schema.py, spool.py  telemetry event schema (mirror of core/csharp/TradeBot.Core/Live.cs), reading the platform spool
+├── schema.py, spool.py  telemetry event schema (mirror of core/ports/csharp/TradeBot.Core/Live.cs), reading the platform spool
 ├── shipper.py, transport.py   sending the spool from the agent to the hub
 ├── store.py             sqlite store of live events (shared by the hub and the web app mirror)
 ├── deploy.py, apply.py  desired state on the hub (accounts, deployments) and reconciling a machine to it
@@ -280,7 +288,7 @@ tester/
 ├── tests/                   Tester tests, golden tests against TradingView (golden/), C# parity, MT5 facade, index
 ├── scripts/                 the web app launcher (wrapped by webapp.* in the root)
 │
-├── engines.py               the two engines (Freqtrade, MultiCharts emulator) and where each has data
+├── engines.py               the two simulators (Freqtrade, MultiCharts emulator) and where each has data
 ├── ftexchange.py, ftrun.py  the fictitious "tester" exchange for Freqtrade and the wrapper that registers it
 ├── native.py, native_hyperopt.py   native runs and hyperopt of C# strategies on the emulator
 ├── ninjatrader.py           NinjaTrader 8: data in, signals out
@@ -366,8 +374,8 @@ What moved. Run history in `tester/runs/` is not rewritten, so old paths may rem
 
 | was | is |
 |---|---|
-| `csharp/TradeBot.Core`, `TradeBot.Backtest`, `TradeBot.Host` | `tradebot/core/csharp/` |
-| `csharp/TradeBot.Strategies/<Name>Net/` | `tradebot/strategies/<original key>/csharp/` (e.g. `IbsNet` → `ibs/csharp`) |
+| `csharp/TradeBot.Core`, `TradeBot.Backtest`, `TradeBot.Host` | `tradebot/core/ports/csharp/` |
+| `csharp/TradeBot.Strategies/<Name>Net/` | `tradebot/strategies/<original key>/ports/csharp/` (e.g. `IbsNet` → `ibs/ports/csharp`) |
 | `data_archive/` | `data/archive/` |
 | `data_live/` | `data/live/` |
 | `projekty/ORB/` | `tradebot/strategies/orb/docs/projekt/` |

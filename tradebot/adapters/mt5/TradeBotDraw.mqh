@@ -2,7 +2,7 @@
 //| TradeBotDraw.mqh - DrawCommand engine-u -> objekty grafu MetaTrader 5                              |
 //|                                                                                                   |
 //| Zrkadlo `Render`/`Paint` z NinjaTrader adaptera. Format prikazov je v                              |
-//| `tradebot/core/csharp/TradeBot.Core/Drawing.cs` (`DrawCommand.WriteJson`):                                       |
+//| `tradebot/core/ports/csharp/TradeBot.Core/Drawing.cs` (`DrawCommand.WriteJson`):                                       |
 //|   box    {t:"box",k,id,x1,y1,x2,y2,bc,fc?,bs?,bw?,er?,z?,tx?}                                       |
 //|   line   {t:"line",k,id,x1,y1,x2,y2,c,s?,w?,z?,tx?}                                                 |
 //|   label  {t:"label",k,id,x,y,tx,c,ab,s?,bg?,z?}                                                     |

@@ -1,7 +1,7 @@
-"""Zostavenie C# jadra — `tradebot/core/csharp/bin/TradeBot.dll` a `TradeBot.Host.exe`.
+"""Zostavenie C# jadra — `tradebot/core/ports/csharp/bin/TradeBot.dll` a `TradeBot.Host.exe`.
 
-Do DLL ide C# runtime (`tradebot/core/csharp/TradeBot.Core`, `TradeBot.Backtest`) a C# implementácie
-stratégií, ktoré ležia pri svojej Python predlohe (`tradebot/strategies/<kľúč>/csharp/`).
+Do DLL ide C# runtime (`tradebot/core/ports/csharp/TradeBot.Core`, `TradeBot.Backtest`) a C# implementácie
+stratégií, ktoré ležia pri svojej Python predlohe (`tradebot/strategies/<kľúč>/ports/csharp/`).
 
 Zdrojáky sú zámerne C# 5 bez NuGet závislostí, takže na Windows stačí `csc.exe`, ktorý je
 súčasťou .NET Frameworku (netreba .NET SDK ani Visual Studio); na macOS/Linuxe to isté
@@ -58,8 +58,8 @@ def find_compiler() -> list[str]:
 
 
 def strategy_dirs() -> list[Path]:
-    """C# implementácie stratégií — `tradebot/strategies/<kľúč>/csharp/` pri Python predlohe."""
-    return sorted(p for p in STRATEGIES_DIR.glob("*/csharp") if p.is_dir())
+    """C# implementácie stratégií — `tradebot/strategies/<kľúč>/ports/csharp/` pri Python predlohe."""
+    return sorted(p for p in STRATEGIES_DIR.glob("*/ports/csharp") if p.is_dir())
 
 
 def core_dirs() -> list[Path]:

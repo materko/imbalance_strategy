@@ -2,7 +2,7 @@
 
 Spĺňa kontrakt `tradebot.core.engine.Engine` (`on_bar`, `final_drawings`, `required_history`,
 `warmup`), takže generický Freqtrade adaptér, emulátor MultiCharts, webapp aj analytika s ním
-pracujú bez zmeny. Logika beží v C# (`tradebot/core/csharp/`), tu sa len prekladajú typy: `Bar` a
+pracujú bez zmeny. Logika beží v C# (`tradebot/core/ports/csharp/`), tu sa len prekladajú typy: `Bar` a
 `MarketContext` dnu, `OrderIntent` / `DrawCommand` / `StateEvent` von.
 
 Stratégia s C# jadrom si ho vyžiada v `StrategySpec.engine_factory`:

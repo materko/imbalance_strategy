@@ -10,8 +10,8 @@ on:
       - "pyproject.toml"
       - "tester/webapp/static/js/**"
       - "tester/webapp/eslint.config.mjs"
-      - "tradebot/core/csharp/**"
-      - "tradebot/strategies/*/csharp/**"
+      - "tradebot/core/ports/csharp/**"
+      - "tradebot/strategies/*/ports/csharp/**"
       - "tradebot/adapters/csharp/build.py"
       - ".github/workflows/lint.yml"
   pull_request:
@@ -20,8 +20,8 @@ on:
       - "pyproject.toml"
       - "tester/webapp/static/js/**"
       - "tester/webapp/eslint.config.mjs"
-      - "tradebot/core/csharp/**"
-      - "tradebot/strategies/*/csharp/**"
+      - "tradebot/core/ports/csharp/**"
+      - "tradebot/strategies/*/ports/csharp/**"
       - "tradebot/adapters/csharp/build.py"
       - ".github/workflows/lint.yml"
   workflow_dispatch:

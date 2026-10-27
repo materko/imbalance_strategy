@@ -1,7 +1,7 @@
 // IBSEntryEsNet - IBS EZ ES (S&P 500) s jadrom v C# ako strategia NinjaTrader 8.
 // ES / MES: IBS EZ ES - prahy v násobkoch ATR, filter trendu / volatility (profil PRESIEL_SMERNICAMI_IBS_EZ_ES_1).
 //
-// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/ibsentry/csharp` nad
+// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/ibsentry/ports/csharp` nad
 // `IbsNet`) a vsetko okolo NinjaTradera v generickom adapteri (`tradebot/adapters/ninjatrader/TradeBotStrategy.cs`).
 // Instalacia (skopiruje jadro, adapter, tuto sablonu a profily do Documents\NinjaTrader 8):
 //

@@ -44,7 +44,7 @@ z futures pri obchodovaní CFD.
 - **Jadro ani adaptéry nepoznajú konkrétny trh ani indikátor menom.** Stratégia v configu
   deklaruje, aké série potrebuje; adaptér ich doručí. Tá istá deklarácia platí pre backtest
   (Freqtrade, emulátor MultiCharts) aj živý beh — stratégia sa píše pre všetky enginy naraz.
-- **C# 5 bez NuGet, len BCL** (`tradebot/core/csharp/TradeBot.Core`), aby to preložil `csc.exe`, NinjaTrader aj
+- **C# 5 bez NuGet, len BCL** (`tradebot/core/ports/csharp/TradeBot.Core`), aby to preložil `csc.exe`, NinjaTrader aj
   Mono. MT5 to volá cez `StaticHost` (globálny namespace, len primitívne typy).
 
 ## Architektúra

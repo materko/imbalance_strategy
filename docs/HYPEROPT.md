@@ -262,7 +262,7 @@ PY -m tester.native_hyperopt --strategy tksnet --instrument mnq_databento \
   väzby medzi parametrami opraví `hyperopt_cls.constrain` stratégie.
 - **Počíta C#:** Optuna navrhne dávku epoch (`--jobs`, predvolene všetky jadrá) a rozdá ju **pracovným
   procesom** `TradeBot.Host.exe` (op `backtest`), každý si 1m dáta a pripravené bary drží medzi epochami
-  (`tradebot/core/csharp/TradeBot.Backtest`). Procesy, nie vlákna: .NET v procese Pythonu má len workstation GC, ktorý pri
+  (`tradebot/core/ports/csharp/TradeBot.Backtest`). Procesy, nie vlákna: .NET v procese Pythonu má len workstation GC, ktorý pri
   každom zbere pamäte zastaví všetky vlákna — nad ~4 vláknami prestanú zrýchľovať (IBSNet, rok BTC 3m:
   vlákna najlepšie 0,19 s na beh, 24 procesov 0,088 s). Opakované body mriežky sa nepočítajú znova.
   Pripravených okien (TF × okno, ~30 MB/rok s 1m detailom) drží proces najviac 12 a vyhadzuje najdlhšie

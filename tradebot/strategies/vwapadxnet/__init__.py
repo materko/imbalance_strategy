@@ -1,6 +1,6 @@
 """VWAP ADX Pullback (C# jadro) — VWAP ADX Pullback s jadrom v C#, aby bežala aj naživo v NinjaTraderi a MT5.
 
-Logika je prepis `tradebot/strategies/vwapadx` do C# (`tradebot/strategies/vwapadx/csharp`) nad generickým
+Logika je prepis `tradebot/strategies/vwapadx` do C# (`tradebot/strategies/vwapadx/ports/csharp`) nad generickým
 C# jadrom (seansový VWAP `SessionVwap.cs`, obaly vstupov `EntryLayers.cs`) a ADX z IBSNet (`Dmi`). To isté jadro
 spúšťajú NinjaTrader 8 (`deploy/ninjatrader/VwapAdxNet.cs`), MetaTrader 5 (`deploy/mt5/VwapAdxNet.mq5`) aj
 Freqtrade a emulátor MultiCharts cez most `tradebot/adapters/csharp`.
@@ -42,7 +42,7 @@ SPEC = StrategySpec(
     kind_titles=KIND_TITLES,
     default_timeframe="1m",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=STRATEGIES_DIR / "vwapadx" / "csharp",
+    csharp_dir=STRATEGIES_DIR / "vwapadx" / "ports" / "csharp",
     freqtrade_class="VwapAdxNetStrategy",
     multicharts_class="VwapAdxNetSignal",
     multicharts_template="VwapAdxNet_Signal.py",

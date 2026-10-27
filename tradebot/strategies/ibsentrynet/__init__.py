@@ -1,7 +1,7 @@
 """IBS Entry Zone (C# jadro) — IBS Entry Zone s jadrom v C#, aby bežala aj naživo v NinjaTraderi a MetaTraderi 5.
 
-Logika je prepis `tradebot/strategies/ibsentry` do C# (`tradebot/strategies/ibsentry/csharp`) nad IBSNet
-(`tradebot/strategies/ibs/csharp` — automat, zóny, entry modely) a generickým C# jadrom. Vlastné je len
+Logika je prepis `tradebot/strategies/ibsentry` do C# (`tradebot/strategies/ibsentry/ports/csharp`) nad IBSNet
+(`tradebot/strategies/ibs/ports/csharp` — automat, zóny, entry modely) a generickým C# jadrom. Vlastné je len
 to, čo pridáva predloha: zóny z veľkých imbalance (FVG, IFVG) z 5m/15m/30m/1h (`Fvg.cs`) a detekcia SD zón
 synchronizovaná s dátami ako v `ibszones` (`HtfFeeder` so `ZoneSync`). To isté jadro spúšťajú:
 
@@ -44,7 +44,7 @@ SPEC = StrategySpec(
     kind_titles=KIND_TITLES,
     default_timeframe="3m",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=STRATEGIES_DIR / "ibsentry" / "csharp",
+    csharp_dir=STRATEGIES_DIR / "ibsentry" / "ports" / "csharp",
     logic_of="ibsnet",  # C# engine dedí z ibsnet: polia predlohy číta jej C# kód
     freqtrade_class="IBSEntryNetStrategy",
     multicharts_class="IBSEntryNetSignal",

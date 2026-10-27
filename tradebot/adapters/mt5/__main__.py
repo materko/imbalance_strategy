@@ -34,7 +34,7 @@ v termináli (File > Open an Account), raz.
 (`metaeditor64.exe /compile`, cesta cez `TRADEBOT_METAEDITOR`, keď nie je v Program Files) —
 `.ex5` sa v termináli objaví bez F7. MetaEditor číta .NET DLL len z `Libraries` terminálu, preto sa
 mimo neho prekladať nedá. Na rozdiel od NinjaTradera ide jadro ako **DLL**, nie zdrojáky: po zmene
-v `tradebot/core/csharp/` stačí `install` (terminál drží DLL otvorenú, kým EA beží — najprv ho z grafu odstráň).
+v `tradebot/core/ports/csharp/` stačí `install` (terminál drží DLL otvorenú, kým EA beží — najprv ho z grafu odstráň).
 
 `install` zapíše aj `Common\\Files\\TradeBot\\installed.json` (`version` = commit tohto klonu,
 `installed`, `by`, `features` = čo nainštalované EA vie, `EA_FEATURES`) — podľa neho hub a webapp vedia,

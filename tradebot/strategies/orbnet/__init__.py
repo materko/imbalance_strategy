@@ -1,7 +1,7 @@
 """ORBNet — ORB (Opening Range Breakout) s jadrom v C#.
 
-Logika je prepis `tradebot/strategies/orb` do C# (`tradebot/strategies/orb/csharp`) nad
-generickým C# jadrom (`tradebot/core/csharp/TradeBot.Core`). To isté jadro spúšťajú dva adaptéry:
+Logika je prepis `tradebot/strategies/orb` do C# (`tradebot/strategies/orb/ports/csharp`) nad
+generickým C# jadrom (`tradebot/core/ports/csharp/TradeBot.Core`). To isté jadro spúšťajú dva adaptéry:
 
 * **NinjaTrader 8** natívne — `tradebot/adapters/ninjatrader` (NinjaScript), šablóna
   `deploy/ninjatrader/ORBNet.cs`;
@@ -43,7 +43,7 @@ SPEC = StrategySpec(
     kind_titles=KIND_TITLES,
     default_timeframe="3m",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=STRATEGIES_DIR / "orb" / "csharp",
+    csharp_dir=STRATEGIES_DIR / "orb" / "ports" / "csharp",
     freqtrade_class="ORBNetStrategy",
     multicharts_class="ORBNetSignal",
     multicharts_template="ORBNet_Signal.py",

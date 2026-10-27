@@ -1,4 +1,4 @@
-"""Natívny C# backtest (`tradebot/core/csharp/TradeBot.Backtest`) proti Python emulátoru MultiCharts — obchod po obchode.
+"""Natívny C# backtest (`tradebot/core/ports/csharp/TradeBot.Backtest`) proti Python emulátoru MultiCharts — obchod po obchode.
 
     python -m tester.compare.csharp_backtest --strategy orbnet --instrument nas100_dukascopy \
         --timeframe 3m --from 2025-01-01 --to 2025-04-01

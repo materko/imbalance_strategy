@@ -1,7 +1,7 @@
 # Parita ORBNinja (C# jadro) s ORB (Python) — 2026-09-24
 
-`orbninja` je prepis stratégie `orb` (Opening Range Breakout) do C# (`tradebot/strategies/<kľúč>/csharp/OrbNinja`
-nad `tradebot/core/csharp/TradeBot.Core`), aby tá istá logika bežala natívne v NinjaTraderi 8 (šablóna
+`orbninja` je prepis stratégie `orb` (Opening Range Breakout) do C# (`tradebot/strategies/<kľúč>/ports/csharp/OrbNinja`
+nad `tradebot/core/ports/csharp/TradeBot.Core`), aby tá istá logika bežala natívne v NinjaTraderi 8 (šablóna
 `deploy/ninjatrader/ORBNinja.cs` nad generickým adaptérom) a zároveň pod Freqtrade cez most
 `tradebot/adapters/csharp` ([NINJATRADER.md](../NINJATRADER.md)). Parametre, profily a kresby sú zhodné
 s ORB. Otázka merania: **dáva C# jadro to isté čo Python engine?**

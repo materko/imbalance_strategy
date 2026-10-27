@@ -204,7 +204,7 @@ def install(nt_dir: Path, extra_profiles: list[str], *, say: Callable[[str], Non
         shutil.rmtree(target)  # vlastný adresár adaptéra — zmazané zdrojáky jadra nesmú v NinjaTraderi ostať
     shutil.copytree(CSHARP_DIR / "TradeBot.Core", target / "TradeBot.Core")
     for d in strategy_dirs():   # stratégia leží pri Python predlohe; v NinjaTraderi pod svojím kľúčom
-        shutil.copytree(d, target / "TradeBot.Strategies" / d.parent.name)
+        shutil.copytree(d, target / "TradeBot.Strategies" / d.parents[1].name)
     for f in ADDON_FILES:
         shutil.copy2(f, target / f.name)
     shutil.copy2(ADAPTER_FILE, custom / "Strategies" / ADAPTER_FILE.name)

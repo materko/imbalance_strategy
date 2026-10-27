@@ -1,6 +1,6 @@
 // SdEurNet - SD ZONY EURUSD (6E) s jadrom v C# ako strategia NinjaTrader 8.
 //
-// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/sdeur/csharp`)
+// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/sdeur/ports/csharp`)
 // a vsetko okolo NinjaTradera v generickom adapteri (`tradebot/adapters/ninjatrader/TradeBotStrategy.cs`).
 // Instalacia (skopiruje jadro, adapter, tuto sablonu a profily do Documents\NinjaTrader 8):
 //

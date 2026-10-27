@@ -1,6 +1,6 @@
 """TKS 1.0 (C# jadro) — TKS 1.0 (NQ Kompas) s jadrom v C#, aby bežala aj naživo v NinjaTraderi a MT5.
 
-Logika je prepis `tradebot/strategies/tks` do C# (`tradebot/strategies/tks/csharp`: NQ Kompas aj pravidlá vstupu)
+Logika je prepis `tradebot/strategies/tks` do C# (`tradebot/strategies/tks/ports/csharp`: NQ Kompas aj pravidlá vstupu)
 nad generickým C# jadrom (obaly vstupov `EntryLayers.cs`). To isté jadro spúšťajú NinjaTrader 8
 (`deploy/ninjatrader/TksNet.cs`), MetaTrader 5 (`deploy/mt5/TksNet.mq5`) aj Freqtrade a emulátor MultiCharts cez most
 `tradebot/adapters/csharp`.
@@ -42,7 +42,7 @@ SPEC = StrategySpec(
     kind_titles=KIND_TITLES,
     default_timeframe="3m",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=STRATEGIES_DIR / "tks" / "csharp",
+    csharp_dir=STRATEGIES_DIR / "tks" / "ports" / "csharp",
     freqtrade_class="TksNetStrategy",
     multicharts_class="TksNetSignal",
     multicharts_template="TksNet_Signal.py",

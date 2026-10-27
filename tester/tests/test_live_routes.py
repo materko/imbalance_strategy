@@ -355,7 +355,7 @@ def test_rezimy_route_vo_formulari_a_v_jadre():
     html = (repo / "tester" / "webapp" / "static" / "index.html").read_text(encoding="utf-8")
     sel = re.search(r'<select id="ld-d-route-qty">(.*?)</select>', html, re.S)
     assert sel and tuple(re.findall(r'<option value="([^"]+)"', sel.group(1))) == QTY_MODES
-    cs = (repo / "tradebot" / "core" / "csharp" / "TradeBot.Core" / "Bridge.cs").read_text(encoding="utf-8")
+    cs = (repo / "tradebot" / "core" / "ports" / "csharp" / "TradeBot.Core" / "Bridge.cs").read_text(encoding="utf-8")
     assert f'public string Price = "{PRICE_MODES[0]}";' in cs and f'public string QtyMode = "{QTY_MODES[0]}";' in cs
     assert f'mode == "{QTY_MODES[1]}"' in cs
     mqh = (repo / "tradebot" / "adapters" / "mt5" / "TradeBotExecutor.mqh").read_text(encoding="utf-8")

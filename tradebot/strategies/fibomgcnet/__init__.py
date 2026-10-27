@@ -1,6 +1,6 @@
 """Fibo 1.0 MGC (C# jadro) — Fibo 1.0 na zlate (MGC) s jadrom v C#, aby bežala naživo v NinjaTraderi a MT5.
 
-Logika je prepis `tradebot/strategies/fibo` do C# (`tradebot/strategies/fibo/csharp`, kľúč `fibomgcnet`) s obalmi
+Logika je prepis `tradebot/strategies/fibo` do C# (`tradebot/strategies/fibo/ports/csharp`, kľúč `fibomgcnet`) s obalmi
 vstupov a veľkosti pozície z `EntryLayers`. Profily `PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1–10` prešli smernicou na MGC
 (kroky 1–8, XAU/USD v kroku 8), riziko 500 $ na obchod. Zhodu s Python predlohou `fibomgc` bar po bare stráži
 `tester/tests/test_csharp_parity_mgc.py`.
@@ -27,7 +27,7 @@ SPEC = replace(
     profile_dir=CONFIG_DIR,
     default_profile="PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=STRATEGIES_DIR / "fibo" / "csharp",
+    csharp_dir=STRATEGIES_DIR / "fibo" / "ports" / "csharp",
     freqtrade_class="FiboMgcNetStrategy",
     multicharts_class="FiboMgcNetSignal",
     multicharts_template="FiboMgcNet_Signal.py",
