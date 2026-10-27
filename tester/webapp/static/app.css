@@ -761,6 +761,14 @@ table.dv-table th.sort { cursor: pointer; text-decoration: underline dotted; }
 #live-table tr.live-group.hl td { background: var(--surface-changed); }
 #live-table .live-caret { display: inline-block; width: 1.1em; color: var(--muted); }
 #live-table tr.live-member td:first-child { padding-left: calc(8px + 1.1em); }
+/* Live sa zmestí na šírku: plná šírka okna, text v bunkách aj tlačidlá akcií sa zalamujú
+   (id inštancií aj uprostred slova), čísla ostávajú v jednom riadku, select profilu ukáže
+   len začiatok a celý popis až v rozbalenom zozname */
+main#view-live { max-width: none; }
+#view-live table.runs th, #view-live table.runs td { white-space: normal; }
+#view-live table.runs th.num, #view-live table.runs td.num { white-space: nowrap; }
+#view-live a[data-inst] { overflow-wrap: anywhere; }
+#view-live select.ld-profile { max-width: 200px; }
 table.dv-table td.dv-audit { white-space: normal; min-width: 320px; font-size: 12px; }
 table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(--card); border-radius: 6px; min-width: 50px; }
 .dv-kv { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 13px; margin: 0; }

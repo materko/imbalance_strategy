@@ -971,7 +971,7 @@ function renderLiveAgents() {
     const verzia = a.version ? `<code title="${esc(a.version)}">${esc(String(a.version).slice(0, 7))}</code>${mine && a.version !== mine ? ` <span class="muted small" title="webapp ${esc(mine)}">≠ webapp</span>` : ""}` : "—";
     return `<tr class="plain" data-agent="${esc(a.name)}"><td><b>${esc(a.name)}</b></td><td>${stav}${ldShipChip(a.live && a.live.ship)}</td><td>${verzia}</td>
       <td>${platformy}</td><td>${ldCodeUpdateCell(a)}</td>
-      <td class="ld-actions" style="white-space:nowrap">
+      <td class="ld-actions">
         <label class="inline small" title="preskočiť bránu: kód sa vymení, aj keď nasadenia obchodujú alebo majú pozíciu — MT5 terminál sa reštartuje s pozíciou u brokera"><input type="checkbox" class="ld-force"> aj s otvorenými pozíciami</label>
         <button class="small" data-update="1" ${dis} title="nasadiť commit tejto webapp (${esc(mine || "?")}) na platformy stroja">Aktualizovať kód</button>
         ${nepushnute ? `<span class="chip warn" title="commit ${esc(mine)} je len v tomto klone — agent ho pri aktualizácii zo GitHubu nestiahne; najprv git push origin main">nie je na GitHube</span>` : ""}
@@ -1061,7 +1061,7 @@ function renderLiveDeploy() {
         <td>${ldCodeChip(d.code_state, d.version)}</td>
         <td>${inst}${live.host ? ` <span class="muted small">${esc(live.host)}</span>` : ""}</td>
         <td title="${live.last_bar_ms ? utc(live.last_bar_ms) + " UTC" : ""}">${live.last_bar_ms ? liveAge(live.last_bar_ms, lv.now) : "—"}</td>
-        <td class="ld-actions" style="white-space:nowrap">
+        <td class="ld-actions">
           ${d.mode === "enabled" ? `<button class="small" data-mode="paused" ${dis} title="nové vstupy sa neposielajú; SL/TP bežia ďalej">pauza</button>`
                                  : `<button class="small" data-mode="enabled" ${dis}>zapnúť</button>`}
           <button class="small danger" data-mode="flatten" ${dis} title="zrušiť čakajúce vstupy a zavrieť pozíciu, potom pauza">flatten</button>
