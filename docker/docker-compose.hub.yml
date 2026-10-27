@@ -40,6 +40,8 @@ services:
     image: tradebot-hub:latest
     container_name: tradebot-hub
     restart: unless-stopped
+    # Hub ako PID 1 nezbiera osirelé procesy gitu (samoaktualizácia) — bez init sa hromadili zombie.
+    init: true
     environment:
       TZ: ${TZ:-Europe/Bratislava}
       TRADEBOT_HUB_TOKEN: ${TRADEBOT_HUB_TOKEN:?TRADEBOT_HUB_TOKEN chyba - hlavny token hubu (.env)}

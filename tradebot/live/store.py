@@ -127,12 +127,15 @@ class LiveStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         self._db = sqlite3.connect(str(self.path), check_same_thread=False)
-        #: Čítanie ide cez vlastné spojenie každého vlákna, bez zámku zápisu (WAL dovolí čítať popri zápise) —
-        #: inak export pre päť zrkadiel webapp, zoznamy a zápis dávok agenta čakali jeden na druhého a hub
-        #: odpovedal aj na `GET instances` sekundy.
-        self._local = threading.local()
+        #: Čítanie ide cez vlastné spojenie, bez zámku zápisu (WAL dovolí čítať popri zápise) — inak export pre
+        #: päť zrkadiel webapp, zoznamy a zápis dávok agenta čakali jeden na druhého a hub odpovedal aj na
+        #: `GET instances` sekundy. Spojenia sú v pooli (`_idle`), vlákno si ho len požičia: vlákna threadpoolu
+        #: servera po nečinnosti zanikajú a vznikajú nové, spojenie na vlákno by rástlo bez konca (27. 10. 2026
+        #: hub po ~4 h vyčerpal 1024 deskriptorov na ~500 spojeniach a prestal prijímať spojenia).
+        self._local = threading.local()          # spojenie, ktoré má vlákno práve požičané (vnorené čítanie)
         self._readers: list[sqlite3.Connection] = []
-        self._readers_lock = threading.Lock()   # nie zámok zápisu — prvé čítanie vlákna nesmie čakať na ingest
+        self._idle: list[sqlite3.Connection] = []
+        self._readers_lock = threading.Lock()   # nie zámok zápisu — požičanie nesmie čakať na ingest
         #: (čas, udalostí, nových, čakanie na zámok s, zápis s) posledných dávok — `stats()`
         self.ingest_stats: collections.deque[tuple[float, int, int, float, float]] = collections.deque(maxlen=2000)
         #: (čas, trvanie s, stránok WAL, prenesených) checkpointov na pozadí — `stats()`
@@ -160,6 +163,7 @@ class LiveStore:
             for db in self._readers:
                 db.close()
             self._readers.clear()
+            self._idle.clear()
 
     def _checkpoint_loop(self) -> None:
         """Každých `CHECKPOINT_SECONDS` pasívny checkpoint vlastným spojením — zápis neblokuje (prenesie, čo môže),
@@ -179,23 +183,40 @@ class LiveStore:
 
     @contextmanager
     def _read(self) -> Iterator[sqlite3.Connection]:
-        """Spojenie na čítanie pre toto vlákno, v jednej čítacej transakcii (konzistentný pohľad naprieč dopytmi)."""
+        """Spojenie na čítanie z poolu, v jednej čítacej transakcii (konzistentný pohľad naprieč dopytmi)."""
         db = getattr(self._local, "db", None)
+        if db is not None:   # vnorené čítanie (snapshot → instance) ide v tej istej transakcii
+            yield db
+            return
+        with self._readers_lock:
+            db = self._idle.pop() if self._idle else None
         if db is None:
             db = sqlite3.connect(str(self.path), check_same_thread=False)
             db.row_factory = sqlite3.Row
             db.executescript(_READ_PRAGMAS)
-            self._local.db = db
             with self._readers_lock:
                 self._readers.append(db)
-        if db.in_transaction:   # vnorené čítanie (snapshot → instance) ide v tej istej transakcii
-            yield db
-            return
-        db.execute("BEGIN")
+        self._local.db = db
+        ok = False
         try:
+            db.execute("BEGIN")
             yield db
-        finally:
             db.execute("COMMIT")
+            ok = True
+        finally:
+            self._local.db = None
+            if not ok:   # výnimka počas čítania: transakciu zavrieť, inak spojenie do poolu nevráti
+                try:
+                    db.rollback()
+                    ok = not db.in_transaction
+                except sqlite3.Error:
+                    pass
+            with self._readers_lock:
+                if ok:
+                    self._idle.append(db)
+                else:
+                    self._readers.remove(db)
+                    db.close()
 
     # -- zápis ---------------------------------------------------------------- #
 

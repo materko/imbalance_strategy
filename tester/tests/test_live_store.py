@@ -324,3 +324,27 @@ def test_checkpoint_wal_ide_na_pozadi(tmp_path: Path, monkeypatch):
     finally:
         st.close()
     assert not st._checkpointer.is_alive() or st._stop.is_set()
+
+
+def test_read_connections_are_pooled_not_per_thread(tmp_path: Path):
+    """Vlákna threadpoolu servera zanikajú a vznikajú nové — čítacie spojenia sa nesmú hromadiť s nimi
+    (27. 10. 2026 hub po ~4 h vyčerpal 1024 deskriptorov na ~500 spojeniach na live.sqlite)."""
+    import threading
+
+    st = LiveStore(tmp_path / "live.sqlite")
+    st.ingest("srv", INST, "a1b2c3d4", [hello(), bar(2, 0)])
+    for _ in range(50):
+        t = threading.Thread(target=lambda: st.instances())
+        t.start()
+        t.join()
+    assert len(st._readers) == 1
+
+    # výnimka počas čítania spojenie nezahodí ani nenechá v transakcii
+    try:
+        with st._read():
+            raise RuntimeError("x")
+    except RuntimeError:
+        pass
+    assert len(st._readers) == 1 and not st._idle[0].in_transaction
+    assert [i["id"] for i in st.instances()] == [INST]
+    st.close()
