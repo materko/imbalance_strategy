@@ -551,6 +551,12 @@ class HubAgent:
             self._live_desired = desired
             self._live_desired_seq += 1
             self._code_target = dict(cielovy) if isinstance(cielovy, dict) and cielovy.get("version") else None
+        # kto nasadenie zmenil (alebo poslal nový kód) — Telegram ho pripíše k štartu a stopu
+        if self._telegram is not None:
+            try:
+                self._telegram.state.note_desired(desired, self.clock())
+            except Exception as exc:  # noqa: BLE001
+                log.debug("hub agent: telegram kto zmenil: %s", exc)
         self._work.set()
 
     def _apply_live(self) -> None:

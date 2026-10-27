@@ -187,6 +187,42 @@ def test_restart_troch_strategii_je_jeden_suhrn_po_utichnuti(tmp_path: Path):
     assert bot.sent[-1][1] == "⏸ <b>Pauza</b> · MT5 · <b>US100</b>: vwaporbnet" and len(bot.sent) == 2
 
 
+def test_restart_a_stop_nesu_kto_ich_urobil(tmp_path: Path):
+    """Zmena nasadenia (`by`) alebo nový kód na stroj (`requested_by`) z hubu → súhrn štartu a stopu ukáže kto."""
+    root = tmp_path / "spool"
+    t = [1000.0]
+    bot = FakeBot()
+    state = TelegramState(tmp_path / "s.json")
+    n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), bot, CFG, state, clock=lambda: t[0])
+    deps = [{"id": f"d{k}", "instance": f"{INST}{k}", "active": True, "updated": 1.0, "by": "stary"} for k in range(3)]
+    state.note_desired({"deployments": deps}, t[0])                    # základ: staré zmeny nikomu
+    assert state.actor(f"{INST}0", t[0]) == ""
+    for k in range(3):
+        write(root, [hello(session=f"a{k}")], session=f"a{k}", inst=f"{INST}{k}")
+    n.pump()
+    deps[0] = {**deps[0], "updated": 2.0, "by": "rasto"}
+    state.note_desired({"deployments": deps}, t[0])
+    state.note_desired({"deployments": deps, "code_target": {"version": "abc", "ts": "x", "requested_by": "martin"}}, t[0])
+    deps[0] = {**deps[0], "updated": 3.0, "by": "rasto"}               # rasto znova (po kóde), jeho to ostáva
+    state.note_desired({"deployments": deps, "code_target": {"version": "abc", "ts": "x", "requested_by": "martin"}}, t[0])
+    for k in range(3):
+        write(root, [{"seq": 2, "t": 2, "k": "bye", "reason": "deinit"}], session=f"a{k}", inst=f"{INST}{k}")
+        write(root, [hello(session=f"b{k}")], session=f"b{k}", inst=f"{INST}{k}")
+    write(root, [{"seq": 2, "t": 2, "k": "bye", "reason": "removed"}], session="b0", inst=f"{INST}0")
+    n.pump()
+    t[0] += 31
+    n.pump()
+    assert bot.sent[-1][1] == ("🔄 <b>Reštart</b> · MT5 · <b>US100</b>: vwaporbnet (👤 martin), vwaporbnet (👤 martin)\n"
+                               "⏹ <b>Zastavené</b> · MT5 · <b>US100</b>: vwaporbnet (removed · 👤 rasto)")
+    # po ACTOR_TTL sa už nikomu nepripíše (pád terminálu o hodinu nie je rastov)
+    t[0] += 3600
+    write(root, [hello(session="c1")], session="c1", inst=f"{INST}1")
+    n.pump()
+    t[0] += 31
+    n.pump()
+    assert bot.sent[-1][1] == "▶️ <b>Spustené</b> · MT5 · <b>US100</b>: vwaporbnet"
+
+
 def test_notifier_nehlasi_tester_a_rotaciu_dna(tmp_path: Path):
     root = tmp_path / "spool"
     t = [1000.0]

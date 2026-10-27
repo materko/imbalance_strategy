@@ -283,6 +283,11 @@ class TelegramBot:
 # stav na disku
 # --------------------------------------------------------------------------- #
 
+#: Ako dlho po zmene nasadenia (alebo novom kóde na stroji) sa štart / stop inštancie pripíše tomu, kto ju
+#: urobil — reštart terminálu po novom kóde trvá aj minúty.
+ACTOR_TTL = 900.0
+
+
 class TelegramState:
     """`ctx` (inštancia → hello + otvorené vstupy), `seq` (instance|session → posledné odoslané),
     `update_offset` (príkazy), `overrides` (lokálne prepnutia režimu), `issues` (nasadenie → chyba)."""
@@ -326,6 +331,47 @@ class TelegramState:
         with self._lock:
             if self.data["overrides"].pop(instance, None) is not None:
                 self.save()
+
+    def note_desired(self, desired: dict[str, Any], now: float) -> None:
+        """Požadovaný stav z hubu: kto naposledy zmenil nasadenie (`by` pri novom `updated`) a kto poslal nový
+        kód na stroj (`code_target.requested_by` — dotkne sa všetkých aktívnych inštancií stroja) → `actors`
+        (inštancia → kto, kedy). Súhrn štartu a stopu ho k stratégii pripíše (`actor`). Prvý stav po zapnutí
+        je len základ: čo sa zmenilo predtým, nikomu nepripíše."""
+        deps = [d for d in desired.get("deployments") or [] if isinstance(d, dict) and d.get("id")]
+        ciel = desired.get("code_target") if isinstance(desired.get("code_target"), dict) else None
+        kod = f"{ciel.get('version')}|{ciel.get('ts')}|{bool(ciel.get('force'))}" if ciel else ""
+        with self._lock:
+            videne = self.data.get("dep_seen")
+            zaklad = not isinstance(videne, dict)
+            videne = {} if zaklad else videne
+            actors = self.data.setdefault("actors", {})
+            zmena = False
+            for d in deps:
+                stamp = str(d.get("updated") or "")
+                if videne.get(d["id"]) != stamp:
+                    zmena = True
+                    videne[d["id"]] = stamp
+                    if not zaklad and d.get("instance") and d.get("by"):
+                        actors[d["instance"]] = {"by": str(d["by"]), "at": now}
+            if kod and self.data.get("code_seen") != kod:
+                zmena = True
+                if not zaklad and ciel.get("requested_by"):
+                    for d in deps:
+                        if d.get("active") and d.get("instance"):
+                            actors[d["instance"]] = {"by": str(ciel["requested_by"]), "at": now}
+                self.data["code_seen"] = kod
+            for k in [k for k, v in actors.items() if now - float(v.get("at") or 0) > ACTOR_TTL]:
+                del actors[k]
+                zmena = True
+            self.data["dep_seen"] = videne
+            if zmena or zaklad:
+                self.save()
+
+    def actor(self, instance: str, now: float) -> str:
+        """Kto inštanciu nedávno (do `ACTOR_TTL`) zmenil z hubu, inak ''."""
+        with self._lock:
+            a = (self.data.get("actors") or {}).get(instance)
+            return str(a.get("by") or "") if a and now - float(a.get("at") or 0) <= ACTOR_TTL else ""
 
 
 # --------------------------------------------------------------------------- #
@@ -600,6 +646,7 @@ class LiveNotifier:
         z["last"] = now
         for f in ("platform", "symbol", "strategy"):
             z[f] = ctx.get(f) or z.get(f)
+        z["by"] = self.state.actor(instance, now) or z.get("by") or ""
         if k == "hello":
             z["seq"] += "h"
         elif k == "bye":
@@ -648,7 +695,10 @@ class LiveNotifier:
                 druhy.append(str(z["mode"]))
             for d in druhy:
                 kluc = (d, _platform(z.get("platform")), _sym(z.get("symbol")))
-                meno = str(z.get("strategy") or "?") + (f" ({z['reason']})" if d == "stop" and z.get("reason") else "")
+                pozn = [z["reason"]] if d == "stop" and z.get("reason") else []
+                if z.get("by"):
+                    pozn.append(f"👤 {z['by']}")
+                meno = str(z.get("strategy") or "?") + (f" ({' · '.join(pozn)})" if pozn else "")
                 skupiny.setdefault(kluc, []).append(meno)
         poradie = list(LIFE_KINDS)
         riadky = []

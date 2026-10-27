@@ -610,7 +610,10 @@ Telegram z `US100.cash` urobil odkaz; účet a TF sú v 📊 Stav).
 Obchody a varovania jedného kola idú v jednej správe (odsek na udalosť). Štart, koniec a režim sa zbierajú
 v stave (`life`) a odídu súhrnom, keď 30 s nič nepribudlo (`LIFE_QUIET`, najneskôr po 3 min) — reštart
 terminálu s tromi EA je tak jeden riadok, nie deväť správ. Reštart = koniec a znova štart v jednej
-zbierke; režim sa hlási len pri zmene (EA ho potvrdzuje pri každom štarte). Chyba nasadenia sa porovnáva
+zbierke; režim sa hlási len pri zmene (EA ho potvrdzuje pri každom štarte). Kto to spôsobil, stojí pri
+stratégii (`vwaporbnet (👤 rasto)`): agent si z požadovaného stavu pamätá `by` zmeneného nasadenia
+(nové `updated`) a `requested_by` nového kódu na stroj (všetky aktívne inštancie stroja) a štart či stop
+do 15 min potom (`ACTOR_TTL`) mu pripíše; pád bez zmeny z hubu meno nemá. Chyba nasadenia sa porovnáva
 a ukazuje bez `nenabehla:`, detailu za „ — “, „skúsim znova“ a času pokusu. Beh v Strategy Testeri /
 Analyzeri (`hello.tester`) a udalosti predhistórie (`ready: false`) sa nehlásia.
 
