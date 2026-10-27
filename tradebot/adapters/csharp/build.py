@@ -1,4 +1,7 @@
-"""Zostavenie C# jadra — `tradebot/csharp/bin/TradeBot.dll` a `TradeBot.Host.exe`.
+"""Zostavenie C# jadra — `tradebot/core/csharp/bin/TradeBot.dll` a `TradeBot.Host.exe`.
+
+Do DLL ide C# runtime (`tradebot/core/csharp/TradeBot.Core`, `TradeBot.Backtest`) a C# implementácie
+stratégií, ktoré ležia pri svojej Python predlohe (`tradebot/strategies/<kľúč>/csharp/`).
 
 Zdrojáky sú zámerne C# 5 bez NuGet závislostí, takže na Windows stačí `csc.exe`, ktorý je
 súčasťou .NET Frameworku (netreba .NET SDK ani Visual Studio); na macOS/Linuxe to isté
@@ -20,16 +23,13 @@ import sys
 import tempfile
 from pathlib import Path
 
-from tradebot.core.paths import CSHARP_BIN, CSHARP_DIR, CSHARP_DLL, CSHARP_HOST
+from tradebot.core.paths import CSHARP_BIN, CSHARP_DIR, CSHARP_DLL, CSHARP_HOST, STRATEGIES_DIR
 
-__all__ = ["BuildError", "find_compiler", "sources", "is_stale", "build", "ensure_built"]
+__all__ = ["BuildError", "find_compiler", "strategy_dirs", "core_dirs", "library_dirs", "host_dirs", "sources",
+           "is_stale", "build", "ensure_built"]
 
 _log = logging.getLogger(__name__)
 
-#: Adresáre so zdrojákmi knižnice (jadro + stratégie + natívny backtest) a hostiteľa pre stdio most.
-#: `TradeBot.Backtest` (čítanie feather, ...) je len v DLL — do NinjaTradera nejde (CORE_DIRS adaptéra).
-LIBRARY_DIRS = ("TradeBot.Core", "TradeBot.Strategies", "TradeBot.Backtest")
-HOST_DIR = "TradeBot.Host"
 
 
 class BuildError(RuntimeError):
@@ -57,10 +57,30 @@ def find_compiler() -> list[str]:
     )
 
 
-def sources(*dirs: str) -> list[Path]:
+def strategy_dirs() -> list[Path]:
+    """C# implementácie stratégií — `tradebot/strategies/<kľúč>/csharp/` pri Python predlohe."""
+    return sorted(p for p in STRATEGIES_DIR.glob("*/csharp") if p.is_dir())
+
+
+def core_dirs() -> list[Path]:
+    """Čo ide do NinjaTradera ako zdrojáky: jadro a stratégie (natívny backtest a hostiteľ nie)."""
+    return [CSHARP_DIR / "TradeBot.Core", *strategy_dirs()]
+
+
+def library_dirs() -> list[Path]:
+    """Zdrojáky `TradeBot.dll`: jadro, stratégie a natívny backtest (čítanie feather, emulátor MC)."""
+    return [*core_dirs(), CSHARP_DIR / "TradeBot.Backtest"]
+
+
+def host_dirs() -> list[Path]:
+    """Zdrojáky `TradeBot.Host.exe` — hostiteľ pre stdio most."""
+    return [CSHARP_DIR / "TradeBot.Host"]
+
+
+def sources(dirs: list[Path]) -> list[Path]:
     out: list[Path] = []
     for d in dirs:
-        out.extend(sorted((CSHARP_DIR / d).rglob("*.cs")))
+        out.extend(sorted(d.rglob("*.cs")))
     return out
 
 
@@ -80,7 +100,7 @@ def is_stale() -> bool:
     if not marker.exists() or marker.read_text(encoding="utf-8").strip() != _stamp():
         return True
     built = min(t.stat().st_mtime for t in targets)
-    return any(s.stat().st_mtime > built for s in sources(*LIBRARY_DIRS, HOST_DIR))
+    return any(s.stat().st_mtime > built for s in sources([*library_dirs(), *host_dirs()]))
 
 
 def _compile(compiler: list[str], target: str, out: Path, files: list[Path], refs: list[Path]) -> None:
@@ -109,8 +129,8 @@ def build() -> None:
     tmp = Path(tempfile.mkdtemp(prefix=".build-", dir=CSHARP_BIN))
     try:
         dll, exe = tmp / CSHARP_DLL.name, tmp / CSHARP_HOST.name
-        _compile(compiler, "library", dll, sources(*LIBRARY_DIRS), [])
-        _compile(compiler, "exe", exe, sources(HOST_DIR), [dll])
+        _compile(compiler, "library", dll, sources(library_dirs()), [])
+        _compile(compiler, "exe", exe, sources(host_dirs()), [dll])
         for built, final in ((dll, CSHARP_DLL), (exe, CSHARP_HOST)):
             try:
                 os.replace(built, final)

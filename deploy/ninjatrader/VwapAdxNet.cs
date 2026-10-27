@@ -1,6 +1,6 @@
 // VwapAdxNet - VWAP ADX Pullback s jadrom v C# ako strategia NinjaTrader 8.
 //
-// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/csharp/TradeBot.Strategies/VwapAdxNet`, ADX z
+// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/vwapadx/csharp`, ADX z
 // `IbsNet`) a vsetko okolo NinjaTradera v generickom adapteri (`tradebot/adapters/ninjatrader/TradeBotStrategy.cs`).
 // Instalacia (skopiruje jadro, adapter, tuto sablonu a profily do Documents\NinjaTrader 8):
 //

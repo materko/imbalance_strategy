@@ -163,7 +163,7 @@ koniec posledného súboru na stroji). Po reštarte platformy totiž prehratá h
 kresieb a 1m predhistórie na 14 inštancií, ~135 000 udalostí) dobieha do hubu aj 10 min a dovtedy by
 nasadenie ukazovalo „ok“, hoci stratégia beží; karta inštancií (zrkadlo webapp) ukáže živú až po dobehnutí.
 
-## C# (`tradebot/csharp/TradeBot.Core/Live.cs`)
+## C# (`tradebot/core/csharp/TradeBot.Core/Live.cs`)
 
 `TradeBot.Core.LiveSpool` — C# 5, len BCL, **nikdy nevyhodí výnimku do obchodného vlákna**:
 každá metóda chytá `Exception`, pri chybe zapíše `LastError`, vypne sa (`Broken = true`) a ďalšie
@@ -441,7 +441,7 @@ nepovinné **Id účtu** (placeholder ukazuje slug názvu, ktorý by hub spravil
 
 „Nasadiť“ ponúka **len stratégie s C# jadrom** (`StrategySpec.csharp_dir`, v `/api/meta` príznak `csharp`) —
 NinjaTrader aj MT5 spúšťajú C# engine; pythonová stratégia sa na live dostane až portom do
-`tradebot/csharp/TradeBot.Strategies`. **Symbol a TF sú nepovinné**: prázdne doplní webapp z profilu
+`tradebot/strategies/<kľúč>/csharp/`. **Symbol a TF sú nepovinné**: prázdne doplní webapp z profilu
 (`tradebot.live.symbols`, `GET /api/live/deploy-defaults` = placeholder formulára) — TF z `_timeframe`,
 symbol z `_instrument` pre platformu účtu: najprv symbol, ktorý už na tom účte beží s rovnakým základom,
 inak NinjaTrader front-month kvartálneho CME kontraktu (`MNQ 12-26`, roll 8 dní pred tretím piatkom) a

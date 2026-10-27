@@ -1,7 +1,7 @@
 """VWAP ORB (C# jadro) — VWAP ORB 1.5 s jadrom v C#, aby bežala aj naživo v NinjaTraderi a MetaTraderi 5.
 
-Logika je prepis `tradebot/strategies/vwaporb` do C# (`tradebot/csharp/TradeBot.Strategies/VwapOrbNet`) nad ORBNet
-(`tradebot/csharp/TradeBot.Strategies/OrbNet`) a generickým C# jadrom (`tradebot/csharp/TradeBot.Core`, seansový VWAP
+Logika je prepis `tradebot/strategies/vwaporb` do C# (`tradebot/strategies/vwaporb/csharp`) nad ORBNet
+(`tradebot/strategies/orb/csharp`) a generickým C# jadrom (`tradebot/core/csharp/TradeBot.Core`, seansový VWAP
 `SessionVwap.cs`, obaly vstupov `EntryLayers.cs`). To isté jadro spúšťajú:
 
 * **NinjaTrader 8** — `tradebot/adapters/ninjatrader`, šablóna `deploy/ninjatrader/VwapOrbNet.cs`;
@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from tradebot.adapters.csharp.engine import csharp_engine_factory
-from tradebot.core.paths import CSHARP_DIR
+from tradebot.core.paths import STRATEGIES_DIR
 
 from ..base import StrategySpec
 from ..vwaporb.hyperopt import VwapOrbHyperopt
@@ -49,7 +49,7 @@ SPEC = StrategySpec(
     kind_titles=KIND_TITLES,
     default_timeframe="5m",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=CSHARP_DIR / "TradeBot.Strategies" / "VwapOrbNet",
+    csharp_dir=STRATEGIES_DIR / "vwaporb" / "csharp",
     logic_of="orbnet",  # C# engine dedí z orbnet: polia predlohy číta jej C# kód
     freqtrade_class="VwapOrbNetStrategy",
     multicharts_class="VwapOrbNetSignal",

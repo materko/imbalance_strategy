@@ -1,4 +1,4 @@
-"""`SdEurNetConfig` — tie isté parametre ako SD ZÓNY EURUSD; číta ich C# jadro (`tradebot/csharp/TradeBot.Strategies/SdEurNet/SdEurConfig.cs`).
+"""`SdEurNetConfig` — tie isté parametre ako SD ZÓNY EURUSD; číta ich C# jadro (`tradebot/strategies/sdeur/csharp/SdEurConfig.cs`).
 
 Vlastná trieda existuje len preto, že registry hľadá stratégiu podľa triedy configu (`spec_for_config`).
 """

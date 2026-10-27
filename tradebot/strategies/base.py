@@ -86,7 +86,7 @@ class StrategySpec:
     default_timeframe: str = "3m"
     #: engine: (cfg, inst, chart_tf_minutes) -> Engine
     engine_factory: Callable[[StrategyConfig, InstrumentSpec, int], Any] | None = None
-    #: Zdrojáky jadra stratégie v C# (`tradebot/csharp/TradeBot.Strategies/<Meno>`), keď ho má. Také
+    #: Zdrojáky jadra stratégie v C# (`tradebot/strategies/<kľúč>/csharp`), keď ho má. Také
     #: stratégie vie spustiť adaptér NinjaTrader; pod Freqtrade bežia cez most
     #: `tradebot.adapters.csharp`. `None` = stratégia je v Pythone.
     csharp_dir: Path | None = None

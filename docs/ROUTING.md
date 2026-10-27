@@ -1,6 +1,6 @@
 # Smerovanie príkazov: stratégia v NinjaTraderi, obchody v MetaTraderi 5 (návrh)
 
-Stav (26. 10. 2026): **fáza 1 hotová** — protokol v jadre (`tradebot/csharp/TradeBot.Core/Bridge.cs`), fasáda
+Stav (26. 10. 2026): **fáza 1 hotová** — protokol v jadre (`tradebot/core/csharp/TradeBot.Core/Bridge.cs`), fasáda
 `StaticHost.Bridge*` pre MT5, `OrderIntent.Life` s EOD obalom, testy `tester/tests/test_bridge.py`.
 **Fáza 2 napísaná:** exekútor `TradeBotExecutor` a ručný master `python -m tradebot.live.bridge`. Preložené,
 ale na MT5 účte ešte neoverené. **Fáza 3 napísaná:** AddOn NinjaTradera smeruje ordery do exekútora podľa
@@ -284,11 +284,11 @@ je rovnaká: exekútor pri `nt.hb` staršom než 30 s zapíše `note` a prepne r
 
 | miesto | zmena |
 |---|---|
-| `tradebot/csharp/TradeBot.Core/Bridge.cs` (nový) | zápis/čítanie JSONL s kurzormi, hb, `route.json`, prepočet cien a objemu (čisté funkcie, testovateľné) |
-| `tradebot/csharp/TradeBot.Core/StaticHost.cs` | `Bridge*` metódy pre MQL5, `Version() = 6` |
+| `tradebot/core/csharp/TradeBot.Core/Bridge.cs` (nový) | zápis/čítanie JSONL s kurzormi, hb, `route.json`, prepočet cien a objemu (čisté funkcie, testovateľné) |
+| `tradebot/core/csharp/TradeBot.Core/StaticHost.cs` | `Bridge*` metódy pre MQL5, `Version() = 6` |
 | `tradebot/adapters/ninjatrader/TradeBotLiveInstance.cs` | vrstva vykonávania za rozhraním: `NtAccountExecution` (dnešný kód: `CreateOrder`, OCO SL/TP, `ExecutionUpdate`, `RestoreState`) a `Mt5RouteExecution` (bridge). Engine, bary, control, spool a „jedna pozícia naraz“ ostávajú spoločné |
 | `tradebot/adapters/ninjatrader/TradeBotLiveAddOn.cs` | `route` z `deploy.json` do inštancie |
-| `tradebot/csharp/TradeBot.Core/Orders.cs`, `EodClose.cs` | voliteľné `OrderIntent.Life`; obal `EodCloseEngine` ho plní 15:58:30 NY |
+| `tradebot/core/csharp/TradeBot.Core/Orders.cs`, `EodClose.cs` | voliteľné `OrderIntent.Life`; obal `EodCloseEngine` ho plní 15:58:30 NY |
 | `tradebot/adapters/mt5/TradeBotExecutor.mqh` + `deploy/mt5/TradeBotExecutor.mq5` (hotové) | samostatný EA len pre hedging, vlastná vrstva orderov (EA stratégií `TradeBotEA.mqh` sa nemení): timer 50 ms, `Bridge` poll, hb, termíny `life`, prekotvenie SL/TP na fill, strážca SL, záložný trailing, `snapshot`, pamäť cez reštart |
 | `tradebot/live/bridge.py` (hotové) | ručný master: `python -m tradebot.live.bridge execs / status / send / tail / hb` |
 | `tradebot/live/deploy.py`, hub API (hotové) | stĺpec `deployments.route` (len NinjaTrader; súčasť identity, `PATCH` ju nemení), `accounts.symbols` (aliasy MT5 účtu, zmena nie je nové prihlásenie); MT5 účet, na ktorý smeruje aktívne nasadenie, sa nezmaže; `desired_for_agent` doplní `route.to` z prihlásenia MT5 účtu a **virtuálne nasadenie exekútora** `exec-<účet>` (`kind: executor`) pre každý MT5 účet, na ktorý na stroji niečo smeruje |

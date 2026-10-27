@@ -13,7 +13,7 @@ zóny môžu byť z noci. Najdôležitejšia je kvalita zón:
     (Londýn); prvý dotyk mimo okna zónu minie bez obchodu,
   * **stop** za vzdialenejšou hranou + `slBuffer` + 1 tick, **cieľ** `rrRatio` × riziko, najdlhšie `maxHoldHours`.
 
-Pine predlohu stratégia nemá. Logiku do C# jadra prepisuje `tradebot/csharp/TradeBot.Strategies/SdEurNet` (kľúč `sdeurnet`).
+Pine predlohu stratégia nemá. Logiku do C# jadra prepisuje `tradebot/strategies/sdeur/csharp` (kľúč `sdeurnet`).
 """
 
 from __future__ import annotations

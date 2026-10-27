@@ -39,11 +39,13 @@ __all__ = ["build_rules", "apply", "show", "off", "migrate_legacy", "BALLAST", "
 BALLAST = ("/tester/runs/**", "/tester/archive/**", "/tester/analytics/**",
            "/tester/sweeps/**")
 
-#: Hub nepočíta nič — nepotrebuje ani archív, ani behy, ani C# jadro.
+#: Hub nepočíta nič — nepotrebuje ani archív, ani behy, ani C# (runtime v `tradebot/core/csharp/`, stratégie
+#: v `tradebot/strategies/<kľúč>/csharp/`).
 #: Ani živé dáta v gite: tie pushuje vlastný plugin `livedata` z vlastného stromu a vlastného klonu.
-#: Staré cesty (`data/archive/`, `data/live/`, `tradebot/csharp/`) ostávajú, kým ich má niektorý klon v histórii,
-#: aby hub po presune pod `data/` a `tradebot/csharp/` nestiahol 2 GB sviečok (docs/DIRECTORIES.md).
-HUB_RULES = ("/*", "!/data/**", "!/tradebot/csharp/**", "!/data_archive/**", "!/data_live/**", "!/csharp/**",
+#: Staré cesty (`data_archive/`, `data_live/`, `csharp/`) ostávajú, kým ich má niektorý klon v histórii,
+#: aby hub po presune pod `data/` a `tradebot/` nestiahol 2 GB sviečok (docs/DIRECTORIES.md).
+HUB_RULES = ("/*", "!/data/**", "!/tradebot/core/csharp/**", "!/tradebot/strategies/*/csharp/**",
+             "!/data_archive/**", "!/data_live/**", "!/csharp/**",
              *(f"!{p}" for p in BALLAST))
 
 
@@ -87,7 +89,7 @@ def apply(rules: list[str] | tuple[str, ...], *, filter_blobs: bool = True,
     return {"ok": all(k.returncode == 0 for k in kroky), "rules": list(rules), "output": vystup}
 
 
-#: Cesty pred presunom pod `data/` a `tradebot/csharp/` (27. 10. 2026) → nové (docs/DIRECTORIES.md).
+#: Cesty pred presunom pod `data/` (27. 10. 2026) → nové (docs/DIRECTORIES.md).
 LEGACY_PATHS = (("/data_archive/", "/data/archive/"), ("/data_live/", "/data/live/"))
 
 

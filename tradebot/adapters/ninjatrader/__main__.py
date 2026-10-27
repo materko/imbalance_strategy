@@ -44,7 +44,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from tradebot.adapters.csharp.build import BuildError, ensure_built, find_compiler
+from tradebot.adapters.csharp.build import BuildError, core_dirs, ensure_built, find_compiler, sources, strategy_dirs
 from tradebot.core.config import load_profile
 from tradebot.core.paths import CSHARP_DIR, NINJATRADER_DIR
 from tradebot.core.version import repo_version
@@ -66,8 +66,6 @@ ADDON_FILE = ADAPTER_DIR / "TradeBotLiveAddOn.cs"
 ADDON_FILES = (ADDON_FILE, ADAPTER_DIR / "TradeBotLiveInstance.cs", ADAPTER_DIR / "TradeBotLiveFeed.cs")
 #: Indikátor, ktorý na grafe kreslí inštanciu AddOnu (kresby, ordery, fily) — ide do `bin\\Custom\\Indicators`.
 VIEW_FILE = ADAPTER_DIR / "TradeBotLiveView.cs"
-#: Zdrojáky C# jadra, ktoré idú do NinjaTradera (hostiteľ pre stdio most nie).
-CORE_DIRS = ("TradeBot.Core", "TradeBot.Strategies")
 CONTROL_MODES = ("enabled", "paused", "flatten")
 #: Šablóny, ktoré `install` z NinjaTradera odstráni: IBSNinja/ORBNinja sa 25. 9. 2026 premenovali na IBSNet/ORBNet.
 STALE_TEMPLATES = ("IBSNinja.cs", "ORBNinja.cs")
@@ -108,7 +106,7 @@ def csharp_strategies():
 
 def check_sources() -> list[Path]:
     """Všetko, čo NinjaTrader po `install` prekladá: jadro, adaptér, AddOn, šablóny."""
-    core = [f for d in CORE_DIRS for f in sorted((CSHARP_DIR / d).rglob("*.cs"))]
+    core = sources(core_dirs())
     templates = sorted(NINJATRADER_DIR.glob("*.cs"))
     return [*core, ADAPTER_FILE, *ADDON_FILES, VIEW_FILE, *templates]
 
@@ -204,8 +202,9 @@ def install(nt_dir: Path, extra_profiles: list[str], *, say: Callable[[str], Non
     target = custom / "AddOns" / "TradeBot"
     if target.exists():
         shutil.rmtree(target)  # vlastný adresár adaptéra — zmazané zdrojáky jadra nesmú v NinjaTraderi ostať
-    for d in CORE_DIRS:
-        shutil.copytree(CSHARP_DIR / d, target / d)
+    shutil.copytree(CSHARP_DIR / "TradeBot.Core", target / "TradeBot.Core")
+    for d in strategy_dirs():   # stratégia leží pri Python predlohe; v NinjaTraderi pod svojím kľúčom
+        shutil.copytree(d, target / "TradeBot.Strategies" / d.parent.name)
     for f in ADDON_FILES:
         shutil.copy2(f, target / f.name)
     shutil.copy2(ADAPTER_FILE, custom / "Strategies" / ADAPTER_FILE.name)

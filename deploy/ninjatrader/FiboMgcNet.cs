@@ -1,6 +1,6 @@
 // FiboMgcNet - Fibo 1.0 na zlate (MGC) s jadrom v C# ako strategia NinjaTrader 8.
 //
-// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/csharp/TradeBot.Strategies/FiboNet`)
+// Tento subor je len ukazovatel: cela logika je v C# jadre (`tradebot/strategies/fibo/csharp`)
 // a vsetko okolo NinjaTradera v generickom adapteri (`tradebot/adapters/ninjatrader/TradeBotStrategy.cs`).
 // Instalacia (skopiruje jadro, adapter, tuto sablonu a profily do Documents\NinjaTrader 8):
 //

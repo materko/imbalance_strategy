@@ -1,7 +1,7 @@
 """IBSNet — IBS Imbalance Breakout s jadrom v C#.
 
-Logika je prepis `tradebot/strategies/ibs` do C# (`tradebot/csharp/TradeBot.Strategies/IbsNet`) nad
-generickým C# jadrom (`tradebot/csharp/TradeBot.Core`). To isté jadro spúšťajú dva adaptéry:
+Logika je prepis `tradebot/strategies/ibs` do C# (`tradebot/strategies/ibs/csharp`) nad
+generickým C# jadrom (`tradebot/core/csharp/TradeBot.Core`). To isté jadro spúšťajú dva adaptéry:
 
 * **NinjaTrader 8** natívne — `tradebot/adapters/ninjatrader` (NinjaScript), šablóna
   `deploy/ninjatrader/IBSNet.cs`;
@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from tradebot.adapters.csharp.engine import csharp_engine_factory
-from tradebot.core.paths import CSHARP_DIR
+from tradebot.core.paths import STRATEGIES_DIR
 
 from ..base import StrategySpec
 from ..ibs.htf import HTFFeeder
@@ -43,7 +43,7 @@ SPEC = StrategySpec(
     kind_titles=KIND_TITLES,
     default_timeframe="3m",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=CSHARP_DIR / "TradeBot.Strategies" / "IbsNet",
+    csharp_dir=STRATEGIES_DIR / "ibs" / "csharp",
     freqtrade_class="IBSNetStrategy",
     multicharts_class="IBSNetSignal",
     multicharts_template="IBSNet_Signal.py",

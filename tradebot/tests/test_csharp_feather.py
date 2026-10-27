@@ -1,4 +1,4 @@
-"""Čítanie feather v C# (`tradebot/csharp/TradeBot.Backtest/Feather.cs`) musí dať bit po bite to, čo pyarrow.
+"""Čítanie feather v C# (`tradebot/core/csharp/TradeBot.Backtest/Feather.cs`) musí dať bit po bite to, čo pyarrow.
 
 Natívny backtest v C# číta sviečky priamo z `data/` a `data/archive/` — keby sa čítač v čomkoľvek
 rozišiel s pyarrow (jednotka času, null, LZ4 blok cez hranicu), C# beh by počítal nad inými

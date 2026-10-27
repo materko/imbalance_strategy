@@ -4,16 +4,16 @@ Repozitár sú **dva celky**:
 
 | | čo to je | kde |
 |---|---|---|
-| **TradeBot** | produkt, ktorý obchoduje: generické jadro, registry stratégií a tenké adaptéry — **Freqtrade** (krypto), **MultiCharts** (Python študia), **NinjaTrader 8** a **MetaTrader 5** (stratégie s jadrom v C#). Jadro je v Pythone aj v C# (`tradebot/csharp/`); jadro ani adaptéry nepoznajú stratégiu menom — všetko ide cez `StrategySpec`. | [`tradebot/`](tradebot) |
+| **TradeBot** | produkt, ktorý obchoduje: generické jadro, registry stratégií a tenké adaptéry — **Freqtrade** (krypto), **MultiCharts** (Python študia), **NinjaTrader 8** a **MetaTrader 5** (stratégie s jadrom v C#). Runtime je v Pythone aj v C# (`tradebot/core/`, `tradebot/core/csharp/`) a C# verzia stratégie leží pri Python predlohe (`strategies/<key>/csharp/`); jadro ani adaptéry nepoznajú stratégiu menom — všetko ide cez `StrategySpec`. | [`tradebot/`](tradebot) |
 | **TradeBot Tester** | čím sa to skúša: dáta, backtesty do zdieľanej histórie, webová aplikácia, analytika a smernica testovania, porovnania platforiem, **hub** na počítanie na viac strojoch a **Live** karta s telemetriou bežiacich stratégií. | [`tester/`](tester) |
 
 Závislosť ide jedným smerom — Tester importuje `tradebot`, produkt o Testeri nevie.
 
 ```
-TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predloha, oba enginy)
+TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predloha)
                                          │  parita bar po bare
                                          ▼
-                                  tradebot/csharp/…/<Meno>Net  (C# 5 jadro)
+                                  tradebot/strategies/<key>/csharp  (C# 5, runtime v core/csharp)
                                          │
               ┌──────────────────────────┼───────────────────────────┐
          NinjaTrader 8             MetaTrader 5 (EA)          Freqtrade / webapp (most)
@@ -145,7 +145,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 | | |
 |---|---|
-| [`tradebot/`](tradebot) | celý produkt — `core/` jadro v Pythone, `csharp/` jadro a prepisy stratégií v C#, `strategies/<key>/` jeden sebestačný balík na stratégiu (kód, profily, dokumenty), `adapters/` (Freqtrade, MultiCharts, most do C#, NinjaTrader, MT5), `live/` telemetria a nasadenie |
+| [`tradebot/`](tradebot) | celý produkt — `core/` runtime (Python, v `csharp/` C#), `strategies/<key>/` jeden sebestačný balík na stratégiu (kód v každom jazyku — C# v `csharp/` —, profily, dokumenty), `adapters/` (Freqtrade, MultiCharts, most do C#, NinjaTrader, MT5), `live/` telemetria a nasadenie |
 | [`tester/`](tester) | Tester — webapp, hub a agenti, analytika, importy dát; jeho dáta v gite: `runs/`, `profiles/`, `archive/`, `sweeps/`, `analytics/` |
 | [`deploy/`](deploy), [`docker/`](docker) | čo sa inštaluje do platforiem (Freqtrade, MultiCharts, NinjaTrader, MT5, agent) a kontajnery |
 | [`data/`](data) | všetky dáta — v gite `archive/` (sviečky po rokoch zo zdrojov) a `live/` (uzavreté mesiace z naživo), ostatné sa dopočíta lokálne |
@@ -191,4 +191,5 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   adaptér, služba, zdroj dát alebo dokument v rozcestníku; spolu s tým zmeniť aj
   dátum v „Kde sme".
 - **Adresáre** podľa [docs/DIRECTORIES.md](docs/DIRECTORIES.md): koreň má pevný zoznam položiek a
-  všetko o jednej stratégii je v jej balíku `tradebot/strategies/<key>/`.
+  všetko o jednej stratégii je v jej balíku `tradebot/strategies/<key>/`. Jedna vec = jeden adresár,
+  jazyky vnútri (Python priamo, C# v `csharp/`); slovník engine / platforma / simulátor je tam tiež.

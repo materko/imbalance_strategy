@@ -1,4 +1,4 @@
-"""Schéma udalostí live telemetrie (`schema: 1`) — zrkadlo `tradebot/csharp/TradeBot.Core/Live.cs`.
+"""Schéma udalostí live telemetrie (`schema: 1`) — zrkadlo `tradebot/core/csharp/TradeBot.Core/Live.cs`.
 
 Riadok spoolu je JSON objekt `{"seq", "t", "k", …}`; druhy a ich polia sú v docs/LIVE.md.
 Tu je to, čo potrebuje Python strana: názvy druhov, povinné polia na validáciu (testy,

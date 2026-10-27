@@ -205,7 +205,7 @@ zjedený. Winrate po rokoch (48.8 → 57.1 %) skôr ukazuje závislosť na reži
 
 **3. Čo treba dorobiť.**
 Náklad trhu (`half_spread_ticks` inštrumentu), kalendár skrátených seáns a filter režimu.
-Každá zmena logiky ide do `orb` aj do `tradebot/csharp/…/OrbNet` naraz a musí prejsť paritou
+Každá zmena logiky ide do `orb` aj do `tradebot/strategies/orb/csharp` naraz a musí prejsť paritou
 (`tester/tests/test_csharp_parity_orb.py`).
 
 **4. Čo otestovať ďalej.**

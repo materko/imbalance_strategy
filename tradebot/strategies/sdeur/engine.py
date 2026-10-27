@@ -13,7 +13,7 @@ Priebeh na každom uzavretom bare grafu:
      (vstup na hrane / v hĺbke `entryDepthPct`, stop za vzdialenejšou hranou + `slBuffer` + 1 tick, cieľ RR);
      mimo okna alebo pri inej najbližšej zóne sa zruší.
 
-Engine je čistý: žiadne I/O, žiadny globálny stav. Zrkadlo v C#: `tradebot/csharp/TradeBot.Strategies/SdEurNet`.
+Engine je čistý: žiadne I/O, žiadny globálny stav. Zrkadlo v C#: `tradebot/strategies/sdeur/csharp`.
 """
 
 from __future__ import annotations

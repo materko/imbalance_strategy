@@ -1,7 +1,7 @@
 """`TksNetConfig` — tie isté parametre ako TKS 1.0 (`tradebot/strategies/tks/config.py`).
 
 Parametre, rozsahy aj profily sú zámerne zhodné s predlohou, aby sa behy dali porovnať jedna k jednej;
-číta ich C# jadro (`tradebot/csharp/TradeBot.Strategies/TksNet/TksConfig.cs`). Vlastná trieda existuje len
+číta ich C# jadro (`tradebot/strategies/tks/csharp/TksConfig.cs`). Vlastná trieda existuje len
 preto, že registry hľadá stratégiu podľa triedy configu (`spec_for_config`).
 """
 

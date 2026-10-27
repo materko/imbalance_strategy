@@ -66,9 +66,10 @@ tester/hub_delivered/
 .claude/
 
 # Prelozene C# jadro - most si ho zostavi sam (python -m tradebot.adapters.csharp.build)
-tradebot/csharp/bin/
-# Pozostatok z klonov pred presunom do tradebot/csharp/ (27. 10. 2026) - git ho pri pulle nezmaze
+tradebot/core/csharp/bin/
+# Pozostatky z klonov pred presunom do tradebot/core/csharp/ (27. 10. 2026) - git ich pri pulle nezmaze
 /csharp/bin/
+/tradebot/csharp/bin/
 
 # rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu
 .tradebot-role

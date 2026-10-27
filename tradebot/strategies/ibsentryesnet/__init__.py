@@ -1,6 +1,6 @@
 """IBS EZ ES (C# jadro) — IBS EZ ES s jadrom v C#, aby bežala naživo v NinjaTraderi a MetaTraderi 5 na ES / MES.
 
-Logika je C# jadro IBS Entry Zone (`tradebot/csharp/TradeBot.Strategies/IbsEntryNet`, kľúč `ibsentryesnet` na triede
+Logika je C# jadro IBS Entry Zone (`tradebot/strategies/ibsentry/csharp`, kľúč `ibsentryesnet` na triede
 `IbsEntryEsEngine`) s filtrom trendu / volatility z `EntryLayers` — to isté, čo Python `ibsentryes`. Profil
 `PRESIEL_SMERNICAMI_IBS_EZ_ES_1` prešiel smernicou (25. 10. 2026, kroky 1–8, prahy v násobkoch ATR).
 Zhodu s Python predlohou na ES stráži `tester/tests/test_csharp_parity_es.py`.

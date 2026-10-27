@@ -20,4 +20,4 @@ CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 @dataclass
 class IBSEntryNetConfig(IBSEntryZoneConfig):
     """Config IBS Entry Zone s jadrom v C# — polia, defaulty a kontroly dedí z IBS Entry Zone; číta ich
-    C# jadro (`tradebot/csharp/TradeBot.Strategies/IbsEntryNet/IbsEntryConfig.cs` nad `IbsNet/IbsConfig.cs`)."""
+    C# jadro (`tradebot/strategies/ibsentry/csharp/IbsEntryConfig.cs` nad `IbsNet/IbsConfig.cs`)."""

@@ -2,9 +2,9 @@
 
 Toto je „Freqtrade adaptér nad C# jadrom": generický `TradebotStrategyBase` (a rovnako
 emulátor MultiCharts, webapp, analytika) volá `Engine.on_bar`, a `CSharpEngine` to volanie
-odovzdá C# triede z `tradebot/csharp/` — v procese cez pythonnet alebo cez `TradeBot.Host.exe`.
+odovzdá C# triede z `tradebot/core/csharp/` — v procese cez pythonnet alebo cez `TradeBot.Host.exe`.
 
-    build.py    preklad `tradebot/csharp/` -> `tradebot/csharp/bin/TradeBot.dll` (csc z .NET Frameworku / Mono)
+    build.py    preklad `tradebot/core/csharp/` -> `tradebot/core/csharp/bin/TradeBot.dll` (csc z .NET Frameworku / Mono)
     bridge.py   transport (pythonnet | stdio), jeden JSON protokol
     engine.py   `CSharpEngine` + `csharp_engine_factory(kľúč)` pre `StrategySpec.engine_factory`
 """

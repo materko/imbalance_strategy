@@ -14,6 +14,7 @@ from enum import Enum
 
 import pytest
 
+from tradebot.adapters.csharp.build import sources, strategy_dirs
 from tradebot.core.types import SizeSpec
 from tradebot.strategies import STRATEGIES
 
@@ -36,8 +37,9 @@ def _code(path) -> str:
 
 def _config_file(cls: str):
     """`*Config.cs` v ktorejkoľvek C# stratégii, ktorý deklaruje triedu `cls`."""
-    root = SPECS[0].csharp_dir.parent
-    for path in sorted(root.rglob("*Config.cs")):
+    for path in sources(strategy_dirs()):
+        if not path.name.endswith("Config.cs"):
+            continue
         if re.search(rf"class\s+{cls}\b", path.read_text(encoding="utf-8")):
             return path
     return None

@@ -1,4 +1,4 @@
-"""Natívny C# backtest (`tradebot/csharp/TradeBot.Backtest/McEmulator.cs`) = Python emulátor MultiCharts, obchod po obchode.
+"""Natívny C# backtest (`tradebot/core/csharp/TradeBot.Backtest/McEmulator.cs`) = Python emulátor MultiCharts, obchod po obchode.
 
 C# strana nepoužije nič z Pythonu: feather číta sama, TF skladá sama (`CandleOps` = `resample_ohlcv`),
 seeduje predhistóriu (`seed_engine`), kŕmi HTF feeder a emuluje brokera (`MCRunner` + `emulate`). Keby sa

@@ -4,8 +4,8 @@ Tá istá stratégia ako `ibsentrynet` (IBS Entry Zone (C# jadro)), len o 15:59 
 koniec obchodného dňa, ako to chcú prop firmy na futures. Okno je vždy v čase New York: aj v týždňoch, keď sa letný čas
 v USA a v Európe mení v iný deň, sa zatvára o 15:59 NY (u nás vtedy 20:59), nikdy nie neskôr.
 
-Logiku robí C# obal `EodCloseEngine` (`tradebot/csharp/TradeBot.Core/EodClose.cs`) nad enginom predlohy; trieda s kľúčom
-`ibsentryneteod` je v `tradebot/csharp/TradeBot.Strategies/IBSEntryNet`. Mimo okna EOD sú ordery a kresby bit po bite tie isté ako pri `ibsentrynet`
+Logiku robí C# obal `EodCloseEngine` (`tradebot/core/csharp/TradeBot.Core/EodClose.cs`) nad enginom predlohy; trieda s kľúčom
+`ibsentryneteod` je v `tradebot/strategies/ibsentry/csharp`. Mimo okna EOD sú ordery a kresby bit po bite tie isté ako pri `ibsentrynet`
 (`tester/tests/test_csharp_eod.py`). Parametre, profily a kresby sú zhodné s predlohou.
 """
 

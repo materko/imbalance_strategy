@@ -1,7 +1,7 @@
 """`VwapOrbNetConfig` — tie isté parametre ako VWAP ORB (`tradebot/strategies/vwaporb/config.py`).
 
 Parametre, rozsahy aj profily sú zámerne zhodné s predlohou, aby sa behy dali porovnať jedna k jednej;
-číta ich C# jadro (`tradebot/csharp/TradeBot.Strategies/VwapOrbNet/VwapOrbConfig.cs`). Vlastná trieda je preto,
+číta ich C# jadro (`tradebot/strategies/vwaporb/csharp/VwapOrbConfig.cs`). Vlastná trieda je preto,
 že registry hľadá stratégiu podľa triedy configu — a kvôli jednej kontrole navyše: stop posúvaný
 s VWAP (`vwapStop`, `vwapTp`) C# port nemá (potrebuje stop meniaci sa v čase, ktorý nepoznajú ani živé
 adaptéry), takže ho config odmietne skôr, než by beh ticho počítal niečo iné.

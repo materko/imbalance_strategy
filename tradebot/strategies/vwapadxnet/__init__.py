@@ -1,6 +1,6 @@
 """VWAP ADX Pullback (C# jadro) — VWAP ADX Pullback s jadrom v C#, aby bežala aj naživo v NinjaTraderi a MT5.
 
-Logika je prepis `tradebot/strategies/vwapadx` do C# (`tradebot/csharp/TradeBot.Strategies/VwapAdxNet`) nad generickým
+Logika je prepis `tradebot/strategies/vwapadx` do C# (`tradebot/strategies/vwapadx/csharp`) nad generickým
 C# jadrom (seansový VWAP `SessionVwap.cs`, obaly vstupov `EntryLayers.cs`) a ADX z IBSNet (`Dmi`). To isté jadro
 spúšťajú NinjaTrader 8 (`deploy/ninjatrader/VwapAdxNet.cs`), MetaTrader 5 (`deploy/mt5/VwapAdxNet.mq5`) aj
 Freqtrade a emulátor MultiCharts cez most `tradebot/adapters/csharp`.
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from tradebot.adapters.csharp.engine import csharp_engine_factory
-from tradebot.core.paths import CSHARP_DIR
+from tradebot.core.paths import STRATEGIES_DIR
 
 from ..base import StrategySpec
 from .config import CONFIG_DIR, VwapAdxNetConfig
@@ -42,7 +42,7 @@ SPEC = StrategySpec(
     kind_titles=KIND_TITLES,
     default_timeframe="1m",
     engine_factory=csharp_engine_factory(CSHARP_KEY),
-    csharp_dir=CSHARP_DIR / "TradeBot.Strategies" / "VwapAdxNet",
+    csharp_dir=STRATEGIES_DIR / "vwapadx" / "csharp",
     freqtrade_class="VwapAdxNetStrategy",
     multicharts_class="VwapAdxNetSignal",
     multicharts_template="VwapAdxNet_Signal.py",
