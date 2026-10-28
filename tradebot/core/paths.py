@@ -49,7 +49,7 @@ __all__ = [
     "QUOTEMANAGER_DATA", "NINJATRADER_DATA",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR", "NINJATRADER_DIR", "MT5_DIR",
-    "STRATEGIES_DIR", "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST",
+    "STRATEGIES_DIR", "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST", "PLATFORM_CODE",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE", "HUB_PULL_REQUEST", "HUB_PULL_RESULT", "HUB_DELIVERED",
@@ -125,6 +125,11 @@ CSHARP_DIR = REPO / "tradebot" / "core" / "ports" / "csharp"
 CSHARP_BIN = CSHARP_DIR / "bin"
 CSHARP_DLL = CSHARP_BIN / "TradeBot.dll"
 CSHARP_HOST = CSHARP_BIN / "TradeBot.Host.exe"
+#: Čo z repozitára je nainštalované na platformách (NinjaTrader, MT5) — git pathspecy voči koreňu: C# runtime
+#: a porty stratégií, ich preklad, adaptéry a šablóny. Commit, ktorý mení len iné veci (webapp, hub, Python),
+#: kód na platforme nezastará (`tester.hub.gitcode.has_platform_code`).
+PLATFORM_CODE = ("tradebot/core/ports/csharp", "tradebot/strategies/*/ports/csharp/*", "tradebot/adapters/csharp",
+                 "tradebot/adapters/ninjatrader", "tradebot/adapters/mt5", "deploy/ninjatrader", "deploy/mt5")
 
 # -- Tester (webapp) -------------------------------------------------------- #
 

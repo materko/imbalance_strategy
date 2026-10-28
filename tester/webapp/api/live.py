@@ -646,13 +646,36 @@ def build(ctx: AppContext) -> APIRouter:
         except (ConfigError, FileNotFoundError, StopIteration) as exc:
             raise HTTPException(422, f"profil {profile!r} stratégie {strategy!r}: {exc}")
 
+    def _agent_code_state(live: Any) -> Any:
+        """`code_state` platforiem stroja hub počíta proti vlastnému commitu; hub na staršom kóde nevie,
+        že nový commit kód platforiem nezmenil — webapp `outdated` overí znova proti commitu, ktorý by sama
+        nasadila (`has_platform_code`)."""
+        from ...hub import gitcode
+
+        stavy = live.get("code_state") if isinstance(live, dict) else None
+        if not isinstance(stavy, dict):
+            return live
+        wanted = _version()
+        out = {}
+        for plat, cs in stavy.items():
+            if isinstance(cs, dict) and cs.get("state") == "outdated" and cs.get("installed") and wanted:
+                key = (wanted, str(cs["installed"]))
+                if key not in ancestor_cache:
+                    if len(ancestor_cache) > 500:
+                        ancestor_cache.clear()
+                    ancestor_cache[key] = gitcode.has_platform_code(*key)
+                if ancestor_cache[key] is True:
+                    cs = {**cs, "state": "ok"}
+            out[plat] = cs
+        return {**live, "code_state": out}
+
     @router.get("/api/live/agents")
     def live_agents():
         """Agenti hubu a čo vedia o live (drivery, počet inštancií) — výber stroja pri nasadení."""
         http = _hub_http()
         agents = _via_hub(lambda: http.get("/api/agents"))
         return [{"name": a.get("name"), "online": bool(a.get("online")), "last_seen": a.get("last_seen"),
-                 "live": a.get("live"), "version": a.get("version"), "needs_restart": bool(a.get("needs_restart")),
+                 "live": _agent_code_state(a.get("live")), "version": a.get("version"), "needs_restart": bool(a.get("needs_restart")),
                  "updating": bool(a.get("updating")), "code_target": a.get("code_target")} for a in (agents or [])]
 
     @router.post("/api/live/agents/{name}/update")
@@ -762,7 +785,7 @@ def build(ctx: AppContext) -> APIRouter:
         """Hub `code_state` overuje históriu vo vlastnom klone — keď je hub na staršom kóde, nový commit
         stroja nepozná a nasadenie z jeho starého commitu hlási „zastaraný“, hoci stroj má novší kód.
         Webapp (klon zadávateľa) to overí znova a `outdated` opraví na `ok`, keď je commit nasadenia
-        v histórii nainštalovaného. Commit nasadenia, ktorý nepozná ani tento klon (nepushnutý, neskôr
+        v histórii nainštalovaného alebo sa medzi nimi nezmenil kód platforiem (`has_platform_code`). Commit nasadenia, ktorý nepozná ani tento klon (nepushnutý, neskôr
         prepísaný rebase), sa porovnať nedá — `unknown` s `lost`, nie „zastaraný“ navždy."""
         from ...hub import gitcode
 
@@ -774,7 +797,7 @@ def build(ctx: AppContext) -> APIRouter:
             if key not in ancestor_cache:
                 if len(ancestor_cache) > 500:
                     ancestor_cache.clear()
-                ancestor_cache[key] = (gitcode.is_ancestor(*key) or
+                ancestor_cache[key] = (gitcode.has_platform_code(*key) or
                                        (None if gitcode.has_commit(key[0]) or not gitcode.has_commit(key[1]) else "lost"))
             if ancestor_cache[key] == "lost":
                 dep["code_state"] = {**cs, "state": "unknown", "lost": True}

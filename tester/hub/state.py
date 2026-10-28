@@ -74,7 +74,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         #: Commit, na ktorom hub beží — predvolená verzia nasadenia a cieľ „Aktualizovať kód“ (fáza 2c).
         self.version = version if version is not None else gitcode.version()
         #: Je commit A v histórii B? (stav kódu stroja `ok`, aj keď je novší než nasadenie)
-        self._ancestor = ancestor if ancestor is not None else gitcode.is_ancestor
+        self._ancestor = ancestor if ancestor is not None else gitcode.has_platform_code
         self._code_cache: dict[tuple[str, str], str] = {}
         self.heartbeat_seconds = int(heartbeat_seconds)
         self.agent_timeout = float(agent_timeout)
@@ -355,7 +355,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             return dict(agent.get("live") or {}) if agent and agent.get("live") else None
 
     def code_state_for(self, wanted: str | None, installed: str | None) -> str:
-        """`ok`/`outdated`/`unknown` s cache — porovnanie cez git (`is_ancestor`) je subprocess."""
+        """`ok`/`outdated`/`unknown` s cache — porovnanie cez git (`has_platform_code`) je subprocess."""
         key = (str(wanted or ""), str(installed or ""))
         if key not in self._code_cache:
             self._code_cache[key] = code_state(wanted, installed, self._ancestor)

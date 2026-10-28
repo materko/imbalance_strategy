@@ -7,6 +7,7 @@ Rovnaký beh na inom commite dá iné čísla, takže výpočet nesie **verziu k
 - `deploy_version()` — commit, ktorý nesie živé nasadenie: HEAD, alebo posledný commit z GitHubu
                      s tým istým kódom, keď má HEAD navrch len nepushnuté dáta,
 - `has_commit(c)`  — pozná klon commit `c` vôbec? (prepísaný rebase už nie),
+- `has_platform_code(w, i)` — má kód nainštalovaný z commitu `i` všetko z `w`, čo platformy používajú?
 - `has_version(c)` — je commit `c` v histórii HEAD? (`git merge-base --is-ancestor`),
 - `pull()`         — `git fetch` + `rebase --autostash origin/main`, to isté, čo Pull vo webapp
                      (`tester.webapp.gitsync`); v kontajneri (`TRADEBOT_HUB_PULL=host`) ho robí
@@ -25,9 +26,9 @@ import os
 import subprocess
 from typing import Any
 
-from tradebot.core.paths import HUB_PULL_REQUEST, HUB_PULL_RESULT, REPO
+from tradebot.core.paths import HUB_PULL_REQUEST, HUB_PULL_RESULT, PLATFORM_CODE, REPO
 
-__all__ = ["version", "deploy_version", "has_commit", "has_version", "is_ancestor", "on_remote", "versus_main", "pull", "pull_mode",
+__all__ = ["version", "deploy_version", "has_commit", "has_platform_code", "has_version", "is_ancestor", "on_remote", "versus_main", "pull", "pull_mode",
            "request_host_pull", "host_pull_result", "dirty_code"]
 
 #: Čo sa nepovažuje za kód: história behov, profily a analytiky testera idú cez Push.
@@ -112,6 +113,20 @@ def is_ancestor(older: str | None, newer: str | None) -> bool:
     except (OSError, subprocess.SubprocessError):
         return False
     return r.returncode == 0
+
+
+def has_platform_code(wanted: str | None, installed: str | None) -> bool:
+    """Má platforma s kódom z `installed` všetko, čo z `wanted` potrebuje? Áno, keď je `wanted` v histórii
+    `installed`, alebo keď sa medzi nimi nezmenilo nič z `PLATFORM_CODE` — commit webapp či hubu kód na
+    NinjaTraderi a MT5 nezastará a „Aktualizovať kód“ by ich len zbytočne reštartoval. Neznámy commit = nie."""
+    if is_ancestor(wanted, installed):
+        return True
+    if not wanted or not installed:
+        return False
+    try:
+        return _git("diff", "--quiet", wanted, installed, "--", *PLATFORM_CODE).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
 
 
 def on_remote(commit: str | None, fetch: bool = True) -> bool | None:

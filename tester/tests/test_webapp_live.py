@@ -533,7 +533,8 @@ class _FakeDeployHub:
             return [{"name": "trade-pc", "online": True, "last_seen": "x", "version": "abc1234", "needs_restart": False,
                      "updating": False, "code_target": self.code_target,
                      "live": {"drivers": ["mt5"], "instances": 0, "installed": {"mt5": "abc1234"},
-                              "code_state": {"mt5": {"installed": "abc1234", "state": "ok"}}, "code_update": None}}]
+                              "code_state": getattr(self, "agent_code_state", None) or {"mt5": {"installed": "abc1234", "state": "ok"}},
+                              "code_update": None}}]
         if path.startswith("/api/live/accounts"):
             if method == "GET":
                 return self.accounts[0] if path.startswith("/api/live/accounts/") else self.accounts
@@ -864,6 +865,21 @@ def test_deploy_zastaraly_kod_overi_webapp_vlastnym_gitom(deploy_app, monkeypatc
     # commit nasadenia, ktorý klon nepozná (nepushnutý, prepísaný rebase) — neoveriteľný, nie „zastaraný“ navždy
     hub.deployments[0].update(version="ddd4444", code_state={"installed": "bbb2222", "state": "outdated"})
     assert c.get("/api/live/deployments").json()[0]["code_state"] == {"installed": "bbb2222", "state": "unknown", "lost": True}
+
+
+def test_stroje_zastaraly_kod_platformy_overi_webapp(deploy_app, monkeypatch):
+    """Hub hlási platformu stroja ako zastaranú, len čo je sám na novšom commite — webapp to opraví na `ok`,
+    keď sa medzi jej commitom a nainštalovaným nezmenil kód platforiem (`has_platform_code`)."""
+    from tester.hub import gitcode
+
+    make, hub, tmp = deploy_app
+    c = make(admin="")
+    monkeypatch.setattr(gitcode, "deploy_version", lambda: "web0001")
+    monkeypatch.setattr(gitcode, "has_platform_code", lambda wanted, installed: (wanted, installed) == ("web0001", "old0001"))
+    hub.agent_code_state = {"mt5": {"installed": "old0001", "state": "outdated"},
+                            "ninjatrader": {"installed": "old0002", "state": "outdated"}}
+    assert c.get("/api/live/agents").json()[0]["live"]["code_state"] == {
+        "mt5": {"installed": "old0001", "state": "ok"}, "ninjatrader": {"installed": "old0002", "state": "outdated"}}
 
 
 def test_deploy_nenabehla_prejde_z_hubu_a_tabulka_ukaze_upozornenie(deploy_app):

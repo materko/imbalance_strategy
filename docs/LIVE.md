@@ -472,10 +472,15 @@ Heartbeat agenta nesie navyše `live.installed = {"mt5": "<sha>", "ninjatrader":
 `live.code_update` (výsledok poslednej aktualizácie, nižšie). Hub z toho odvodí **`code_state`**
 (`tradebot.live.deploy.code_state`): `ok` = platforma má chcený commit (rovnaký sha, alebo chcený je
 v histórii nainštalovaného — hub to overí `git merge-base --is-ancestor` vo vlastnom klone, takže
-novší kód na stroji je `ok`), `outdated` = iný commit, `unknown` = stroj marker nehlási (kód
-nainštalovaný ručne pred fázou 2c). Ukazuje sa **pri nasadení** (`code_state` = jeho `version` proti
-platforme účtu) aj **pri agentovi** (`GET /api/agents` → `live.code_state` po platformách proti commitu
-hubu, `live.installed`, `live.code_update`, `code_target`).
+novší kód na stroji je `ok`; `ok` je aj starší commit, keď sa odvtedy nezmenilo nič z `PLATFORM_CODE`
+v `tradebot/core/paths.py` — C# runtime a porty stratégií, adaptéry a šablóny NT/MT5, `git diff --quiet`,
+`gitcode.has_platform_code` —, takže commit webapp či hubu platformy nezastará), `outdated` = iný kód,
+`unknown` = stroj marker nehlási (kód nainštalovaný ručne pred fázou 2c; webapp tak hlási aj nasadenie,
+ktorého commit už v histórii nie je — `lost`, nepushnutý commit prepísaný rebase). K nasadeniu sa preto
+zapisuje commit z GitHubu (`gitcode.deploy_version`: HEAD bez nepushnutých dát navrch). Ukazuje sa **pri
+nasadení** (`code_state` = jeho `version` proti platforme účtu) aj **pri agentovi** (`GET /api/agents` →
+`live.code_state` po platformách proti commitu hubu, `live.installed`, `live.code_update`, `code_target`);
+webapp `outdated` z hubu na staršom kóde overí znova vlastným klonom.
 
 ### Požiadavka a doručenie
 

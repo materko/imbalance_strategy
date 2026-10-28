@@ -2050,6 +2050,33 @@ def test_gitcode_deploy_version_skips_unpushed_data_commits(tmp_path: Path, monk
     assert gitcode.has_commit(pushnuty[:9]) and not gitcode.has_commit("636ace302") and not gitcode.has_commit("")
 
 
+def test_gitcode_has_platform_code_ignores_commits_outside_platform_code(tmp_path: Path, monkeypatch):
+    """Stroj s kódom z `stary` má všetko, čo platformy z `novy` potrebujú, keď sa medzi nimi menila len
+    webapp — „zastaraný“ až po zmene v `PLATFORM_CODE` (C# porty stratégií, adaptéry, šablóny)."""
+    import subprocess
+    from tester.hub import gitcode
+
+    def git(*a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=tmp_path,
+                              capture_output=True, text=True, check=True).stdout.strip()
+
+    git("init", "-b", "main")
+    def commit(rel, msg):
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text(msg, encoding="utf-8")
+        git("add", rel); git("commit", "-m", msg)
+        return git("rev-parse", "--short", "HEAD")
+    stary = commit("tradebot/strategies/ibs/ports/csharp/Ibs.cs", "a")
+    webapp = commit("tester/webapp/api/live.py", "b")
+    port = commit("tradebot/strategies/ibs/ports/csharp/Ibs.cs", "c")
+    mt5 = commit("deploy/mt5/TradeBot.mq5", "d")
+    monkeypatch.setattr(gitcode, "REPO", tmp_path)
+    assert gitcode.has_platform_code(webapp, stary)        # medzi nimi len webapp
+    assert gitcode.has_platform_code(stary, webapp)        # novší kód má aj starší commit
+    assert not gitcode.has_platform_code(port, webapp) and not gitcode.has_platform_code(mt5, port)
+    assert not gitcode.has_platform_code("deadbee", stary) and not gitcode.has_platform_code(webapp, "")
+
+
 def test_gitcode_pull_can_be_disabled(monkeypatch):
     from tester.hub import gitcode
 
