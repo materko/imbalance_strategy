@@ -26,6 +26,10 @@ from .fibo import SPEC as FIBO_SPEC
 from .fibomgc import SPEC as FIBOMGC_SPEC
 from .fibomgcnet import SPEC as FIBOMGCNET_SPEC
 from .sdeur import SPEC as SDEUR_SPEC
+from .nb import SPEC as NB_SPEC
+from .m2 import SPEC as M2_SPEC
+from .m2mnq import SPEC as M2MNQ_SPEC
+from .m2mgc import SPEC as M2MGC_SPEC
 from .sdeurnet import SPEC as SDEURNET_SPEC
 from .fpc import SPEC as FPC_SPEC
 from .gap import SPEC as GAP_SPEC
@@ -125,6 +129,10 @@ STRATEGIES: dict[str, StrategySpec] = {
     NYVAESNET_SPEC.key: NYVAESNET_SPEC,
     SDEUR_SPEC.key: SDEUR_SPEC,
     SDEURNET_SPEC.key: SDEURNET_SPEC,
+    NB_SPEC.key: NB_SPEC,
+    M2_SPEC.key: M2_SPEC,
+    M2MNQ_SPEC.key: M2MNQ_SPEC,
+    M2MGC_SPEC.key: M2MGC_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SILVERBULLET_SPEC.key: SILVERBULLET_SPEC,
     NOANET_SPEC.key: NOANET_SPEC,

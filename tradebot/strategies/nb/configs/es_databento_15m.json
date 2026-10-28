@@ -1,0 +1,7 @@
+{
+  "_title": "NB 1.0 · ES 15m · trend H4 SMA 10/20, konsolidácia 8 sviečok, RR 3 (východisko z videa)",
+  "_strategy": "nb",
+  "_instrument": "es_databento",
+  "_timeframe": "15m",
+  "riskDollar": 1000.0
+}

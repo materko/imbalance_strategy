@@ -534,6 +534,7 @@ const STRATEGIA_TRH_TYP = {
   vwaporb: ["NASDAQ", "TRENDOVÉ"], jss: ["NASDAQ", "TRENDOVÉ"], fibo: ["NASDAQ", "TRENDOVÉ"],
   mag7: ["NASDAQ", "TRENDOVÉ"], dailyopen: ["NASDAQ", "TRENDOVÉ"], noa: ["NASDAQ", "TRENDOVÉ"],
   tks: ["NASDAQ", "TRENDOVÉ"], nocpon: ["NASDAQ", "TRENDOVÉ"], nyvaes: ["S&P 500", "TRENDOVÉ"],
+  nb: ["NASDAQ", "TRENDOVÉ"],
   // NASDAQ — skalpovacie: malý cieľ, obchod na minúty
   ibs: ["NASDAQ", "SKALPOVACIE"], ibszones: ["NASDAQ", "SKALPOVACIE"], ibsentry: ["NASDAQ", "SKALPOVACIE"],
   ibsfvg: ["NASDAQ", "SKALPOVACIE"], scalp3ma: ["NASDAQ", "SKALPOVACIE"], fvgpolarity: ["NASDAQ", "SKALPOVACIE"],
@@ -546,6 +547,7 @@ const STRATEGIA_TRH_TYP = {
   // ZLATO
   ibsentrymgc: ["ZLATO", "SKALPOVACIE"],
   ibsentryes: ["S&P 500", "SKALPOVACIE"],
+  m2: ["S&P 500", "SKALPOVACIE"], m2mnq: ["NASDAQ", "SKALPOVACIE"], m2mgc: ["ZLATO", "SKALPOVACIE"],
   fvgpolaritymgc: ["ZLATO", "SKALPOVACIE"],
   scalp3mamgc: ["ZLATO", "SKALPOVACIE"],
   fibomgc: ["ZLATO", "TRENDOVÉ"],
@@ -553,7 +555,7 @@ const STRATEGIA_TRH_TYP = {
   sdeur: ["EURUSD", "RANGEOVÉ"], asiasweep: ["EURUSD", "RANGEOVÉ"],
 };
 /** Práve pridané stratégie — štítok „nová“, kým žiadne ich nastavenie neprejde smernicou. */
-const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet"]);
+const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet", "nb", "m2", "m2mnq", "m2mgc"]);
 /** Kľúč predlohy C# portu: `ibsentryneteod` → `ibsentry`, `tksnet` → `tks`, `ibsnet` → `ibs`. */
 function baseStrategyKey(k) {
   let b = String(k).replace(/eod$/, "");
