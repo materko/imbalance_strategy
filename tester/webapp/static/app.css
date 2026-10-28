@@ -759,7 +759,7 @@ table.dv-table th.sort { cursor: pointer; text-decoration: underline dotted; }
 #live-table tr.live-group td, #ld-deployments tr.ld-group td { background: var(--surface-alt); border-top: 1px solid var(--line); }
 #live-table tr.live-group:hover td, #ld-deployments tr.ld-group:hover td { background: var(--surface-hover); }
 #live-table tr.live-group.hl td { background: var(--surface-changed); }
-#live-table .live-caret, #ld-deployments .live-caret { display: inline-block; width: 1.1em; color: var(--muted); }
+#live-table .live-caret, #ld-deployments .live-caret, #nz-pick .live-caret { display: inline-block; width: 1.1em; color: var(--muted); }
 #live-table tr.live-member td:first-child, #ld-deployments tr.ld-member td:first-child { padding-left: calc(8px + 1.1em); }
 #ld-deployments tr.ld-group td:first-child { white-space: nowrap; }
 /* Live sa zmestí na šírku: plná šírka okna, text v bunkách aj tlačidlá akcií sa zalamujú
@@ -796,8 +796,9 @@ table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(
 /* karta Naživo */
 .nz-pick { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
 .nz-acct { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; }
-.nz-acct-head { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
-.nz-acct-head input { margin: 0; }
+.nz-acct-head { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.nz-acct-head input { margin: 0; cursor: pointer; }
+.nz-acct-tog { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
 .nz-acct-head small { color: var(--muted); }
 .nz-chip { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 8px; font-size: 13px; cursor: pointer; background: var(--surface-alt); }
 .nz-chip input { margin: 0; }

@@ -13,16 +13,17 @@
 const NZ_KEY = "tradebot.livediv";
 const NZ_PLAT = { ninjatrader: "NinjaTrader", mt5: "MT5" };
 const nz = {
-  data: null, off: {}, unit: "$", band: "", bt: {}, R: null, loaded: false,
+  data: null, off: {}, open: new Set(), unit: "$", band: "", bt: {}, R: null, loaded: false,
   log: { view: "tr", inst: "", page: 0 },
 };
 
 function nzPrefs() {
   if (nz.loaded) return;
   nz.loaded = true;
-  try { const s = JSON.parse(localStorage.getItem(NZ_KEY) || "null"); if (s) { nz.off = s.off || {}; nz.unit = s.unit === "R" ? "R" : "$"; } } catch (_) { /* súkromné okno */ }
+  try { const s = JSON.parse(localStorage.getItem(NZ_KEY) || "null"); if (s) { nz.off = s.off || {}; nz.open = new Set(s.open || []); nz.unit = s.unit === "R" ? "R" : "$"; } } catch (_) { /* súkromné okno */ }
 }
-function nzSave() { try { localStorage.setItem(NZ_KEY, JSON.stringify({ off: nz.off, unit: nz.unit })); } catch (_) { /* nezapamätá sa */ } }
+// účty vo výbere sú predvolene zbalené; rozbalené si pamätá prehliadač, nový účet tak príde zbalený
+function nzSave() { try { localStorage.setItem(NZ_KEY, JSON.stringify({ off: nz.off, open: [...nz.open], unit: nz.unit })); } catch (_) { /* nezapamätá sa */ } }
 
 /** Aktívne inštancie (nie staré); `_c` = stála farba, aby sa pri výbere nemenila. */
 function nzActive() {
@@ -262,9 +263,11 @@ function nzPickHtml(all) {
       <span class="mode-switch dv-seg" id="nz-unit"><button type="button" data-u="$"${nz.unit === "$" ? ' class="active"' : ""}>$</button><button type="button" data-u="R"${nz.unit === "R" ? ' class="active"' : ""}>R</button></span></div>
     ${nzGroups(all).map(([key, xs]) => {
       const on = xs.filter(x => !nz.off[x.id]).length, x0 = xs[0], label = typeof liveAccountLabel === "function" ? liveAccountLabel(x0) : "";
-      return `<div class="nz-acct"><label class="nz-acct-head"><input type="checkbox" data-nz-acct="${esc(key)}"${on === xs.length ? " checked" : ""}${on && on < xs.length ? " data-mixed" : ""}>
-          <b>${esc(label || x0.account || "—")}</b> <small>${esc(NZ_PLAT[x0.platform] || x0.platform)}${label ? " · " + esc(x0.account) : ""} · ${on} / ${xs.length}</small></label>
-        <div class="nz-pick">${xs.map(x => `<label class="nz-chip"><input type="checkbox" data-nz-inst="${esc(x.id)}"${nz.off[x.id] ? "" : " checked"}>${dvSw(x._c)}${esc(x.name)} <small>${esc(nzPlat(x))}</small></label>`).join("")}</div></div>`;
+      const open = nz.open.has(key);
+      return `<div class="nz-acct"><div class="nz-acct-head"><input type="checkbox" data-nz-acct="${esc(key)}" title="všetky stratégie účtu"${on === xs.length ? " checked" : ""}${on && on < xs.length ? " data-mixed" : ""}>
+          <span class="nz-acct-tog" data-nz-tog="${esc(key)}" title="${open ? "zbaliť" : "rozbaliť"}"><span class="live-caret">${open ? "▾" : "▸"}</span><b>${esc(label || x0.account || "—")}</b>
+          <small>${esc(NZ_PLAT[x0.platform] || x0.platform)}${label ? " · " + esc(x0.account) : ""} · ${on} / ${xs.length}</small></span></div>
+        ${open ? `<div class="nz-pick">${xs.map(x => `<label class="nz-chip"><input type="checkbox" data-nz-inst="${esc(x.id)}"${nz.off[x.id] ? "" : " checked"}>${dvSw(x._c)}${esc(x.name)} <small>${esc(nzPlat(x))}</small></label>`).join("")}</div>` : ""}</div>`;
     }).join("")}
     <p class="hint">$ = skutočný zisk u brokera, hrubý bez poplatkov (MT5 CFD má inú veľkosť kontraktu ako MNQ); R = zisk vo veľkostiach stopu — porovnateľné medzi stratégiami aj platformami.</p>`;
 }
@@ -450,6 +453,13 @@ function nzBind() {
       nz.log.inst = ""; nzSave(); nzRender();
     };
   }
+  for (const t of $$("[data-nz-tog]")) t.onclick = () => {
+    const k = t.dataset.nzTog;
+    if (nz.open.has(k)) nz.open.delete(k); else nz.open.add(k);
+    nzSave();
+    $("#nz-pick").innerHTML = nzPickHtml(nzActive());
+    nzBind();
+  };
   for (const b of $$("#nz-unit button")) b.onclick = () => { if (b.dataset.u === nz.unit) return; nz.unit = b.dataset.u; nzSave(); nzRender(); };
   if ($("#nz-band-inst")) $("#nz-band-inst").onchange = e => { nz.band = e.target.value; nzBandChart(); };
   if (!$("#nz-log")) return;
