@@ -657,7 +657,11 @@ načítanie (aj obnova každých 5 s) ide na hub; hub dole = chyba v sekcii, tab
   po potvrdení agentom „zmazať“). Stav: žltý **čaká** = agent ešte neaplikoval (drift
   `config_hash` alebo režimu, alebo čaká na flat), červený **chyba** s textom z agenta,
   zelený **živá** = aplikované a inštancia v spoole žije, sivý **ok** = aplikované, spool
-  ticho. **Nasadiť**: účet, stratégia (z `/api/meta`), symbol tak, ako ho pozná platforma,
+  ticho. Riadky sú zoskupené po účtoch hubu ako inštancie vyššie: predvolene zbalené, „rozbaliť
+  všetky“ pri nadpise, rozbalené si pamätá prehliadač; hlavička nesie počty podľa stavu, počet
+  nasadení, stroje, rôzne stratégie / symboly / TF / profily / režimy, počet nasadení so
+  zastaraným kódom a najčerstvejší bar. Odstránené nasadenia (agent ich z platformy už zmazal)
+  sa skrývajú, odkaz pod tabuľkou ich ukáže. **Nasadiť**: účet, stratégia (z `/api/meta`), symbol tak, ako ho pozná platforma,
   TF v minútach, profil (`/api/live/profiles?strategy=` — repozitár aj vlastné profily;
   snímka configu sa poskladá vo webapp a na hub ide hotová), režim — predvolene **pauza**:
   nová stratégia štartuje pauznutá (control súbor je na disku skôr, než platforma inštanciu

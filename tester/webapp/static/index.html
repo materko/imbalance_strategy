@@ -492,6 +492,7 @@
   <div id="live-deploy">
     <div class="card">
       <h2>Nasadenia <span id="ld-dep-count" class="chip"></span>
+        <button id="ld-fold-all" class="small ghost" style="margin-left:8px" hidden title="riadky sú zoskupené po účtoch — klik na hlavičku účtu ho zbalí / rozbalí"></button>
         <span id="ld-readonly" class="chip warn" style="margin-left:8px" hidden title="mutácie idú na hub s hlavným tokenom — nastav admin_token v tester/agent.json (alebo TRADEBOT_HUB_ADMIN_TOKEN) a reštartuj webapp">len na čítanie</span></h2>
       <p class="mode-hint">Hub drží <b>požadovaný stav</b> (čo má kde bežať), agent na obchodnom stroji ho zosúlaďuje
         s platformou a hlási, čo sa mu podarilo; vedľa toho je inštancia zo spoolu. Žltý stav = agent ešte
@@ -504,6 +505,7 @@
         <th title="čo agent naposledy potvrdil (config_hash a režim) proti požadovanému">aplikované</th>
         <th title="kód na platforme stroja (installed.json) proti commitu, na ktorom nasadenie vzniklo — fáza 2c">kód</th>
         <th>inštancia</th><th>posledný bar</th><th></th></tr></thead><tbody></tbody></table></div>
+      <div id="ld-removed" class="muted small" hidden></div>
       <details id="ld-deploy-box" style="margin-top:10px"><summary>Nasadiť <span class="muted small">— stratégia na účet</span></summary>
         <div class="form-grid" style="margin-top:8px">
           <label class="field">Účet<select id="ld-d-account"></select></label>

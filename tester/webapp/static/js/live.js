@@ -823,6 +823,8 @@ const ld = {
   key: "", auditKey: "", profiles: {},   // profily podľa stratégie (cache pre výber)
   formsReady: false,
   editing: null,   // id účtu, ktorý sa práve upravuje vo formulári (inak pridávanie)
+  expanded: null,  // rozbalené účty v tabuľke nasadení (Set, localStorage)
+  showRemoved: false,  // ukázať aj odstránené nasadenia
 };
 
 /** Platformy účtov — čo sa pri účte vypĺňa (`PLATFORMS` v `tradebot/live/deploy.py`). */
@@ -1035,47 +1037,12 @@ function ldShowPlatform(container, platform) {
 }
 
 function renderLiveDeploy() {
-  const accById = Object.fromEntries(ld.accounts.map(a => [a.id, a]));
   const deps = ld.deployments;
   const key = JSON.stringify([ld.admin, ld.accounts, Object.keys(ld.profiles), ld.agents, lv.deploy && lv.deploy.version, lv.deploy && lv.deploy.pushed,
     deps.map(d => { const l = ldLive(d); return [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, l.alive, l.state, l.last_bar_ms, l.seen, d.code_state]; })]);
-  const instances = new Set(lv.instances.map(i => i.id));
   if (key !== ld.key) {
     ld.key = key;
-    $("#ld-dep-count").textContent = deps.length ? String(deps.filter(d => d.active).length) : "";
-    $("#ld-empty").hidden = !!deps.length;
-    $("#ld-deployments").parentElement.hidden = !deps.length;
-    $("#ld-deployments tbody").innerHTML = deps.map(d => {
-      const acc = accById[d.account] || {};
-      const live = ldLive(d);
-      const dis = ld.admin && d.active ? "" : "disabled";
-      const inst = instances.has(d.instance)
-        ? `<a href="#" data-inst="${esc(d.instance)}" title="otvoriť detail inštancie">${esc(d.instance)}</a>`
-        : `<span class="muted" title="v zrkadle zatiaľ nie je">${esc(d.instance)}</span>`;
-      return `<tr class="plain" data-dep="${esc(d.id)}">
-        <td>${ldStatusChip(d)}</td>
-        <td title="účet ${esc(d.account)} na stroji ${esc(d.agent || "?")}">${esc(acc.label || d.account)} <span class="muted small">${esc(d.agent || "")}</span></td>
-        <td>${esc(d.strategy)}${d.slot ? ` <span class="chip" title="slot nasadenia v id inštancie">${esc(d.slot)}</span>` : ""}${d.own_terminal ? ` <span class="muted small" title="vlastný (portable) terminál len pre toto nasadenie">vlastný terminál</span>` : ""}</td><td><b>${esc(d.symbol)}</b>${ldRouteChip(d, accById)}</td><td>${d.tf}m</td>
-        <td><select class="small ld-profile" ${dis} title="zmena profilu: aplikuje sa, až keď je stratégia bez pozície">${ldProfileOptions(d.strategy, d.profile)}</select></td>
-        <td><span class="chip ${d.mode === "enabled" ? "ok" : (d.mode === "flatten" ? "bad" : "warn")}">${esc(LD_MODE_LABEL[d.mode] || d.mode)}</span></td>
-        <td>${ldAppliedCell(d)}</td>
-        <td>${ldCodeChip(d.code_state, d.version)}</td>
-        <td>${inst}${live.host ? ` <span class="muted small">${esc(live.host)}</span>` : ""}</td>
-        <td title="${live.last_bar_ms ? utc(live.last_bar_ms) + " UTC" : ""}">${live.last_bar_ms ? liveAge(live.last_bar_ms, lv.now) : "—"}</td>
-        <td class="ld-actions">
-          ${d.mode === "enabled" ? `<button class="small" data-mode="paused" ${dis} title="nové vstupy sa neposielajú; SL/TP bežia ďalej">pauza</button>`
-                                 : `<button class="small" data-mode="enabled" ${dis}>zapnúť</button>`}
-          <button class="small danger" data-mode="flatten" ${dis} title="zrušiť čakajúce vstupy a zavrieť pozíciu, potom pauza">flatten</button>
-          <button class="small ghost danger" data-del="1" ${ld.admin ? "" : "disabled"} title="${d.active ? "vypnúť (agent odstráni z platformy), po potvrdení zmazať" : "zmazať z hubu"}">${d.active ? "odstrániť" : "zmazať"}</button>
-        </td></tr>`;
-    }).join("");
-    for (const tr of $$("#ld-deployments tbody tr")) {
-      const id = tr.dataset.dep;
-      for (const b of tr.querySelectorAll("button[data-mode]")) b.onclick = () => ldSetMode(id, b.dataset.mode);
-      const del = tr.querySelector("button[data-del]"); if (del) del.onclick = () => ldDelete(id);
-      const sel = tr.querySelector("select.ld-profile"); if (sel) sel.onchange = () => ldSetProfile(id, sel);
-      const a = tr.querySelector("a[data-inst]"); if (a) a.onclick = e => { e.preventDefault(); openLiveDetail(a.dataset.inst); };
-    }
+    renderLdDeployments();
     renderLiveAccounts(deps);
     renderLiveAgents();
     // profily stratégií v tabuľke — po načítaní sa riadky prekreslia s celou ponukou
@@ -1084,6 +1051,133 @@ function renderLiveDeploy() {
   if (!ld.formsReady) { ldSetupForms(); ld.formsReady = true; }
   ldFillFormSelects();
   ldCodeHint();
+}
+
+/** Stav nasadenia na súhrn skupiny a skrývanie — to isté rozhodovanie ako `ldStatusChip`. */
+function ldState(dep) {
+  const a = dep.applied;
+  if (!dep.active) return a && a.status === "removed" ? "removed" : "removing";
+  if (a && a.status === "error") return "error";
+  if (!a || a.config_hash !== dep.config_hash || a.mode !== dep.mode || a.status === "pending") return "pending";
+  const live = ldLive(dep);
+  if (live.state === "closed") return "closed";
+  return live.alive ? "live" : "ok";
+}
+
+// Skupiny tabuľky nasadení: jeden účet z hubu, ako pri tabuľke inštancií — hlavička nesie súhrn, predvolene
+// je zbalená a rozbalené si pamätá prehliadač. Odstránené nasadenia (agent ich z platformy už zmazal) sa
+// skrývajú, ukáže ich odkaz pod tabuľkou.
+const LD_EXPANDED_KEY = "tradebot.live.ld.expanded";
+
+function ldExpandedSave() {
+  try { localStorage.setItem(LD_EXPANDED_KEY, JSON.stringify([...ld.expanded])); } catch (_) { /* súkromné okno */ }
+}
+
+function ldToggleGroup(key) {
+  if (ld.expanded.has(key)) ld.expanded.delete(key); else ld.expanded.add(key);
+  ldExpandedSave();
+  renderLdDeployments();
+}
+
+const LD_GROUP_CHIPS = [
+  ["live", "ok", "živé", "inštancia žije"], ["closed", "ok", "trh zatvorený", "platforma pinguje, ale bary nechodia"],
+  ["pending", "warn", "čaká", "agent ešte neaplikoval profil alebo režim"], ["error", "bad", "chyba", "chyba pri aplikovaní"],
+  ["ok", "", "ok", "aplikované, spool je ticho"], ["removing", "warn", "odstraňuje sa", "čaká, kým agent inštanciu z platformy odstráni"],
+  ["removed", "", "odstránené", "agent inštanciu z platformy odstránil"],
+];
+
+function ldGroupRow(key, members, collapsed) {
+  const acc = ld.accounts.find(a => a.id === key) || {};
+  const stavy = {};
+  for (const d of members) { const s = ldState(d); stavy[s] = (stavy[s] || 0) + 1; }
+  const chips = LD_GROUP_CHIPS.filter(([s]) => stavy[s]).map(([s, cls, txt, title]) =>
+    `<span class="chip ${cls}" title="${esc(title)}">${stavy[s]} ${esc(s === "live" && stavy[s] > 4 ? "živých" : txt)}</span>`);
+  const cs = members.filter(d => d.active).map(d => d.code_state && d.code_state.state);
+  const stary = cs.filter(s => s === "outdated").length;
+  const kod = !cs.length ? "—" : stary ? `<span class="chip warn" title="${stary} z ${cs.length} aktívnych nasadení má na platforme starší kód">${stary} zastaraný</span>`
+    : cs.every(s => s === "ok") ? `<span class="chip ok">aktuálny</span>` : `<span class="muted">—</span>`;
+  const bar = Math.max(0, ...members.map(d => Number(ldLive(d).last_bar_ms) || 0));
+  const plat = LD_PLATFORMS[acc.platform];
+  return `<tr class="ld-group" data-group="${esc(key)}" title="${collapsed ? "rozbaliť" : "zbaliť"} účet">
+    <td><span class="live-caret">${collapsed ? "▸" : "▾"}</span>${chips.join(" ") || "—"}</td>
+    <td title="účet ${esc(key)}"><b>${esc(acc.label || key)}</b> <span class="muted small">${esc(plat ? plat.title : acc.platform || "")}</span>
+      <span class="chip" title="nasadení na účte">${members.length}</span>
+      <div class="muted small">${liveUniqCell(members.map(d => d.agent), 2)}</div></td>
+    <td>${liveUniqCell(members.map(d => d.strategy), 2)}</td>
+    <td><b>${liveUniqCell(members.map(d => d.symbol))}</b></td>
+    <td>${liveUniqCell(members.map(d => d.tf ? d.tf + "m" : ""))}</td>
+    <td>${liveUniqCell(members.map(d => d.profile), 1)}</td>
+    <td>${liveUniqCell(members.filter(d => d.active).map(d => LD_MODE_LABEL[d.mode] || d.mode), 3)}</td>
+    <td></td><td>${kod}</td><td></td>
+    <td title="${bar ? utc(bar) + " UTC — najčerstvejší bar účtu" : ""}">${bar ? liveAge(bar, lv.now) : "—"}</td><td></td></tr>`;
+}
+
+function renderLdDeployments() {
+  if (!ld.expanded) {
+    try { ld.expanded = new Set(JSON.parse(localStorage.getItem(LD_EXPANDED_KEY) || "[]")); } catch (_) { ld.expanded = new Set(); }
+  }
+  const accById = Object.fromEntries(ld.accounts.map(a => [a.id, a]));
+  const deps = ld.deployments;
+  const instances = new Set(lv.instances.map(i => i.id));
+  const odstranene = deps.filter(d => ldState(d) === "removed");
+  const list = ld.showRemoved ? deps : deps.filter(d => ldState(d) !== "removed");
+  const st = $("#ld-removed");
+  st.hidden = !odstranene.length;
+  st.innerHTML = odstranene.length ? `<a href="#">${ld.showRemoved ? "skryť" : "ukázať"} ${ldPocet(odstranene.length, "odstránené nasadenie", "odstránené nasadenia", "odstránených nasadení")}</a> — agent ich z platformy už zmazal, na hube ostávajú do zmazania` : "";
+  if (odstranene.length) st.querySelector("a").onclick = e => { e.preventDefault(); ld.showRemoved = !ld.showRemoved; renderLdDeployments(); };
+  $("#ld-dep-count").textContent = deps.length ? String(deps.filter(d => d.active).length) : "";
+  $("#ld-empty").hidden = !!deps.length;
+  $("#ld-deployments").parentElement.hidden = !list.length;
+  const groups = new Map();
+  for (const d of list) {
+    if (!groups.has(d.account)) groups.set(d.account, []);
+    groups.get(d.account).push(d);
+  }
+  const fold = $("#ld-fold-all"), vsetky = [...groups.keys()].every(k => !ld.expanded.has(k));
+  fold.hidden = groups.size < 2;
+  fold.textContent = vsetky ? "rozbaliť všetky" : "zbaliť všetky";
+  fold.onclick = () => {
+    for (const k of groups.keys()) { if (vsetky) ld.expanded.add(k); else ld.expanded.delete(k); }
+    ldExpandedSave();
+    renderLdDeployments();
+  };
+  $("#ld-deployments tbody").innerHTML = [...groups].map(([k, members]) => {
+    const zbalena = !ld.expanded.has(k);
+    return ldGroupRow(k, members, zbalena) + (zbalena ? "" : members.map(d => ldDeploymentRow(d, accById, instances)).join(""));
+  }).join("");
+  for (const tr of $$("#ld-deployments tbody tr[data-group]")) tr.onclick = () => ldToggleGroup(tr.dataset.group);
+  for (const tr of $$("#ld-deployments tbody tr[data-dep]")) {
+    const id = tr.dataset.dep;
+    for (const b of tr.querySelectorAll("button[data-mode]")) b.onclick = () => ldSetMode(id, b.dataset.mode);
+    const del = tr.querySelector("button[data-del]"); if (del) del.onclick = () => ldDelete(id);
+    const sel = tr.querySelector("select.ld-profile"); if (sel) sel.onchange = () => ldSetProfile(id, sel);
+    const a = tr.querySelector("a[data-inst]"); if (a) a.onclick = e => { e.preventDefault(); openLiveDetail(a.dataset.inst); };
+  }
+}
+
+function ldDeploymentRow(d, accById, instances) {
+  const acc = accById[d.account] || {};
+  const live = ldLive(d);
+  const dis = ld.admin && d.active ? "" : "disabled";
+  const inst = instances.has(d.instance)
+    ? `<a href="#" data-inst="${esc(d.instance)}" title="otvoriť detail inštancie">${esc(d.instance)}</a>`
+    : `<span class="muted" title="v zrkadle zatiaľ nie je">${esc(d.instance)}</span>`;
+  return `<tr class="plain ld-member" data-dep="${esc(d.id)}">
+    <td>${ldStatusChip(d)}</td>
+    <td title="účet ${esc(d.account)} na stroji ${esc(d.agent || "?")}">${esc(acc.label || d.account)} <span class="muted small">${esc(d.agent || "")}</span></td>
+    <td>${esc(d.strategy)}${d.slot ? ` <span class="chip" title="slot nasadenia v id inštancie">${esc(d.slot)}</span>` : ""}${d.own_terminal ? ` <span class="muted small" title="vlastný (portable) terminál len pre toto nasadenie">vlastný terminál</span>` : ""}</td><td><b>${esc(d.symbol)}</b>${ldRouteChip(d, accById)}</td><td>${d.tf}m</td>
+    <td><select class="small ld-profile" ${dis} title="zmena profilu: aplikuje sa, až keď je stratégia bez pozície">${ldProfileOptions(d.strategy, d.profile)}</select></td>
+    <td><span class="chip ${d.mode === "enabled" ? "ok" : (d.mode === "flatten" ? "bad" : "warn")}">${esc(LD_MODE_LABEL[d.mode] || d.mode)}</span></td>
+    <td>${ldAppliedCell(d)}</td>
+    <td>${ldCodeChip(d.code_state, d.version)}</td>
+    <td>${inst}${live.host ? ` <span class="muted small">${esc(live.host)}</span>` : ""}</td>
+    <td title="${live.last_bar_ms ? utc(live.last_bar_ms) + " UTC" : ""}">${live.last_bar_ms ? liveAge(live.last_bar_ms, lv.now) : "—"}</td>
+    <td class="ld-actions">
+      ${d.mode === "enabled" ? `<button class="small" data-mode="paused" ${dis} title="nové vstupy sa neposielajú; SL/TP bežia ďalej">pauza</button>`
+                             : `<button class="small" data-mode="enabled" ${dis}>zapnúť</button>`}
+      <button class="small danger" data-mode="flatten" ${dis} title="zrušiť čakajúce vstupy a zavrieť pozíciu, potom pauza">flatten</button>
+      <button class="small ghost danger" data-del="1" ${ld.admin ? "" : "disabled"} title="${d.active ? "vypnúť (agent odstráni z platformy), po potvrdení zmazať" : "zmazať z hubu"}">${d.active ? "odstrániť" : "zmazať"}</button>
+    </td></tr>`;
 }
 
 /** Route do MT5 exekútora (docs/ROUTING.md): kam idú ordery a stav exekútora z posledného pingu inštancie (`hb.route`). */

@@ -756,11 +756,12 @@ table.dv-table th.sort { cursor: pointer; text-decoration: underline dotted; }
 #live-table th.sort { cursor: pointer; user-select: none; }
 #live-table th.sort[data-dir="1"]::after { content: " ▲"; }
 #live-table th.sort[data-dir="-1"]::after { content: " ▼"; }
-#live-table tr.live-group td { background: var(--surface-alt); border-top: 1px solid var(--line); }
-#live-table tr.live-group:hover td { background: var(--surface-hover); }
+#live-table tr.live-group td, #ld-deployments tr.ld-group td { background: var(--surface-alt); border-top: 1px solid var(--line); }
+#live-table tr.live-group:hover td, #ld-deployments tr.ld-group:hover td { background: var(--surface-hover); }
 #live-table tr.live-group.hl td { background: var(--surface-changed); }
-#live-table .live-caret { display: inline-block; width: 1.1em; color: var(--muted); }
-#live-table tr.live-member td:first-child { padding-left: calc(8px + 1.1em); }
+#live-table .live-caret, #ld-deployments .live-caret { display: inline-block; width: 1.1em; color: var(--muted); }
+#live-table tr.live-member td:first-child, #ld-deployments tr.ld-member td:first-child { padding-left: calc(8px + 1.1em); }
+#ld-deployments tr.ld-group td:first-child { white-space: nowrap; }
 /* Live sa zmestí na šírku: plná šírka okna, text v bunkách aj tlačidlá akcií sa zalamujú
    (id inštancií aj uprostred slova), čísla ostávajú v jednom riadku, select profilu ukáže
    len začiatok a celý popis až v rozbalenom zozname */
