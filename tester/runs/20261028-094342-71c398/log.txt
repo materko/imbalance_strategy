@@ -1,0 +1,6 @@
+$ emulator MultiCharts ES 15m 20211001-20221001 (ES_USD-1m.feather)
+predhistoria grafu: 432 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 23693 barov 15m, 355367 1m, 0 HTF
+  20000/23693 barov, 55 obchodov
+hotovo: 66 obchodov, nerozhodnutelnych minut 0
+kresby: {'nb_zone': 66, 'tp_box': 66, 'sl_box': 66, 'nb_entry': 66}

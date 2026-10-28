@@ -3,7 +3,7 @@
  "created": "2026-10-25T17:15:08.156858+00:00",
  "seq": 10,
  "strategy": "ibsentry",
- "config_key": "7ace212fd2",
+ "config_key": "bb0b195b0c",
  "market": "MNQ/USD|3m",
  "profile": ".nightsearch/checkup/ibsentry_presiel1_2026-10-11.json",
  "timeranges": [
