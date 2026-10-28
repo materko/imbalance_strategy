@@ -8,7 +8,7 @@ order preloží.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from tradebot.core import Bar, MarketContext, OrderAction
