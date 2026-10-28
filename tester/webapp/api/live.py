@@ -562,7 +562,7 @@ def build(ctx: AppContext) -> APIRouter:
         if deploy_cache["value"] is not None and now - deploy_cache["ts"] < 10:
             return deploy_cache["value"]
         cfg = hub_config.load()
-        verzia = gitcode.version() or None
+        verzia = gitcode.deploy_version() or None
         value = {"configured": cfg is not None, "hub_url": cfg.hub_url if cfg else None,
                  "admin": bool(cfg and cfg.admin_token), "version": verzia, "pushed": _pushed(verzia)}
         deploy_cache.update(ts=now, value=value)
@@ -591,10 +591,11 @@ def build(ctx: AppContext) -> APIRouter:
         return None
 
     def _version() -> str | None:
-        """Commit tejto webapp — ide k nasadeniu (`version`) a je cieľom „Aktualizovať kód“."""
+        """Commit tejto webapp — ide k nasadeniu (`version`) a je cieľom „Aktualizovať kód“ (bez
+        nepushnutých dát navrch, `gitcode.deploy_version`)."""
         from ...hub import gitcode
 
-        return gitcode.version() or None
+        return gitcode.deploy_version() or None
 
     def _hub_http(admin: bool = False) -> Any:
         """HTTP na hub: tokenom agenta na čítanie, hlavným tokenom na mutácie (403 bez neho)."""
@@ -761,7 +762,8 @@ def build(ctx: AppContext) -> APIRouter:
         """Hub `code_state` overuje históriu vo vlastnom klone — keď je hub na staršom kóde, nový commit
         stroja nepozná a nasadenie z jeho starého commitu hlási „zastaraný“, hoci stroj má novší kód.
         Webapp (klon zadávateľa) to overí znova a `outdated` opraví na `ok`, keď je commit nasadenia
-        v histórii nainštalovaného."""
+        v histórii nainštalovaného. Commit nasadenia, ktorý nepozná ani tento klon (nepushnutý, neskôr
+        prepísaný rebase), sa porovnať nedá — `unknown` s `lost`, nie „zastaraný“ navždy."""
         from ...hub import gitcode
 
         cs = dep.get("code_state") if isinstance(dep, dict) else None
@@ -772,8 +774,11 @@ def build(ctx: AppContext) -> APIRouter:
             if key not in ancestor_cache:
                 if len(ancestor_cache) > 500:
                     ancestor_cache.clear()
-                ancestor_cache[key] = gitcode.is_ancestor(*key)
-            if ancestor_cache[key]:
+                ancestor_cache[key] = (gitcode.is_ancestor(*key) or
+                                       (None if gitcode.has_commit(key[0]) or not gitcode.has_commit(key[1]) else "lost"))
+            if ancestor_cache[key] == "lost":
+                dep["code_state"] = {**cs, "state": "unknown", "lost": True}
+            elif ancestor_cache[key]:
                 dep["code_state"] = {**cs, "state": "ok"}
         return dep
 

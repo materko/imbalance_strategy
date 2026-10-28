@@ -4,6 +4,9 @@ Rovnaký beh na inom commite dá iné čísla, takže výpočet nesie **verziu k
 (krátky commit) a agent ju pred behom overí:
 
 - `version()`      — commit, na ktorom klon stojí (`git rev-parse --short HEAD`),
+- `deploy_version()` — commit, ktorý nesie živé nasadenie: HEAD, alebo posledný commit z GitHubu
+                     s tým istým kódom, keď má HEAD navrch len nepushnuté dáta,
+- `has_commit(c)`  — pozná klon commit `c` vôbec? (prepísaný rebase už nie),
 - `has_version(c)` — je commit `c` v histórii HEAD? (`git merge-base --is-ancestor`),
 - `pull()`         — `git fetch` + `rebase --autostash origin/main`, to isté, čo Pull vo webapp
                      (`tester.webapp.gitsync`); v kontajneri (`TRADEBOT_HUB_PULL=host`) ho robí
@@ -24,7 +27,7 @@ from typing import Any
 
 from tradebot.core.paths import HUB_PULL_REQUEST, HUB_PULL_RESULT, REPO
 
-__all__ = ["version", "has_version", "is_ancestor", "on_remote", "versus_main", "pull", "pull_mode",
+__all__ = ["version", "deploy_version", "has_commit", "has_version", "is_ancestor", "on_remote", "versus_main", "pull", "pull_mode",
            "request_host_pull", "host_pull_result", "dirty_code"]
 
 #: Čo sa nepovažuje za kód: história behov, profily a analytiky testera idú cez Push.
@@ -43,6 +46,49 @@ def version() -> str:
     except (OSError, subprocess.SubprocessError):
         return ""
     return r.stdout.strip() if r.returncode == 0 else ""
+
+
+_deploy_cache: dict[str, str] = {}
+
+
+def deploy_version() -> str:
+    """Commit, ktorý ide k živému nasadeniu (`version`) a ako cieľ „Aktualizovať kód“: HEAD, ale keď má
+    HEAD nad `origin/<vetva>` len nepushnuté dáta (behy a profily z webapp), tak ich spoločný predok —
+    ten istý kód, ktorý už je na GitHube. Nepushnutý commit `git pull --rebase` neskôr prepíše na iný
+    sha a nasadenie by navždy chcelo commit, ktorý už nikde nie je („kód: zastaraný“, hoci stroj má
+    novší kód). Nepushnutý kód ostáva HEAD — to webapp hlási ako „nie je na GitHube“."""
+    from tradebot.core.env import getenv
+
+    try:
+        head = _git("rev-parse", "HEAD")
+        if head.returncode != 0:
+            return ""
+        full = head.stdout.strip()
+        if full in _deploy_cache:
+            return _deploy_cache[full]
+        out = full[:9]
+        br = getenv("GIT_BRANCH", "").strip() or "main"
+        base = _git("merge-base", "HEAD", f"origin/{br}")
+        if base.returncode == 0 and base.stdout.strip() != full:
+            zmeny = _git("diff", "--name-only", base.stdout.strip(), full)
+            if zmeny.returncode == 0 and all(c.startswith(_DATA_PREFIXES) for c in zmeny.stdout.split()):
+                out = base.stdout.strip()[:9]
+    except (OSError, subprocess.SubprocessError):
+        return version()
+    if len(_deploy_cache) > 50:
+        _deploy_cache.clear()
+    _deploy_cache[full] = out
+    return out
+
+
+def has_commit(commit: str | None) -> bool:
+    """Pozná tento klon commit `commit`? (Nepushnutý commit prepísaný rebase alebo z cudzej vetvy nie.)"""
+    if not commit:
+        return False
+    try:
+        return _git("cat-file", "-e", f"{commit}^{{commit}}").returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
 
 
 def has_version(commit: str | None) -> bool:

@@ -610,8 +610,8 @@ def test_deploy_proxy_len_na_citanie_bez_admin_tokenu(deploy_app):
     from tester.hub import gitcode
 
     stav = c.get("/api/live").json()["deploy"]
-    assert stav == {"configured": True, "hub_url": "http://hub.test:8790", "admin": False, "version": gitcode.version() or None,
-                    "pushed": True if gitcode.version() else None}
+    assert stav == {"configured": True, "hub_url": "http://hub.test:8790", "admin": False, "version": gitcode.deploy_version() or None,
+                    "pushed": True if gitcode.deploy_version() else None}
     # čítanie ide tokenom agenta
     assert c.get("/api/live/accounts").json()[0]["id"] == "ic"
     assert c.get("/api/live/deployments").json()[0]["id"] == "d1"
@@ -716,8 +716,8 @@ def test_deploy_proxy_bez_hubu_a_stary_hub(deploy_app, monkeypatch):
     from tester.hub import gitcode
 
     hub_config.AGENT_CONFIG.unlink()
-    assert c.get("/api/live").json()["deploy"] == {"configured": False, "hub_url": None, "admin": False, "version": gitcode.version() or None,
-                                                   "pushed": True if gitcode.version() else None}
+    assert c.get("/api/live").json()["deploy"] == {"configured": False, "hub_url": None, "admin": False, "version": gitcode.deploy_version() or None,
+                                                   "pushed": True if gitcode.deploy_version() else None}
     assert c.get("/api/live/accounts").status_code == 404
     assert c.post("/api/live/accounts", json={"agent": "a", "platform": "mt5", "login": "1"}).status_code == 404
 
@@ -746,7 +746,7 @@ def test_deploy_proxy_aktualizacia_kodu_admin_tokenom_a_verzia_webapp(deploy_app
 
     make, hub, tmp = deploy_app
     c = make(admin="hlavny")
-    moja = gitcode.version() or None
+    moja = gitcode.deploy_version() or None
     r = c.post("/api/live/agents/trade-pc/update", json={"force": True, "user": "Rasto"})
     assert r.status_code == 200 and r.json()["code_target"]["version"] == moja and r.json()["code_target"]["force"] is True
     method, path, token, body = hub.calls[-1]
@@ -806,7 +806,7 @@ def test_deploy_sam_aktualizuje_kod_stroja(deploy_app):
 
     make, hub, tmp = deploy_app
     c = make(admin="hlavny")
-    moja = gitcode.version() or None
+    moja = gitcode.deploy_version() or None
     if not moja:
         pytest.skip("mimo gitu")
     hub.new_code_state = {"installed": None, "state": "unknown"}
@@ -858,8 +858,12 @@ def test_deploy_zastaraly_kod_overi_webapp_vlastnym_gitom(deploy_app, monkeypatc
     hub.deployments[0].update(version="aaa1111", code_state={"installed": "bbb2222", "state": "outdated"})
     monkeypatch.setattr(gitcode, "is_ancestor", lambda older, newer: (older, newer) == ("aaa1111", "bbb2222"))
     assert c.get("/api/live/deployments").json()[0]["code_state"] == {"installed": "bbb2222", "state": "ok"}
+    monkeypatch.setattr(gitcode, "has_commit", lambda commit: commit != "ddd4444")
     hub.deployments[0].update(version="ccc3333", code_state={"installed": "bbb2222", "state": "outdated"})
     assert c.get("/api/live/deployments").json()[0]["code_state"]["state"] == "outdated"
+    # commit nasadenia, ktorý klon nepozná (nepushnutý, prepísaný rebase) — neoveriteľný, nie „zastaraný“ navždy
+    hub.deployments[0].update(version="ddd4444", code_state={"installed": "bbb2222", "state": "outdated"})
+    assert c.get("/api/live/deployments").json()[0]["code_state"] == {"installed": "bbb2222", "state": "unknown", "lost": True}
 
 
 def test_deploy_nenabehla_prejde_z_hubu_a_tabulka_ukaze_upozornenie(deploy_app):

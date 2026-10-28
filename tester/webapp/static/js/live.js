@@ -918,6 +918,7 @@ function ldCodeChip(cs, wanted) {
   const sha = cs.installed ? String(cs.installed).slice(0, 7) : "";
   if (cs.state === "ok") return `<span class="chip ok" title="platforma má ${esc(sha)}${wanted ? ` (chcené ${esc(String(wanted).slice(0, 7))})` : ""}">kód: aktuálny</span>`;
   if (cs.state === "outdated") return `<span class="chip warn" title="platforma má ${esc(sha)}, chcené ${esc(String(wanted || "").slice(0, 7) || "?")} — Aktualizovať kód v sekcii Stroje">kód: zastaraný ${esc(sha)}</span>`;
+  if (cs.lost) return `<span class="chip warn" title="commit nasadenia ${esc(String(wanted || "").slice(0, 7) || "?")} v histórii nie je (bol len v klone a git pull --rebase ho prepísal) — porovnať sa nedá; platforma má ${esc(sha)}. Nový profil nasadenia zapíše aktuálny commit">kód: ${esc(sha)}, commit nasadenia stratený</span>`;
   return `<span class="chip" title="platforma nehlási installed.json (kód nainštalovaný ručne pred fázou 2c, alebo nikdy)">kód: neznámy</span>`;
 }
 

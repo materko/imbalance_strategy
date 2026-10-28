@@ -2019,6 +2019,37 @@ def test_gitcode_versus_main_counts_commits_behind_and_ahead(tmp_path: Path, mon
                              lokalny: {"behind": 0, "ahead": 1}, "deadbee": None}
 
 
+def test_gitcode_deploy_version_skips_unpushed_data_commits(tmp_path: Path, monkeypatch):
+    """Nasadenie nesie commit z GitHubu, keď má HEAD navrch len nepushnuté dáta (behy z webapp) — taký
+    commit `git pull --rebase` prepíše a nasadenie by potom chcelo commit, ktorý nikde nie je.
+    Nepushnutý kód ostáva HEAD; `has_commit` neznámy commit nepozná."""
+    import subprocess
+    from tester.hub import gitcode
+
+    def git(cwd, *a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=cwd,
+                              capture_output=True, text=True, check=True).stdout.strip()
+
+    origin, klon = tmp_path / "origin.git", tmp_path / "klon"
+    git(tmp_path, "init", "--bare", "-b", "main", str(origin))
+    git(tmp_path, "clone", str(origin), str(klon))
+    def commit(rel, msg):
+        (klon / rel).parent.mkdir(parents=True, exist_ok=True)
+        (klon / rel).write_text(msg, encoding="utf-8")
+        git(klon, "add", rel); git(klon, "commit", "-m", msg)
+        return git(klon, "rev-parse", "HEAD")
+    pushnuty = commit("f.txt", "a")
+    git(klon, "push", "origin", "HEAD:main")
+    monkeypatch.setattr(gitcode, "REPO", klon)
+    monkeypatch.setattr(gitcode, "_deploy_cache", {})
+    assert pushnuty.startswith(gitcode.deploy_version())
+    commit("tester/runs/r1/run.json", "beh")                 # nepushnuté dáta
+    assert pushnuty.startswith(gitcode.deploy_version())
+    kod = commit("f.txt", "b")                               # nepushnutý kód
+    assert kod.startswith(gitcode.deploy_version())
+    assert gitcode.has_commit(pushnuty[:9]) and not gitcode.has_commit("636ace302") and not gitcode.has_commit("")
+
+
 def test_gitcode_pull_can_be_disabled(monkeypatch):
     from tester.hub import gitcode
 
