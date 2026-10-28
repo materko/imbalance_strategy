@@ -660,7 +660,9 @@ načítanie (aj obnova každých 5 s) ide na hub; hub dole = chyba v sekcii, tab
   ticho. Riadky sú zoskupené po účtoch hubu ako inštancie vyššie: predvolene zbalené, „rozbaliť
   všetky“ pri nadpise, rozbalené si pamätá prehliadač; hlavička nesie počty podľa stavu, počet
   nasadení, stroje, rôzne stratégie / symboly / TF / profily / režimy, počet nasadení so
-  zastaraným kódom a najčerstvejší bar. Odstránené nasadenia (agent ich z platformy už zmazal)
+  zastaraným kódom a najčerstvejší bar. Hlavička má aj **pauza / flatten / odstrániť všetky**
+  pre aktívne nasadenia účtu — každé sa najprv opýta oknom so zoznamom nasadení, ktorých sa
+  týka, a potom ide nasadenie po nasadení ako tlačidlá v riadku. Odstránené nasadenia (agent ich z platformy už zmazal)
   sa skrývajú, odkaz pod tabuľkou ich ukáže. **Nasadiť**: účet, stratégia (z `/api/meta`), symbol tak, ako ho pozná platforma,
   TF v minútach, profil (`/api/live/profiles?strategy=` — repozitár aj vlastné profily;
   snímka configu sa poskladá vo webapp a na hub ide hotová), režim — predvolene **pauza**:

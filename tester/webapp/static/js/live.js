@@ -1098,6 +1098,11 @@ function ldGroupRow(key, members, collapsed) {
     : cs.every(s => s === "ok") ? `<span class="chip ok">aktuálny</span>` : `<span class="muted">—</span>`;
   const bar = Math.max(0, ...members.map(d => Number(ldLive(d).last_bar_ms) || 0));
   const plat = LD_PLATFORMS[acc.platform];
+  const n = action => members.filter(LD_GROUP_ACTIONS[action].pick).length;
+  const btn = (action, cls, txt, title) => {
+    const k = n(action);
+    return `<button class="small ${cls}" data-group-action="${action}" ${ld.admin && k ? "" : "disabled"} title="${esc(title)} (${k}) — najprv sa opýta">${txt} všetky</button>`;
+  };
   return `<tr class="ld-group" data-group="${esc(key)}" title="${collapsed ? "rozbaliť" : "zbaliť"} účet">
     <td><span class="live-caret">${collapsed ? "▸" : "▾"}</span>${chips.join(" ") || "—"}</td>
     <td title="účet ${esc(key)}"><b>${esc(acc.label || key)}</b> <span class="muted small">${esc(plat ? plat.title : acc.platform || "")}</span>
@@ -1109,7 +1114,12 @@ function ldGroupRow(key, members, collapsed) {
     <td>${liveUniqCell(members.map(d => d.profile), 1)}</td>
     <td>${liveUniqCell(members.filter(d => d.active).map(d => LD_MODE_LABEL[d.mode] || d.mode), 3)}</td>
     <td></td><td>${kod}</td><td></td>
-    <td title="${bar ? utc(bar) + " UTC — najčerstvejší bar účtu" : ""}">${bar ? liveAge(bar, lv.now) : "—"}</td><td></td></tr>`;
+    <td title="${bar ? utc(bar) + " UTC — najčerstvejší bar účtu" : ""}">${bar ? liveAge(bar, lv.now) : "—"}</td>
+    <td class="ld-actions">
+      ${btn("paused", "", "pauza", "pozastaviť obchodujúce nasadenia účtu")}
+      ${btn("flatten", "danger", "flatten", "zrušiť čakajúce vstupy a zavrieť pozície všetkých aktívnych nasadení účtu")}
+      ${btn("delete", "ghost danger", "odstrániť", "odstrániť všetky aktívne nasadenia účtu z platformy")}
+    </td></tr>`;
 }
 
 function renderLdDeployments() {
@@ -1145,7 +1155,12 @@ function renderLdDeployments() {
     const zbalena = !ld.expanded.has(k);
     return ldGroupRow(k, members, zbalena) + (zbalena ? "" : members.map(d => ldDeploymentRow(d, accById, instances)).join(""));
   }).join("");
-  for (const tr of $$("#ld-deployments tbody tr[data-group]")) tr.onclick = () => ldToggleGroup(tr.dataset.group);
+  for (const tr of $$("#ld-deployments tbody tr[data-group]")) {
+    tr.onclick = () => ldToggleGroup(tr.dataset.group);
+    for (const b of tr.querySelectorAll("button[data-group-action]")) {
+      b.onclick = e => { e.stopPropagation(); ldGroupAction(tr.dataset.group, b.dataset.groupAction); };
+    }
+  }
   for (const tr of $$("#ld-deployments tbody tr[data-dep]")) {
     const id = tr.dataset.dep;
     for (const b of tr.querySelectorAll("button[data-mode]")) b.onclick = () => ldSetMode(id, b.dataset.mode);
@@ -1564,6 +1579,38 @@ async function ldSetProfile(id, sel) {
     await api(`/api/live/deployments/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ profile, user: ldUser() }) });
     await loadLiveDeploy();
   } catch (e) { sel.value = dep.profile; ldFail(e); }
+}
+
+/** Hromadná akcia na skupine (účte) v tabuľke nasadení: vždy sa najprv opýta so zoznamom nasadení, ktorých sa
+ *  týka; potom ide nasadenie po nasadení rovnakým volaním ako tlačidlá v riadku a chyby zhrnie na konci. */
+const LD_GROUP_ACTIONS = {
+  paused: { pick: d => d.active && d.mode === "enabled", what: "Pozastaviť",
+            note: "Nové vstupy sa neposielajú; SL/TP otvorených pozícií bežia ďalej." },
+  flatten: { pick: d => d.active && d.mode !== "flatten", what: "FLATTEN",
+             note: "Zrušia sa všetky čakajúce vstupy a zavrú otvorené pozície u brokera, potom pauza." },
+  delete: { pick: d => d.active, what: "ODSTRÁNIŤ",
+            note: "Agent inštancie z platformy odstráni; otvorené pozície sa nezatvárajú (na to je flatten). Z hubu sa dajú zmazať až po potvrdení agentom." },
+};
+
+async function ldGroupAction(key, action) {
+  const spec = LD_GROUP_ACTIONS[action];
+  const acc = ld.accounts.find(a => a.id === key) || {};
+  const deps = ld.deployments.filter(d => d.account === key && spec.pick(d));
+  if (!deps.length) return;
+  const zoznam = deps.map(d => `  • ${d.symbol} ${d.tf}m — ${d.strategy}${d.slot ? ` (${d.slot})` : ""} · ${LD_MODE_LABEL[d.mode] || d.mode}`).join("\n");
+  if (!confirm(`${spec.what} ${ldPocet(deps.length, "nasadenie", "nasadenia", "nasadení")} na účte „${acc.label || key}“?\n\n${zoznam}\n\n${spec.note}\n\nNaozaj pokračovať?`)) return;
+  const chyby = [];
+  for (const d of deps) {
+    try {
+      if (action === "delete") {
+        await api(`/api/live/deployments/${encodeURIComponent(d.id)}?force=false&user=${encodeURIComponent(ldUser() || "")}`, { method: "DELETE" });
+      } else {
+        await api(`/api/live/deployments/${encodeURIComponent(d.id)}`, { method: "PATCH", body: JSON.stringify({ mode: action, user: ldUser() }) });
+      }
+    } catch (e) { chyby.push(`${d.symbol} ${d.tf}m ${d.strategy}: ${e.message}`); }
+  }
+  await loadLiveDeploy().catch(() => {});
+  if (chyby.length) ldFail(new Error(`${chyby.length} z ${deps.length} zlyhalo — ${chyby.join("; ")}`));
 }
 
 async function ldDelete(id) {
