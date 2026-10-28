@@ -29,6 +29,7 @@ from .sdeur import SPEC as SDEUR_SPEC
 from .nb import SPEC as NB_SPEC
 from .m2 import SPEC as M2_SPEC
 from .m2mnq import SPEC as M2MNQ_SPEC
+from .m2eur import SPEC as M2EUR_SPEC
 from .m2mgc import SPEC as M2MGC_SPEC
 from .sdeurnet import SPEC as SDEURNET_SPEC
 from .fpc import SPEC as FPC_SPEC
@@ -132,6 +133,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     NB_SPEC.key: NB_SPEC,
     M2_SPEC.key: M2_SPEC,
     M2MNQ_SPEC.key: M2MNQ_SPEC,
+    M2EUR_SPEC.key: M2EUR_SPEC,
     M2MGC_SPEC.key: M2MGC_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SILVERBULLET_SPEC.key: SILVERBULLET_SPEC,

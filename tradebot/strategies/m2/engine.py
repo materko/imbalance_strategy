@@ -3,13 +3,16 @@
 Priebeh na každom uzavretom bare grafu:
 
   1. **vyplnenie** — čakajúca limitka sa vyplnila (pozícia alebo `open_order_ids`) → obchod, TP / SL box,
-  2. **zánik setupu** — bez vyplnenia: sviečka zavrela za stopom (M2 neplatí) alebo prešlo `limitMaxBars` → zrušiť,
+  2. **zánik setupu** — bez vyplnenia: sviečka zavrela za stopom (M2 neplatí), prešlo `limitMaxBars`, alebo
+     (`cancelAtTarget`) cena došla k cieľu → zrušiť,
   3. **potvrdenie** — telo tejto sviečky je celé nad poslednou negatívnou sviečkou (min(open, close) > jej high)
-     → long M2; celé pod poslednou pozitívnou (max(open, close) < jej low) → short M2; M2 sa tým spotrebuje,
+     → long M2; celé pod poslednou pozitívnou (max(open, close) < jej low) → short M2; M2 sa tým spotrebuje;
+     kvalita (rozšírenie): potvrdenie do `confirmMaxBars` sviečok, telo aspoň `minImpulseAtr` ATR,
   4. **kandidáti** — sviečka so zavretím pod 50 % rozsahu je nová posledná negatívna, nad 50 % nová posledná
-     pozitívna (farba nerozhoduje),
+     pozitívna (farba nerozhoduje); pri `swingBars` platí len, keď je jej low / high extrémom posledných sviečok (inak setup tej strany zanikne),
   5. **limitka** — bez pozície na potvrdenú M2 (ak sedí trend EMA, okno a limit obchodov): long limit na high M2,
-     stop pod low M2 − `slTicks`, cieľ RR; novšia potvrdená M2 nahradí čakajúcu.
+     stop pod low M2 − `slTicks` − `slBufferAtr`, cieľ RR, limitka voliteľne `entryPct` % hlboko v M2, riziko
+     v hraniciach `minRiskAtr`–`maxRiskAtr`; novšia potvrdená M2 nahradí čakajúcu.
 
 Engine je čistý: žiadne I/O, žiadny globálny stav.
 """
@@ -72,13 +75,14 @@ class M2Engine:
         self.inst = inst
         self.chart_tf_minutes = max(1, int(chart_tf_minutes))
         self.step_ms = self.chart_tf_minutes * 60_000
-        self.history = BarHistory(maxlen=4, atr_len=14)
+        self.history = BarHistory(maxlen=max(4, int(cfg.swingBars) + 1), atr_len=14)
         self.emas = [_Ema(n) for n in cfg.emas]
         need = ema_bars(max(cfg.emas)) if cfg.useEmaTrend else 2
         self.warmup = Warmup(self.chart_tf_minutes).add(f"EMA {max(cfg.emas)}", need)
         self.required_history = max(1, self.warmup.chart_bars)
-        self.last_neg: tuple[int, float, float] | None = None   #: (čas, high, low) poslednej negatívnej sviečky
-        self.last_pos: tuple[int, float, float] | None = None
+        #: (čas, high, low, bar_index) poslednej negatívnej / pozitívnej sviečky
+        self.last_neg: tuple[int, float, float, int] | None = None
+        self.last_pos: tuple[int, float, float, int] | None = None
         #: čakajúca limitka: id, idx, plán, M2 (čas, high, low), bar potvrdenia
         self.pending: tuple[str, int, TradePlan, tuple[int, float, float], int] | None = None
         self.pending_ms = 0
@@ -107,14 +111,20 @@ class M2Engine:
             return -1
         return 0
 
-    def _plan(self, long: bool, m2: tuple[int, float, float]) -> TradePlan | None:
+    def _plan(self, long: bool, m2: tuple[int, float, float, int]) -> TradePlan | None:
         cfg, inst = self.cfg, self.inst
-        _t, hi, lo = m2
-        sl = int(cfg.slTicks) * inst.tick_size
-        entry = inst.round_price(hi if long else lo)
+        _t, hi, lo, _i = m2
+        atr = self.history.atr
+        sl = int(cfg.slTicks) * inst.tick_size + float(cfg.slBufferAtr) * atr
+        depth = float(cfg.entryPct) / 100.0 * (hi - lo)
+        entry = inst.round_price(hi - depth if long else lo + depth)
         stop = inst.round_price(lo - sl if long else hi + sl)
         risk = abs(entry - stop)
         if risk < inst.tick_size:
+            return None
+        if cfg.minRiskAtr > 0 and (atr <= 0 or risk < cfg.minRiskAtr * atr):
+            return None
+        if cfg.maxRiskAtr > 0 and (atr <= 0 or risk > cfg.maxRiskAtr * atr):
             return None
         take = entry + cfg.rrRatio * risk if long else entry - cfg.rrRatio * risk
         qty = cfg.qty if cfg.fixedQty else inst.qty_for_risk(cfg.riskDollar, risk)
@@ -180,24 +190,38 @@ class M2Engine:
                 self._cancel(out, "sviečka zavrela za stopom — M2 neplatí")
             elif int(cfg.limitMaxBars) > 0 and idx - conf >= int(cfg.limitMaxBars):
                 self._cancel(out, f"limitka čakala {cfg.limitMaxBars} sviečok")
+            elif cfg.cancelAtTarget and ((bar.high >= plan.take_profit) if long else (bar.low <= plan.take_profit)):
+                self._cancel(out, "cena došla k cieľu bez vyplnenia — pohyb ušiel")
 
         # ---- 3. potvrdenie M2 telom tejto sviečky ---------------------------- #
+        cmax = int(cfg.confirmMaxBars)
+        if cmax > 0:
+            if self.last_neg is not None and idx - self.last_neg[3] > cmax:
+                self.last_neg = None
+            if self.last_pos is not None and idx - self.last_pos[3] > cmax:
+                self.last_pos = None
         body_lo, body_hi = min(bar.open, bar.close), max(bar.open, bar.close)
-        confirmed: tuple[bool, tuple[int, float, float]] | None = None
+        impulse = cfg.minImpulseAtr <= 0 or body_hi - body_lo >= cfg.minImpulseAtr * self.history.atr > 0
+        confirmed: tuple[bool, tuple[int, float, float, int]] | None = None
         if self.last_neg is not None and body_lo > self.last_neg[1]:
-            confirmed = (True, self.last_neg)
+            if impulse:
+                confirmed = (True, self.last_neg)
             self.last_neg = None
         if self.last_pos is not None and body_hi < self.last_pos[2]:
-            confirmed = (False, self.last_pos)
+            if impulse:
+                confirmed = (False, self.last_pos)
             self.last_pos = None
 
         # ---- 4. kandidáti: posledná negatívna / pozitívna sviečka ------------- #
         mid = bar.low + (bar.high - bar.low) / 2.0
         if bar.high > bar.low:
+            n = min(int(cfg.swingBars), len(self.history))
             if bar.close < mid:
-                self.last_neg = (bar.time, bar.high, bar.low)
+                ok = n <= 1 or all(bar.low <= self.history[k].low for k in range(1, n))
+                self.last_neg = (bar.time, bar.high, bar.low, idx) if ok else None
             elif bar.close > mid:
-                self.last_pos = (bar.time, bar.high, bar.low)
+                ok = n <= 1 or all(bar.high >= self.history[k].high for k in range(1, n))
+                self.last_pos = (bar.time, bar.high, bar.low, idx) if ok else None
 
         # ---- 5. limitka na potvrdenú M2 --------------------------------------- #
         if pos == 0.0 and confirmed is not None:

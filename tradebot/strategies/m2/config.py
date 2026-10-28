@@ -42,6 +42,8 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "slTicks": (0, 1000), "rrRatio": (0.5, 20.0), "limitMaxBars": (0, 10000),
     "entryStartH": (0, 23), "entryStartM": (0, 59), "entryEndH": (0, 23), "entryEndM": (0, 59),
     "maxTradesPerDay": (0, 100), "riskDollar": (0, 100000), "leverage": (1, 125),
+    "confirmMaxBars": (0, 500), "minImpulseAtr": (0.0, 10.0), "swingBars": (0, 500), "minRiskAtr": (0.0, 20.0),
+    "maxRiskAtr": (0.0, 50.0), "entryPct": (0.0, 90.0), "slBufferAtr": (0.0, 10.0),
 }
 PORT_ONLY_FIELDS: frozenset[str] = frozenset({"leverage"})
 
@@ -80,9 +82,25 @@ class M2Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilter
     entryEndM: int = 0
     #: Najviac obchodov za deň (New York); 0 = bez limitu.
     maxTradesPerDay: int = 0
+    #: Limitka v hĺbke M2 v % jej rozsahu od hrany (0 = high M2 pri longu, 50 = stred).
+    entryPct: float = 0.0
+    #: Pri limitke zrušiť ju, keď cena dosiahne cieľ skôr, než sa vyplní (pohyb ušiel).
+    cancelAtTarget: bool = False
+    # ---- 🔍 Kvalita M2 (rozšírenie, 28. 10. 2026; 0 = vypnuté) --------------------- #
+    #: Potvrdenie najneskôr toľko sviečok po M2 („posledná pred pohybom“ = pohyb prišiel hneď).
+    confirmMaxBars: int = 0
+    #: Telo potvrdzujúcej sviečky aspoň toľko ATR (impulz).
+    minImpulseAtr: float = 0.0
+    #: M2 je extrém: low (long) / high (short) najnižšie / najvyššie z posledných toľkých sviečok.
+    swingBars: int = 0
+    #: Riziko (vstup → stop) aspoň / najviac toľko ATR grafu.
+    minRiskAtr: float = 0.0
+    maxRiskAtr: float = 0.0
     # ---- 🛡️ Stop a cieľ ----------------------------------------------------------- #
     #: Stop toľko tickov za druhým koncom M2 (pod low pri longu).
     slTicks: int = 1
+    #: Ďalšia rezerva stopu v ATR grafu (k `slTicks`).
+    slBufferAtr: float = 0.0
     rrRatio: float = 2.0
     # ---- 💰 Veľkosť ---------------------------------------------------------------- #
     riskDollar: float = 500.0
@@ -110,5 +128,7 @@ class M2Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilter
             yield "okno vstupu: začiatok a koniec sú rovnaké"
         if list(self.emas) != sorted(self.emas):
             yield "EMA musia ísť od najkratšej po najdlhšiu (ema1 ≤ ema2 ≤ … ≤ ema5)"
+        if self.maxRiskAtr > 0 and self.minRiskAtr > self.maxRiskAtr:
+            yield "riziko: minimum ATR je väčšie ako maximum"
         if self.leverage < 1:
             yield f"leverage={self.leverage} musí byť >= 1"

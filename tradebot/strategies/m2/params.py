@@ -13,12 +13,13 @@ __all__ = ["GROUPS", "PARAMS"]
 _G0 = "📈 Trend (EMA zoradené)"
 _G2 = "🎯 Vstup"
 _G3 = "🛡️ Stop a cieľ"
+_G1 = "🔍 Kvalita M2 (0 = vypnuté)"
 _G4 = "💰 Veľkosť"
 _G5 = "🎨 Vizualizácia"
 _G6 = "🧩 Rozšírenia portu"
 _GE = "🧾 Typ vstupu (market / limit)"
 
-GROUPS: tuple[str, ...] = (_G0, _G2, _G3, _G4, _G5, _G6, _GE)
+GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _G3, _G4, _G5, _G6, _GE)
 
 PARAMS: dict[str, dict[str, Any]] = {
     "useEmaTrend": dict(group=_G0, title="Len v smere zoradených EMA",
@@ -39,6 +40,19 @@ PARAMS: dict[str, dict[str, Any]] = {
     "entryEndH": dict(group=_G2, title="Do (H)", inline="ee", tooltip="Hodina New York."),
     "entryEndM": dict(group=_G2, title="M", inline="ee", tooltip="Minúta."),
     "maxTradesPerDay": dict(group=_G2, title="Max obchodov za deň (0 = bez)", tooltip="Deň New York."),
+    "confirmMaxBars": dict(group=_G1, title="Potvrdenie najneskôr po (sviečok)",
+                           tooltip="Pohyb musí prísť hneď po M2 — inak to nie je posledná sviečka pred pohybom."),
+    "minImpulseAtr": dict(group=_G1, title="Telo potvrdenia aspoň (ATR)", step=0.1,
+                          tooltip="Impulz: telo potvrdzujúcej sviečky v násobkoch ATR 14 grafu."),
+    "swingBars": dict(group=_G1, title="M2 je extrém posledných (sviečok)",
+                      tooltip="Long: low M2 je najnižšie z toľkých sviečok (M2 na dne pred pohybom); short naopak."),
+    "minRiskAtr": dict(group=_G1, title="Riziko aspoň (ATR)", inline="r", step=0.1,
+                       tooltip="Vzdialenosť vstup → stop; malé M2 = poplatky zjedia zisk."),
+    "maxRiskAtr": dict(group=_G1, title="najviac (ATR)", inline="r", step=0.1, tooltip="Veľké M2 vynechať."),
+    "entryPct": dict(group=_G2, title="Limitka v hĺbke M2 (%)", tooltip="0 = na hrane (podklad), 50 = v strede M2."),
+    "cancelAtTarget": dict(group=_G2, title="Zrušiť limitku pri dosiahnutí cieľa",
+                           tooltip="Keď cena dôjde k cieľu bez vyplnenia, pohyb ušiel — setup sa zruší."),
+    "slBufferAtr": dict(group=_G3, title="Ďalšia rezerva stopu (ATR)", step=0.05, tooltip="K stopu za M2 v tickoch."),
     "slTicks": dict(group=_G3, title="Stop za M2 (tickov)", tooltip="Podklad: stop pod low M2 (long) / nad high M2 (short)."),
     "rrRatio": dict(group=_G3, title="RRR (cieľ = RR × riziko)", step=0.1, tooltip="Podklad: 3 : 1 do trendu, advanced skalp 2 : 1."),
     "riskDollar": dict(group=_G4, title="Riziko na obchod ($)", tooltip="Pri vypnutom pevnom počte."),

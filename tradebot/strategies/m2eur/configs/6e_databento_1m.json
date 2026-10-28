@@ -1,0 +1,6 @@
+{
+  "_title": "M2 (6E) · 1m · EMA 20/200/300/600/1200 zoradené, limit na hrane M2, stop 1 tick za M2, RR 2 (podklad advanced)",
+  "_strategy": "m2eur",
+  "_instrument": "6e_databento",
+  "_timeframe": "1m"
+}
