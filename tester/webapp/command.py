@@ -69,8 +69,12 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
         # takže hash súboru by bol pre každý beh iný a model by sa nikdy nepoužil znova.
         profil = _json.loads(Path(profile_path).read_text(encoding="utf-8"))
         parametre = {k: v for k, v in profil.items() if not k.startswith("_")}
+        # Aj okná tréningu a model: rovnaký profil s iným `train_period_days` by inak
+        # načítal model natrénovaný na inom kuse histórie (sub-train-<pár>_<štart okna>).
+        trening = {k: {**engines.AI_DEFAULTS, **ai}.get(k)
+                   for k in ("train_period_days", "backtest_period_days", "model")}
         odtlacok = hashlib.sha1(_json.dumps(
-            {"p": parametre, "s": settings.get("strategy") or "ibs", "tf": tf},
+            {"p": parametre, "s": settings.get("strategy") or "ibs", "tf": tf, "ai": trening},
             sort_keys=True, default=str).encode("utf-8")).hexdigest()[:10]
         ai = {**ai, "identifier": f"tb-{settings.get('strategy') or 'ibs'}-{odtlacok}"}
     cmd = [
