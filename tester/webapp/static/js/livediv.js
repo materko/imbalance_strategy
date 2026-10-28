@@ -246,10 +246,26 @@ function nzStatus(x) {
   return `<span class="chip ${c}">${esc(x.status)}</span>`;
 }
 
+/** Inštancie po účtoch (platforma + účet, ako tabuľka Nasadenia na karte Live), v poradí prvej inštancie. */
+function nzGroups(all) {
+  const g = new Map();
+  for (const x of all) {
+    const k = `${x.platform || ""}|${x.account || ""}`;
+    if (!g.has(k)) g.set(k, []);
+    g.get(k).push(x);
+  }
+  return [...g];
+}
+
 function nzPickHtml(all) {
   return `<div class="dv-head"><h2>Ktoré stratégie <span class="hint">výber platí pre celú kartu</span></h2>
       <span class="mode-switch dv-seg" id="nz-unit"><button type="button" data-u="$"${nz.unit === "$" ? ' class="active"' : ""}>$</button><button type="button" data-u="R"${nz.unit === "R" ? ' class="active"' : ""}>R</button></span></div>
-    <div class="nz-pick">${all.map(x => `<label class="nz-chip"><input type="checkbox" data-nz-inst="${esc(x.id)}"${nz.off[x.id] ? "" : " checked"}>${dvSw(x._c)}${esc(x.name)} <small>${esc(nzPlat(x))}</small></label>`).join("")}</div>
+    ${nzGroups(all).map(([key, xs]) => {
+      const on = xs.filter(x => !nz.off[x.id]).length, x0 = xs[0], label = typeof liveAccountLabel === "function" ? liveAccountLabel(x0) : "";
+      return `<div class="nz-acct"><label class="nz-acct-head"><input type="checkbox" data-nz-acct="${esc(key)}"${on === xs.length ? " checked" : ""}${on && on < xs.length ? " data-mixed" : ""}>
+          <b>${esc(label || x0.account || "—")}</b> <small>${esc(NZ_PLAT[x0.platform] || x0.platform)}${label ? " · " + esc(x0.account) : ""} · ${on} / ${xs.length}</small></label>
+        <div class="nz-pick">${xs.map(x => `<label class="nz-chip"><input type="checkbox" data-nz-inst="${esc(x.id)}"${nz.off[x.id] ? "" : " checked"}>${dvSw(x._c)}${esc(x.name)} <small>${esc(nzPlat(x))}</small></label>`).join("")}</div></div>`;
+    }).join("")}
     <p class="hint">$ = skutočný zisk u brokera, hrubý bez poplatkov (MT5 CFD má inú veľkosť kontraktu ako MNQ); R = zisk vo veľkostiach stopu — porovnateľné medzi stratégiami aj platformami.</p>`;
 }
 
@@ -425,6 +441,15 @@ function nzRender() {
 
 function nzBind() {
   for (const cb of $$("[data-nz-inst]")) cb.onchange = () => { if (cb.checked) delete nz.off[cb.dataset.nzInst]; else nz.off[cb.dataset.nzInst] = 1; nz.log.inst = ""; nzSave(); nzRender(); };
+  // celý účet: zaškrtnúť = všetky jeho stratégie, odškrtnúť = žiadnu; čiastočný výber ukáže pomlčku
+  const groups = new Map(nzGroups(nzActive()));
+  for (const cb of $$("[data-nz-acct]")) {
+    cb.indeterminate = cb.hasAttribute("data-mixed");
+    cb.onchange = () => {
+      for (const x of groups.get(cb.dataset.nzAcct) || []) { if (cb.checked) delete nz.off[x.id]; else nz.off[x.id] = 1; }
+      nz.log.inst = ""; nzSave(); nzRender();
+    };
+  }
   for (const b of $$("#nz-unit button")) b.onclick = () => { if (b.dataset.u === nz.unit) return; nz.unit = b.dataset.u; nzSave(); nzRender(); };
   if ($("#nz-band-inst")) $("#nz-band-inst").onchange = e => { nz.band = e.target.value; nzBandChart(); };
   if (!$("#nz-log")) return;

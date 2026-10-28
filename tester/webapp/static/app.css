@@ -795,7 +795,11 @@ table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(
 .dv-busy { display: flex; align-items: center; gap: 12px; font-size: 14px; }
 /* karta Naživo */
 .nz-pick { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
-.nz-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 8px; font-size: 13px; cursor: pointer; background: var(--surface-alt); }
+.nz-acct { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; }
+.nz-acct-head { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.nz-acct-head input { margin: 0; }
+.nz-acct-head small { color: var(--muted); }
+.nz-chip { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 8px; font-size: 13px; cursor: pointer; background: var(--surface-alt); }
 .nz-chip input { margin: 0; }
 .nz-chip small { color: var(--muted); }
 .nz-chip:has(input:not(:checked)) { opacity: .5; background: transparent; }
