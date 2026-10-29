@@ -1,4 +1,4 @@
-"""SPRÁVY 1.0: kalendár (časové pásma, posun času, opravy z profilu) a engine na syntetických 5m baroch."""
+"""SPRÁVY 3.0: kalendár (časové pásma, posun času, opravy z profilu) a engine na syntetických 5m baroch."""
 
 from __future__ import annotations
 
@@ -50,6 +50,11 @@ def test_opravy_z_profilu():
 
 
 # ---------------------------------------------------------------- engine
+def only(typ: str, **kw) -> SpravyConfig:
+    """Config, ktorý obchoduje len správu `typ` (ostatné prepínače vypnuté)."""
+    return SpravyConfig(**{f"use{t}": t == typ for t in ("FOMC", "CPI", "PPI", "PCE", "JOLTS")}, atrLen=3, **kw)
+
+
 def run(cfg: SpravyConfig, bars):
     e = SpravyEngine(cfg, MGC, 5)
     outs = [e.on_bar(Bar(t, o, h, l, c, 100.0), None, FLAT) for t, o, h, l, c in bars]
@@ -72,7 +77,7 @@ def entries(outs):
 
 def test_fomc_trend_long_po_rastucej_nohe_15_60():
     t = to_utc_ms(date(2026, 10, 28), "14:00")
-    cfg = SpravyConfig(trendEvents="FOMC", fadeEvents="", atrLen=3)
+    cfg = only("FOMC", r1Event="FOMC", r1Mode="trend", r1From=15, r1To=60, r1Enter=60, r1Hold=240, r1Stop=0.0)
     bars = path(t - 6 * M5, 6, 4000, 0.1) + path(t, 24, 4000.6, 1.0)      # od správy rast o 1 bod / 5 min
     e, outs = run(cfg, bars)
     en = entries(outs)
@@ -88,7 +93,7 @@ def test_fomc_trend_long_po_rastucej_nohe_15_60():
 def test_cpi_fade_short_po_rastucej_nohe():
     t = to_utc_ms(date(2026, 9, 11), "08:30")
     t = next(x for x, typ in events_utc({"CPI"}) if x >= t)
-    cfg = SpravyConfig(trendEvents="", fadeEvents="CPI", atrLen=3)
+    cfg = only("CPI")
     bars = path(t - 6 * M5, 6, 4000, 0.1) + path(t, 16, 4000.6, 1.0)
     _, outs = run(cfg, bars)
     o = entries(outs)[0]
@@ -97,7 +102,7 @@ def test_cpi_fade_short_po_rastucej_nohe():
 
 def test_vystup_v_case_po_drzani():
     t = to_utc_ms(date(2026, 10, 28), "14:00")
-    cfg = SpravyConfig(trendEvents="FOMC", fadeEvents="", atrLen=3, trendHold=30)
+    cfg = only("FOMC", r1Event="FOMC", r1Mode="trend", r1From=15, r1To=60, r1Enter=60, r1Hold=30, r1Stop=0.0)
     e = SpravyEngine(cfg, MGC, 5)
     bars = path(t - 6 * M5, 6, 4000, 0.1) + path(t, 30, 4000.6, 1.0)
     closes = []
@@ -121,6 +126,60 @@ def test_nezname_typy_su_chyba():
     from tradebot.core.config import ConfigError
 
     with pytest.raises(ConfigError, match="XYZ"):
-        SpravyConfig(trendEvents="FOMC,XYZ")
-    with pytest.raises(ConfigError, match="naraz"):
-        SpravyConfig(trendEvents="CPI", fadeEvents="CPI")
+        SpravyConfig(r7Event="XYZ")
+    with pytest.raises(ConfigError, match="režim"):
+        SpravyConfig(r7Event="NFP", r7Mode="hore")
+    with pytest.raises(ConfigError, match="od < do"):
+        SpravyConfig(r7Event="NFP", r7From=30, r7To=15)
+    with pytest.raises(ConfigError, match="pred koncom nohy"):
+        SpravyConfig(r7Event="NFP", r7From=0, r7To=30, r7Enter=15)
+
+
+def test_stare_polia_1_0_sa_ignoruju():
+    cfg = SpravyConfig.from_dict({"trendEvents": "FOMC", "fadeHold": 60, "fixedQty": True})
+    assert cfg.fixedQty and [r.event for r in cfg.rules()] == ["FOMC", "CPI", "PPI", "PCE", "JOLTS"]
+
+
+def test_prepinace_sprav():
+    assert [r.event for r in SpravyConfig(useCPI=False).rules()] == ["FOMC", "PPI", "PCE", "JOLTS"]
+    assert SpravyConfig(r7Event="NFP").rules()[-1].event != "NFP"                  # NFP je vypnutá prepínačom
+    assert SpravyConfig(r7Event="NFP", useNFP=True).rules()[-1].event == "NFP"
+
+
+def test_fomc_pred_proti_driftu_hodinu_pred_spravou():
+    """Pravidlo 1: zlato hodinu pred FOMC rastie → o 14:00 NY (19:00 SK 28. 10.) short, výstup o 16:55."""
+    t = to_utc_ms(date(2026, 10, 28), "14:00")
+    cfg = only("FOMC")
+    bars = path(t - 14 * M5, 14, 4000, 0.5) + path(t, 40, 4007, 0.0)
+    e, outs = run(cfg, bars)
+    en = entries(outs)
+    assert len(en) == 1 and en[0].direction is Direction.SHORT
+    i = next(k for k, out in enumerate(outs) if out.orders)
+    assert bars[i][0] + M5 == t                                           # vstup na close baru končiaceho o 14:00
+    assert "pravidlo 1: PRED short" in en[0].reason and "19:00 SK" in en[0].reason
+    e2 = SpravyEngine(cfg, MGC, 5)
+    for tt, o, h, l, c in bars[: i + 1]:
+        e2.on_bar(Bar(tt, o, h, l, c, 100.0), None, FLAT)
+    assert e2.exit_ms == t + 175 * 60_000                                 # výstup 16:55 NY
+
+
+def test_tlacovka_vstup_neskor_ako_koniec_nohy():
+    """Pravidlo 2 (zapnuté): smer 14:00 → 14:25, vstup až o 14:30."""
+    t = to_utc_ms(date(2026, 10, 28), "14:00")
+    cfg = only("FOMC", r1Event="", r2Event="FOMC")
+    bars = path(t - 6 * M5, 6, 4000, 0.0) + path(t, 5, 4000, 1.0) + path(t + 5 * M5, 10, 4005, -0.2)
+    _, outs = run(cfg, bars)
+    en = entries(outs)
+    assert len(en) == 1 and en[0].direction is Direction.LONG              # noha 0 → 25 hore, aj keď potom klesá
+    i = next(k for k, out in enumerate(outs) if out.orders)
+    assert bars[i][0] + M5 == t + 30 * 60_000
+
+
+def test_kalendar_pokryva_buducnost():
+    """Pripomienka: 21 dní pred posledným termínom typu správy v kalendári test padne — doplň ďalší rok,
+    inak stratégia po ňom tú správu ticho prestane obchodovať (`calendar.json` + `python -m tradebot.strategies.spravy.calendar --cs`)."""
+    from datetime import timedelta
+
+    soon = date.today() + timedelta(days=21)
+    konci = {typ: ev["dates"][-1] for typ, ev in load()["events"].items() if date.fromisoformat(ev["dates"][-1]) < soon}
+    assert not konci, f"kalendár SPRÁVY končí — doplň termíny: {konci}"

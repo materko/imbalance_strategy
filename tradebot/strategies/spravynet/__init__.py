@@ -21,7 +21,7 @@ CSHARP_KEY = "spravynet"
 SPEC = replace(
     BASE_SPEC,
     key="spravynet",
-    title="SPRÁVY (C# jadro)",
+    title="SPRÁVY 3.0 (C# jadro)",
     config_cls=SpravyNetConfig,
     profile_dir=CONFIG_DIR,
     default_profile="mgc_databento_5m",

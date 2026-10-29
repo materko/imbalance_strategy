@@ -4,9 +4,11 @@
 // Cas: spravy su v kalendari (`SpravyCalendar`, vygenerovany z calendar.json) v case New York a prevadzaju sa na UTC
 // pre kazdy den zvlast - sedi aj v tyzdnoch, ked USA a Slovensko menia cas v ine dni. Stitky ukazuju cas SK aj NY.
 //
-//   1. vystup v case - otvorena pozicia po `trendHold` / `fadeHold` minutach sa zavrie trhom,
-//   2. noha - zaciatok (open baru v T pri od = 0, inak close baru koniaceho v T+od), high / low nohy,
-//   3. vstup - na prvom bare koniacom v T+do alebo neskor: TREND v smere nohy, FADE proti nej, market.
+// SPRAVY 3.0: pre kazdu spravu vlastne pravidlo (`SpravyConfig.Rule`, polia r1..r8 a prepinace use<TYP>).
+//   1. vystup v case - otvorena pozicia po `rNHold` minutach sa zavrie trhom,
+//   2. noha - zaciatok (open baru v T pri od = 0, inak close baru koniaceho v T+od - aj pred spravou), high / low,
+//      koniec nohy = close baru koniaceho v T+do,
+//   3. vstup - na prvom bare koniacom v T+vstup alebo neskor: trend v smere nohy, fade proti nej, market.
 // Engine je CISTY: ziadne I/O, ziadny globalny stav.
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,7 @@ using TradeBot.Core;
 
 namespace TradeBot.Strategies.SpravyNet
 {
-    [TradeBotEngine("spravynet", "SPRÁVY (C# jadro)")]
+    [TradeBotEngine("spravynet", "SPRÁVY 3.0 (C# jadro)")]
     public sealed class SpravyEngine : IEngine, IConfigured
     {
         private const string LongColor = "#10b981";
@@ -29,10 +31,11 @@ namespace TradeBot.Strategies.SpravyNet
         {
             public long T;
             public string Typ;
-            public bool Trend;
-            public long A, B, HoldMs;
-            public bool HasP0;
-            public double P0;
+            public SpravyConfig.Rule Rule;
+            public long A, B, E;
+            public bool HasP0, HasP1;
+            public double P0, P1;
+            public long Start { get { return Math.Min(A, T); } }
             public double Hi = double.NegativeInfinity, Lo = double.PositiveInfinity;
             public bool Done;
         }
@@ -110,21 +113,20 @@ namespace TradeBot.Strategies.SpravyNet
                    + ny.ToString("mm", CultureInfo.InvariantCulture) + " NY";
         }
 
-        private void BuildEvents()
+        /// <summary>(UTC ms, typ) jednej spravy bez duplicit, zoradene ako Python `events_utc({typ}, add, skip)`.</summary>
+        private SortedSet<KeyValuePair<long, string>> EventsUtc(string type)
         {
             SpravyConfig cfg = _cfg;
-            HashSet<string> trend = SpravyConfig.Types(cfg.trendEvents), fade = SpravyConfig.Types(cfg.fadeEvents);
             HashSet<string> skip = new HashSet<string>();
             foreach (string part in (cfg.newsSkip ?? "").Replace("\n", ";").Split(';'))
             {
                 string[] bits = part.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
                 if (bits.Length == 2) skip.Add(bits[0] + "|" + bits[1].ToUpperInvariant());
             }
-            // (UTC ms, typ) bez duplicit, zoradene ako Python `sorted(set(...))`
             SortedSet<KeyValuePair<long, string>> all = new SortedSet<KeyValuePair<long, string>>(new PairCmp());
             foreach (SpravyCalendar.Ev e in SpravyCalendar.Events)
             {
-                if (!trend.Contains(e.Type) && !fade.Contains(e.Type)) continue;
+                if (e.Type != type) continue;
                 string day = e.Y.ToString("D4", CultureInfo.InvariantCulture) + "-" + e.M.ToString("D2", CultureInfo.InvariantCulture)
                              + "-" + e.D.ToString("D2", CultureInfo.InvariantCulture);
                 if (skip.Contains(day + "|" + e.Type)) continue;
@@ -135,21 +137,35 @@ namespace TradeBot.Strategies.SpravyNet
                 string[] bits = part.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
                 if (bits.Length != 3) continue;
                 string typ = bits[2].ToUpperInvariant();
-                if (!trend.Contains(typ) && !fade.Contains(typ)) continue;
+                if (typ != type) continue;
                 DateTime d = DateTime.ParseExact(bits[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 string[] hm = bits[1].Split(':');
                 all.Add(new KeyValuePair<long, string>(ToUtcMs(d.Year, d.Month, d.Day, int.Parse(hm[0], CultureInfo.InvariantCulture),
                                                                 int.Parse(hm[1], CultureInfo.InvariantCulture)), typ));
             }
-            foreach (KeyValuePair<long, string> kv in all)
+            return all;
+        }
+
+        private void BuildEvents()
+        {
+            foreach (SpravyConfig.Rule r in _cfg.Rules())
             {
-                bool tr = trend.Contains(kv.Value);
-                int fr = tr ? cfg.trendFrom : cfg.fadeFrom, to = tr ? cfg.trendTo : cfg.fadeTo, hold = tr ? cfg.trendHold : cfg.fadeHold;
-                Ev ev = new Ev();
-                ev.T = kv.Key; ev.Typ = kv.Value; ev.Trend = tr;
-                ev.A = kv.Key + fr * MinMs; ev.B = kv.Key + to * MinMs; ev.HoldMs = hold * MinMs;
-                _events.Add(ev);
+                foreach (KeyValuePair<long, string> kv in EventsUtc(r.Event))
+                {
+                    Ev ev = new Ev();
+                    ev.T = kv.Key; ev.Typ = kv.Value; ev.Rule = r;
+                    ev.A = kv.Key + r.From * MinMs; ev.B = kv.Key + r.To * MinMs; ev.E = kv.Key + r.Enter * MinMs;
+                    _events.Add(ev);
+                }
             }
+            // ako Python `sort(key=(start, t, pravidlo))` - kluc je jednoznacny, takze na stabilite triedenia nezalezi
+            _events.Sort(delegate(Ev x, Ev y)
+            {
+                int c = x.Start.CompareTo(y.Start);
+                if (c != 0) return c;
+                c = x.T.CompareTo(y.T);
+                return c != 0 ? c : x.Rule.No.CompareTo(y.Rule.No);
+            });
         }
 
         private sealed class PairCmp : IComparer<KeyValuePair<long, string>>
@@ -168,10 +184,10 @@ namespace TradeBot.Strategies.SpravyNet
             SpravyConfig cfg = _cfg;
             double atr = History.Atr;
             double stop;
-            double mult = ev.Trend ? cfg.trendStopLeg : cfg.fadeStopLeg;
-            if (mult > 0 && ev.HasP0)
+            double mult = ev.Rule.Stop;
+            if (mult > 0 && ev.HasP0 && ev.HasP1)
             {
-                double leg = Math.Abs(close - ev.P0);
+                double leg = Math.Abs(ev.P1 - ev.P0);
                 stop = isLong ? close - mult * leg : close + mult * leg;
             }
             else
@@ -181,7 +197,7 @@ namespace TradeBot.Strategies.SpravyNet
             }
             double risk = Math.Abs(close - stop);
             if (risk < _inst.TickSize * 2 || (isLong && stop >= close) || (!isLong && stop <= close)) return null;
-            double rTp = cfg.tpR > 0 ? cfg.tpR : NoTpR;
+            double rTp = ev.Rule.RR > 0 ? ev.Rule.RR : NoTpR;
             double take = isLong ? close + rTp * risk : close - rTp * risk;
             double sizeRisk = (cfg.sizeMinRisk > 0 && atr > 0) ? Math.Max(risk, cfg.sizeMinRisk * atr) : risk;
             double q = cfg.fixedQty ? cfg.qty : _inst.QtyForRisk(cfg.riskDollar, sizeRisk);
@@ -193,26 +209,27 @@ namespace TradeBot.Strategies.SpravyNet
         private void Enter(EngineOutput o, Bar bar, Ev ev, int idx)
         {
             SpravyConfig cfg = _cfg;
-            if (!ev.HasP0 || bar.Close == ev.P0) return;
-            bool up = bar.Close > ev.P0;
-            bool isLong = ev.Trend ? up : !up;
+            if (!ev.HasP0 || !ev.HasP1 || ev.P1 == ev.P0) return;
+            bool up = ev.P1 > ev.P0;
+            bool isLong = ev.Rule.Trend ? up : !up;
             if ((isLong && !cfg.allowLong) || (!isLong && !cfg.allowShort)) return;
             double atr = History.Atr;
-            if (cfg.minLeg.Value > 0 && Math.Abs(bar.Close - ev.P0) < cfg.minLeg.Resolve(_inst, bar.Close, atr)) return;
+            if (cfg.minLeg.Value > 0 && Math.Abs(ev.P1 - ev.P0) < cfg.minLeg.Resolve(_inst, bar.Close, atr)) return;
             TradePlan plan = Plan(isLong, bar.Close, ev);
             if (plan == null) return;
             long end = bar.Time + _stepMs;
             string oid = "sp:" + I(idx);
-            string mode = ev.Trend ? "TREND" : "FADE";
+            string mode = ev.Rule.Label;
             OrderIntent intent = new OrderIntent(OrderAction.Entry, oid, idx,
-                ev.Typ + " " + SkTime(ev.T) + ": " + mode + " " + (isLong ? "long" : "short") + " (noha " + (up ? "hore" : "dole") + ")");
+                ev.Typ + " " + SkTime(ev.T) + " · pravidlo " + I(ev.Rule.No) + ": " + mode + " " + (isLong ? "long" : "short")
+                + " (noha " + (up ? "hore" : "dole") + ")");
             intent.Direction = plan.Direction;
             intent.Plan = plan;
             intent.OrderType = OrderType.Market;
             o.Orders.Add(intent);
             _pending = oid;
             _pendingIdx = idx;
-            _exitMs = end + ev.HoldMs;
+            _exitMs = end + ev.Rule.Hold * MinMs;
             long x1 = end;
             _boxes = new List<string>();
             _wasIn = false;
@@ -220,7 +237,7 @@ namespace TradeBot.Strategies.SpravyNet
             {
                 DrawBox leg = new DrawBox(SpravyKinds.Leg, ev.A, ev.Hi, ev.B, ev.Lo, LegColor);
                 leg.FillColor = Palette.WithAlpha(LegColor, 35);
-                leg.ObjId = "sp.leg." + Ms(ev.T);
+                leg.ObjId = "sp.leg." + Ms(ev.T) + "." + I(ev.Rule.No);
                 leg.Text = ev.Typ + " " + SkTime(ev.T);
                 o.Drawings.Add(leg);
             }
@@ -275,9 +292,9 @@ namespace TradeBot.Strategies.SpravyNet
             if (flat && _pending == null) _exitMs = null;
 
             // ---- 2.-3. noha a vstup ------------------------------------------
-            while (_nextI < _events.Count && _events[_nextI].B + _stepMs <= bar.Time) _nextI += 1;
+            while (_nextI < _events.Count && _events[_nextI].E + _stepMs <= bar.Time) _nextI += 1;
             int i = _nextI;
-            while (i < _events.Count && _events[i].T <= end)
+            while (i < _events.Count && _events[i].Start <= end)
             {
                 Ev ev = _events[i];
                 if (!ev.Done)
@@ -292,7 +309,8 @@ namespace TradeBot.Strategies.SpravyNet
                         ev.Hi = Math.Max(ev.Hi, bar.High);
                         ev.Lo = Math.Min(ev.Lo, bar.Low);
                     }
-                    if (end >= ev.B)
+                    if (end >= ev.B && !ev.HasP1 && ev.HasP0) { ev.HasP1 = true; ev.P1 = bar.Close; }   // koniec nohy
+                    if (end >= ev.E)
                     {
                         ev.Done = true;
                         if (flat && _pending == null && !o.CloseSession) Enter(o, bar, ev, idx);

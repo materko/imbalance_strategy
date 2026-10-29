@@ -1,6 +1,6 @@
-"""SPRÁVY 1.0 — zlato (MGC) po červených správach USA: trend po FOMC / PCE, návrat po CPI / PPI / JOLTS.
+"""SPRÁVY 3.0 — zlato (MGC) po červených správach USA: pre každú správu vlastné pravidlo (FOMC pred správou, CPI, PPI, PCE, JOLTS).
 
-Prieskum a zadanie používateľa 29. 10. 2026 (iCloud SPRAVY-FOREXFACTORY). Kalendár správ je v balíku (`calendar.json`).
+Výskum a zadanie používateľa 29. 10. 2026 (iCloud SPRAVY). Kalendár správ je v balíku (`calendar.json`).
 Pine predlohu nemá.
 """
 
@@ -16,7 +16,7 @@ from .params import GROUPS, PARAMS
 
 SPEC = StrategySpec(
     key="spravy",
-    title="SPRÁVY",
+    title="SPRÁVY 3.0",
     config_cls=SpravyConfig,
     profile_dir=CONFIG_DIR,
     default_profile="mgc_databento_5m",

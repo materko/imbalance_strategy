@@ -164,8 +164,9 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   kartu Live cez hub ([docs/LIVE.md](docs/LIVE.md)). Smerovanie „stratégia v NT, ordery v MT5"
   má hotovú fázu 1, exekútor a AddOn sú napísané, ale **na MT5 účte ešte neoverené**
   ([docs/ROUTING.md](docs/ROUTING.md), audit [2026-10-26](docs/audity/AUDIT_routing_2026-10-26.md)).
-- **Správy**: stratégia **SPRÁVY** (zlato po červených správach USA, Python aj C# jadro) má kalendár 12 typov
-  správ v čase New York (`tradebot/strategies/spravy/calendar.json`) s prevodom pre každý deň — štítky ukazujú čas SK aj NY.
+- **Správy**: stratégia **SPRÁVY 3.0** (zlato po červených správach USA, Python aj C# jadro) má pre každú správu vlastné
+  pravidlo (8 pravidiel, prepínače, ktoré správy obchodovať) a kalendár 12 typov správ v čase New York
+  (`tradebot/strategies/spravy/calendar.json`) s prevodom pre každý deň — štítky ukazujú čas SK aj NY.
   Smernica má od 29. 10. krok 9 Robustnosť (`python -m tester.robust`, len informácia).
 - **Parita**: Python port sedí s TradingView na cent (golden test,
   [GOLDEN_binance_2026-08-24](docs/audity/GOLDEN_binance_2026-08-24.md)); C# jadro sedí s Python

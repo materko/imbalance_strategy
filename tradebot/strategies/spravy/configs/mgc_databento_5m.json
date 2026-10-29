@@ -1,5 +1,5 @@
 {
-  "_title": "SPRÁVY 1.0 · MGC 5m · 1 kontrakt · TREND FOMC+PCE (noha 15→60, 4 h), FADE CPI+PPI+JOLTS (noha 0→60, 1 h)",
+  "_title": "SPRÁVY 3.0 · MGC 5m · 1 kontrakt · FOMC pred správou, CPI, PPI, PCE, JOLTS — pravidlá z výskumu 29. 10.",
   "_strategy": "spravy",
   "_instrument": "mgc_databento",
   "_timeframe": "5m",

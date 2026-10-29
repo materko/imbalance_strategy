@@ -1,5 +1,5 @@
 {
-  "_title": "SPRÁVY · MGC 5m · riziko 500 $ na obchod (veľkosť zo stopu aspoň 8 ATR)",
+  "_title": "SPRÁVY 3.0 · MGC 5m · riziko 500 $ na obchod (veľkosť zo stopu aspoň 8 ATR)",
   "_strategy": "spravy",
   "_instrument": "mgc_databento",
   "_timeframe": "5m",

@@ -1,4 +1,4 @@
-# Šablóna MultiCharts študie pre SPRÁVY 1.0 (zlato po červených správach USA) — skopíruj obsah do
+# Šablóna MultiCharts študie pre SPRÁVY 3.0 (zlato po červených správach USA) — skopíruj obsah do
 # PowerLanguage .NET Editora (File → New → Signal, jazyk Python, názov Spravy = trieda nižšie).
 #
 # Celá logika je v balíku `tradebot` (nainštaluje ho deploy/multicharts/scripts/setup.ps1).

@@ -1,4 +1,4 @@
-"""Engine SPRÁVY 1.0 — zlato po červených správach USA (trend po Fede, návrat po inflácii).
+"""Engine SPRÁVY 3.0 — zlato po červených správach USA, pre každú správu vlastné pravidlo (`config.Rule`).
 
 Čas: správy sú v kalendári v čase New York a prevádzajú sa na UTC pre každý deň zvlášť (`calendar.to_utc_ms`);
 engine pracuje len s UTC, takže je jedno, kde beží platforma. Pre človeka (štítky na grafe) sa čas ukazuje
@@ -7,13 +7,15 @@ Slovensko menia čas v iné dni (marec; koniec októbra – začiatok novembra).
 
 Priebeh na každom uzavretom bare grafu (čas konca baru `end`):
 
-  1. **výstup v čase** — otvorená pozícia, ktorej uplynulo držanie (`trendHold` / `fadeHold`), sa zavrie trhom;
+  1. **výstup v čase** — otvorená pozícia, ktorej uplynulo držanie pravidla (`rNHold`), sa zavrie trhom;
      prestávka CME 17:00–18:00 NY nič nerozbije — zavrie sa na prvom bare po čase výstupu,
-  2. **noha** — pre správy, ktorých okno nohy [T+od, T+do) práve beží: začiatok nohy (open baru v T pri od = 0,
-     inak close baru končiaceho v T+od), high / low nohy,
-  3. **vstup** — na prvom bare, ktorý končí v T+do alebo neskôr: smer nohy (TREND = v smere, FADE = proti),
-     market, stop za extrémom nohy na strane proti pozícii + `slBuffer`, cieľ `tpR` × riziko alebo bez cieľa.
-     Jeden obchod na správu, nový len bez otvorenej pozície; keď chýbajú dáta (začiatok nohy), správa sa vynechá.
+  2. **noha** — pre každú dvojicu (správa, pravidlo), ktorej okno nohy [T+od, T+do) práve beží: začiatok nohy (open
+     baru v T pri od = 0, inak close baru končiaceho v T+od — aj pred správou pri zápornom od), high / low nohy,
+     koniec nohy = close baru končiaceho v T+do,
+  3. **vstup** — na prvom bare, ktorý končí v T+vstup alebo neskôr: smer nohy (trend = v smere, fade = proti),
+     market, stop `rNStop` × noha od vstupu alebo za extrémom nohy + `slBuffer`, cieľ `rNRR` × riziko (RRR) alebo bez cieľa;
+     nedosiahnutý cieľ = výstup v čase.
+     Jeden obchod naraz; keď chýbajú dáta (začiatok nohy) alebo je pozícia otvorená, pravidlo sa pre túto správu vynechá.
 
 Engine je čistý: žiadne I/O, žiadny globálny stav (kalendár je dátový súbor balíka).
 """
@@ -33,7 +35,7 @@ from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.warmup import Warmup, rma_bars
 
 from .calendar import events_utc
-from .config import SpravyConfig
+from .config import Rule, SpravyConfig
 from .drawing import SP_ENTRY, SP_LEG
 
 __all__ = ["SpravyEngine", "SK"]
@@ -51,14 +53,19 @@ _NO_TP_R = 1000.0
 class _Ev:
     t: int            #: čas správy (UTC ms)
     typ: str
-    trend: bool       #: True = TREND, False = FADE
+    rule: Rule
     a: int            #: začiatok nohy (UTC ms)
     b: int            #: koniec nohy (UTC ms)
-    hold_ms: int
+    e: int            #: vstup (UTC ms)
     p0: float | None = None
+    p1: float | None = None
     hi: float = float("-inf")
     lo: float = float("inf")
     done: bool = False
+
+    @property
+    def start(self) -> int:
+        return min(self.a, self.t)
 
 
 def sk_time(ms: int) -> str:
@@ -79,12 +86,11 @@ class SpravyEngine:
         self.history = BarHistory(maxlen=4, atr_len=int(cfg.atrLen))
         self.warmup = Warmup(self.chart_tf_minutes).add(f"ATR {cfg.atrLen}", rma_bars(int(cfg.atrLen)) + 1)
         self.required_history = max(1, self.warmup.chart_bars)
-        trend, fade = cfg.trend_types, cfg.fade_types
         self.events: list[_Ev] = []
-        for t, typ in events_utc(trend | fade, cfg.newsAdd, cfg.newsSkip):
-            tr = typ in trend
-            fr, to, hold = (cfg.trendFrom, cfg.trendTo, cfg.trendHold) if tr else (cfg.fadeFrom, cfg.fadeTo, cfg.fadeHold)
-            self.events.append(_Ev(t, typ, tr, t + int(fr) * _MIN, t + int(to) * _MIN, int(hold) * _MIN))
+        for r in cfg.rules():
+            for t, typ in events_utc({r.event}, cfg.newsAdd, cfg.newsSkip):
+                self.events.append(_Ev(t, typ, r, t + r.frm * _MIN, t + r.to * _MIN, t + r.enter * _MIN))
+        self.events.sort(key=lambda ev: (ev.start, ev.t, ev.rule.no))
         self.next_i = 0                       #: prvá správa, ktorá ešte nie je vybavená
         self.exit_ms: int | None = None       #: kedy zavrieť otvorenú pozíciu
         self.pending: str | None = None       #: id market vstupu, ktorý sa ešte nevyplnil
@@ -97,9 +103,9 @@ class SpravyEngine:
     def _plan(self, long: bool, close: float, ev: _Ev) -> TradePlan | None:
         cfg, inst = self.cfg, self.inst
         atr = self.history.atr
-        mult = cfg.trendStopLeg if ev.trend else cfg.fadeStopLeg
-        if mult > 0 and ev.p0 is not None:
-            leg = abs(close - ev.p0)
+        mult = ev.rule.stop
+        if mult > 0 and ev.p0 is not None and ev.p1 is not None:
+            leg = abs(ev.p1 - ev.p0)
             stop = close - mult * leg if long else close + mult * leg
         else:
             buf = cfg.slBuffer.resolve(inst, price=close, atr=atr) if atr > 0 or cfg.slBuffer.unit != "atr" else 0.0
@@ -107,7 +113,7 @@ class SpravyEngine:
         risk = abs(close - stop)
         if risk < inst.tick_size * 2 or (long and stop >= close) or (not long and stop <= close):
             return None
-        r_tp = cfg.tpR if cfg.tpR > 0 else _NO_TP_R
+        r_tp = ev.rule.rr if ev.rule.rr > 0 else _NO_TP_R
         take = close + r_tp * risk if long else close - r_tp * risk
         size_risk = max(risk, cfg.sizeMinRisk * atr) if cfg.sizeMinRisk > 0 and atr > 0 else risk
         qty = cfg.qty if cfg.fixedQty else inst.qty_for_risk(cfg.riskDollar, size_risk)
@@ -118,34 +124,34 @@ class SpravyEngine:
 
     def _enter(self, out: EngineOutput, bar: Bar, ev: _Ev, idx: int) -> None:
         cfg = self.cfg
-        if ev.p0 is None or bar.close == ev.p0:
+        if ev.p0 is None or ev.p1 is None or ev.p1 == ev.p0:
             return
-        up = bar.close > ev.p0
-        long = up if ev.trend else not up
+        up = ev.p1 > ev.p0
+        long = up if ev.rule.trend else not up
         if (long and not cfg.allowLong) or (not long and not cfg.allowShort):
             return
         atr = self.history.atr
-        if cfg.minLeg.value > 0 and abs(bar.close - ev.p0) < cfg.minLeg.resolve(self.inst, price=bar.close, atr=atr):
+        if cfg.minLeg.value > 0 and abs(ev.p1 - ev.p0) < cfg.minLeg.resolve(self.inst, price=bar.close, atr=atr):
             return
         plan = self._plan(long, bar.close, ev)
         if plan is None:
             return
         end = bar.time + self.step_ms
         oid = f"sp:{idx}"
-        mode = "TREND" if ev.trend else "FADE"
+        mode = ev.rule.label
         out.orders.append(OrderIntent(OrderAction.ENTRY, oid, idx, direction=plan.direction, plan=plan,
                                       order_type=OrderType.MARKET,
-                                      reason=f"{ev.typ} {sk_time(ev.t)}: {mode} "
+                                      reason=f"{ev.typ} {sk_time(ev.t)} · pravidlo {ev.rule.no}: {mode} "
                                              f"{'long' if long else 'short'} (noha {'hore' if up else 'dole'})"))
         self.pending = oid
         self.pending_idx = idx
-        self.exit_ms = end + ev.hold_ms
+        self.exit_ms = end + ev.rule.hold * _MIN
         x1 = end
         self.boxes = []
         self.was_in = False
         if cfg.showLegs:
             out.drawings.append(DrawBox(SP_LEG, ev.a, ev.hi, ev.b, ev.lo, _LEG, fill_color=with_alpha(_LEG, 35),
-                                        obj_id=f"sp.leg.{ev.t}", text=f"{ev.typ} {sk_time(ev.t)}"))
+                                        obj_id=f"sp.leg.{ev.t}.{ev.rule.no}", text=f"{ev.typ} {sk_time(ev.t)}"))
         top_sl = (max(plan.entry, plan.stop_loss), min(plan.entry, plan.stop_loss))
         out.drawings.append(DrawBox(DrawKind.SL_BOX, x1, top_sl[0], x1 + self.step_ms, top_sl[1], _SHORT,
                                     fill_color=with_alpha(_SHORT, 60), obj_id=f"sp.sl.{x1}", text=f"SL {plan.stop_loss:g}"))
@@ -187,10 +193,10 @@ class SpravyEngine:
             self.exit_ms = None
 
         # ---- 2.–3. noha a vstup ------------------------------------------- #
-        while self.next_i < len(self.events) and self.events[self.next_i].b + self.step_ms <= bar.time:
+        while self.next_i < len(self.events) and self.events[self.next_i].e + self.step_ms <= bar.time:
             self.next_i += 1                  # správa dávno prešla (diera v dátach, štart po nej)
         i = self.next_i
-        while i < len(self.events) and self.events[i].t <= end:
+        while i < len(self.events) and self.events[i].start <= end:
             ev = self.events[i]
             if not ev.done:
                 if ev.p0 is None:
@@ -201,7 +207,9 @@ class SpravyEngine:
                 if ev.a <= bar.time and bar.time < ev.b:
                     ev.hi = max(ev.hi, bar.high)
                     ev.lo = min(ev.lo, bar.low)
-                if end >= ev.b:
+                if end >= ev.b and ev.p1 is None and ev.p0 is not None:
+                    ev.p1 = bar.close                      # koniec nohy: zavretie baru končiaceho v T+do
+                if end >= ev.e:
                     ev.done = True
                     if flat and self.pending is None and not out.close_session:
                         self._enter(out, bar, ev, idx)

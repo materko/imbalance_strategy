@@ -10,7 +10,7 @@ REMOVED_INPUTS: frozenset[str] = frozenset()
 INTENTIONAL_DEFAULT_DIFFS: frozenset[str] = frozenset()
 
 PARAM_NOTES: dict[str, str] = {
-    "trendEvents": "Čas správ je New York (kalendár v balíku). Na Slovensku je to bežne +6 h, v týždňoch posunu času +5 h.",
+    "r1Event": "Čas správ je New York (kalendár v balíku). Na Slovensku je to bežne +6 h, v týždňoch posunu času +5 h.",
 }
 
 FEATURES: list[dict[str, Any]] = [
