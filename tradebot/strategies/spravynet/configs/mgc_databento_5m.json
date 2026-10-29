@@ -1,0 +1,8 @@
+{
+  "_title": "SPRÁVY (C# jadro) · MGC 5m · 1 kontrakt · TREND FOMC+PCE (noha 15→60, 4 h), FADE CPI+PPI+JOLTS (noha 0→60, 1 h)",
+  "_strategy": "spravynet",
+  "_instrument": "mgc_databento",
+  "_timeframe": "5m",
+  "fixedQty": true,
+  "qty": 1.0
+}

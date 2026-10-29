@@ -1,0 +1,8 @@
+{
+  "_title": "SPRÁVY (C# jadro) · MGC 5m · riziko 500 $ na obchod (veľkosť zo stopu aspoň 8 ATR)",
+  "_strategy": "spravynet",
+  "_instrument": "mgc_databento",
+  "_timeframe": "5m",
+  "riskDollar": 500.0,
+  "sizeMinRisk": 8.0
+}

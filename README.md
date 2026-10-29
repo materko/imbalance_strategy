@@ -24,7 +24,7 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **66 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **68 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
@@ -32,7 +32,7 @@ a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.j
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
 | **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` (päť z nich aj ako `…eod`) |
-| **ZLATO** (MGC) | `fibomgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` | | `fibomgcnet` |
+| **ZLATO** (MGC) | `fibomgc` `spravy` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` | | `fibomgcnet` `spravynet` |
 | **S&P 500** (ES) | `nyvaes` | `ibsentryes` `m2` | | `ibsentryesnet` `nyvaesnet` |
 | **EURUSD** (6E) | | `m2eur` | `sdeur` `asiasweep` | `sdeurnet` |
 
@@ -154,7 +154,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-10-28)
+## Kde sme (2026-10-29)
 
 - **Výber stratégií** ide cez [smernicu testovania](docs/SMERNICA_TESTOVANIA.md) — séria
   skúšok, ktoré môžu stratégiu „zabiť" (päť okien, náhoda, Monte Carlo, náklady, …).
@@ -164,6 +164,9 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   kartu Live cez hub ([docs/LIVE.md](docs/LIVE.md)). Smerovanie „stratégia v NT, ordery v MT5"
   má hotovú fázu 1, exekútor a AddOn sú napísané, ale **na MT5 účte ešte neoverené**
   ([docs/ROUTING.md](docs/ROUTING.md), audit [2026-10-26](docs/audity/AUDIT_routing_2026-10-26.md)).
+- **Správy**: stratégia **SPRÁVY** (zlato po červených správach USA, Python aj C# jadro) má kalendár 12 typov
+  správ v čase New York (`tradebot/strategies/spravy/calendar.json`) s prevodom pre každý deň — štítky ukazujú čas SK aj NY.
+  Smernica má od 29. 10. krok 9 Robustnosť (`python -m tester.robust`, len informácia).
 - **Parita**: Python port sedí s TradingView na cent (golden test,
   [GOLDEN_binance_2026-08-24](docs/audity/GOLDEN_binance_2026-08-24.md)); C# jadro sedí s Python
   predlohou bar po bare (`tester/tests/test_csharp_parity*.py`).

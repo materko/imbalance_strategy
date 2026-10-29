@@ -550,12 +550,12 @@ const STRATEGIA_TRH_TYP = {
   m2: ["S&P 500", "SKALPOVACIE"], m2mnq: ["NASDAQ", "SKALPOVACIE"], m2mgc: ["ZLATO", "SKALPOVACIE"], m2eur: ["EURUSD", "SKALPOVACIE"],
   fvgpolaritymgc: ["ZLATO", "SKALPOVACIE"],
   scalp3mamgc: ["ZLATO", "SKALPOVACIE"],
-  fibomgc: ["ZLATO", "TRENDOVÉ"],
+  fibomgc: ["ZLATO", "TRENDOVÉ"], spravy: ["ZLATO", "TRENDOVÉ"],
   // EURUSD (Euro FX futures 6E, CFD EURUSD)
   sdeur: ["EURUSD", "RANGEOVÉ"], asiasweep: ["EURUSD", "RANGEOVÉ"],
 };
 /** Práve pridané stratégie — štítok „nová“, kým žiadne ich nastavenie neprejde smernicou. */
-const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet", "nb", "m2", "m2mnq", "m2mgc", "m2eur"]);
+const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet", "nb", "m2", "m2mnq", "m2mgc", "m2eur", "spravy"]);
 /** Kľúč predlohy C# portu: `ibsentryneteod` → `ibsentry`, `tksnet` → `tks`, `ibsnet` → `ibs`. */
 function baseStrategyKey(k) {
   let b = String(k).replace(/eod$/, "");

@@ -1,0 +1,51 @@
+$ emulator MultiCharts MGC 5m 20101003-20260916 (MGC_USD-1m.feather)
+emulacia MultiCharts: 959681 barov 5m, 3704719 1m, 0 HTF
+  20000/959681 barov, 0 obchodov
+  40000/959681 barov, 0 obchodov
+  60000/959681 barov, 0 obchodov
+  80000/959681 barov, 0 obchodov
+  100000/959681 barov, 0 obchodov
+  120000/959681 barov, 0 obchodov
+  140000/959681 barov, 0 obchodov
+  160000/959681 barov, 0 obchodov
+  180000/959681 barov, 0 obchodov
+  200000/959681 barov, 0 obchodov
+  220000/959681 barov, 0 obchodov
+  240000/959681 barov, 0 obchodov
+  260000/959681 barov, 0 obchodov
+  280000/959681 barov, 0 obchodov
+  300000/959681 barov, 0 obchodov
+  320000/959681 barov, 0 obchodov
+  340000/959681 barov, 0 obchodov
+  360000/959681 barov, 0 obchodov
+  380000/959681 barov, 0 obchodov
+  400000/959681 barov, 0 obchodov
+  420000/959681 barov, 0 obchodov
+  440000/959681 barov, 0 obchodov
+  460000/959681 barov, 0 obchodov
+  480000/959681 barov, 0 obchodov
+  500000/959681 barov, 0 obchodov
+  520000/959681 barov, 0 obchodov
+  540000/959681 barov, 0 obchodov
+  560000/959681 barov, 3 obchodov
+  580000/959681 barov, 19 obchodov
+  600000/959681 barov, 36 obchodov
+  620000/959681 barov, 51 obchodov
+  640000/959681 barov, 67 obchodov
+  660000/959681 barov, 83 obchodov
+  680000/959681 barov, 99 obchodov
+  700000/959681 barov, 114 obchodov
+  720000/959681 barov, 130 obchodov
+  740000/959681 barov, 145 obchodov
+  760000/959681 barov, 161 obchodov
+  780000/959681 barov, 176 obchodov
+  800000/959681 barov, 193 obchodov
+  820000/959681 barov, 207 obchodov
+  840000/959681 barov, 223 obchodov
+  860000/959681 barov, 239 obchodov
+  880000/959681 barov, 255 obchodov
+  900000/959681 barov, 267 obchodov
+  920000/959681 barov, 282 obchodov
+  940000/959681 barov, 298 obchodov
+hotovo: 314 obchodov, nerozhodnutelnych minut 0
+kresby: {'sp_leg': 314, 'sl_box': 314, 'sp_entry': 314}

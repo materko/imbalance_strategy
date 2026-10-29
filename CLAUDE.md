@@ -75,7 +75,7 @@ Bez obmedzení. Platia len konvencie repozitára:
   nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
   zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
   podrobne [docs/DATA.md](docs/DATA.md).
-- Stratégia s jadrom v C# (dnes `ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`, `vwapadxnet`, `noanet`, `tksnet` a ich kópie `<kľúč>eod` so zatvorením o 15:59 NY pre prop účty — `EodCloseEngine`): C# implementácia
+- Stratégia s jadrom v C# (dnes `ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`, `vwapadxnet`, `noanet`, `tksnet`, `spravynet` a ďalšie, plus kópie `<kľúč>eod` so zatvorením o 15:59 NY pre prop účty — `EodCloseEngine`): C# implementácia
   leží **pri svojej Python predlohe** v `tradebot/strategies/<predloha>/ports/csharp/` (`ibs/ports/csharp` = `ibsnet`), C# runtime
   v `tradebot/core/ports/csharp/` — Python je hlavná implementácia, prepisy do iných jazykov sú v `ports/<jazyk>/` toho, čo prepisujú ([docs/DIRECTORIES.md](docs/DIRECTORIES.md)).
   C# 5 bez NuGet (prekladá ho `csc.exe` z .NET Frameworku, Mono aj NinjaTrader; `build.py` zbiera všetky `ports/csharp/`), jadro ani adaptéry (NinjaTrader,

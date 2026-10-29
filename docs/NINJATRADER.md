@@ -49,6 +49,7 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 | **`nyvaesnet`** | `nyvaes` (NY VA BREAKOUT ES) | `tradebot/strategies/nyva/ports/csharp` | `deploy/ninjatrader/NyVaEsNet.cs` |
 | **`fibomgcnet`** | `fibomgc` (Fibo 1.0 MGC) | `tradebot/strategies/fibo/ports/csharp` | `deploy/ninjatrader/FiboMgcNet.cs` |
 | **`sdeurnet`** | `sdeur` (SD ZÓNY EURUSD) | `tradebot/strategies/sdeur/ports/csharp` | `deploy/ninjatrader/SdEurNet.cs` |
+| **`spravynet`** | `spravy` (SPRÁVY — zlato po správach USA; kalendár `SpravyCalendar.cs` vygenerovaný z `calendar.json`) | `tradebot/strategies/spravy/ports/csharp` | `deploy/ninjatrader/SpravyNet.cs` |
 
 Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb`, `vwapadx`, `noa`, `tks`, `ibsentryes`, `nyvaes`, `fibomgc` a `sdeur`,
 ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/SMERNICE_CS_<názov>_<n>.json` (vlastný prefix — export rannej úlohy

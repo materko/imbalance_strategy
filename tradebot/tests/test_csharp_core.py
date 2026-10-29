@@ -27,6 +27,7 @@ _SIZE = re.compile(r'new SizeSpec\(([-\d.]+),\s*"(\w+)"\)')
 
 _BASE = re.compile(r"class\s+(\w+)\s*:\s*(\w+)")
 _ASSIGN = re.compile(r"^\s*(\w+)\s*=\s*([^;=]+);", re.M)
+_COMMA = re.compile(r',(?=(?:[^"]*"[^"]*")*[^"]*$)')     # čiarka mimo reťazca ("FOMC,PCE" je jeden default)
 
 
 def _code(path) -> str:
@@ -55,7 +56,7 @@ def _csharp_fields(spec) -> dict[str, str]:
         code = _code(path)
         own: dict[str, str] = {}
         for m in _DECL.finditer(code):
-            for part in m.group(2).split(","):
+            for part in _COMMA.split(m.group(2)):
                 name, _, default = part.partition("=")
                 own[name.strip()] = default.strip()
         base = _BASE.search(code)
@@ -63,7 +64,7 @@ def _csharp_fields(spec) -> dict[str, str]:
         if base_path is not None and base_path != path:
             parent = _code(base_path)
             for m in _DECL.finditer(parent):
-                for part in m.group(2).split(","):
+                for part in _COMMA.split(m.group(2)):
                     name, _, default = part.partition("=")
                     out.setdefault(name.strip(), default.strip())
             # zmenené defaulty predka: priradenia v tele triedy potomka (konštruktor)
