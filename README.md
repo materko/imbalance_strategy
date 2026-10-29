@@ -24,14 +24,14 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **68 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **69 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
 
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
-| **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` (päť z nich aj ako `…eod`) |
+| **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` (päť z nich aj ako `…eod`) |
 | **ZLATO** (MGC) | `fibomgc` `spravy` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` | | `fibomgcnet` `spravynet` |
 | **S&P 500** (ES) | `nyvaes` | `ibsentryes` `m2` | | `ibsentryesnet` `nyvaesnet` |
 | **EURUSD** (6E) | | `m2eur` | `sdeur` `asiasweep` | `sdeurnet` |
@@ -168,6 +168,8 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   pravidlo (8 pravidiel, prepínače, ktoré správy obchodovať) a kalendár 12 typov správ v čase New York
   (`tradebot/strategies/spravy/calendar.json`) s prevodom pre každý deň — štítky ukazujú čas SK aj NY.
   Smernica má od 29. 10. krok 9 Robustnosť (`python -m tester.robust`, len informácia).
+- **IVB 1.0** (`ivb`): prepis cudzej Rust stratégie (Initial Volatility Breakout, prieraz IB 9:30–10:00 NY pri stlačenom IB
+  a náraste objemu) 1 : 1 len na porovnanie; na MNQ 5m s defaultmi predlohy zisková v 5 z 5 okien (PF 1,13–1,60).
 - **Parita**: Python port sedí s TradingView na cent (golden test,
   [GOLDEN_binance_2026-08-24](docs/audity/GOLDEN_binance_2026-08-24.md)); C# jadro sedí s Python
   predlohou bar po bare (`tester/tests/test_csharp_parity*.py`).

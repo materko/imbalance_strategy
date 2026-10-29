@@ -1,0 +1,6 @@
+{
+  "_title": "IVB 1.0 · MNQ 5m · predloha 1 : 1 (IB 9:30–10:00, IB ≤ 0,9 × priemer 10 dní, objem ≥ 1,1×, stop 3 ATR, cieľ 2 ATR)",
+  "_strategy": "ivb",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m"
+}
