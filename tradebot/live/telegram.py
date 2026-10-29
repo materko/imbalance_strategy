@@ -290,7 +290,8 @@ ACTOR_TTL = 900.0
 
 class TelegramState:
     """`ctx` (inštancia → hello + otvorené vstupy), `seq` (instance|session → posledné odoslané),
-    `update_offset` (príkazy), `overrides` (lokálne prepnutia režimu), `issues` (nasadenie → chyba)."""
+    `update_offset` (príkazy), `overrides` (lokálne prepnutia režimu), `issues` (nasadenie → chyba),
+    `muted` (chat → účty, z ktorých nechce notifikácie, 🔔)."""
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -373,6 +374,20 @@ class TelegramState:
             a = (self.data.get("actors") or {}).get(instance)
             return str(a.get("by") or "") if a and now - float(a.get("at") or 0) <= ACTOR_TTL else ""
 
+    def muted(self, chat: Any) -> dict[str, str]:
+        """Účty, z ktorých chat nechce notifikácie (`akey` → meno na čítanie); prázdne = zo všetkých."""
+        with self._lock:
+            return dict((self.data.get("muted") or {}).get(str(chat)) or {})
+
+    def set_muted(self, chat: Any, muted: dict[str, str]) -> None:
+        with self._lock:
+            vsetky = self.data.setdefault("muted", {})
+            if muted:
+                vsetky[str(chat)] = dict(muted)
+            else:
+                vsetky.pop(str(chat), None)
+            self.save()
+
 
 # --------------------------------------------------------------------------- #
 # formát správ
@@ -403,6 +418,15 @@ def label(ctx: dict[str, Any]) -> str:
     ucet = f" · {_e(ctx['account'])}" if ctx.get("account") else ""
     return (f"<b>{_e(_sym(ctx.get('symbol')))}</b> {_e(ctx.get('strategy') or '?')} · "
             f"{_e(_platform(ctx.get('platform')))}{ucet}")
+
+
+def akey(platform: Any, account: Any) -> str:
+    """Krátky kľúč účtu (platforma + účet, ako skupina v /status) do `callback_data` a výberu notifikácií."""
+    return format(zlib.crc32(f"{platform or ''}|{account or ''}".encode("utf-8")) & 0xFFFFFFFF, "08x")
+
+
+def account_name(platform: Any, account: Any) -> str:
+    return f"{_platform(platform)} · {account or '?'}"
 
 
 def _side(d: Any) -> str:
@@ -632,6 +656,10 @@ class LiveNotifier:
             ctx = ctxs[batch.instance] = novy
         return ctx
 
+    def _akey(self, batch: Any) -> str:
+        ctx = self.state["ctx"].get(batch.instance) or {}
+        return akey(ctx.get("platform"), ctx.get("account"))
+
     def _life(self, instance: str, ctx: dict[str, Any], ev: dict[str, Any]) -> None:
         """Štart / koniec / režim do zbierky súhrnu. Režim sa hlási len pri zmene (EA ho potvrdzuje pri
         každom štarte); prvý známy `enabled` je bežný štart, nie správa."""
@@ -650,7 +678,7 @@ class LiveNotifier:
                                                      "platform": ctx.get("platform"), "symbol": ctx.get("symbol"),
                                                      "strategy": ctx.get("strategy")})
         z["last"] = now
-        for f in ("platform", "symbol", "strategy"):
+        for f in ("platform", "account", "symbol", "strategy"):
             z[f] = ctx.get(f) or z.get(f)
         z["by"] = self.state.actor(instance, now) or z.get("by") or ""
         if k == "hello":
@@ -681,18 +709,23 @@ class LiveNotifier:
             out.append((seq, format_event(ctx, ev, self.cfg, rec) or ""))
         return out
 
-    def life_summary(self, force: bool = False) -> str | None:
-        """Zozbieraný životný cyklus ako jedna správa, keď je čas (ticho `LIFE_QUIET`, alebo `LIFE_MAX` od prvej
-        udalosti, alebo `force`); inak None. Reštart = koniec a znova štart v jednej zbierke."""
+    def _life_due(self) -> bool:
         zb: dict[str, dict[str, Any]] = self.state["life"]
-        if not zb:
-            return None
         now = self.clock()
-        if not force and now - max(z["last"] for z in zb.values()) < LIFE_QUIET \
-                and now - min(z["first"] for z in zb.values()) < LIFE_MAX:
+        return bool(zb) and (now - max(z["last"] for z in zb.values()) >= LIFE_QUIET
+                             or now - min(z["first"] for z in zb.values()) >= LIFE_MAX)
+
+    def life_summary(self, force: bool = False, muted: Any = ()) -> str | None:
+        """Zozbieraný životný cyklus ako jedna správa, keď je čas (ticho `LIFE_QUIET`, alebo `LIFE_MAX` od prvej
+        udalosti, alebo `force`); inak None. Reštart = koniec a znova štart v jednej zbierke. `muted` = kľúče
+        účtov (`akey`), ktoré sa vynechajú."""
+        zb: dict[str, dict[str, Any]] = self.state["life"]
+        if not zb or not (force or self._life_due()):
             return None
         skupiny: dict[tuple[str, str, str], list[str]] = {}
         for z in zb.values():
+            if akey(z.get("platform"), z.get("account")) in muted:
+                continue
             seq = z.get("seq") or ""
             druhy = []
             if seq:
@@ -718,13 +751,16 @@ class LiveNotifier:
         sa ďalej — inak by jedna otrávená správa zastavila všetky ostatné navždy (audit N-LIVE-17). Prechodná
         chyba (sieť, 429, 5xx) zastaví kolo a pošle sa celé znova."""
         for chat in self.cfg.chats:
-            try:
-                self.bot.send(chat, text, html=True)
-            except TelegramError as exc:
-                if not exc.permanent:
-                    raise
-                self.last_error = f"chat {chat}: {exc}"
-                log.warning("telegram: správa do chatu %s sa nedá doručiť, preskakujem: %s", chat, exc)
+            self._send(chat, text)
+
+    def _send(self, chat: int, text: str) -> None:
+        try:
+            self.bot.send(chat, text, html=True)
+        except TelegramError as exc:
+            if not exc.permanent:
+                raise
+            self.last_error = f"chat {chat}: {exc}"
+            log.warning("telegram: správa do chatu %s sa nedá doručiť, preskakujem: %s", chat, exc)
 
     def pump(self, max_events: int = PUMP_EVENTS, budget: float = PUMP_SECONDS) -> dict[str, Any]:
         """Jedno kolo: prečítaj, pošli, potvrď — a znova, kým je v spoole čo čítať, najviac `budget` sekúnd.
@@ -753,16 +789,22 @@ class LiveNotifier:
         # druhýkrát a /status by ukazoval LONG 2 (audit N-LIVE-17)
         zaloha = {k: copy.deepcopy(self.state.data.get(k)) for k in ("ctx", "life")}
         riadky_po: list[tuple[Any, list[tuple[int, str]]]] = [(b, self.messages(b)) for b in batches]
-        texty = [t for _, riadky in riadky_po for _, t in riadky if t]
+        # účet dávky (inštancia + beh) z kontextu — chat si vyberá, z ktorých účtov notifikácie chce (🔔)
+        texty = [(self._akey(b), t) for b, riadky in riadky_po for _, t in riadky if t]
         try:
-            for text in _chunks(texty, sep="\n\n"):
-                self._send_all(text)
+            for chat in self.cfg.chats:
+                ticho = self.state.muted(chat)
+                for text in _chunks([t for k, t in texty if k not in ticho], sep="\n\n"):
+                    self._send(chat, text)
             sent += len(texty)
-            suhrn = self.life_summary()
-            if suhrn:
-                self._send_all(suhrn)
+            if self._life_due():
+                for chat in self.cfg.chats:
+                    suhrn = self.life_summary(force=True, muted=self.state.muted(chat))
+                    if suhrn:
+                        self._send(chat, suhrn)
+                vsetko = self.life_summary(force=True)
+                sent += vsetko.count("\n") + 1 if vsetko else 0
                 self.state.data["life"] = {}
-                sent += suhrn.count("\n") + 1
         except TelegramError as exc:
             self.last_error = str(exc)
             self.state.data.update(zaloha)
@@ -882,21 +924,22 @@ HELP = ("Ovládanie gombíkmi pod správou alebo v klávesnici dole:\n"
         "📋 Ordery — otvorené pozície a čakajúce vstupy\n"
         "🧾 Obchody — posledné ordery: uzavreté s P&L, otvorené, čakajúce, zrušené\n"
         "📈 Výkon — winrate, P&L, profit factor, drawdown po obdobiach a stratégiách, 🖼 graf equity\n"
+        "🔔 Notifikácie — z ktorých účtov chceš dostávať správy o obchodoch, varovania a štart / stop\n"
         "📅 Udalosti a ďalšie — pohľady z hubu (keď je hub dostupný)\n\n"
-        "Aj ako príkazy: /status, /orders, /trades, /perf, /hub, /pause <č|časť mena|all>, /resume <…>, "
+        "Aj ako príkazy: /status, /orders, /trades, /perf, /notify, /hub, /pause <č|časť mena|all>, /resume <…>, "
         "/flatten <…> (s potvrdením)")
 
 #: Stála klávesnica pod poľom na písanie; text gombíka = príkaz. Pohľady pluginov hubu (📅 Udalosti …)
-#: pribudnú do predposledného riadku (`TelegramCommands.menu`).
-MENU = [["📊 Stav", "📋 Ordery"], ["🧾 Obchody", "📈 Výkon"], ["❓ Pomoc"]]
+#: pribudnú do posledného riadku (`TelegramCommands.menu`).
+MENU = [["📊 Stav", "📋 Ordery"], ["🧾 Obchody", "📈 Výkon"], ["🔔 Notifikácie", "❓ Pomoc"]]
 MENU_TEXT = {"📊 Stav": "/status", "📋 Ordery": "/orders", "🧾 Obchody": "/trades", "📈 Výkon": "/perf",
-             "❓ Pomoc": "/help"}
+             "🔔 Notifikácie": "/notify", "❓ Pomoc": "/help"}
 #: Pohľady pluginov hubu sa pýtajú znova najskôr po toľkých sekundách (hub dole = posledné známe).
 HUB_VIEWS_SECONDS = 300.0
 #: Menu „/“ (setMyCommands).
 BOT_COMMANDS = [("status", "stav stratégií s gombíkmi"), ("orders", "otvorené pozície a čakajúce vstupy"),
                 ("trades", "posledné obchody a ordery"), ("perf", "výkon stratégií a graf equity"),
-                ("hub", "pohľady z hubu (udalosti …)"),
+                ("notify", "z ktorých účtov chodia notifikácie"), ("hub", "pohľady z hubu (udalosti …)"),
                 ("pause", "pauza: /pause <č|meno|all>"), ("resume", "obchodovať: /resume <č|meno|all>"),
                 ("flatten", "zavrieť pozície: /flatten <č|meno|all>"), ("help", "pomoc")]
 MODE_ICON = {"enabled": "▶", "paused": "⏸", "flatten": "⛔"}
@@ -962,7 +1005,8 @@ class TelegramCommands:
     spustenie, `F:<kľúč|*>` otázka na flatten, `X:<čas>:<kľúč|*>` potvrdený flatten (`*` = všetky),
     `A:1`/`A:0` auto-obnova stavu (každých `AUTO_SECONDS`, pripnutá; v chate najviac jedna),
     `tr:` / `pf:` / `gr:` obchody, výkon a graf z denníka (`tradebot.live.reports`), `h` pohľady hubu,
-    `v:<plugin>:<pohľad>` jeden pohľad pluginu hubu.
+    `v:<plugin>:<pohľad>` jeden pohľad pluginu hubu, `n` výber účtov pre notifikácie, `N:<účet>` prepne
+    účet (`akey`), `N:*` / `N:-` zo všetkých / zo žiadneho.
 
     `journal` = denník obchodov (`TradeJournal`, bez neho 🧾/📈 povedia, že nie je); `hub` = objekt
     s `views() -> [{plugin, view, label}]` a `view(plugin, view) -> HTML` (bez hubu None)."""
@@ -1030,6 +1074,49 @@ class TelegramCommands:
         except Exception as exc:  # noqa: BLE001
             return f"Hub nedostupný: {_e(type(exc).__name__)} {_e(str(exc)[:200])}", spat
         return text[:MAX_TEXT] or "(prázdne)", spat
+
+    # -- notifikácie po účtoch ---------------------------------------------- #
+
+    def _accounts(self, chat: Any) -> dict[str, str]:
+        """Účty na výber (`akey` → meno): bežiace za `STALE_DAYS` v poradí /status a k nim vypnuté, ktoré už
+        nebežia — aby sa dali znova zapnúť."""
+        out = {akey(i.get("platform"), i.get("account")): account_name(i.get("platform"), i.get("account"))
+               for i in self.controls.instances(self.clock())}
+        for k, meno in self.state.muted(chat).items():
+            out.setdefault(k, meno)
+        return out
+
+    def notify_view(self, chat: Any) -> tuple[str, list[list[dict]]]:
+        ucty, ticho = self._accounts(chat), self.state.muted(chat)
+        hlava = ("<b>🔔 Notifikácie</b>\nZ ktorých účtov chceš dostávať notifikácie (vstupy, výstupy, varovania, "
+                 "štart / stop)? Ťukni na účet a prepneš ho.")
+        if not ucty:
+            return hlava + "\n\nŽiadny účet za posledných 7 dní.", [[{"text": "📊 Stav", "callback_data": "s"}]]
+        riadky = [hlava, ""] + [f"{'🔕' if k in ticho else '✅'} {_e(m)}" for k, m in ucty.items()]
+        riadky.append("\n<i>Platí pre tento chat. Nový účet hlási, kým ho nevypneš; 📊 Stav, ordery a výkon "
+                      "ukazujú vždy všetky účty.</i>")
+        rows = [[{"text": f"{'🔕' if k in ticho else '✅'} {m}"[:40], "callback_data": f"N:{k}"}] for k, m in ucty.items()]
+        rows.append([{"text": "✅ Všetky", "callback_data": "N:*"}, {"text": "🔕 Žiadny", "callback_data": "N:-"}])
+        rows.append([{"text": "📊 Stav", "callback_data": "s"}])
+        return "\n".join(riadky), rows
+
+    def _toggle_notify(self, chat: Any, kluc: str) -> str:
+        ucty, ticho = self._accounts(chat), self.state.muted(chat)
+        if kluc == "*":
+            ticho = {}
+            oznam = "Notifikácie zo všetkých účtov"
+        elif kluc == "-":
+            ticho = dict(ucty)
+            oznam = "Notifikácie vypnuté zo všetkých účtov"
+        elif kluc in ticho:
+            oznam = f"Zapnuté: {ticho.pop(kluc)}"
+        elif kluc in ucty:
+            ticho[kluc] = ucty[kluc]
+            oznam = f"Vypnuté: {ucty[kluc]}"
+        else:
+            return "Účet už nevidím — obnov výber."
+        self.state.set_muted(chat, ticho)
+        return oznam
 
     # -- denník -------------------------------------------------------------- #
 
@@ -1120,6 +1207,9 @@ class TelegramCommands:
         elif cmd == "/perf":
             t, b = self.perf_view()
             self.bot.send(chat, t, b, html=True)
+        elif cmd == "/notify":
+            t, b = self.notify_view(chat)
+            self.bot.send(chat, t, b, html=True)
         elif cmd == "/hub":
             t, b = self.hub_list_view()
             self.bot.send(chat, t, b, html=True)
@@ -1168,7 +1258,7 @@ class TelegramCommands:
             if mid is not None:
                 self.bot.edit(chat, mid, t, b, html=True)
             return
-        if auto and (akcia in ("o", "m", "F", "tr", "pf", "h", "v") or (akcia in ("P", "R") and kluc != "*")):
+        if auto and (akcia in ("o", "m", "F", "tr", "pf", "h", "v", "n", "N") or (akcia in ("P", "R") and kluc != "*")):
             self._set_auto(chat, mid, False)   # správa odchádza zo stavu — auto-obnova by ju prepísala späť
             auto = False
         if akcia in ("P", "R", "F", "X", "flatten") and not self._can_control(chat, user):
@@ -1185,6 +1275,11 @@ class TelegramCommands:
         elif akcia == "pf":
             obdobie, _, ciel = kluc.partition(":")
             t, b = self.perf_view(obdobie, ciel)
+        elif akcia == "n":
+            t, b = self.notify_view(chat)
+        elif akcia == "N":
+            oznam = self._toggle_notify(chat, kluc)
+            t, b = self.notify_view(chat)
         elif akcia == "h":
             t, b = self.hub_list_view()
         elif akcia == "v":

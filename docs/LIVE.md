@@ -630,10 +630,14 @@ do 15 min potom (`ACTOR_TTL`) mu pripíše; pád bez zmeny z hubu meno nemá. Ch
 a ukazuje bez `nenabehla:`, detailu za „ — “, „skúsim znova“ a času pokusu. Beh v Strategy Testeri /
 Analyzeri (`hello.tester`) a udalosti predhistórie (`ready: false`) sa nehlásia.
 
+Každý chat si v **🔔 Notifikácie** vyberie, z ktorých účtov (platforma + účet) správy o obchodoch, varovania
+a súhrn štartu / stopu chce; vypnuté sú v `TELEGRAM_STATE.muted` (chat → účty), takže nový účet hlási, kým
+ho niekto nevypne. Chyby nasadení idú vždy (účet nenesú) a 📊 Stav, Ordery, Obchody a Výkon ukazujú všetky účty.
+
 ### Príkazy (agent)
 
 Ovláda sa **gombíkmi**, nič netreba písať: `/start` (raz) pridá stálu klávesnicu — 📊 Stav, 📋 Ordery,
-🧾 Obchody, 📈 Výkon, pohľady pluginov hubu (📅 Udalosti …) a ❓ Pomoc — a agent pri štarte nastaví menu „/“
+🧾 Obchody, 📈 Výkon, 🔔 Notifikácie, pohľady pluginov hubu (📅 Udalosti …) a ❓ Pomoc — a agent pri štarte nastaví menu „/“
 (`setMyCommands`). Správy so stavom sú HTML a ťuknutie ich prepíše na mieste
 (`editMessageText`), takže chat nezahltia.
 
@@ -661,13 +665,17 @@ Ovláda sa **gombíkmi**, nič netreba písať: `/start` (raz) pridá stálu kl�
 - **📅 Udalosti** a ďalšie pohľady **pluginov hubu** (docs/HUB.md, „Pluginy“) — agent si ich zoznam pýta
   z `GET /api/plugins/views` (raz za 5 min, hub dole = posledný známy), text z `GET /api/plugins/<p>/views/<v>`;
   gombík pod ním obnoví. `/hub` ukáže všetky. Bez hubu povie „hub nedostupný“ — zvyšok Telegramu ide ďalej.
+- **🔔 Notifikácie** (`/notify`) — otázka „z ktorých účtov chceš dostávať notifikácie?“: gombík na každý účet
+  zo 📊 Stav (✅ hlási / 🔕 nie; ťuknutie prepne) a k nim vypnuté účty, ktoré už nebežia, plus **Všetky**
+  a **Žiadny**. Platí pre chat, v ktorom sa ťuklo.
 - Textom ostáva `/pause <č|časť mena|all>`, `/resume <…>`, `/flatten <…>` — zapíše control súbor
   (`by: telegram:<user id>`).
 
 Gombíky nesú v `callback_data` krátky kľúč inštancie (`ikey` = crc32 id, Telegram drží do 64 bajtov):
 `s` stav, `o` ordery, `m:<k>` ponuka, `P:`/`R:<k|*>` pauza / spustenie, `F:<k|*>` otázka, `X:<čas>:<k|*>` flatten,
 `tr:<k|*>` obchody, `pf:<obdobie>:<k|*>` výkon, `gr:<obdobie>:<k|*>` graf (obdobie `d`/`7`/`30`/`a`), `h` pohľady
-hubu, `v:<plugin>:<pohľad>` jeden pohľad.
+hubu, `v:<plugin>:<pohľad>` jeden pohľad, `n` výber účtov pre notifikácie, `N:<účet|*|->` prepne účet
+(`akey` = crc32 platformy a účtu) / všetky / žiadny.
 
 ### Denník obchodov (agent)
 

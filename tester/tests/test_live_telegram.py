@@ -14,7 +14,8 @@ from tester.hub.agent import HubAgent
 from tradebot.live.deploy import DeployStore
 from tradebot.live.spool import SpoolReader
 from tradebot.live.telegram import (ControlFiles, LiveNotifier, TelegramBot, TelegramCommands, TelegramConfig,
-                                    TelegramConflict, TelegramError, TelegramState, format_event, ikey, load_config)
+                                    TelegramConflict, TelegramError, TelegramState, akey, format_event, ikey,
+                                    load_config)
 from tradebot.live.vault import Vault
 
 INST = "mt5_1514925336-FTMO-Demo_US100.cash_3m_vwaporbnet"
@@ -438,6 +439,53 @@ def test_jedno_kolo_jedna_sprava_za_vsetky_instancie(tmp_path: Path):
     for k in range(3):
         write(root, [hello(session=f"s{k}"), entry(2), fill(3, "in", 29152.0)], session=f"s{k}", inst=f"{INST}{k}")
     assert n.pump()["sent"] == 3 and len(bot.sent) == 1 and bot.sent[0][1].count("🟢") == 3
+
+
+def test_notifikacie_len_z_vybranych_uctov_po_chatoch(tmp_path: Path):
+    """🔔 Notifikácie: chat si vypne účet — obchody a súhrn štartu z neho nedostane, druhý chat áno."""
+    root = tmp_path / "spool"
+    t = [1000.0]
+    bot, ctl = FakeBot(), FakeControls()
+    cfg = TelegramConfig(token="t", chats=[7, 8], admins=[42])
+    state = TelegramState(tmp_path / "s.json")
+    n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), bot, cfg, state, clock=lambda: t[0])
+    cmd = TelegramCommands(bot, cfg, state, ctl, clock=lambda: 1000.0)
+    n.pump()
+
+    # otázka ukáže účty zo stavu; ťuk vypne MT5 účet „A“ len v chate 7
+    bot.ups = [msg("🔔 Notifikácie", uid=1)]
+    cmd.poll()
+    text, rows = bot.sent[-1][1], bot.sent[-1][2]
+    assert "Z ktorých účtov" in text and "✅ MT5 · A" in text and "✅ NT8 · A" in text
+    ucet = akey("mt5", "A")
+    assert rows[0][0]["callback_data"] == f"N:{ucet}"
+    bot.ups = [cb(f"N:{ucet}", 2)]
+    cmd.poll()
+    assert "🔕 MT5 · A" in bot.edited[-1][2] and state.muted(7) == {ucet: "MT5 · A"} and state.muted(8) == {}
+
+    bot.sent.clear()
+    akc = dict(hello(), account="A")
+    write(root, [akc, entry(2), fill(3, "in", 29152.0)])
+    write(root, [dict(akc, platform="ninjatrader"), entry(2), fill(3, "in", 21000.0)], inst="ninjatrader_A_MNQ_3m_x")
+    n.pump()
+    t[0] += 31
+    n.pump()
+    do7 = "\n".join(x[1] for x in bot.sent if x[0] == 7)
+    do8 = "\n".join(x[1] for x in bot.sent if x[0] == 8)
+    assert do7.count("🟢") == 1 and "NT8 · A" in do7 and "MT5 · A" not in do7 and "· MT5 ·" not in do7
+    assert do8.count("🟢") == 2 and "▶️ <b>Spustené</b> · MT5" in do8 and "▶️ <b>Spustené</b> · NT8" in do8
+
+    # Žiadny → nič, Všetky → späť; vypnutý účet, ktorý už nebeží, sa dá znova zapnúť
+    bot.ups = [cb("N:-", 3)]
+    cmd.poll()
+    assert set(state.muted(7)) == {ucet, akey("ninjatrader", "A")}
+    ctl.modes.clear()
+    bot.ups = [cb("n", 4)]
+    cmd.poll()
+    assert "🔕 MT5 · A" in bot.edited[-1][2]
+    bot.ups = [cb("N:*", 5)]
+    cmd.poll()
+    assert state.muted(7) == {} and "Žiadny účet" in bot.edited[-1][2]
 
 def test_bot_drzi_odstup_a_caka_na_429():
     volania, spanky = [], []

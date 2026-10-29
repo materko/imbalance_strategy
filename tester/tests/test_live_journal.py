@@ -210,7 +210,7 @@ def test_klavesnica_gombiky_obchody_vykon_graf_a_pohlady_hubu(tmp_path: Path):
     c, bot = _cmd(tmp_path, hub)
     c.handle(_msg("/start"))
     klav = bot.sent[-1][2]
-    assert klav[:2] == MENU[:2] and klav[-1] == ["📅 Udalosti", "❓ Pomoc"]
+    assert klav[:2] == MENU[:2] and klav[-1] == ["📅 Udalosti", "🔔 Notifikácie", "❓ Pomoc"]
     c.handle(_msg("🧾 Obchody"))
     assert bot.sent[-1][1].startswith("<b>🧾 Obchody</b>")
     c.handle(_msg("📈 Výkon"))
@@ -229,7 +229,7 @@ def test_klavesnica_gombiky_obchody_vykon_graf_a_pohlady_hubu(tmp_path: Path):
     c.handle(_cb("v:ff_calendar:upcoming"))
     assert bot.edited[-1][2].startswith("Hub nedostupný")
     c._hub_views_at -= 1000            # pohľady znova, hub dole = posledné známe ostávajú
-    assert c.menu()[-1] == ["📅 Udalosti", "❓ Pomoc"] and hub.calls == 2
+    assert c.menu()[-1] == ["📅 Udalosti", "🔔 Notifikácie", "❓ Pomoc"] and hub.calls == 2
 
 
 def test_bez_hubu_a_bez_dennika(tmp_path: Path):
