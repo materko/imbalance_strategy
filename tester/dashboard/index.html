@@ -636,8 +636,16 @@
       return [x[0], x[1], x[2], fail];
     });
     if (!st.length) return "";
-    // posledný hotový krok smernice (2–3 sa ráta ako 3), smernica má 10 krokov
-    var done = st.reduce(function (m, x) { return x[2] ? Math.max(m, +String(x[0]).split("–").pop()) : m; }, 0);
+    // od 29. 10. 2026 je krok 9 robustnosť (len informácia, na prejdenie nemá vplyv); staré dáta (9 forward,
+    // 10 ostrá) sa prečíslujú a krok 9 sa doplní — hotový, keď dáta nesú `robust` (tester.robust)
+    if (!st.some(function (x) { return /robust/i.test(x[1]); })) {
+      st = st.map(function (x) { return x[0] === "9" ? ["10", x[1], x[2], x[3]] : x[0] === "10" ? ["11", x[1], x[2], x[3]] : x; });
+      var at = st.findIndex(function (x) { return x[0] === "10"; });
+      var rb = ["9", "robustnosť (info)", !!s.robust, false];
+      if (at < 0) st.push(rb); else st.splice(at, 0, rb);
+    }
+    // posledný hotový krok smernice (2–3 sa ráta ako 3; 9 je len informácia), smernica má 11 krokov
+    var done = st.reduce(function (m, x) { return x[2] && x[0] !== "9" ? Math.max(m, +String(x[0]).split("–").pop()) : m; }, 0);
     var total = st.reduce(function (m, x) { return Math.max(m, +String(x[0]).split("–").pop()); }, 0);
     if (compact) return '<div class="steps-mini" title="' + esc(st.map(function (x) { return (x[2] ? "✓ " : x[3] ? "✗ " : "☐ ") + x[0] + " " + x[1]; }).join("\n")) + '">' +
       st.map(function (x) { return '<i class="' + (x[2] ? "on" : x[3] ? "fail" : "") + '"></i>'; }).join("") + '<span class="muted">hotový krok ' + done + " z " + total + "</span></div>";

@@ -221,12 +221,15 @@ def emulate(
     registry: DrawRegistry | None = None,
     spec=None,
     fee: float = 0.0,
+    entry_delay: int = 0,
 ) -> tuple[EmulationResult, MCRunner]:
     """Prehrá stratégiu cez `MCRunner` s emulovaným brokerom MultiCharts.
 
     `m1` je 1m DataFrame (`date` UTC, OHLCV). Vracia výsledok a runner (kvôli kresbám).
     `fee` je poplatok na stranu ako v `rows_from_trades`; tu slúži len na zisk uzavretého
     obchodu pre denný limit výhier (Pine `strategy.closedtrades.profit` je po poplatku).
+    `entry_delay` (test robustnosti, smernica): vstupné ordery stratégie dostane broker o toľko barov
+    neskôr — zadanie aj zrušenie, ako latencia; 0 = presne ako platforma.
     """
     out_log = log or (lambda _s: None)
     chart = bars_from_frame(m1, chart_tf, from_ms, to_ms)
@@ -269,6 +272,7 @@ def emulate(
     open_trade: EmuTrade | None = None
     active_stop = active_tp = 0.0
     pending_entries: list[LiveOrder] = []
+    delayed: list[list[LiveOrder]] = []
     #: koľko uzavretých obchodov už runner dostal (`closed_trade_pnls` = len nové)
     reported = 0
     #: order poslednej otvorenej pozície - runner podľa neho prevezme SL/TP (N-CORE-2)
@@ -357,6 +361,12 @@ def emulate(
             active_stop = float(out.exit_stop if out.exit_stop is not None else out.exit_plan.stop_loss)
             active_tp = float(out.exit_plan.take_profit)
         pending_entries = list(out.entries) if open_trade is None else []
+        if entry_delay > 0:
+            # broker vidí stav orderov spred `entry_delay` barov; už vyplnený order sa znova neotvorí
+            delayed.append(pending_entries)
+            pending_entries = delayed.pop(0) if len(delayed) > entry_delay else []
+            done = {t.order_id for t in trades} | ({open_trade.order_id} if open_trade is not None else set())
+            pending_entries = [] if open_trade is not None else [o for o in pending_entries if o.order_id not in done]
 
         if first_close is None:
             first_close = bar.close

@@ -132,7 +132,7 @@ python -m tester.webapp.cli checkup --strategy X --profile Y --fee 1.755e-05
   - Monte Carlo drawdown,
   - break-even poplatok.
 - Výsledok: `tradebot/strategies/<kľúč>/docs/ANALYTIKA.md`.
-- Max. drawdown z Monte Carlo (95 %) si zapíš. Je to hranica na vypnutie stratégie v kroku 10.
+- Max. drawdown z Monte Carlo (95 %) si zapíš. Je to hranica na vypnutie stratégie v kroku 11.
 
 ### 8. Iné dáta a iný trh (Mac mini)
 - To isté nastavenie na NAS100 z Dukascopy (`--pair NAS100/USD`) a ak sa dá, aj na ES alebo inom indexe.
@@ -144,13 +144,36 @@ python -m tester.webapp.cli checkup --strategy X --profile Y --fee 1.755e-05
 - **Prešiel:** PF na NAS100 ≥ 1,1 a aspoň 4 z 5 rokov v pluse. Inak výsledok na MNQ môže byť vlastnosť dát —
   na CFD (FTMO) nepoužívať.
 
-### 9. Forward test 4–8 týždňov
+### 9. Robustnosť — len informácia (doplnené 29. 10. 2026)
+**Výsledok na prejdenie smernicou nemá vplyv** — je to informácia k rozhodnutiu o veľkosti a forward teste: hovorí, či kandidát
+nie je náhoda zo skúšania desaťtisícov kombinácií. Beží na emulátore MultiCharts, ~1 min na profil (MacBook aj Mac mini):
+```
+python -m tester.robust --profile <profil> --pair MNQ/USD --timeframe 3m --fee 1.755e-05 --trials <skúsených kombinácií>
+```
+`--trials` = stĺpec „skúsených kombinácií“ z rannej tabuľky smernice (stratégia, ktorej kandidát vznikol).
+
+| test | čo robí | dobré znamenie |
+|---|---|---|
+| **2× poplatok** | tie isté obchody prepočítané s dvojnásobným poplatkom | PF spolu ≥ 1,0 a aspoň 3 z 5 okien ≥ 1,0 |
+| **vstup o sviečku neskôr** | broker dostane zadanie aj zrušenie vstupu o bar neskôr (latencia) | PF spolu ≥ 1,1 a aspoň 80 % PF bez posunu |
+| **Deflated Sharpe** (Bailey & López de Prado) | Sharpe z denných výnosov oproti očakávanému maximu toľkých skúšok bez edge | DSR ≥ 0,95 |
+
+- Zle 2× poplatok → edge je tenší, než unesie reálny sklz — na live opatrne, s menšou veľkosťou.
+- Zle oneskorenie → výsledok stojí na presnom čase vstupu, ktorý naživo nedosiahneme.
+- Nízky DSR → pri takom počte skúšok by sa podobný Sharpe dal nájsť aj bez edge. Nastavenie ostáva prejdené,
+  len sa s ním ide do forward testu opatrnejšie. N je horná hranica (skúšky sú korelované), test je prísny.
+- PBO (pravdepodobnosť pretrénovania z celej matice skúšok × období) tu zatiaľ nie je — chce výsledky všetkých
+  skúšok z hubu po obdobiach.
+- Prvé meranie (IBS EZ 1–10 na MNQ, 29. 10. 2026): 2× poplatok aj oneskorenie všetky v pluse (5/5 okien), DSR pri 20 710
+  skúškach 0,52–0,92 (IBS EZ 1 najvyššie; pri 5 000 nezávislých skúškach 0,955).
+
+### 10. Forward test 4–8 týždňov
 - Paper účet alebo 1 MNQ, aspoň **20–30 obchodov**.
 - Každý týždeň porovnať obchody naživo s webapp na tie isté dni, **obchod po obchode**.
   Rozdiely ukážu sklz, chyby v kóde aj repaint.
 - Veľkosť sa zvyšuje až keď sa zhodujú.
 
-### 10. Ostrá prevádzka
+### 11. Ostrá prevádzka
 - Začať s malou veľkosťou.
 - Pravidlo na vypnutie nastaviť **vopred**:
   - drawdown nad Monte Carlo 95 % → stratégia sa vypína,
@@ -158,7 +181,7 @@ python -m tester.webapp.cli checkup --strategy X --profile Y --fee 1.755e-05
 
 ---
 
-## Doplnkové testy (pred krokom 9, Mac mini)
+## Doplnkové testy (pred krokom 10, Mac mini)
 
 Tieto testy zvyšujú dôveru, keď hlavné kroky prešli.
 
@@ -226,8 +249,9 @@ Stratégia: ____________   Profil: ____________   Dátum: ________
 [ ] 7. checkup: rokov v pluse __/5, náhoda ____ %, break-even poplatok ____, MC DD 95 % ____
 [ ] 8. NAS100 / iný trh: PF ____ (rovnaký smer?)
 [ ] doplnky: walk-forward PF ____, 2× poplatok PF ____, režimy ok, dáta ok, portfólio DD ____
-[ ] 9. forward ____ týždňov, ____ obchodov, PF ____ (≤ 30 % pod backtestom?)
-[ ] 10. ostrá prevádzka: veľkosť ____, vypnúť pri DD ____ alebo PF < 1 po 50 obchodoch
+[ ] 9. robustnosť (len informácia): 2× poplatok PF ____, o sviečku neskôr PF ____, DSR ____ pri ____ skúškach
+[ ] 10. forward ____ týždňov, ____ obchodov, PF ____ (≤ 30 % pod backtestom?)
+[ ] 11. ostrá prevádzka: veľkosť ____, vypnúť pri DD ____ alebo PF < 1 po 50 obchodoch
 ```
 
 ---
