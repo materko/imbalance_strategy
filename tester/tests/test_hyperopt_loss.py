@@ -76,6 +76,16 @@ def test_zisk_neriesi_winrate(monkeypatch):
     assert loss(malo_ale_velke, p, monkeypatch) < loss(casto_ale_male, p, monkeypatch)
 
 
+def test_pf_radi_podla_profit_faktora_so_stropom(monkeypatch):
+    p = plan(goal="pf", min_trades=60)
+    lepsi = obchody([30.0] * 40 + [-10.0] * 60)     # PF 2,0
+    horsi = obchody([10.0] * 70 + [-10.0] * 30)     # PF 700 / 300
+    assert loss(lepsi, p, monkeypatch) == pytest.approx(-2.0)
+    assert loss(horsi, p, monkeypatch) == pytest.approx(-700 / 300)
+    # okno bez straty má strop, neprebije všetko ostatné nekonečnom
+    assert loss(obchody([10.0] * 100), p, monkeypatch) == pytest.approx(-10.0)
+
+
 def test_drawdown_sa_minimalizuje(monkeypatch):
     p = plan(goal="drawdown", min_trades=60)
     plynuly = obchody([10.0] * 100)

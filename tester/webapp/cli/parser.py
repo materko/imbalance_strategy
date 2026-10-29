@@ -17,7 +17,7 @@ from .sweep import cmd_plateau, cmd_portfolio, cmd_sweep, cmd_sweeps
 
 
 #: kritériá výberu pre `sweep` (definícia je v `tester/sweep.py`)
-_GOALS = ("break_even", "profit", "winrate", "drawdown")
+_GOALS = ("break_even", "profit", "winrate", "drawdown", "pf")
 
 
 def _remote_args(p: argparse.ArgumentParser) -> None:

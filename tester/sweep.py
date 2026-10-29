@@ -43,13 +43,18 @@ GOALS: dict[str, tuple[str, bool]] = {
     "profit": ("pnl_pct", True),
     "winrate": ("winrate", True),
     "drawdown": ("max_drawdown_pct", False),
+    "pf": ("profit_factor", True),
 }
+
+#: strop profit faktora v kritériu `pf` — okno bez straty (alebo s pár obchodmi) nesmie prebiť všetko ostatné
+PF_CAP = 10.0
 
 GOAL_TITLES = {
     "break_even": "najvyšší break-even poplatok",
     "profit": "najvyšší zisk",
     "winrate": "najvyšší podiel ziskových",
     "drawdown": "najnižší drawdown",
+    "pf": "najvyšší profit faktor",
 }
 
 

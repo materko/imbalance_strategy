@@ -20,6 +20,9 @@ Kritériá:
     Najvyšší podiel ziskových obchodov.
 ``drawdown``
     Najnižší max drawdown.
+``pf``
+    Najvyšší profit faktor (hrubé zisky / hrubé straty), so stropom 10 — okno bez straty alebo
+    s pár obchodmi nesmie prebiť všetko ostatné (`tester.sweep.PF_CAP`).
 
 Mantinely (obe voliteľné) sa neuplatňujú ako zákaz, ale ako penalizácia rastúca so
 vzdialenosťou od limitu. Plochá stena je pre optimalizátor slepá — nevidí, ktorým
@@ -60,6 +63,9 @@ DEFAULT_MIN_TRADES_PER_YEAR = 60
 
 #: Skóre epochy, ktorá sa nedá vyhodnotiť (žiadny objem, prázdny výsledok).
 UNUSABLE = 1000.0
+
+#: Strop profit faktora v kritériu `pf` — to isté číslo ako `tester.sweep.PF_CAP`.
+PF_CAP = 10.0
 
 
 def _max_drawdown(results: DataFrame, starting_balance: float) -> float:
@@ -119,6 +125,10 @@ def _window_loss(results: DataFrame, trade_count: int, days: int, plan, starting
     elif goal == "drawdown":
         # Menej je lepšie, takže znamienko je opačné než u ostatných kritérií.
         skore = -float(_max_drawdown(results, starting_balance) * 100.0)
+    elif goal == "pf":
+        zisk = float(results.loc[results["profit_abs"] > 0, "profit_abs"].sum())
+        strata = -float(results.loc[results["profit_abs"] < 0, "profit_abs"].sum())
+        skore = min(zisk / strata if strata else zisk, PF_CAP)
     else:
         be = _break_even_pct(results)
         if be is None:

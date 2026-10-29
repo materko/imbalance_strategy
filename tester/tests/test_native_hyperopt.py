@@ -78,6 +78,8 @@ def test_loss_follows_plan_loss_rules():
     assert loss_of(s, build_plan({"rrRatio": "1:3:0.5"}, strategy="orbnet"), year) == -0.03
     assert loss_of(s, build_plan({"rrRatio": "1:3:0.5"}, strategy="orbnet", goal="winrate"), year) == -55.0
     assert loss_of(s, build_plan({"rrRatio": "1:3:0.5"}, strategy="orbnet", goal="drawdown"), year) == 8.0
+    assert loss_of({**s, "profit_factor": 1.8}, build_plan({"rrRatio": "1:3:0.5"}, strategy="orbnet", goal="pf"), year) == -1.8
+    assert loss_of({**s, "profit_factor": 55.0}, build_plan({"rrRatio": "1:3:0.5"}, strategy="orbnet", goal="pf"), year) == -10.0
     # dno na obchody je za rok a prepočíta sa na okno; pod ním spojitá penalizácia
     plan = build_plan({"rrRatio": "1:3:0.5"}, strategy="orbnet", min_trades=200)
     assert loss_of(s, plan, year) == UNUSABLE + 100

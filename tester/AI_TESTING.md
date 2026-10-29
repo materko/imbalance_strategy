@@ -266,7 +266,7 @@ sa s históriou, sweepom ani verdiktom nedajú porovnať.
 
 | | |
 |---|---|
-| **kritérium** | `--goal break_even|profit|winrate|drawdown` + mantinely `--max-dd`, `--min-trades` (za rok, prepočíta sa na okno) — tie isté čísla, aké ukazuje história (`summary_money`) a podľa akých radí sweep |
+| **kritérium** | `--goal break_even|profit|winrate|drawdown|pf` + mantinely `--max-dd`, `--min-trades` (za rok, prepočíta sa na okno) — tie isté čísla, aké ukazuje história (`summary_money`) a podľa akých radí sweep |
 | **priestor** | rozsahy z `CONSTRAINTS` configu (Pine), typy z dataclass, väzby medzi parametrami opraví stratégia (`hyperopt_cls.constrain`); `--suggested` = priestor, ktorý na stratégii prežil out-of-sample |
 | **parita** | epocha je ten istý backtest ako obyčajný beh: Freqtrade, alebo emulátor MultiCharts v C#, ktorého obchody sú bit po bite ako Python emulátor (`tester/tests/test_csharp_backtest.py`) |
 | **overenie** | víťaz sa sám pustí na piatich referenčných oknách a dostane verdikt `VITAZ PREZIL` / `NEJASNE` / `PRETRENOVANE`; okolie víťaza (§8a) jedným príkazom |

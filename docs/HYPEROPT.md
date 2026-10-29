@@ -21,7 +21,7 @@ PY -m tester.webapp.cli hyperopt --param rrRatio=2:8:0.5 --param slLookback=5:40
    --timerange 20250904-20260904 --goal break_even --min-trades 15 --epochs 200
 ```
 
-Kritériá sú tie isté štyri ako pri sweepe (`break_even`, `profit`, `winrate`, `drawdown`)
+Kritériá sú tie isté päť ako pri sweepe (`break_even`, `profit`, `winrate`, `drawdown`, `pf` — profit faktor so stropom 10)
 a k nim `--max-dd` a `--min-trades` — [tester/AI_TESTING.md §7](../tester/AI_TESTING.md).
 `--min-trades` je v oboch počet obchodov **za rok** a prepočíta sa na dĺžku okna
 (v hyperopte to robí loss funkcia, v sweepe `sweep.required_trades`).

@@ -61,6 +61,7 @@ from tradebot.strategies import get_spec
 from . import engines
 from .hyperopt import REFERENCE_WINDOWS, Epoch, build_plan, edge_of, eta, overrides, table, verdict
 from .native import NativeRunner, summary_of, window_days, window_ms
+from .sweep import PF_CAP
 
 __all__ = ["SAMPLERS", "AGGREGATES", "OBJECTIVES", "SELECTS", "NativeRunner", "Search", "WalkForward",
            "loss_of", "objective_of", "config_json", "run_search", "walk_forward", "verify", "summary_of",
@@ -71,7 +72,7 @@ SAMPLERS = ("tpe", "cmaes", "nsga2", "nsga3", "random", "qmc")
 #: Ako sa skóre z viacerých okien zloží do jedného: najhoršie okno (predvolené), medián, priemer.
 AGGREGATES = ("min", "median", "mean")
 #: Ciele pre `objectives` — kritériá plánu a k nim počet obchodov.
-OBJECTIVES = ("break_even", "profit", "winrate", "drawdown", "trades")
+OBJECTIVES = ("break_even", "profit", "winrate", "drawdown", "pf", "trades")
 #: Ako vybrať víťaza: najlepšia epocha, alebo najlepšie okolie (plató).
 SELECTS = ("best", "plateau")
 
@@ -119,6 +120,8 @@ def loss_of(summary: dict[str, Any] | None, plan: Plan, days: int) -> float:
         skore = float(summary["pnl_pct"])
     elif goal == "drawdown":
         skore = -float(summary["max_drawdown_pct"])
+    elif goal == "pf":
+        skore = min(float(summary.get("profit_factor") or 0.0), PF_CAP)
     else:
         if summary.get("break_even_pct") is None:
             return UNUSABLE
@@ -146,6 +149,8 @@ def objective_of(summary: dict[str, Any] | None, name: str, plan: Plan, days: in
         return float(summary.get("max_drawdown_pct") or 0.0)
     if name == "trades":
         return -float(summary.get("trades") or 0)
+    if name == "pf":
+        return -min(float(summary.get("profit_factor") or 0.0), PF_CAP)
     raise ValueError(f"neznámy cieľ {name!r}; známe: {', '.join(OBJECTIVES)}")
 
 
@@ -635,7 +640,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--timerange", default="20240904-20250904")
     ap.add_argument("--param", action="append", default=[], metavar="POLE=OD:DO:KROK|A,B,C")
     ap.add_argument("--suggested", action="store_true", help="priestor, ktorý odporúča stratégia")
-    ap.add_argument("--goal", default="break_even", choices=("break_even", "profit", "winrate", "drawdown"))
+    ap.add_argument("--goal", default="break_even", choices=("break_even", "profit", "winrate", "drawdown", "pf"))
     ap.add_argument("--max-dd", type=float)
     ap.add_argument("--min-trades", type=int, help="obchodov za rok")
     ap.add_argument("--epochs", type=int, default=200, help="epoch (pri walk-forward na každý fold)")
