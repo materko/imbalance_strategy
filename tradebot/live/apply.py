@@ -344,6 +344,9 @@ class Reconciler:
                             continue
                         if dep.instance not in kept:
                             drv.remove_instance(acc, dep)
+                        # `removed` = z platformy preč: webapp ukáže „odstránené“ a dá zmazať z hubu; podržané
+                        # pre otvorenú pozíciu (vyššie) ostáva `ok` = „odstraňuje sa“
+                        entry["status"] = "removed"
                         touched = True
                         applied[dep.id] = entry
                         continue

@@ -195,7 +195,8 @@ def test_state_persists_and_vanished_deployment_is_removed(tmp_path: Path):
     assert kinds(drv.calls, "remove_instance") == [("remove_instance", "ftmo", "d2")]
     assert kinds(drv.calls, "ensure_instance") == [("ensure_instance", "ftmo", ("d1",))]
     frag = rec.fragment()
-    assert {a["deployment"]: (a["active"], a["status"]) for a in frag["applied"]} == {"d1": (True, "ok"), "d2": (False, "ok")}
+    # vypnuté a z platformy odstránené = `removed` (webapp „odstránené“), nie `ok` (večné „odstraňuje sa“)
+    assert {a["deployment"]: (a["active"], a["status"]) for a in frag["applied"]} == {"d1": (True, "ok"), "d2": (False, "removed")}
 
     # nový reconciler nad tým istým súborom hlási to isté aj bez hubu (`run(None)` = starý hub)
     drv2 = FakeDriver()
@@ -552,7 +553,9 @@ def test_hub_agent_reconciler_driver_end_to_end(tmp_path: Path, monkeypatch):
     agent.tick()
     assert drv.calls == [("remove_instance", "ic", d["id"]), ("ensure_instance", "ic", ())]
     agent.tick()
-    assert c.get(f"/api/live/deployments/{d['id']}", headers=H).json()["applied"]["status"] == "ok"
+    assert c.get(f"/api/live/deployments/{d['id']}", headers=H).json()["applied"]["status"] == "removed"
+    # potvrdené odstránenie: druhé zmazanie ho z hubu naozaj zmaže
+    assert c.delete(f"/api/live/deployments/{d['id']}", headers=H).json()["deleted"] is True
 
     # inštancia nenabehla: hub uloží `ok` s dôvodom v `error` (to isté robí aj hub spred tejto zmeny)
     d2 = c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "GER40", "tf": 3, "profile": "p1"},
@@ -580,6 +583,7 @@ def test_zrusene_nasadenie_s_otvorenou_poziciou_drzi_graf_v_pauze(tmp_path: Path
     assert ("write_control", "d1", inst, "paused") in drv.calls
     assert kinds(drv.calls, "ensure_instance") == [("ensure_instance", "ftmo", ("d1",))]
     assert "otvorená pozícia" in rec.state["applied"]["d1"]["held"]
+    assert rec.state["applied"]["d1"]["status"] == "ok"            # podržané = ešte „odstraňuje sa“
     drv.calls.clear()
     rec.run(desired())                                    # hub nasadenie zmazal, pozícia stále beží
     assert kinds(drv.calls, "remove_instance") == [] and "d1" in rec.state["held"]

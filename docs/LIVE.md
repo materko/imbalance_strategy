@@ -372,6 +372,8 @@ class Driver:                      # jedna trieda na platformu; agent ich načí
 `Reconciler.run(desired)` volá driver pre každý účet: heslo → `store_secret`, profily → `ensure_profile`,
 control → `write_control`, inštancie → `ensure_instance`/`remove_instance`; výsledok ide do `applied`
 v ďalšom heartbeate. Nič nesmie vyhodiť výnimku von (chyba = `status: error` k danému deploymentu).
+Vypnuté nasadenie (`active: false`) odstránené z platformy hlási `status: removed` — webapp ho ukáže ako
+„odstránené“ a dá ho zmazať z hubu; podržané pre otvorenú pozíciu (`held`) ostáva `ok`, teda „odstraňuje sa“.
 
 **Inštancia nenabehla.** Driver súbory zapíše bez chyby, ale platforma inštanciu nespustí (NT: účet nie
 je Connected, pripojenie nie je v `ConnectOptions`, inštrument, profil, engine, `BarsRequest`) — to vie
