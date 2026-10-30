@@ -67,7 +67,8 @@ spustenie postaví prostredie (~10 min) a otvorí prehliadač na http://127.0.0.
 ./webapp.sh         # macOS / Linux
 ```
 
-Vo webapp vyberieš stratégiu (podľa trhu a typu), nastavíš parametre, pár a obdobie,
+Prvá karta **Stratégie** je katalóg: každá stratégia s profilmi (prešli smernicou / repozitár /
+vlastné) a najlepším behom z histórie. Vo webapp vyberieš stratégiu (podľa trhu a typu), nastavíš parametre, pár a obdobie,
 spustíš backtest a vidíš výsledky, graf výnosnosti, graf páru so všetkým, čo engine
 nakreslil, a zoznam obchodov. Ďalej sweep, hyperopt, analytika, diverzifikácia (aj živých behov),
 karta **Hub** (výpočty na iných strojoch) a **Live** (bežiace stratégie v NT8 / MT5).
@@ -154,7 +155,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-10-29)
+## Kde sme (2026-10-30)
 
 - **Výber stratégií** ide cez [smernicu testovania](docs/SMERNICA_TESTOVANIA.md) — séria
   skúšok, ktoré môžu stratégiu „zabiť" (päť okien, náhoda, Monte Carlo, náklady, …).

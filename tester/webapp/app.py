@@ -19,7 +19,7 @@ from . import chart as chart_data  # noqa: F401 — testy ho podvrhujú cez `app
 from .. import engines  # noqa: F401 — testy ho podvrhujú cez `app_mod.engines`
 from .anstore import AnalyticsStore
 from .api import (
-    analytics, analytics_history, analytics_prepare, chart, diversify, git, hub, hyperopt, live, matrix, meta,
+    analytics, analytics_history, analytics_prepare, catalog, chart, diversify, git, hub, hyperopt, live, matrix, meta,
     native, profiles, prop_paper, runs, sweeps,
 )
 from .api.common import (  # noqa: F401 — verejné mená modulu z čias pred rozdelením
@@ -31,7 +31,7 @@ from .runner import BacktestRunner
 from .store import RunStore
 
 #: Poradie registrácie routov; `/static` sa pripája až za nimi.
-ROUTERS = (meta, profiles, runs, sweeps, hyperopt, native, analytics, analytics_prepare,
+ROUTERS = (meta, catalog, profiles, runs, sweeps, hyperopt, native, analytics, analytics_prepare,
            analytics_history, prop_paper, matrix, diversify, hub, live, chart, git)
 
 

@@ -5,10 +5,32 @@
 // Navigácia a štart
 // --------------------------------------------------------------------------- //
 
+/** Čip Hub v hornom prehľade: koľko agentov je online, koľko výpočtov čaká a beží. */
+function statusHub(h) {
+  const el = $("#sb-hub"), hub = h && h.hub;
+  el.hidden = !!(h && !h.configured);
+  const dot = el.querySelector(".tab-dot");
+  if (!hub) { $("#sb-hub-text").textContent = h ? "bez spojenia" : "—"; dot.className = `tab-dot ${h ? "bad" : ""}`; return; }
+  const parts = [`${hub.online ?? 0} online`, `${hub.queued ?? 0} v rade`];
+  if (hub.running) parts.push(`${hub.running} beží`);
+  $("#sb-hub-text").textContent = parts.join(" · ");
+  dot.className = `tab-dot ${h.error ? "bad" : "ok"}`;
+}
+
+/** Čip Live v hornom prehľade: koľko inštancií stratégií naživo beží z koľkých. */
+function statusLive(alive, total, error) {
+  $("#sb-live-text").textContent = error ? "bez spojenia" : (total ? `${alive} beží z ${total}` : "nič nebeží");
+  $("#sb-live").querySelector(".tab-dot").className = `tab-dot ${error ? "bad" : (alive ? "ok" : "")}`;
+}
+
 function showView(name) {
   for (const b of $$(".tabs button")) b.classList.toggle("active", b.dataset.view === name);
-  // Karta je v adrese (#analytics, #diversify…), aby F5 ostal na tej istej karte.
-  history.replaceState(null, "", name === "new" ? location.pathname + location.search : `#${name}`);
+  const label = $(`.tabs button[data-view="${name}"]`);
+  if (label) $("#sb-title").textContent = label.textContent.replace(/nastaviť|\d+/g, "").trim();
+  // Karta je v adrese (#new, #analytics…), aby F5 ostal na tej istej karte; úvodná je katalóg (bez #).
+  history.replaceState(null, "", name === "catalog" ? location.pathname + location.search : `#${name}`);
+  $("#view-catalog").hidden = name !== "catalog";
+  if (name === "catalog") loadCatalog();
   $("#view-new").hidden = name !== "new"; $("#view-history").hidden = name !== "history";
   $("#view-analytics").hidden = name !== "analytics";
   $("#view-diversify").hidden = name !== "diversify";
@@ -73,6 +95,9 @@ async function init() {
   $("#live-log-close").onclick = closeLiveLog;
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#live-log").hidden) closeLiveLog(); });
   $("#load-params").onclick = loadDetailIntoForm;
+  $("#run-peek-close").onclick = closePeek;
+  $("#run-peek-open").onclick = () => historyPeek.id && openRun(historyPeek.id);
+  $("#run-peek-load").onclick = async () => { if (historyPeek.id) { await openRun(historyPeek.id); await loadDetailIntoForm(); } };
   for (const b of $$(".chip-btn[data-range]")) b.onclick = () => setQuickRange(b.dataset.range);
   for (const field of [$("#from"), $("#to"), $("#pair"), $("#profile")]) field.addEventListener("change", () => markQuickRange(null));
   initSweep();
@@ -107,8 +132,11 @@ async function init() {
   $("#git-pull").onclick = () => gitAction("pull");
   $("#git-push").onclick = () => gitAction("push");
 
+  initCatalog();
+  for (const b of $$("#statusbar [data-go]")) b.onclick = () => showView(b.dataset.go);
+
   const view = location.hash.slice(1);
-  if (view !== "new" && $$(".tabs button").some(b => b.dataset.view === view)) showView(view);
+  showView($$(".tabs button").some(b => b.dataset.view === view) ? view : "catalog");
 }
 
 init().catch(e => { document.body.insertAdjacentHTML("afterbegin", `<div class="error">${esc(e.message)}</div>`); });

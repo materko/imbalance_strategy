@@ -222,6 +222,7 @@ async function hubSetup() {
 /** Bodka pri záložke Hub: zelená = agent je na hube prihlásený, oranžová = pripája sa / nebeží,
  *  červená = bez spojenia; bez nastaveného hubu sa neukazuje (chip hovorí „nastaviť"). */
 function hubDot(h) {
+  statusHub(h);
   const dot = $("#hub-tab-dot");
   if (h && !h.configured) { dot.hidden = true; return; }
   const a = h && h.agent;
@@ -431,6 +432,14 @@ async function renderHub() {
     $("#hub-agents tbody").innerHTML = ""; $("#hub-stats tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
   } else {
     $("#hub-agents-count").textContent = `${hub.online} online`;
+    const on = hub.agents.filter(a => a.online), pocitaju = on.filter(a => a.role !== "live");
+    kpiRow($("#hub-kpis"), [
+      { k: "Agenti online", v: `${hub.online} / ${hub.agents.length}`, s: on.map(a => a.name).join(", ") },
+      { k: "Voľné sloty", v: pocitaju.reduce((n, a) => n + Math.max((a.slots || 0) - (a.used || 0), 0), 0),
+        s: `z ${pocitaju.reduce((n, a) => n + (a.slots || 0), 0)} na počítajúcich` },
+      { k: "Prijíma výpočty", v: pocitaju.filter(a => a.accept).length, s: "online agentov" },
+      { k: "V rade", v: hub.queued ?? 0, s: `beží ${hub.running ?? 0}` },
+    ]);
     renderHubVersion(hub);
     hubStatsBox();
     $("#hub-stats-old").hidden = hub.agents.some(a => a.stats);

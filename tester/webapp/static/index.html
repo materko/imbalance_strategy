@@ -6,13 +6,16 @@
 <meta name="color-scheme" content="light dark">
 <title>TradeBot Backtester</title>
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/static/app.css">
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script>
-/* Téma sa nastaví ešte pred vykreslením stránky, aby nebliklo svetlé pozadie. */
+/* Téma sa nastaví ešte pred vykreslením stránky, aby nebliklo svetlé pozadie. Predvolená je tmavá. */
 (function () {
   try {
-    var pref = localStorage.getItem("tradebot.theme") || "auto";
+    var pref = localStorage.getItem("tradebot.theme") || "dark";
     var dark = pref === "dark" || (pref === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
   } catch (_) { /* ignoruj, zostane svetlá */ }
@@ -23,7 +26,8 @@
 <header class="top">
   <div class="brand"><span class="brand-icon">↗</span> TradeBot <span>Lab</span></div>
   <nav class="tabs">
-    <button data-view="new" class="active">Nový beh</button>
+    <button data-view="catalog" class="active" title="Všetky stratégie s profilmi a najlepším behom z histórie">Stratégie</button>
+    <button data-view="new">Nový beh</button>
     <button data-view="history">História</button>
     <button data-view="analytics">Analytika</button>
     <button data-view="diversify" title="Viac nastavení naraz na jednom účte — z behov v histórii">Diverzifikácia</button>
@@ -45,6 +49,14 @@
   </div>
 </header>
 
+<!-- Horný prehľad: názov karty a stav hubu a živých stratégií (obnovuje sa s bodkami pri záložkách). -->
+<div class="statusbar" id="statusbar">
+  <span id="sb-title" class="sb-title">Stratégie</span>
+  <span class="spacer"></span>
+  <button type="button" class="sb-chip" id="sb-hub" data-go="hub" title="karta Hub"><i class="tab-dot"></i><span>Hub</span><b id="sb-hub-text">—</b></button>
+  <button type="button" class="sb-chip" id="sb-live" data-go="live" title="karta Live"><i class="tab-dot"></i><span>Live</span><b id="sb-live-text">—</b></button>
+</div>
+
 <div id="git-box" class="git-box" hidden>
   <div class="git-box-head"><span id="git-title"></span><button id="git-close" class="ghost small" title="Skryť výstup gitu">✕ Zavrieť</button></div>
   <pre id="git-output" class="git-output"></pre>
@@ -60,7 +72,7 @@
   <pre id="live-log-text"></pre>
 </div>
 
-<main id="view-new" class="view">
+<main id="view-new" class="view" hidden>
   <div class="workspace-heading"><div><span class="eyebrow">STRATEGY WORKSPACE</span><h1>Nový backtest</h1></div>
     <p>1. Trh a obdobie <span>→</span> 2. Stratégia <span>→</span> 3. Výsledky</p></div>
   <section class="col settings">
@@ -349,7 +361,54 @@
   </section>
 </main>
 
+<main id="view-catalog" class="view single">
+  <div class="card cat-toolbar">
+    <div class="dv-head"><h2>Stratégie <span id="cat-summary" class="muted small"></span></h2>
+      <button type="button" class="ghost" id="cat-refresh" title="znova načítať profily a históriu">Obnoviť</button></div>
+    <p class="mode-hint">Všetky stratégie s profilmi a najlepším behom z histórie. Profily sú v troch skupinách:
+      <span class="cat-dot g-smernica"></span> prešli smernicou, <span class="cat-dot g-repo"></span> z repozitára
+      a <span class="cat-dot g-user"></span> vlastné. C# porty sú pri svojej predlohe. <b>Otestovať</b> otvorí Nový beh
+      so stratégiou a profilom.</p>
+    <div class="cat-filters">
+      <input id="cat-search" type="search" placeholder="Hľadať stratégiu alebo profil  ( / )" aria-label="Hľadať stratégiu alebo profil">
+      <div class="cat-filter"><span class="small muted">Trh</span><div id="cat-markets" class="cat-pills"></div></div>
+      <div class="cat-filter"><span class="small muted">Typ</span><div id="cat-types" class="cat-pills"></div></div>
+      <label class="inline small"><input type="checkbox" id="cat-only-smernica"> len so smernicou</label>
+      <label class="inline small" title="len stratégie s aktívnym nasadením na účte (karta Live)"><input type="checkbox" id="cat-only-live"> len naživo</label>
+      <label class="inline small">Zoradiť <select id="cat-sort">
+        <option value="score">najlepší zisk / DD</option>
+        <option value="pnl">najlepší výkon (zisk)</option>
+        <option value="rr" title="priemerný zisk / priemerná strata obchodu">najlepšie RR</option>
+        <option value="live">naživo nasadené najprv</option>
+        <option value="smernica">najviac profilov zo smernice</option>
+        <option value="profiles">najviac profilov</option>
+        <option value="recent">posledný beh</option>
+        <option value="title">abecedne</option>
+      </select></label>
+    </div>
+  </div>
+  <div id="cat-grid" class="cat-grid"></div>
+  <details id="cat-rest" class="cat-rest" hidden>
+    <summary>Bez dobrého behu a bez smernice (<span id="cat-rest-count"></span>)
+      <span class="muted small">— žiadny beh nemá aspoň 40 obchodov, PF &gt; 1 a DD pod 35 % a žiadny profil neprešiel smernicou</span></summary>
+    <div id="cat-rest-grid" class="cat-grid"></div>
+  </details>
+  <div id="cat-drawer" class="xp-overlay cat-drawer" hidden>
+    <div class="xp-box cat-drawer-box" role="dialog" aria-modal="true" aria-labelledby="cat-drawer-title">
+      <button id="cat-drawer-close" class="ghost small xp-close" type="button" aria-label="zavrieť">✕</button>
+      <h2 id="cat-drawer-title"></h2>
+      <div id="cat-drawer-tabs" class="cat-pills"></div>
+      <div class="scroll"><table class="runs cat-ptable"><thead><tr>
+        <th></th><th>Profil</th><th>Pár · TF</th><th class="num">PF</th><th class="num">WR</th><th>Ďalšie</th><th></th>
+      </tr></thead><tbody id="cat-drawer-rows"></tbody></table></div>
+      <p class="small muted">Profily zo smernice majú čísla z posudku smernice (v názve profilu), ostatné z najlepšieho
+        behu s týmto profilom v histórii (aspoň 40 obchodov, PF &gt; 1, DD pod 35 %).</p>
+    </div>
+  </div>
+</main>
+
 <main id="view-hub" class="view single" hidden>
+  <div id="hub-kpis" class="kpi-row" hidden></div>
   <details id="hub-settings" class="card">
     <summary>Nastavenie <span id="hub-settings-hint" class="muted small"></span></summary>
     <p class="muted small">Jeden stroj s verejnou adresou beží ako <b>hub</b> (<code>python -m tester.hub serve</code>,
@@ -466,6 +525,7 @@
 </main>
 
 <main id="view-live" class="view single" hidden>
+  <div id="live-kpis" class="kpi-row" hidden></div>
   <div id="live-list" class="card">
     <h2>Stratégie na platformách <span id="live-count" class="chip" title="živé (udalosť do 3 barov) / všetky inštancie v zrkadle"></span>
       <button id="live-fold-all" class="small ghost" style="margin-left:8px" hidden title="riadky sú zoskupené po účtoch — klik na hlavičku účtu ho zbalí / rozbalí"></button></h2>
@@ -762,6 +822,16 @@
     <div id="history-error" class="error" role="alert" hidden></div>
   </div>
 
+  <aside id="run-peek" class="card run-peek" hidden aria-label="Vybraný beh">
+    <div class="peek-head"><b>Vybraný beh</b><button type="button" id="run-peek-close" class="ghost small" aria-label="zavrieť">✕</button></div>
+    <div id="run-peek-body"></div>
+    <div class="peek-actions">
+      <button type="button" id="run-peek-open" class="primary">Graf, obchody, Monte Carlo →</button>
+      <button type="button" id="run-peek-load" class="ghost">Načítať do formulára</button>
+    </div>
+    <p class="muted small">Dvojklik na riadok otvorí detail rovno.</p>
+  </aside>
+
   <div id="run-detail" class="card" hidden>
     <div class="detail-head">
       <button id="back" class="ghost">← Späť</button>
@@ -855,6 +925,7 @@
 <script src="/static/js/prop.js"></script>
 <script src="/static/js/diversify.js"></script>
 <script src="/static/js/livediv.js"></script>
+<script src="/static/js/catalog.js"></script>
 <div id="explainer" class="xp-overlay" hidden>
   <div class="xp-box" role="dialog" aria-modal="true" aria-labelledby="explainer-title">
     <button id="explainer-close" class="ghost small xp-close" type="button" aria-label="zavrieť">✕</button>

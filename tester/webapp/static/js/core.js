@@ -18,7 +18,7 @@ const THEME_KEY = "tradebot.theme";
 const systemDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
 
 function loadThemePref() {
-  try { return localStorage.getItem(THEME_KEY) || "auto"; } catch (_) { return "auto"; }
+  try { return localStorage.getItem(THEME_KEY) || "dark"; } catch (_) { return "dark"; }
 }
 function saveThemePref(v) {
   try { localStorage.setItem(THEME_KEY, v); } catch (_) { /* ignoruj, len sa nezapamätá */ }
@@ -63,6 +63,12 @@ const state = {
   posudokId: null,     // uložená analytika, ku ktorej sa píše posudok
   propAfterRun: null,   // beh, ktoreho prop vyzva sa spocita, ked dobehne
 };
+
+/** Riadok dlaždíc s číslami nad kartou (Hub, Live): `[{k: menovka, v: hodnota, s: podnadpis, cls}]`. */
+function kpiRow(el, tiles) {
+  el.innerHTML = tiles.map(t => `<div class="kpi-tile"><span>${t.k}</span><b class="${t.cls || ""}">${t.v}</b>${t.s ? `<small>${t.s}</small>` : ""}</div>`).join("");
+  el.hidden = !tiles.length;
+}
 
 function currentUser() { return ($("#who").value || "").trim() || null; }
 

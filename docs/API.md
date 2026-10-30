@@ -29,6 +29,7 @@ zvonka. Hub (distribuované počítanie) má vlastné API s tokenom — [HUB.md]
 |---|---|
 | `GET /api/meta` | stratégie, páry (s rozsahom dát, TF a burzou), referenčné okná, enginy |
 | `GET /api/strategies/{key}/meta` | parametre stratégie (popisy, skupiny, rozsahy, defaulty), profily |
+| `GET /api/catalog` | každá stratégia: profily po skupinách (`smernica` / `repo` / `user`, čísla smernice z popisu, najlepší beh profilu) a najlepší beh stratégie s krivkou — karta Stratégie |
 | `GET /api/profiles?strategy=` · `GET /api/profiles/{meno}` | profily (repozitár aj vlastné testera) |
 | `GET /api/hyperopt/meta?strategy=` | odporúčaný priestor, varovania, okná, `native` (má C# jadro), `samplers` |
 | `GET /api/native/status` | pracovné procesy C# (strop, požičané, voľné), stratégie, ktoré vedia bežať natívne |

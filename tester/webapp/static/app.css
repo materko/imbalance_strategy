@@ -819,3 +819,184 @@ table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(
 .ho-pareto { font-weight: 600; }
 .ho-wf-table td, .ho-wf-table th { white-space: nowrap; }
 #hyper-windows { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+
+/* Karta Stratégie (katalóg, catalog.js): mriežka kariet stratégií s profilmi po skupinách. */
+.cat-filters { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-top: 10px; }
+#cat-search { flex: 1 1 260px; max-width: 420px; }
+.cat-filter { display: flex; align-items: center; gap: 6px; }
+.cat-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.cat-pills .chip-btn { flex: none; width: auto; padding: 4px 10px; font-size: 12px; }
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px; align-items: start; }
+.cat-card { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.cat-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.cat-title { margin: 0 0 4px; font-size: 15px; color: var(--ink); text-transform: none; letter-spacing: 0; }
+.cat-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.cat-badge { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.cat-badge.live { background: var(--chip-ok-bg); color: var(--chip-ok-fg); }
+.cat-badge.new { background: var(--chip-warn-bg); color: var(--chip-warn-fg); }
+.cat-spark { width: 100%; height: 46px; display: block; }
+.cat-spark.empty { display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border-radius: 6px; }
+.cat-spark .zero { stroke: var(--line); stroke-dasharray: 3 3; }
+.cat-spark .line { fill: none; stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.cat-spark .area { opacity: .12; }
+.cat-spark.pos .line { stroke: var(--pos); }
+.cat-spark.pos .area { fill: var(--pos); }
+.cat-spark.neg .line { stroke: var(--neg); }
+.cat-spark.neg .area { fill: var(--neg); }
+.cat-best { margin-top: -6px; }
+.cat-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.cat-badge.run { background: var(--chip-bg); color: var(--chip-fg); }
+.cat-rest { margin-top: 18px; }
+.cat-rest > summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.cat-rest .cat-grid { margin-top: 8px; }
+.cat-kpi { background: var(--surface-alt); border-radius: 6px; padding: 5px 6px; min-width: 0; }
+.cat-kpi span { display: block; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.cat-kpi b { font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cat-kpi b.pos { color: var(--pos-strong); }
+.cat-kpi b.neg { color: var(--neg-strong); }
+.cat-nobest { background: var(--surface-alt); border-radius: 6px; padding: 10px; }
+.cat-prof { border-top: 1px solid var(--line); padding-top: 8px; }
+.cat-prof-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.cat-bar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; background: var(--surface-alt); margin: 6px 0; }
+.cat-bar i { display: block; height: 100%; }
+.cat-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.g-smernica { background: var(--green); }
+.g-repo { background: var(--blue); }
+.g-user { background: var(--amber); }
+.cat-top { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.cat-top li { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.cat-pname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.cat-top .num { white-space: nowrap; font-variant-numeric: tabular-nums; }
+button.linkish { border: none; background: none; padding: 0; color: var(--ink); cursor: pointer; font-size: 12.5px; }
+button.linkish:hover { color: var(--accent); text-decoration: underline; }
+.cat-ports button.linkish { font-size: 12px; color: var(--muted); }
+.cat-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: auto; }
+.cat-actions button.small { padding: 4px 10px; font-size: 12px; white-space: nowrap; }
+.cat-drawer-box { max-width: 1000px; }
+.cat-drawer-box h2 { margin-right: 36px; }
+.cat-drawer-box .cat-pills { margin-bottom: 8px; }
+.cat-ptable td { vertical-align: top; }
+.cat-ptable td:nth-child(2), .cat-ptable td:nth-child(6) { white-space: normal; min-width: 180px; }
+
+/* --------------------------------------------------------------------------- *
+ * Vzhľad „TradeBot Lab" (návrh 29. 10. 2026, plátno Claude Design): písmo Inter, čísla
+ * v JetBrains Mono, tmavá téma takmer čierna s akcentom #19c8a2 (predvolená, svetlá ostáva
+ * na prepnutie) a navigácia v ľavej lište. Je to posledná vrstva — prepisuje tokeny tmavej
+ * témy a hlavičku vyššie; na úzkej obrazovke (do 1000 px) ostáva lišta hore.
+ * --------------------------------------------------------------------------- */
+body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-feature-settings: "cv11", "ss01"; }
+code, pre, .num, table.runs td.num, .cat-kpi b, .kcard .v, .cat-top .num {
+  font-family: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace; }
+table.runs td.num, .cat-kpi b { font-size: .95em; letter-spacing: -.01em; }
+
+:root[data-theme="dark"] {
+  --bg: #0b0c0e; --card: #15171a; --ink: #e8eaed; --muted: #8b929a; --line: #23272c;
+  --green: #19c8a2; --red: #ff5d6c; --blue: #6c8cff; --amber: #f0b44c;
+  --accent: #19c8a2; --accent-hover: #2fd9b4; --accent-soft: rgba(25, 200, 162, .12);
+  --pos: #19c8a2; --neg: #ff5d6c; --pos-strong: #3ddbb5; --neg-strong: #ff7d89;
+  --chip-bg: #1d2024; --chip-fg: #b7bdc4;
+  --chip-ok-bg: rgba(25, 200, 162, .14); --chip-ok-fg: #4fe0bd;
+  --surface-alt: #1a1d21; --surface-hover: #1d2024; --table-hover: #181b1f; --table-head-bg: #15171a;
+  --kv-bg: #1d2024; --panel-head-bg: #15171a; --basic-panel-bg: #121417; --basic-border: #23272c;
+  --basic-hover: #1a1d21; --basic-input-bg: #101215; --basic-time-bg: #101215; --basic-title: #4fe0bd;
+  --modeswitch-bg: #101215; --modeswitch-fg: #8b929a; --modeswitch-active-bg: #23272c; --modeswitch-active-fg: #4fe0bd;
+  --chipbtn-bg: #101215; --chipbtn-active-bg: rgba(25, 200, 162, .12); --chipbtn-active-border: #19c8a2; --chipbtn-active-fg: #4fe0bd;
+  --step-bg: rgba(25, 200, 162, .12); --step-fg: #4fe0bd;
+  --bg-glow: rgba(25, 200, 162, .05); --border-hover: #3a4047; --input-hover: #3a4047; --scrollbar-thumb: #2c3136;
+  --code-bg: #0e1012; --log-bg: #0e1012; --info-bg: #111a19;
+}
+/* akcent je svetlý — text na ňom tmavý (biely by mal kontrast pod 2 : 1) */
+:root[data-theme="dark"] button.primary { color: #04261e; }
+:root[data-theme="dark"] button.primary:hover { color: #04261e; }
+:root[data-theme="dark"] .card { box-shadow: none; }
+:root[data-theme="dark"] input, :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background: #101215; border-color: #2a2f35; color: var(--ink); }
+
+/* Lišta je tmavá v oboch témach, ako bola hlavička. */
+header.top { background: #0f1113; color: #e8eaed; }
+.brand-icon { background: rgba(25, 200, 162, .14); color: #19c8a2; }
+.brand > span:last-child { color: #19c8a2; }
+.tabs button { color: #9aa1a9; }
+.tabs button:hover { color: #e8eaed; }
+.tabs button.active { color: #19c8a2; border-bottom-color: #19c8a2; }
+header .who { background: #17191c; border-color: #2a2f35; color: #e8eaed; }
+header .git button, .theme-switch button { color: #c3c8ce; border-color: #2a2f35; }
+header .chip { background: #1d2024; color: #9aa1a9; }
+header .git .muted { color: #8b929a; }
+.theme-switch button.active { background: rgba(25, 200, 162, .14); color: #19c8a2; border-color: rgba(25, 200, 162, .35); }
+
+@media (min-width: 1001px) {
+  body { padding-left: 232px; }
+  header.top { position: fixed; top: 0; bottom: 0; left: 0; width: 232px; z-index: 20; flex-direction: column;
+    align-items: stretch; gap: 18px; padding: 18px 12px; border-right: 1px solid #1f2327; overflow-y: auto; }
+  .brand { padding: 2px 6px 8px; }
+  .tabs { display: flex; flex-direction: column; gap: 2px; }
+  .tabs button { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 9px 12px;
+    border-bottom: 0; border-left: 2px solid transparent; border-radius: 8px; font-weight: 550; }
+  .tabs button:hover { background: #17191c; }
+  .tabs button.active { background: rgba(25, 200, 162, .1); border-left-color: #19c8a2; }
+  .tabs button .chip { margin-left: auto; }
+  .git { margin: auto 0 0; flex-direction: column; align-items: stretch; gap: 8px; border-top: 1px solid #1f2327; padding-top: 14px; }
+  .git .who { width: 100%; }
+  .git #branch { align-self: flex-start; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .git #git-pull, .git #git-push { width: 100%; text-align: left; }
+  .theme-switch { margin: 0; }
+  .theme-switch button { flex: 1; padding: 5px 4px; }
+  .settings { top: 64px; max-height: calc(100vh - 80px); }
+}
+
+/* Horný prehľad nad obsahom karty (main.js: statusHub, statusLive). */
+.statusbar { position: sticky; top: 0; z-index: 15; display: flex; align-items: center; gap: 8px;
+  padding: 10px 26px; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line); }
+.sb-title { font-weight: 650; font-size: 15px; letter-spacing: -.01em; }
+.sb-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.sb-chip span { color: var(--ink); font-weight: 600; }
+.sb-chip b { white-space: nowrap; font-weight: 500; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11.5px; }
+.sb-chip .tab-dot { margin: 0; }
+.sb-chip:hover { border-color: var(--accent); }
+@media (max-width: 1000px) { .statusbar { position: static; padding: 8px 12px; } .sb-title { display: none; } }
+
+/* Dlaždice s číslami nad kartou (core.js: kpiRow) — Hub, Live. */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.kpi-tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+.kpi-tile span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.kpi-tile b { display: block; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 22px; font-weight: 600; margin-top: 4px; }
+.kpi-tile b.pos { color: var(--pos-strong); }
+.kpi-tile small { display: block; color: var(--muted); font-size: 11.5px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Analytika: dlaždice a päť okien ako stĺpce (analytics_render.js: anKpisHtml, anWindowsHtml). */
+.an-kpis { margin: 0 0 12px; }
+.an-kpis .kpi-tile b { font-size: 18px; }
+.an-bars { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: end; margin-top: 8px; }
+.an-bar { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.an-bar b { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; font-weight: 500; }
+.an-bar b.pos { color: var(--pos-strong); }
+.an-bar b.neg { color: var(--neg-strong); }
+.an-bar span { font-size: 11px; color: var(--muted); }
+.an-bar-col { width: 100%; height: 110px; display: flex; align-items: flex-end; background: var(--surface-alt); border-radius: 6px; overflow: hidden; }
+.an-bar-col i { display: block; width: 100%; border-radius: 6px 6px 0 0; }
+.an-bar-col i.pos { background: var(--pos); }
+.an-bar-col i.neg { background: var(--neg); }
+
+/* História: bočný panel s vybraným behom (history.js: peekRun). Pri otvorenom detaile sa skryje. */
+main.view#view-history.peeking { grid-template-columns: minmax(0, 1fr) 340px; }
+#view-history > #run-detail { grid-column: 1 / -1; }
+main.view#view-history.peeking:has(#run-detail:not([hidden])) { grid-template-columns: minmax(0, 1fr); }
+#view-history:has(#run-detail:not([hidden])) #run-peek { display: none; }
+#runs-table tbody tr.sel { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.run-peek { position: sticky; top: 64px; display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.peek-head { display: flex; justify-content: space-between; align-items: center; }
+.peek-title { margin: 2px 0 0; font-size: 16px; color: var(--ink); text-transform: none; letter-spacing: 0; }
+.peek-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.peek-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.peek-kpi { background: var(--surface-alt); border-radius: 6px; padding: 6px 8px; min-width: 0; }
+.peek-kpi span { display: block; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.peek-kpi b { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; white-space: nowrap; }
+.peek-kpi b.pos { color: var(--pos-strong); }
+.peek-kpi b.neg { color: var(--neg-strong); }
+.peek-note { margin: 0; padding: 8px 10px; background: var(--surface-alt); border-radius: 6px; font-size: 13px; }
+.peek-ov .kv { margin-top: 3px; }
+.run-peek { overflow-wrap: anywhere; }
+.peek-actions { display: flex; flex-direction: column; gap: 6px; }
+@media (max-width: 1200px) { main.view#view-history.peeking { grid-template-columns: minmax(0, 1fr); } .run-peek { position: static; } }

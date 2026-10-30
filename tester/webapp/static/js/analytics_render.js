@@ -220,6 +220,48 @@ function edgeCell(w) {
   return `<td class="${w.edge > 0 ? "pos" : "neg"}" title="${w.trades} obchodov · beh ${esc(w.run_id)}">${znak}${fmt(w.edge, 4)}</td>`;
 }
 
+/** Dlaždice na vrchu analytiky: to podstatné z rozborov nižšie na jeden pohľad. */
+function anKpisHtml(r) {
+  const trh = (r.by_market || [])[0];
+  const nt = Object.values((r.nulltest || {}).nulls || {})[0];
+  const d = r.decay || {};
+  const tiles = [
+    { k: "Obchody", v: r.trades, s: `${r.runs.length} behov` },
+    { k: "Break-even", v: `${fmt(r.break_even_pct, 4)} %`, s: "poplatok na stranu", cls: r.break_even_pct > 0 ? "pos" : "neg" },
+    { k: "Winrate", v: `${fmt(r.winrate, 1)} %`, s: esc((r.pairs || []).join(", ")) },
+  ];
+  if (trh && trh.done_ref) tiles.push({ k: "Okná nad poplatkom", v: `${trh.positive} / ${trh.done_ref}`, s: "referenčné okná",
+    cls: trh.positive === trh.done_ref ? "pos" : (trh.positive * 2 < trh.done_ref ? "neg" : "") });
+  if (nt) tiles.push({ k: "Proti náhode", v: `${nt.sigma > 0 ? "+" : ""}${fmt(nt.sigma, 1)} σ`, s: `${fmt(nt.percentile, 0)}. percentil`,
+    cls: nt.sigma >= 2 ? "pos" : (nt.sigma <= -1 ? "neg" : "") });
+  const decayWord = { "DRZI": "drží", "ZLEPSUJE SA": "zlepšuje sa", "SLABNE": "slabne" }[d.verdict];
+  if (d.verdict) tiles.push({ k: "Edge v čase", v: esc(decayWord || d.verdict.toLowerCase()), s: "posledné obdobie",
+    cls: { "DRZI": "pos", "ZLEPSUJE SA": "pos", "SLABNE": "neg" }[d.verdict] || "" });
+  return `<div class="kpi-row an-kpis">${tiles.map(t => `<div class="kpi-tile"><span>${t.k}</span><b class="${t.cls || ""}">${t.v}</b>`
+    + `${t.s ? `<small>${t.s}</small>` : ""}</div>`).join("")}</div>`;
+}
+
+/** Päť referenčných okien ako stĺpce: break-even mínus poplatok trhu v každom okne (jeden trh). */
+function anWindowsHtml(r) {
+  const trh = (r.by_market || [])[0];
+  const refW = r.reference_windows || state.anReferenceWindows || [];
+  if (!trh || (r.by_market || []).length > 1 || !refW.length) return "";
+  const vals = refW.map(w => (trh.windows[w] || {}).edge);
+  const max = Math.max(...vals.filter(v => v != null).map(Math.abs), 1e-9);
+  const bars = refW.map((w, i) => {
+    const v = vals[i];
+    const h = v == null ? 0 : Math.max(Math.abs(v) / max * 100, 2);
+    return `<div class="an-bar" title="${esc(fmtWindow(w))}${v == null ? " — bez behu" : ` · ${(trh.windows[w] || {}).trades} obchodov`}">
+      <b class="${v == null ? "muted" : (v > 0 ? "pos" : "neg")}">${v == null ? "—" : `${v > 0 ? "+" : ""}${fmt(v, 4)}`}</b>
+      <div class="an-bar-col"><i class="${v > 0 ? "pos" : "neg"}" style="height:${h}%"></i></div>
+      <span>${esc(w.slice(2, 4))}/${esc(w.slice(11, 13))}</span></div>`;
+  }).join("");
+  return `<div class="ch-box"><div class="ch-head"><h3>Päť okien</h3>
+      <span class="chip">${trh.positive} z ${trh.done_ref} nad poplatkom</span></div>
+    <p class="an-note">Break-even mínus poplatok trhu (% na stranu) v každom referenčnom okne — stratégia, ktorá žije z jedného roka, tu vyzerá ako jeden stĺpec.</p>
+    <div class="an-bars">${bars}</div></div>`;
+}
+
 function renderAnalytics(r) {
   // Okná behov: bez nich nie je vidieť, že "40 behov" je päť rokov, alebo štyridsaťkrát
   // ten istý rok s inými parametrami.
@@ -232,6 +274,7 @@ function renderAnalytics(r) {
   const ref = (state.anReferenceWindows || []);
   const chybaRef = ref.filter(w => !unikat.includes(w));
   const zhrnutie = [
+    anKpisHtml(r),
     `<div class="headline">${esc(r.headline)}</div>`,
     `<p class="an-note"><b>${r.trades}</b> obchodov z <b>${r.runs.length}</b> behov`
       + ` · break-even <b>${fmt(r.break_even_pct, 4)} %</b> · winrate ${fmt(r.winrate, 1)} %`
@@ -274,6 +317,7 @@ function renderAnalytics(r) {
     zhrnutie.push(`<p class="an-note">${r.duplicates} obchodov bolo v dvoch behoch naraz`
       + " (prekrývajúce sa okná) — počítajú sa raz.</p>");
   }
+  zhrnutie.push(anWindowsHtml(r));
   zhrnutie.push(streaksHtml(r.streaks));
   zhrnutie.push(portfolioHtml(r.portfolio));
   zhrnutie.push(decayHtml(r.decay));

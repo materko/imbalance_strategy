@@ -12,6 +12,43 @@ function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;
 function fmtVal(v) { return typeof v === "object" && v !== null ? `${v.value} ${v.unit}` : String(v); }
 
 const historyPage = { offset: 0, size: 50, query: "", seq: 0, controller: null };
+const historyPeek = { id: null };
+
+/** Bočný panel histórie: súhrn vybraného behu z riadku zoznamu (bez ďalšieho dopytu)
+ *  a tlačidlá na celý detail a na načítanie do formulára. */
+function peekRun(run) {
+  historyPeek.id = run.id;
+  for (const tr of $$("#runs-table tbody tr")) tr.classList.toggle("sel", tr.dataset.id === run.id);
+  const res = run.result || {}, s = run.settings || {}, strat = s.strategy || "ibs";
+  const rr = res.wins > 0 && res.losses > 0 && res.profit_factor != null ? res.profit_factor * res.losses / res.wins : null;
+  const tile = (k, v, cls = "") => `<div class="peek-kpi"><span>${k}</span><b class="${cls}">${v}</b></div>`;
+  const ov = Object.entries(run.overrides || {});
+  $("#run-peek-body").innerHTML = `
+    <div class="muted small">${esc(run.id)} · ${esc((run.created || "").replace("T", " ").slice(0, 16))}${run.user ? ` · ${esc(run.user)}` : ""}</div>
+    <h3 class="peek-title">${esc((strategySpec(strat) || {}).title || strat)}</h3>
+    <div class="peek-tags"><span class="chip">${esc(s.pair || "")} ${esc(s.timeframe || "")}</span><span class="chip">${esc(s.timerange || "")}</span>
+      ${s.engine ? `<span class="chip">${esc(s.engine)}</span>` : ""}${run.status !== "done" ? `<span class="chip bad">${esc(run.status)}</span>` : ""}</div>
+    <div class="peek-kpis">
+      ${tile("Zisk", `${res.pnl_pct != null ? (res.pnl_pct >= 0 ? "+" : "") + fmt(res.pnl_pct, 2) : "—"} %`, (res.pnl_pct || 0) >= 0 ? "pos" : "neg")}
+      ${tile("PF", fmt(res.profit_factor, 2))}${tile("RR", fmt(rr, 2))}
+      ${tile("Win", `${fmt(res.winrate, 1)} %`)}${tile("DD", `${fmt(res.max_drawdown_pct, 2)} %`)}
+      ${tile("BE", res.break_even_pct != null ? `${fmt(res.break_even_pct, 4)} %` : "—")}
+      ${tile("Obchody", res.trades ?? "—")}${tile("Séria +/−", streakHeadline(res.streaks))}
+      ${tile("Poplatok", s.fee != null ? `${(s.fee * 100).toFixed(3)} %` : "—")}
+    </div>
+    ${run.note ? `<p class="peek-note">${esc(run.note)}</p>` : '<p class="muted small">bez poznámky</p>'}
+    <div class="small"><b>Profil</b> <span class="muted">${esc(s.profile || "Pine defaulty")}</span></div>
+    <div class="small peek-ov"><b>Odchýlky od profilu</b> ${ov.length ? ov.map(([k, v]) => `<span class="kv">${k}=${esc(fmtVal(v))}</span>`).join("") : '<span class="muted">žiadne</span>'}</div>`;
+  $("#run-peek").hidden = false;
+  $("#view-history").classList.add("peeking");
+}
+
+function closePeek() {
+  historyPeek.id = null;
+  $("#run-peek").hidden = true;
+  $("#view-history").classList.remove("peeking");
+  for (const tr of $$("#runs-table tbody tr.sel")) tr.classList.remove("sel");
+}
 
 /** Naplní filtre histórie z metadát. Volá sa raz, po načítaní `/api/meta`. */
 function fillHistoryFilters() {
@@ -89,7 +126,11 @@ async function loadRuns() {
       <td class="num" title="najdlhšia séria ziskov / strát za sebou">${streakHeadline(res.streaks)}</td>
       <td class="ov">${ov || '<span class="muted">Pine defaulty</span>'}</td><td>${esc(run.note || "")}</td>`;
     tr.tabIndex = 0;
-    tr.onclick = () => openRun(run.id);
+    tr.dataset.id = run.id;
+    tr.classList.toggle("sel", run.id === historyPeek.id);
+    // klik = súhrn v bočnom paneli, dvojklik / Enter = celý detail (graf, obchody, Monte Carlo)
+    tr.onclick = () => peekRun(run);
+    tr.ondblclick = () => openRun(run.id);
     tr.onkeydown = e => { if (e.key === "Enter") openRun(run.id); };
     fragment.append(tr);
   }

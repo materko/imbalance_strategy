@@ -60,7 +60,7 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance
 Keď tester povie niečo ako „nastav mi rrRatio na 4 a SL filter na 0,25 %", „priprav mi
 beh", „len to navoľ, spustím si to sám" — je to **nastavenie formulára, nie beh**:
 
-1. Pracuj v prehliadači na karte **Nový beh** v otvorenej webapp (`http://127.0.0.1:8765`).
+1. Pracuj v prehliadači na karte **Nový beh** v otvorenej webapp (`http://127.0.0.1:8765/#new`; bez `#new` sa otvorí katalóg Stratégie).
    Ak nebeží, spusti ju (viď nižšie) — ale beh ani vtedy nespúšťaj cez CLI.
 2. Nastav **len tie polia, ktoré tester vymenoval**. Ostatné — profil, pár, timerange,
    poplatok, peňaženku, poznámku — nechaj tak, ako sú. Nič „pre istotu" nedopĺňaj

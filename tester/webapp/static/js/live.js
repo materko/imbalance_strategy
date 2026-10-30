@@ -230,9 +230,24 @@ function liveChip(list = lv.instances, now = lv.now, mirror = lv.mirror) {
   const chyba = mirror && mirror.last_error;
   $("#live-tab-chip").textContent = n ? String(n) : "";
   $("#live-tab-chip").className = `chip ${n ? "ok" : ""}`;
+  statusLive(n, list.length, chyba);
+  liveKpis(n, list.length);
   const dot = $("#live-tab-dot");
   dot.className = `tab-dot ${chyba ? "bad" : (n ? "ok" : "")}`;
   dot.title = chyba ? `zrkadlo: ${chyba}` : (n ? `beží ${n} z ${list.length}` : "nič nebeží");
+}
+
+/** Dlaždice nad kartou Live: inštancie (živé / všetky), účty, aktívne nasadenia a stroje s platformami. */
+function liveKpis(alive = lv.instances.filter(i => liveAlive(i)).length, total = lv.instances.length) {
+  const stroje = (ld.agents || []).filter(a => a.live);
+  kpiRow($("#live-kpis"), [
+    { k: "Beží", v: `${alive} / ${total}`, s: "inštancií v zrkadle", cls: alive ? "pos" : "" },
+    ...(ld.configured ? [
+      { k: "Účty", v: ld.accounts.length, s: [...new Set(ld.accounts.map(a => a.platform))].join(", ") },
+      { k: "Nasadenia", v: ld.deployments.filter(d => d.active).length, s: `z ${ld.deployments.length}` },
+      { k: "Stroje", v: `${stroje.filter(a => a.online).length} / ${stroje.length}`, s: "online s platformou" },
+    ] : []),
+  ]);
 }
 
 async function loadLive() {
@@ -852,6 +867,7 @@ async function loadLiveDeploy() {
       api("/api/live/accounts"), api("/api/live/deployments"), api("/api/live/agents").catch(() => ld.agents),
     ]);
     ld.accounts = accounts; ld.deployments = deployments; ld.agents = agents;
+    liveKpis();
     $("#ld-error").hidden = true;
     renderLiveList();   // názvy účtov v hlavičkách skupín
   } catch (e) {

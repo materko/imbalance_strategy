@@ -111,11 +111,50 @@ MultiCharts je pole zamknuté: ten burzu nepotrebuje, číta priamo 1m sviečky.
 
 Jediná podmienka behu sú 1m sviečky ([docs/FREQTRADE.md](FREQTRADE.md)).
 
+## Vzhľad
+
+Karty sú v ľavej lište (na obrazovke do 1000 px hore), pod nimi meno testera, vetva, Pull / Push
+a prepínač témy. Predvolená je tmavá téma (takmer čierna, akcent `#19c8a2`), svetlá a „podľa systému"
+ostávajú na prepnutie a voľba sa drží v prehliadači. Písmo je Inter, čísla v tabuľkách a kartách
+JetBrains Mono (Google Fonts; bez siete systémové písmo). Vzhľad je posledná vrstva `static/app.css`.
+
+Nad obsahom každej karty je **horný prehľad**: názov karty a čipy **Hub** (agenti online, výpočty
+v rade a bežiace) a **Live** (koľko inštancií stratégií naživo beží z koľkých); klik prepne na tú kartu.
+Obnovujú sa s bodkami pri záložkách (každých 30 s), čip Hub chýba, keď hub nie je nastavený. Karty
+Hub, Live a Analytika začínajú riadkom dlaždíc s hlavnými číslami: Hub — agenti online, voľné sloty
+na počítajúcich agentoch, koľkí prijímajú výpočty, fronta; Live — bežiace inštancie, účty, aktívne
+nasadenia a stroje s platformou; Analytika — obchody, break-even, winrate, okná nad poplatkom, test
+proti náhode a edge v čase, pod súhrnom ešte **päť okien** ako stĺpce (break-even mínus poplatok
+v každom referenčnom okne, keď je analytika z jedného trhu).
+
 ## Meno testera
 
-V hlavičke stránky je pole s menom. Ukladá sa ku každému behu (stĺpec v histórii,
+V ľavej lište (na úzkej obrazovke v hlavičke) je pole s menom. Ukladá sa ku každému behu (stĺpec v histórii,
 hľadanie `user~jana`) a použije sa ako autor commitu pri Push. Drží sa v tomto
 prehliadači; predvolené je `TRADEBOT_USER` z prostredia, inak `git config user.name`.
+
+## Stratégie
+
+Úvodná karta (adresa bez `#`; ostatné karty majú `#new`, `#history`…) je katalóg: každá stratégia
+registry ako karta s trhom a typom (`STRATEGIA_TRH_TYP`, to isté, čo triedi výber stratégie vo formulári),
+krivkou a číslami **najlepšieho behu** z histórie (zisk, PF, RR, winrate, drawdown, break-even poplatok)
+a jedným profilom **naj** — nasadený naživo, inak zo smernice s najvyšším PF, inak profil s najlepším
+behom. Pod číslami je počet profilov po skupinách: prešli smernicou (`PRESIEL_SMERNICAMI_*`,
+`SMERNICE_CS_*`), z repozitára a vlastné. C# porty (`tksnet`, `tksneteod`) nemajú vlastnú kartu, sú pri
+predlohe so štítkom **LIVE · C#** a ich profily sú v jej zozname; **NAŽIVO · n** = toľko aktívnych
+nasadení na účtoch (karta Live, z hubu — bez hubu sa neukáže). Nad mriežkou je hľadanie (`/`, hľadá aj
+v menách profilov), filtre trh / typ (typ LIVE = má C# port), „len so smernicou", „len naživo" a poradie:
+zisk na drawdown, výkon (zisk), RR, naživo nasadené najprv, profily zo smernice, počet profilov,
+posledný beh. Stratégie bez dobrého behu a bez profilu zo smernice sú v zbalenom bloku pod mriežkou.
+
+Najlepší beh je beh s aspoň 40 obchodmi, PF nad 1 (a nie nezmyselne vysoký, do 50) a drawdownom pod
+35 %, s najväčším ziskom na jednotku drawdownu. **RR** je dosiahnutý pomer priemerného zisku a priemernej
+straty obchodu (PF × straty / zisky), nie nastavenie stratégie. Profil zo smernice má čísla z posudku
+smernice (sú v jeho popise: PF, WR, obchody za rok, max DD v $), ostatné profily z najlepšieho behu s týmto
+profilom (beh nesie meno profilu alebo cestu k súboru, páruje sa podľa mena súboru); bez behu ostane
+„bez behu". **Profily (n)** otvorí panel so všetkými profilmi rodiny, **Najlepší beh** jeho detail
+v Histórii a **Otestovať** (aj pri každom profile) Nový beh so stratégiou a profilom. Dáta sú
+z `/api/catalog`; karta sa načíta pri prvom otvorení, **Obnoviť** ju zloží znova.
 
 ## Nový beh
 
@@ -296,6 +335,11 @@ Tabuľka všetkých behov: stratégia, pár, obdobie, počet obchodov, PnL %, pr
 max drawdown, **break-even poplatok** (% na stranu — koľko smie burza brať, aby beh
 vyšiel na nulu; porovnaj s 0,05 % Binance taker) a odchýlky parametrov od Pine
 defaultov ako štítky.
+
+Klik na riadok ukáže súhrn behu v bočnom paneli vpravo (zisk, PF, RR, winrate, drawdown, break-even,
+obchody, série, poplatok, poznámka, profil a odchýlky) — bez ďalšieho dopytu, z riadku zoznamu.
+Odtiaľ **Graf, obchody, Monte Carlo →** otvorí celý detail a **Načítať do formulára** ho rovno
+prenesie do Nového behu. Dvojklik na riadok alebo Enter otvorí detail hneď.
 
 ### Vyhľadávanie
 
@@ -492,10 +536,10 @@ pôvodu, nie odkaz: keď sa východiskový profil neskôr zmení, tvoj sa nepohn
 Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `_`;
 meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
 
-Tlačidlá **Pull** a **Push** sú v hlavičke; výstup gitu sa zobrazí celý. Push commitne
+Tlačidlá **Pull** a **Push** sú v ľavej lište; výstup gitu sa zobrazí celý. Push commitne
 **len** `runs/`, `sweeps/`, `profiles/`, `analytics/` a `archive/` a pushne ich do **`main`** — nie na vetvu, na ktorej klon
 práve stojí (inak história skončí na vývojárskej vetve a nikto ju neuvidí). Iný cieľ sa
-dá nastaviť cez `TRADEBOT_GIT_BRANCH`. Keď sa vetva klonu a cieľ líšia, hlavička to ukáže
+dá nastaviť cez `TRADEBOT_GIT_BRANCH`. Keď sa vetva klonu a cieľ líšia, lišta to ukáže
 ako `vetva → main`.
 
 Ak by mala vetva klonu oproti `main` commity mimo týchto adresárov, Push sa
@@ -503,7 +547,7 @@ zastaví a povie to: kód z testerského klonu do `main` nepatrí, ten ide pull 
 Rovnako sa zastaví, keď git v týchto adresároch **ignoruje** niečo iné než kresby grafu
 (`chart.json.gz`, `runs/.charts/`) a dočasné súbory — kedysi `tester/runs/` v `.gitignore`
 spôsobil, že Push behy ticho vynechával.
-Autor commitu je meno testera z hlavičky.
+Autor commitu je meno testera z ľavej lišty.
 
 Upravený profil Push pred commitom porovná s verziou v gite. Profil sa upravuje na mieste:
 keď ho niečo načíta, klon sa medzitým aktualizuje (Pull, agent hubu) a potom ho to zapíše späť,
@@ -723,7 +767,7 @@ HTTP API (všetko, čo robí stránka, s príkladmi): [API.md](API.md). `runner.
 `results.py` (spracovanie zipu, emulátor MultiCharts), `repo_profiles.py` (profily z repozitára), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI: `create_app` poskladá routery), `api/` (REST API po oblastiach — `runs`, `sweeps`,
-`hyperopt`, `analytics*`, `matrix`, `hub`, `chart`, `profiles`, `meta`, `git`, `prop_paper`; každý modul má
+`hyperopt`, `analytics*`, `matrix`, `hub`, `chart`, `profiles`, `meta`, `catalog`, `git`, `prop_paper`; každý modul má
 `build(ctx)` a zdieľaný stav dostane cez `api/context.py::AppContext`; modely požiadaviek sú v `api/models.py`,
 overenie zadania behu v `api/settings.py`), `static/` (stránka bez frameworku, Plotly z CDN; skripty v `static/js/` sú klasické, nie
 moduly — zdieľajú globálny priestor a poradie načítania v `index.html` je poradie závislostí:
@@ -734,6 +778,6 @@ Export kresieb: `tradebot/adapters/freqtrade/runner.py::export_chart`, serializ�
 Monte Carlo v detaile počíta `tester/montecarlo.py` (čistý výpočet nad obchodmi, bez znalosti
 webapp); `api/chart.py` ho len obalí endpointom `/api/runs/<id>/montecarlo` s pamäťou na posledné
 výsledky.
-Testy: `tester/tests/test_webapp.py`, `tester/tests/test_chart_export.py`,
+Testy: `tester/tests/test_webapp.py`, `tester/tests/test_webapp_catalog.py`, `tester/tests/test_chart_export.py`,
 `tester/tests/test_webapp_multicharts.py`, `tester/tests/test_montecarlo.py`.
 Cesty (`tester/runs`, `tester/profiles`, dáta platforiem): `tradebot/core/paths.py`.
