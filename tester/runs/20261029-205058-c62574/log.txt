@@ -1,0 +1,21 @@
+$ natívny hyperopt spravynet MGC/USD 5m 4 okien (min): 40 epoch, sampler tpe (C# emulátor MultiCharts)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (35)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (20)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (20)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (30)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (35)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (25)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (35)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (20)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (55)
+  epocha zamietnutá configom: Neplatný config:
+  - pravidlo 7: vstup (15) nesmie byť pred koncom nohy (30)

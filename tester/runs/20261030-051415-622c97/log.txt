@@ -1,0 +1,22 @@
+$ emulator MultiCharts NAS100 5m 20211001-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: EMA 204 @5m @5m 510/510, filter volatility ATR 14 / 100 barov @5m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 336741 barov 5m, 1682665 1m, 0 HTF
+  20000/336741 barov, 52 obchodov
+  40000/336741 barov, 108 obchodov
+  60000/336741 barov, 152 obchodov
+  80000/336741 barov, 195 obchodov
+  100000/336741 barov, 236 obchodov
+  120000/336741 barov, 272 obchodov
+  140000/336741 barov, 314 obchodov
+  160000/336741 barov, 361 obchodov
+  180000/336741 barov, 403 obchodov
+  200000/336741 barov, 437 obchodov
+  220000/336741 barov, 487 obchodov
+  240000/336741 barov, 534 obchodov
+  260000/336741 barov, 580 obchodov
+  280000/336741 barov, 624 obchodov
+  300000/336741 barov, 670 obchodov
+  320000/336741 barov, 717 obchodov
+hotovo: 753 obchodov, nerozhodnutelnych minut 0
+kresby: {'m7_measure': 1263, 'm7_vwap': 96162, 'm7_line': 95623, 'm7_ema': 96162, 'm7_open': 96162, 'm7_window': 1270, 'tp_box': 754, 'sl_box': 754, 'm7_entry': 754}
