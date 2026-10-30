@@ -401,6 +401,22 @@ def test_mazanie_nasadenia_najprv_vypne_potom_zmaze_po_potvrdeni(store: DeploySt
     assert akcie[0] == "deployment_delete" and "deployment_update" in akcie
 
 
+def test_mazanie_nasadenia_s_otvorenou_poziciou_odmietne_s_radou(store: DeployStore):
+    """Agent vypnuté nasadenie potvrdil `ok` (nie `removed`) = drží ho pre otvorenú pozíciu: zmazanie povie prečo
+    a čo robiť (flatten, alebo force); force ho zmaže aj tak."""
+    a = _acc(store)
+    d = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}, by="r")
+    store.delete_deployment(d["id"], by="r")                          # vypnúť
+    store.clock.t = 3000.0
+    store.report_applied("trade-pc", [{"deployment": d["id"], "status": "ok", "mode": "enabled"}])
+    with pytest.raises(Conflict, match="otvorenú pozíciu.*flatten.*force"):
+        store.delete_deployment(d["id"], by="r")
+    assert store.deployment(d["id"]) is not None
+    store.update_deployment(d["id"], {"mode": "flatten"}, by="r")    # flatten sa dá nastaviť aj vypnutému
+    assert store.deployment(d["id"])["mode"] == "flatten"
+    assert store.delete_deployment(d["id"], by="r", force=True)["deleted"] is True
+
+
 def test_mazanie_nasadenia_ktore_agent_nikdy_nevidel_a_force(store: DeployStore):
     a = _acc(store)
     d = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}, by="r")

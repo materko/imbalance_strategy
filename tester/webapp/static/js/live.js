@@ -889,10 +889,19 @@ function ldLive(dep) {
            last_hb: inst.last_hb, session: inst.last_session, host: inst.host || hub.host };
 }
 
+/** Vypnuté nasadenie, ktoré agent potvrdil, ale z platformy ho neodstránil (`ok`, nie `removed`): drží ho, kým
+ *  má inštancia otvorenú pozíciu (graf v pauze, alebo vo flatten, keď ho tak človek nastaví). */
+function ldHeld(dep) {
+  const a = dep.applied;
+  return !dep.active && !!a && a.status === "ok" && Number(a.ts) >= Number(dep.updated);
+}
+
 function ldStatusChip(dep) {
   const a = dep.applied, live = ldLive(dep);
   if (!dep.active) {
-    return a && a.status === "removed" ? `<span class="chip" title="agent inštanciu z platformy odstránil">odstránené</span>`
+    if (a && a.status === "removed") return `<span class="chip" title="agent inštanciu z platformy odstránil">odstránené</span>`;
+    return ldHeld(dep)
+      ? `<span class="chip warn" title="agent graf drží v režime ${esc(LD_MODE_LABEL[dep.mode === "flatten" ? "flatten" : "paused"] || "")}, lebo inštancia má podľa telemetrie otvorenú pozíciu — odoberie ho po jej zatvorení; flatten ju zavrie hneď">drží pozíciu</span>`
       : `<span class="chip warn" title="čaká, kým agent inštanciu z platformy odstráni">odstraňuje sa</span>`;
   }
   if (a && a.status === "error") return `<span class="chip bad" title="${esc(a.error || "")}">chyba</span>`;
@@ -1190,6 +1199,9 @@ function ldDeploymentRow(d, accById, instances) {
   const acc = accById[d.account] || {};
   const live = ldLive(d);
   const dis = ld.admin && d.active ? "" : "disabled";
+  // vypnuté, ktoré agent ešte drží na platforme (otvorená pozícia → graf v pauze): flatten ju zavrie a agent
+  // graf potom odoberie — inak by sa nasadenie s pozíciou, čo sama nedobehne, nedalo dokončiť
+  const disFlat = ld.admin && (d.active || ldHeld(d)) ? "" : "disabled";
   const inst = instances.has(d.instance)
     ? `<a href="#" data-inst="${esc(d.instance)}" title="otvoriť detail inštancie">${esc(d.instance)}</a>`
     : `<span class="muted" title="v zrkadle zatiaľ nie je">${esc(d.instance)}</span>`;
@@ -1206,7 +1218,7 @@ function ldDeploymentRow(d, accById, instances) {
     <td class="ld-actions">
       ${d.mode === "enabled" ? `<button class="small" data-mode="paused" ${dis} title="nové vstupy sa neposielajú; SL/TP bežia ďalej">pauza</button>`
                              : `<button class="small" data-mode="enabled" ${dis}>zapnúť</button>`}
-      <button class="small danger" data-mode="flatten" ${dis} title="zrušiť čakajúce vstupy a zavrieť pozíciu, potom pauza">flatten</button>
+      <button class="small danger" data-mode="flatten" ${disFlat} title="zrušiť čakajúce vstupy a zavrieť pozíciu, potom pauza${d.active ? "" : " (vypnuté: agent potom graf odoberie)"}">flatten</button>
       <button class="small ghost danger" data-del="1" ${ld.admin ? "" : "disabled"} title="${d.active ? "vypnúť (agent odstráni z platformy), po potvrdení zmazať" : "zmazať z hubu"}">${d.active ? "odstrániť" : "zmazať"}</button>
     </td></tr>`;
 }
@@ -1634,10 +1646,29 @@ async function ldDelete(id) {
   if (!dep) return;
   const otazka = dep.active
     ? `Odstrániť nasadenie ${dep.symbol} ${dep.tf}m (${dep.strategy}) z účtu? Agent inštanciu z platformy odstráni; otvorená pozícia sa nezatvára (na to je flatten). Po potvrdení agentom sa dá zmazať z hubu.`
-    : `Zmazať nasadenie ${dep.symbol} ${dep.tf}m z hubu? Keď to agent ešte nepotvrdil, zmaže sa aj tak (force).`;
+    : `Zmazať nasadenie ${dep.symbol} ${dep.tf}m (${dep.strategy}) z hubu?`;
   if (!confirm(otazka)) return;
+  const zmaz = force => api(`/api/live/deployments/${encodeURIComponent(id)}?force=${force}&user=${encodeURIComponent(ldUser() || "")}`, { method: "DELETE" });
   try {
-    await api(`/api/live/deployments/${encodeURIComponent(id)}?force=${dep.active ? "false" : "true"}&user=${encodeURIComponent(ldUser() || "")}`, { method: "DELETE" });
+    if (dep.active) {
+      await zmaz(false);
+    } else {
+      // vypnuté: najprv bez force — hub odmietne nasadenie s otvorenou pozíciou (agent ho drží na platforme)
+      // a nezmaže ani to, čo agent ešte nepotvrdil; force až na výslovnú voľbu
+      let dovod = "";
+      try {
+        const out = await zmaz(false);
+        if (!out || !out.deleted) dovod = "Agent odstránenie z platformy ešte nepotvrdil (býva to do minúty).";
+      } catch (e) {
+        if (!/otvorenú pozíciu/.test(e.message)) throw e;
+        dovod = `Nasadenie má otvorenú pozíciu — agent ho drží na platforme v pauze, kým sa nezavrie. `
+          + `Na zrušenie je flatten (zavrie pozíciu) a potom zmazať.`;
+      }
+      if (dovod && confirm(`${dovod}\n\nZmazať z hubu aj tak (force)? Agent graf s otvorenou pozíciou podrží `
+          + `ďalej a odoberie ho až po jej zatvorení — v tabuľke ho však už neuvidíš.\n\nZrušiť = nič nemazať.`)) {
+        await zmaz(true);
+      }
+    }
     await loadLiveDeploy();
   } catch (e) { ldFail(e); }
 }

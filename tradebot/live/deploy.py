@@ -775,13 +775,20 @@ class DeployStore:
 
     def delete_deployment(self, dep_id: str, by: str, force: bool = False) -> dict[str, Any]:
         """Odstránenie: najprv `active=false` (agent inštanciu z platformy odstráni), naozaj
-        zmazať sa dá, až keď to agent potvrdil (`applied` po deaktivácii) — alebo s `force`."""
+        zmazať sa dá, až keď to agent potvrdil (`applied` `removed` po deaktivácii) — alebo s `force`.
+        Potvrdené `ok` = agent graf drží pre otvorenú pozíciu → `Conflict` s radou (flatten, alebo force)."""
         with self._lock, self._db:
             old = self._deployment_row(self._deployment_or_404(dep_id))
             applied = self._applied_row(
                 self._db.execute("SELECT * FROM applied WHERE deployment = ?", (dep_id,)).fetchone())
-            potvrdene = (applied is not None and applied["status"] in ("ok", "removed")
-                         and float(applied["ts"]) >= float(old["updated"]))
+            po_zmene = applied is not None and float(applied["ts"]) >= float(old["updated"])
+            potvrdene = po_zmene and applied["status"] == "removed"
+            if not force and not old["active"] and po_zmene and applied["status"] == "ok":
+                # agent vypnuté nasadenie potvrdil, ale z platformy neodstránil: inštancia má otvorenú pozíciu a graf
+                # drží v pauze (`Reconciler._hold_open`), kým sa nezavrie
+                raise Conflict(f"nasadenie {old['symbol']} {old['tf']}m ({old['strategy']}) má otvorenú pozíciu — agent ho "
+                               "drží na platforme, kým sa nezavrie; najprv flatten a potom zmazať, alebo zmazať aj s "
+                               "otvorenou pozíciou (force)")
             # nasadenie, ktoré agent nikdy nevidel (žiadny `applied`), sa smie zmazať hneď — na
             # platforme z neho nič nie je
             if force or (not old["active"] and (potvrdene or applied is None)):
