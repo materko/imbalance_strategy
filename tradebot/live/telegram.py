@@ -291,7 +291,7 @@ ACTOR_TTL = 900.0
 class TelegramState:
     """`ctx` (inštancia → hello + otvorené vstupy), `seq` (instance|session → posledné odoslané),
     `update_offset` (príkazy), `overrides` (lokálne prepnutia režimu), `issues` (nasadenie → chyba),
-    `muted` (chat → účty, z ktorých nechce notifikácie, 🔔)."""
+    `muted` (chat → účty, ktoré nesleduje, 🗂 Účty)."""
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -375,7 +375,8 @@ class TelegramState:
             return str(a.get("by") or "") if a and now - float(a.get("at") or 0) <= ACTOR_TTL else ""
 
     def muted(self, chat: Any) -> dict[str, str]:
-        """Účty, z ktorých chat nechce notifikácie (`akey` → meno na čítanie); prázdne = zo všetkých."""
+        """Účty, ktoré chat nesleduje (`akey` → meno na čítanie) — ani notifikácie, ani stav, ordery či výkon;
+        prázdne = sleduje všetky."""
         with self._lock:
             return dict((self.data.get("muted") or {}).get(str(chat)) or {})
 
@@ -789,7 +790,7 @@ class LiveNotifier:
         # druhýkrát a /status by ukazoval LONG 2 (audit N-LIVE-17)
         zaloha = {k: copy.deepcopy(self.state.data.get(k)) for k in ("ctx", "life")}
         riadky_po: list[tuple[Any, list[tuple[int, str]]]] = [(b, self.messages(b)) for b in batches]
-        # účet dávky (inštancia + beh) z kontextu — chat si vyberá, z ktorých účtov notifikácie chce (🔔)
+        # účet dávky (inštancia + beh) z kontextu — chat si vyberá, ktoré účty sleduje (🗂 Účty)
         texty = [(self._akey(b), t) for b, riadky in riadky_po for _, t in riadky if t]
         try:
             for chat in self.cfg.chats:
@@ -924,22 +925,22 @@ HELP = ("Ovládanie gombíkmi pod správou alebo v klávesnici dole:\n"
         "📋 Ordery — otvorené pozície a čakajúce vstupy\n"
         "🧾 Obchody — posledné ordery: uzavreté s P&L, otvorené, čakajúce, zrušené\n"
         "📈 Výkon — winrate, P&L, profit factor, drawdown po obdobiach a stratégiách, 🖼 graf equity\n"
-        "🔔 Notifikácie — z ktorých účtov chceš dostávať správy o obchodoch, varovania a štart / stop\n"
+        "🗂 Účty — ktoré účty v tomto chate sledovať (notifikácie, stav, ordery, obchody, výkon)\n"
         "📅 Udalosti a ďalšie — pohľady z hubu (keď je hub dostupný)\n\n"
-        "Aj ako príkazy: /status, /orders, /trades, /perf, /notify, /hub, /pause <č|časť mena|all>, /resume <…>, "
+        "Aj ako príkazy: /status, /orders, /trades, /perf, /accounts, /hub, /pause <č|časť mena|all>, /resume <…>, "
         "/flatten <…> (s potvrdením)")
 
 #: Stála klávesnica pod poľom na písanie; text gombíka = príkaz. Pohľady pluginov hubu (📅 Udalosti …)
 #: pribudnú do posledného riadku (`TelegramCommands.menu`).
-MENU = [["📊 Stav", "📋 Ordery"], ["🧾 Obchody", "📈 Výkon"], ["🔔 Notifikácie", "❓ Pomoc"]]
+MENU = [["📊 Stav", "📋 Ordery"], ["🧾 Obchody", "📈 Výkon"], ["🗂 Účty", "❓ Pomoc"]]
 MENU_TEXT = {"📊 Stav": "/status", "📋 Ordery": "/orders", "🧾 Obchody": "/trades", "📈 Výkon": "/perf",
-             "🔔 Notifikácie": "/notify", "❓ Pomoc": "/help"}
+             "🗂 Účty": "/accounts", "❓ Pomoc": "/help"}
 #: Pohľady pluginov hubu sa pýtajú znova najskôr po toľkých sekundách (hub dole = posledné známe).
 HUB_VIEWS_SECONDS = 300.0
 #: Menu „/“ (setMyCommands).
 BOT_COMMANDS = [("status", "stav stratégií s gombíkmi"), ("orders", "otvorené pozície a čakajúce vstupy"),
                 ("trades", "posledné obchody a ordery"), ("perf", "výkon stratégií a graf equity"),
-                ("notify", "z ktorých účtov chodia notifikácie"), ("hub", "pohľady z hubu (udalosti …)"),
+                ("accounts", "ktoré účty v tomto chate sledovať"), ("hub", "pohľady z hubu (udalosti …)"),
                 ("pause", "pauza: /pause <č|meno|all>"), ("resume", "obchodovať: /resume <č|meno|all>"),
                 ("flatten", "zavrieť pozície: /flatten <č|meno|all>"), ("help", "pomoc")]
 MODE_ICON = {"enabled": "▶", "paused": "⏸", "flatten": "⛔"}
@@ -1005,8 +1006,8 @@ class TelegramCommands:
     spustenie, `F:<kľúč|*>` otázka na flatten, `X:<čas>:<kľúč|*>` potvrdený flatten (`*` = všetky),
     `A:1`/`A:0` auto-obnova stavu (každých `AUTO_SECONDS`, pripnutá; v chate najviac jedna),
     `tr:` / `pf:` / `gr:` obchody, výkon a graf z denníka (`tradebot.live.reports`), `h` pohľady hubu,
-    `v:<plugin>:<pohľad>` jeden pohľad pluginu hubu, `n` výber účtov pre notifikácie, `N:<účet>` prepne
-    účet (`akey`), `N:*` / `N:-` zo všetkých / zo žiadneho.
+    `v:<plugin>:<pohľad>` jeden pohľad pluginu hubu, `n` výber sledovaných účtov, `N:<účet>` prepne
+    účet (`akey`), `N:*` / `N:-` všetky / žiadny.
 
     `journal` = denník obchodov (`TradeJournal`, bez neho 🧾/📈 povedia, že nie je); `hub` = objekt
     s `views() -> [{plugin, view, label}]` a `view(plugin, view) -> HTML` (bez hubu None)."""
@@ -1075,10 +1076,10 @@ class TelegramCommands:
             return f"Hub nedostupný: {_e(type(exc).__name__)} {_e(str(exc)[:200])}", spat
         return text[:MAX_TEXT] or "(prázdne)", spat
 
-    # -- notifikácie po účtoch ---------------------------------------------- #
+    # -- účty, ktoré chat sleduje ------------------------------------------- #
 
     def _accounts(self, chat: Any) -> dict[str, str]:
-        """Účty na výber (`akey` → meno): bežiace za `STALE_DAYS` v poradí /status a k nim vypnuté, ktoré už
+        """Účty na výber (`akey` → meno): bežiace za `STALE_DAYS` v poradí /status a k nim skryté, ktoré už
         nebežia — aby sa dali znova zapnúť."""
         out = {akey(i.get("platform"), i.get("account")): account_name(i.get("platform"), i.get("account"))
                for i in self.controls.instances(self.clock())}
@@ -1086,33 +1087,33 @@ class TelegramCommands:
             out.setdefault(k, meno)
         return out
 
-    def notify_view(self, chat: Any) -> tuple[str, list[list[dict]]]:
-        ucty, ticho = self._accounts(chat), self.state.muted(chat)
-        hlava = ("<b>🔔 Notifikácie</b>\nZ ktorých účtov chceš dostávať notifikácie (vstupy, výstupy, varovania, "
-                 "štart / stop)? Ťukni na účet a prepneš ho.")
+    def accounts_view(self, chat: Any) -> tuple[str, list[list[dict]]]:
+        ucty, skryte = self._accounts(chat), self.state.muted(chat)
+        hlava = ("<b>🗂 Účty</b>\nKtoré účty chceš v tomto chate sledovať — notifikácie, stav, ordery, obchody "
+                 "aj výkon? Ťukni na účet a prepneš ho.")
         if not ucty:
             return hlava + "\n\nŽiadny účet za posledných 7 dní.", [[{"text": "📊 Stav", "callback_data": "s"}]]
-        riadky = [hlava, ""] + [f"{'🔕' if k in ticho else '✅'} {_e(m)}" for k, m in ucty.items()]
-        riadky.append("\n<i>Platí pre tento chat. Nový účet hlási, kým ho nevypneš; 📊 Stav, ordery a výkon "
-                      "ukazujú vždy všetky účty.</i>")
-        rows = [[{"text": f"{'🔕' if k in ticho else '✅'} {m}"[:40], "callback_data": f"N:{k}"}] for k, m in ucty.items()]
-        rows.append([{"text": "✅ Všetky", "callback_data": "N:*"}, {"text": "🔕 Žiadny", "callback_data": "N:-"}])
+        riadky = [hlava, ""] + [f"{'🚫' if k in skryte else '✅'} {_e(m)}" for k, m in ucty.items()]
+        riadky.append("\n<i>Platí pre tento chat. Skrytý účet tu nič nehlási ani neukazuje a pauza či flatten "
+                      "všetkých sa ho netýka; nový účet sa ukáže, kým ho neskryješ.</i>")
+        rows = [[{"text": f"{'🚫' if k in skryte else '✅'} {m}"[:40], "callback_data": f"N:{k}"}] for k, m in ucty.items()]
+        rows.append([{"text": "✅ Všetky", "callback_data": "N:*"}, {"text": "🚫 Žiadny", "callback_data": "N:-"}])
         rows.append([{"text": "📊 Stav", "callback_data": "s"}])
         return "\n".join(riadky), rows
 
-    def _toggle_notify(self, chat: Any, kluc: str) -> str:
+    def _toggle_account(self, chat: Any, kluc: str) -> str:
         ucty, ticho = self._accounts(chat), self.state.muted(chat)
         if kluc == "*":
             ticho = {}
-            oznam = "Notifikácie zo všetkých účtov"
+            oznam = "Sleduješ všetky účty"
         elif kluc == "-":
             ticho = dict(ucty)
-            oznam = "Notifikácie vypnuté zo všetkých účtov"
+            oznam = "Všetky účty skryté"
         elif kluc in ticho:
-            oznam = f"Zapnuté: {ticho.pop(kluc)}"
+            oznam = f"Sleduješ: {ticho.pop(kluc)}"
         elif kluc in ucty:
             ticho[kluc] = ucty[kluc]
-            oznam = f"Vypnuté: {ucty[kluc]}"
+            oznam = f"Skryté: {ucty[kluc]}"
         else:
             return "Účet už nevidím — obnov výber."
         self.state.set_muted(chat, ticho)
@@ -1120,22 +1121,24 @@ class TelegramCommands:
 
     # -- denník -------------------------------------------------------------- #
 
-    def _records(self) -> list[dict[str, Any]]:
-        return self.journal.read() if self.journal is not None else []
+    def _records(self, chat: Any = None) -> list[dict[str, Any]]:
+        skryte = self._hidden(chat)
+        return [r for r in (self.journal.read() if self.journal is not None else [])
+                if akey(r.get("platform"), r.get("account")) not in skryte]
 
-    def trades_view(self, kluc: str = "*") -> tuple[str, list[list[dict]]]:
+    def trades_view(self, kluc: str = "*", *, chat: Any = None) -> tuple[str, list[list[dict]]]:
         from .reports import trades_view
 
         if self.journal is None:
             return "Denník obchodov tu nebeží.", []
-        return trades_view(self._records(), kluc or "*", ikey)
+        return trades_view(self._records(chat), kluc or "*", ikey)
 
-    def perf_view(self, period: str = "30", kluc: str = "*") -> tuple[str, list[list[dict]]]:
+    def perf_view(self, period: str = "30", kluc: str = "*", *, chat: Any = None) -> tuple[str, list[list[dict]]]:
         from .reports import perf_view
 
         if self.journal is None:
             return "Denník obchodov tu nebeží.", []
-        return perf_view(self._records(), period, kluc or "*", self.cfg.capital, ikey, self.clock())
+        return perf_view(self._records(chat), period, kluc or "*", self.cfg.capital, ikey, self.clock())
 
     def send_chart(self, chat: Any, period: str, kluc: str) -> str:
         """Pošle graf equity ako obrázok; vráti oznam pre gombík."""
@@ -1143,7 +1146,7 @@ class TelegramCommands:
 
         if self.journal is None:
             return "Denník obchodov tu nebeží."
-        png, popis = perf_chart(self._records(), period, kluc or "*", self.cfg.capital, ikey, self.clock())
+        png, popis = perf_chart(self._records(chat), period, kluc or "*", self.cfg.capital, ikey, self.clock())
         if png is None:
             self.bot.send(chat, popis + "\n\n(graf nie je — žiadny obchod v období alebo chýba Pillow)", html=True)
             return "graf nie je"
@@ -1202,13 +1205,13 @@ class TelegramCommands:
         if cmd in ("/start", "/help"):
             self.bot.send(chat, HELP, keyboard=self.menu())
         elif cmd == "/trades":
-            t, b = self.trades_view()
+            t, b = self.trades_view(chat=chat)
             self.bot.send(chat, t, b, html=True)
         elif cmd == "/perf":
-            t, b = self.perf_view()
+            t, b = self.perf_view(chat=chat)
             self.bot.send(chat, t, b, html=True)
-        elif cmd == "/notify":
-            t, b = self.notify_view(chat)
+        elif cmd in ("/accounts", "/notify"):
+            t, b = self.accounts_view(chat)
             self.bot.send(chat, t, b, html=True)
         elif cmd == "/hub":
             t, b = self.hub_list_view()
@@ -1218,21 +1221,21 @@ class TelegramCommands:
             t, b = self.plugin_view(plugin, view)
             self.bot.send(chat, t, b, html=True)
         elif cmd == "/status":
-            t, b = self.status_view()
+            t, b = self.status_view(chat=chat)
             self.bot.send(chat, t, b, html=True)
         elif cmd == "/orders":
-            t, b = self.orders_view()
+            t, b = self.orders_view(chat=chat)
             self.bot.send(chat, t, b, html=True)
         elif cmd in ("/pause", "/resume", "/flatten") and not self._can_control(chat, user):
             self.bot.send(chat, NO_CONTROL)
         elif cmd in ("/pause", "/resume"):
-            self.bot.send(chat, self._apply(arg, "paused" if cmd == "/pause" else "enabled", user))
+            self.bot.send(chat, self._apply(arg, "paused" if cmd == "/pause" else "enabled", user, chat=chat))
         elif cmd == "/flatten":
-            ciel = self._targets(arg)
+            ciel = self._targets(arg, chat=chat)
             if isinstance(ciel, str):
                 self.bot.send(chat, ciel)
                 return
-            t, b = self.flatten_view("*" if arg.strip().lower() == "all" else ikey(ciel[0]["instance"]), ciel)
+            t, b = self.flatten_view("*" if arg.strip().lower() == "all" else ikey(ciel[0]["instance"]), ciel, chat=chat)
             self.bot.send(chat, t, b, html=True)
         else:
             self.bot.send(chat, f"Neznámy príkaz {cmd}.\n\n{HELP}", keyboard=self.menu())
@@ -1253,7 +1256,7 @@ class TelegramCommands:
             auto = kluc == "1"
             self._set_auto(chat, mid, auto)
             oznam = "Auto-obnova zapnutá — stav sa obnovuje každú minútu" if auto else "Auto-obnova vypnutá"
-            t, b = self.status_view(auto=auto)
+            t, b = self.status_view(auto=auto, chat=chat)
             self.bot.answer(q.get("id", ""), oznam)
             if mid is not None:
                 self.bot.edit(chat, mid, t, b, html=True)
@@ -1269,41 +1272,42 @@ class TelegramCommands:
             self.bot.answer(q.get("id", ""), self.send_chart(chat, obdobie, ciel))
             return
         if akcia == "o":
-            t, b = self.orders_view()
+            t, b = self.orders_view(chat=chat)
         elif akcia == "tr":
-            t, b = self.trades_view(kluc)
+            t, b = self.trades_view(kluc, chat=chat)
         elif akcia == "pf":
             obdobie, _, ciel = kluc.partition(":")
-            t, b = self.perf_view(obdobie, ciel)
+            t, b = self.perf_view(obdobie, ciel, chat=chat)
         elif akcia == "n":
-            t, b = self.notify_view(chat)
+            t, b = self.accounts_view(chat)
         elif akcia == "N":
-            oznam = self._toggle_notify(chat, kluc)
-            t, b = self.notify_view(chat)
+            oznam = self._toggle_account(chat, kluc)
+            t, b = self.accounts_view(chat)
         elif akcia == "h":
             t, b = self.hub_list_view()
         elif akcia == "v":
             plugin, _, view = kluc.partition(":")
             t, b = self.plugin_view(plugin, view)
         elif akcia == "m":
-            t, b = self.instance_view(kluc)
+            t, b = self.instance_view(kluc, chat=chat)
         elif akcia in ("P", "R"):
             mode = "paused" if akcia == "P" else "enabled"
-            oznam = self._apply_keys(kluc, mode, user)
-            t, b = self.status_view(oznam, auto=auto) if kluc == "*" else self.instance_view(kluc, oznam)
+            oznam = self._apply_keys(kluc, mode, user, chat=chat)
+            t, b = (self.status_view(oznam, auto=auto, chat=chat) if kluc == "*"
+                    else self.instance_view(kluc, oznam, chat=chat))
         elif akcia == "F":
-            t, b = self.flatten_view(kluc)
+            t, b = self.flatten_view(kluc, chat=chat)
         elif akcia in ("X", "flatten"):   # `flatten:<čas>:<id>` = gombík zo starej správy
             ts, _, ciel = kluc.partition(":")
             if self.clock() - float(ts or 0) > CONFIRM_SECONDS:
                 oznam = "Potvrdenie vypršalo — skús znova."
             elif akcia == "flatten" and ciel != "*":
-                oznam = self._apply(ciel, "flatten", user, exact=True)
+                oznam = self._apply(ciel, "flatten", user, exact=True, chat=chat)
             else:
-                oznam = self._apply_keys(ciel, "flatten", user)
-            t, b = self.status_view(oznam, auto=auto)
+                oznam = self._apply_keys(ciel, "flatten", user, chat=chat)
+            t, b = self.status_view(oznam, auto=auto, chat=chat)
         else:   # `s`, `cancel`, neznáme
-            t, b = self.status_view(auto=auto)
+            t, b = self.status_view(auto=auto, chat=chat)
         self.bot.answer(q.get("id", ""), oznam.split("\n", 1)[0][:200] if oznam else "")
         if msg.get("message_id") is not None:
             self.bot.edit(chat, msg["message_id"], t, b, html=True)
@@ -1339,7 +1343,7 @@ class TelegramCommands:
             if now - float(a.get("at") or 0) < AUTO_SECONDS:
                 continue
             a["at"] = now
-            t, b = self.status_view(auto=True)
+            t, b = self.status_view(auto=True, chat=a["chat"])
             try:
                 self.bot.edit(a["chat"], a["mid"], t, b, html=True)
                 n += 1
@@ -1355,14 +1359,25 @@ class TelegramCommands:
 
     # -- ciele a zápis ------------------------------------------------------ #
 
-    def _by_key(self, kluc: str) -> list[dict[str, Any]]:
-        inst = self.controls.instances(self.clock())
+    def _hidden(self, chat: Any) -> set[str]:
+        """Účty, ktoré chat nesleduje (🗂 Účty) — bez chatu (`status_text`) žiadne."""
+        return set(self.state.muted(chat)) if chat is not None else set()
+
+    def _instances(self, chat: Any = None) -> list[dict[str, Any]]:
+        """Inštancie na tomto stroji bez účtov, ktoré chat nesleduje: tie v ňom nie sú v stave, orderoch,
+        výkone ani v pauze / flattene všetkých."""
+        skryte = self._hidden(chat)
+        return [i for i in self.controls.instances(self.clock())
+                if akey(i.get("platform"), i.get("account")) not in skryte]
+
+    def _by_key(self, kluc: str, chat: Any = None) -> list[dict[str, Any]]:
+        inst = self._instances(chat)
         if kluc == "*":
             return [i for i in inst if not i.get("ended")]
         return [i for i in inst if ikey(i["instance"]) == kluc]
 
-    def _targets(self, arg: str, exact: bool = False) -> list[dict[str, Any]] | str:
-        inst = self.controls.instances(self.clock())
+    def _targets(self, arg: str, exact: bool = False, chat: Any = None) -> list[dict[str, Any]] | str:
+        inst = self._instances(chat)
         a = arg.strip()
         if not a:
             return "Ktorú? Napíš číslo zo /status, časť mena alebo all — alebo použi 📊 Stav a gombíky."
@@ -1373,7 +1388,8 @@ class TelegramCommands:
         elif a.isdigit():
             # číslo je z /status, ktorý človek videl — medzitým mohla inštancia pribudnúť alebo skončiť
             # a poradie sa posunúť; podľa aktuálneho zoznamu by pauza trafila inú (audit N-LIVE-18)
-            videne = self.state.data.get("status_order") or [i["instance"] for i in inst]
+            poradie = self.state.data.get("status_order")
+            videne = (poradie.get(str(chat)) if isinstance(poradie, dict) else poradie) or [i["instance"] for i in inst]
             if not 1 <= int(a) <= len(videne):
                 return f"Číslo {a} v /status nie je — pozri /status znova."
             hit = [i for i in inst if i["instance"] == videne[int(a) - 1]]
@@ -1401,14 +1417,14 @@ class TelegramCommands:
             self.on_change()
         return riadky
 
-    def _apply(self, arg: str, mode: str, user: Any, exact: bool = False) -> str:
-        ciel = self._targets(arg, exact=exact)
+    def _apply(self, arg: str, mode: str, user: Any, exact: bool = False, chat: Any = None) -> str:
+        ciel = self._targets(arg, exact=exact, chat=chat)
         if isinstance(ciel, str):
             return ciel
         return "\n".join(self._write(ciel, mode, user)) + "\n(platforma to prevezme do ~2 s)"
 
-    def _apply_keys(self, kluc: str, mode: str, user: Any) -> str:
-        ciel = self._by_key(kluc)
+    def _apply_keys(self, kluc: str, mode: str, user: Any, chat: Any = None) -> str:
+        ciel = self._by_key(kluc, chat)
         return "\n".join(self._write(ciel, mode, user)) if ciel else "Stratégiu už nevidím — obnov stav."
 
     # -- pohľady (text HTML + gombíky) -------------------------------------- #
@@ -1416,9 +1432,9 @@ class TelegramCommands:
     def _ctx(self, instance: str) -> dict[str, Any]:
         return (self.state.data.get("ctx") or {}).get(instance) or {}
 
-    def status_view(self, oznam: str = "", auto: bool = False) -> tuple[str, list[list[dict]]]:
+    def status_view(self, oznam: str = "", auto: bool = False, *, chat: Any = None) -> tuple[str, list[list[dict]]]:
         now = self.clock()
-        inst = self.controls.instances(now)
+        inst = self._instances(chat)
         cas = time.strftime("%H:%M:%S" if auto else "%H:%M", time.localtime(now))
         hlava = (f"<b>📊 Stav</b>{' · ' + _e(self.cfg.label) if self.cfg.label else ''} · {cas}"
                  + (" · ⏱ auto 1 min" if auto else ""))
@@ -1427,7 +1443,11 @@ class TelegramCommands:
         if not inst:
             return hlava + "\n\nŽiadna stratégia za posledných 7 dní.", [[{"text": "🔄 Obnoviť", "callback_data": "s"}, auto_gomb]]
         riadky, skupina = [hlava], None
-        self.state.data["status_order"] = [i["instance"] for i in inst]   # čísla pre /pause N (`_targets`)
+        # čísla pre /pause N (`_targets`) — po chatoch, každý vidí len svoje účty
+        poradie = self.state.data.get("status_order")
+        poradie = poradie if isinstance(poradie, dict) else {}
+        poradie[str(chat)] = [i["instance"] for i in inst]
+        self.state.data["status_order"] = poradie
         for n, i in enumerate(inst, 1):
             g = (i.get("platform"), i.get("account"))
             if g != skupina:
@@ -1458,9 +1478,9 @@ class TelegramCommands:
         rows.append([{"text": "🔄 Obnoviť", "callback_data": "s"}, {"text": "📋 Ordery", "callback_data": "o"}, auto_gomb])
         return "\n".join(riadky), rows
 
-    def instance_view(self, kluc: str, oznam: str = "") -> tuple[str, list[list[dict]]]:
+    def instance_view(self, kluc: str, oznam: str = "", *, chat: Any = None) -> tuple[str, list[list[dict]]]:
         now = self.clock()
-        hit = self._by_key(kluc)
+        hit = self._by_key(kluc, chat)
         if not hit:
             return "Stratégiu už nevidím (skončila alebo je stará).", [[{"text": "⬅ Späť", "callback_data": "s"}]]
         i = hit[0]
@@ -1486,8 +1506,9 @@ class TelegramCommands:
                 [{"text": "⬅ Späť", "callback_data": "s"}, {"text": "🔄", "callback_data": f"m:{k}"}]]
         return "\n".join(riadky), rows
 
-    def flatten_view(self, kluc: str, ciel: list[dict[str, Any]] | None = None) -> tuple[str, list[list[dict]]]:
-        ciel = ciel if ciel is not None else self._by_key(kluc)
+    def flatten_view(self, kluc: str, ciel: list[dict[str, Any]] | None = None, *,
+                     chat: Any = None) -> tuple[str, list[list[dict]]]:
+        ciel = ciel if ciel is not None else self._by_key(kluc, chat)
         if not ciel:
             return "Stratégiu už nevidím.", [[{"text": "⬅ Späť", "callback_data": "s"}]]
         mena = "\n".join(f"• {_e(_short(i))} ({_e(_platform(i.get('platform')))})" for i in ciel)
@@ -1496,9 +1517,9 @@ class TelegramCommands:
                 [[{"text": "⛔ Áno, zavrieť", "callback_data": f"X:{int(self.clock())}:{kluc}"},
                   {"text": "Zrušiť", "callback_data": spat}]])
 
-    def orders_view(self) -> tuple[str, list[list[dict]]]:
+    def orders_view(self, *, chat: Any = None) -> tuple[str, list[list[dict]]]:
         now = self.clock()
-        inst = self.controls.instances(now)
+        inst = self._instances(chat)
         poz, cak = [], []
         for i in inst:
             ctx = self._ctx(i["instance"])

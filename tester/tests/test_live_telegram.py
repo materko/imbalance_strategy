@@ -441,8 +441,9 @@ def test_jedno_kolo_jedna_sprava_za_vsetky_instancie(tmp_path: Path):
     assert n.pump()["sent"] == 3 and len(bot.sent) == 1 and bot.sent[0][1].count("🟢") == 3
 
 
-def test_notifikacie_len_z_vybranych_uctov_po_chatoch(tmp_path: Path):
-    """🔔 Notifikácie: chat si vypne účet — obchody a súhrn štartu z neho nedostane, druhý chat áno."""
+def test_ucty_skryty_ucet_chat_nevidi_nikde(tmp_path: Path):
+    """🗂 Účty: chat si skryje účet — obchody, súhrn štartu, stav, ordery, denník ani pauza všetkých sa ho
+    v tom chate netýkajú, druhý chat vidí všetko."""
     root = tmp_path / "spool"
     t = [1000.0]
     bot, ctl = FakeBot(), FakeControls()
@@ -452,16 +453,16 @@ def test_notifikacie_len_z_vybranych_uctov_po_chatoch(tmp_path: Path):
     cmd = TelegramCommands(bot, cfg, state, ctl, clock=lambda: 1000.0)
     n.pump()
 
-    # otázka ukáže účty zo stavu; ťuk vypne MT5 účet „A“ len v chate 7
-    bot.ups = [msg("🔔 Notifikácie", uid=1)]
+    # otázka ukáže účty zo stavu; ťuk skryje MT5 účet „A“ len v chate 7
+    bot.ups = [msg("🗂 Účty", uid=1)]
     cmd.poll()
     text, rows = bot.sent[-1][1], bot.sent[-1][2]
-    assert "Z ktorých účtov" in text and "✅ MT5 · A" in text and "✅ NT8 · A" in text
+    assert "Ktoré účty chceš" in text and "✅ MT5 · A" in text and "✅ NT8 · A" in text
     ucet = akey("mt5", "A")
     assert rows[0][0]["callback_data"] == f"N:{ucet}"
     bot.ups = [cb(f"N:{ucet}", 2)]
     cmd.poll()
-    assert "🔕 MT5 · A" in bot.edited[-1][2] and state.muted(7) == {ucet: "MT5 · A"} and state.muted(8) == {}
+    assert "🚫 MT5 · A" in bot.edited[-1][2] and state.muted(7) == {ucet: "MT5 · A"} and state.muted(8) == {}
 
     bot.sent.clear()
     akc = dict(hello(), account="A")
@@ -475,15 +476,28 @@ def test_notifikacie_len_z_vybranych_uctov_po_chatoch(tmp_path: Path):
     assert do7.count("🟢") == 1 and "NT8 · A" in do7 and "MT5 · A" not in do7 and "· MT5 ·" not in do7
     assert do8.count("🟢") == 2 and "▶️ <b>Spustené</b> · MT5" in do8 and "▶️ <b>Spustené</b> · NT8" in do8
 
-    # Žiadny → nič, Všetky → späť; vypnutý účet, ktorý už nebeží, sa dá znova zapnúť
-    bot.ups = [cb("N:-", 3)]
+    # stav, ordery a denník chatu 7 bez skrytého účtu, chat 8 so všetkým
+    assert "US100" not in cmd.status_view(chat=7)[0] and "MNQ" in cmd.status_view(chat=7)[0]
+    assert "US100" in cmd.status_view(chat=8)[0]
+    assert "US100" not in cmd.orders_view(chat=7)[0] and "US100" in cmd.orders_view(chat=8)[0]
+    cmd.journal = SimpleNamespace(read=lambda: [{"k": "in", "platform": "mt5", "account": "A", "instance": INST},
+                                                {"k": "in", "platform": "ninjatrader", "account": "A", "instance": "x"}])
+    assert [r["platform"] for r in cmd._records(7)] == ["ninjatrader"] and len(cmd._records(8)) == 2
+    # pauza všetkým a /pause podľa mena sa skrytého účtu netýkajú
+    bot.ups = [cb("P:*", 3), msg("/pause US100", uid=4)]
+    cmd.poll()
+    assert ctl.modes[INST] == "enabled" and ctl.modes["ninjatrader_DEMO_MNQ_3m_vwaporbnet"] == "paused"
+    assert "nepoznám" in bot.sent[-1][1]
+
+    # Žiadny → nič, Všetky → späť; skrytý účet, ktorý už nebeží, sa dá znova zapnúť
+    bot.ups = [cb("N:-", 5)]
     cmd.poll()
     assert set(state.muted(7)) == {ucet, akey("ninjatrader", "A")}
     ctl.modes.clear()
-    bot.ups = [cb("n", 4)]
+    bot.ups = [cb("n", 6)]
     cmd.poll()
-    assert "🔕 MT5 · A" in bot.edited[-1][2]
-    bot.ups = [cb("N:*", 5)]
+    assert "🚫 MT5 · A" in bot.edited[-1][2]
+    bot.ups = [cb("N:*", 7)]
     cmd.poll()
     assert state.muted(7) == {} and "Žiadny účet" in bot.edited[-1][2]
 
