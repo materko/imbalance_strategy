@@ -29,6 +29,8 @@ function applyTheme(pref) {
   const dark = pref === "dark" || (pref === "auto" && !!(systemDark && systemDark.matches));
   document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
   for (const b of $$("#theme-switch button")) b.classList.toggle("active", b.dataset.theme === pref);
+  const t = $("#theme-toggle");
+  if (t) t.title = `Téma: ${{ dark: "tmavá", light: "svetlá", auto: "podľa systému" }[pref] || pref} — klik prepne`;
   redrawThemedCharts();
 }
 

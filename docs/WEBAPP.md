@@ -113,13 +113,13 @@ Jediná podmienka behu sú 1m sviečky ([docs/FREQTRADE.md](FREQTRADE.md)).
 
 ## Vzhľad
 
-Karty sú v ľavej lište (na obrazovke do 1000 px hore), pod nimi meno testera, vetva, Pull / Push
-a prepínač témy. Predvolená je tmavá téma (takmer čierna, akcent `#19c8a2`), svetlá a „podľa systému"
+Karty sú v úzkej ľavej lište ako ikony s popiskou, v skupinách Výskum (Stratégie, Nový beh, História, Analytika,
+Diverzifikácia) a Prevádzka (Hub, Live, Live diverzifikácia); dole je prepínač témy (tmavá → svetlá → podľa systému). Na obrazovke do 1000 px je lišta pás hore. Predvolená je tmavá téma (takmer čierna, akcent `#19c8a2`), svetlá a „podľa systému"
 ostávajú na prepnutie a voľba sa drží v prehliadači. Písmo je Inter, čísla v tabuľkách a kartách
 JetBrains Mono (Google Fonts; bez siete systémové písmo). Vzhľad je posledná vrstva `static/app.css`.
 
-Nad obsahom každej karty je **horný prehľad**: názov karty a čipy **Hub** (agenti online, výpočty
-v rade a bežiace) a **Live** (koľko inštancií stratégií naživo beží z koľkých); klik prepne na tú kartu.
+Nad obsahom každej karty je **horná lišta**: kde som (TradeBot Lab / karta), čipy **Hub** (agenti online, výpočty
+v rade a bežiace) a **Live** (koľko inštancií stratégií naživo beží z koľkých; klik prepne na tú kartu), vetva a stav gitu, Pull / Push a meno testera.
 Obnovujú sa s bodkami pri záložkách (každých 30 s), čip Hub chýba, keď hub nie je nastavený. Karty
 Hub, Live a Analytika začínajú riadkom dlaždíc s hlavnými číslami: Hub — agenti online, voľné sloty
 na počítajúcich agentoch, koľkí prijímajú výpočty, fronta; Live — bežiace inštancie, účty, aktívne
@@ -129,7 +129,7 @@ v každom referenčnom okne, keď je analytika z jedného trhu).
 
 ## Meno testera
 
-V ľavej lište (na úzkej obrazovke v hlavičke) je pole s menom. Ukladá sa ku každému behu (stĺpec v histórii,
+V hornej lište je pole s menom. Ukladá sa ku každému behu (stĺpec v histórii,
 hľadanie `user~jana`) a použije sa ako autor commitu pri Push. Drží sa v tomto
 prehliadači; predvolené je `TRADEBOT_USER` z prostredia, inak `git config user.name`.
 
@@ -536,10 +536,10 @@ pôvodu, nie odkaz: keď sa východiskový profil neskôr zmení, tvoj sa nepohn
 Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `_`;
 meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
 
-Tlačidlá **Pull** a **Push** sú v ľavej lište; výstup gitu sa zobrazí celý. Push commitne
+Tlačidlá **Pull** a **Push** sú v hornej lište; výstup gitu sa zobrazí celý. Push commitne
 **len** `runs/`, `sweeps/`, `profiles/`, `analytics/` a `archive/` a pushne ich do **`main`** — nie na vetvu, na ktorej klon
 práve stojí (inak história skončí na vývojárskej vetve a nikto ju neuvidí). Iný cieľ sa
-dá nastaviť cez `TRADEBOT_GIT_BRANCH`. Keď sa vetva klonu a cieľ líšia, lišta to ukáže
+dá nastaviť cez `TRADEBOT_GIT_BRANCH`. Keď sa vetva klonu a cieľ líšia, horná lišta to ukáže
 ako `vetva → main`.
 
 Ak by mala vetva klonu oproti `main` commity mimo týchto adresárov, Push sa
@@ -547,7 +547,7 @@ zastaví a povie to: kód z testerského klonu do `main` nepatrí, ten ide pull 
 Rovnako sa zastaví, keď git v týchto adresároch **ignoruje** niečo iné než kresby grafu
 (`chart.json.gz`, `runs/.charts/`) a dočasné súbory — kedysi `tester/runs/` v `.gitignore`
 spôsobil, že Push behy ticho vynechával.
-Autor commitu je meno testera z ľavej lišty.
+Autor commitu je meno testera z hornej lišty.
 
 Upravený profil Push pred commitom porovná s verziou v gite. Profil sa upravuje na mieste:
 keď ho niečo načíta, klon sa medzitým aktualizuje (Pull, agent hubu) a potom ho to zapíše späť,

@@ -24,37 +24,42 @@
 </head>
 <body>
 <header class="top">
-  <div class="brand"><span class="brand-icon">↗</span> TradeBot <span>Lab</span></div>
-  <nav class="tabs">
-    <button data-view="catalog" class="active" title="Všetky stratégie s profilmi a najlepším behom z histórie">Stratégie</button>
-    <button data-view="new">Nový beh</button>
-    <button data-view="history">História</button>
-    <button data-view="analytics">Analytika</button>
-    <button data-view="diversify" title="Viac nastavení naraz na jednom účte — z behov v histórii">Diverzifikácia</button>
-    <button data-view="livediv" title="Ako sa darí stratégiám nasadeným naživo — rozbory ako Diverzifikácia, porovnanie s testom a kvalita plnenia">Live diverzifikácia</button>
-    <button data-view="hub" id="tab-hub"><span id="hub-tab-dot" class="tab-dot" hidden></span>Hub <span id="hub-tab-chip" class="chip"></span></button>
-    <button data-view="live" id="tab-live" title="Telemetria zo spustených stratégií (NinjaTrader 8, MetaTrader 5)"><span id="live-tab-dot" class="tab-dot"></span>Live <span id="live-tab-chip" class="chip"></span></button>
+  <div class="brand" title="TradeBot Lab"><span class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6 4 4 6-8"/><path d="M15 7h5v5"/></svg></span><span class="brand-name">TradeBot <span>Lab</span></span></div>
+  <nav class="tabs" aria-label="Hlavná navigácia">
+    <span class="tabs-group">Výskum</span>
+    <button data-view="catalog" class="active" title="Stratégie — všetky stratégie s profilmi a najlepším behom z histórie"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="tab-label">Stratégie</span></button>
+    <button data-view="new" title="Nový beh"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/></svg><span class="tab-label">Nový beh</span></button>
+    <button data-view="history" title="História — všetky behy, hľadanie a detail"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg><span class="tab-label">História</span></button>
+    <button data-view="analytics" title="Analytika — rozbor nastavenia stratégie z behov v histórii"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg><span class="tab-label">Analytika</span></button>
+    <button data-view="diversify" title="Diverzifikácia — viac nastavení naraz na jednom účte, z behov v histórii"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg><span class="tab-label">Diverzifik.</span></button>
+    <span class="tabs-sep"></span>
+    <span class="tabs-group">Prevádzka</span>
+    <button data-view="hub" id="tab-hub" title="Hub — výpočty na iných strojoch"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01"/><path d="M7 17h.01"/></svg><span class="tab-label">Hub</span><span id="hub-tab-dot" class="tab-dot" hidden></span><span id="hub-tab-chip" class="chip"></span></button>
+    <button data-view="live" id="tab-live" title="Live — telemetria zo spustených stratégií (NinjaTrader 8, MetaTrader 5)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span class="tab-label">Live</span><span id="live-tab-dot" class="tab-dot"></span><span id="live-tab-chip" class="chip"></span></button>
+    <button data-view="livediv" title="Live diverzifikácia — ako sa darí stratégiám nasadeným naživo, porovnanie s testom a kvalita plnenia"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M3 21l4-4"/></svg><span class="tab-label">Live div.</span></button>
   </nav>
+  <span class="spacer"></span>
+  <button type="button" id="theme-toggle" class="theme-toggle" title="Téma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <div class="theme-switch" id="theme-switch" role="group" title="Farebná téma" hidden>
+    <button type="button" data-theme="light">Svetlá</button>
+    <button type="button" data-theme="dark">Tmavá</button>
+    <button type="button" data-theme="auto">Podľa systému</button>
+  </div>
+</header>
+
+<!-- Horná lišta: kde som, stav hubu a živých stratégií (obnovuje sa s bodkami pri záložkách), git a meno testera. -->
+<div class="statusbar" id="statusbar">
+  <span class="sb-crumb">TradeBot <span>Lab</span></span><span class="sb-slash">/</span><span id="sb-title" class="sb-title">Stratégie</span>
+  <span class="spacer"></span>
+  <button type="button" class="sb-chip" id="sb-hub" data-go="hub" title="karta Hub" hidden><i class="tab-dot"></i><span>Hub</span><b id="sb-hub-text">—</b></button>
+  <button type="button" class="sb-chip" id="sb-live" data-go="live" title="karta Live"><i class="tab-dot"></i><span>Live</span><b id="sb-live-text">—</b></button>
   <div class="git">
-    <input id="who" class="who" type="text" maxlength="80" placeholder="meno testera" title="Meno testera – ukladá sa ku každému behu a ako autor commitu. Drží sa v tomto prehliadači.">
     <span id="branch" class="chip"></span>
     <span id="git-status" class="muted"></span>
     <button id="git-pull" class="ghost" title="git pull --rebase (stiahne behy ostatných)">⬇ Pull</button>
     <button id="git-push" class="ghost" title="commitne runs/ a pushne (len adresár s behmi)">⬆ Push</button>
-    <div class="theme-switch" id="theme-switch" role="group" title="Farebná téma">
-      <button type="button" data-theme="light">Svetlá</button>
-      <button type="button" data-theme="dark">Tmavá</button>
-      <button type="button" data-theme="auto">Podľa systému</button>
-    </div>
+    <input id="who" class="who" type="text" maxlength="80" placeholder="meno testera" title="Meno testera – ukladá sa ku každému behu a ako autor commitu. Drží sa v tomto prehliadači.">
   </div>
-</header>
-
-<!-- Horný prehľad: názov karty a stav hubu a živých stratégií (obnovuje sa s bodkami pri záložkách). -->
-<div class="statusbar" id="statusbar">
-  <span id="sb-title" class="sb-title">Stratégie</span>
-  <span class="spacer"></span>
-  <button type="button" class="sb-chip" id="sb-hub" data-go="hub" title="karta Hub"><i class="tab-dot"></i><span>Hub</span><b id="sb-hub-text">—</b></button>
-  <button type="button" class="sb-chip" id="sb-live" data-go="live" title="karta Live"><i class="tab-dot"></i><span>Live</span><b id="sb-live-text">—</b></button>
 </div>
 
 <div id="git-box" class="git-box" hidden>

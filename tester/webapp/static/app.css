@@ -911,51 +911,70 @@ table.runs td.num, .cat-kpi b { font-size: .95em; letter-spacing: -.01em; }
 :root[data-theme="dark"] .card { box-shadow: none; }
 :root[data-theme="dark"] input, :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background: #101215; border-color: #2a2f35; color: var(--ink); }
 
-/* Lišta je tmavá v oboch témach, ako bola hlavička. */
-header.top { background: #0f1113; color: #e8eaed; }
-.brand-icon { background: rgba(25, 200, 162, .14); color: #19c8a2; }
-.brand > span:last-child { color: #19c8a2; }
-.tabs button { color: #9aa1a9; }
-.tabs button:hover { color: #e8eaed; }
-.tabs button.active { color: #19c8a2; border-bottom-color: #19c8a2; }
-header .who { background: #17191c; border-color: #2a2f35; color: #e8eaed; }
-header .git button, .theme-switch button { color: #c3c8ce; border-color: #2a2f35; }
-header .chip { background: #1d2024; color: #9aa1a9; }
-header .git .muted { color: #8b929a; }
-.theme-switch button.active { background: rgba(25, 200, 162, .14); color: #19c8a2; border-color: rgba(25, 200, 162, .35); }
+/* Ľavá lišta s ikonami (návrh TradeBot Lab): tmavá v oboch témach, skupiny Výskum / Prevádzka,
+   pod ikonou krátka popiska, dole prepínač témy. Na úzkej obrazovke (do 1000 px) je to pás hore. */
+header.top { background: #0e1012; color: #e8eaed; border: 0; }
+.brand { display: flex; align-items: center; }
+.brand .brand-icon { display: grid; place-items: center; width: 40px; height: 40px; margin: 0; border-radius: 10px;
+  background: #19c8a2; color: #052a21; }
+.brand-icon svg { width: 22px; height: 22px; }
+.brand-name { display: none; }
+.tabs { display: flex; align-items: center; gap: 4px; }
+.tabs-group { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #7d8790; }
+.tabs-sep { width: 1px; height: 28px; background: #23272c; }
+.tabs button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 64px;
+  padding: 8px 0; border: 0; border-radius: 10px; background: transparent; color: #9aa4ad; font-size: 11px; font-weight: 500;
+  line-height: 1.2; text-align: center; }
+.tabs button:hover { background: #16191c; color: #e9edf0; }
+.tabs button.active { background: #1b1f23; color: #e9edf0; border: 0; }
+.tabs button.active .tab-ico { color: #19c8a2; }
+.tab-ico { width: 20px; height: 20px; flex: none; }
+.tabs button .tab-dot { position: absolute; top: 6px; right: 16px; margin: 0; }
+.tabs button .chip { position: absolute; top: 3px; right: 6px; min-width: 16px; padding: 0 4px; font-size: 9.5px; font-weight: 700;
+  line-height: 15px; background: #6ea0ff; color: #0b1020; }
+.tabs button .chip:empty { display: none; }
+#hub-tab-chip { display: none; }   /* „nastaviť" je dlhé na odznak — stav hubu nesie bodka a horná lišta */
+.theme-toggle { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 10px;
+  border: 1px solid #23272c; background: transparent; color: #9aa4ad; }
+.theme-toggle:hover { color: #e9edf0; border-color: #3a4047; }
+.theme-toggle svg { width: 18px; height: 18px; }
 
 @media (min-width: 1001px) {
-  body { padding-left: 232px; }
-  header.top { position: fixed; top: 0; bottom: 0; left: 0; width: 232px; z-index: 20; flex-direction: column;
-    align-items: stretch; gap: 18px; padding: 18px 12px; border-right: 1px solid #1f2327; overflow-y: auto; }
-  .brand { padding: 2px 6px 8px; }
-  .tabs { display: flex; flex-direction: column; gap: 2px; }
-  .tabs button { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 9px 12px;
-    border-bottom: 0; border-left: 2px solid transparent; border-radius: 8px; font-weight: 550; }
-  .tabs button:hover { background: #17191c; }
-  .tabs button.active { background: rgba(25, 200, 162, .1); border-left-color: #19c8a2; }
-  .tabs button .chip { margin-left: auto; }
-  .git { margin: auto 0 0; flex-direction: column; align-items: stretch; gap: 8px; border-top: 1px solid #1f2327; padding-top: 14px; }
-  .git .who { width: 100%; }
-  .git #branch { align-self: flex-start; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .git #git-pull, .git #git-push { width: 100%; text-align: left; }
-  .theme-switch { margin: 0; }
-  .theme-switch button { flex: 1; padding: 5px 4px; }
+  body { padding-left: 76px; }
+  header.top { position: fixed; top: 0; bottom: 0; left: 0; width: 76px; z-index: 20; flex-direction: column;
+    align-items: center; gap: 4px; padding: 14px 0; border-right: 1px solid #1f2327; overflow-y: auto; }
+  .brand { margin-bottom: 14px; }
+  .tabs { flex-direction: column; }
+  .tabs-group { margin: 4px 0 2px; }
+  .tabs-sep { width: 40px; height: 1px; margin: 10px 0 6px; }
   .settings { top: 64px; max-height: calc(100vh - 80px); }
+}
+@media (max-width: 1000px) {
+  header.top { gap: 8px; padding: 8px 10px; overflow-x: auto; }
+  .tabs-group { display: none; }
+  .tabs button { width: 60px; padding: 6px 0; }
 }
 
 /* Horný prehľad nad obsahom karty (main.js: statusHub, statusLive). */
-.statusbar { position: sticky; top: 0; z-index: 15; display: flex; align-items: center; gap: 8px;
-  padding: 10px 26px; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);
+.statusbar { position: sticky; top: 0; z-index: 15; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-height: 60px; padding: 10px 24px; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line); }
-.sb-title { font-weight: 650; font-size: 15px; letter-spacing: -.01em; }
-.sb-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px;
-  background: var(--card); border: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.sb-crumb { font-weight: 600; font-size: 15px; }
+.sb-crumb span { color: var(--muted); font-weight: 500; }
+.sb-slash { color: var(--muted); opacity: .6; }
+.sb-title { font-size: 15px; color: var(--ink); opacity: .85; }
+.sb-chip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 10px;
+  background: transparent; border: 1px solid var(--line); font-size: 13px; color: var(--muted); }
 .sb-chip span { color: var(--ink); font-weight: 600; }
-.sb-chip b { white-space: nowrap; font-weight: 500; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11.5px; }
+.sb-chip b { white-space: nowrap; font-weight: 500; font-size: 12.5px; }
 .sb-chip .tab-dot { margin: 0; }
 .sb-chip:hover { border-color: var(--accent); }
-@media (max-width: 1000px) { .statusbar { position: static; padding: 8px 12px; } .sb-title { display: none; } }
+.statusbar .git { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.statusbar .git button { height: 36px; border-radius: 10px; background: transparent; }
+.statusbar .git #branch { font-family: "JetBrains Mono", ui-monospace, monospace; max-width: 240px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.statusbar .who { height: 36px; width: 130px; border-radius: 18px; padding: 0 12px; background: var(--card); border: 1px solid var(--line); color: var(--ink); }
+@media (max-width: 1000px) { .statusbar { position: static; padding: 8px 12px; } .sb-crumb, .sb-slash { display: none; } }
 
 /* Dlaždice s číslami nad kartou (core.js: kpiRow) — Hub, Live. */
 .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }

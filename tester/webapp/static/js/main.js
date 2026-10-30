@@ -25,8 +25,8 @@ function statusLive(alive, total, error) {
 
 function showView(name) {
   for (const b of $$(".tabs button")) b.classList.toggle("active", b.dataset.view === name);
-  const label = $(`.tabs button[data-view="${name}"]`);
-  if (label) $("#sb-title").textContent = label.textContent.replace(/nastaviť|\d+/g, "").trim();
+  const tab = $(`.tabs button[data-view="${name}"]`);
+  if (tab) $("#sb-title").textContent = (tab.title || tab.textContent).split(" — ")[0].trim();
   // Karta je v adrese (#new, #analytics…), aby F5 ostal na tej istej karte; úvodná je katalóg (bez #).
   history.replaceState(null, "", name === "catalog" ? location.pathname + location.search : `#${name}`);
   $("#view-catalog").hidden = name !== "catalog";
@@ -59,6 +59,8 @@ async function init() {
   const themePref = loadThemePref();
   applyTheme(themePref);
   for (const b of $$("#theme-switch button")) b.onclick = () => setTheme(b.dataset.theme);
+  // jedno tlačidlo v lište: tmavá → svetlá → podľa systému
+  $("#theme-toggle").onclick = () => setTheme({ dark: "light", light: "auto", auto: "dark" }[loadThemePref()] || "dark");
   if (systemDark) systemDark.addEventListener("change", () => { if (loadThemePref() === "auto") applyTheme("auto"); });
 
   state.meta = await api("/api/meta");
