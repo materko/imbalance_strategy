@@ -49,10 +49,51 @@ def _short(exc: BaseException) -> str:
     return text[:500]
 
 
-def position_from_spool(roots: list[Path], instance: str) -> float | None:
+#: Ping `hb` s pozíciou u brokera platí za aktuálny, keď nie je starší než toľko ms.
+BROKER_POS_MAX_AGE_MS = 5 * 60 * 1000
+_TAIL_BYTES = 256 * 1024
+
+
+def broker_flat(files: list[Path], now_ms: float | None = None, max_age_ms: float = BROKER_POS_MAX_AGE_MS) -> bool:
+    """Platforma v poslednom pingu (`hb.pos`, pozícia u brokera) hlási nulu: najnovší súbor inštancie, ping nie
+    starší než `max_age_ms` a po ňom žiadne `bye`. Chýbajúci výstupný fill v telemetrii (pozícia zavretá na EOD,
+    výpadok spoolu) by inak držal fantómovú pozíciu navždy — rušené nasadenie by sa neodobralo ani po flattene."""
+    if not files:
+        return False
+    posledny = max(files, key=lambda p: p.name)
+    try:
+        with open(posledny, "rb") as fh:
+            size = posledny.stat().st_size
+            if size > _TAIL_BYTES:
+                fh.seek(size - _TAIL_BYTES)
+                fh.readline()
+            riadky = [r for r in fh.read().split(b"\n") if r.strip()]
+    except OSError:
+        return False
+    for raw in reversed(riadky):
+        if b'"bye"' not in raw and b'"hb"' not in raw:
+            continue
+        try:
+            ev = json.loads(raw)
+        except ValueError:
+            continue
+        if not isinstance(ev, dict):
+            continue
+        if ev.get("k") == "bye":
+            return False
+        if ev.get("k") == "hb":
+            if not isinstance(ev.get("pos"), (int, float)) or not isinstance(ev.get("t"), (int, float)):
+                return False
+            now = now_ms if now_ms is not None else time.time() * 1000
+            return now - ev["t"] <= max_age_ms and abs(ev["pos"]) < 1e-9
+    return False
+
+
+def position_from_spool(roots: list[Path], instance: str, now_ms: float | None = None) -> float | None:
     """Čistá pozícia inštancie z fillov v spoole: za každé id vstupy − výstupy (v množstve), spolu v absolútnej
     hodnote (smer nie je podstatný — nenulové = niečo je otvorené). Číta všetky súbory inštancie (len riadky
-    s `fill`, ostatné sa preskočia bez parsovania). `None` = inštancia v spoole nie je (pozícia neznáma)."""
+    s `fill`, ostatné sa preskočia bez parsovania). `None` = inštancia v spoole nie je (pozícia neznáma).
+    Keď platforma v čerstvom pingu hlási u brokera nulu (`broker_flat`), je to 0 bez ohľadu na filly."""
     files: list[Path] = []
     for root in roots:
         d = Path(root) / instance
@@ -60,6 +101,8 @@ def position_from_spool(roots: list[Path], instance: str) -> float | None:
             files.extend(sorted(p for p in d.glob("*.jsonl") if p.is_file()))
     if not files:
         return None
+    if broker_flat(files, now_ms):
+        return 0.0
     net: dict[str, float] = {}
     for f in files:
         try:

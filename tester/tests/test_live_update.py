@@ -117,6 +117,24 @@ def test_position_from_spool_a_brana(tmp_path: Path):
     _spool(tmp_path, INST_MT5, [{**HELLO, "session": "ef012345"}, _fill(2, "out", 1)], name="20260928-110000_ef012345.jsonl")
     assert position_from_spool([root], INST_MT5) == 0.0
 
+    # vstup bez výstupného fillu (výpadok telemetrie): podľa fillov 1, ale čerstvý ping s pozíciou u brokera 0
+    # = flat; starý ping, ping bez `pos`, nenulová pozícia alebo `bye` po pingu = podľa fillov
+    ina = INST_MT5 + "_b"
+    beh = [{**HELLO, "session": "aa000001"}, _fill(2, "in", 1)]
+    novy = "20260929-090000_aa000001.jsonl"
+    _spool(tmp_path, ina, beh, name=novy)
+    assert position_from_spool([root], ina) == 1.0
+    _spool(tmp_path, ina, beh + [{"seq": 3, "t": 100_000, "k": "hb", "pos": 0.0}], name=novy)
+    assert position_from_spool([root], ina, now_ms=110_000) == 0.0
+    assert position_from_spool([root], ina, now_ms=100_000 + 6 * 60_000) == 1.0
+    _spool(tmp_path, ina, beh + [{"seq": 3, "t": 120_000, "k": "hb", "pos": 1.0}], name=novy)
+    assert position_from_spool([root], ina, now_ms=125_000) == 1.0
+    _spool(tmp_path, ina, beh + [{"seq": 3, "t": 130_000, "k": "hb", "pos": 0.0}, {"seq": 4, "t": 131_000, "k": "bye"}],
+           name=novy)
+    assert position_from_spool([root], ina, now_ms=135_000) == 1.0
+    _spool(tmp_path, ina, [{"seq": 2, "t": 140_000, "k": "hb"}], name="20260929-100000_aa000002.jsonl")
+    assert position_from_spool([root], ina, now_ms=145_000) == 1.0
+
     stav = [{"instance": INST_MT5, "mode": "paused"}]
     assert gate_reasons([dep("d1")], stav, [root]) == []
     assert gate_reasons([dep("d1", active=False)], [], [tmp_path / "nie"]) == []            # neaktívne sa nepočíta
