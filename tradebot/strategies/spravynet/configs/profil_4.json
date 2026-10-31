@@ -70,9 +70,8 @@
   "usePCE": true,
   "riskDollar": 500.0,
   "sizeMinRisk": 1.0,
-  "_strategy": "spravy",
+  "_strategy": "spravynet",
   "_instrument": "mgc_databento",
   "_timeframe": "5m",
-  "_title": "PROFIL 4 · 8 pravidiel (+ NFP pred správou, PCE trend), riziko 500 $, podlaha stopu 1 ATR · PF 3,19 · najhorší rok 2,32 · WR 64 % · 69 obch/rok · MGC 5m · posl. rok PF 2,32 (Python)",
-  "_created": "2026-10-30T20:34:10+01:00"
+  "_title": "PROFIL 4 · 8 pravidiel (+ NFP pred správou, PCE trend), riziko 500 $, podlaha stopu 1 ATR · PF 3,19 · najhorší rok 2,32 · WR 64 % · 69 obch/rok · MGC 5m · posl. rok PF 2,32"
 }

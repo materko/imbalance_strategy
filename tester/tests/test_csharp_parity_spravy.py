@@ -27,8 +27,8 @@ from tradebot.core.candles import resample_ohlcv  # noqa: E402
 from tradebot.strategies.spravy import CONFIG_DIR  # noqa: E402
 from tradebot.strategies.spravy.calendar import csharp_source  # noqa: E402
 
-PROFILE = CONFIG_DIR / "mgc_databento_5m.json"
-RISK = CONFIG_DIR / "mgc_databento_5m_riziko500.json"
+PROFILE = CONFIG_DIR / "profil_3.json"
+RISK = CONFIG_DIR / "profil_1.json"
 
 VARIANTS = {
     "profil": {},

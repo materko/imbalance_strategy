@@ -13,6 +13,6 @@
 //| Profil: vstup „InpProfile" = nazov JSON z Common\Files\TradeBot\profiles\spravynet alebo cesta.  |
 //+------------------------------------------------------------------+
 #define TRADEBOT_ENGINE_KEY      "spravynet"
-#define TRADEBOT_DEFAULT_PROFILE "mgc_databento_5m"
+#define TRADEBOT_DEFAULT_PROFILE "profil_1"
 
 #include <TradeBot/TradeBotEA.mqh>

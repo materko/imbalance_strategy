@@ -68,9 +68,8 @@
   "r5RR": 2.0,
   "r5Mode": "trend",
   "usePCE": true,
-  "_strategy": "spravynet",
+  "_strategy": "spravy",
   "_instrument": "mgc_databento",
   "_timeframe": "5m",
-  "_title": "PROFIL 3 · 8 pravidiel, 1 kontrakt — PF ≥ 3 všetky roky · PF 3,35 · najhorší rok 3,03 · WR 64 % · 74 obch/rok · MGC 5m · posl. rok PF 3,06",
-  "_created": "2026-10-30T20:34:10+01:00"
+  "_title": "PROFIL 3 · 8 pravidiel, 1 kontrakt — PF ≥ 3 všetky roky · PF 3,35 · najhorší rok 3,03 · WR 64 % · 74 obch/rok · MGC 5m · posl. rok PF 3,06"
 }

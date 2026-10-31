@@ -5,7 +5,7 @@
 # Trieda je v tvare, aký MultiCharts x Python vyžaduje: bez rodiča, metódy priamo v triede,
 # len delegujú na balík. Stratégia nemá informatívny TF, na grafe stačí Data1.
 #
-# Profil sa prepína premennou prostredia TRADEBOT_PROFILE (predvolene "mgc_databento_5m"
+# Profil sa prepína premennou prostredia TRADEBOT_PROFILE (predvolene "profil_1"
 # z tradebot/strategies/spravy/configs), alebo natvrdo nižšie cez PROFILE.
 # Ordery študie sa volajú tb_sl, tb_tp a tb_session_end.
 
@@ -27,7 +27,7 @@ from PowerLanguage import *
 
 class Spravy:
     PROFILE = None
-    # PROFILE = "mgc_databento_5m"
+    # PROFILE = "profil_1"
     HTF_CSV = None   # demo nemá informatívny TF; pole je tu len pre jednotný tvar šablóny
     NO_DRAW = False
 

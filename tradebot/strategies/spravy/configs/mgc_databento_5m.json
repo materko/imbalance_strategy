@@ -1,8 +1,0 @@
-{
-  "_title": "SPRÁVY 3.0 · MGC 5m · 1 kontrakt · FOMC pred správou, CPI, PPI, PCE, JOLTS — pravidlá z výskumu 29. 10.",
-  "_strategy": "spravy",
-  "_instrument": "mgc_databento",
-  "_timeframe": "5m",
-  "fixedQty": true,
-  "qty": 1.0
-}

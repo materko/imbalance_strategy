@@ -21,7 +21,7 @@ namespace NinjaTrader.NinjaScript.Strategies
         protected override string EngineKey { get { return "spravynet"; } }
 
         // MGC 5m: pre kazdu spravu vlastne pravidlo (FOMC pred spravou, CPI, PPI, PCE, JOLTS), vystup v case
-        protected override string DefaultProfile { get { return "mgc_databento_5m"; } }
+        protected override string DefaultProfile { get { return "profil_1"; } }
 
         protected override void OnStateChange()
         {

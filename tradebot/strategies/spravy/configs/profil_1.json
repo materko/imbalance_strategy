@@ -38,9 +38,8 @@
   "useGDP": true,
   "riskDollar": 500.0,
   "sizeMinRisk": 2.0,
-  "_strategy": "spravynet",
+  "_strategy": "spravy",
   "_instrument": "mgc_databento",
   "_timeframe": "5m",
-  "_title": "PROFIL 1 · PPI, JOLTS, ISM služby, GDP, riziko 500 $, podlaha stopu 2 ATR — PF ≥ 3 všetky roky · PF 3,99 · najhorší rok 3,05 · WR 72 % · 36 obch/rok · MGC 5m · posl. rok PF 3,18",
-  "_created": "2026-10-30T20:34:10+01:00"
+  "_title": "PROFIL 1 · PPI, JOLTS, ISM služby, GDP, riziko 500 $, podlaha stopu 2 ATR — PF ≥ 3 všetky roky · PF 3,99 · najhorší rok 3,05 · WR 72 % · 36 obch/rok · MGC 5m · posl. rok PF 3,18"
 }
