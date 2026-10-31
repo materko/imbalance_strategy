@@ -1,0 +1,6 @@
+{
+  "_title": "T-MEAN REVERSION 1.0 (ES) · 15m · predloha 1 : 1",
+  "_strategy": "tmres",
+  "_instrument": "es_databento",
+  "_timeframe": "15m"
+}

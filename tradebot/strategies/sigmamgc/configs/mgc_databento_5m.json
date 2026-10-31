@@ -1,0 +1,6 @@
+{
+  "_title": "SIGMA BREAKOUT 1.0 (MGC) · 5m · predloha 1 : 1",
+  "_strategy": "sigmamgc",
+  "_instrument": "mgc_databento",
+  "_timeframe": "5m"
+}

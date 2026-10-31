@@ -1,0 +1,6 @@
+{
+  "_title": "FLASH TRIGGER ORB 1.0 · MNQ 15m · predloha 1 : 1",
+  "_strategy": "flashorb",
+  "_instrument": "mnq_databento",
+  "_timeframe": "15m"
+}

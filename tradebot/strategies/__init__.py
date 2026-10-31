@@ -32,6 +32,29 @@ from .m2mnq import SPEC as M2MNQ_SPEC
 from .m2eur import SPEC as M2EUR_SPEC
 from .m2mgc import SPEC as M2MGC_SPEC
 from .ivb import SPEC as IVB_SPEC
+from .orb15 import SPEC as ORB15_SPEC
+from .orb15es import SPEC as ORB15ES_SPEC
+from .orb15mgc import SPEC as ORB15MGC_SPEC
+from .tmr import SPEC as TMR_SPEC
+from .tmres import SPEC as TMRES_SPEC
+from .tmrmgc import SPEC as TMRMGC_SPEC
+from .wpr import SPEC as WPR_SPEC
+from .wpres import SPEC as WPRES_SPEC
+from .wprmgc import SPEC as WPRMGC_SPEC
+from .flashorb import SPEC as FLASHORB_SPEC
+from .flashorbes import SPEC as FLASHORBES_SPEC
+from .flashorbmgc import SPEC as FLASHORBMGC_SPEC
+from .sigma import SPEC as SIGMA_SPEC
+from .sigmaes import SPEC as SIGMAES_SPEC
+from .sigmamgc import SPEC as SIGMAMGC_SPEC
+from .nqprec import SPEC as NQPREC_SPEC
+from .nqpreces import SPEC as NQPRECES_SPEC
+from .nqprecmgc import SPEC as NQPRECMGC_SPEC
+from .lliq import SPEC as LLIQ_SPEC
+from .lliqes import SPEC as LLIQES_SPEC
+from .lliqmgc import SPEC as LLIQMGC_SPEC
+from .ivbes import SPEC as IVBES_SPEC
+from .ivbmgc import SPEC as IVBMGC_SPEC
 from .spravy import SPEC as SPRAVY_SPEC
 from .spravynet import SPEC as SPRAVYNET_SPEC
 from .sdeurnet import SPEC as SDEURNET_SPEC
@@ -139,6 +162,29 @@ STRATEGIES: dict[str, StrategySpec] = {
     M2EUR_SPEC.key: M2EUR_SPEC,
     M2MGC_SPEC.key: M2MGC_SPEC,
     IVB_SPEC.key: IVB_SPEC,
+    ORB15_SPEC.key: ORB15_SPEC,
+    ORB15ES_SPEC.key: ORB15ES_SPEC,
+    ORB15MGC_SPEC.key: ORB15MGC_SPEC,
+    TMR_SPEC.key: TMR_SPEC,
+    TMRES_SPEC.key: TMRES_SPEC,
+    TMRMGC_SPEC.key: TMRMGC_SPEC,
+    WPR_SPEC.key: WPR_SPEC,
+    WPRES_SPEC.key: WPRES_SPEC,
+    WPRMGC_SPEC.key: WPRMGC_SPEC,
+    FLASHORB_SPEC.key: FLASHORB_SPEC,
+    FLASHORBES_SPEC.key: FLASHORBES_SPEC,
+    FLASHORBMGC_SPEC.key: FLASHORBMGC_SPEC,
+    SIGMA_SPEC.key: SIGMA_SPEC,
+    SIGMAES_SPEC.key: SIGMAES_SPEC,
+    SIGMAMGC_SPEC.key: SIGMAMGC_SPEC,
+    NQPREC_SPEC.key: NQPREC_SPEC,
+    NQPRECES_SPEC.key: NQPRECES_SPEC,
+    NQPRECMGC_SPEC.key: NQPRECMGC_SPEC,
+    LLIQ_SPEC.key: LLIQ_SPEC,
+    LLIQES_SPEC.key: LLIQES_SPEC,
+    LLIQMGC_SPEC.key: LLIQMGC_SPEC,
+    IVBES_SPEC.key: IVBES_SPEC,
+    IVBMGC_SPEC.key: IVBMGC_SPEC,
     SPRAVY_SPEC.key: SPRAVY_SPEC,
     SPRAVYNET_SPEC.key: SPRAVYNET_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,

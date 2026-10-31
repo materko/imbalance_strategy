@@ -24,16 +24,16 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **69 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **92 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
 
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
-| **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` (päť z nich aj ako `…eod`) |
-| **ZLATO** (MGC) | `fibomgc` `spravy` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` | | `fibomgcnet` `spravynet` |
-| **S&P 500** (ES) | `nyvaes` | `ibsentryes` `m2` | | `ibsentryesnet` `nyvaesnet` |
+| **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` (päť z nich aj ako `…eod`) |
+| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` |
+| **S&P 500** (ES) | `nyvaes` `ivbes` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` |
 | **EURUSD** (6E) | | `m2eur` | `sdeur` `asiasweep` | `sdeurnet` |
 
 Mimo trhov je len ukážková `demo_breakout`. Staré kľúče `ibsninja`, `orbninja` a
@@ -155,7 +155,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-10-30)
+## Kde sme (2026-10-31)
 
 - **Výber stratégií** ide cez [smernicu testovania](docs/SMERNICA_TESTOVANIA.md) — séria
   skúšok, ktoré môžu stratégiu „zabiť" (päť okien, náhoda, Monte Carlo, náklady, …).
@@ -171,6 +171,10 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   Smernica má od 29. 10. krok 9 Robustnosť (`python -m tester.robust`, len informácia).
 - **IVB 1.0** (`ivb`): prepis cudzej Rust stratégie (Initial Volatility Breakout, prieraz IB 9:30–10:00 NY pri stlačenom IB
   a náraste objemu) 1 : 1 len na porovnanie; na MNQ 5m s defaultmi predlohy zisková v 5 z 5 okien (PF 1,13–1,60).
+- **Roboquant šablóny** (31. 10.): ďalších sedem prepisov Rust stratégií (`rq_sdk`) — ORB 15/5 (`orb15`), Flash Trigger ORB
+  (`flashorb`), Sigma Breakout (`sigma`), NQ Precision (`nqprec`), London Liquidity IFVG (`lliq`), T-Mean Reversion (`tmr`),
+  Williams %R Long (`wpr`); každá aj s IVB ako varianty `…es` (ES) a `…mgc` (MGC); spoločné kúsky v
+  `tradebot/strategies/rqport.py`. Testujú sa podľa smernice na MNQ, ES a MGC.
 - **Parita**: Python port sedí s TradingView na cent (golden test,
   [GOLDEN_binance_2026-08-24](docs/audity/GOLDEN_binance_2026-08-24.md)); C# jadro sedí s Python
   predlohou bar po bare (`tester/tests/test_csharp_parity*.py`).

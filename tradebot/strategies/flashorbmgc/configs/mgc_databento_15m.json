@@ -1,0 +1,6 @@
+{
+  "_title": "FLASH TRIGGER ORB 1.0 (MGC) · 15m · predloha 1 : 1",
+  "_strategy": "flashorbmgc",
+  "_instrument": "mgc_databento",
+  "_timeframe": "15m"
+}

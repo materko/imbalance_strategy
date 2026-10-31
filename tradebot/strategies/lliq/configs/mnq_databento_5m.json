@@ -1,0 +1,6 @@
+{
+  "_title": "LONDON LIQUIDITY IFVG 1.0 · MNQ 5m · predloha 1 : 1",
+  "_strategy": "lliq",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m"
+}

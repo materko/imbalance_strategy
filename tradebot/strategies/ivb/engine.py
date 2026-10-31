@@ -49,7 +49,8 @@ class IvbEngine:
         self.chart_tf_minutes = max(1, int(chart_tf_minutes))
         self.step_ms = self.chart_tf_minutes * 60_000
         self.history = BarHistory(maxlen=4, atr_len=int(cfg.atrPeriod))
-        self.warmup = Warmup(self.chart_tf_minutes).add(f"ATR {cfg.atrPeriod}", self.history.atr_warmup_bars)
+        self.warmup = (Warmup(self.chart_tf_minutes).add(f"ATR {cfg.atrPeriod}", self.history.atr_warmup_bars)
+                       .add(f"priemer IB {cfg.ibRangeLookback} dní", int(cfg.ibRangeLookback) * 3 // 2 + 2, 1440))
         self.required_history = max(1, self.warmup.chart_bars)
         self.rth_volumes: list[float] = []
         self.ib_ranges: list[float] = []
