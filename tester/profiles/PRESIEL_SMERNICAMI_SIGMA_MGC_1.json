@@ -1,0 +1,19 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "nSigmaDays": 14,
+ "bandMult": 0.5,
+ "useVwap": true,
+ "trendFilter": "with",
+ "trendEmaLen": 253,
+ "trendTF": 31,
+ "volFilter": "off",
+ "entryOrderType": "limit",
+ "limitOffsetPct": 50,
+ "entryConfirm": "none",
+ "confirmBars": 3,
+ "_strategy": "sigmamgc",
+ "_instrument": "mgc_databento",
+ "_timeframe": "30m",
+ "_title": "SIGMA MGC 1 · PF 1,54 · WR 50 % · 186 obch/rok · MGC 30m · max DD 1 378 $ · posl. rok PF 1,74"
+}

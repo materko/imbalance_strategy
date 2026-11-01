@@ -1,0 +1,17 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "useEodClose": false,
+ "activateTrailing": false,
+ "targetHour": 13,
+ "targetMinute": 0,
+ "riskReward": 1.0,
+ "utcOffset": 0,
+ "dayFilter": true,
+ "tradeMonday": false,
+ "tradeFriday": true,
+ "_strategy": "flashorb",
+ "_instrument": "mnq_databento",
+ "_timeframe": "1h",
+ "_title": "FLASH ORB MNQ 1 · PF 1,36 · WR 56 % · 158 obch/rok · MNQ 1h · max DD 4 525 $ · posl. rok PF 1,33"
+}
