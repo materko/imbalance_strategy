@@ -1,0 +1,10 @@
+$ emulator MultiCharts US500 15m 20211001-20260904 (US500_USD-1m.feather)
+predhistoria grafu: 960 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 111825 barov 15m, 1654600 1m, 0 HTF
+  20000/111825 barov, 125 obchodov
+  40000/111825 barov, 276 obchodov
+  60000/111825 barov, 425 obchodov
+  80000/111825 barov, 588 obchodov
+  100000/111825 barov, 742 obchodov
+hotovo: 829 obchodov, nerozhodnutelnych minut 0
+kresby: {'ivb_zone': 1273, 'tp_box': 842, 'sl_box': 842, 'ivb_entry': 842}
