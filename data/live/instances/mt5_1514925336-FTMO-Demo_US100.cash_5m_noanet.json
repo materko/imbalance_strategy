@@ -1,6 +1,7 @@
 {
  "account": "1514925336-FTMO-Demo",
  "configs": {
+  "-": {},
   "SMERNICE_CS_NOA_1": {
    "_instrument": null,
    "_source": "hub:6c6925cd0276",
@@ -125,12 +126,260 @@
    "start": "2026-10-24T06:06:41Z"
   },
   {
-   "end": "2026-10-25T13:20:27Z",
+   "end": "2026-10-25T17:35:05Z",
    "first_bar": "2026-09-03T18:25:00Z",
    "last_bar": "2026-10-23T20:40:00Z",
    "profile": "SMERNICE_CS_NOA_1",
    "session": "7955d54a",
    "start": "2026-10-24T06:08:09Z"
+  },
+  {
+   "end": "2026-10-25T17:35:15Z",
+   "first_bar": "2026-09-03T18:25:00Z",
+   "last_bar": "2026-09-08T15:30:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "846649f8",
+   "start": "2026-10-25T17:35:10Z"
+  },
+  {
+   "end": "2026-10-25T19:42:02Z",
+   "first_bar": "2026-09-03T18:25:00Z",
+   "last_bar": "2026-10-23T20:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "75840a5b",
+   "start": "2026-10-25T17:36:06Z"
+  },
+  {
+   "end": "2026-10-25T19:43:03Z",
+   "first_bar": "2026-09-03T18:25:00Z",
+   "last_bar": "2026-10-23T20:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "956ead6c",
+   "start": "2026-10-25T19:42:56Z"
+  },
+  {
+   "end": "2026-10-26T08:37:54Z",
+   "first_bar": "2026-09-03T18:25:00Z",
+   "last_bar": "2026-10-26T08:30:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "8f06b87c",
+   "start": "2026-10-25T19:44:01Z"
+  },
+  {
+   "end": "2026-10-26T09:02:21Z",
+   "first_bar": "2026-09-04T06:15:00Z",
+   "last_bar": "2026-10-26T08:55:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "ba6f10e1",
+   "start": "2026-10-26T08:37:58Z"
+  },
+  {
+   "end": "2026-10-26T09:30:04Z",
+   "first_bar": "2026-09-04T06:40:00Z",
+   "last_bar": "2026-10-26T09:25:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "9ff104e8",
+   "start": "2026-10-26T09:03:19Z"
+  },
+  {
+   "end": "2026-10-26T13:54:19Z",
+   "first_bar": "2026-09-04T07:10:00Z",
+   "last_bar": "2026-10-26T13:45:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "871b00f3",
+   "start": "2026-10-26T09:31:07Z"
+  },
+  {
+   "end": "2026-10-27T02:59:46Z",
+   "first_bar": "2026-09-04T11:30:00Z",
+   "last_bar": "2026-10-27T02:50:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "76f3deb9",
+   "start": "2026-10-26T13:54:28Z"
+  },
+  {
+   "end": "2026-10-27T03:00:58Z",
+   "first_bar": "2026-09-07T00:40:00Z",
+   "last_bar": "2026-10-27T02:55:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "101fafd2",
+   "start": "2026-10-27T03:00:56Z"
+  },
+  {
+   "end": "2026-10-27T03:30:30Z",
+   "first_bar": "2026-09-07T00:40:00Z",
+   "last_bar": "2026-10-27T03:25:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "8474eea9",
+   "start": "2026-10-27T03:02:36Z"
+  },
+  {
+   "end": "2026-10-27T04:16:35Z",
+   "first_bar": "2026-09-07T01:10:00Z",
+   "last_bar": "2026-10-27T04:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "67122007",
+   "start": "2026-10-27T03:31:53Z"
+  },
+  {
+   "end": "2026-10-27T04:40:56Z",
+   "first_bar": "2026-09-07T01:55:00Z",
+   "last_bar": "2026-10-27T04:35:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "7f28fd9b",
+   "start": "2026-10-27T04:18:48Z"
+  },
+  {
+   "end": "2026-10-27T04:42:28Z",
+   "first_bar": "2026-09-07T02:20:00Z",
+   "last_bar": "2026-10-27T04:35:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "131e2893",
+   "start": "2026-10-27T04:42:17Z"
+  },
+  {
+   "end": "2026-10-27T04:54:24Z",
+   "first_bar": "2026-09-07T02:20:00Z",
+   "last_bar": "2026-10-27T04:45:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "e94d3001",
+   "start": "2026-10-27T04:43:50Z"
+  },
+  {
+   "end": "2026-10-27T04:56:09Z",
+   "first_bar": "2026-09-07T02:35:00Z",
+   "last_bar": "2026-10-27T04:50:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "98fc76db",
+   "start": "2026-10-27T04:56:02Z"
+  },
+  {
+   "end": "2026-10-27T05:05:24Z",
+   "first_bar": "2026-09-07T02:35:00Z",
+   "last_bar": "2026-10-27T05:00:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "0b975386",
+   "start": "2026-10-27T04:57:34Z"
+  },
+  {
+   "end": "2026-10-27T05:06:55Z",
+   "first_bar": "2026-09-07T02:45:00Z",
+   "last_bar": "2026-10-27T05:00:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "947ff2c1",
+   "start": "2026-10-27T05:06:49Z"
+  },
+  {
+   "end": "2026-10-27T05:21:12Z",
+   "first_bar": "2026-09-07T02:45:00Z",
+   "last_bar": "2026-10-27T05:15:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "3ef7601f",
+   "start": "2026-10-27T05:08:25Z"
+  },
+  {
+   "end": "2026-10-27T05:22:50Z",
+   "first_bar": "2026-09-07T03:00:00Z",
+   "last_bar": "2026-10-27T05:15:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "c8d352ed",
+   "start": "2026-10-27T05:22:37Z"
+  },
+  {
+   "end": "2026-10-27T05:39:51Z",
+   "first_bar": "2026-09-07T03:00:00Z",
+   "last_bar": "2026-10-27T05:30:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "4dc6e234",
+   "start": "2026-10-27T05:24:14Z"
+  },
+  {
+   "end": "2026-10-27T05:41:24Z",
+   "first_bar": "2026-09-07T03:20:00Z",
+   "last_bar": "2026-09-18T02:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "14be75c5",
+   "start": "2026-10-27T05:41:19Z"
+  },
+  {
+   "end": "2026-10-27T05:49:58Z",
+   "first_bar": "2026-09-07T03:20:00Z",
+   "last_bar": "2026-10-27T05:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "779d49af",
+   "start": "2026-10-27T05:42:50Z"
+  },
+  {
+   "end": "2026-10-27T05:51:35Z",
+   "first_bar": "2026-09-07T03:30:00Z",
+   "last_bar": "2026-10-27T05:45:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "016a08ee",
+   "start": "2026-10-27T05:51:24Z"
+  },
+  {
+   "end": "2026-10-27T06:30:12Z",
+   "first_bar": "2026-09-07T03:30:00Z",
+   "last_bar": "2026-10-27T06:25:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "c34236a5",
+   "start": "2026-10-27T05:53:00Z"
+  },
+  {
+   "end": "2026-10-27T06:31:40Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "be965ecc",
+   "start": "2026-10-27T06:31:30Z"
+  },
+  {
+   "end": "2026-10-27T11:58:10Z",
+   "first_bar": "2026-10-27T06:30:00Z",
+   "last_bar": "2026-10-27T11:50:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "c82691ca",
+   "start": "2026-10-27T06:33:02Z"
+  },
+  {
+   "end": "2026-10-28T03:24:32Z",
+   "first_bar": "2026-09-07T09:35:00Z",
+   "last_bar": "2026-10-28T03:15:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "c04f7607",
+   "start": "2026-10-27T11:58:10Z"
+  },
+  {
+   "end": "2026-10-28T03:24:46Z",
+   "first_bar": "2026-10-27T11:55:00Z",
+   "last_bar": "2026-10-28T03:15:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "211862b4",
+   "start": "2026-10-28T03:24:32Z"
+  },
+  {
+   "end": "2026-10-28T03:26:00Z",
+   "first_bar": "2026-10-28T03:20:00Z",
+   "last_bar": "2026-10-28T03:20:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "16ebc198",
+   "start": "2026-10-28T03:24:46Z"
+  },
+  {
+   "end": "2026-10-28T03:30:46Z",
+   "first_bar": "2026-10-28T03:25:00Z",
+   "last_bar": "2026-10-28T03:25:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "adedf27a",
+   "start": "2026-10-28T03:28:19Z"
+  },
+  {
+   "end": "2026-10-30T08:48:21Z",
+   "first_bar": "2026-10-28T03:20:00Z",
+   "last_bar": "2026-10-30T08:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "d2e3245c",
+   "start": "2026-10-28T03:30:46Z"
   }
  ],
  "setting": "noa-1",

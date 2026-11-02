@@ -1,0 +1,295 @@
+{
+ "account": "1514925336-FTMO-Demo",
+ "configs": {
+  "SMERNICE_CS_NY_VA_BREAKOUT_ES_1": {
+   "_instrument": null,
+   "_source": "hub:0900a7567926",
+   "_strategy": "nyvaesnet",
+   "allowLong": true,
+   "allowShort": true,
+   "closeH": 15.0,
+   "closeM": 59.0,
+   "confirmBars": 3.0,
+   "confirmCloses": 1.0,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbBodyPct": 30.0,
+   "confirmPbWickPct": 60.0,
+   "entryConfirm": "pinbar",
+   "entryEndH": 16.0,
+   "entryEndM": 0.0,
+   "entryMode": "retest",
+   "entryOrderType": "market",
+   "fixedQty": false,
+   "leverage": 1.0,
+   "limitKeepRR": true,
+   "limitOffsetPct": 50.0,
+   "limitValidBars": 3.0,
+   "maxSlAtr": 5.0,
+   "maxSlPoints": 0.0,
+   "maxTradesPerDay": 1.0,
+   "profileRows": 30.0,
+   "qty": 1.0,
+   "rangeEndH": 10.0,
+   "rangeEndM": 30.0,
+   "rangeStartH": 9.0,
+   "rangeStartM": 30.0,
+   "retestBars": 20.0,
+   "riskDollar": 500.0,
+   "rrRatio": 0.473,
+   "shapePocPct": 60.0,
+   "shapeTailPct": 25.0,
+   "shapeVaPct": 55.0,
+   "showLevels": true,
+   "skipOverRisk": false,
+   "slBufferTicks": 3.0,
+   "slCapMode": "cap",
+   "trendEmaLen": 50.0,
+   "trendFilter": "with",
+   "trendTF": 0.0,
+   "useCloseTime": false,
+   "useShape": false,
+   "useVwap": false,
+   "vaMaxPoints": 0.0,
+   "vaMinPoints": 10.886,
+   "valueAreaPct": 70.0,
+   "volFilter": "off",
+   "volLookback": 100.0
+  }
+ },
+ "engine": "nyvaesnet",
+ "id": "mt5_1514925336-FTMO-Demo_US500.cash_3m_nyvaesnet",
+ "instrument": {
+  "has_real_volume": false,
+  "min_qty": 0.01,
+  "point_value": 1.0,
+  "qty_step": 0.01,
+  "symbol": "US500.cash",
+  "tick_size": 0.01,
+  "venue": "mt5"
+ },
+ "platform": "mt5",
+ "point_value": 1.0,
+ "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+ "sessions": [
+  {
+   "end": "2026-10-26T09:02:21Z",
+   "first_bar": "2026-10-26T02:06:00Z",
+   "last_bar": "2026-10-26T08:57:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "8468161d",
+   "start": "2026-10-26T08:37:58Z"
+  },
+  {
+   "end": "2026-10-26T09:30:04Z",
+   "first_bar": "2026-10-26T02:33:00Z",
+   "last_bar": "2026-10-26T09:27:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "eabe4fa6",
+   "start": "2026-10-26T09:03:19Z"
+  },
+  {
+   "end": "2026-10-26T13:54:19Z",
+   "first_bar": "2026-10-26T03:00:00Z",
+   "last_bar": "2026-10-26T13:51:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "e0329393",
+   "start": "2026-10-26T09:31:07Z"
+  },
+  {
+   "end": "2026-10-27T02:59:46Z",
+   "first_bar": "2026-10-26T07:24:00Z",
+   "last_bar": "2026-10-27T02:54:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "4b358fbe",
+   "start": "2026-10-26T13:54:28Z"
+  },
+  {
+   "end": "2026-10-27T03:00:57Z",
+   "first_bar": "2026-10-26T19:18:00Z",
+   "last_bar": "2026-10-27T02:57:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "77909ee7",
+   "start": "2026-10-27T03:00:57Z"
+  },
+  {
+   "end": "2026-10-27T03:30:30Z",
+   "first_bar": "2026-10-26T19:18:00Z",
+   "last_bar": "2026-10-27T03:27:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "5449903f",
+   "start": "2026-10-27T03:02:36Z"
+  },
+  {
+   "end": "2026-10-27T04:16:35Z",
+   "first_bar": "2026-10-26T19:48:00Z",
+   "last_bar": "2026-10-27T04:12:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "f6ee116f",
+   "start": "2026-10-27T03:31:53Z"
+  },
+  {
+   "end": "2026-10-27T04:40:56Z",
+   "first_bar": "2026-10-26T20:36:00Z",
+   "last_bar": "2026-10-27T04:36:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "d87c0a85",
+   "start": "2026-10-27T04:18:48Z"
+  },
+  {
+   "end": "2026-10-27T04:42:28Z",
+   "first_bar": "2026-10-26T22:12:00Z",
+   "last_bar": "2026-10-27T04:39:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "349be3e5",
+   "start": "2026-10-27T04:42:17Z"
+  },
+  {
+   "end": "2026-10-27T04:54:24Z",
+   "first_bar": "2026-10-26T22:12:00Z",
+   "last_bar": "2026-10-27T04:51:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "848dce36",
+   "start": "2026-10-27T04:43:50Z"
+  },
+  {
+   "end": "2026-10-27T04:56:09Z",
+   "first_bar": "2026-10-26T22:24:00Z",
+   "last_bar": "2026-10-27T04:51:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "3b825c62",
+   "start": "2026-10-27T04:56:02Z"
+  },
+  {
+   "end": "2026-10-27T05:05:24Z",
+   "first_bar": "2026-10-26T22:27:00Z",
+   "last_bar": "2026-10-27T05:00:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "70b33f9d",
+   "start": "2026-10-27T04:57:34Z"
+  },
+  {
+   "end": "2026-10-27T05:06:55Z",
+   "first_bar": "2026-10-26T22:36:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "a3c98225",
+   "start": "2026-10-27T05:06:49Z"
+  },
+  {
+   "end": "2026-10-27T05:21:12Z",
+   "first_bar": "2026-10-26T22:36:00Z",
+   "last_bar": "2026-10-27T05:18:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "75fee2f6",
+   "start": "2026-10-27T05:08:25Z"
+  },
+  {
+   "end": "2026-10-27T05:22:50Z",
+   "first_bar": "2026-10-26T22:51:00Z",
+   "last_bar": "2026-10-27T05:18:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "a32e15db",
+   "start": "2026-10-27T05:22:37Z"
+  },
+  {
+   "end": "2026-10-27T05:39:51Z",
+   "first_bar": "2026-10-26T22:54:00Z",
+   "last_bar": "2026-10-27T05:36:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "a79749d2",
+   "start": "2026-10-27T05:24:14Z"
+  },
+  {
+   "end": "2026-10-27T05:41:19Z",
+   "first_bar": "2026-10-26T23:09:00Z",
+   "last_bar": "2026-10-27T05:36:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "4867ac92",
+   "start": "2026-10-27T05:41:18Z"
+  },
+  {
+   "end": "2026-10-27T05:49:58Z",
+   "first_bar": "2026-10-26T23:12:00Z",
+   "last_bar": "2026-10-27T05:45:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "138c7d10",
+   "start": "2026-10-27T05:42:51Z"
+  },
+  {
+   "end": "2026-10-27T05:51:35Z",
+   "first_bar": "2026-10-26T23:21:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "f194fdc3",
+   "start": "2026-10-27T05:51:24Z"
+  },
+  {
+   "end": "2026-10-27T06:30:12Z",
+   "first_bar": "2026-10-26T23:21:00Z",
+   "last_bar": "2026-10-27T06:27:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "636daadc",
+   "start": "2026-10-27T05:53:00Z"
+  },
+  {
+   "end": "2026-10-27T06:31:40Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "90e71542",
+   "start": "2026-10-27T06:31:30Z"
+  },
+  {
+   "end": "2026-10-27T11:58:10Z",
+   "first_bar": "2026-10-27T06:30:00Z",
+   "last_bar": "2026-10-27T11:54:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "85903512",
+   "start": "2026-10-27T06:33:02Z"
+  },
+  {
+   "end": "2026-10-28T03:24:39Z",
+   "first_bar": "2026-10-27T05:27:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "d538d5c3",
+   "start": "2026-10-27T11:58:10Z"
+  },
+  {
+   "end": "2026-10-28T03:24:49Z",
+   "first_bar": "2026-10-27T19:42:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "e30c812d",
+   "start": "2026-10-28T03:24:39Z"
+  },
+  {
+   "end": "2026-10-28T03:26:02Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "750815f0",
+   "start": "2026-10-28T03:24:49Z"
+  },
+  {
+   "end": "2026-10-28T03:30:25Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-28T03:27:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "19bee362",
+   "start": "2026-10-28T03:28:19Z"
+  },
+  {
+   "end": "2026-10-30T08:48:21Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-30T08:45:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "3137b267",
+   "start": "2026-10-28T03:30:25Z"
+  }
+ ],
+ "setting": "nyvaes-1",
+ "strategy": "nyvaes",
+ "symbol": "US500.cash",
+ "tf": 3
+}

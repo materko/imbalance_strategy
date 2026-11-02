@@ -1,0 +1,139 @@
+{
+ "account": "531513073-FTMO-Server3",
+ "configs": {
+  "SMERNICE_CS_TKS_4": {
+   "_instrument": null,
+   "_source": "hub:1589c02338d9",
+   "_strategy": "tksnet",
+   "atrLen": 14.0,
+   "closeAtSessionEnd": false,
+   "confirmBars": 2.0,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbBodyPct": 30.0,
+   "confirmPbWickPct": 60.0,
+   "entryConfirm": "none",
+   "entryEndMin": 270.0,
+   "entryOrderType": "market",
+   "entryStartMin": 15.0,
+   "fixedQty": false,
+   "hiLevel": 80.0,
+   "leverage": 1.0,
+   "limitKeepRR": true,
+   "limitOffsetPct": 50.0,
+   "limitValidBars": 3.0,
+   "loLevel": 15.0,
+   "lookbackDays": 20.0,
+   "maxSlAtr": 0.0,
+   "maxSlPoints": 0.0,
+   "maxTradesPerSession": 0.0,
+   "nConf": 2.0,
+   "pauseFromMin": 150.0,
+   "pauseToMin": 210.0,
+   "pivLen": 8.0,
+   "qty": 1.0,
+   "riskDollar": 500.0,
+   "rrRatio": 0.5,
+   "slAtrMult": 5.0,
+   "slMode": "swing",
+   "slPoints": 40.0,
+   "tradeDirection": "Both",
+   "trendEmaLen": 207.0,
+   "trendFilter": "with",
+   "trendTF": 12.0,
+   "volFilter": "off",
+   "volLookback": 100.0
+  }
+ },
+ "engine": "tksnet",
+ "id": "mt5_531513073-FTMO-Server3_US100.cash_3m_tksnet",
+ "instrument": {
+  "has_real_volume": false,
+  "min_qty": 0.01,
+  "point_value": 1.0,
+  "qty_step": 0.01,
+  "symbol": "US100.cash",
+  "tick_size": 0.01,
+  "venue": "mt5"
+ },
+ "platform": "mt5",
+ "point_value": 1.0,
+ "profile": "SMERNICE_CS_TKS_4",
+ "sessions": [
+  {
+   "end": "2026-10-28T03:24:32Z",
+   "first_bar": "2026-08-24T00:48:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "4fec6b2d",
+   "start": "2026-10-27T11:58:17Z"
+  },
+  {
+   "end": "2026-10-28T03:24:53Z",
+   "first_bar": "2026-08-24T15:03:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "9b13bc09",
+   "start": "2026-10-28T03:24:32Z"
+  },
+  {
+   "end": "2026-10-28T03:26:13Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "47b1be7d",
+   "start": "2026-10-28T03:24:53Z"
+  },
+  {
+   "end": "2026-10-28T03:28:40Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "83d81372",
+   "start": "2026-10-28T03:28:27Z"
+  },
+  {
+   "end": "2026-10-28T03:30:46Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-28T03:27:00Z",
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "4c29c212",
+   "start": "2026-10-28T03:28:45Z"
+  },
+  {
+   "end": "2026-10-30T09:35:05Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-30T09:30:00Z",
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "21855e58",
+   "start": "2026-10-28T03:30:46Z"
+  },
+  {
+   "end": "2026-10-30T09:37:36Z",
+   "first_bar": "2026-10-30T09:33:00Z",
+   "last_bar": "2026-10-30T09:33:00Z",
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "704debfe",
+   "start": "2026-10-30T09:37:26Z"
+  },
+  {
+   "end": "2026-10-30T10:54:53Z",
+   "first_bar": "2026-10-30T09:36:00Z",
+   "last_bar": "2026-10-30T10:51:00Z",
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "a3dfdef7",
+   "start": "2026-10-30T09:39:55Z"
+  },
+  {
+   "end": "2026-11-02T00:03:43Z",
+   "first_bar": "2026-10-30T10:54:00Z",
+   "last_bar": "2026-11-02T00:00:00Z",
+   "profile": "SMERNICE_CS_TKS_4",
+   "session": "8b2ffbb8",
+   "start": "2026-10-30T10:57:10Z"
+  }
+ ],
+ "setting": "tks-4",
+ "strategy": "tks",
+ "symbol": "US100.cash",
+ "tf": 3
+}

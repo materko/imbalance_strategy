@@ -1,0 +1,151 @@
+{
+ "account": "531513073-FTMO-Server3",
+ "configs": {
+  "SMERNICE_CS_NY_VA_BREAKOUT_ES_1": {
+   "_instrument": null,
+   "_source": "hub:0900a7567926",
+   "_strategy": "nyvaesnet",
+   "allowLong": true,
+   "allowShort": true,
+   "closeH": 15.0,
+   "closeM": 59.0,
+   "confirmBars": 3.0,
+   "confirmCloses": 1.0,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbBodyPct": 30.0,
+   "confirmPbWickPct": 60.0,
+   "entryConfirm": "pinbar",
+   "entryEndH": 16.0,
+   "entryEndM": 0.0,
+   "entryMode": "retest",
+   "entryOrderType": "market",
+   "fixedQty": false,
+   "leverage": 1.0,
+   "limitKeepRR": true,
+   "limitOffsetPct": 50.0,
+   "limitValidBars": 3.0,
+   "maxSlAtr": 5.0,
+   "maxSlPoints": 0.0,
+   "maxTradesPerDay": 1.0,
+   "profileRows": 30.0,
+   "qty": 1.0,
+   "rangeEndH": 10.0,
+   "rangeEndM": 30.0,
+   "rangeStartH": 9.0,
+   "rangeStartM": 30.0,
+   "retestBars": 20.0,
+   "riskDollar": 500.0,
+   "rrRatio": 0.473,
+   "shapePocPct": 60.0,
+   "shapeTailPct": 25.0,
+   "shapeVaPct": 55.0,
+   "showLevels": true,
+   "skipOverRisk": false,
+   "slBufferTicks": 3.0,
+   "slCapMode": "cap",
+   "trendEmaLen": 50.0,
+   "trendFilter": "with",
+   "trendTF": 0.0,
+   "useCloseTime": false,
+   "useShape": false,
+   "useVwap": false,
+   "vaMaxPoints": 0.0,
+   "vaMinPoints": 10.886,
+   "valueAreaPct": 70.0,
+   "volFilter": "off",
+   "volLookback": 100.0
+  }
+ },
+ "engine": "nyvaesnet",
+ "id": "mt5_531513073-FTMO-Server3_US500.cash_3m_nyvaesnet",
+ "instrument": {
+  "has_real_volume": false,
+  "min_qty": 0.01,
+  "point_value": 1.0,
+  "qty_step": 0.01,
+  "symbol": "US500.cash",
+  "tick_size": 0.01,
+  "venue": "mt5"
+ },
+ "platform": "mt5",
+ "point_value": 1.0,
+ "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+ "sessions": [
+  {
+   "end": "2026-10-28T03:24:39Z",
+   "first_bar": "2026-10-27T05:27:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "39908da4",
+   "start": "2026-10-27T11:58:17Z"
+  },
+  {
+   "end": "2026-10-28T03:24:49Z",
+   "first_bar": "2026-10-27T19:42:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "c5032a4a",
+   "start": "2026-10-28T03:24:39Z"
+  },
+  {
+   "end": "2026-10-28T03:26:13Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "294392fb",
+   "start": "2026-10-28T03:24:49Z"
+  },
+  {
+   "end": "2026-10-28T03:28:36Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-28T03:24:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "54a2211d",
+   "start": "2026-10-28T03:28:27Z"
+  },
+  {
+   "end": "2026-10-28T03:30:25Z",
+   "first_bar": "2026-10-28T03:27:00Z",
+   "last_bar": "2026-10-28T03:27:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "aed32f12",
+   "start": "2026-10-28T03:28:45Z"
+  },
+  {
+   "end": "2026-10-30T09:35:05Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-30T09:30:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "c676b99f",
+   "start": "2026-10-28T03:30:25Z"
+  },
+  {
+   "end": "2026-10-30T09:37:36Z",
+   "first_bar": "2026-10-30T09:33:00Z",
+   "last_bar": "2026-10-30T09:33:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "d12832db",
+   "start": "2026-10-30T09:37:26Z"
+  },
+  {
+   "end": "2026-10-30T10:54:53Z",
+   "first_bar": "2026-10-30T09:36:00Z",
+   "last_bar": "2026-10-30T10:51:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "70ccfb3e",
+   "start": "2026-10-30T09:39:55Z"
+  },
+  {
+   "end": "2026-11-02T00:03:43Z",
+   "first_bar": "2026-10-30T10:54:00Z",
+   "last_bar": "2026-11-02T00:00:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "c25cf24c",
+   "start": "2026-10-30T10:57:10Z"
+  }
+ ],
+ "setting": "nyvaes-1",
+ "strategy": "nyvaes",
+ "symbol": "US500.cash",
+ "tf": 3
+}

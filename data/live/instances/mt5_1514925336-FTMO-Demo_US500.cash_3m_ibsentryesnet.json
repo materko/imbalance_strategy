@@ -1,0 +1,419 @@
+{
+ "account": "1514925336-FTMO-Demo",
+ "configs": {
+  "SMERNICE_CS_IBS_EZ_ES_1": {
+   "_instrument": null,
+   "_source": "hub:2d76fe3a923a",
+   "_strategy": "ibsentryesnet",
+   "adxDiLength": 14.0,
+   "adxShowState": true,
+   "adxSmoothing": 5.0,
+   "adxThreshold": 20.0,
+   "adxTimeframe": "60",
+   "atrLen": 14.0,
+   "closeAtSessionEnd": false,
+   "enableEngulfingEntry": false,
+   "enableFvgTrading": false,
+   "enableGapDetection": true,
+   "enableIfvgTrading": true,
+   "enableImbEntry": true,
+   "enableLqTrading": false,
+   "enablePinBarEntry": true,
+   "enableSrTrading": false,
+   "enableTrading": true,
+   "enableTrailing": false,
+   "enableZoneDetection": true,
+   "engMinRangePoints": {
+    "unit": "atr",
+    "value": 0.616
+   },
+   "engSizeAvgLen": 10.0,
+   "engSizeMultiplier": 2.0,
+   "engTouchWindowBars": 3.0,
+   "ewLineColor": "#334155",
+   "ewMinWavePoints": {
+    "unit": "atr",
+    "value": 2.0534
+   },
+   "ewProjExtendBars": 40.0,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewSwingLen": 8.0,
+   "fixedQty": false,
+   "fvgMinSize": {
+    "unit": "atr",
+    "value": 1.5
+   },
+   "fvgUse15m": true,
+   "fvgUse30m": true,
+   "fvgUse5m": true,
+   "fvgUse60m": false,
+   "imbLookback": 5.0,
+   "imbMaxDistTicks": {
+    "unit": "atr",
+    "value": 1.0
+   },
+   "indAdx": true,
+   "indSupertrend": false,
+   "invalidateOnFill": true,
+   "legacyPineSizing": false,
+   "leverage": 1.0,
+   "liqStrengthLen": 50.0,
+   "liqSweepConfirmBars": 1.0,
+   "liqSweepLen": 5.0,
+   "liqSweepMinWick": {
+    "unit": "atr",
+    "value": 1.0267
+   },
+   "maxDailyWins": 3.0,
+   "maxLossDollar": 500.0,
+   "maxSdZones": 400.0,
+   "minImbSizePoints": {
+    "unit": "atr",
+    "value": 0.3
+   },
+   "minSlDistance": 0.1,
+   "pbBodyPositionPct": 20.0,
+   "pbEngOrderType": "Market",
+   "pbMinRangePoints": {
+    "unit": "atr",
+    "value": 0.4107
+   },
+   "pbWickToBodyRatio": 4.0,
+   "qty": 1.0,
+   "rrRatio": 0.5,
+   "ruleAdxDown": "Both",
+   "ruleAdxSide": "Both",
+   "ruleAdxUp": "Long only",
+   "ruleStDown": "Short only",
+   "ruleStDownAdxDown": "Short only",
+   "ruleStDownAdxSide": "No trade",
+   "ruleStDownAdxUp": "No trade",
+   "ruleStUp": "Long only",
+   "ruleStUpAdxDown": "No trade",
+   "ruleStUpAdxSide": "No trade",
+   "ruleStUpAdxUp": "Long only",
+   "sess1On": false,
+   "sess1TZ": "America/New_York",
+   "sess1TradeEndH": 9.0,
+   "sess1TradeEndM": 0.0,
+   "sess1TradeStartH": 2.0,
+   "sess1TradeStartM": 0.0,
+   "sess1ZoneEndH": 3.0,
+   "sess1ZoneEndM": 0.0,
+   "sess1ZoneStartH": 0.0,
+   "sess1ZoneStartM": 0.0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2TradeEndH": 16.0,
+   "sess2TradeEndM": 0.0,
+   "sess2TradeStartH": 10.0,
+   "sess2TradeStartM": 45.0,
+   "sess2ZoneEndH": 17.0,
+   "sess2ZoneEndM": 0.0,
+   "sess2ZoneStartH": 18.0,
+   "sess2ZoneStartM": 0.0,
+   "sess3On": true,
+   "sess3TZ": "America/New_York",
+   "sess3TradeEndH": 19.0,
+   "sess3TradeEndM": 45.0,
+   "sess3TradeStartH": 14.0,
+   "sess3TradeStartM": 0.0,
+   "sess3ZoneEndH": 16.0,
+   "sess3ZoneEndM": 0.0,
+   "sess3ZoneStartH": 14.0,
+   "sess3ZoneStartM": 0.0,
+   "showElliott": false,
+   "showImbalance": true,
+   "showLiqSweep": true,
+   "showMarketStructure": true,
+   "showSR": true,
+   "skipOverRisk": false,
+   "slBufferTicks": {
+    "unit": "atr",
+    "value": 0.0
+   },
+   "slLookback": 5.0,
+   "snapMode": "Ceil",
+   "srClusterPoints": {
+    "unit": "atr",
+    "value": 1.54
+   },
+   "srLookbackDays": 5.0,
+   "srMaxLevels": 10.0,
+   "srMinTouches": 2.0,
+   "srSwingLen": 10.0,
+   "srZoneSaturationPct": 30.0,
+   "stAtrPeriod": 14.0,
+   "stChangeAtr": true,
+   "stHighlighting": true,
+   "stMultiplier": 3.0,
+   "stShowSignals": true,
+   "stSource": "hl2",
+   "stTimeframe": "240",
+   "state1MaxBars": 1.0,
+   "state2ConfirmTicks": {
+    "unit": "atr",
+    "value": 0.15
+   },
+   "state2MaxBars": 10.0,
+   "state3MaxBars": 2.0,
+   "state4MaxBars": 10.0,
+   "state5MaxBars": 5.0,
+   "structureSwingLen": 5.0,
+   "tickDollarValue": 12.5,
+   "tradeDirection": "Indicator",
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "trendEmaLen": 50.0,
+   "trendFilter": "off",
+   "trendTF": 0.0,
+   "useStructureFilter": false,
+   "useVolumeFilter": false,
+   "volFilter": "high",
+   "volLookback": 500.0,
+   "volMultiplier": 1.5,
+   "volSmaLen": 20.0,
+   "volumeFilterBlockTrading": true,
+   "weekdaysOnly": false,
+   "zoneDetectionTF": "3",
+   "zoneValidHours": 6.0
+  }
+ },
+ "engine": "ibsentryesnet",
+ "id": "mt5_1514925336-FTMO-Demo_US500.cash_3m_ibsentryesnet",
+ "instrument": {
+  "has_real_volume": false,
+  "min_qty": 0.01,
+  "point_value": 1.0,
+  "qty_step": 0.01,
+  "symbol": "US500.cash",
+  "tick_size": 0.01,
+  "venue": "mt5"
+ },
+ "platform": "mt5",
+ "point_value": 1.0,
+ "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+ "sessions": [
+  {
+   "end": "2026-10-26T09:02:21Z",
+   "first_bar": "2026-10-21T00:45:00Z",
+   "last_bar": "2026-10-26T08:57:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "19a8a6b3",
+   "start": "2026-10-26T08:37:58Z"
+  },
+  {
+   "end": "2026-10-26T09:30:04Z",
+   "first_bar": "2026-10-21T01:12:00Z",
+   "last_bar": "2026-10-26T09:27:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "69a3431c",
+   "start": "2026-10-26T09:03:19Z"
+  },
+  {
+   "end": "2026-10-26T13:54:19Z",
+   "first_bar": "2026-10-21T01:39:00Z",
+   "last_bar": "2026-10-26T13:51:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "86aca683",
+   "start": "2026-10-26T09:31:07Z"
+  },
+  {
+   "end": "2026-10-27T02:59:46Z",
+   "first_bar": "2026-10-21T06:03:00Z",
+   "last_bar": "2026-10-27T02:54:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "3e4f6da7",
+   "start": "2026-10-26T13:54:28Z"
+  },
+  {
+   "end": "2026-10-27T03:00:58Z",
+   "first_bar": "2026-10-21T17:57:00Z",
+   "last_bar": "2026-10-27T02:57:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "f268eb4a",
+   "start": "2026-10-27T03:00:56Z"
+  },
+  {
+   "end": "2026-10-27T03:30:30Z",
+   "first_bar": "2026-10-21T17:57:00Z",
+   "last_bar": "2026-10-27T03:27:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "7b0e8c1d",
+   "start": "2026-10-27T03:02:36Z"
+  },
+  {
+   "end": "2026-10-27T04:16:35Z",
+   "first_bar": "2026-10-21T18:27:00Z",
+   "last_bar": "2026-10-27T04:12:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "695c0a51",
+   "start": "2026-10-27T03:31:53Z"
+  },
+  {
+   "end": "2026-10-27T04:40:56Z",
+   "first_bar": "2026-10-21T19:15:00Z",
+   "last_bar": "2026-10-27T04:36:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "96c21053",
+   "start": "2026-10-27T04:18:48Z"
+  },
+  {
+   "end": "2026-10-27T04:42:28Z",
+   "first_bar": "2026-10-21T19:39:00Z",
+   "last_bar": "2026-10-27T04:39:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "6dffd973",
+   "start": "2026-10-27T04:42:17Z"
+  },
+  {
+   "end": "2026-10-27T04:54:24Z",
+   "first_bar": "2026-10-21T19:39:00Z",
+   "last_bar": "2026-10-27T04:51:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "27c2ae8c",
+   "start": "2026-10-27T04:43:50Z"
+  },
+  {
+   "end": "2026-10-27T04:56:09Z",
+   "first_bar": "2026-10-21T19:51:00Z",
+   "last_bar": "2026-10-27T04:51:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "5357d064",
+   "start": "2026-10-27T04:56:01Z"
+  },
+  {
+   "end": "2026-10-27T05:05:24Z",
+   "first_bar": "2026-10-21T19:54:00Z",
+   "last_bar": "2026-10-27T05:00:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "7e1ff726",
+   "start": "2026-10-27T04:57:34Z"
+  },
+  {
+   "end": "2026-10-27T05:06:55Z",
+   "first_bar": "2026-10-21T20:03:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "69c65475",
+   "start": "2026-10-27T05:06:49Z"
+  },
+  {
+   "end": "2026-10-27T05:21:12Z",
+   "first_bar": "2026-10-21T20:03:00Z",
+   "last_bar": "2026-10-27T05:18:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "3125f631",
+   "start": "2026-10-27T05:08:25Z"
+  },
+  {
+   "end": "2026-10-27T05:22:50Z",
+   "first_bar": "2026-10-21T20:18:00Z",
+   "last_bar": "2026-10-27T05:18:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "07ad2570",
+   "start": "2026-10-27T05:22:37Z"
+  },
+  {
+   "end": "2026-10-27T05:39:51Z",
+   "first_bar": "2026-10-21T20:21:00Z",
+   "last_bar": "2026-10-27T05:36:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "578418de",
+   "start": "2026-10-27T05:24:14Z"
+  },
+  {
+   "end": "2026-10-27T05:41:23Z",
+   "first_bar": "2026-10-21T20:36:00Z",
+   "last_bar": "2026-10-27T05:36:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "9398a3c4",
+   "start": "2026-10-27T05:41:19Z"
+  },
+  {
+   "end": "2026-10-27T05:49:58Z",
+   "first_bar": "2026-10-21T20:39:00Z",
+   "last_bar": "2026-10-27T05:45:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "7b289aa0",
+   "start": "2026-10-27T05:42:50Z"
+  },
+  {
+   "end": "2026-10-27T05:51:35Z",
+   "first_bar": "2026-10-21T20:48:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "e623f4eb",
+   "start": "2026-10-27T05:51:24Z"
+  },
+  {
+   "end": "2026-10-27T06:30:12Z",
+   "first_bar": "2026-10-21T20:48:00Z",
+   "last_bar": "2026-10-27T06:27:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "31c8234c",
+   "start": "2026-10-27T05:53:00Z"
+  },
+  {
+   "end": "2026-10-27T06:31:40Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "942ba992",
+   "start": "2026-10-27T06:31:30Z"
+  },
+  {
+   "end": "2026-10-27T11:58:11Z",
+   "first_bar": "2026-10-27T06:30:00Z",
+   "last_bar": "2026-10-27T11:54:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "e37a4c3b",
+   "start": "2026-10-27T06:33:02Z"
+  },
+  {
+   "end": "2026-10-28T03:24:38Z",
+   "first_bar": "2026-10-22T04:06:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "dcd60a73",
+   "start": "2026-10-27T11:58:11Z"
+  },
+  {
+   "end": "2026-10-28T03:24:49Z",
+   "first_bar": "2026-10-27T11:57:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "7a5882f3",
+   "start": "2026-10-28T03:24:38Z"
+  },
+  {
+   "end": "2026-10-28T03:26:02Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "ada51cc2",
+   "start": "2026-10-28T03:24:49Z"
+  },
+  {
+   "end": "2026-10-28T03:30:25Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-28T03:27:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "1f4c1dae",
+   "start": "2026-10-28T03:28:19Z"
+  },
+  {
+   "end": "2026-10-30T08:48:21Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-30T08:45:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "cef77f5b",
+   "start": "2026-10-28T03:30:25Z"
+  }
+ ],
+ "setting": "ibsentryes-1",
+ "strategy": "ibsentryes",
+ "symbol": "US500.cash",
+ "tf": 3
+}

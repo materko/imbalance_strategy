@@ -1,0 +1,163 @@
+{
+ "account": "531513073-FTMO-Server3",
+ "configs": {
+  "SMERNICE_CS_Fibo_1_0_MGC_1": {
+   "_instrument": null,
+   "_source": "hub:3984e5b95540",
+   "_strategy": "fibomgcnet",
+   "atrLen": 14.0,
+   "entryModel": "any",
+   "entryOrderType": "limit",
+   "fixedQty": false,
+   "imbMinSizeAtr": 0.1,
+   "legMaxBars": 0.0,
+   "legMinAtr": 2.0,
+   "legacyPineSizing": false,
+   "levelMode": "zone",
+   "levelTolAtr": 0.0,
+   "leverage": 1.0,
+   "limitKeepRR": true,
+   "limitOffsetPct": 25.0,
+   "limitValidBars": 6.0,
+   "maxHoldBars": 0.0,
+   "maxTradesPerDay": 3.0,
+   "minRR": 0.5,
+   "minSlDistance": 0.0,
+   "pbBodyPct": 30.0,
+   "pbWickPct": 70.0,
+   "qty": 1.0,
+   "requireBreak": true,
+   "riskDollar": 500.0,
+   "rrRatio": 0.75,
+   "setupMaxBars": 40.0,
+   "showFibo": true,
+   "signalMaxBars": 3.0,
+   "skipOverRisk": false,
+   "slBufferAtr": 0.0,
+   "slBufferPoints": 0.0,
+   "slMode": "leg",
+   "swingLen": 5.0,
+   "swingTF": 5.0,
+   "tickDollarValue": null,
+   "tpExtensionPct": 27.0,
+   "tpMode": "rr",
+   "tradeDirection": "Long only",
+   "tradeEndH": 20.0,
+   "tradeEndM": 30.0,
+   "tradeStartH": 2.0,
+   "tradeStartM": 0.0,
+   "tradeTZ": "America/New_York",
+   "trendEmaLen": 50.0,
+   "trendFilter": "off",
+   "trendTF": 240.0,
+   "use382": true,
+   "use50": true,
+   "use618": true,
+   "use786": false,
+   "useTradeWindow": true,
+   "volFilter": "off",
+   "volLookback": 300.0,
+   "weekdaysOnly": true
+  }
+ },
+ "engine": "fibomgcnet",
+ "id": "mt5_531513073-FTMO-Server3_XAUUSD_3m_fibomgcnet",
+ "instrument": {
+  "has_real_volume": false,
+  "min_qty": 0.01,
+  "point_value": 100.0,
+  "qty_step": 0.01,
+  "symbol": "XAUUSD",
+  "tick_size": 0.01,
+  "venue": "mt5"
+ },
+ "platform": "mt5",
+ "point_value": 100.0,
+ "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+ "sessions": [
+  {
+   "end": "2026-10-28T03:24:38Z",
+   "first_bar": "2026-10-27T03:12:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "3f29b0b8",
+   "start": "2026-10-27T11:58:17Z"
+  },
+  {
+   "end": "2026-10-28T03:24:49Z",
+   "first_bar": "2026-10-27T17:27:00Z",
+   "last_bar": "2026-10-28T03:21:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "2274d9db",
+   "start": "2026-10-28T03:24:38Z"
+  },
+  {
+   "end": "2026-10-28T03:26:13Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "826f41db",
+   "start": "2026-10-28T03:24:49Z"
+  },
+  {
+   "end": "2026-10-28T03:28:36Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-28T03:24:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "92d1306c",
+   "start": "2026-10-28T03:28:27Z"
+  },
+  {
+   "end": "2026-10-28T03:30:15Z",
+   "first_bar": "2026-10-28T03:27:00Z",
+   "last_bar": "2026-10-28T03:27:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "2a250f10",
+   "start": "2026-10-28T03:28:45Z"
+  },
+  {
+   "end": "2026-10-30T07:58:59Z",
+   "first_bar": "2026-10-28T03:24:00Z",
+   "last_bar": "2026-10-30T07:54:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "deb7c02a",
+   "start": "2026-10-28T03:30:15Z"
+  },
+  {
+   "end": "2026-10-30T09:35:05Z",
+   "first_bar": "2026-10-29T23:12:00Z",
+   "last_bar": "2026-10-30T09:30:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "66623784",
+   "start": "2026-10-30T07:58:59Z"
+  },
+  {
+   "end": "2026-10-30T09:37:36Z",
+   "first_bar": "2026-10-30T09:33:00Z",
+   "last_bar": "2026-10-30T09:33:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "1ac93ecd",
+   "start": "2026-10-30T09:37:26Z"
+  },
+  {
+   "end": "2026-10-30T10:54:53Z",
+   "first_bar": "2026-10-30T09:36:00Z",
+   "last_bar": "2026-10-30T10:51:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "8c9f18cd",
+   "start": "2026-10-30T09:39:55Z"
+  },
+  {
+   "end": "2026-11-02T00:03:42Z",
+   "first_bar": "2026-10-30T10:54:00Z",
+   "last_bar": "2026-11-02T00:00:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "739edc1c",
+   "start": "2026-10-30T10:57:10Z"
+  }
+ ],
+ "setting": "fibomgc-1",
+ "strategy": "fibomgc",
+ "symbol": "XAUUSD",
+ "tf": 3
+}

@@ -318,12 +318,444 @@
    "start": "2026-10-20T14:58:23Z"
   },
   {
-   "end": "2026-10-25T13:20:32Z",
+   "end": "2026-10-25T17:35:56Z",
    "first_bar": "2026-10-23T09:39:00Z",
    "last_bar": "2026-10-23T20:57:00Z",
    "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
    "session": "f78e5e9d",
    "start": "2026-10-24T12:30:25Z"
+  },
+  {
+   "end": "2026-10-25T19:42:49Z",
+   "first_bar": "2026-10-23T09:39:00Z",
+   "last_bar": "2026-10-23T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "4a3c63f1",
+   "start": "2026-10-25T17:35:59Z"
+  },
+  {
+   "end": "2026-10-25T19:42:58Z",
+   "first_bar": "2026-10-23T09:39:00Z",
+   "last_bar": "2026-10-23T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "32efb391",
+   "start": "2026-10-25T19:42:52Z"
+  },
+  {
+   "end": "2026-10-25T19:43:50Z",
+   "first_bar": "2026-10-23T09:39:00Z",
+   "last_bar": "2026-10-23T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "0083e948",
+   "start": "2026-10-25T19:43:00Z"
+  },
+  {
+   "end": "2026-10-25T19:50:35Z",
+   "first_bar": "2026-10-23T09:39:00Z",
+   "last_bar": "2026-10-23T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "cf15b65d",
+   "start": "2026-10-25T19:43:53Z"
+  },
+  {
+   "end": "2026-10-25T19:50:46Z",
+   "first_bar": "2026-10-23T09:39:00Z",
+   "last_bar": "2026-10-23T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "37d16b4e",
+   "start": "2026-10-25T19:50:38Z"
+  },
+  {
+   "end": "2026-10-25T19:50:58Z",
+   "first_bar": "2026-10-23T09:39:00Z",
+   "last_bar": "2026-10-23T20:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "1c14d6c6",
+   "start": "2026-10-25T19:50:48Z"
+  },
+  {
+   "end": "2026-10-26T09:03:15Z",
+   "first_bar": "2026-10-23T09:39:00Z",
+   "last_bar": "2026-10-26T09:00:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "be51456f",
+   "start": "2026-10-25T19:51:00Z"
+  },
+  {
+   "end": "2026-10-26T09:31:01Z",
+   "first_bar": "2026-10-23T20:45:00Z",
+   "last_bar": "2026-10-26T09:27:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "b27f280c",
+   "start": "2026-10-26T09:03:18Z"
+  },
+  {
+   "end": "2026-10-27T03:00:53Z",
+   "first_bar": "2026-10-25T22:12:00Z",
+   "last_bar": "2026-10-27T02:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "aa5bef37",
+   "start": "2026-10-26T09:31:04Z"
+  },
+  {
+   "end": "2026-10-27T03:02:09Z",
+   "first_bar": "2026-10-26T14:42:00Z",
+   "last_bar": "2026-10-27T02:57:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "ec72a216",
+   "start": "2026-10-27T03:00:56Z"
+  },
+  {
+   "end": "2026-10-27T03:10:57Z",
+   "first_bar": "2026-10-26T14:42:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "505592e4",
+   "start": "2026-10-27T03:02:12Z"
+  },
+  {
+   "end": "2026-10-27T03:11:11Z",
+   "first_bar": "2026-10-26T14:51:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "9395c18a",
+   "start": "2026-10-27T03:11:00Z"
+  },
+  {
+   "end": "2026-10-27T03:11:22Z",
+   "first_bar": "2026-10-26T14:51:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "d6edb2b6",
+   "start": "2026-10-27T03:11:14Z"
+  },
+  {
+   "end": "2026-10-27T03:11:32Z",
+   "first_bar": "2026-10-26T14:51:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "fbd19ad5",
+   "start": "2026-10-27T03:11:24Z"
+  },
+  {
+   "end": "2026-10-27T03:11:42Z",
+   "first_bar": "2026-10-26T14:51:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "70ea5e3c",
+   "start": "2026-10-27T03:11:34Z"
+  },
+  {
+   "end": "2026-10-27T03:31:48Z",
+   "first_bar": "2026-10-26T14:51:00Z",
+   "last_bar": "2026-10-27T03:27:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "ea197a8f",
+   "start": "2026-10-27T03:11:44Z"
+  },
+  {
+   "end": "2026-10-27T04:18:44Z",
+   "first_bar": "2026-10-26T15:12:00Z",
+   "last_bar": "2026-10-27T04:15:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "8a1a5e2c",
+   "start": "2026-10-27T03:31:50Z"
+  },
+  {
+   "end": "2026-10-27T04:42:14Z",
+   "first_bar": "2026-10-26T16:00:00Z",
+   "last_bar": "2026-10-27T04:39:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "eb711184",
+   "start": "2026-10-27T04:18:48Z"
+  },
+  {
+   "end": "2026-10-27T04:43:46Z",
+   "first_bar": "2026-10-26T16:24:00Z",
+   "last_bar": "2026-10-27T04:39:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "d37a68f0",
+   "start": "2026-10-27T04:42:16Z"
+  },
+  {
+   "end": "2026-10-27T04:43:59Z",
+   "first_bar": "2026-10-26T16:24:00Z",
+   "last_bar": "2026-10-27T04:39:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "61b5e3cf",
+   "start": "2026-10-27T04:43:49Z"
+  },
+  {
+   "end": "2026-10-27T04:46:21Z",
+   "first_bar": "2026-10-26T16:24:00Z",
+   "last_bar": "2026-10-27T04:42:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "f6a59fe5",
+   "start": "2026-10-27T04:44:02Z"
+  },
+  {
+   "end": "2026-10-27T04:46:31Z",
+   "first_bar": "2026-10-26T16:27:00Z",
+   "last_bar": "2026-10-27T04:42:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "8b507f93",
+   "start": "2026-10-27T04:46:23Z"
+  },
+  {
+   "end": "2026-10-27T04:46:53Z",
+   "first_bar": "2026-10-26T16:27:00Z",
+   "last_bar": "2026-10-27T04:42:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "ef4f2bf3",
+   "start": "2026-10-27T04:46:34Z"
+  },
+  {
+   "end": "2026-10-27T04:47:03Z",
+   "first_bar": "2026-10-26T16:27:00Z",
+   "last_bar": "2026-10-27T04:42:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "88b830f9",
+   "start": "2026-10-27T04:46:56Z"
+  },
+  {
+   "end": "2026-10-27T04:55:42Z",
+   "first_bar": "2026-10-26T16:27:00Z",
+   "last_bar": "2026-10-27T04:51:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "a388cf73",
+   "start": "2026-10-27T04:47:06Z"
+  },
+  {
+   "end": "2026-10-27T04:55:54Z",
+   "first_bar": "2026-10-26T16:36:00Z",
+   "last_bar": "2026-10-27T04:51:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "388bc49f",
+   "start": "2026-10-27T04:55:46Z"
+  },
+  {
+   "end": "2026-10-27T04:57:30Z",
+   "first_bar": "2026-10-26T16:36:00Z",
+   "last_bar": "2026-10-27T04:54:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "7146d092",
+   "start": "2026-10-27T04:55:56Z"
+  },
+  {
+   "end": "2026-10-27T04:57:43Z",
+   "first_bar": "2026-10-26T16:39:00Z",
+   "last_bar": "2026-10-27T04:54:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "fdc00013",
+   "start": "2026-10-27T04:57:34Z"
+  },
+  {
+   "end": "2026-10-27T05:06:44Z",
+   "first_bar": "2026-10-26T16:39:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "d926cc32",
+   "start": "2026-10-27T04:57:45Z"
+  },
+  {
+   "end": "2026-10-27T05:06:56Z",
+   "first_bar": "2026-10-26T16:48:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "a8f53fed",
+   "start": "2026-10-27T05:06:47Z"
+  },
+  {
+   "end": "2026-10-27T05:08:21Z",
+   "first_bar": "2026-10-26T16:48:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "e22a14c7",
+   "start": "2026-10-27T05:07:00Z"
+  },
+  {
+   "end": "2026-10-27T05:08:33Z",
+   "first_bar": "2026-10-26T16:48:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "0ecab20c",
+   "start": "2026-10-27T05:08:23Z"
+  },
+  {
+   "end": "2026-10-27T05:22:33Z",
+   "first_bar": "2026-10-26T16:48:00Z",
+   "last_bar": "2026-10-27T05:18:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "05af5980",
+   "start": "2026-10-27T05:08:36Z"
+  },
+  {
+   "end": "2026-10-27T05:22:48Z",
+   "first_bar": "2026-10-26T17:03:00Z",
+   "last_bar": "2026-10-27T05:18:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "859399e0",
+   "start": "2026-10-27T05:22:36Z"
+  },
+  {
+   "end": "2026-10-27T05:24:11Z",
+   "first_bar": "2026-10-26T17:03:00Z",
+   "last_bar": "2026-10-27T05:21:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "069e53d7",
+   "start": "2026-10-27T05:22:50Z"
+  },
+  {
+   "end": "2026-10-27T05:24:24Z",
+   "first_bar": "2026-10-26T17:06:00Z",
+   "last_bar": "2026-10-27T05:21:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "a7373e7c",
+   "start": "2026-10-27T05:24:15Z"
+  },
+  {
+   "end": "2026-10-27T05:41:14Z",
+   "first_bar": "2026-10-26T17:06:00Z",
+   "last_bar": "2026-10-27T05:36:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "f18745d9",
+   "start": "2026-10-27T05:24:27Z"
+  },
+  {
+   "end": "2026-10-27T05:41:38Z",
+   "first_bar": "2026-10-26T17:21:00Z",
+   "last_bar": "2026-10-27T05:36:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "29e39a6f",
+   "start": "2026-10-27T05:41:17Z"
+  },
+  {
+   "end": "2026-10-27T05:42:47Z",
+   "first_bar": "2026-10-26T17:21:00Z",
+   "last_bar": "2026-10-27T05:39:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "38abddd2",
+   "start": "2026-10-27T05:41:41Z"
+  },
+  {
+   "end": "2026-10-27T05:43:00Z",
+   "first_bar": "2026-10-26T17:24:00Z",
+   "last_bar": "2026-10-27T05:39:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "16752a01",
+   "start": "2026-10-27T05:42:50Z"
+  },
+  {
+   "end": "2026-10-27T05:51:20Z",
+   "first_bar": "2026-10-26T17:24:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "a2ab2270",
+   "start": "2026-10-27T05:43:02Z"
+  },
+  {
+   "end": "2026-10-27T05:51:34Z",
+   "first_bar": "2026-10-26T17:33:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "1a959fa7",
+   "start": "2026-10-27T05:51:23Z"
+  },
+  {
+   "end": "2026-10-27T05:52:56Z",
+   "first_bar": "2026-10-26T17:33:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "fe377cb1",
+   "start": "2026-10-27T05:51:37Z"
+  },
+  {
+   "end": "2026-10-27T05:53:10Z",
+   "first_bar": "2026-10-26T17:33:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "fa026f22",
+   "start": "2026-10-27T05:52:59Z"
+  },
+  {
+   "end": "2026-10-27T06:31:25Z",
+   "first_bar": "2026-10-26T17:33:00Z",
+   "last_bar": "2026-10-27T06:27:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "6f9e3ce2",
+   "start": "2026-10-27T05:53:12Z"
+  },
+  {
+   "end": "2026-10-27T06:31:36Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "130f8621",
+   "start": "2026-10-27T06:31:28Z"
+  },
+  {
+   "end": "2026-10-27T06:32:58Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "15f0e988",
+   "start": "2026-10-27T06:31:39Z"
+  },
+  {
+   "end": "2026-10-28T03:28:16Z",
+   "first_bar": "2026-10-27T06:30:00Z",
+   "last_bar": "2026-10-28T03:24:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "ab83986f",
+   "start": "2026-10-27T06:33:01Z"
+  },
+  {
+   "end": "2026-10-28T03:28:29Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "ee656cbf",
+   "start": "2026-10-28T03:28:18Z"
+  },
+  {
+   "end": "2026-10-28T03:33:24Z",
+   "first_bar": "2026-10-28T03:27:00Z",
+   "last_bar": "2026-10-28T03:30:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "fde05b1f",
+   "start": "2026-10-28T03:28:32Z"
+  },
+  {
+   "end": "2026-10-28T03:33:34Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "b28ba48f",
+   "start": "2026-10-28T03:33:27Z"
+  },
+  {
+   "end": "2026-10-28T03:33:42Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "483f0b96",
+   "start": "2026-10-28T03:33:37Z"
+  },
+  {
+   "end": "2026-10-28T03:33:50Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "1b95b4a0",
+   "start": "2026-10-28T03:33:45Z"
+  },
+  {
+   "end": "2026-10-30T08:48:54Z",
+   "first_bar": "2026-10-28T03:33:00Z",
+   "last_bar": "2026-10-30T08:45:00Z",
+   "profile": "SMERNICE_CS_VWAP_ADX_Pullback_2_SL500",
+   "session": "12af9b34",
+   "start": "2026-10-28T03:33:53Z"
   }
  ],
  "setting": null,

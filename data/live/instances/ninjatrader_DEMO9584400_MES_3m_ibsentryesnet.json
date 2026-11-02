@@ -1,0 +1,587 @@
+{
+ "account": "DEMO9584400",
+ "configs": {
+  "SMERNICE_CS_IBS_EZ_ES_1": {
+   "_instrument": null,
+   "_source": "hub:87e75fec8d2e",
+   "_strategy": "ibsentryesnet",
+   "adxDiLength": 14.0,
+   "adxShowState": true,
+   "adxSmoothing": 5.0,
+   "adxThreshold": 20.0,
+   "adxTimeframe": "60",
+   "atrLen": 14.0,
+   "closeAtSessionEnd": false,
+   "enableEngulfingEntry": false,
+   "enableFvgTrading": false,
+   "enableGapDetection": true,
+   "enableIfvgTrading": true,
+   "enableImbEntry": true,
+   "enableLqTrading": false,
+   "enablePinBarEntry": true,
+   "enableSrTrading": false,
+   "enableTrading": true,
+   "enableTrailing": false,
+   "enableZoneDetection": true,
+   "engMinRangePoints": {
+    "unit": "atr",
+    "value": 0.616
+   },
+   "engSizeAvgLen": 10.0,
+   "engSizeMultiplier": 2.0,
+   "engTouchWindowBars": 3.0,
+   "ewLineColor": "#334155",
+   "ewMinWavePoints": {
+    "unit": "atr",
+    "value": 2.0534
+   },
+   "ewProjExtendBars": 40.0,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewSwingLen": 8.0,
+   "fixedQty": false,
+   "fvgMinSize": {
+    "unit": "atr",
+    "value": 1.5
+   },
+   "fvgUse15m": true,
+   "fvgUse30m": true,
+   "fvgUse5m": true,
+   "fvgUse60m": false,
+   "imbLookback": 5.0,
+   "imbMaxDistTicks": {
+    "unit": "atr",
+    "value": 1.0
+   },
+   "indAdx": true,
+   "indSupertrend": false,
+   "invalidateOnFill": true,
+   "legacyPineSizing": false,
+   "leverage": 1.0,
+   "liqStrengthLen": 50.0,
+   "liqSweepConfirmBars": 1.0,
+   "liqSweepLen": 5.0,
+   "liqSweepMinWick": {
+    "unit": "atr",
+    "value": 1.0267
+   },
+   "maxDailyWins": 3.0,
+   "maxLossDollar": 500.0,
+   "maxSdZones": 400.0,
+   "minImbSizePoints": {
+    "unit": "atr",
+    "value": 0.3
+   },
+   "minSlDistance": 0.1,
+   "pbBodyPositionPct": 20.0,
+   "pbEngOrderType": "Market",
+   "pbMinRangePoints": {
+    "unit": "atr",
+    "value": 0.4107
+   },
+   "pbWickToBodyRatio": 4.0,
+   "qty": 1.0,
+   "rrRatio": 0.5,
+   "ruleAdxDown": "Both",
+   "ruleAdxSide": "Both",
+   "ruleAdxUp": "Long only",
+   "ruleStDown": "Short only",
+   "ruleStDownAdxDown": "Short only",
+   "ruleStDownAdxSide": "No trade",
+   "ruleStDownAdxUp": "No trade",
+   "ruleStUp": "Long only",
+   "ruleStUpAdxDown": "No trade",
+   "ruleStUpAdxSide": "No trade",
+   "ruleStUpAdxUp": "Long only",
+   "sess1On": false,
+   "sess1TZ": "America/New_York",
+   "sess1TradeEndH": 9.0,
+   "sess1TradeEndM": 0.0,
+   "sess1TradeStartH": 2.0,
+   "sess1TradeStartM": 0.0,
+   "sess1ZoneEndH": 3.0,
+   "sess1ZoneEndM": 0.0,
+   "sess1ZoneStartH": 0.0,
+   "sess1ZoneStartM": 0.0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2TradeEndH": 16.0,
+   "sess2TradeEndM": 0.0,
+   "sess2TradeStartH": 10.0,
+   "sess2TradeStartM": 45.0,
+   "sess2ZoneEndH": 17.0,
+   "sess2ZoneEndM": 0.0,
+   "sess2ZoneStartH": 18.0,
+   "sess2ZoneStartM": 0.0,
+   "sess3On": true,
+   "sess3TZ": "America/New_York",
+   "sess3TradeEndH": 19.0,
+   "sess3TradeEndM": 45.0,
+   "sess3TradeStartH": 14.0,
+   "sess3TradeStartM": 0.0,
+   "sess3ZoneEndH": 16.0,
+   "sess3ZoneEndM": 0.0,
+   "sess3ZoneStartH": 14.0,
+   "sess3ZoneStartM": 0.0,
+   "showElliott": false,
+   "showImbalance": true,
+   "showLiqSweep": true,
+   "showMarketStructure": true,
+   "showSR": true,
+   "skipOverRisk": false,
+   "slBufferTicks": {
+    "unit": "atr",
+    "value": 0.0
+   },
+   "slLookback": 5.0,
+   "snapMode": "Ceil",
+   "srClusterPoints": {
+    "unit": "atr",
+    "value": 1.54
+   },
+   "srLookbackDays": 5.0,
+   "srMaxLevels": 10.0,
+   "srMinTouches": 2.0,
+   "srSwingLen": 10.0,
+   "srZoneSaturationPct": 30.0,
+   "stAtrPeriod": 14.0,
+   "stChangeAtr": true,
+   "stHighlighting": true,
+   "stMultiplier": 3.0,
+   "stShowSignals": true,
+   "stSource": "hl2",
+   "stTimeframe": "240",
+   "state1MaxBars": 1.0,
+   "state2ConfirmTicks": {
+    "unit": "atr",
+    "value": 0.15
+   },
+   "state2MaxBars": 10.0,
+   "state3MaxBars": 2.0,
+   "state4MaxBars": 10.0,
+   "state5MaxBars": 5.0,
+   "structureSwingLen": 5.0,
+   "tickDollarValue": 12.5,
+   "tradeDirection": "Indicator",
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "trendEmaLen": 50.0,
+   "trendFilter": "off",
+   "trendTF": 0.0,
+   "useStructureFilter": false,
+   "useVolumeFilter": false,
+   "volFilter": "high",
+   "volLookback": 500.0,
+   "volMultiplier": 1.5,
+   "volSmaLen": 20.0,
+   "volumeFilterBlockTrading": true,
+   "weekdaysOnly": false,
+   "zoneDetectionTF": "3",
+   "zoneValidHours": 6.0
+  }
+ },
+ "engine": "ibsentryesnet",
+ "id": "ninjatrader_DEMO9584400_MES_3m_ibsentryesnet",
+ "instrument": {
+  "has_real_volume": true,
+  "min_qty": 1.0,
+  "point_value": 5.0,
+  "qty_step": 1.0,
+  "symbol": "MES",
+  "tick_size": 0.25,
+  "venue": "ninjatrader"
+ },
+ "platform": "ninjatrader",
+ "point_value": 5.0,
+ "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+ "sessions": [
+  {
+   "end": "2026-10-26T09:03:15Z",
+   "first_bar": "2026-10-21T01:39:00Z",
+   "last_bar": "2026-10-26T09:00:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "33856d85",
+   "start": "2026-10-26T08:51:46Z"
+  },
+  {
+   "end": "2026-10-26T09:31:01Z",
+   "first_bar": "2026-10-21T01:51:00Z",
+   "last_bar": "2026-10-26T09:27:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "1ea0c6e0",
+   "start": "2026-10-26T09:03:18Z"
+  },
+  {
+   "end": "2026-10-27T03:00:53Z",
+   "first_bar": "2026-10-21T02:18:00Z",
+   "last_bar": "2026-10-27T02:57:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "bb5d94f0",
+   "start": "2026-10-26T09:31:04Z"
+  },
+  {
+   "end": "2026-10-27T03:02:09Z",
+   "first_bar": "2026-10-21T18:48:00Z",
+   "last_bar": "2026-10-27T02:57:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "5631fc3c",
+   "start": "2026-10-27T03:00:56Z"
+  },
+  {
+   "end": "2026-10-27T03:10:57Z",
+   "first_bar": "2026-10-21T18:48:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "2ab0bc65",
+   "start": "2026-10-27T03:02:12Z"
+  },
+  {
+   "end": "2026-10-27T03:11:11Z",
+   "first_bar": "2026-10-21T18:57:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "64d9d53f",
+   "start": "2026-10-27T03:11:00Z"
+  },
+  {
+   "end": "2026-10-27T03:11:22Z",
+   "first_bar": "2026-10-21T18:57:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "7fd177e7",
+   "start": "2026-10-27T03:11:14Z"
+  },
+  {
+   "end": "2026-10-27T03:11:32Z",
+   "first_bar": "2026-10-21T18:57:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "2bb213b0",
+   "start": "2026-10-27T03:11:24Z"
+  },
+  {
+   "end": "2026-10-27T03:11:42Z",
+   "first_bar": "2026-10-21T18:57:00Z",
+   "last_bar": "2026-10-27T03:06:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "09834364",
+   "start": "2026-10-27T03:11:34Z"
+  },
+  {
+   "end": "2026-10-27T03:31:48Z",
+   "first_bar": "2026-10-21T18:57:00Z",
+   "last_bar": "2026-10-27T03:27:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "cca7484a",
+   "start": "2026-10-27T03:11:44Z"
+  },
+  {
+   "end": "2026-10-27T04:18:44Z",
+   "first_bar": "2026-10-21T19:18:00Z",
+   "last_bar": "2026-10-27T04:15:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "ee4f0082",
+   "start": "2026-10-27T03:31:50Z"
+  },
+  {
+   "end": "2026-10-27T04:42:14Z",
+   "first_bar": "2026-10-21T20:06:00Z",
+   "last_bar": "2026-10-27T04:39:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "74a4a0eb",
+   "start": "2026-10-27T04:18:48Z"
+  },
+  {
+   "end": "2026-10-27T04:43:46Z",
+   "first_bar": "2026-10-21T20:30:00Z",
+   "last_bar": "2026-10-27T04:39:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "758557f8",
+   "start": "2026-10-27T04:42:16Z"
+  },
+  {
+   "end": "2026-10-27T04:43:59Z",
+   "first_bar": "2026-10-21T20:30:00Z",
+   "last_bar": "2026-10-27T04:39:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "b2a5d63d",
+   "start": "2026-10-27T04:43:49Z"
+  },
+  {
+   "end": "2026-10-27T04:46:21Z",
+   "first_bar": "2026-10-21T20:30:00Z",
+   "last_bar": "2026-10-27T04:42:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "3576f22b",
+   "start": "2026-10-27T04:44:02Z"
+  },
+  {
+   "end": "2026-10-27T04:46:31Z",
+   "first_bar": "2026-10-21T20:33:00Z",
+   "last_bar": "2026-10-27T04:42:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "c0f6d423",
+   "start": "2026-10-27T04:46:23Z"
+  },
+  {
+   "end": "2026-10-27T04:46:53Z",
+   "first_bar": "2026-10-21T20:33:00Z",
+   "last_bar": "2026-10-27T04:42:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "3b782fa5",
+   "start": "2026-10-27T04:46:34Z"
+  },
+  {
+   "end": "2026-10-27T04:47:03Z",
+   "first_bar": "2026-10-21T20:33:00Z",
+   "last_bar": "2026-10-27T04:42:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "e241bac3",
+   "start": "2026-10-27T04:46:56Z"
+  },
+  {
+   "end": "2026-10-27T04:55:42Z",
+   "first_bar": "2026-10-21T20:33:00Z",
+   "last_bar": "2026-10-27T04:51:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "68627bc1",
+   "start": "2026-10-27T04:47:06Z"
+  },
+  {
+   "end": "2026-10-27T04:55:54Z",
+   "first_bar": "2026-10-21T20:42:00Z",
+   "last_bar": "2026-10-27T04:51:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "7cb19da0",
+   "start": "2026-10-27T04:55:47Z"
+  },
+  {
+   "end": "2026-10-27T04:57:30Z",
+   "first_bar": "2026-10-21T20:42:00Z",
+   "last_bar": "2026-10-27T04:54:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "233ea7fd",
+   "start": "2026-10-27T04:55:56Z"
+  },
+  {
+   "end": "2026-10-27T04:57:43Z",
+   "first_bar": "2026-10-21T20:45:00Z",
+   "last_bar": "2026-10-27T04:54:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "35059f29",
+   "start": "2026-10-27T04:57:34Z"
+  },
+  {
+   "end": "2026-10-27T05:06:44Z",
+   "first_bar": "2026-10-21T20:45:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "52474752",
+   "start": "2026-10-27T04:57:45Z"
+  },
+  {
+   "end": "2026-10-27T05:06:56Z",
+   "first_bar": "2026-10-21T20:54:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "830ed317",
+   "start": "2026-10-27T05:06:47Z"
+  },
+  {
+   "end": "2026-10-27T05:08:21Z",
+   "first_bar": "2026-10-21T20:54:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "17a7fcc7",
+   "start": "2026-10-27T05:07:00Z"
+  },
+  {
+   "end": "2026-10-27T05:08:33Z",
+   "first_bar": "2026-10-21T20:54:00Z",
+   "last_bar": "2026-10-27T05:03:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "c5711f63",
+   "start": "2026-10-27T05:08:23Z"
+  },
+  {
+   "end": "2026-10-27T05:22:33Z",
+   "first_bar": "2026-10-21T20:54:00Z",
+   "last_bar": "2026-10-27T05:18:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "4c71abae",
+   "start": "2026-10-27T05:08:36Z"
+  },
+  {
+   "end": "2026-10-27T05:22:48Z",
+   "first_bar": "2026-10-21T22:09:00Z",
+   "last_bar": "2026-10-27T05:18:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "c9f897a6",
+   "start": "2026-10-27T05:22:36Z"
+  },
+  {
+   "end": "2026-10-27T05:24:11Z",
+   "first_bar": "2026-10-21T22:09:00Z",
+   "last_bar": "2026-10-27T05:21:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "a5c0a1c5",
+   "start": "2026-10-27T05:22:50Z"
+  },
+  {
+   "end": "2026-10-27T05:24:24Z",
+   "first_bar": "2026-10-21T22:12:00Z",
+   "last_bar": "2026-10-27T05:21:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "fa67df86",
+   "start": "2026-10-27T05:24:15Z"
+  },
+  {
+   "end": "2026-10-27T05:41:14Z",
+   "first_bar": "2026-10-21T22:12:00Z",
+   "last_bar": "2026-10-27T05:36:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "2ac77f69",
+   "start": "2026-10-27T05:24:27Z"
+  },
+  {
+   "end": "2026-10-27T05:41:38Z",
+   "first_bar": "2026-10-21T22:27:00Z",
+   "last_bar": "2026-10-27T05:36:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "7f3b0a28",
+   "start": "2026-10-27T05:41:17Z"
+  },
+  {
+   "end": "2026-10-27T05:42:47Z",
+   "first_bar": "2026-10-21T22:27:00Z",
+   "last_bar": "2026-10-27T05:39:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "f55f5675",
+   "start": "2026-10-27T05:41:41Z"
+  },
+  {
+   "end": "2026-10-27T05:43:00Z",
+   "first_bar": "2026-10-21T22:30:00Z",
+   "last_bar": "2026-10-27T05:39:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "6844c68e",
+   "start": "2026-10-27T05:42:50Z"
+  },
+  {
+   "end": "2026-10-27T05:51:20Z",
+   "first_bar": "2026-10-21T22:30:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "dbfd97ad",
+   "start": "2026-10-27T05:43:02Z"
+  },
+  {
+   "end": "2026-10-27T05:51:34Z",
+   "first_bar": "2026-10-21T22:39:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "a07a6b1f",
+   "start": "2026-10-27T05:51:23Z"
+  },
+  {
+   "end": "2026-10-27T05:52:56Z",
+   "first_bar": "2026-10-21T22:39:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "4a80b8d9",
+   "start": "2026-10-27T05:51:37Z"
+  },
+  {
+   "end": "2026-10-27T05:53:10Z",
+   "first_bar": "2026-10-21T22:39:00Z",
+   "last_bar": "2026-10-27T05:48:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "330719be",
+   "start": "2026-10-27T05:52:59Z"
+  },
+  {
+   "end": "2026-10-27T06:31:25Z",
+   "first_bar": "2026-10-21T22:39:00Z",
+   "last_bar": "2026-10-27T06:27:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "80dad4f6",
+   "start": "2026-10-27T05:53:12Z"
+  },
+  {
+   "end": "2026-10-27T06:31:36Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "ff0030d6",
+   "start": "2026-10-27T06:31:28Z"
+  },
+  {
+   "end": "2026-10-27T06:32:58Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "e6ffc9d3",
+   "start": "2026-10-27T06:31:39Z"
+  },
+  {
+   "end": "2026-10-28T03:28:16Z",
+   "first_bar": "2026-10-27T06:30:00Z",
+   "last_bar": "2026-10-28T03:24:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "581628b5",
+   "start": "2026-10-27T06:33:01Z"
+  },
+  {
+   "end": "2026-10-28T03:28:29Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "62d120d4",
+   "start": "2026-10-28T03:28:19Z"
+  },
+  {
+   "end": "2026-10-28T03:33:24Z",
+   "first_bar": "2026-10-28T03:27:00Z",
+   "last_bar": "2026-10-28T03:30:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "0707916b",
+   "start": "2026-10-28T03:28:32Z"
+  },
+  {
+   "end": "2026-10-28T03:33:34Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "baca80fa",
+   "start": "2026-10-28T03:33:27Z"
+  },
+  {
+   "end": "2026-10-28T03:33:42Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "830fa7a9",
+   "start": "2026-10-28T03:33:37Z"
+  },
+  {
+   "end": "2026-10-28T03:33:50Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "4c2dd456",
+   "start": "2026-10-28T03:33:45Z"
+  },
+  {
+   "end": "2026-10-30T08:48:54Z",
+   "first_bar": "2026-10-28T03:33:00Z",
+   "last_bar": "2026-10-30T08:45:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "45a238d7",
+   "start": "2026-10-28T03:33:53Z"
+  }
+ ],
+ "setting": "ibsentryes-1",
+ "strategy": "ibsentryes",
+ "symbol": "MES",
+ "tf": 3
+}
