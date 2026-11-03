@@ -161,12 +161,28 @@
  "profile": "SMERNICE_CS_EOD_IBS_Entry_Zone_1",
  "sessions": [
   {
-   "end": "2026-11-02T00:03:00Z",
+   "end": "2026-11-02T08:09:57Z",
    "first_bar": "2026-10-27T04:12:00Z",
-   "last_bar": "2026-10-30T20:57:00Z",
+   "last_bar": "2026-11-02T07:57:00Z",
    "profile": "SMERNICE_CS_EOD_IBS_Entry_Zone_1",
    "session": "f9429de8",
    "start": "2026-10-30T11:26:42Z"
+  },
+  {
+   "end": "2026-11-03T11:08:08Z",
+   "first_bar": "2026-11-02T08:00:00Z",
+   "last_bar": "2026-11-03T11:03:00Z",
+   "profile": "SMERNICE_CS_EOD_IBS_Entry_Zone_1",
+   "session": "a82908af",
+   "start": "2026-11-02T08:10:00Z"
+  },
+  {
+   "end": "2026-11-03T15:55:25Z",
+   "first_bar": "2026-11-03T11:06:00Z",
+   "last_bar": "2026-11-03T15:51:00Z",
+   "profile": "SMERNICE_CS_EOD_IBS_Entry_Zone_1",
+   "session": "b646d75f",
+   "start": "2026-11-03T15:53:25Z"
   }
  ],
  "setting": "ibsentry-1",

@@ -260,12 +260,28 @@
    "start": "2026-10-30T09:39:55Z"
   },
   {
-   "end": "2026-11-02T00:03:43Z",
+   "end": "2026-11-03T11:08:03Z",
    "first_bar": "2026-10-30T10:54:00Z",
-   "last_bar": "2026-11-02T00:00:00Z",
+   "last_bar": "2026-11-03T11:03:00Z",
    "profile": "SMERNICE_CS_IBS_EZ_ES_1",
    "session": "9ec26cba",
    "start": "2026-10-30T10:57:10Z"
+  },
+  {
+   "end": "2026-11-03T11:20:02Z",
+   "first_bar": "2026-11-03T11:06:00Z",
+   "last_bar": "2026-11-03T11:15:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "cc380a69",
+   "start": "2026-11-03T11:19:59Z"
+  },
+  {
+   "end": "2026-11-03T15:55:22Z",
+   "first_bar": "2026-10-29T08:00:00Z",
+   "last_bar": "2026-11-03T15:51:00Z",
+   "profile": "SMERNICE_CS_IBS_EZ_ES_1",
+   "session": "e3cb0bed",
+   "start": "2026-11-03T15:51:22Z"
   }
  ],
  "setting": "ibsentryes-1",

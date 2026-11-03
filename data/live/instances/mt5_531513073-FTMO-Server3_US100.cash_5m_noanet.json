@@ -117,12 +117,28 @@
    "start": "2026-10-30T09:39:55Z"
   },
   {
-   "end": "2026-11-02T00:03:43Z",
+   "end": "2026-11-03T11:08:03Z",
    "first_bar": "2026-10-30T10:50:00Z",
-   "last_bar": "2026-11-01T23:55:00Z",
+   "last_bar": "2026-11-03T11:00:00Z",
    "profile": "SMERNICE_CS_NOA_1",
    "session": "68c2e436",
    "start": "2026-10-30T10:57:10Z"
+  },
+  {
+   "end": "2026-11-03T11:20:04Z",
+   "first_bar": "2026-11-03T11:05:00Z",
+   "last_bar": "2026-11-03T11:15:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "99dad29e",
+   "start": "2026-11-03T11:19:59Z"
+  },
+  {
+   "end": "2026-11-03T15:55:22Z",
+   "first_bar": "2026-09-14T18:45:00Z",
+   "last_bar": "2026-11-03T15:50:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "7a31f7d9",
+   "start": "2026-11-03T15:51:22Z"
   }
  ],
  "setting": "noa-1",
