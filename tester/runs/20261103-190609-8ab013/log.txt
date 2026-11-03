@@ -1,0 +1,8 @@
+$ emulator MultiCharts ES 3m 20100101-20110101 (ES_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 14/5 @60m 0/75, filter volatility ATR 14 / 500 barov @3m 0/556
+emulacia MultiCharts: 68255 barov 3m, 202029 1m, 68255 HTF
+  20000/68255 barov, 45 obchodov
+  40000/68255 barov, 64 obchodov
+  60000/68255 barov, 93 obchodov
+hotovo: 94 obchodov, nerozhodnutelnych minut 0
+kresby: {'session': 1002, 'imb_box': 6004, 'sd_zone_pre': 4475, 'sd_zone_post': 4475, 'swing': 8218, 'structure': 5364, 'liq_sweep': 2200, 'skip': 232, 'adx_state': 3505, 'tp_box': 110, 'sl_box': 110, 'expired': 18, 'counter': 310, 'imb_zero': 40, 'sr_level': 8, 'sr_golden': 6}

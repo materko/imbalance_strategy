@@ -1,0 +1,5 @@
+$ emulator MultiCharts MNQ 15m 20230410-20230710 (MNQ_USD-1m.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 5917 barov 15m, 88754 1m, 0 HTF
+hotovo: 11 obchodov, nerozhodnutelnych minut 0
+kresby: {'orbgap_zone': 68, 'tp_box': 11, 'sl_box': 11, 'orbgap_entry': 11}
