@@ -1,0 +1,7 @@
+$ emulator MultiCharts US500 30m 20211001-20260904 (US500_USD-1m.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 56535 barov 30m, 1654600 1m, 0 HTF
+  20000/56535 barov, 259 obchodov
+  40000/56535 barov, 521 obchodov
+hotovo: 727 obchodov, nerozhodnutelnych minut 0
+kresby: {'sl_box': 740, 'wpr_entry': 740}
