@@ -1,0 +1,285 @@
+$ /Users/peterpayerchin/Test/imbalance_strategy-main/.venv/bin/python -m tester.ftrun backtesting --config /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/config.tester.cfd.json --userdir /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data --strategy ORBStrategy --cache none --export trades --timerange 20250904-20260904 --pairs MGC/USD --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0 --datadir /Users/peterpayerchin/Test/imbalance_strategy-main/data/tester/databento --backtest-directory /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data/backtest_results/20261102-074521-d456fa
+2026-11-02 08:45:22,919 - freqtrade - INFO - freqtrade 2026.8
+2026-11-02 08:45:23,449 - freqtrade.configuration.load_config - INFO - Using config: /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/config.tester.cfd.json ...
+2026-11-02 08:45:23,451 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-11-02 08:45:23,451 - freqtrade.loggers - INFO - Logfile configured
+2026-11-02 08:45:23,451 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-11-02 08:45:23,451 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-11-02 08:45:23,451 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-11-02 08:45:23,451 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-11-02 08:45:23,451 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0 ...
+2026-11-02 08:45:23,451 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-11-02 08:45:23,452 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data ...
+2026-11-02 08:45:23,452 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/peterpayerchin/Test/imbalance_strategy-main/data/tester/databento ...
+2026-11-02 08:45:23,452 - freqtrade.configuration.configuration - INFO - Using /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data/backtest_results/20261102-074521-d456fa as 
+backtest directory ...
+2026-11-02 08:45:23,452 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-11-02 08:45:23,452 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-11-02 08:45:23,452 - freqtrade.configuration.configuration - INFO - Using pairs ['MGC/USD']
+2026-11-02 08:45:23,452 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-11-02 08:45:23,452 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-11-02 08:45:23,454 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-11-02 08:45:23,454 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-11-02 08:45:23,454 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-11-02 08:45:23,455 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-11-02 08:45:23,455 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.78
+2026-11-02 08:45:23,455 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-11-02 08:45:23,456 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-11-02 08:45:23,457 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-11-02 08:45:23,458 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-11-02 08:45:23,714 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy ORBStrategy from 
+'/Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data/strategies/ORBStrategy.py'...
+2026-11-02 08:45:23,714 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-11-02 08:45:24,106 - freqtrade.data.converter.converter - INFO - Missing data fillup for MGC/USD, 3m: before: 1490779 - after: 2796972 - 87.62%
+2026-11-02 08:45:24,107 - tradebot.adapters.freqtrade.base - INFO - orb: startup_candle_count 300 na 3m (engine 55: ATR 14 + SMA objemu 25: 55)
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USD.
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-11-02 08:45:24,107 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USD
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-11-02 08:45:24,108 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-11-02 08:45:24,109 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-11-02 08:45:24,109 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-11-02 08:45:24,109 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-11-02 08:45:24,109 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-11-02 08:45:24,109 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-11-02 08:45:24,109 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-11-02 08:45:24,109 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-11-02 08:45:24,113 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'/Users/peterpayerchin/Test/imbalance_strategy-main/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-11-02 08:45:24,113 - freqtrade.optimize.backtesting - INFO - Using fee 0.0000% from config.
+2026-11-02 08:45:24,143 - freqtrade.data.converter.converter - INFO - Missing data fillup for MGC/USD, 3m: before: 118244 - after: 175501 - 48.42%
+2026-11-02 08:45:24,144 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-03 09:00:00 up to 2026-09-04 00:00:00 (365 days).
+2026-11-02 08:45:24,144 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MGC/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-11-02 08:45:24,144 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MGC/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-11-02 08:45:24,590 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-11-02 08:45:24,591 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy ORBStrategy
+2026-11-02 08:45:25,363 - tradebot.adapters.freqtrade.base - INFO - orb MGC/USD: 175501 barov, 80 signalov (43 long / 37 short)
+2026-11-02 08:45:25,367 - tradebot.adapters.freqtrade.base - INFO - orb MGC/USD: kresby ulozene do 
+/Users/peterpayerchin/Test/imbalance_strategy-main/tester/runs/.profiles/20261102-074521-d456fa.chart.json.gz (1649 objektov)
+2026-11-02 08:45:25,370 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-09-04 00:00:00 (365 days).
+2026-11-02 08:45:25,485 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 73070.00 na 9900.00 (13.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,486 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 36786.00 na 9900.00 (26.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,489 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 36841.00 na 9900.00 (26.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,498 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 37030.00 na 9900.00 (26.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,499 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 37267.00 na 9900.00 (26.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,502 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 36885.00 na 9900.00 (26.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,505 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 36984.00 na 9900.00 (26.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,510 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 37601.00 na 9900.00 (26.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,513 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 37841.00 na 9900.00 (26.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,515 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 37842.00 na 9900.00 (26.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,521 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 76760.00 na 9900.00 (12.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,525 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 39059.00 na 9900.00 (25.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,527 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 39005.00 na 9900.00 (25.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,535 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40073.00 na 9900.00 (24.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,537 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40695.00 na 9900.00 (24.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,540 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 79626.00 na 9900.00 (12.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,546 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41192.00 na 9900.00 (24.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,547 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41449.00 na 9900.00 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,549 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 84546.00 na 9900.00 (11.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,571 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 39203.00 na 9900.00 (25.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,572 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40296.00 na 9900.00 (24.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,574 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 39888.00 na 9900.00 (24.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,581 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40356.00 na 9900.00 (24.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,594 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41462.00 na 9900.00 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,596 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41387.00 na 9900.00 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,598 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 42320.00 na 9900.00 (23.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,600 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41740.00 na 9900.00 (23.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,612 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40466.00 na 9900.00 (24.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,618 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41532.00 na 9900.00 (23.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,628 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 42736.00 na 9900.00 (23.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,646 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 43347.00 na 9900.00 (22.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,675 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 44903.00 na 9900.00 (22.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,677 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 43894.00 na 9900.00 (22.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,692 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 44431.00 na 9900.00 (22.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,716 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 48581.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,733 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 50865.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,755 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 50552.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,757 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 50686.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,768 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 50318.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,775 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 50478.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,804 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 51166.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,806 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 52014.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,822 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 49887.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,839 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 45493.00 na 9900.00 (21.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,866 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 46846.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,870 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 48286.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,874 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 47665.00 na 9900.00 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,884 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 48370.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,885 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 48375.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,892 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 48080.00 na 9900.00 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,897 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 47364.00 na 9900.00 (20.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,908 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 45812.00 na 9900.00 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,916 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 45900.00 na 9900.00 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,918 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 45561.00 na 9900.00 (21.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,920 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 46809.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,922 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 47454.00 na 9900.00 (20.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,936 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 45763.00 na 9900.00 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,946 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 45274.00 na 9900.00 (21.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,958 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 44140.00 na 9900.00 (22.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,969 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 44819.00 na 9900.00 (22.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,978 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 43216.00 na 9900.00 (22.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,980 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 87138.00 na 9900.00 (11.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,982 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 42120.00 na 9900.00 (23.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,984 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41160.00 na 9900.00 (24.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,996 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 43118.00 na 9900.00 (23.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:25,998 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41840.00 na 9900.00 (23.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,005 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41264.00 na 9900.00 (24.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,009 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 39898.00 na 9900.00 (24.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,018 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40361.00 na 9900.00 (24.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,020 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 39875.00 na 9900.00 (24.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,029 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41424.00 na 9900.00 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,032 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41387.00 na 9900.00 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,045 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40237.00 na 9900.00 (24.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,054 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40260.00 na 9900.00 (24.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,072 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41096.00 na 9900.00 (24.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,073 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 41232.00 na 9900.00 (24.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,080 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 40933.00 na 9900.00 (24.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,098 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 44373.00 na 9900.00 (22.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,120 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 46597.00 na 9900.00 (21.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-11-02 08:45:26,129 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MGC/USD: stake orezany z 44667.00 na 9900.00 (22.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:01 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 175200/175200 100% • 0:00:02 • 0:00:00
+2026-11-02 08:45:26,268 - freqtrade.misc - INFO - dumping json to 
+"/Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data/backtest_results/20261102-074521-d456fa/backtest-result-2026-11-02_07-45-26.meta.json"
+Result for strategy ORBStrategy
+                                            BACKTESTING REPORT                                             
+┏━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ MGC/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│   TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                       STRATEGY SUMMARY                                                       
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃    Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ ORBStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 80 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
