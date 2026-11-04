@@ -251,7 +251,7 @@ live/
 ├── deploy.py, apply.py  desired state on the hub (accounts, deployments) and reconciling a machine to it
 ├── drivers/             per-platform drivers on the agent (MT5, NinjaTrader 8, DPAPI secrets)
 ├── routes.py, bridge.py routing orders to the MT5 executor; manual master for testing it
-├── journal.py, perf.py, reports.py, telegram.py   trade journal, performance, Telegram messages and commands
+├── telegram.py          Telegram Bot API client and bot config (shared by the agent's telegram plugin and the hub)
 ├── symbols.py, update.py, vault.py   symbol/TF from a profile, code updates on the trading PC, password encryption
 └── __main__.py          manual check of the telemetry on a trading PC
 ```
@@ -280,8 +280,11 @@ tester/
 │   ├── agent.py, client.py, config.py   agent, submitter side, agent config (tester/agent.json)
 │   ├── protocol.py, tokens.py, transfer.py, gitcode.py   job kinds, tokens, moving runs as zips, code version
 │   ├── sparse.py, update.py, delivered.py, live.py   lean clone rules, hub self-update, delivered runs, live API
-│   └── plugins/             code running inside the hub: livedata (live candles/trades → data/live/),
-│                            watchdog (machines → Telegram), ff_calendar (ForexFactory news → Telegram)
+│   ├── pluginreload.py      "only a plugin changed" rule and reloading a plugin package without a restart
+│   ├── plugins/             code running inside the hub: livedata (live candles/trades → data/live/),
+│   │                        watchdog (machines → Telegram), ff_calendar (ForexFactory news → Telegram)
+│   └── agent_plugins/       code running inside the agent (base.py + __init__.py = the contract and host):
+│                            telegram (messages from the spool, commands, trade journal, performance, reports)
 ├── compare/                 cross-platform checks: C# vs Python parity, native C# backtest, replay on Mono,
 │                            MultiCharts log vs simulator, zone and trade scans
 ├── dashboard/               static results dashboard + its live section

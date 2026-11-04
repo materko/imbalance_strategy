@@ -44,11 +44,13 @@ Jedno kolo `work()`:
    `updating` (hub mu nič nepridelí); zmena HEAD = `needs_restart` (headless sa reštartuje sám, webapp
    to ukáže). Blokovaný cieľ sa skúša znova každú minútu, chybný každých 5 minút.
 
-**Telegram** (docs/LIVE.md, „Telegram“): keď je na stroji `TELEGRAM_CONFIG`, štvrté vlákno
-(`_telegram_loop`, `tradebot.live.telegram.TelegramService`) posiela správy zo spoolu (vlastný
-kurzor, nezávisle od hubu) a prijíma príkazy (`/pause`, `/resume`, `/flatten`) — zapíše control
-súbor hneď a prepnutie drží ako prekrytie požadovaného stavu (`_with_overrides`), kým ho hub
-v nasadení neprevezme (`live.overrides` v heartbeate).
+**Pluginy agenta** (docs/HUB.md, „Pluginy agenta“; `tester.hub.agent_plugins`): vlastný kód v procese
+agenta, každý vo vlastnom vlákne, agent ho nepozná menom — dnes `telegram` (docs/LIVE.md, „Telegram“):
+správy zo spoolu (vlastný kurzor, nezávisle od hubu) a príkazy (`/pause`, `/resume`, `/flatten`), ktoré
+zapíšu control súbor hneď a prepnutie držia ako prekrytie požadovaného stavu (`_with_overrides`), kým ho
+hub v nasadení neprevezme (`live.overrides` v heartbeate). Nový kód **len v adresári pluginu** načíta
+pomalé vlákno za behu (`_update_plugins`, `PluginUpdater`): z disku vždy, na obchodnom stroji si ho aj
+sám pullne — bez brány nasadení a bez reštartu agenta.
 
 **Rola stroja** (`cfg.role`, docs/HUB.md „Druhy agentov“): obchodný stroj (`live`) výpočty
 nikdy neberie — `accept` drží `false`, pokyn hubu na zapnutie ignoruje a pridelený výpočet
@@ -87,8 +89,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from tradebot.core.paths import (AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR, LIVE_JOURNAL, LIVE_JOURNAL_CURSOR,
-                                 LIVE_JOURNAL_STATE, TELEGRAM_CONFIG, TELEGRAM_CURSOR, TELEGRAM_STATE)
+from tradebot.core.paths import AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR
 
 from . import config as agent_config
 from . import delivered, gitcode
@@ -133,8 +134,9 @@ SPOOL_WATCH_SECONDS = 1.0
 #: Rozumné hranice pre `heartbeat_seconds`, ktoré pošle hub — mimo nich sa nechá config.
 HEARTBEAT_MIN, HEARTBEAT_MAX = 1, 600
 
-#: Ako často sa znova pozrie config Telegramu (súbor pribudol, zmenil sa token či chaty).
-TELEGRAM_RECHECK_SECONDS = 60.0
+#: Ako často obchodný stroj pozrie `origin`, či nie je nový kód len pre pluginy agenta (env
+#: `TRADEBOT_AGENT_PLUGIN_UPDATE` = minúty, 0 = vypnuté).
+PLUGIN_UPDATE_SECONDS = 300.0
 
 #: Nový kód na stroji (fáza 2c): ako často sa blokovaný / chybný cieľ skúša znova.
 CODE_RETRY_BLOCKED = 60.0
@@ -151,7 +153,7 @@ def _migrate_sparse() -> None:
         log.debug("hub agent: sparse migrácia preskočená: %s", exc)
 
 class TelegramHubViews:
-    """Pohľady pluginov hubu pre Telegram agenta (📅 Udalosti …) — vlastné spojenie s krátkym timeoutom,
+    """Pohľady pluginov hubu pre pluginy agenta (Telegram: 📅 Udalosti …) — vlastné spojenie s krátkym timeoutom,
     aby čakanie na hub nebrzdilo heartbeat ani long-poll príkazov."""
 
     def __init__(self, hub_url: str, token: str) -> None:
@@ -178,8 +180,8 @@ class HubAgent:
                  state_path: Path | None = None, config_path: Path | None = None,
                  clock: Callable[[], float] = time.time, version: str = "",
                  live_cursor: Path | None = None, reconciler: Any = None,
-                 apply_state: Path | None = None, updater: Any = None, telegram_config: Path | None = None,
-                 telegram: Any = None, kind: str = "headless") -> None:
+                 apply_state: Path | None = None, updater: Any = None, plugins: Any = None,
+                 kind: str = "headless") -> None:
         self.cfg = cfg
         #: Druh procesu: `webapp` (agent v Testeri) alebo `headless` (`python -m tester.hub agent`).
         self.kind = kind
@@ -211,11 +213,10 @@ class HubAgent:
         self._code_target: dict[str, Any] | None = None
         self._code_update: dict[str, Any] | None = None
         self._code_attempt: tuple[tuple[Any, ...], float] | None = None
-        #: Telegram (správy + príkazy): služba vznikne, keď je config; `telegram` sa dá podstrčiť (testy).
-        self.telegram_config = Path(telegram_config or TELEGRAM_CONFIG)
-        self._telegram: Any = telegram
-        self._telegram_stamp: tuple[float, float] | None = None
-        self._telegram_thread: threading.Thread | None = None
+        #: Pluginy agenta (Telegram …): host vznikne v `start()` (`plugins` sa dá podstrčiť — testy),
+        #: `PluginUpdater` ich drží na novom kóde bez reštartu.
+        self._plugins: Any = plugins
+        self._plugin_updater: Any = None
         self._config_mtime = self._config_stamp()
         self.clock = clock
         self.version = version or gitcode.version()
@@ -282,15 +283,16 @@ class HubAgent:
             self._watcher = threading.Thread(target=self._spool_watch_loop, name="hub-agent-spool",
                                              daemon=True)
             self._watcher.start()
-        if self._telegram_thread is None or not self._telegram_thread.is_alive():
-            self._telegram_thread = threading.Thread(target=self._telegram_loop, name="hub-agent-telegram",
-                                                     daemon=True)
-            self._telegram_thread.start()
+        if self._plugins is None:
+            self._plugins = self._plugin_host()
+            self._plugins.start()
 
     def stop(self) -> None:
         self._stop.set()
         self._work.set()
         self._ship.set()
+        if self._plugins is not None:
+            self._plugins.stop()
 
     @property
     def heartbeat_seconds(self) -> int:
@@ -331,91 +333,84 @@ class HubAgent:
             (self._ship if self._has_shipper() else self._work).set()
         return zmena
 
-    # -- Telegram ----------------------------------------------------------- #
+    # -- pluginy agenta ---------------------------------------------------- #
 
-    def _telegram_loop(self) -> None:
-        """Telegram v samostatnom vlákne: posielanie po 1 správe/s ani long-poll príkazov nesmú brzdiť
-        heartbeat ani shipper. Bez configu len raz za minútu pozrie, či nepribudol."""
-        while not self._stop.is_set():
-            try:
-                svc = self.telegram_service()
-            except Exception as exc:  # noqa: BLE001
-                log.warning("hub agent: telegram sa nedá zapnúť: %s", exc)
-                svc = None
-            if svc is None:
-                self._stop.wait(TELEGRAM_RECHECK_SECONDS)
-                continue
-            try:
-                svc.tick(3.0)
-            except Exception as exc:  # noqa: BLE001 - vlákno nesmie umrieť
-                log.warning("hub agent: telegram: %s: %s", type(exc).__name__, exc)
-                self._stop.wait(5.0)
+    def _plugin_host(self) -> Any:
+        from .agent_plugins import AgentPluginContext, AgentPluginHost
 
-    def telegram_service(self) -> Any:
-        """Služba Telegramu podľa configu; config sa preverí raz za minútu (zmena = nová služba)."""
-        if self._telegram is not None and self._telegram_stamp is None:
-            return self._telegram   # podstrčená v teste
-        now = self.clock()
-        if self._telegram_stamp is not None and now - self._telegram_stamp[0] < TELEGRAM_RECHECK_SECONDS:
-            return self._telegram
-        try:
-            mtime = self.telegram_config.stat().st_mtime
-        except OSError:
-            mtime = -1.0
-        if self._telegram_stamp is not None and self._telegram_stamp[1] == mtime:
-            self._telegram_stamp = (now, mtime)
-            return self._telegram
-        self._telegram_stamp = (now, mtime)
-        from tradebot.live.spool import default_roots
-        from tradebot.live.telegram import TelegramService, load_config
-
-        cfg = load_config(self.telegram_config)
-        if cfg is None:
-            self._telegram = None
-            return None
-        if not cfg.label:
-            cfg.label = self.cfg.name
         hub = TelegramHubViews(self.cfg.hub_url, self.cfg.token) if self.cfg.hub_url else None
-        self._telegram = TelegramService(cfg, TELEGRAM_STATE, TELEGRAM_CURSOR, roots=default_roots,
-                                         issues=self._telegram_issues, on_change=self._telegram_changed,
-                                         journal_paths=(LIVE_JOURNAL, LIVE_JOURNAL_STATE, LIVE_JOURNAL_CURSOR),
-                                         hub=hub)
-        log.info("hub agent: telegram zapnutý (%d chat(y), príkazy %s)", len(cfg.chats),
-                 "áno" if cfg.commands else "nie")
-        return self._telegram
 
-    def _telegram_changed(self) -> None:
-        """Príkaz z Telegramu zmenil režim: zosúladiť hneď (prekrytie ide do reconcilera) a hlásiť hubu."""
+        def kontext(name: str, stopping: threading.Event) -> AgentPluginContext:
+            from tradebot.live.spool import default_roots
+
+            return AgentPluginContext(name, agent_name=self.cfg.name, hub_views=hub, spool_roots=default_roots,
+                                      deployments=self._plugin_deployments, modes_changed=self._plugins_changed,
+                                      clock=self.clock, stopping=stopping)
+
+        host = AgentPluginHost(kontext, clock=self.clock)
+        for name, st in host.status().items():
+            log.info("hub agent: plugin %s%s", name, f" — CHYBA {st['load_error']}" if st["load_error"] else "")
+        return host
+
+    def _plugins_changed(self) -> None:
+        """Plugin (príkaz z Telegramu) zmenil režim: zosúladiť hneď (prekrytie ide do reconcilera) a hlásiť hubu."""
         with self._live_lock:
             self._live_desired_seq += 1
         self._work.set()
 
-    def _telegram_issues(self) -> dict[str, tuple[str, str]]:
-        """Chyby aktívnych nasadení z reconcilera: `dep → (popis, chyba)` (prázdna chyba = v poriadku)."""
-        from tradebot.live.telegram import _platform, _sym
-
+    def _plugin_deployments(self) -> list[tuple[dict[str, Any], str]]:
+        """Aktívne nasadenia z požadovaného stavu a výsledok reconcilera: `[(nasadenie, chyba)]`."""
         rec = self._reconciler
         with self._live_lock:
             desired = self._live_desired
         if rec is None or not desired:
-            return {}
+            return []
         deps = {str(d.get("id")): d for d in desired.get("deployments") or [] if isinstance(d, dict)}
-        out: dict[str, tuple[str, str]] = {}
+        out = []
         for a in rec.fragment().get("applied") or []:
             d = deps.get(str(a.get("deployment")))
-            if d is None or not d.get("active", True):
-                continue
-            popis = f"{d.get('strategy')} {_sym(d.get('symbol'))} {_platform(d.get('platform'))}".strip()
-            out[str(a["deployment"])] = (popis, str(a.get("error") or ""))
+            if d is not None and d.get("active", True):
+                out.append((d, str(a.get("error") or "")))
         return out
 
+    def _get_plugin_updater(self) -> Any:
+        if self._plugin_updater is None and self._plugins is not None:
+            from tradebot.core.env import getenv
+
+            from .agent_plugins import PluginUpdater
+
+            try:
+                minuty = float(getenv("AGENT_PLUGIN_UPDATE") or PLUGIN_UPDATE_SECONDS / 60)
+            except ValueError:
+                minuty = PLUGIN_UPDATE_SECONDS / 60
+            self._plugin_updater = PluginUpdater(
+                self._plugins, self.start_version, version=gitcode.version, pull=gitcode.pull,
+                can_pull=lambda: (self.cfg.role == agent_config.ROLE_LIVE and gitcode.pull_mode() != "host"
+                                  and gitcode.pull_enabled() and not self.state.computing and not self.updating
+                                  and self._pull_for is None and self._pull_request is None),
+                dirty=gitcode.dirty_code, branch=(getenv("GIT_BRANCH", "").strip() or "main"),
+                interval=minuty * 60, clock=self.clock)
+        return self._plugin_updater
+
+    def _update_plugins(self) -> None:
+        """Pomalé vlákno: nový kód len pluginov (z disku, na obchodnom stroji aj z `origin`) → reload bez reštartu.
+        Proces potom berie novú verziu ako svoju — inak by sa headless agent po prvom výpočte zbytočne reštartoval."""
+        upd = self._get_plugin_updater()
+        if upd is None or self.needs_restart:
+            return
+        upd.loaded = self.start_version or upd.loaded
+        nova = upd.tick()
+        if nova:
+            self.start_version = self.version = nova
+            self._work.set()
+
     def _with_overrides(self, desired: dict[str, Any]) -> dict[str, Any]:
-        """Požadovaný stav s režimami prepnutými z Telegramu. Prekrytie padá, keď ho hub prevzal (rovnaký
-        `mode`) alebo nasadenie zmenil neskôr (`updated` ≥ čas prepnutia — hub je novší, vyhráva)."""
-        svc = self._telegram
-        if svc is None or not isinstance(desired, dict):
+        """Požadovaný stav s režimami prepnutými z pluginov (Telegram). Prekrytie padá, keď ho hub prevzal
+        (rovnaký `mode`) alebo nasadenie zmenil neskôr (`updated` ≥ čas prepnutia — hub je novší, vyhráva)."""
+        host = self._plugins
+        if host is None or not isinstance(desired, dict):
             return desired
-        prekrytia = {o["instance"]: o for o in svc.state.overrides()}
+        prekrytia = {o["instance"]: o for o in host.overrides()}
         if not prekrytia:
             return desired
         deps = []
@@ -423,7 +418,7 @@ class HubAgent:
             o = prekrytia.get(str(d.get("instance") or "")) if isinstance(d, dict) and d.get("active", True) else None
             if o is not None:
                 if d.get("mode") == o["mode"] or float(d.get("updated") or 0) >= float(o.get("ts") or 0):
-                    svc.state.drop_override(o["instance"])
+                    host.drop_override(o.get("plugin") or "", o["instance"])
                 else:
                     d = {**d, "mode": o["mode"]}
             deps.append(d)
@@ -465,7 +460,7 @@ class HubAgent:
         výsledku a hlavne `git pull` s dopočítaním dát trvajú aj minúty a hub by medzitým
         agenta vyhlásil za mŕtveho (`agent_timeout` je 45 s) a jeho výpočty dal inému."""
         kroky = [self._upload_finished, self._apply_live, self._update_code, self._do_pull, self._do_requested_pull,
-                 self._drain_collects, self._tidy_delivered]
+                 self._update_plugins, self._drain_collects, self._tidy_delivered]
         if not self._has_shipper():   # bez vlákien (testy, jeden krok) posiela spool aj toto kolo
             kroky.insert(1, self._ship_live)
         for krok in kroky:
@@ -519,16 +514,18 @@ class HubAgent:
                 apply = self._reconciler.status()
             except Exception as exc:  # noqa: BLE001 - stav nesmie zhodiť API
                 apply = {"error": f"{type(exc).__name__}: {exc}"}
-        telegram = None
-        if self._telegram is not None:
+        plugins = None
+        if self._plugins is not None:
             try:
-                telegram = self._telegram.status()
+                plugins = self._plugins.status()
+                if self._plugin_updater is not None and self._plugin_updater.last:
+                    plugins = {**plugins, "_update": dict(self._plugin_updater.last)}
             except Exception as exc:  # noqa: BLE001
-                telegram = {"error": f"{type(exc).__name__}: {exc}"}
+                plugins = {"_error": f"{type(exc).__name__}: {exc}"}
         if self._live is None:
             return {"active": False, "roots": [], "last_ok": None, "last_error": self._live_error,
                     "sent_total": 0, "accepted_total": 0, "pending_bytes": 0, "files": 0, "apply": apply,
-                    "telegram": telegram}
+                    "plugins": plugins}
         st = self._live.status()
         reader = st.get("reader") or {}
         return {"active": True, "roots": reader.get("roots", []),
@@ -537,7 +534,7 @@ class HubAgent:
                 "last_error": st.get("last_error"), "sent_total": st.get("sent_total", 0),
                 "accepted_total": st.get("accepted_total", 0),
                 "pending_bytes": reader.get("pending_bytes", 0), "files": len(reader.get("files") or []),
-                "apply": apply, "telegram": telegram}
+                "apply": apply, "plugins": plugins}
 
     # -- nasadenia z hubu (fáza 2b) ----------------------------------------- #
 
@@ -590,12 +587,12 @@ class HubAgent:
                 log.debug("hub agent: markery kódu sa nedali prečítať: %s", exc)
         with self._live_lock:
             out["code_update"] = dict(self._code_update) if self._code_update else None
-        # režimy prepnuté z Telegramu, ktoré hub ešte nemá v nasadení
-        if self._telegram is not None:
+        # režimy prepnuté z pluginov (Telegram), ktoré hub ešte nemá v nasadení
+        if self._plugins is not None:
             try:
-                out["overrides"] = self._telegram.state.overrides()
+                out["overrides"] = [{k: v for k, v in o.items() if k != "plugin"} for o in self._plugins.overrides()]
             except Exception as exc:  # noqa: BLE001
-                log.debug("hub agent: telegram prekrytia: %s", exc)
+                log.debug("hub agent: prekrytia pluginov: %s", exc)
         return out
 
     def _note_live(self, desired: Any) -> None:
@@ -608,11 +605,8 @@ class HubAgent:
             self._live_desired_seq += 1
             self._code_target = dict(cielovy) if isinstance(cielovy, dict) and cielovy.get("version") else None
         # kto nasadenie zmenil (alebo poslal nový kód) — Telegram ho pripíše k štartu a stopu
-        if self._telegram is not None:
-            try:
-                self._telegram.state.note_desired(desired, self.clock())
-            except Exception as exc:  # noqa: BLE001
-                log.debug("hub agent: telegram kto zmenil: %s", exc)
+        if self._plugins is not None:
+            self._plugins.desired(desired, self.clock())
         self._work.set()
 
     def _apply_live(self) -> None:

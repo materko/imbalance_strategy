@@ -11,9 +11,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from tester.hub.agent import HubAgent
+from tester.hub.agent_plugins import AgentPluginHost
 from tradebot.live.deploy import DeployStore
 from tradebot.live.spool import SpoolReader
-from tradebot.live.telegram import (ControlFiles, LiveNotifier, TelegramBot, TelegramCommands, TelegramConfig,
+from tester.hub.agent_plugins.telegram.service import (ControlFiles, LiveNotifier, TelegramBot, TelegramCommands, TelegramConfig,
                                     TelegramConflict, TelegramError, TelegramState, akey, format_event, ikey,
                                     load_config)
 from tradebot.live.vault import Vault
@@ -528,7 +529,10 @@ def test_load_config_env_a_chyby(tmp_path: Path, monkeypatch):
 def test_prekrytie_v_agentovi_drzi_kym_ho_hub_neprevezme(tmp_path: Path):
     state = TelegramState(tmp_path / "s.json")
     state.set_override(INST, "paused", "telegram:42", 500.0)
-    fake = SimpleNamespace(_telegram=SimpleNamespace(state=state))
+    plugin = SimpleNamespace(overrides=state.overrides, drop_override=state.drop_override,
+                             status=lambda: None, desired=lambda d, n: None)
+    fake = SimpleNamespace(_plugins=AgentPluginHost(lambda n, s: None, classes={}))
+    fake._plugins.slots["telegram"] = SimpleNamespace(plugin=plugin, thread=None)
     dep = {"id": "d1", "instance": INST, "mode": "enabled", "active": True, "updated": 400.0}
     out = HubAgent._with_overrides(fake, {"deployments": [dep]})
     assert out["deployments"][0]["mode"] == "paused" and dep["mode"] == "enabled" and state.overrides()

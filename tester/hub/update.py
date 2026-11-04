@@ -15,6 +15,11 @@ klonu (`docker/hub-entrypoint.sh` ho vyrobí vo volume) a tento watcher ho drž�
    pri stále plnej fronte by sa inak hub nereštartoval nikdy,
 3. potom proces **skončí** — `restart: unless-stopped` ho zdvihne na novom kóde.
 
+**Len pluginy.** Keď nový commit mení len adresáre pluginov hubu (`tester/hub/plugins/<meno>/`) a k tomu
+nanajvýš neutrálne súbory (dokumenty, testy, história behov — `tester.hub.pluginreload`), rozhranie hubu
+s pluginom je rovnaké: zmenené pluginy sa načítajú znova za behu (`PluginHost.reload`), bez drainu
+a reštartu, a commit sa berie ako načítaný. Keď to nejde (starý plugin nedobehne tick), ide sa po starom.
+
 Výpadok je pár sekúnd: agenti heartbeat zopakujú a keď ich hub medzitým zabudne, sami sa
 prihlásia znova (`HubAgent._heartbeat`). Čo bolo rozpočítané, nikto nestratí — stav je po
 každej zmene na disku.
@@ -42,6 +47,7 @@ from tradebot.core.paths import REPO
 from . import gitcode
 from . import protocol as P
 from . import sparse
+from .pluginreload import HUB_PLUGINS, changed_files, plugin_only
 
 __all__ = ["Updater", "DrainWatch", "DEFAULT_INTERVAL"]
 
@@ -121,7 +127,8 @@ class Updater:
                  max_wait: float = 0.0, clock: Callable[[], float] = time.time,
                  pull: Callable[[], dict[str, Any]] | None = None,
                  version: Callable[[], str] | None = None,
-                 quit: Callable[[], None] = _quit) -> None:
+                 quit: Callable[[], None] = _quit,
+                 changed: Callable[[str, str], list[str] | None] = changed_files) -> None:
         self.state = state
         self.interval = max(30.0, float(interval))
         self.branch = branch
@@ -130,7 +137,10 @@ class Updater:
         self.pull = pull or (lambda: fast_forward(self.branch))
         self.version = version or gitcode.version
         self.quit = quit
+        self.changed = changed
         self.start_version = self.version()
+        #: Posledné načítanie pluginov bez reštartu: {"version", "plugins", "at"}.
+        self.reloaded: dict[str, Any] | None = None
         #: Nový commit, na ktorý sa čaká, a odkedy sa naň čaká.
         self.pending: str | None = None
         self.pending_since: float | None = None
@@ -174,6 +184,9 @@ class Updater:
             nova = self.version()
             if not nova or nova == self.start_version:
                 return False
+            if self._reload_plugins(self.start_version, nova):
+                self.start_version = nova
+                return False
             self.pending, self.pending_since = nova, self.clock()
             log.info("hub: novy kod %s -> %s", self.start_version or "?", nova)
         cakaju = self.busy()
@@ -187,6 +200,21 @@ class Updater:
         self.quit()
         return True
 
+    def _reload_plugins(self, old: str, new: str) -> bool:
+        """Commit mení len pluginy (+ neutrálne súbory)? Načítaj ich znova a vráť True — reštart netreba."""
+        host = getattr(self.state, "plugins", None)
+        if host is None or not old:
+            return False
+        mena = plugin_only(self.changed(old, new), HUB_PLUGINS)
+        if mena is None:
+            return False
+        if mena and not host.reload(mena):
+            return False
+        self.reloaded = {"version": new, "plugins": sorted(mena), "at": self.clock()}
+        log.info("hub: novy kod %s -> %s meni len pluginy %s — nacitane bez restartu", old, new,
+                 ", ".join(sorted(mena)) or "(nic na nacitanie)")
+        return True
+
     def _cakalo_sa_dost(self) -> bool:
         if not self.max_wait or self.pending_since is None:
             return False
@@ -196,7 +224,7 @@ class Updater:
         return {"version": self.start_version, "pending": self.pending,
                 "waiting_for": len(self.busy()) if self.pending else 0,
                 "interval_seconds": self.interval, "branch": self.branch,
-                "last_error": self.last_error}
+                "last_error": self.last_error, "plugins_reloaded": self.reloaded}
 
 
 def from_env(state: Any) -> "Updater | None":

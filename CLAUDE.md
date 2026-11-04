@@ -116,6 +116,10 @@ Bez obmedzení. Platia len konvencie repozitára:
   menom, nesie `params` + `settings` behu; výsledok je adresár behu, ktorý sa vráti do
   histórie zadávateľa. Vlastný kód v procese hubu = plugin `tester/hub/plugins/<meno>/` (strážca strojov,
   kalendár ForexFactory); hub ho nepozná menom, plugin vidí len `PluginContext` — docs/HUB.md, „Pluginy“.
+  Vlastný kód v procese agenta = plugin `tester/hub/agent_plugins/<meno>/` (Telegram), vidí len
+  `AgentPluginContext` — docs/HUB.md, „Pluginy agenta“. Zmena len v adresári pluginu sa načíta za behu
+  (hub aj agent, obchodný stroj si ju aj sám pullne); `base.py`/`__init__.py` balíka pluginov sú rozhranie —
+  ich zmena znamená reštart, takže kontrakt meň len keď treba (`tester.hub.pluginreload`).
 
 Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát),
 [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),

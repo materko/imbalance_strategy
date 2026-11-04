@@ -155,7 +155,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-10-31)
+## Kde sme (2026-11-04)
 
 - **Výber stratégií** ide cez [smernicu testovania](docs/SMERNICA_TESTOVANIA.md) — séria
   skúšok, ktoré môžu stratégiu „zabiť" (päť okien, náhoda, Monte Carlo, náklady, …).
@@ -165,6 +165,9 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   kartu Live cez hub ([docs/LIVE.md](docs/LIVE.md)). Smerovanie „stratégia v NT, ordery v MT5"
   má hotovú fázu 1, exekútor a AddOn sú napísané, ale **na MT5 účte ešte neoverené**
   ([docs/ROUTING.md](docs/ROUTING.md), audit [2026-10-26](docs/audity/AUDIT_routing_2026-10-26.md)).
+- **Pluginy** (4. 11.): Telegram je plugin agenta (`tester/hub/agent_plugins/telegram/`) vedľa pluginov hubu;
+  nový kód len v plugine sa načíta za behu — obchodný stroj si ho stiahne sám, bez pauzy nasadení a reštartu,
+  hub bez drainu ([docs/HUB.md](docs/HUB.md), „Pluginy agenta“).
 - **Správy**: stratégia **SPRÁVY 3.0** (zlato po červených správach USA, Python aj C# jadro) má pre každú správu vlastné
   pravidlo (8 pravidiel, prepínače, ktoré správy obchodovať) a kalendár 12 typov správ v čase New York
   (`tradebot/strategies/spravy/calendar.json`) s prevodom pre každý deň — štítky ukazujú čas SK aj NY.

@@ -6,11 +6,12 @@ import json
 import time
 from pathlib import Path
 
-from tradebot.live import perf
-from tradebot.live.journal import JournalBuilder, TradeJournal
-from tradebot.live.reports import perf_chart, perf_view, trades_view
+from tester.hub.agent_plugins.telegram import perf
+from tester.hub.agent_plugins.telegram.journal import JournalBuilder, TradeJournal
+from tester.hub.agent_plugins.telegram.reports import perf_chart, perf_view, trades_view
 from tradebot.live.spool import SpoolReader
-from tradebot.live.telegram import (MENU, TelegramBot, TelegramCommands, TelegramConfig, TelegramState, _multipart,
+from tradebot.live.telegram import _multipart
+from tester.hub.agent_plugins.telegram.service import (MENU, TelegramBot, TelegramCommands, TelegramConfig, TelegramState,
                                     akey, format_event, ikey, load_config)
 
 INST = "mt5_1514925336-FTMO-Demo_US100.cash_3m_vwaporbnet"

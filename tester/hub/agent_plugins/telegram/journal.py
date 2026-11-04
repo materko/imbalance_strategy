@@ -22,7 +22,9 @@ import threading
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
-from .telegram import LiveNotifier, TelegramConfig, TelegramState
+from tradebot.live.telegram import TelegramConfig
+
+from .service import LiveNotifier, TelegramState
 
 __all__ = ["TradeJournal", "JournalBuilder"]
 

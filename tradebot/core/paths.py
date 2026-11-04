@@ -212,7 +212,7 @@ TELEGRAM_CONFIG = LIVE_DIR / "telegram.json"
 TELEGRAM_STATE = LIVE_DIR / "telegram_state.json"
 #: Kurzor Telegramu do spoolu (súbor → offset), nezávislý od kurzora shippera na hub.
 TELEGRAM_CURSOR = LIVE_DIR / "telegram_cursor.json"
-#: Denník obchodov agenta (`tradebot.live.journal`): zámery vstupov, vyplnenia, zrušenia a výstupy s P&L
+#: Denník obchodov agenta (`tester.hub.agent_plugins.telegram.journal`): zámery vstupov, vyplnenia, zrušenia a výstupy s P&L
 #: zo spoolu — pre 🧾 Obchody a 📈 Výkon v Telegrame. JSONL, len pribúda.
 LIVE_JOURNAL = LIVE_DIR / "journal.jsonl"
 #: Kontext inštancií a posledné zapísané `seq` denníka (aby výpadok nič nezdvojil).

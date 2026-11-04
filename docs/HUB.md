@@ -608,6 +608,17 @@ hubu), `views()` + `view(meno)` (pohľady pre Telegram agenta: meno → text gom
 agent ich ukáže v klávesnici, docs/LIVE.md, „Príkazy (agent)“), `teardown()`, `max_tick` (dlhší tick = visí),
 `default_enabled`.
 
+**Nový kód pluginu bez reštartu.** Samoaktualizácia (`--update`, `tester.hub.update`) po fetchi pozrie, čo sa
+zmenilo (`git diff --name-only`, `tester.hub.pluginreload`). Keď **len** súbory v adresároch pluginov
+(`tester/hub/plugins/<meno>/…`) a k tomu nanajvýš súbory, ktoré proces nenačítava (`docs/`, `*.md`,
+`tester/tests/`, história behov a profily, `data/live/`), rozhranie hubu s pluginom ostalo rovnaké: zmenené
+pluginy sa načítajú znova za behu (`PluginHost.reload` — zastaví vlákno a počká na dobehnutie ticku, najviac
+2 min, `teardown`, nový import balíka, `setup`, nové vlákno; nový adresár plugin pridá, zmazaný odoberie) — bez
+drainu a reštartu, výpočty bežia ďalej. Stav to ukáže v `reloads` pluginu a v `plugins_reloaded` samoaktualizácie.
+**Rozhranie** = všetko ostatné: `plugins/base.py` a `plugins/__init__.py`, kód hubu, knižnice, ktoré plugin
+importuje (`tradebot.live.*`, klient Telegramu); ich zmena (aj v tom istom commite s pluginom) ide po starom —
+drain a reštart. Keď starý plugin tick nedokončí, ide sa tiež po starom.
+
 ```bash
 python -m tester.hub plugins            # stav bežiaceho hubu cez API (GET /api/plugins)
 python -m tester.hub plugins --local    # čo je na disku stroja hubu
@@ -688,7 +699,40 @@ v čase `tz`, s prognózou a ✓ pri tých, ku ktorým už upozornenie odišlo.
 `python -m tester.hub plugin ff_calendar` vypíše sledované udalosti týždňa v čase hubu a kedy k nim
 príde upozornenie; `--fetch` stiahne export hneď, `--test` pošle najbližšiu udalosť do Telegramu.
 
-Testy: `tester/tests/test_hub_plugins.py`.
+Testy: `tester/tests/test_hub_plugins.py`, `tester/tests/test_plugin_reload.py`.
+
+## Pluginy agenta
+
+To isté na strane agenta (headless aj vo webapp): vlastný kód **v procese agenta**, ktorý agent nepozná menom.
+Plugin = balík `tester/hub/agent_plugins/<meno>/`, ktorý vystaví `PLUGIN = <podtrieda AgentPlugin>`
+(`tester/hub/agent_plugins/base.py`); `AgentPluginHost` ho nájde sám a dá mu vlastné vlákno
+(`hub-agent-plugin-<meno>`).
+
+| plugin | čo robí |
+|---|---|
+| `telegram` | správy z obchodného stroja zo spoolu, príkazy (`/status`, `/pause`, `/flatten` …), 🧾 Obchody a 📈 Výkon z denníka obchodov (docs/LIVE.md, „Telegram“); klient Bot API a config bota zdieľa s hubom (`tradebot.live.telegram`) |
+
+**Kontrakt.** Plugin vidí len `AgentPluginContext`: `agent_name` (meno stroja), `spool_roots()` (korene spoolu
+platforiem), `deployments()` (aktívne nasadenia a chyba z reconcilera), `hub_views` (pohľady pluginov hubu),
+`modes_changed()` (zmenil režim — agent hneď zosúladí nasadenia), `stopping` (zastavenie aj reload; čakanie
+v pluginu ide cez `stopping.wait`), `clock`, `log`. Dodá `tick()` (`interval` sekúnd medzi tickmi, 0 = čaká
+sám), `status()` (do `live.plugins.<meno>` v stave agenta), `overrides()` + `drop_override()` (lokálne prepnuté
+režimy — agent ich drží v požadovanom stave a hlási hubu v `live.overrides`), `desired()` (požadovaný stav
+z heartbeatu) a `teardown()`.
+
+**Nový kód pluginu bez reštartu** (`PluginUpdater`, pomalé vlákno agenta, rovnaké pravidlo ako na hube):
+
+- kód na disku je novší než načítaný a zmena je len v `tester/hub/agent_plugins/<meno>/…` (+ neutrálne súbory)
+  → zmenené pluginy sa načítajú znova a proces berie nový commit ako svoj (headless sa kvôli tomu nereštartuje,
+  webapp tiež nie — jej odtlačok kódu súbory pluginov nepočíta),
+- **obchodný stroj** (`role: live`) každých 5 min (`TRADEBOT_AGENT_PLUGIN_UPDATE` = minúty, 0 = vypnuté) spraví
+  `git fetch`; keď `origin/main` prináša od spoločného predka len zmeny pluginov agenta, pullne sám — **bez
+  brány nasadení**, lebo kód platforiem (NinjaTrader, MT5) sa nemení a nič sa nereštartuje. Nie, keď agent
+  počíta, ťahá iný kód, má necommitnutý kód alebo beží v kontajneri (`TRADEBOT_HUB_PULL=host`).
+
+Zmena rozhrania (`agent_plugins/base.py`, `agent_plugins/__init__.py`, agent, `tradebot.live.telegram`, čokoľvek
+mimo adresárov pluginov) ide po starom: nový kód na stroj cez „Aktualizovať kód“ (brána: pauza a bez pozície)
+alebo pokyn hubu a reštart agenta.
 
 ## API hubu
 

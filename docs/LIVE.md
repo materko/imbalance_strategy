@@ -551,9 +551,12 @@ keď spadne práve to, čo by ho malo hlásiť. Preto **dve miesta, žiadne v ad
 
 | čo | kde | prečo tam |
 |---|---|---|
-| obchody, signály, režim, štart/koniec, `note`, chyby nasadení | **agent** (`tradebot.live.telegram`, vlákno `hub-agent-telegram`) | je na tom istom stroji ako platformy a číta ich spool; hub ani webapp nepotrebuje |
+| obchody, signály, režim, štart/koniec, `note`, chyby nasadení | **agent** (plugin agenta `tester/hub/agent_plugins/telegram/`, vlákno `hub-agent-plugin-telegram`) | je na tom istom stroji ako platformy a číta ich spool; hub ani webapp nepotrebuje |
 | príkazy `/status`, `/pause`, `/resume`, `/flatten`; 🧾 Obchody a 📈 Výkon z denníka obchodov | **agent** | zapíše control súbor — ten istý mechanizmus ako webapp, EA aj NT8 ho čítajú do 2 s; v MQL5 ani C# nič nové |
 | „stroj sa neozval“ / „znova sa hlási“ | **hub** (plugin `watchdog`, `tester/hub/plugins`) | spadnutý agent, vypnutý stroj ani výpadok internetu doma zvnútra ohlásiť nejde |
+
+Telegram agenta je **plugin agenta** (`tester/hub/agent_plugins/telegram/`, docs/HUB.md, „Pluginy agenta“):
+nový kód len v ňom si obchodný stroj stiahne a načíta sám za behu — bez pauzy nasadení a bez reštartu agenta.
 
 Adaptér by nepridal nič, čo tieto dve miesta nepokryjú, a porušil by pravidlo „platforma nechodí na
 sieť“ (MT5 `WebRequest` je blokujúci, chce allow-list v každom termináli, v Testeri nejde; v NT8 by
@@ -690,7 +693,7 @@ hubu, `v:<plugin>:<pohľad>` jeden pohľad, `n` výber sledovaných účtov, `N:
 
 ### Denník obchodov (agent)
 
-`tradebot.live.journal`: vlastný kurzor do spoolu (`LIVE_JOURNAL_CURSOR`, nezávislý od shippera aj od správ),
+`tester.hub.agent_plugins.telegram.journal`: vlastný kurzor do spoolu (`LIVE_JOURNAL_CURSOR`, nezávislý od shippera aj od správ),
 raz za 10 s v tom istom vlákne ako Telegram. Udalosti prejdú tým istým `format_event` ako správy (kontext
 inštancie, priemerná cena vstupu, P&L výstupu), len namiesto správy vznikne záznam do `LIVE_JOURNAL`
 (`tester/live/journal.jsonl`, len pribúda): `entry` (zámer, len `ready` — predhistória nie), `cancel` (zrušený
@@ -698,7 +701,7 @@ inštancie, priemerná cena vstupu, P&L výstupu), len namiesto správy vznikne 
 takže v denníku sú aj staré obchody. Čo už je zapísané, drží `LIVE_JOURNAL_STATE` (`instance|session → seq`);
 pád medzi zápisom a stavom zdvojí riadok v súbore, čítanie ho dá raz. Beh v Testeri sa nezapisuje.
 Obchod pre výkon = jedno id vstupu (čiastočné výstupy sa sčítajú), uzavretý posledným výstupom
-(`tradebot.live.perf`); prehľady pre Telegram skladá `tradebot.live.reports`.
+(`…telegram.perf`); prehľady pre Telegram skladá `…telegram.reports`.
 
 Proti záplave: všetky riadky jedného kola (reštart troch stratégií = 3× `bye` + 3× `hello`) idú v jednej
 správe a chyba nasadenia sa porovnáva bez času pokusu na konci (`(23:09:44 UTC)` — AddOn ho mení pri

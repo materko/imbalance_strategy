@@ -12,10 +12,17 @@ import sys
 #: história behov, profily a archív sa menia pri každom Pushi a reštart nepotrebujú.
 _CODE_EXT = (".py", ".js", ".html", ".css", ".json")
 _NOT_CODE = ("tester/runs/", "tester/profiles/", "tester/archive/", "data/archive/", "docs/")
+#: Adresáre pluginov: kód v ich podadresároch načíta agent (a hub) za behu bez reštartu
+#: (`tester.hub.pluginreload`); súbory priamo v nich (`base.py`, `__init__.py`) sú rozhranie a počítajú sa.
+_PLUGIN_DIRS = ("tester/hub/agent_plugins/", "tester/hub/plugins/")
+
+
+def _plugin_file(path: str) -> bool:
+    return any(path.startswith(d) and "/" in path[len(d):] for d in _PLUGIN_DIRS)
 
 
 def code_signature() -> str | None:
-    """Odtlačok kódu v HEAD (bez histórie behov a profilov); `None`, keď git nie je k dispozícii."""
+    """Odtlačok kódu v HEAD (bez histórie behov, profilov a kódu pluginov); `None`, keď git nie je k dispozícii."""
     import hashlib
     import subprocess
     from pathlib import Path
@@ -30,7 +37,7 @@ def code_signature() -> str | None:
     h = hashlib.sha1()
     for line in p.stdout.splitlines():
         path = line.split("\t", 1)[-1]
-        if path.endswith(_CODE_EXT) and not path.startswith(_NOT_CODE):
+        if path.endswith(_CODE_EXT) and not path.startswith(_NOT_CODE) and not _plugin_file(path):
             h.update(line.encode())
     return h.hexdigest()
 

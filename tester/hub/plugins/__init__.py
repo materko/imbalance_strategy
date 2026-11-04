@@ -5,6 +5,9 @@ Plugin = balík `tester/hub/plugins/<meno>/`, ktorý vystaví `PLUGIN = <podtrie
 `tick()` každých `interval` sekúnd, kým nemá v `hub_data/plugins/<meno>/config.json`
 `"enabled": false` (preverí sa pri každom ticku, reštart netreba). Výnimka v pluginu hub nezhodí —
 zapíše sa do stavu a strážca (`watchdog`) ju ohlási. Hub nepozná plugin menom.
+
+Nový kód len v adresári pluginu načíta `reload(mená)` za behu — samoaktualizácia hubu (`tester.hub.update`)
+ho zavolá namiesto drainu a reštartu (`tester.hub.pluginreload`).
 """
 
 from __future__ import annotations
@@ -30,8 +33,17 @@ def discover() -> list[str]:
     return sorted(m.name for m in pkgutil.iter_modules(__path__) if m.ispkg and not m.name.startswith("_"))
 
 
-def _load_class(name: str) -> type[HubPlugin]:
-    mod = importlib.import_module(f"{__name__}.{name}")
+#: Koľko sekúnd sa pri `reload` čaká, kým starý plugin dokončí tick; potom sa reload vzdá (hub sa reštartuje).
+RELOAD_JOIN_SECONDS = 120.0
+
+
+def _load_class(name: str, fresh: bool = False) -> type[HubPlugin]:
+    if fresh:
+        from ..pluginreload import reload_package
+
+        mod = reload_package(f"{__name__}.{name}")
+    else:
+        mod = importlib.import_module(f"{__name__}.{name}")
     cls = getattr(mod, "PLUGIN", None)
     if not (isinstance(cls, type) and issubclass(cls, HubPlugin)):
         raise TypeError(f"{name}: balík nevystavuje PLUGIN = podtrieda HubPlugin")
@@ -54,6 +66,9 @@ class _Slot:
         self.error_since = 0.0
         self.errors = 0          # po sebe idúce
         self.tick_started = 0.0  # > 0 = tick práve beží
+        self.stop = threading.Event()
+        self.reloads = 0
+        self.loaded_at = 0.0
 
 
 class PluginHost:
@@ -66,21 +81,28 @@ class PluginHost:
         self.clock = clock
         self.started = clock()
         self._stop = threading.Event()
+        self._started = False
+        self._classes = classes
+        self._reload_lock = threading.Lock()
         self.slots: dict[str, _Slot] = {}
         for name in (sorted(classes) if classes is not None else (names if names is not None else discover())):
-            slot = _Slot(name)
-            self.slots[name] = slot
-            try:
-                cls = classes[name] if classes is not None else _load_class(name)
-                p = cls()
-                p.name = name
-                p.title = p.title or name
-                ctx = PluginContext(name, self.root, hub, notifier, host=self, clock=clock)
-                p.setup(ctx)
-                slot.plugin, slot.ctx = p, ctx
-            except Exception as exc:  # noqa: BLE001 - zlý plugin nesmie zhodiť hub
-                slot.load_error = f"{type(exc).__name__}: {exc}"
-                log.warning("plugin %s sa nenačítal: %s", name, slot.load_error)
+            self.slots[name] = self._load(name)
+
+    def _load(self, name: str, fresh: bool = False) -> _Slot:
+        slot = _Slot(name)
+        slot.loaded_at = self.clock()
+        try:
+            cls = self._classes[name] if self._classes is not None else _load_class(name, fresh)
+            p = cls()
+            p.name = name
+            p.title = p.title or name
+            ctx = PluginContext(name, self.root, self.hub, self.notifier, host=self, clock=self.clock)
+            p.setup(ctx)
+            slot.plugin, slot.ctx = p, ctx
+        except Exception as exc:  # noqa: BLE001 - zlý plugin nesmie zhodiť hub
+            slot.load_error = f"{type(exc).__name__}: {exc}"
+            log.warning("plugin %s sa nenačítal: %s", name, slot.load_error)
+        return slot
 
     def enabled(self, name: str) -> bool:
         s = self.slots[name]
@@ -113,31 +135,71 @@ class PluginHost:
         return True
 
     def start(self) -> None:
-        for name, s in self.slots.items():
-            if s.plugin is None:
-                continue
+        self._started = True
+        for s in self.slots.values():
+            self._start_slot(s)
 
-            def loop(name: str = name, s: _Slot = s) -> None:
-                while not self._stop.is_set():
-                    try:
-                        if self.enabled(name):
-                            self.run_once(name)
-                    except Exception as exc:  # noqa: BLE001 - aj config/enabled
-                        s.last_error = f"{type(exc).__name__}: {exc}"
-                    if self._stop.wait(max(1.0, float(s.plugin.interval))):
-                        break
+    def _start_slot(self, s: _Slot) -> None:
+        if s.plugin is None or self._stop.is_set():
+            return
+        name = s.name
 
-            s.thread = threading.Thread(target=loop, name=f"hub-plugin-{name}", daemon=True)
-            s.thread.start()
+        def loop() -> None:
+            while not (self._stop.is_set() or s.stop.is_set()):
+                try:
+                    if self.enabled(name):
+                        self.run_once(name)
+                except Exception as exc:  # noqa: BLE001 - aj config/enabled
+                    s.last_error = f"{type(exc).__name__}: {exc}"
+                if s.stop.wait(max(1.0, float(s.plugin.interval))):
+                    break
+
+        s.thread = threading.Thread(target=loop, name=f"hub-plugin-{name}", daemon=True)
+        s.thread.start()
 
     def stop(self) -> None:
         self._stop.set()
         for s in self.slots.values():
+            s.stop.set()
             if s.plugin is not None:
                 try:
                     s.plugin.teardown()
                 except Exception as exc:  # noqa: BLE001
                     log.warning("plugin %s teardown: %s", s.name, exc)
+
+    def reload(self, names: set[str] | list[str], *, join_seconds: float = RELOAD_JOIN_SECONDS) -> bool:
+        """Načíta pluginy `names` znova z disku za behu: zastaví vlákno (počká, kým dobehne tick), `teardown`,
+        nový import balíka, `setup`, nové vlákno. Plugin, ktorý na disku pribudol, sa pridá; ktorý zmizol, sa
+        odoberie. `False` = niektorý starý plugin nedobehol do `join_seconds` (volajúci reštartuje proces);
+        plugin, ktorý sa po novom nenačíta, ostane v stave s `load_error` (strážca ho ohlási)."""
+        with self._reload_lock:
+            na_disku = set(discover()) if self._classes is None else set(self._classes)
+            for name in sorted(set(names)):
+                stary = self.slots.get(name)
+                if stary is not None:
+                    stary.stop.set()
+                    if stary.thread is not None and stary.thread.is_alive():
+                        stary.thread.join(timeout=join_seconds)
+                        if stary.thread.is_alive():
+                            log.warning("plugin %s nedobehol do %.0f s — reload sa vzdáva", name, join_seconds)
+                            return False
+                    if stary.plugin is not None:
+                        try:
+                            stary.plugin.teardown()
+                        except Exception as exc:  # noqa: BLE001
+                            log.warning("plugin %s teardown: %s", name, exc)
+                if name not in na_disku:
+                    self.slots.pop(name, None)
+                    log.info("plugin %s z disku zmizol — odobratý", name)
+                    continue
+                novy = self._load(name, fresh=True)
+                novy.reloads = (stary.reloads + 1) if stary is not None else 0
+                self.slots[name] = novy
+                self.slots = dict(sorted(self.slots.items()))
+                if self._started:
+                    self._start_slot(novy)
+                log.info("plugin %s načítaný znova%s", name, f" — CHYBA {novy.load_error}" if novy.load_error else "")
+            return True
 
     def status(self) -> list[dict[str, Any]]:
         out = []
@@ -156,6 +218,7 @@ class PluginHost:
                 "last_error": s.last_error, "errors": s.errors, "error_since": s.error_since,
                 "tick_started": s.tick_started, "max_tick": s.plugin.max_tick if s.plugin else 0.0,
                 "interval": s.plugin.interval if s.plugin else 0.0,
+                "reloads": s.reloads, "loaded_at": s.loaded_at,
                 "problem": detail.pop("problem", None), "detail": detail,
             })
         return out
