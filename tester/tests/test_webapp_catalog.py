@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from tester.webapp.api.catalog import equity_curve, payoff_ratio, profile_group, title_metrics
+from tester.webapp.api.catalog import equity_curve, explainer_lead, payoff_ratio, profile_group, title_metrics
 from tester.webapp.store import RunStore
 
 
@@ -83,3 +83,14 @@ def test_catalog_vyberie_najlepsi_beh_a_priradi_ho_profilu(client):
     assert prof["golden_coinbase_btcusd_3m"]["best_run"] is None
     # stratégia bez behov v histórii je v katalógu tiež, len bez najlepšieho behu
     assert rows["orb"]["best"] is None and rows["orb"]["runs"] == 0
+
+
+def test_karta_ma_popis_z_vysvetlivky_kazdej_strategie():
+    """Popis na karte je veta „V jednej vete“ z VYSVETLIVKA.md — má ju každá stratégia v registri."""
+    from tradebot.strategies import STRATEGIES
+
+    assert explainer_lead("# X\n\n> V jednej vete: kúpi dno.\n\nďalej") == "kúpi dno."
+    assert explainer_lead("> V jednej vete: obchoduje **veľké medzery** a `FVG`.") == "obchoduje veľké medzery a FVG."
+    assert explainer_lead("# bez vety") == ""
+    chyba = [k for k, s in STRATEGIES.items() if not explainer_lead(s.explainer())]
+    assert not chyba, f"stratégie bez vety „V jednej vete“ vo VYSVETLIVKA.md: {chyba}"

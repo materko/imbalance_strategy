@@ -844,6 +844,8 @@ table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(
 .cat-spark.neg .line { stroke: var(--neg); }
 .cat-spark.neg .area { fill: var(--neg); }
 .cat-best { margin-top: -6px; }
+.cat-lead { margin: -2px 0 0; color: var(--muted); line-height: 1.45; }
+.cat-lead button.linkish { font-size: inherit; color: var(--accent); white-space: nowrap; }
 .cat-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
 .cat-badge.run { background: var(--chip-bg); color: var(--chip-fg); }
 .cat-rest { margin-top: 18px; }

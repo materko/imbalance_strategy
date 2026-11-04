@@ -67,6 +67,15 @@ def profile_group(name: str, strategy: str) -> str:
     return "user" if user_profiles.is_user(name, strategy) else "repo"
 
 
+_LEAD = re.compile(r"^>\s*V jednej vete:\s*(.+)$", re.M)
+
+
+def explainer_lead(markdown: str) -> str:
+    """Veta „V jednej vete: …“ z vysvetlivky — popis stratégie na karte katalógu (prázdny, keď chýba)."""
+    m = _LEAD.search(markdown or "")
+    return re.sub(r"\*\*|__|`", "", m.group(1)).strip() if m else ""   # bez Markdownu — karta ukazuje holý text
+
+
 def _profile_stem(value: Any) -> str:
     """Meno profilu z `settings.profile` behu — býva meno aj cesta k súboru."""
     return PurePath(str(value).replace("\\", "/")).stem.lower() if value else ""
@@ -151,6 +160,7 @@ def catalog(records: list[dict[str, Any]], load_run) -> list[dict[str, Any]]:
         out.append({
             "key": key, "title": spec.title, "csharp": spec.csharp_dir is not None,
             "default_timeframe": spec.default_timeframe, "has_explainer": spec.explainer_path.is_file(),
+            "lead": explainer_lead(spec.explainer()),
             "runs": sum(1 for r in runs if r.get("status") == "done"),
             "last_run": max((r.get("id") or "" for r in runs), default="") or None,
             "best": best_out, "profiles": profiles,

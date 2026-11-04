@@ -41,7 +41,8 @@ function catFamilies(rows) {
     for (const p of profiles) p.deployed = deployed.filter(d => d.profile === p.name && d.strategy === p.strategy).length;
     return {
       deployed, deployedProfiles,
-      key: f.key, title: head.title, ports, profiles, best, counts, market, type,
+      key: f.key, title: head.title, lead: head.lead || "", hasExplainer: !!head.has_explainer,
+      ports, profiles, best, counts, market, type,
       live: ports.some(p => p.csharp) || head.csharp,
       runs: f.members.reduce((s, m) => s + (m.runs || 0), 0),
       lastRun: f.members.map(m => m.last_run || "").sort().pop() || "",
@@ -113,6 +114,8 @@ function catCard(f) {
         <div class="cat-tags"><span class="chip">${esc(f.market)}</span>${f.type ? `<span class="chip">${esc(f.type)}</span>` : ""}${badges}</div></div>
       <code class="muted small">${esc(f.key)}</code>
     </div>
+    ${f.lead || f.hasExplainer ? `<p class="cat-lead small">${esc(f.lead)}${f.hasExplainer
+      ? ` <button type="button" class="linkish" data-cat-explain="${esc(f.key)}" title="vysvetlivka: myšlienka, kedy vstupuje, stop a cieľ, hlavné nastavenia">Ako funguje?</button>` : ""}</p>` : ""}
     ${b ? `${catSpark(b.equity)}
     <div class="cat-best small muted">najlepší beh: ${esc(b.pair || "")} ${esc(b.timeframe || "")} · ${esc(b.timerange || "")}${b.strategy !== f.key ? ` · ${esc(b.strategy)}` : ""}</div>
     <div class="cat-kpis">
@@ -253,6 +256,7 @@ function initCatalog() {
     else if (t.dataset.catDrawer) { cat.drawer = t.dataset.catDrawer; cat.tab = "all"; renderCatDrawer(); }
     else if (t.dataset.catTab) { cat.tab = t.dataset.catTab; renderCatDrawer(); }
     else if (t.dataset.catRun) { showView("history"); openRun(t.dataset.catRun); }
+    else if (t.dataset.catExplain) { explainerOpen(t.dataset.catExplain); }
     else if (t.dataset.catOpen) { $("#cat-drawer").hidden = true; catalogOpen(t.dataset.catOpen, t.dataset.catProfile || ""); }
   };
   // panel profilov je vnútri karty, takže jeho tlačidlá obslúži ten istý poslucháč

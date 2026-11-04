@@ -54,8 +54,9 @@ function explainerHtml(md) {
 
 function explainerClose() { $("#explainer").hidden = true; }
 
-async function explainerOpen() {
-  const key = $("#strategy").value;
+/** Okno vysvetlivky; bez kľúča (klik vo formulári dostane udalosť) pre stratégiu vybranú v Novom behu. */
+async function explainerOpen(strategyKey) {
+  const key = typeof strategyKey === "string" && strategyKey ? strategyKey : $("#strategy").value;
   const body = $("#explainer-body");
   body.innerHTML = '<p class="muted">Načítavam…</p>';
   $("#explainer").hidden = false;
