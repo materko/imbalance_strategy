@@ -11,7 +11,7 @@ from tradebot.live.journal import JournalBuilder, TradeJournal
 from tradebot.live.reports import perf_chart, perf_view, trades_view
 from tradebot.live.spool import SpoolReader
 from tradebot.live.telegram import (MENU, TelegramBot, TelegramCommands, TelegramConfig, TelegramState, _multipart,
-                                    format_event, ikey, load_config)
+                                    akey, format_event, ikey, load_config)
 
 INST = "mt5_1514925336-FTMO-Demo_US100.cash_3m_vwaporbnet"
 INST2 = "ninjatrader_Sim101_MNQ 12-26_3m_ibsnet"
@@ -163,8 +163,15 @@ class Bot:
 
 
 class Controls:
+    """Bežiace inštancie pre /status — 📈 Výkon ráta len ich účty."""
+
+    def __init__(self, live=()):
+        self.live = list(live)
+
     def instances(self, now=None):
-        return []
+        return [{"instance": i, "platform": "mt5" if i.startswith("mt5") else "ninjatrader",
+                 "account": "1514925336-FTMO-Demo" if i.startswith("mt5") else "Sim101", "ended": e}
+                for i, e in self.live]
 
 
 class Hub:
@@ -191,8 +198,8 @@ def _cmd(tmp: Path, hub=None):
     b.pump()
     bot = Bot()
     cfg = TelegramConfig(token="t", chats=[7], capital=1000)
-    c = TelegramCommands(bot, cfg, TelegramState(tmp / "tg.json"), Controls(), journal=j, hub=hub,
-                         clock=lambda: (T0 + 800_000) / 1000)
+    c = TelegramCommands(bot, cfg, TelegramState(tmp / "tg.json"), Controls([(INST, False), (INST2, False)]),
+                         journal=j, hub=hub, clock=lambda: (T0 + 800_000) / 1000)
     return c, bot
 
 
@@ -230,6 +237,40 @@ def test_klavesnica_gombiky_obchody_vykon_graf_a_pohlady_hubu(tmp_path: Path):
     assert bot.edited[-1][2].startswith("Hub nedostupný")
     c._hub_views_at -= 1000            # pohľady znova, hub dole = posledné známe ostávajú
     assert c.menu()[-1] == ["📅 Udalosti", "🗂 Účty", "❓ Pomoc"] and hub.calls == 2
+
+
+def test_vykon_len_beziace_ucty(tmp_path: Path):
+    """📈 Výkon a graf: účet bez bežiacej inštancie (odstránený, skončený `bye`) do výkonu ani kapitálu
+    nejde; 🧾 Obchody ho ukazujú ďalej."""
+    c, bot = _cmd(tmp_path)
+    c.controls = Controls([(INST, False), (INST2, True)])       # NT8 Sim101 skončil
+    text = c.perf_view("a", chat=7)[0]
+    assert "Obchody <b>2</b>" in text and "(+0.50 %)" in text and "MNQ" not in text
+    assert "MNQ" in c.trades_view(chat=7)[0]
+    c.send_chart(7, "a", "*")
+    assert "2 obchodov" in bot.photos[-1][2]
+    c.controls = Controls([])
+    assert "žiadny uzavretý obchod" in c.perf_view("a", chat=7)[0]
+
+
+def test_vykon_a_grafy_po_uctoch_aj_spolu(tmp_path: Path):
+    """Dva bežiace účty: 📈 Výkon ukáže súhrn spolu, riadok na každý účet, gombíky účtov; /perf pošle rovno
+    grafy spolu + každý účet; výber účtu (`@akey`) ráta len jeho obchody a jeho kapitál."""
+    c, bot = _cmd(tmp_path)
+    text, rows = c.perf_view("a", chat=7)
+    assert "všetky účty spolu" in text and "<b>Po účtoch</b>" in text and "MT5 · 1514925336-FTMO-Demo" in text
+    mt5 = akey("mt5", "1514925336-FTMO-Demo")
+    data = [g["callback_data"] for r in rows for g in r]
+    assert f"pf:a:@{mt5}" in data and "pf:a:*" in data and "ga:a" in data
+    c.handle(_cb(f"pf:a:@{mt5}"))
+    assert "účet MT5 · 1514925336-FTMO-Demo" in bot.edited[-1][2] and "Obchody <b>2</b>" in bot.edited[-1][2]
+    assert "(+0.50 %)" in bot.edited[-1][2] and "MNQ" not in bot.edited[-1][2].split("Po stratégiách")[0]
+    bot.photos.clear()
+    c.handle(_msg("📈 Výkon", uid=3))
+    assert bot.sent[-1][1].startswith("<b>📈 Výkon</b> · 30 dní") and len(bot.photos) == 3
+    assert "všetky účty spolu" in bot.photos[0][2] and "účet NT8 · Sim101" in bot.photos[2][2]
+    c.handle(_cb("ga:a", uid=4))
+    assert len(bot.photos) == 6 and bot.answered[-1] == "grafov: 3"
 
 
 def test_bez_hubu_a_bez_dennika(tmp_path: Path):

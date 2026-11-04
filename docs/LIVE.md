@@ -664,7 +664,13 @@ Ovláda sa **gombíkmi**, nič netreba písať: `/start` (raz) pridá stálu kl�
   winrate, P&L $ a % (s `capital`), profit factor, max drawdown $ a %, najdlhšia séria výhier a prehier,
   priemerná výhra / prehra, najlepší / najhorší, kapitál začiatok → koniec, výstupy; pri všetkých stratégiách
   aj riadok na každú. Gombíky Dnes / 7 dní / 30 dní / Všetko, stratégie, **🖼 Graf** (equity krivka po obchodoch
-  ako obrázok, `sendPhoto`; Pillow) a 🧾 Obchody. P&L je **hrubý** — spool poplatky nenesie.
+  ako obrázok, `sendPhoto`; Pillow) a 🧾 Obchody. P&L je **hrubý** — spool poplatky nenesie. Výkon aj graf
+  rátajú **len účty, ktoré práve bežia** (majú v `/status` inštanciu, ktorá neskončila `bye`) — obchody
+  odstránených a starých účtov ostávajú v denníku a v 🧾 Obchodoch, do výkonu ani do kapitálu na % nejdú.
+  Pri viac účtoch je súhrn **všetky účty spolu**, pod ním riadok na každý účet a gombíky 👤 účtu (výkon a graf
+  len jeho, `pf:<obdobie>:@<akey>`) a 👥 Všetky účty spolu. **📈 Výkon / `/perf` pošle hneď aj grafy**: spolu
+  a každý účet zvlášť (účet bez obchodu v období vynechá); gombík „🖼 Grafy: spolu + po účtoch“ (`ga:<obdobie>`)
+  ich pošle za iné obdobie.
 - **📅 Udalosti** a ďalšie pohľady **pluginov hubu** (docs/HUB.md, „Pluginy“) — agent si ich zoznam pýta
   z `GET /api/plugins/views` (raz za 5 min, hub dole = posledný známy), text z `GET /api/plugins/<p>/views/<v>`;
   gombík pod ním obnoví. `/hub` ukáže všetky. Bez hubu povie „hub nedostupný“ — zvyšok Telegramu ide ďalej.

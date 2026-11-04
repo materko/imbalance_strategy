@@ -1005,7 +1005,7 @@ class TelegramCommands:
     Gombíky (`callback_data`): `s` stav, `o` ordery, `m:<kľúč>` ponuka stratégie, `P:`/`R:<kľúč|*>` pauza /
     spustenie, `F:<kľúč|*>` otázka na flatten, `X:<čas>:<kľúč|*>` potvrdený flatten (`*` = všetky),
     `A:1`/`A:0` auto-obnova stavu (každých `AUTO_SECONDS`, pripnutá; v chate najviac jedna),
-    `tr:` / `pf:` / `gr:` obchody, výkon a graf z denníka (`tradebot.live.reports`), `h` pohľady hubu,
+    `tr:` / `pf:` / `gr:` / `ga:` obchody, výkon, graf a grafy spolu + po účtoch z denníka (`tradebot.live.reports`), `h` pohľady hubu,
     `v:<plugin>:<pohľad>` jeden pohľad pluginu hubu, `n` výber sledovaných účtov, `N:<účet>` prepne
     účet (`akey`), `N:*` / `N:-` všetky / žiadny.
 
@@ -1126,6 +1126,12 @@ class TelegramCommands:
         return [r for r in (self.journal.read() if self.journal is not None else [])
                 if akey(r.get("platform"), r.get("account")) not in skryte]
 
+    def _perf_records(self, chat: Any = None) -> list[dict[str, Any]]:
+        """Záznamy pre 📈 Výkon a graf: len účty, ktoré práve bežia — majú v /status inštanciu, ktorá
+        neskončila (`bye`) — aby výkon ani kapitál na percentá nesčítali odstránené a staré účty."""
+        bezia = {akey(i.get("platform"), i.get("account")) for i in self._instances(chat) if not i.get("ended")}
+        return [r for r in self._records(chat) if akey(r.get("platform"), r.get("account")) in bezia]
+
     def trades_view(self, kluc: str = "*", *, chat: Any = None) -> tuple[str, list[list[dict]]]:
         from .reports import trades_view
 
@@ -1138,7 +1144,7 @@ class TelegramCommands:
 
         if self.journal is None:
             return "Denník obchodov tu nebeží.", []
-        return perf_view(self._records(chat), period, kluc or "*", self.cfg.capital, ikey, self.clock())
+        return perf_view(self._perf_records(chat), period, kluc or "*", self.cfg.capital, ikey, self.clock(), akey)
 
     def send_chart(self, chat: Any, period: str, kluc: str) -> str:
         """Pošle graf equity ako obrázok; vráti oznam pre gombík."""
@@ -1146,12 +1152,31 @@ class TelegramCommands:
 
         if self.journal is None:
             return "Denník obchodov tu nebeží."
-        png, popis = perf_chart(self._records(chat), period, kluc or "*", self.cfg.capital, ikey, self.clock())
+        png, popis = perf_chart(self._perf_records(chat), period, kluc or "*", self.cfg.capital, ikey, self.clock(), akey)
         if png is None:
             self.bot.send(chat, popis + "\n\n(graf nie je — žiadny obchod v období alebo chýba Pillow)", html=True)
             return "graf nie je"
         self.bot.send_photo(chat, png, popis, [[{"text": "📈 Výkon", "callback_data": f"pf:{period}:{kluc}"}]])
         return "graf odoslaný"
+
+    def send_charts(self, chat: Any, period: str = "30") -> str:
+        """Grafy equity bežiacich účtov: všetky spolu a pri viac účtoch aj každý zvlášť (bez obchodov v období
+        ho vynechá); 📈 Výkon ich pošle sám pod súhrn."""
+        from .reports import accounts, perf_chart
+
+        if self.journal is None:
+            return "Denník obchodov tu nebeží."
+        rec, now = self._perf_records(chat), self.clock()
+        ucty = accounts(rec, akey)
+        kluce = ["*"] + ([f"@{k}" for k in ucty] if len(ucty) > 1 else [])
+        poslane = 0
+        for k in kluce:
+            png, popis = perf_chart(rec, period, k, self.cfg.capital, ikey, now, akey)
+            if png is None:
+                continue
+            self.bot.send_photo(chat, png, popis, [[{"text": "📈 Výkon", "callback_data": f"pf:{period}:{k}"}]])
+            poslane += 1
+        return f"grafov: {poslane}" if poslane else "graf nie je — žiadny obchod v období alebo chýba Pillow"
 
     def _allowed(self, chat: Any, user: Any) -> bool:
         """Smie čítať (stav, ordery, výkon): povolený chat a — keď sú `admins` — admin."""
@@ -1210,6 +1235,7 @@ class TelegramCommands:
         elif cmd == "/perf":
             t, b = self.perf_view(chat=chat)
             self.bot.send(chat, t, b, html=True)
+            self.send_charts(chat)          # grafy hneď: všetky bežiace účty spolu a každý zvlášť
         elif cmd in ("/accounts", "/notify"):
             t, b = self.accounts_view(chat)
             self.bot.send(chat, t, b, html=True)
@@ -1270,6 +1296,9 @@ class TelegramCommands:
         if akcia == "gr":
             obdobie, _, ciel = kluc.partition(":")
             self.bot.answer(q.get("id", ""), self.send_chart(chat, obdobie, ciel))
+            return
+        if akcia == "ga":
+            self.bot.answer(q.get("id", ""), self.send_charts(chat, kluc)[:200])
             return
         if akcia == "o":
             t, b = self.orders_view(chat=chat)

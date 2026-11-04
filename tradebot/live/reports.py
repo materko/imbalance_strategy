@@ -1,8 +1,8 @@
 """Prehľady pre Telegram agenta z denníka obchodov (docs/LIVE.md, „Telegram“): 🧾 Obchody a 📈 Výkon.
 
 Funkcie vracajú `(text HTML, gombíky)` ako ostatné pohľady `TelegramCommands`. Gombíky (`callback_data`):
-`tr:<k>` obchody, `pf:<obdobie>:<k>` výkon, `gr:<obdobie>:<k>` graf equity (`k` = `ikey` inštancie alebo
-`*` všetky, obdobie `d` dnes / `7` / `30` / `a` všetko).
+`tr:<k>` obchody, `pf:<obdobie>:<k>` výkon, `gr:<obdobie>:<k>` graf equity (`k` = `ikey` inštancie, `@<akey>`
+účet alebo `*` všetky, obdobie `d` dnes / `7` / `30` / `a` všetko), `ga:<obdobie>` grafy spolu a po účtoch.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from typing import Any
 
 from . import perf
 
-__all__ = ["PERIODS", "trades_view", "perf_view", "perf_chart", "since_ms"]
+__all__ = ["PERIODS", "accounts", "trades_view", "perf_view", "perf_chart", "since_ms"]
 
 PERIODS = {"d": "Dnes", "7": "7 dní", "30": "30 dní", "a": "Všetko"}
 #: Koľko orderov ukáže 🧾 Obchody.
@@ -76,10 +76,44 @@ def _name(i: dict[str, Any]) -> str:
     return f"{_sym(i.get('symbol'))} {i.get('strategy') or '?'}"
 
 
-def _strategy_rows(inst: dict[str, dict[str, Any]], prefix: str, kluc: str) -> list[list[dict[str, str]]]:
+def accounts(records: list[dict[str, Any]], akey: Any) -> dict[str, dict[str, Any]]:
+    """`akey` → {platform, account} účtov v záznamoch, zoradené platforma → účet."""
+    out: dict[str, dict[str, Any]] = {}
+    for r in records:
+        if r.get("instance"):
+            out[akey(r.get("platform"), r.get("account"))] = {"platform": r.get("platform"), "account": r.get("account")}
+    return dict(sorted(out.items(), key=lambda kv: (str(kv[1]["platform"]), str(kv[1]["account"]))))
+
+
+def _acc_name(a: dict[str, Any]) -> str:
+    return f"{_plat(a.get('platform'))} · {a.get('account') or '?'}"
+
+
+def _who(kluc: str, inst: dict[str, dict[str, Any]], ucty: dict[str, dict[str, Any]], plat: bool = False) -> str:
+    if kluc == "*":
+        return "všetky účty spolu" if len(ucty) > 1 else "všetky stratégie"
+    if kluc.startswith("@"):
+        return "účet " + _acc_name(ucty.get(kluc[1:]) or {})
+    i = inst.get(kluc) or {}
+    return _name(i) + (f" · {_plat(i.get('platform'))}" if plat else "")
+
+
+def _account_rows(ucty: dict[str, dict[str, Any]], prefix: str, kluc: str) -> list[list[dict[str, str]]]:
+    """Gombíky účtov (len pri viac účtoch) a „Všetky účty spolu“."""
+    if len(ucty) < 2:
+        return []
+    gomb = [{"text": ("• " if kluc == f"@{k}" else "") + "👤 " + _acc_name(a)[:34], "callback_data": f"{prefix}@{k}"}
+            for k, a in ucty.items()]
+    rows = [gomb[j:j + 2] for j in range(0, len(gomb), 2)]
+    rows.append([{"text": ("• " if kluc == "*" else "") + "👥 Všetky účty spolu", "callback_data": f"{prefix}*"}])
+    return rows
+
+
+def _strategy_rows(inst: dict[str, dict[str, Any]], prefix: str, kluc: str,
+                   with_all_accounts: bool = False) -> list[list[dict[str, str]]]:
     gomb = [{"text": ("• " if k == kluc else "") + _name(i)[:38], "callback_data": f"{prefix}{k}"} for k, i in inst.items()]
     rows = [gomb[j:j + 2] for j in range(0, len(gomb), 2)]
-    if len(inst) > 1:
+    if len(inst) > 1 and not with_all_accounts:
         rows.append([{"text": ("• " if kluc == "*" else "") + "Všetky stratégie", "callback_data": f"{prefix}*"}])
     return rows
 
@@ -140,23 +174,53 @@ def _summary_lines(s: dict[str, Any]) -> list[str]:
     return out
 
 
-def _select(records: list[dict[str, Any]], period: str, kluc: str, ikey: Any, now: float) -> list[dict[str, Any]]:
+def _match(t: dict[str, Any], kluc: str, ikey: Any, akey: Any) -> bool:
+    if kluc == "*":
+        return True
+    if kluc.startswith("@"):
+        return akey is not None and akey(t.get("platform"), t.get("account")) == kluc[1:]
+    return ikey(t["instance"]) == kluc
+
+
+def _select(records: list[dict[str, Any]], period: str, kluc: str, ikey: Any, now: float,
+            akey: Any = None) -> list[dict[str, Any]]:
     od = since_ms(period, now)
     tr = perf.trades(records)
-    return [t for t in tr if (kluc == "*" or ikey(t["instance"]) == kluc) and (od is None or float(t["t"]) >= od)]
+    return [t for t in tr if _match(t, kluc, ikey, akey) and (od is None or float(t["t"]) >= od)]
+
+
+def _capital(capital_cfg: Any, tr: list[dict[str, Any]], kluc: str, inst: dict[str, dict[str, Any]],
+             ucty: dict[str, dict[str, Any]]) -> float | None:
+    mena = {str(t.get("account")) for t in tr}
+    if not mena and kluc in inst:
+        mena = {str(inst[kluc].get("account"))}
+    if not mena and kluc.startswith("@") and kluc[1:] in ucty:
+        mena = {str(ucty[kluc[1:]].get("account"))}
+    return perf.capital_for(capital_cfg, mena)
 
 
 def perf_view(records: list[dict[str, Any]], period: str, kluc: str, capital_cfg: Any, ikey: Any,
-              now: float) -> tuple[str, list[list[dict]]]:
-    """Výkon za obdobie: súhrn ako v Testeri a pri všetkých stratégiách riadok na každú."""
+              now: float, akey: Any = None) -> tuple[str, list[list[dict]]]:
+    """Výkon za obdobie: súhrn ako v Testeri, pri všetkých riadok na každý účet (keď ich je viac) a na každú
+    stratégiu. `kluc` = `*`, `ikey` inštancie alebo `@<akey>` účtu (`akey` = kľúč účtu, bez neho bez účtov)."""
     period = period if period in PERIODS else "30"
     inst = _instances(records, ikey)
-    tr = _select(records, period, kluc, ikey, now)
-    ucty = {str(t.get("account")) for t in tr} or ({str(inst[kluc].get("account"))} if kluc in inst else set())
-    s = perf.summary(tr, perf.capital_for(capital_cfg, ucty))
-    kto = "všetky stratégie" if kluc == "*" else _name(inst.get(kluc) or {}) + f" · {_plat((inst.get(kluc) or {}).get('platform'))}"
+    ucty = accounts(records, akey) if akey is not None else {}
+    tr = _select(records, period, kluc, ikey, now, akey)
+    s = perf.summary(tr, _capital(capital_cfg, tr, kluc, inst, ucty))
+    kto = _who(kluc, inst, ucty, plat=True)
     riadky = [f"<b>📈 Výkon</b> · {PERIODS[period]} · {_e(kto)}", ""] + _summary_lines(s)
-    if kluc == "*" and len({t["instance"] for t in tr}) > 1:
+    if kluc == "*" and len(ucty) > 1:
+        riadky.append("\n<b>Po účtoch</b>")
+        for k, a in ucty.items():
+            moje = [t for t in tr if akey(t.get("platform"), t.get("account")) == k]
+            if not moje:
+                continue
+            si = perf.summary(moje, perf.capital_for(capital_cfg, {str(a.get("account"))}))
+            pct = f" ({si['pnl_pct']:+.2f} %)" if si.get("pnl_pct") is not None else ""
+            riadky.append(f"• <b>{_e(_acc_name(a))}</b> · {si['trades']} obch. · {si['winrate']:.0f} % · "
+                          f"{_e(_money(si['pnl_abs'], si['unit']))}{pct}")
+    if (kluc == "*" or kluc.startswith("@")) and len({t["instance"] for t in tr}) > 1:
         riadky.append("\n<b>Po stratégiách</b>")
         for k, i in inst.items():
             moje = [t for t in tr if t["instance"] == i["instance"]]
@@ -171,21 +235,26 @@ def perf_view(records: list[dict[str, Any]], period: str, kluc: str, capital_cfg
     riadky.append("\n<i>Z telemetrie (spool); P&L hrubý, bez poplatkov"
                   + ("" if s.get("pnl_pct") is not None or not tr else "; % chce „capital“ v telegram.json") + ".</i>")
     obdobia = [{"text": ("• " if p == period else "") + t, "callback_data": f"pf:{p}:{kluc}"} for p, t in PERIODS.items()]
-    rows = [obdobia] + _strategy_rows(inst, f"pf:{period}:", kluc)
+    acc_rows = _account_rows(ucty, f"pf:{period}:", kluc)
+    rows = [obdobia] + acc_rows + _strategy_rows(inst, f"pf:{period}:", kluc, with_all_accounts=bool(acc_rows))
     rows.append([{"text": "🖼 Graf", "callback_data": f"gr:{period}:{kluc}"},
-                 {"text": "🧾 Obchody", "callback_data": f"tr:{kluc}"},
+                 {"text": "🧾 Obchody", "callback_data": f"tr:{'*' if kluc.startswith('@') else kluc}"},
                  {"text": "🔄", "callback_data": f"pf:{period}:{kluc}"}])
+    if acc_rows:
+        rows.append([{"text": "🖼 Grafy: spolu + po účtoch", "callback_data": f"ga:{period}"}])
     return "\n".join(riadky), rows
 
 
 def perf_chart(records: list[dict[str, Any]], period: str, kluc: str, capital_cfg: Any, ikey: Any,
-               now: float) -> tuple[bytes | None, str]:
-    """Graf equity za obdobie a popis pod obrázkom (HTML); bez obchodov alebo bez Pillow obrázok None."""
+               now: float, akey: Any = None) -> tuple[bytes | None, str]:
+    """Graf equity za obdobie a popis pod obrázkom (HTML); bez obchodov alebo bez Pillow obrázok None.
+    `kluc` = `*` (všetky účty spolu), `ikey` inštancie alebo `@<akey>` účtu."""
     period = period if period in PERIODS else "30"
     inst = _instances(records, ikey)
-    tr = _select(records, period, kluc, ikey, now)
-    kto = "všetky stratégie" if kluc == "*" else _name(inst.get(kluc) or {})
-    s = perf.summary(tr, perf.capital_for(capital_cfg, {str(t.get("account")) for t in tr}))
+    ucty = accounts(records, akey) if akey is not None else {}
+    tr = _select(records, period, kluc, ikey, now, akey)
+    kto = _who(kluc, inst, ucty)
+    s = perf.summary(tr, _capital(capital_cfg, tr, kluc, inst, ucty))
     png = perf.equity_png(tr, f"{kto} · {PERIODS[period]}")
     pct = f" ({s['pnl_pct']:+.2f} %)" if s.get("pnl_pct") is not None else ""
     popis = (f"<b>📈 {_e(kto)}</b> · {PERIODS[period]}\n{s['trades']} obchodov · winrate {s['winrate']:.1f} % · "
