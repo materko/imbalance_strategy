@@ -1141,7 +1141,8 @@ function ldGroupRow(key, members, collapsed) {
     <td></td><td>${kod}</td><td></td>
     <td title="${bar ? utc(bar) + " UTC — najčerstvejší bar účtu" : ""}">${bar ? liveAge(bar, lv.now) : "—"}</td>
     <td class="ld-actions">
-      ${btn("paused", "", "pauza", "pozastaviť obchodujúce nasadenia účtu")}
+      ${n("paused") || !n("enabled") ? btn("paused", "", "pauza", "pozastaviť obchodujúce nasadenia účtu") : ""}
+      ${n("enabled") ? btn("enabled", "", "zapnúť", "znova spustiť pozastavené (aj po flatten) nasadenia účtu") : ""}
       ${btn("flatten", "danger", "flatten", "zrušiť čakajúce vstupy a zavrieť pozície všetkých aktívnych nasadení účtu")}
       ${btn("delete", "ghost danger", "odstrániť", "odstrániť všetky aktívne nasadenia účtu z platformy")}
     </td></tr>`;
@@ -1614,6 +1615,8 @@ async function ldSetProfile(id, sel) {
 const LD_GROUP_ACTIONS = {
   paused: { pick: d => d.active && d.mode === "enabled", what: "Pozastaviť",
             note: "Nové vstupy sa neposielajú; SL/TP otvorených pozícií bežia ďalej." },
+  enabled: { pick: d => d.active && d.mode !== "enabled", what: "Zapnúť",
+             note: "Stratégie znova začnú posielať nové vstupy." },
   flatten: { pick: d => d.active && d.mode !== "flatten", what: "FLATTEN",
              note: "Zrušia sa všetky čakajúce vstupy a zavrú otvorené pozície u brokera, potom pauza." },
   delete: { pick: d => d.active, what: "ODSTRÁNIŤ",
