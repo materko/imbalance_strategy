@@ -95,7 +95,9 @@ def _strategy_title(engine_key: str) -> str:
 
 
 def _rows(db: sqlite3.Connection, instance: str, kinds: tuple[str, ...]) -> list[tuple[str, dict[str, Any]]]:
-    q = "SELECT session, body FROM events WHERE instance = ? AND kind IN (%s) ORDER BY t, id" % ",".join("?" * len(kinds))
+    # `+t`: radiť až vybrané riadky (index `instance, kind`) — s indexom `instance, t` by sqlite inak prechádzal
+    # všetky udalosti inštancie (bary, kresby, m1) v poradí času a málo početné druhy z nich vyberal (5 s namiesto 0,05)
+    q = "SELECT session, body FROM events WHERE instance = ? AND kind IN (%s) ORDER BY +t, id" % ",".join("?" * len(kinds))
     return [(r[0], json.loads(r[1])) for r in db.execute(q, (instance, *kinds))]
 
 

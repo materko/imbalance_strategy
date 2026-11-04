@@ -69,6 +69,9 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE INDEX IF NOT EXISTS events_instance_kind ON events (instance, kind, id);
 CREATE INDEX IF NOT EXISTS events_instance_bt ON events (instance, bt);
 CREATE INDEX IF NOT EXISTS events_instance_session_kind ON events (instance, session, kind, id);
+-- čas udalostí inštancie: „od kedy beží“ (MIN(t)) prechádzal bez neho všetky jej udalosti — pri 7 M udalostiach
+-- zrkadla 3 s na každé otvorenie karty Live dňa; na existujúcom súbore sa postaví raz pri otvorení (4 GB ~6 s)
+CREATE INDEX IF NOT EXISTS events_instance_t ON events (instance, t);
 """
 
 #: Koľko barov dá snapshot bez / s vybranou session, keď volajúci počet neurčí.
