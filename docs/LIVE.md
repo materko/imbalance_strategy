@@ -673,7 +673,11 @@ Ovláda sa **gombíkmi**, nič netreba písať: `/start` (raz) pridá stálu kl�
   Pri viac účtoch je súhrn **všetky účty spolu**, pod ním riadok na každý účet a gombíky 👤 účtu (výkon a graf
   len jeho, `pf:<obdobie>:@<akey>`) a 👥 Všetky účty spolu. **📈 Výkon / `/perf` pošle hneď aj grafy**: spolu
   a každý účet zvlášť (účet bez obchodu v období vynechá); gombík „🖼 Grafy: spolu + po účtoch“ (`ga:<obdobie>`)
-  ich pošle za iné obdobie.
+  ich pošle za iné obdobie. Grafy posiela **vlastné vlákno** (front najviac `PHOTO_QUEUE`): Telegram fotky
+  občas spracúva desiatky sekúnd až minúty (4. 11. zmerané 0,3 s až viac než 120 s pre ten istý obrázok, správy
+  vždy ~0,3 s), takže gombík sa potvrdí hneď („posielam graf…“) a ostatné príkazy idú ďalej. `sendPhoto` má
+  limit `PHOTO_TIMEOUT` (30 s) a neopakuje sa (fotka môže prísť neskôr); nepodarený graf ohlási správa.
+  📈 Výkon pod grafom (fotka) pošle pohľad novou správou — popis fotky sa prepísať nedá.
 - **📅 Udalosti** a ďalšie pohľady **pluginov hubu** (docs/HUB.md, „Pluginy“) — agent si ich zoznam pýta
   z `GET /api/plugins/views` (raz za 5 min, hub dole = posledný známy), text z `GET /api/plugins/<p>/views/<v>`;
   gombík pod ním obnoví. `/hub` ukáže všetky. Bez hubu povie „hub nedostupný“ — zvyšok Telegramu ide ďalej.

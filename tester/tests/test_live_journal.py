@@ -322,3 +322,60 @@ def test_hub_pohlady_pluginov_cez_api(tmp_path: Path):
     (tmp_path / "hub" / "plugins" / "kal").mkdir(parents=True)
     (tmp_path / "hub" / "plugins" / "kal" / "config.json").write_text('{"enabled": false}', encoding="utf-8")
     assert cl.get("/api/plugins/views").json() == []
+
+
+def test_grafy_idu_vlastnym_vlaknom_a_gombik_pod_grafom_posle_novu_spravu(tmp_path: Path):
+    """sendPhoto občas visí desiatky sekúnd (Telegram fotku spracúva): príkazy ani odpoveď na gombík naň nečakajú,
+    chyba grafu príde ako správa; 📈 Výkon pod grafom (fotka) pošle pohľad novou správou namiesto prepisu."""
+    import threading
+
+    c, bot = _cmd(tmp_path)
+    pusti = threading.Event()
+    pomaly = []
+
+    def send_photo(chat, png, caption="", buttons=None):
+        pusti.wait(5)
+        pomaly.append(caption)
+        if len(pomaly) == 2:
+            raise TimeoutError("The read operation timed out")
+
+    bot.send_photo = send_photo
+    c.photo_async = True
+    t0 = time.monotonic()
+    c.handle(_cb("ga:a"))
+    assert time.monotonic() - t0 < 1 and bot.answered[-1].startswith("posielam grafy")
+    c.handle(_cb("o", uid=3))                                    # príkaz ide, kým graf visí
+    assert "Ordery" in bot.edited[-1][2]
+    pusti.set()
+    c._photos.join()
+    assert len(pomaly) == 3 and "nepodarilo poslať" in bot.sent[-1][1]
+
+    foto = {"update_id": 9, "callback_query": {"id": "q", "data": "pf:30:*", "from": {"id": 42},
+                                               "message": {"chat": {"id": 7}, "message_id": 6, "photo": [{}]}}}
+    pocet = len(bot.edited)
+    c.handle(foto)
+    assert len(bot.edited) == pocet and bot.sent[-1][1].startswith("<b>📈 Výkon</b>")
+
+
+def test_send_photo_nedrzi_zamok_pocas_nahravania():
+    """Pomalý sendPhoto v jednom vlákne nesmie zablokovať `send` (správy, stav) v inom."""
+    import threading
+
+    vnutri, pusti = threading.Event(), threading.Event()
+
+    def opener(m, p, t):
+        if m == "sendPhoto":
+            assert t <= 30
+            vnutri.set()
+            pusti.wait(5)
+        return {"ok": True, "result": {}}
+
+    bot = TelegramBot("t", opener=opener, sleep=lambda s: None, min_interval=0)
+    th = threading.Thread(target=bot.send_photo, args=(7, b"\x89PNG"))
+    th.start()
+    assert vnutri.wait(5)
+    t0 = time.monotonic()
+    bot.send(8, "stav")
+    assert time.monotonic() - t0 < 1
+    pusti.set()
+    th.join(5)

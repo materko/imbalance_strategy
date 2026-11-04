@@ -34,6 +34,7 @@ import html
 import json
 import logging
 import os
+import queue
 import re
 import threading
 import time
@@ -724,6 +725,8 @@ MODE_ICON = {"enabled": "▶", "paused": "⏸", "flatten": "⛔"}
 MODE_TEXT = {"enabled": "obchoduje", "paused": "pauza", "flatten": "flatten"}
 #: Potvrdenie flattenu platí toľko sekúnd.
 CONFIRM_SECONDS = 120
+#: Najviac toľko grafov čaká vo fronte vlákna grafov (ďalšie ťuknutia sa odmietnu).
+PHOTO_QUEUE = 12
 #: Auto-obnova stavu: správa sa prepíše každých toľko sekúnd, kým ju človek nevypne.
 AUTO_SECONDS = 60
 
@@ -791,7 +794,9 @@ class TelegramCommands:
 
     def __init__(self, bot: TelegramBot, cfg: TelegramConfig, state: TelegramState, controls: ControlFiles,
                  *, clock: Callable[[], float] = time.time, on_change: Callable[[], None] | None = None,
-                 journal: Any = None, hub: Any = None) -> None:
+                 journal: Any = None, hub: Any = None, photo_async: bool = False) -> None:
+        """`photo_async` = grafy posiela vlastné vlákno (`_photo_loop`), aby pomalý `sendPhoto` nezastavil
+        príkazy; bez neho (testy) idú hneď."""
         self.bot = bot
         self.cfg = cfg
         self.state = state
@@ -803,6 +808,40 @@ class TelegramCommands:
         self.disabled: str | None = None
         self._hub_views: list[dict[str, str]] = []
         self._hub_views_at: float | None = None
+        self.photo_async = photo_async
+        self._photos: queue.Queue[tuple[Any, bytes, str, list[list[dict]] | None]] = queue.Queue(maxsize=PHOTO_QUEUE)
+        self._photo_thread: threading.Thread | None = None
+
+    # -- grafy (sendPhoto) -------------------------------------------------- #
+
+    def _photo(self, chat: Any, png: bytes, caption: str, buttons: list[list[dict]] | None) -> bool:
+        """Pošle graf hneď, alebo ho zaradí vláknu grafov; False = front je plný (graf sa zahodí)."""
+        if not self.photo_async:
+            self.bot.send_photo(chat, png, caption, buttons)
+            return True
+        if self._photo_thread is None or not self._photo_thread.is_alive():
+            self._photo_thread = threading.Thread(target=self._photo_loop, name="telegram-photos", daemon=True)
+            self._photo_thread.start()
+        try:
+            self._photos.put_nowait((chat, png, caption, buttons))
+            return True
+        except queue.Full:
+            return False
+
+    def _photo_loop(self) -> None:
+        while True:
+            chat, png, caption, buttons = self._photos.get()
+            try:
+                self.bot.send_photo(chat, png, caption, buttons)
+            except Exception as exc:  # noqa: BLE001 - graf, čo nedošiel, nesmie zastaviť ďalšie
+                log.warning("telegram: graf sa neposlal: %s: %s", type(exc).__name__, exc)
+                try:
+                    self.bot.send(chat, f"🖼 Graf sa nepodarilo poslať ({_e(type(exc).__name__)}) — Telegram "
+                                        "fotku nespracoval, skús 🖼 Graf znova o chvíľu.", html=True)
+                except Exception:  # noqa: BLE001
+                    pass
+            finally:
+                self._photos.task_done()
 
     # -- hub a klávesnica --------------------------------------------------- #
 
@@ -933,8 +972,9 @@ class TelegramCommands:
         if png is None:
             self.bot.send(chat, popis + "\n\n(graf nie je — žiadny obchod v období alebo chýba Pillow)", html=True)
             return "graf nie je"
-        self.bot.send_photo(chat, png, popis, [[{"text": "📈 Výkon", "callback_data": f"pf:{period}:{kluc}"}]])
-        return "graf odoslaný"
+        if not self._photo(chat, png, popis, [[{"text": "📈 Výkon", "callback_data": f"pf:{period}:{kluc}"}]]):
+            return "grafy sa ešte posielajú — skús o chvíľu"
+        return "posielam graf…" if self.photo_async else "graf odoslaný"
 
     def send_charts(self, chat: Any, period: str = "30") -> str:
         """Grafy equity bežiacich účtov: všetky spolu a pri viac účtoch aj každý zvlášť (bez obchodov v období
@@ -951,9 +991,12 @@ class TelegramCommands:
             png, popis = perf_chart(rec, period, k, self.cfg.capital, ikey, now, akey)
             if png is None:
                 continue
-            self.bot.send_photo(chat, png, popis, [[{"text": "📈 Výkon", "callback_data": f"pf:{period}:{k}"}]])
+            if not self._photo(chat, png, popis, [[{"text": "📈 Výkon", "callback_data": f"pf:{period}:{k}"}]]):
+                return "grafy sa ešte posielajú — skús o chvíľu"
             poslane += 1
-        return f"grafov: {poslane}" if poslane else "graf nie je — žiadny obchod v období alebo chýba Pillow"
+        if not poslane:
+            return "graf nie je — žiadny obchod v období alebo chýba Pillow"
+        return f"posielam grafy: {poslane}…" if self.photo_async else f"grafov: {poslane}"
 
     def _allowed(self, chat: Any, user: Any) -> bool:
         """Smie čítať (stav, ordery, výkon): povolený chat a — keď sú `admins` — admin."""
@@ -1115,8 +1158,14 @@ class TelegramCommands:
         else:   # `s`, `cancel`, neznáme
             t, b = self.status_view(auto=auto, chat=chat)
         self.bot.answer(q.get("id", ""), oznam.split("\n", 1)[0][:200] if oznam else "")
-        if msg.get("message_id") is not None:
-            self.bot.edit(chat, msg["message_id"], t, b, html=True)
+        if msg.get("message_id") is None:
+            return
+        if "photo" in msg:
+            # gombík pod grafom (fotka s popisom): text fotky sa prepísať nedá (400 „no text in the message“) —
+            # pohľad ide novou správou
+            self.bot.send(chat, t, b, html=True)
+            return
+        self.bot.edit(chat, msg["message_id"], t, b, html=True)
 
     # -- auto-obnova --------------------------------------------------------- #
 
@@ -1392,7 +1441,7 @@ class TelegramService:
 
             self.journal = TradeJournal(journal_paths[0])
         self.commands = (TelegramCommands(self.bot, cfg, self.state, self.controls, clock=clock, on_change=on_change,
-                                          journal=self.journal, hub=hub)
+                                          journal=self.journal, hub=hub, photo_async=True)
                          if cfg.commands else None)
         self._menu_set = False
 

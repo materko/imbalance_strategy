@@ -40,6 +40,10 @@ API = "https://api.telegram.org"
 #: Telegram pustí do jedného chatu zhruba 1 správu za sekundu; dlhšie správy sa delia.
 MIN_SEND_INTERVAL = 1.05
 MAX_TEXT = 3800
+#: Najdlhšie čakanie na odpoveď `sendPhoto`. Telegram fotky občas spracúva desiatky sekúnd až minúty (zmerané
+#: 4. 11. na nas-win11: 0,3 s až viac než 120 s pre ten istý obrázok, správy vždy ~0,3 s); po timeoute sa
+#: neopakuje — fotka môže prísť neskôr a bola by dvakrát.
+PHOTO_TIMEOUT = 30.0
 NOTE_LEVELS = {"info": 0, "warn": 1, "error": 2}
 
 
@@ -211,7 +215,8 @@ class TelegramBot:
         return None
 
     def send_photo(self, chat_id: int, png: bytes, caption: str = "", buttons: list[list[dict]] | None = None) -> Any:
-        """Obrázok (PNG) s popisom v HTML; ten istý odstup v chate ako `send`."""
+        """Obrázok (PNG) s popisom v HTML; ten istý odstup v chate ako `send`. Zámok drží len odstup, nie
+        nahrávanie: Telegram fotky občas spracúva aj desiatky sekúnd a `send` iného vlákna by inak čakal."""
         payload: dict[str, Any] = {"chat_id": chat_id, "photo": bytes(png), "caption": caption[:1024], "parse_mode": "HTML"}
         if buttons:
             payload["reply_markup"] = {"inline_keyboard": buttons}
@@ -219,10 +224,8 @@ class TelegramBot:
             cakaj = self._last_send.get(chat_id, -1e9) + self.min_interval - self.clock()
             if cakaj > 0:
                 self.sleep(cakaj)
-            try:
-                return self.call("sendPhoto", payload, timeout=60.0)
-            finally:
-                self._last_send[chat_id] = self.clock()
+            self._last_send[chat_id] = self.clock()
+        return self.call("sendPhoto", payload, timeout=PHOTO_TIMEOUT)
 
     def updates(self, offset: int, timeout: int = 3) -> list[dict]:
         return list(self.call("getUpdates", {"offset": offset, "timeout": timeout,
