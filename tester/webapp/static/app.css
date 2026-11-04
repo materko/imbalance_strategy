@@ -880,6 +880,76 @@ button.linkish:hover { color: var(--accent); text-decoration: underline; }
 .cat-ptable td { vertical-align: top; }
 .cat-ptable td:nth-child(2), .cat-ptable td:nth-child(6) { white-space: normal; min-width: 180px; }
 
+/* Hodnotenie stratégie — okno po kliknutí na kartu (strategy_report.js) */
+.cat-card { cursor: pointer; }
+.cat-card:hover { border-color: var(--accent); }
+.srep { padding: 3vh 16px; }
+.srep-box { max-width: 1120px; padding: 20px 24px 24px; }
+.srep-box h2 { margin: 0 36px 6px 0; font-size: 19px; }
+.srep-box h4 { margin: 18px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+#srep-head .cat-lead { margin: 8px 0 0; }
+.srep-bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 12px 0 6px; padding: 10px 0;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); position: sticky; top: -20px; background: var(--card); z-index: 2; }
+.srep-bar select { max-width: 420px; margin-left: 6px; }
+.srep-bar .cat-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.srep-bar .chip-btn { flex: none; }
+.srep-body { font-size: 13.5px; line-height: 1.5; min-height: 240px; }
+.srep-body .notice { background: var(--surface-alt); border-left: 3px solid var(--amber, #f0b44c); padding: 8px 12px; border-radius: 6px; }
+.srep-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin: 8px 0; }
+.srep-kpis .cat-kpi { padding: 7px 9px; }
+.srep-kpis .cat-kpi b { font-size: 15px; }
+.srep-kpis .cat-kpi b.neg { color: var(--neg-strong); }
+.srep-chart { width: 100%; min-height: 200px; }
+.srep-two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.srep-table td, .srep-table th { font-size: 12px; }
+.srep-table td.pos { color: var(--pos-strong); }
+.srep-table td.neg { color: var(--neg-strong); }
+.srep-table tr.srep-group td { background: var(--surface-alt); font-weight: 600; cursor: default; }
+.srep-table tr:not([data-srep-run]) { cursor: default; }
+.srep-note { white-space: normal !important; min-width: 200px; }
+.srep-verdicts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.srep-verdicts > div { border-radius: 8px; padding: 6px 12px 8px; background: var(--surface-alt); }
+.srep-verdicts h4 { margin: 4px 0; }
+.srep-verdicts ul { margin: 0 0 0 18px; padding: 0; font-size: 12.5px; }
+.srep-good { border-left: 3px solid var(--pos); }
+.srep-bad { border-left: 3px solid var(--neg); }
+.srep-months { border-collapse: separate; border-spacing: 2px; font-size: 11.5px; width: 100%; }
+.srep-months th { font-weight: 500; color: var(--muted); padding: 2px 4px; text-align: center; }
+.srep-months tbody th { text-align: right; }
+.srep-m { text-align: center; padding: 4px 2px; border-radius: 4px; min-width: 38px; }
+.srep-m[data-sign="pos"] { background: color-mix(in srgb, var(--pos) calc(var(--a) * 100%), transparent); }
+.srep-m[data-sign="neg"] { background: color-mix(in srgb, var(--neg) calc(var(--a) * 100%), transparent); }
+.srep-m.empty { background: var(--surface-alt); }
+.srep-ysum { padding-left: 8px; font-weight: 600; }
+.srep-md h3, .srep-md h4, .srep-md h5 { font-size: 13px; margin: 12px 0 4px; text-transform: none; letter-spacing: 0; color: var(--ink); }
+.srep-md p { margin: 6px 0; }
+.srep-md ul, .srep-md ol { margin: 6px 0 6px 20px; padding: 0; }
+.srep-md code, .srep-body code { background: var(--surface-alt); padding: 1px 4px; border-radius: 4px; font-size: 12px; }
+.srep-md .xp-lead { background: var(--surface-alt); border-left: 3px solid var(--accent); padding: 8px 12px; border-radius: 6px; }
+.srep-md-table { border-collapse: collapse; font-size: 12px; margin: 6px 0; }
+.srep-md-table th, .srep-md-table td { border-bottom: 1px solid var(--line); padding: 4px 8px; text-align: left; }
+.srep-md-table th { color: var(--muted); font-weight: 600; }
+.srep-md-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.srep-code { background: var(--surface-alt); padding: 8px 10px; border-radius: 6px; font-size: 12px; overflow: auto; }
+.srep-sec { border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; margin: 8px 0; }
+.srep-sec > summary { cursor: pointer; font-weight: 600; }
+.srep-char { margin: 8px 0; }
+.srep-ref { border-bottom: 1px dotted var(--muted); }
+.srep-posudok ol > li { margin: 8px 0; }
+.srep-kv { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+.srep-kv th { text-align: left; color: var(--muted); font-weight: 500; padding: 4px 16px 4px 0; vertical-align: top; }
+.srep-kv td { padding: 4px 0; }
+.srep-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 8px; }
+.srep-docs { margin: 4px 0 10px 18px; padding: 0; }
+.srep-docs li { margin: 3px 0; }
+.srep-actions { margin-top: 16px; display: flex; gap: 8px; }
+#srep-doc:not(:empty) { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 8px; }
+@media (max-width: 900px) {
+  .srep-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .srep-two, .srep-verdicts { grid-template-columns: 1fr; }
+  .srep-box { padding: 16px; }
+}
+
 /* --------------------------------------------------------------------------- *
  * Vzhľad „TradeBot Lab" (návrh 29. 10. 2026, plátno Claude Design): písmo Inter, čísla
  * v JetBrains Mono, tmavá téma takmer čierna s akcentom #19c8a2 (predvolená, svetlá ostáva

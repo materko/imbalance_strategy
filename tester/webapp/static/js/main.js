@@ -135,6 +135,7 @@ async function init() {
   $("#git-push").onclick = () => gitAction("push");
 
   initCatalog();
+  initStrategyReport();
   for (const b of $$("#statusbar [data-go]")) b.onclick = () => showView(b.dataset.go);
 
   const view = location.hash.slice(1);

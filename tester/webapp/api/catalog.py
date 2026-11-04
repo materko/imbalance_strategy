@@ -177,4 +177,19 @@ def build(ctx: AppContext) -> APIRouter:
         """Všetky stratégie s profilmi a najlepším behom — karta Stratégie."""
         return {"strategies": catalog(store.all(), store.get)}
 
+    @router.get("/api/catalog/{key}/report")
+    def report_view(key: str, profile: str = ""):
+        """Hodnotenie stratégie s profilom — okno po kliknutí na kartu (výkon, analytika, posudok…)."""
+        from . import catalog_report as cr
+
+        return cr.report(cr.resolve_key(key), profile, store.all(), store.get)
+
+    @router.get("/api/catalog/{key}/doc")
+    def doc_view(key: str, id: str):
+        """Dokument stratégie alebo meranie zo zoznamu `docs` hodnotenia (Markdown)."""
+        from . import catalog_report as cr
+
+        k = cr.resolve_key(key)
+        return {"id": id, "markdown": cr.read_doc(k, id)}
+
     return router

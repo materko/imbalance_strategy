@@ -94,3 +94,109 @@ def test_karta_ma_popis_z_vysvetlivky_kazdej_strategie():
     assert explainer_lead("# bez vety") == ""
     chyba = [k for k, s in STRATEGIES.items() if not explainer_lead(s.explainer())]
     assert not chyba, f"stratégie bez vety „V jednej vete“ vo VYSVETLIVKA.md: {chyba}"
+
+
+# --------------------------------------------------------------------------- #
+# hodnotenie stratégie (`/api/catalog/<key>/report`) — okno po kliknutí na kartu
+# --------------------------------------------------------------------------- #
+
+def _win(run_id: str, window: str, trades: list[tuple[str, float]], checkup: str | None = None,
+         profile: str = "multicharts_mnq_3m"):
+    cum, eq = 0.0, []
+    for t, v in trades:
+        cum += v
+        eq.append([t, v, cum])
+    rec = _run(run_id, profile, pnl_pct=round(cum, 2))
+    rec["settings"]["timerange"] = window
+    if checkup:
+        rec["settings"]["checkup"] = {"id": checkup, "strategy": "ibs"}
+    rec["series"] = {"equity": eq, "market": []}
+    return rec
+
+
+def test_parse_analytika_rozdeli_sekcie_a_posudok_zvlast():
+    from tester.webapp.api.catalog_report import parse_analytika
+
+    text = """# Základná analytika — X (`x`)
+
+Zmerané 2026-10-26 na `MNQ/USD` 5m, engine `multicharts`, profil `tester/profiles/SMERNICE_CS_NOA_1.json`.
+
+## V čom je dobrá
+
+- zisková v 5 z 5 referenčných okien
+
+## Kde má chyby
+
+- 81.9 % obchodov končí na čase
+
+## Charakter
+
+**Prerazenie (breakout)** (istota dobrá)
+
+- medián držania 4.5 barov
+
+## Posudok (AI)
+
+1. **Na čo sa to hodí**
+<!-- POSUDOK cisla=889ebe26 -->
+
+Áno, použiteľné.
+
+<!-- POSUDOK KONIEC -->
+"""
+    a = parse_analytika(text)
+    assert a["exists"] and a["profile"] == "smernice_cs_noa_1"
+    assert a["good"] == ["zisková v 5 z 5 referenčných okien"] and a["bad"] == ["81.9 % obchodov končí na čase"]
+    assert a["character"] == "Prerazenie (breakout) (istota dobrá)"
+    assert [s["title"] for s in a["sections"]] == ["Charakter"]          # verdikty a posudok idú zvlášť
+    assert a["posudok"] == "Áno, použiteľné."
+    assert parse_analytika("") == {"exists": False}
+
+
+def test_chain_trades_vynecha_obchody_z_prekryvu_okien():
+    from tester.webapp.api.catalog_report import chain_trades, trade_stats
+
+    a = {"series": {"equity": [["2024-08-01T10:00", 2.0, 2.0], ["2024-09-10T10:00", -1.0, 1.0]]}}
+    b = {"series": {"equity": [["2024-09-10T10:00", -1.0, -1.0], ["2024-10-05T10:00", 3.0, 2.0]]}}
+    trades = chain_trades([a, None, b])
+    assert trades == [("2024-08-01T10:00", 2.0), ("2024-09-10T10:00", -1.0), ("2024-10-05T10:00", 3.0)]
+    s = trade_stats(trades)
+    assert s["trades"] == 3 and s["pnl_pct"] == 4.0 and s["profit_factor"] == 5.0
+    assert s["max_dd_pct"] == 1.0 and s["rr"] == 2.5 and s["loss_streak"] == 1
+    assert trade_stats([]) == {}
+
+
+def test_report_vyberie_najuplnejsi_checkup_a_posklada_vykon(client):
+    c, store = client
+    w = ("20211001-20221001", "20221001-20231001", "20231001-20241001", "20240904-20250904", "20250904-20260904")
+    # úplný checkup (5 okien) vyhrá nad novším neúplným (1 okno)
+    for i, win in enumerate(w):
+        y = 2022 + i
+        store.save(_win(f"20261001-12000{i}-aaaaa{i}", win,
+                        [(f"{y}-01-10T15:00:00+00:00", 1.0), (f"{y}-03-10T15:00:00+00:00", -0.5)], checkup="ck-old"))
+    store.save(_win("20261002-120000-bbbbbb", w[0], [("2022-01-10T15:00:00+00:00", 9.0)], checkup="ck-new"))
+
+    d = c.get("/api/catalog/ibs/report", params={"profile": "multicharts_mnq_3m"}).json()
+    perf = d["performance"]
+    assert d["profile"]["name"] == "multicharts_mnq_3m" and d["profile"]["group"] == "repo"
+    assert perf["checkup_id"] == "ck-old" and len(perf["windows"]) == 5 and perf["positive_windows"] == 5
+    assert perf["stats"]["trades"] == 10 and perf["stats"]["pnl_pct"] == 2.5
+    assert [y["year"] for y in perf["years"]] == ["2022", "2023", "2024", "2025", "2026"]
+    assert perf["months"]["2022"] == {"01": 1.0, "03": -0.5}
+    assert perf["curve"][0][1] == 0.0 and perf["curve"][-1][1] == 2.5
+    assert d["runs"]["profile_total"] == 6 and d["runs"]["recent"][0]["id"] == "20261002-120000-bbbbbb"
+
+    # profil bez behov: žiadny výkon, ale okno sa poskladá
+    e = c.get("/api/catalog/ibs/report", params={"profile": "golden_coinbase_btcusd_3m"}).json()
+    assert e["performance"] is None and e["single"] is None and e["runs"]["profile_total"] == 0
+    assert c.get("/api/catalog/neznama/report").status_code == 404
+
+
+def test_report_dokument_len_zo_zoznamu(client):
+    c, _ = client
+    d = c.get("/api/catalog/ibs/report").json()
+    assert all(x["id"].startswith(("s/", "m/")) for x in d["docs"])
+    if d["docs"]:
+        first = d["docs"][0]["id"]
+        assert c.get("/api/catalog/ibs/doc", params={"id": first}).json()["markdown"]
+    assert c.get("/api/catalog/ibs/doc", params={"id": "s/../../../../README.md"}).status_code == 404

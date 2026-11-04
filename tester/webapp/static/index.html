@@ -410,6 +410,17 @@
         behu s týmto profilom v histórii (aspoň 40 obchodov, PF &gt; 1, DD pod 35 %).</p>
     </div>
   </div>
+  <div id="srep" class="xp-overlay srep" hidden>
+    <div class="xp-box srep-box" role="dialog" aria-modal="true" aria-labelledby="srep-title">
+      <button id="srep-close" class="ghost small xp-close" type="button" aria-label="zavrieť">✕</button>
+      <div id="srep-head"></div>
+      <div class="srep-bar">
+        <label class="small">Profil <select id="srep-profile"></select></label>
+        <div id="srep-tabs" class="cat-pills"></div>
+      </div>
+      <div id="srep-body" class="srep-body"></div>
+    </div>
+  </div>
 </main>
 
 <main id="view-hub" class="view single" hidden>
@@ -931,6 +942,7 @@
 <script src="/static/js/diversify.js"></script>
 <script src="/static/js/livediv.js"></script>
 <script src="/static/js/catalog.js"></script>
+<script src="/static/js/strategy_report.js"></script>
 <div id="explainer" class="xp-overlay" hidden>
   <div class="xp-box" role="dialog" aria-modal="true" aria-labelledby="explainer-title">
     <button id="explainer-close" class="ghost small xp-close" type="button" aria-label="zavrieť">✕</button>

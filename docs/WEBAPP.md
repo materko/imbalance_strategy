@@ -147,6 +147,22 @@ v menách profilov), filtre trh / typ (typ LIVE = má C# port), „len so smerni
 zisk na drawdown, výkon (zisk), RR, naživo nasadené najprv, profily zo smernice, počet profilov,
 posledný beh. Stratégie bez dobrého behu a bez profilu zo smernice sú v zbalenom bloku pod mriežkou.
 
+**Hodnotenie stratégie** — klik kamkoľvek na kartu (alebo tlačidlo „Hodnotenie") otvorí okno so všetkým,
+čo o stratégii s daným profilom vieme; profil (aj profily C# portov) sa prepína hore v okne, predvolený je
+profil **naj** z karty. Dáta dáva `/api/catalog/<kľúč>/report?profile=…` (`tester/webapp/api/catalog_report.py`),
+nič sa nepočíta nanovo z trhu:
+
+- **Výkon** — behy profilu na piatich referenčných oknách z histórie (prednostne jeden `cli checkup`,
+  inak najnovší beh každého okna), ich obchody spojené do jednej krivky (prekryv okien sa nezapočíta dvakrát):
+  zisk, zisk/rok, PF, RR, winrate, max DD krivky, zisk/DD, obchody/rok, ziskové okná, séria strát; krivka
+  s drawdownom, stĺpce po oknách, tabuľky po rokoch a oknách a mesačná mapa výnosov. Bez behov okien sú
+  čísla z posledného behu profilu a okno napíše príkaz `cli checkup`, ktorý ich doplní.
+- **Analytika** a **Posudok** — `docs/ANALYTIKA.md` stratégie po sekciách (charakter, skupiny obchodov,
+  test proti náhode, slabnúci edge, série, bootstrap) a posudok AI; keď je analytika z iného profilu, okno to povie.
+- **Nastavenie** — trh a typ, rodina (predloha + C# porty), nasadenia naživo a parametre profilu odlišné od defaultov.
+- **Behy a dokumenty** — posledné behy profilu (klik = detail v Histórii), ďalšie dokumenty stratégie
+  a merania z `docs/merania/`, ktoré ju menujú; **Ako funguje** = vysvetlivka.
+
 Najlepší beh je beh s aspoň 40 obchodmi, PF nad 1 (a nie nezmyselne vysoký, do 50) a drawdownom pod
 35 %, s najväčším ziskom na jednotku drawdownu. **RR** je dosiahnutý pomer priemerného zisku a priemernej
 straty obchodu (PF × straty / zisky), nie nastavenie stratégie. Profil zo smernice má čísla z posudku

@@ -92,14 +92,19 @@ function catProfileName(p) {
   return p.group === "smernica" ? t.split(" · ")[0] : t;
 }
 
-function catCard(f) {
-  const b = f.best, n = f.profiles.length;
-  const seg = g => n ? (f.counts[g] / n * 100).toFixed(1) : 0;
-  // jeden profil — naj: nasadený naživo, potom zo smernice, potom s najlepším behom (zisk / DD)
+/** Jeden profil rodiny — „naj": nasadený naživo, potom zo smernice, potom s najlepším behom (zisk / DD).
+ *  Ten istý ukazuje karta aj okno hodnotenia, keď sa otvorí bez výberu. */
+function catTopProfile(f) {
   const rank = p => [p.deployed > 0, p.group === "smernica", !!p.best_run,
     p.group === "smernica" ? (p.claimed?.pf ?? 0) : catScore(p.best_run)];
   const better = (x, y) => { const a = rank(x), b = rank(y); for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return b[i] > a[i] ? 1 : -1; return 0; };
-  const top = [...f.profiles].sort(better).slice(0, 1);
+  return [...f.profiles].sort(better)[0] || null;
+}
+
+function catCard(f) {
+  const b = f.best, n = f.profiles.length;
+  const seg = g => n ? (f.counts[g] / n * 100).toFixed(1) : 0;
+  const top = [catTopProfile(f)].filter(Boolean);
   const kpi = (label, val, cls = "") => `<div class="cat-kpi"><span>${label}</span><b class="${cls}">${val}</b></div>`;
   const badges = [
     f.live ? '<span class="cat-badge live" title="má C# port — beží v NinjaTrader 8 a MetaTrader 5">LIVE · C#</span>' : "",
@@ -108,7 +113,7 @@ function catCard(f) {
   ].join("");
   const ports = f.ports.length ? `<div class="cat-ports small muted">C# porty: ${f.ports.map(p =>
     `<button type="button" class="linkish" data-cat-open="${esc(p.key)}">${esc(p.key)}</button>`).join(", ")}</div>` : "";
-  return `<article class="cat-card card" data-key="${esc(f.key)}">
+  return `<article class="cat-card card" data-key="${esc(f.key)}" title="klik otvorí hodnotenie stratégie">
     <div class="cat-head">
       <div><h3 class="cat-title">${esc(f.title)}</h3>
         <div class="cat-tags"><span class="chip">${esc(f.market)}</span>${f.type ? `<span class="chip">${esc(f.type)}</span>` : ""}${badges}</div></div>
@@ -139,6 +144,7 @@ function catCard(f) {
     </section>
     ${ports}
     <div class="cat-actions">
+      <button type="button" class="ghost small" data-cat-report="${esc(f.key)}" title="výkon, analytika, posudok, nastavenie a behy — aj klik kamkoľvek na kartu">Hodnotenie</button>
       <button type="button" class="ghost small" data-cat-drawer="${esc(f.key)}"${n ? "" : " disabled"}>Profily (${n})</button>
       ${b ? `<button type="button" class="ghost small" data-cat-run="${esc(b.id)}" title="detail najlepšieho behu v Histórii">Najlepší beh</button>` : ""}
       <span class="spacer"></span>
@@ -250,9 +256,15 @@ function initCatalog() {
   $("#cat-refresh").onclick = () => loadCatalog(true);
   const onClick = e => {
     const t = e.target.closest("button");
-    if (!t) return;
+    // klik mimo tlačidla (a mimo odkazu či výberu textu) kamkoľvek na kartu otvorí hodnotenie
+    if (!t) {
+      const card = e.target.closest(".cat-card");
+      if (card && !e.target.closest("a, #cat-drawer") && !String(window.getSelection?.() || "")) strategyReportOpen(card.dataset.key);
+      return;
+    }
     if (t.dataset.catMarket !== undefined) { cat.market = t.dataset.catMarket; renderCatalog(); }
     else if (t.dataset.catType !== undefined) { cat.type = t.dataset.catType; renderCatalog(); }
+    else if (t.dataset.catReport) { strategyReportOpen(t.dataset.catReport); }
     else if (t.dataset.catDrawer) { cat.drawer = t.dataset.catDrawer; cat.tab = "all"; renderCatDrawer(); }
     else if (t.dataset.catTab) { cat.tab = t.dataset.catTab; renderCatDrawer(); }
     else if (t.dataset.catRun) { showView("history"); openRun(t.dataset.catRun); }
