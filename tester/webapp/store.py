@@ -382,6 +382,18 @@ class RunStore:
                 pass
         return self._scan()
 
+    def of_strategy(self, strategy: str) -> list[dict[str, Any]]:
+        """Behy jednej stratégie od najnovšieho, bez `series` — to isté ako `all()` + `strategy_of`,
+        ale z indexu len riadky stratégie. Diverzifikácia pýta ponuku nastavení pre desiatky stratégií
+        naraz a každý dopyt cez celé `all()` (tisíce záznamov) ich radil do zástupu na sekundy."""
+        if self.index.sync():
+            try:
+                # stĺpec `strategy` je kanonický kľúč (`_with_strategy` pri zápise) malými písmenami
+                return self.index.records("strategy = ?", [str(strategy).lower()])
+            except sqlite3.Error:
+                pass
+        return [r for r in self._scan() if strategy_of(r) == strategy]
+
     def _scan(self) -> list[dict[str, Any]]:
         """Čítanie histórie zo súborov — záloha, keď index nefunguje."""
         out = []

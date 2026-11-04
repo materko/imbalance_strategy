@@ -193,13 +193,13 @@ def build(ctx: AppContext) -> APIRouter:
         report["reference_windows"] = list(ho.REFERENCE_WINDOWS)
         return report
 
-    def _config_groups(strategy: str) -> list[dict[str, Any]]:
+    def _config_groups(strategy: str, recs: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
         """Skupiny hotových behov s obchodmi podľa konfigurácie — s oknami, pármi
         a s tým, ktoré referenčné okná ešte chýbajú."""
         from ... import hyperopt as ho
 
         skupiny: dict[str, dict[str, Any]] = {}
-        for rec in store.all():
+        for rec in (store.of_strategy(strategy) if recs is None else recs):
             obchodov = int((rec.get("result") or {}).get("trades") or 0)
             if strategy_of(rec) != strategy or rec.get("status") != "done" or obchodov <= 0:
                 continue
@@ -273,9 +273,10 @@ def build(ctx: AppContext) -> APIRouter:
 
         ref = list(ho.REFERENCE_WINDOWS)
         tituly = profile_titles(strategy)
-        slim = {r["id"]: r for r in store.all()}
+        behy = store.of_strategy(strategy)
+        slim = {r["id"]: r for r in behy}
         nastavenia: dict[str, dict[str, Any]] = {}
-        for trh in _config_groups(strategy):
+        for trh in _config_groups(strategy, behy):
             kluc_nast = trh["key"].split("|", 1)[0]
             pair, tf = trh["pairs"][0], trh["timeframes"][0]
             okna = _windows_of(trh["run_ids"], slim)

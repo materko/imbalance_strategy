@@ -194,6 +194,26 @@ def test_stary_kluc_strategie_v_historii_patri_premenovanej(tmp_path: Path):
     assert na_disku["settings"]["strategy"] == "ibsninja"
 
 
+def test_behy_jednej_strategie_su_to_iste_co_all_s_filtrom(tmp_path: Path):
+    """`of_strategy` (ponuka nastavení v Analytike a Diverzifikácii) berie z indexu len riadky stratégie —
+    musí dať presne to, čo `all()` + `strategy_of`, aj pre starý kľúč a aj bez indexu."""
+    from tester.webapp.store import strategy_of
+
+    store = _store(tmp_path, 6)
+    rec = _record(7)
+    rec["settings"]["strategy"] = "ibsninja"
+    store.save(rec, trades=[], log="")
+    for kluc in ("ibs", "orb", "ibsnet", "nic"):
+        cakane = [r for r in store.all() if strategy_of(r) == kluc]
+        assert store.of_strategy(kluc) == cakane
+        store.index.close()
+        store.index.ok = False
+        try:
+            assert store.of_strategy(kluc) == cakane
+        finally:
+            store.index.ok = True
+
+
 def test_index_sa_po_chybe_skusi_znova(tmp_path: Path, monkeypatch):
     """Audit N-WEB-6: jedna sqlite chyba (`database is locked`) nesmie index vypnúť do reštartu webapp —
     po `RETRY_AFTER` sa skúsi znova."""
