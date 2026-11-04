@@ -5,8 +5,8 @@
  "entryLevel": -98.0,
  "exitMode": 1,
  "trendFilter": "with",
- "trendEmaLen": 50,
- "trendTF": 15,
+ "trendEmaLen": 200,
+ "trendTF": 0,
  "volFilter": "off",
  "entryOrderType": "limit",
  "limitOffsetPct": 50,
@@ -17,5 +17,5 @@
  "_strategy": "wprmgc",
  "_instrument": "mgc_databento",
  "_timeframe": "3m",
- "_title": "WILLIAMS %R MGC 3 · PF 1,90 · WR 70 % · 191 obch/rok · MGC 3m · max DD 570 $ · posl. rok PF 1,68"
+ "_title": "WILLIAMS %R MGC 3 · PF 1,99 · WR 71 % · 166 obch/rok · MGC 3m · max DD 544 $ · posl. rok PF 1,70"
 }
