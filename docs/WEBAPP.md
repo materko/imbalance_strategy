@@ -146,7 +146,7 @@ bez hubu sa neukážu) dávajú štítky **● BEŽÍ** (nasadenie je aktívne a
 stojí) a **■ ZASTAVENÁ** (pozastavené, vypnuté, alebo aktívne, ale inštancia mlčí); pri viacerých nasadeniach
 s počtom, v tooltipe účet, profil a stav každého. To isté ukazuje profil „naj“ (beží / zastavený) a okno
 Hodnotenie. Nad mriežkou je hľadanie (`/`, hľadá aj v menách profilov), filtre trh / typ, „len so smernicou",
-„len bežiace" a poradie. Typ **LIVE** v katalógu = stratégie nasadené na účtoch, najprv bežiace, potom
+stav (všetky / ● bežiace / ■ zastavené, s počtom) a poradie. Typ **LIVE** v katalógu = stratégie nasadené na účtoch, najprv bežiace, potom
 zastavené (vo formulári Nový beh je LIVE ďalej skupina C# portov). Poradie:
 zisk na drawdown, výkon (zisk), RR, naživo nasadené najprv, profily zo smernice, počet profilov,
 posledný beh. Stratégie bez dobrého behu a bez profilu zo smernice sú v zbalenom bloku pod mriežkou.

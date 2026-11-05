@@ -5,7 +5,10 @@
 "use strict";
 
 const cat = { data: null, deployments: [], market: "", type: "", sort: "score", query: "", onlySmernica: false,
-  onlyLive: false, drawer: null, tab: "all" };
+  state: "", drawer: null, tab: "all" };
+
+/** Filter Stav: "" = všetky, run = len bežiace, stop = nasadené, ale zastavené. */
+const CAT_STATES = { run: f => f.running.length > 0, stop: f => f.deps.length > 0 && !f.running.length };
 
 const CAT_GROUPS = { smernica: "prešiel smernicou", repo: "repozitár", user: "vlastný" };
 const CAT_GROUP_ORDER = { smernica: 0, repo: 1, user: 2 };
@@ -181,7 +184,7 @@ function catFiltered() {
     (!cat.market || f.market === cat.market)
     && (!cat.type || (cat.type === "LIVE" ? f.deps.length > 0 : f.type === cat.type))
     && (!cat.onlySmernica || f.counts.smernica > 0)
-    && (!cat.onlyLive || f.running.length > 0)
+    && (!cat.state || CAT_STATES[cat.state](f))
     && (!q || [f.key, f.title, ...f.ports.map(p => p.key), ...f.profiles.map(p => p.name + " " + p.title)]
       .some(s => String(s).toLowerCase().includes(q))));
   const val = (f, k) => f.best && f.best[k] != null ? f.best[k] : -Infinity;
@@ -211,10 +214,13 @@ function renderCatalog() {
   const markets = [...TRHY, ...(all.some(f => f.market === "OSTATNÉ") ? ["OSTATNÉ"] : [])];
   catPills($("#cat-markets"), markets, cat.market, "cat-market");
   catPills($("#cat-types"), [...TYPY, "LIVE"], cat.type, "cat-type");
+  $("#cat-states").innerHTML = [["", "Všetky"], ["run", "● Bežiace"], ["stop", "■ Zastavené"]].map(([v, t]) =>
+    `<button type="button" class="chip-btn${v === cat.state ? " active" : ""}" data-cat-state="${v}">${t}${v
+      ? ` (${all.filter(CAT_STATES[v]).length})` : ""}</button>`).join("");
   const list = catFiltered();
   // stratégie bez dobrého behu a bez profilu zo smernice idú do zbaleného bloku na koniec
   // (pri LIVE nie: nasadená stratégia sa nesmie schovať do zbaleného bloku)
-  const weak = f => cat.type !== "LIVE" && !f.best && !f.counts.smernica;
+  const weak = f => cat.type !== "LIVE" && !cat.state && !f.best && !f.counts.smernica;
   const shown = list.filter(f => !weak(f)), rest = list.filter(weak);
   const nProf = all.reduce((s, f) => s + f.profiles.length, 0);
   const nRun = all.filter(f => f.running.length).length, nStop = all.filter(f => f.deps.length && !f.running.length).length;
@@ -277,7 +283,6 @@ function initCatalog() {
   $("#cat-search").addEventListener("input", e => { cat.query = e.target.value; renderCatalog(); });
   $("#cat-sort").onchange = e => { cat.sort = e.target.value; renderCatalog(); };
   $("#cat-only-smernica").onchange = e => { cat.onlySmernica = e.target.checked; renderCatalog(); };
-  $("#cat-only-live").onchange = e => { cat.onlyLive = e.target.checked; renderCatalog(); };
   $("#cat-refresh").onclick = () => loadCatalog(true);
   const onClick = e => {
     const t = e.target.closest("button");
@@ -289,6 +294,7 @@ function initCatalog() {
     }
     if (t.dataset.catMarket !== undefined) { cat.market = t.dataset.catMarket; renderCatalog(); }
     else if (t.dataset.catType !== undefined) { cat.type = t.dataset.catType; renderCatalog(); }
+    else if (t.dataset.catState !== undefined) { cat.state = t.dataset.catState; renderCatalog(); }
     else if (t.dataset.catReport) { strategyReportOpen(t.dataset.catReport); }
     else if (t.dataset.catDrawer) { cat.drawer = t.dataset.catDrawer; cat.tab = "all"; renderCatDrawer(); }
     else if (t.dataset.catTab) { cat.tab = t.dataset.catTab; renderCatDrawer(); }
