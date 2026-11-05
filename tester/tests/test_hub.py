@@ -838,6 +838,37 @@ def _agent(name, tmp_path, http, runner=None, accept=True, send=True, clock=None
     return a, r, store
 
 
+def test_agent_plugins_reach_hub_status_over_http(hub_api, tmp_path: Path):
+    """Pluginy agenta idú cez skutočný endpoint heartbeatu (model `HeartbeatRequest` ich nesmie zahodiť)
+    až do `/api/status` — karta Hub z nich robí čipy."""
+    c, state, _ = hub_api
+    srv, _, _ = _agent("srv", tmp_path, FakeHttp(c, "tajne"))
+
+    class _Host:
+        def brief(self):
+            return {"telegram": {"title": "Telegram", "running": True, "error": ""}}
+
+        def overrides(self):
+            return []
+
+        def desired(self, desired, now):
+            pass
+
+        def stop(self):
+            pass
+
+    srv._plugins = _Host()
+    srv.start_version = "abc1234"
+    srv.tick()
+    st = c.get("/api/status", headers={"X-Hub-Token": "tajne"}).json()
+    pl = next(a for a in st["agents"] if a["name"] == "srv")["plugins"]
+    assert pl["version"] == "abc1234" and pl["items"]["telegram"]["running"] is True
+    srv._plugins = None   # agent bez pluginov → hub ich zabudne
+    srv.tick()
+    st = c.get("/api/status", headers={"X-Hub-Token": "tajne"}).json()
+    assert next(a for a in st["agents"] if a["name"] == "srv")["plugins"] is None
+
+
 def test_agent_end_to_end(hub_api, tmp_path: Path):
     """Zadanie → pridelenie → postup → zip → vyzdvihnutie zadávateľom → ack."""
     from tester.hub.client import HubClient

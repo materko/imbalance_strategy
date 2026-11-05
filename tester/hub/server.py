@@ -119,6 +119,9 @@ class HeartbeatRequest(BaseModel):
     live: dict[str, Any] | None = None
     #: Vybavený pokyn „aktualizuj sa" (`request` = čas pokynu, `ok`, `version`, `output`, `at`).
     pull_done: dict[str, Any] | None = None
+    #: Pluginy agenta: `version` = commit, z ktorého sú načítané, `items` = meno → `{title, running, error}`;
+    #: starý agent to neposiela (karta Hub, „Sú pluginy najnovšie?“).
+    plugins: dict[str, Any] | None = None
 
 
 class SubmitRequest(BaseModel):
