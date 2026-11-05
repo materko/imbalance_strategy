@@ -472,8 +472,9 @@
     <h2>Agenti <span id="hub-agents-count" class="chip"></span> <span id="hub-version" class="chip" hidden></span>
       <button class="ghost small" data-hub-update="*" style="margin-left:12px" title="všetci online počítajúci agenti: dopočítať, git pull a reštart">⟳ aktualizovať všetkých</button></h2>
     <div id="hub-error" class="error" hidden></div>
+    <div id="hub-plugins" class="small" style="margin:4px 0 8px" hidden></div>
     <div class="scroll"><table id="hub-agents" class="runs"><thead><tr>
-      <th>agent</th><th>stav</th><th>kód</th><th class="num">jadrá</th><th class="num">sloty</th><th class="num">obsadené</th>
+      <th>agent</th><th>stav</th><th>kód</th><th title="pluginy agenta: bežia a sú na kóde z origin/main? (zelený = áno, červený = na main je novší kód pluginu)">pluginy</th><th class="num">jadrá</th><th class="num">sloty</th><th class="num">obsadené</th>
       <th>prijíma</th><th>voľný pre beh</th><th>voľný pre hyperopt</th><th></th></tr></thead><tbody></tbody></table></div>
     <details id="hub-stats-box" open style="margin-top:10px"><summary>Výpočty z hubu <span class="muted" title="hotové výpočty, ktoré agent pre hub spočítal; čas je od štartu po odovzdanie výsledku, posledný deň = kĺzavých 24 h">ⓘ</span></summary>
     <div class="scroll"><table id="hub-stats" class="runs"><thead>

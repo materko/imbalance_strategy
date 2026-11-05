@@ -68,6 +68,7 @@ def test_hub_plugin_host_reload_zastavi_vlakno_a_spusti_nove(tmp_path: Path):
     assert novy is not stary and novy.plugin is not stary.plugin and not stary.thread.is_alive()
     assert novy.thread.is_alive() and novy.reloads == 1 and _Pocitadlo.teardowns == 1
     assert host.status()[0]["reloads"] == 1
+    assert host.brief()["pocitadlo"]["running"] and host.brief()["pocitadlo"]["error"] == ""
     host.stop()
 
 
@@ -147,6 +148,8 @@ def test_agent_plugin_host_vlakna_prekrytia_a_reload():
     assert host.reload(["x"]) is True
     assert stary_ctx.stopping.is_set() and not kontexty[-1].stopping.is_set()
     assert host.status()["x"]["reloads"] == 1 and host.status()["x"]["running"]
+    b = host.brief()["x"]   # heartbeat → karta Hub, bez volania pluginu
+    assert b["running"] and b["error"] == "" and set(b) == {"title", "running", "error"}
     host.stop()
     assert not host.slots["x"].thread.is_alive()
 

@@ -554,7 +554,8 @@ prijímať a posielať. **Uložiť a pripojiť** zapíše `tester/agent.json` a 
 spustí — bez reštartu webapp (to isté ako `python -m tester.hub setup`). **Odpojiť**
 agenta odhlási a nastavenie zmaže. Pod tým je stav tohto agenta (online,
 commit, prepínač **prijímať výpočty**, ktorý platí hneď a zapíše sa do configu), tabuľku
-agentov (kto je online, koľko má voľné, kedy sa uvoľní) a výpočty na hube s postupom,
+agentov (kto je online, koľko má voľné, kedy sa uvoľní, či má kód a pluginy z posledného `main` —
+„Pluginy agenta“, „Sú pluginy najnovšie?“) a výpočty na hube s postupom,
 zvyškom a tlačidlom na zrušenie. Pri **Spustiť backtest** a pri hyperopte v „Hľadať
 parametre" je prepínač **na hube** (s frontou a stropom čakania) — zadanie je to isté ako
 lokálne, len ho spočíta voľný agent a výsledok sa objaví v histórii, keď si ho agent
@@ -733,6 +734,17 @@ z heartbeatu) a `teardown()`.
 Zmena rozhrania (`agent_plugins/base.py`, `agent_plugins/__init__.py`, agent, `tradebot.live.telegram`, čokoľvek
 mimo adresárov pluginov) ide po starom: nový kód na stroj cez „Aktualizovať kód“ (brána: pauza a bez pozície)
 alebo pokyn hubu a reštart agenta.
+
+**Sú pluginy najnovšie? Karta Hub.** Agent v heartbeate posiela `plugins` = `{version, items}` — commit, z ktorého
+má pluginy načítané (`start_version`: po reloade bez reštartu nový, po pulle, ktorý čaká na reštart, ešte starý),
+a pri každom `{title, running, error}` (`AgentPluginHost.brief`, bez volania pluginu). Hub to isté o svojich
+pluginoch dáva do `/api/status` (`plugins`, verzia = commit samoaktualizácie, `PluginHost.brief`). Webapp k týmto
+commitom spočíta voči `origin/main`, ktoré pluginy majú iný kód (`gitcode.versus_main` → `plugins: {hub, agent,
+interface}`), a ukáže čipy: nad tabuľkou agentov **pluginy hubu**, v tabuľke stĺpec **pluginy** agenta — zelený
+= beží a kód ako na main, červený `meno −` = na main je novší kód pluginu (tooltip povie, čím sa dostane dnu:
+hub a obchodný stroj sám, webapp agent po Pull, headless ⟳), `+meno` = nový plugin, ktorý proces ešte nemá,
+`meno ⚠` = nenačítal sa / padá, `⏸` vypnutý, `■` vlákno nebeží, `rozhranie −` = na main sa zmenil `base.py` /
+`__init__.py` balíka pluginov (len reštart). Starý agent či hub `plugins` neposiela — stĺpec ukáže „–“.
 
 ## API hubu
 

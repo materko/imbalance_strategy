@@ -247,6 +247,11 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                     and body["version"] != zly.get("version")):
                 agent.pop("pull_result", None)
             agent["load"] = dict(body.get("load") or {})
+            # pluginy agenta: commit, z ktorého sú načítané, a či bežia (starý agent ich neposiela)
+            if isinstance(body.get("plugins"), dict):
+                agent["plugins"] = body["plugins"]
+            elif "plugins" in body:
+                agent.pop("plugins", None)
             if body.get("instance"):
                 agent["instance"] = body["instance"]
             # Live nasadenia (docs/LIVE.md, fáza 2b): čo agent hlási o inštanciách a čo k
@@ -506,6 +511,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             "accept_request": agent.get("accept_request"),
             "update_request": agent.get("update_request"), "pull_result": agent.get("pull_result"),
             "load": agent.get("load") or {},
+            "plugins": agent.get("plugins"),
             "used": b["used"], "exclusive": b["exclusive"],
             "jobs": [{"id": j["id"], "kind": j["kind"], "status": j["status"],
                       "progress": j.get("progress"), "eta_seconds": j.get("eta_seconds")} for j in moje],
@@ -961,7 +967,20 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                 out.append(self._job_public(job))
             return out
 
+    def _plugins_public(self) -> dict[str, Any] | None:
+        host = self.plugins
+        if host is None:
+            return None
+        verzia = getattr(self.updater, "start_version", None) or self.version
+        try:
+            items = host.brief()
+        except Exception as exc:  # noqa: BLE001 - stav nesmie zhodiť prehľad
+            return {"version": verzia, "items": {}, "error": f"{type(exc).__name__}: {exc}"}
+        return {"version": verzia, "items": items,
+                "reloaded": getattr(self.updater, "reloaded", None) if self.updater is not None else None}
+
     def overview(self) -> dict[str, Any]:
+        pluginy = self._plugins_public()   # mimo zámku — host číta config pluginov z disku
         with self._lock:
             self._sweep()
             self._prune_plans()
@@ -982,6 +1001,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                 # commit, na ktorom hub beží, a či čaká na reštart na novší (samoaktualizácia)
                 "version": self.version or None,
                 "update": self.updater.public() if self.updater is not None else None,
+                # pluginy hubu: z ktorého commitu sú načítané (po reloade bez reštartu novší než `version`)
+                "plugins": pluginy,
                 # ručný drain pred reštartom hubu (`python -m tester.hub drain`)
                 "drain": self.drain_public(),
                 # inštancie live stratégií, ktoré online agenti hlásia v heartbeate

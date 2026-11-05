@@ -176,7 +176,12 @@ def build(ctx: AppContext) -> APIRouter:
             except Exception as exc:  # noqa: BLE001 - hub mimo nesmie zhodiť stav webapp
                 out["error"] = f"{type(exc).__name__}: {exc}"
             else:
-                out["hub"]["code"] = _code_status([a.get("version") or "" for a in out["hub"]["agents"]])
+                h = out["hub"]
+                # verzie kódu agentov, a z ktorých commitov majú pluginy načítané agenti aj hub (čipy pluginov)
+                verzie = [a.get("version") or "" for a in h["agents"]]
+                verzie += [(a.get("plugins") or {}).get("version") or "" for a in h["agents"]]
+                verzie.append((h.get("plugins") or {}).get("version") or "")
+                h["code"] = _code_status(verzie)
         return out
 
     def _hub_send(kind: str, payload: dict[str, Any], *, cores, queue, max_wait_seconds,

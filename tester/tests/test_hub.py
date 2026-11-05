@@ -2015,8 +2015,69 @@ def test_gitcode_versus_main_counts_commits_behind_and_ahead(tmp_path: Path, mon
     monkeypatch.setattr(gitcode, "REPO", klon)
     r = gitcode.versus_main([stary, novy, lokalny, "deadbee", ""], fetch=True)
     assert r["main"] == novy
-    assert r["versions"] == {stary: {"behind": 2, "ahead": 0}, novy: {"behind": 0, "ahead": 0},
-                             lokalny: {"behind": 0, "ahead": 1}, "deadbee": None}
+    bez = {"hub": [], "agent": [], "interface": []}
+    assert r["versions"] == {stary: {"behind": 2, "ahead": 0, "plugins": bez},
+                             novy: {"behind": 0, "ahead": 0, "plugins": bez},
+                             lokalny: {"behind": 0, "ahead": 1, "plugins": bez}, "deadbee": None}
+
+
+def test_gitcode_versus_main_lists_plugins_that_differ_from_main(tmp_path: Path, monkeypatch):
+    """Čipy pluginov na karte Hub: ktoré pluginy hubu / agenta má verzia iné než `origin/main`,
+    a či sa zmenilo rozhranie (súbor priamo v balíku pluginov)."""
+    import subprocess
+    from tester.hub import gitcode
+
+    def git(cwd, *a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=cwd,
+                              capture_output=True, text=True, check=True).stdout.strip()
+
+    origin, klon = tmp_path / "origin.git", tmp_path / "klon"
+    git(tmp_path, "init", "--bare", "-b", "main", str(origin))
+    git(tmp_path, "clone", str(origin), str(klon))
+
+    def commit(*subory):
+        for rel in subory:
+            f = klon / rel
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text(f.read_text(encoding="utf-8") + "x" if f.exists() else "x", encoding="utf-8")
+            git(klon, "add", rel)
+        git(klon, "commit", "-m", ",".join(subory))
+        return git(klon, "rev-parse", "--short", "HEAD")
+
+    stary = commit("tester/hub/plugins/watchdog/plugin.py", "tester/hub/agent_plugins/telegram/plugin.py")
+    po_telegrame = commit("tester/hub/agent_plugins/telegram/service.py", "tester/hub/plugins/livedata/plugin.py")
+    commit("tester/hub/plugins/base.py", "docs/x.md", "tester/hub/plugins/__pycache__/a.pyc")
+    git(klon, "push", "origin", "HEAD:main")
+    monkeypatch.setattr(gitcode, "REPO", klon)
+    v = gitcode.versus_main([stary, po_telegrame], fetch=True)["versions"]
+    assert v[stary]["plugins"] == {"hub": ["livedata"], "agent": ["telegram"], "interface": ["hub"]}
+    assert v[po_telegrame]["plugins"] == {"hub": [], "agent": [], "interface": ["hub"]}
+
+
+def test_overview_and_heartbeat_carry_plugin_versions(tmp_path: Path):
+    """Hub hlási, z ktorého commitu má načítané svoje pluginy (po reloade bez reštartu novší než `version`),
+    agent to isté v heartbeate; starý agent bez `plugins` nič nepokazí."""
+    from tester.hub.update import Updater
+
+    class _Host:
+        def brief(self):
+            return {"watchdog": {"title": "Strážca", "enabled": True, "running": True, "error": ""}}
+
+    state = HubState(tmp_path / "hub", token="tajne", clock=Clock(), version="aaa1111")
+    assert state.overview()["plugins"] is None
+    state.plugins = _Host()
+    assert state.overview()["plugins"]["version"] == "aaa1111"
+    state.updater = Updater(state, interval=60, pull=lambda: {"ok": True}, version=lambda: "bbb2222",
+                            quit=lambda: None, changed=lambda a, b: [])
+    p = state.overview()["plugins"]
+    assert p["version"] == "bbb2222" and p["items"]["watchdog"]["running"]
+    _reg(state)
+    assert state.overview()["agents"][0]["plugins"] is None
+    pl = {"version": "ccc3333", "items": {"telegram": {"title": "Telegram", "running": True, "error": ""}}}
+    state.heartbeat("srv", {"instance": "i1", "plugins": pl})
+    assert state.overview()["agents"][0]["plugins"] == pl
+    state.heartbeat("srv", {"instance": "i1"})             # starý agent / heartbeat bez pluginov
+    assert state.overview()["agents"][0]["plugins"] == pl
 
 
 def test_gitcode_deploy_version_skips_unpushed_data_commits(tmp_path: Path, monkeypatch):

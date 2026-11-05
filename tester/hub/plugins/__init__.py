@@ -223,6 +223,19 @@ class PluginHost:
             })
         return out
 
+    def brief(self) -> dict[str, dict[str, Any]]:
+        """`meno → {title, enabled, running, error}` bez volania pluginu (prehľad hubu, karta Hub)."""
+        out: dict[str, dict[str, Any]] = {}
+        for name, s in list(self.slots.items()):
+            try:
+                zapnuty = self.enabled(name)
+            except Exception:  # noqa: BLE001 - poškodený config
+                zapnuty = False
+            out[name] = {"title": s.plugin.title if s.plugin else name, "enabled": zapnuty,
+                         "running": bool(s.thread and s.thread.is_alive()),
+                         "error": str(s.load_error or s.last_error or "")[:300]}
+        return out
+
     def views(self) -> list[dict[str, str]]:
         """Pohľady zapnutých pluginov pre Telegram: `[{plugin, view, label}]`."""
         out = []

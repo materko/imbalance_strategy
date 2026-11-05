@@ -12,7 +12,8 @@ Rovnaký beh na inom commite dá iné čísla, takže výpočet nesie **verziu k
 - `pull()`         — `git fetch` + `rebase --autostash origin/main`, to isté, čo Pull vo webapp
                      (`tester.webapp.gitsync`); v kontajneri (`TRADEBOT_HUB_PULL=host`) ho robí
                      hostiteľ na pokyn (`request_host_pull`, `host_pull_result`),
-- `versus_main(vs)`— o koľko commitov je každá verzia za `origin/main` (karta Hub, agenti),
+- `versus_main(vs)`— o koľko commitov je každá verzia za `origin/main` (karta Hub, agenti) a ktoré
+                     pluginy hubu / agenta má iné než main (čipy pluginov),
 - `dirty_code()`   — necommitnuté zmeny v kóde (nie v histórii behov): taký klon posiela
                      verziu, ktorá jeho kód nepopisuje, a CLI na to upozorní.
 
@@ -167,11 +168,34 @@ def versus_main(versions: list[str], fetch: bool = True) -> dict[str, Any] | Non
         for v in dict.fromkeys(x for x in versions if x):
             za = _git("rev-list", "--count", f"{v}..{ref}")
             pred = _git("rev-list", "--count", f"{ref}..{v}")
-            out["versions"][v] = ({"behind": int(za.stdout), "ahead": int(pred.stdout)}
+            out["versions"][v] = ({"behind": int(za.stdout), "ahead": int(pred.stdout),
+                                   "plugins": _plugins_vs(v, ref)}
                                   if za.returncode == 0 and pred.returncode == 0 else None)
         return out
     except (OSError, subprocess.SubprocessError, ValueError):
         return None
+
+
+def _plugins_vs(version: str, ref: str) -> dict[str, Any] | None:
+    """Pluginy, ktorých kód sa medzi `version` a `ref` líši: `{"hub": [mená], "agent": [mená],
+    "interface": [kto]}` — `interface` = zmenil sa súbor priamo v balíku pluginov (`base.py`, `__init__.py`),
+    ten sa bez reštartu procesu nenačíta. `None` = nevedno."""
+    from .pluginreload import AGENT_PLUGINS, HUB_PLUGINS
+
+    r = _git("diff", "--name-only", "--no-renames", version, ref, "--", HUB_PLUGINS, AGENT_PLUGINS)
+    if r.returncode != 0:
+        return None
+    out: dict[str, Any] = {"hub": set(), "agent": set(), "interface": set()}
+    for line in r.stdout.splitlines():
+        path = line.strip().replace("\\", "/")
+        for kto, prefix in (("hub", HUB_PLUGINS), ("agent", AGENT_PLUGINS)):
+            if path.startswith(prefix):
+                meno, sep, _ = path[len(prefix):].partition("/")
+                if not sep:
+                    out["interface"].add(kto)
+                elif meno and not meno.startswith(("_", ".")):
+                    out[kto].add(meno)
+    return {k: sorted(v) for k, v in out.items()}
 
 
 def pull_mode() -> str:

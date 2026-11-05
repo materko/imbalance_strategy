@@ -923,7 +923,23 @@ class HubAgent:
         return {"instance": self.instance, "accept": self.cfg.accept, "send": self.cfg.send,
                 "role": self.cfg.role, "kind": self.kind, "cores": self.cores, "slots": self.slots,
                 "version": self.version, "needs_restart": self.needs_restart, "updating": bool(self.updating),
-                "load": self._local_load(), "jobs": jobs, "live": self._live_body(), "pull_done": self._pull_done}
+                "load": self._local_load(), "jobs": jobs, "live": self._live_body(), "pull_done": self._pull_done,
+                "plugins": self._plugins_body()}
+
+    def _plugins_body(self) -> dict[str, Any] | None:
+        """`plugins` do heartbeatu: z ktorého commitu sú pluginy načítané (`start_version` — po reloade bez
+        reštartu nový, po pulle s reštartom ešte starý) a či bežia; karta Hub ich porovná s `origin/main`.
+        Nikdy nevyhodí výnimku — heartbeat musí odísť."""
+        host = self._plugins
+        if host is None:
+            return None
+        try:
+            items = host.brief()
+        except Exception as exc:  # noqa: BLE001
+            return {"version": self.start_version, "items": {}, "error": f"{type(exc).__name__}: {exc}"}
+        upd = self._plugin_updater.last if self._plugin_updater is not None else None
+        return {"version": self.start_version, "items": items,
+                "reloaded": dict(upd) if isinstance(upd, dict) else None}
 
     # -- výpočty od hubu ---------------------------------------------------- #
 

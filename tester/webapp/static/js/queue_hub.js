@@ -325,6 +325,49 @@ function hubCodeChip(ver, code) {
   return `<span class="chip bad" title="main je ${esc(code.main)} — agentovi chýba ${s.behind} commitov; ⟳ ho aktualizuje">−${s.behind}</span>`;
 }
 
+/** Čipy pluginov procesu (hub alebo agent): bežia a majú kód z `origin/main`? `pl` = `{version, items}`
+ *  z heartbeatu / prehľadu hubu, `kto` = "hub" | "agent", `ako` = čím sa nový kód dostane dnu (tooltip). */
+function hubPluginChips(pl, code, kto, ako) {
+  if (!pl || typeof pl !== "object") return "";
+  const items = pl.items || {};
+  const s = code && pl.version ? code.versions[pl.version] : undefined;
+  const diff = s && s.plugins ? s.plugins : null;
+  const ine = new Set(diff ? diff[kto] || [] : []);
+  const out = [];
+  for (const [meno, it] of Object.entries(items)) {
+    const nazov = esc(it.title && it.title !== meno ? `${meno} (${it.title})` : meno);
+    if (it.error) out.push(`<span class="chip bad" title="${nazov}: ${esc(it.error)}">${esc(meno)} ⚠</span>`);
+    else if (it.enabled === false) out.push(`<span class="chip" title="${nazov}: vypnutý v configu pluginu">${esc(meno)} ⏸</span>`);
+    else if (!it.running) out.push(`<span class="chip warn" title="${nazov}: vlákno nebeží">${esc(meno)} ■</span>`);
+    else if (ine.has(meno)) out.push(`<span class="chip bad" title="${nazov}: na main (${esc(code.main)}) je iný kód než načítaný z ${esc(pl.version)} — ${esc(ako)}">${esc(meno)} −</span>`);
+    else if (diff) out.push(`<span class="chip ok" title="${nazov}: načítaný z ${esc(pl.version)}, kód ako na main (${esc(code.main)})">${esc(meno)}</span>`);
+    else out.push(`<span class="chip" title="${nazov}: načítaný z ${esc(pl.version || "?")}${s === null ? " — commit tento klon nepozná" : ""}">${esc(meno)}</span>`);
+  }
+  // plugin, ktorý na main pribudol a proces ho ešte nemá
+  for (const meno of ine) if (!(meno in items))
+    out.push(`<span class="chip bad" title="nový plugin na main (${esc(code.main)}) — ${esc(ako)}">+${esc(meno)}</span>`);
+  if (diff && (diff.interface || []).includes(kto))
+    out.push(`<span class="chip warn" title="na main sa zmenilo rozhranie pluginov (base.py / __init__.py) — nový kód sa načíta až po reštarte">rozhranie −</span>`);
+  if (pl.error) out.push(`<span class="chip bad" title="${esc(pl.error)}">⚠</span>`);
+  return out.join(" ");
+}
+
+/** Pluginy hubu nad tabuľkou agentov. */
+function renderHubPlugins(hub) {
+  const el = $("#hub-plugins");
+  const html = hubPluginChips(hub.plugins, hub.code, "hub",
+    hub.update ? "hub si ho načíta sám pri ďalšej kontrole kódu (bez reštartu)" : "samoaktualizácia hubu je vypnutá — treba pull a reštart hubu");
+  el.hidden = !html;
+  el.innerHTML = html ? `<span class="muted">pluginy hubu:</span> ${html}` : "";
+}
+
+/** Čím sa agentovi dostane nový kód pluginu (tooltip čipu). */
+function hubPluginHow(a) {
+  if (a.role === "live") return "obchodný stroj si zmenu len v pluginoch stiahne a načíta sám (do ~5 min)";
+  if (a.kind === "webapp") return "načíta sa po Pull v jeho webapp, alebo ⟳";
+  return "⟳ (pull a reštart agenta)";
+}
+
 /** Tlačidlo „pull + reštart" agenta a stav posledného pokynu (live stroj má vlastné nasadenie). */
 function hubUpdateCell(a, code) {
   if (a.role === "live" || !a.online) return "";
@@ -429,6 +472,7 @@ async function renderHub() {
   const hub = h.hub;
   if (!hub) {
     if (h.error) { $("#hub-error").textContent = `hub: ${h.error}`; $("#hub-error").hidden = false; }
+    $("#hub-plugins").hidden = true;
     $("#hub-agents tbody").innerHTML = ""; $("#hub-stats tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
   } else {
     $("#hub-agents-count").textContent = `${hub.online} online`;
@@ -441,12 +485,14 @@ async function renderHub() {
       { k: "V rade", v: hub.queued ?? 0, s: `beží ${hub.running ?? 0}` },
     ]);
     renderHubVersion(hub);
+    renderHubPlugins(hub);
     hubStatsBox();
     $("#hub-stats-old").hidden = hub.agents.some(a => a.stats);
     $("#hub-agents tbody").innerHTML = hub.agents.map(a => `<tr class="plain">
       <td><b>${esc(a.name)}</b> ${hubKind(a)}</td>
       <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}${a.updating ? ' <span class="chip warn" title="agent ťahá kód (git pull) — dovtedy nič nové nedostane">ťahá kód</span>' : ""}</td>
-      <td>${esc(a.version || "–")} ${hubCodeChip(a.version, hub.code)}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
+      <td>${esc(a.version || "–")} ${hubCodeChip(a.version, hub.code)}</td>
+      <td>${a.online ? hubPluginChips(a.plugins, hub.code, "agent", hubPluginHow(a)) || "–" : "–"}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
       <td>${anoNie(a.accept)}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${anoNie(a.accept_request)}` : ""}</td>
       <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td>
       <td>${hubUpdateCell(a, hub.code)}${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");

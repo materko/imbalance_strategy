@@ -195,6 +195,12 @@ class AgentPluginHost:
                          "last_error": s.last_error, "reloads": s.reloads, "loaded_at": s.loaded_at, "api": API}
         return out
 
+    def brief(self) -> dict[str, dict[str, Any]]:
+        """`meno → {title, running, error}` bez volania pluginu (heartbeat, karta Hub)."""
+        return {name: {"title": s.plugin.title if s.plugin else name, "running": bool(s.thread and s.thread.is_alive()),
+                       "error": str(s.load_error or s.last_error or "")[:300]}
+                for name, s in list(self.slots.items())}
+
     def overrides(self) -> list[dict[str, Any]]:
         """Lokálne prepnuté režimy všetkých pluginov (`plugin` = kto ho drží)."""
         out = []
