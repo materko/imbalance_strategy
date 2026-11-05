@@ -1,0 +1,49 @@
+$ emulator MultiCharts MNQ 2m 20211001-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 100 na 2m @2m 250/250, filter volatility ATR 14 / 100 barov @2m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 872158 barov 2m, 1744299 1m, 0 HTF
+  20000/872158 barov, 21 obchodov
+  40000/872158 barov, 41 obchodov
+  60000/872158 barov, 62 obchodov
+  80000/872158 barov, 83 obchodov
+  100000/872158 barov, 103 obchodov
+  120000/872158 barov, 126 obchodov
+  140000/872158 barov, 145 obchodov
+  160000/872158 barov, 164 obchodov
+  180000/872158 barov, 186 obchodov
+  200000/872158 barov, 206 obchodov
+  220000/872158 barov, 228 obchodov
+  240000/872158 barov, 251 obchodov
+  260000/872158 barov, 270 obchodov
+  280000/872158 barov, 292 obchodov
+  300000/872158 barov, 310 obchodov
+  320000/872158 barov, 333 obchodov
+  340000/872158 barov, 352 obchodov
+  360000/872158 barov, 374 obchodov
+  380000/872158 barov, 397 obchodov
+  400000/872158 barov, 418 obchodov
+  420000/872158 barov, 433 obchodov
+  440000/872158 barov, 458 obchodov
+  460000/872158 barov, 478 obchodov
+  480000/872158 barov, 500 obchodov
+  500000/872158 barov, 523 obchodov
+  520000/872158 barov, 542 obchodov
+  540000/872158 barov, 565 obchodov
+  560000/872158 barov, 591 obchodov
+  580000/872158 barov, 611 obchodov
+  600000/872158 barov, 633 obchodov
+  620000/872158 barov, 654 obchodov
+  640000/872158 barov, 679 obchodov
+  660000/872158 barov, 698 obchodov
+  680000/872158 barov, 723 obchodov
+  700000/872158 barov, 746 obchodov
+  720000/872158 barov, 767 obchodov
+  740000/872158 barov, 790 obchodov
+  760000/872158 barov, 810 obchodov
+  780000/872158 barov, 829 obchodov
+  800000/872158 barov, 850 obchodov
+  820000/872158 barov, 871 obchodov
+  840000/872158 barov, 887 obchodov
+  860000/872158 barov, 908 obchodov
+hotovo: 923 obchodov, nerozhodnutelnych minut 0
+kresby: {'nqprec_zone': 1271, 'tp_box': 924, 'sl_box': 924, 'nqprec_entry': 924}

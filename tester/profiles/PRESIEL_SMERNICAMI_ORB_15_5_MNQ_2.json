@@ -3,12 +3,12 @@
  "qty": 1.0,
  "closeAtEnd": false,
  "orMinutes": 30,
- "rr": 0.75,
+ "rr": 0.5,
  "maxTradesPerDay": 3,
- "useDailyBias": true,
- "useWickFilter": false,
+ "useDailyBias": false,
+ "useWickFilter": true,
  "maxWickPct": 20.0,
- "lastEntry": 1400,
+ "lastEntry": 1600,
  "entryOrderType": "market",
  "trendFilter": "with",
  "trendEmaLen": 200,
@@ -20,8 +20,9 @@
  "confirmBars": 2,
  "orStart": 1000,
  "targetMode": 0,
+ "entryConfirm": "any",
  "_strategy": "orb15",
  "_instrument": "mnq_databento",
- "_timeframe": "3m",
- "_title": "ORB 15/5 MNQ 2 · RR 0,75 · PF 1,50 · WR 65 % · 151 obch/rok · MNQ 3m · max DD 3 089 $ · posl. rok PF 1,35"
+ "_timeframe": "5m",
+ "_title": "ORB 15/5 MNQ 2 · RR 0,5 · PF 1,42 · WR 73 % · 153 obch/rok · MNQ 5m · max DD 1 992 $ · posl. rok PF 1,43"
 }

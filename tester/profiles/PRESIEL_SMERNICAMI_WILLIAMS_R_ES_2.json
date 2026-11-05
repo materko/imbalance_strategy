@@ -5,11 +5,11 @@
  "entryLevel": -85.0,
  "exitMode": 1,
  "exitLevel": -10.0,
- "stopPct": 1.0,
+ "stopPct": 0.0,
  "entryOrderType": "limit",
  "limitOffsetPct": 75,
- "entryConfirm": "pinbar",
- "confirmBars": 5,
+ "entryConfirm": "any",
+ "confirmBars": 3,
  "trendFilter": "with",
  "trendEmaLen": 50,
  "trendTF": 0,
@@ -17,5 +17,5 @@
  "_strategy": "wpres",
  "_instrument": "es_databento",
  "_timeframe": "1m",
- "_title": "WILLIAMS %R ES 2 · PF 1,44 · WR 70 % · 298 obch/rok · ES 1m · max DD 5 937 $ · posl. rok PF 1,44"
+ "_title": "WILLIAMS %R ES 2 · PF 1,59 · WR 71 % · 220 obch/rok · ES 1m · max DD 3 258 $ · posl. rok PF 1,98"
 }

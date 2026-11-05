@@ -1,0 +1,21 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "wprLen": 9,
+ "entryLevel": -98.0,
+ "exitMode": 0,
+ "trendFilter": "against",
+ "trendEmaLen": 100,
+ "trendTF": 15,
+ "volFilter": "low",
+ "entryOrderType": "limit",
+ "limitOffsetPct": 75,
+ "entryConfirm": "pinbar",
+ "confirmBars": 5,
+ "exitLevel": -20.0,
+ "stopPct": 1.0,
+ "_strategy": "wprmgc",
+ "_instrument": "mgc_databento",
+ "_timeframe": "3m",
+ "_title": "WILLIAMS %R MGC 10 · PF 1,53 · WR 70 % · 154 obch/rok · MGC 3m · max DD 561 $ · posl. rok PF 1,51"
+}

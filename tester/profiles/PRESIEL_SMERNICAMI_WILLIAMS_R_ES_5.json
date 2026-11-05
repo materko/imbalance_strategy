@@ -1,0 +1,21 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "wprLen": 30,
+ "entryLevel": -80.0,
+ "exitMode": 1,
+ "exitLevel": -20.0,
+ "stopPct": 0.0,
+ "entryOrderType": "limit",
+ "limitOffsetPct": 25,
+ "entryConfirm": "none",
+ "confirmBars": 3,
+ "trendFilter": "off",
+ "trendEmaLen": 100,
+ "trendTF": 0,
+ "volFilter": "off",
+ "_strategy": "wpres",
+ "_instrument": "es_databento",
+ "_timeframe": "30m",
+ "_title": "WILLIAMS %R ES 5 · PF 1,31 · WR 71 % · 155 obch/rok · ES 30m · max DD 38 407 $ · posl. rok PF 1,31"
+}

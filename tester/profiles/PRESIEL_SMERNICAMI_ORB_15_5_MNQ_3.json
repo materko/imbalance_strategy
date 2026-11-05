@@ -6,8 +6,8 @@
  "rr": 0.75,
  "maxTradesPerDay": 3,
  "useDailyBias": true,
- "useWickFilter": true,
- "maxWickPct": 50.0,
+ "useWickFilter": false,
+ "maxWickPct": 20.0,
  "lastEntry": 1400,
  "entryOrderType": "market",
  "trendFilter": "with",
@@ -23,5 +23,5 @@
  "_strategy": "orb15",
  "_instrument": "mnq_databento",
  "_timeframe": "3m",
- "_title": "ORB 15/5 MNQ 3 · RR 0,75 · PF 1,46 · WR 65 % · 150 obch/rok · MNQ 3m · max DD 3 038 $ · posl. rok PF 1,31"
+ "_title": "ORB 15/5 MNQ 3 · RR 0,75 · PF 1,50 · WR 65 % · 151 obch/rok · MNQ 3m · max DD 3 089 $ · posl. rok PF 1,35"
 }
