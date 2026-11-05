@@ -242,7 +242,8 @@ function srepPosudok(d) {
 function srepSetup(d) {
   const p = d.profile, f = srep.family;
   const { market, type } = f;          // trh a typ rodiny — C# port by mal typ „LIVE"
-  const deps = (cat.deployments || []).filter(x => x.active && x.strategy === d.key && (!p || x.profile === p.name));
+  const deps = (cat.deployments || []).filter(x => x.strategy === d.key && (!p || x.profile === p.name))
+    .sort((a, b) => catDepRunning(b) - catDepRunning(a));
   const chips = [market, type, d.csharp && "C# jadro · NinjaTrader 8 / MetaTrader 5"].filter(Boolean)
     .map(c => `<span class="chip">${esc(c)}</span>`).join("");
   const typeNote = { "TRENDOVÉ": "Trendová — zarába na pokračovaní pohybu: nižší winrate a dlhé série strát sú normálne, rozhoduje RR.",
@@ -259,7 +260,7 @@ function srepSetup(d) {
       <tr><th>Trh</th><td>${esc(p.pair || "—")} ${esc(p.timeframe || "")}</td></tr>
       ${p.created ? `<tr><th>Vznikol</th><td>${esc(p.created.slice(0, 10))}</td></tr>` : ""}
       ${p.title ? `<tr><th>Popis</th><td class="small">${esc(p.title)}</td></tr>` : ""}
-      <tr><th>Naživo</th><td>${deps.length ? deps.map(x => `<span class="cat-badge run">${esc(x.account || x.akey || "účet")}${x.mode && x.mode !== "enabled" ? ` · ${esc(x.mode)}` : ""}</span>`).join(" ") : '<span class="muted">nenasadený</span>'}</td></tr>
+      <tr><th>Naživo</th><td>${deps.length ? deps.map(x => `<span class="cat-badge ${catDepRunning(x) ? "on" : "off"}" title="${esc(catDepLine(x))}">${catDepRunning(x) ? "● beží" : "■ zastavená"} · ${esc(x.account || x.akey || "účet")}</span>`).join(" ") : '<span class="muted">nenasadený</span>'}</td></tr>
     </table>
     <h4>Parametre odlišné od defaultov stratégie (${params.length})</h4>
     ${params.length ? `<div class="scroll"><table class="runs srep-table"><thead><tr><th>Parameter</th><th>Hodnota</th><th>Default</th></tr></thead><tbody>${
@@ -313,7 +314,7 @@ function srepRenderHead() {
   const ch = d?.analytika?.character;
   $("#srep-head").innerHTML = `<h2 id="srep-title">${esc(f.title)} <code class="muted small">${esc(srep.key)}</code></h2>
     <div class="cat-tags"><span class="chip">${esc(market)}</span>${type ? `<span class="chip">${esc(type)}</span>` : ""}
-      ${f.live ? '<span class="cat-badge live">LIVE · C#</span>' : ""}${f.deployed.length ? `<span class="cat-badge run">NAŽIVO · ${f.deployed.length}</span>` : ""}
+      ${catLiveBadges(f)}
       ${ch ? `<span class="chip" title="charakter z analytiky">${esc(ch)}</span>` : ""}</div>
     ${f.lead ? `<p class="cat-lead small">${esc(f.lead)}</p>` : ""}`;
 }
@@ -325,7 +326,7 @@ function srepProfileOptions() {
     const ps = f.profiles.filter(p => p.strategy === k).sort(catProfileSort);
     return `<optgroup label="${esc(k === f.key ? k : `${k} (C# port)`)}">
       <option value="${esc(k)}|">— profil analytiky ${esc(k)}</option>
-      ${ps.map(p => `<option value="${esc(k)}|${esc(p.name)}">${p.deployed ? "● " : ""}${esc(catProfileName(p))} · ${esc(CAT_GROUPS[p.group])}</option>`).join("")}</optgroup>`;
+      ${ps.map(p => `<option value="${esc(k)}|${esc(p.name)}">${p.running ? "● " : p.deployed ? "■ " : ""}${esc(catProfileName(p))} · ${esc(CAT_GROUPS[p.group])}</option>`).join("")}</optgroup>`;
   }).join("");
 }
 

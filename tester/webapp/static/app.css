@@ -832,7 +832,9 @@ table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(
 .cat-title { margin: 0 0 4px; font-size: 15px; color: var(--ink); text-transform: none; letter-spacing: 0; }
 .cat-tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .cat-badge { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-.cat-badge.live { background: var(--chip-ok-bg); color: var(--chip-ok-fg); }
+.cat-badge.live, .cat-badge.on { background: var(--chip-ok-bg); color: var(--chip-ok-fg); }
+.cat-badge.off { background: var(--chip-bad-bg); color: var(--chip-bad-fg); }
+.cat-badge.port { background: var(--chip-bg); color: var(--chip-fg); }
 .cat-badge.new { background: var(--chip-warn-bg); color: var(--chip-warn-fg); }
 .cat-spark { width: 100%; height: 46px; display: block; }
 .cat-spark.empty { display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border-radius: 6px; }

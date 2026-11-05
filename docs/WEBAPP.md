@@ -141,9 +141,13 @@ krivkou a číslami **najlepšieho behu** z histórie (zisk, PF, RR, winrate, dr
 a jedným profilom **naj** — nasadený naživo, inak zo smernice s najvyšším PF, inak profil s najlepším
 behom. Pod číslami je počet profilov po skupinách: prešli smernicou (`PRESIEL_SMERNICAMI_*`,
 `SMERNICE_CS_*`), z repozitára a vlastné. C# porty (`tksnet`, `tksneteod`) nemajú vlastnú kartu, sú pri
-predlohe so štítkom **LIVE · C#** a ich profily sú v jej zozname; **NAŽIVO · n** = toľko aktívnych
-nasadení na účtoch (karta Live, z hubu — bez hubu sa neukáže). Nad mriežkou je hľadanie (`/`, hľadá aj
-v menách profilov), filtre trh / typ (typ LIVE = má C# port), „len so smernicou", „len naživo" a poradie:
+predlohe so štítkom **C#** a ich profily sú v jej zozname. Nasadenia na účtoch (karta Live, z hubu —
+bez hubu sa neukážu) dávajú štítky **● BEŽÍ** (nasadenie je aktívne a inštancia v spoole žije, aj keď trh
+stojí) a **■ ZASTAVENÁ** (pozastavené, vypnuté, alebo aktívne, ale inštancia mlčí); pri viacerých nasadeniach
+s počtom, v tooltipe účet, profil a stav každého. To isté ukazuje profil „naj“ (beží / zastavený) a okno
+Hodnotenie. Nad mriežkou je hľadanie (`/`, hľadá aj v menách profilov), filtre trh / typ, „len so smernicou",
+„len bežiace" a poradie. Typ **LIVE** v katalógu = stratégie nasadené na účtoch, najprv bežiace, potom
+zastavené (vo formulári Nový beh je LIVE ďalej skupina C# portov). Poradie:
 zisk na drawdown, výkon (zisk), RR, naživo nasadené najprv, profily zo smernice, počet profilov,
 posledný beh. Stratégie bez dobrého behu a bez profilu zo smernice sú v zbalenom bloku pod mriežkou.
 

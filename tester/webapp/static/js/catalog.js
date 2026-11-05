@@ -16,6 +16,27 @@ const catNum = (v, d = 1) => v === null || v === undefined || Number.isNaN(v) ? 
   : Number(v).toLocaleString("sk-SK", { minimumFractionDigits: d, maximumFractionDigits: d });
 const catSigned = (v, d = 1) => v === null || v === undefined ? "—" : `${v > 0 ? "+" : ""}${catNum(v, d)}`;
 
+/** Nasadenie naozaj beží: je aktívne a jeho inštancia v spoole žije (ping alebo udalosť nedávno, aj keď trh stojí). */
+const catDepRunning = d => !!(d.active && d.live && d.live.alive);
+
+/** Jedno nasadenie do tooltipu: účet · stratégia · profil — stav. */
+function catDepLine(d) {
+  const why = catDepRunning(d) ? (d.live.state === "closed" ? "beží, trh stojí" : "beží")
+    : !d.active ? (d.mode === "paused" ? "pozastavené" : "vypnuté") : "aktívne, ale inštancia mlčí";
+  return `${d.account || "účet"} · ${d.strategy} · ${d.profile || "—"} — ${why}`;
+}
+
+/** Štítky rodiny: ● BEŽÍ / ■ ZASTAVENÁ (nasadenia na účtoch, tooltip po jednom) a C# port.
+ *  Tie isté na karte katalógu aj v hlavičke okna Hodnotenie. */
+function catLiveBadges(f) {
+  const n = a => a.length > 1 ? ` · ${a.length}` : "";
+  return [
+    f.running.length ? `<span class="cat-badge on" title="${esc(f.running.map(catDepLine).join("\n"))}">● BEŽÍ${n(f.running)}</span>` : "",
+    f.stopped.length ? `<span class="cat-badge off" title="${esc(f.stopped.map(catDepLine).join("\n"))}">■ ZASTAVENÁ${n(f.stopped)}</span>` : "",
+    f.live ? '<span class="cat-badge port" title="má C# port — pripravená na NinjaTrader 8 a MetaTrader 5">C#</span>' : "",
+  ].join("");
+}
+
 /** Stratégie zlúčené do rodín: predloha + jej C# porty. Profily rodiny sú spolu (s kľúčom
  *  stratégie, ku ktorej patria), najlepší beh je najlepší z celej rodiny. */
 function catFamilies(rows) {
@@ -36,11 +57,15 @@ function catFamilies(rows) {
     const counts = { smernica: 0, repo: 0, user: 0 };
     for (const p of profiles) counts[p.group] = (counts[p.group] || 0) + 1;
     const memberKeys = new Set(f.members.map(m => m.key));
-    const deployed = cat.deployments.filter(d => d.active && memberKeys.has(d.strategy));
-    const deployedProfiles = new Set(deployed.map(d => d.profile));
-    for (const p of profiles) p.deployed = deployed.filter(d => d.profile === p.name && d.strategy === p.strategy).length;
+    // všetky nasadenia rodiny na účtoch (aj pozastavené), z nich bežiace = aktívne a inštancia žije
+    const deps = cat.deployments.filter(d => memberKeys.has(d.strategy));
+    const running = deps.filter(catDepRunning), stopped = deps.filter(d => !catDepRunning(d));
+    for (const p of profiles) {
+      const mine = deps.filter(d => d.profile === p.name && d.strategy === p.strategy);
+      p.deployed = mine.length; p.running = mine.filter(catDepRunning).length;
+    }
     return {
-      deployed, deployedProfiles,
+      deps, running, stopped,
       key: f.key, title: head.title, lead: head.lead || "", hasExplainer: !!head.has_explainer,
       ports, profiles, best, counts, market, type,
       live: ports.some(p => p.csharp) || head.csharp,
@@ -95,7 +120,7 @@ function catProfileName(p) {
 /** Jeden profil rodiny — „naj": nasadený naživo, potom zo smernice, potom s najlepším behom (zisk / DD).
  *  Ten istý ukazuje karta aj okno hodnotenia, keď sa otvorí bez výberu. */
 function catTopProfile(f) {
-  const rank = p => [p.deployed > 0, p.group === "smernica", !!p.best_run,
+  const rank = p => [p.running > 0, p.deployed > 0, p.group === "smernica", !!p.best_run,
     p.group === "smernica" ? (p.claimed?.pf ?? 0) : catScore(p.best_run)];
   const better = (x, y) => { const a = rank(x), b = rank(y); for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return b[i] > a[i] ? 1 : -1; return 0; };
   return [...f.profiles].sort(better)[0] || null;
@@ -106,11 +131,7 @@ function catCard(f) {
   const seg = g => n ? (f.counts[g] / n * 100).toFixed(1) : 0;
   const top = [catTopProfile(f)].filter(Boolean);
   const kpi = (label, val, cls = "") => `<div class="cat-kpi"><span>${label}</span><b class="${cls}">${val}</b></div>`;
-  const badges = [
-    f.live ? '<span class="cat-badge live" title="má C# port — beží v NinjaTrader 8 a MetaTrader 5">LIVE · C#</span>' : "",
-    f.deployed.length ? `<span class="cat-badge run" title="aktívne nasadenia na účtoch (karta Live)">NAŽIVO · ${f.deployed.length}</span>` : "",
-    f.isNew ? '<span class="cat-badge new">nová</span>' : "",
-  ].join("");
+  const badges = catLiveBadges(f) + (f.isNew ? '<span class="cat-badge new">nová</span>' : "");
   const ports = f.ports.length ? `<div class="cat-ports small muted">C# porty: ${f.ports.map(p =>
     `<button type="button" class="linkish" data-cat-open="${esc(p.key)}">${esc(p.key)}</button>`).join(", ")}</div>` : "";
   return `<article class="cat-card card" data-key="${esc(f.key)}" title="klik otvorí hodnotenie stratégie">
@@ -139,7 +160,8 @@ function catCard(f) {
       <ul class="cat-top">${top.map(p => { const s = catProfileStats(p); return `<li>
         <span class="small muted">naj</span><span class="cat-dot g-${p.group}" title="${CAT_GROUPS[p.group]}"></span>
         <button type="button" class="linkish cat-pname" data-cat-open="${esc(p.strategy)}" data-cat-profile="${esc(p.name)}" title="${esc(p.name)} — otvoriť v Novom behu">${esc(catProfileName(p))}</button>
-        ${p.deployed ? '<span class="cat-badge run" title="tento profil beží naživo">naživo</span>' : ""}
+        ${p.running ? '<span class="cat-badge on" title="tento profil beží naživo">beží</span>'
+          : p.deployed ? '<span class="cat-badge off" title="tento profil je nasadený, ale nebeží">zastavený</span>' : ""}
         <span class="small muted num">${s ? `PF ${catNum(s.pf, 2)} · WR ${catNum(s.wr, 0)} %` : "bez behu"}</span></li>`; }).join("") || '<li class="muted small">žiadny profil — len Pine defaulty</li>'}</ul>
     </section>
     ${ports}
@@ -157,9 +179,9 @@ function catFiltered() {
   const q = cat.query.trim().toLowerCase();
   const list = catFamilies(cat.data).filter(f =>
     (!cat.market || f.market === cat.market)
-    && (!cat.type || (cat.type === "LIVE" ? f.live : f.type === cat.type))
+    && (!cat.type || (cat.type === "LIVE" ? f.deps.length > 0 : f.type === cat.type))
     && (!cat.onlySmernica || f.counts.smernica > 0)
-    && (!cat.onlyLive || f.deployed.length > 0)
+    && (!cat.onlyLive || f.running.length > 0)
     && (!q || [f.key, f.title, ...f.ports.map(p => p.key), ...f.profiles.map(p => p.name + " " + p.title)]
       .some(s => String(s).toLowerCase().includes(q))));
   const val = (f, k) => f.best && f.best[k] != null ? f.best[k] : -Infinity;
@@ -167,12 +189,14 @@ function catFiltered() {
     score: (a, b) => catScore(b.best) - catScore(a.best),
     pnl: (a, b) => val(b, "pnl_pct") - val(a, "pnl_pct"),
     rr: (a, b) => val(b, "rr") - val(a, "rr"),
-    live: (a, b) => b.deployed.length - a.deployed.length || (b.live - a.live) || catScore(b.best) - catScore(a.best),
+    live: (a, b) => b.running.length - a.running.length || b.deps.length - a.deps.length || (b.live - a.live) || catScore(b.best) - catScore(a.best),
     profiles: (a, b) => b.profiles.length - a.profiles.length,
     smernica: (a, b) => b.counts.smernica - a.counts.smernica || catScore(b.best) - catScore(a.best),
     recent: (a, b) => b.lastRun.localeCompare(a.lastRun),
     title: (a, b) => a.title.localeCompare(b.title, "sk"),
   }[cat.sort];
+  // typ LIVE = nasadené na účtoch: najprv bežiace, potom zastavené, v rámci nich zvolené poradie
+  if (cat.type === "LIVE") return list.sort((a, b) => (b.running.length > 0) - (a.running.length > 0) || by(a, b));
   return list.sort(by);
 }
 
@@ -189,12 +213,13 @@ function renderCatalog() {
   catPills($("#cat-types"), [...TYPY, "LIVE"], cat.type, "cat-type");
   const list = catFiltered();
   // stratégie bez dobrého behu a bez profilu zo smernice idú do zbaleného bloku na koniec
-  const weak = f => !f.best && !f.counts.smernica;
+  // (pri LIVE nie: nasadená stratégia sa nesmie schovať do zbaleného bloku)
+  const weak = f => cat.type !== "LIVE" && !f.best && !f.counts.smernica;
   const shown = list.filter(f => !weak(f)), rest = list.filter(weak);
   const nProf = all.reduce((s, f) => s + f.profiles.length, 0);
-  const nLive = all.filter(f => f.deployed.length).length;
+  const nRun = all.filter(f => f.running.length).length, nStop = all.filter(f => f.deps.length && !f.running.length).length;
   $("#cat-summary").textContent = `${list.length} z ${all.length} stratégií · ${nProf} profilov · ${all.filter(f => f.live).length} s C# portom`
-    + (nLive ? ` · ${nLive} naživo` : "");
+    + (nRun ? ` · ${nRun} beží` : "") + (nStop ? ` · ${nStop} zastavených` : "");
   $("#cat-grid").innerHTML = shown.map(catCard).join("")
     || (rest.length ? "" : '<div class="muted">Filtru nezodpovedá žiadna stratégia.</div>');
   const restEl = $("#cat-rest");
