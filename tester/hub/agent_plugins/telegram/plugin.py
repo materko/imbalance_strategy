@@ -87,6 +87,10 @@ class TelegramPlugin(AgentPlugin):
     def status(self) -> dict[str, Any] | None:
         return self.svc.status() if self.svc is not None else None
 
+    def active(self) -> bool:
+        """Bez configu (`TELEGRAM_CONFIG`) plugin len čaká, či pribudne — stroj ho nepoužíva."""
+        return self.svc is not None
+
     def overrides(self) -> list[dict[str, Any]]:
         return list(self.svc.state.overrides()) if self.svc is not None else []
 

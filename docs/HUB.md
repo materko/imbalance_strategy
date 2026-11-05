@@ -737,14 +737,16 @@ alebo pokyn hubu a reštart agenta.
 
 **Sú pluginy najnovšie? Karta Hub.** Agent v heartbeate posiela `plugins` = `{version, items}` — commit, z ktorého
 má pluginy načítané (`start_version`: po reloade bez reštartu nový, po pulle, ktorý čaká na reštart, ešte starý),
-a pri každom `{title, running, error}` (`AgentPluginHost.brief`, bez volania pluginu). Hub to isté o svojich
+a pri každom `{title, running, active, error}` (`AgentPluginHost.brief`; `active` = `AgentPlugin.active()`, stroj
+plugin používa — Telegram bez `telegram.json` nie). Hub to isté o svojich
 pluginoch dáva do `/api/status` (`plugins`, verzia = commit samoaktualizácie, `PluginHost.brief`). Webapp k týmto
 commitom spočíta voči `origin/main`, ktoré pluginy majú iný kód (`gitcode.versus_main` → `plugins: {hub, agent,
 interface}`), a ukáže čipy: nad tabuľkou agentov **pluginy hubu**, v tabuľke stĺpec **pluginy** agenta — zelený
 = beží a kód ako na main, červený `meno −` = na main je novší kód pluginu (tooltip povie, čím sa dostane dnu:
-hub a obchodný stroj sám, webapp agent po Pull, headless ⟳), `+meno` = nový plugin, ktorý proces ešte nemá,
-`meno ⚠` = nenačítal sa / padá, `⏸` vypnutý, `■` vlákno nebeží, `rozhranie −` = na main sa zmenil `base.py` /
-`__init__.py` balíka pluginov (len reštart). Starý agent či hub `plugins` neposiela — stĺpec ukáže „–“.
+hub a obchodný stroj sám, webapp agent po Pull, headless ⟳), `meno ⚠` = nenačítal sa / padá, `■` vlákno nebeží,
+`rozhranie −` = na main sa zmenil `base.py` / `__init__.py` balíka pluginov (len reštart). **Plugin, ktorý proces
+nepoužíva** (agent: `active` je false, hub: vypnutý v configu), sa neukazuje, okrem chyby; ani nový plugin z main,
+ktorý proces ešte nemá — zaostávanie ukáže čip kódu. Starý agent či hub `plugins` neposiela — stĺpec ukáže „–“.
 
 ## API hubu
 

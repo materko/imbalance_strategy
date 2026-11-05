@@ -149,7 +149,7 @@ def test_agent_plugin_host_vlakna_prekrytia_a_reload():
     assert stary_ctx.stopping.is_set() and not kontexty[-1].stopping.is_set()
     assert host.status()["x"]["reloads"] == 1 and host.status()["x"]["running"]
     b = host.brief()["x"]   # heartbeat → karta Hub, bez volania pluginu
-    assert b["running"] and b["error"] == "" and set(b) == {"title", "running", "error"}
+    assert b["running"] and b["active"] and b["error"] == "" and set(b) == {"title", "running", "active", "error"}
     host.stop()
     assert not host.slots["x"].thread.is_alive()
 
@@ -159,6 +159,9 @@ def test_agent_plugin_telegram_sa_najde_a_nacita():
     host = AgentPluginHost(lambda n, s: AgentPluginContext(n, stopping=s), names=["telegram"])
     st = host.status()["telegram"]
     assert st["load_error"] == "" and st["title"] == "Telegram" and st["status"] is None   # bez configu nič
+    assert host.brief()["telegram"]["active"] is False      # stroj ho nepoužíva — karta Hub ho neukáže
+    host.slots["telegram"].plugin.svc = object()
+    assert host.brief()["telegram"]["active"] is True
     stary = host.slots["telegram"].plugin
     assert host.reload(["telegram"]) is True                     # nový import balíka z disku
     novy = host.slots["telegram"].plugin

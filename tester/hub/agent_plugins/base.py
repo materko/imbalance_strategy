@@ -74,6 +74,11 @@ class AgentPlugin:
         """Stav pre heartbeat a webapp (`live.plugins.<meno>`); `None` = plugin nič nehlási."""
         return None
 
+    def active(self) -> bool:
+        """Používa ho tento stroj? (Telegram bez configu nie.) Nepoužívaný plugin karta Hub neukazuje.
+        Musí byť lacné — volá sa pri každom heartbeate."""
+        return True
+
     def overrides(self) -> list[dict[str, Any]]:
         """Režimy prepnuté lokálne (`[{instance, mode, ts, by}]`), ktoré hub ešte nemá v nasadení — agent ich
         drží v požadovanom stave a posiela hubu v `live.overrides`."""

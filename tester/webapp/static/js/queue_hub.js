@@ -334,19 +334,18 @@ function hubPluginChips(pl, code, kto, ako) {
   const diff = s && s.plugins ? s.plugins : null;
   const ine = new Set(diff ? diff[kto] || [] : []);
   const out = [];
-  for (const [meno, it] of Object.entries(items)) {
+  // pluginy, ktoré proces nepoužíva (Telegram bez configu, vypnutý plugin hubu), sa neukazujú — okrem chyby
+  const pouzite = Object.entries(items).filter(([, it]) => it.error || (it.active !== false && it.enabled !== false));
+  for (const [meno, it] of pouzite) {
     const nazov = esc(it.title && it.title !== meno ? `${meno} (${it.title})` : meno);
     if (it.error) out.push(`<span class="chip bad" title="${nazov}: ${esc(it.error)}">${esc(meno)} ⚠</span>`);
-    else if (it.enabled === false) out.push(`<span class="chip" title="${nazov}: vypnutý v configu pluginu">${esc(meno)} ⏸</span>`);
     else if (!it.running) out.push(`<span class="chip warn" title="${nazov}: vlákno nebeží">${esc(meno)} ■</span>`);
     else if (ine.has(meno)) out.push(`<span class="chip bad" title="${nazov}: na main (${esc(code.main)}) je iný kód než načítaný z ${esc(pl.version)} — ${esc(ako)}">${esc(meno)} −</span>`);
     else if (diff) out.push(`<span class="chip ok" title="${nazov}: načítaný z ${esc(pl.version)}, kód ako na main (${esc(code.main)})">${esc(meno)}</span>`);
     else out.push(`<span class="chip" title="${nazov}: načítaný z ${esc(pl.version || "?")}${s === null ? " — commit tento klon nepozná" : ""}">${esc(meno)}</span>`);
   }
-  // plugin, ktorý na main pribudol a proces ho ešte nemá
-  for (const meno of ine) if (!(meno in items))
-    out.push(`<span class="chip bad" title="nový plugin na main (${esc(code.main)}) — ${esc(ako)}">+${esc(meno)}</span>`);
-  if (diff && (diff.interface || []).includes(kto))
+  // plugin, ktorý na main pribudol, sa neukazuje — nevedno, či ho stroj bude používať (zaostávanie ukáže čip kódu)
+  if (pouzite.length && diff && (diff.interface || []).includes(kto))
     out.push(`<span class="chip warn" title="na main sa zmenilo rozhranie pluginov (base.py / __init__.py) — nový kód sa načíta až po reštarte">rozhranie −</span>`);
   if (pl.error) out.push(`<span class="chip bad" title="${esc(pl.error)}">⚠</span>`);
   return out.join(" ");
