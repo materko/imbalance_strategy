@@ -1,0 +1,49 @@
+$ emulator MultiCharts MNQ 3m 20190506-20260926 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 223 na 24m @24m 0/558, filter volatility ATR 14 / 100 barov @3m 0/156
+predhistoria grafu: 33 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 870709 barov 3m, 2608174 1m, 0 HTF
+  20000/870709 barov, 27 obchodov
+  40000/870709 barov, 41 obchodov
+  60000/870709 barov, 63 obchodov
+  80000/870709 barov, 87 obchodov
+  100000/870709 barov, 103 obchodov
+  120000/870709 barov, 113 obchodov
+  140000/870709 barov, 131 obchodov
+  160000/870709 barov, 154 obchodov
+  180000/870709 barov, 185 obchodov
+  200000/870709 barov, 203 obchodov
+  220000/870709 barov, 227 obchodov
+  240000/870709 barov, 257 obchodov
+  260000/870709 barov, 270 obchodov
+  280000/870709 barov, 297 obchodov
+  300000/870709 barov, 322 obchodov
+  320000/870709 barov, 357 obchodov
+  340000/870709 barov, 382 obchodov
+  360000/870709 barov, 415 obchodov
+  380000/870709 barov, 436 obchodov
+  400000/870709 barov, 465 obchodov
+  420000/870709 barov, 485 obchodov
+  440000/870709 barov, 508 obchodov
+  460000/870709 barov, 544 obchodov
+  480000/870709 barov, 572 obchodov
+  500000/870709 barov, 599 obchodov
+  520000/870709 barov, 628 obchodov
+  540000/870709 barov, 650 obchodov
+  560000/870709 barov, 677 obchodov
+  580000/870709 barov, 701 obchodov
+  600000/870709 barov, 730 obchodov
+  620000/870709 barov, 768 obchodov
+  640000/870709 barov, 793 obchodov
+  660000/870709 barov, 820 obchodov
+  680000/870709 barov, 843 obchodov
+  700000/870709 barov, 870 obchodov
+  720000/870709 barov, 881 obchodov
+  740000/870709 barov, 913 obchodov
+  760000/870709 barov, 930 obchodov
+  780000/870709 barov, 956 obchodov
+  800000/870709 barov, 983 obchodov
+  820000/870709 barov, 995 obchodov
+  840000/870709 barov, 1022 obchodov
+  860000/870709 barov, 1041 obchodov
+hotovo: 1052 obchodov, nerozhodnutelnych minut 0
+kresby: {'vo_vwap': 868827, 'orb_box': 1909, 'orb_high': 1909, 'orb_low': 1909, 'orb_entry': 1052}

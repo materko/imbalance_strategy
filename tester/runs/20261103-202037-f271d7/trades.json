@@ -1,0 +1,29 @@
+[
+  {
+    "open_date": "2025-07-25T13:51:00+00:00",
+    "close_date": "2025-07-25T13:55:00+00:00",
+    "open_rate": 23382.25,
+    "close_rate": 23404.75,
+    "amount": 1.0,
+    "point_value": 2.0,
+    "stake_amount": 46764.5,
+    "leverage": 1.0,
+    "profit_abs": 43.4648,
+    "profit_ratio": 0.000929,
+    "exit_reason": "take_profit",
+    "enter_tag": "orb:ny:66691",
+    "is_short": false,
+    "fee_open": 1.6406711438759214e-05,
+    "fee_close": 1.6406711438759214e-05,
+    "funding_fees": 0.0,
+    "trade_duration": 4,
+    "initial_stop_loss_abs": 23336.75,
+    "stop_loss_abs": 23336.75,
+    "initial_take_profit_abs": 23404.75,
+    "max_rate": 23405.0,
+    "min_rate": 23380.5,
+    "gross_abs": 45.0,
+    "fees_abs": 1.5352,
+    "order_type": "market"
+  }
+]

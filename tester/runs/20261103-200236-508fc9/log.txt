@@ -1,0 +1,9 @@
+$ emulator MultiCharts MNQ 5m 20210101-20220101 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: likvidita 5m @5m 887/887, likvidita 15m @15m 311/311
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 70695 barov 5m, 353460 1m, 0 HTF
+  20000/70695 barov, 131 obchodov
+  40000/70695 barov, 264 obchodov
+  60000/70695 barov, 415 obchodov
+hotovo: 490 obchodov, nerozhodnutelnych minut 0
+kresby: {'liq_sell': 8726, 'liq_buy': 8557, 'liq_event': 7659, 'liq_entry': 654}

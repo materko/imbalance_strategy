@@ -1,0 +1,11 @@
+$ emulator MultiCharts ES 3m 20220101-20230101 (ES_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 3m @3m 125/125
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 118045 barov 3m, 354124 1m, 0 HTF
+  20000/118045 barov, 26 obchodov
+  40000/118045 barov, 51 obchodov
+  60000/118045 barov, 67 obchodov
+  80000/118045 barov, 88 obchodov
+  100000/118045 barov, 115 obchodov
+hotovo: 139 obchodov, nerozhodnutelnych minut 1
+kresby: {'nv_range': 259, 'nv_poc': 259, 'nv_va': 518, 'tp_box': 171, 'sl_box': 171, 'nv_entry': 171}

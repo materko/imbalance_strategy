@@ -1,0 +1,7 @@
+$ emulator MultiCharts MNQ 5m 20190506-20200101 (MNQ_USD-1m.feather)
+predhistoria grafu: 23 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 46344 barov 5m, 228289 1m, 0 HTF
+  20000/46344 barov, 25 obchodov
+  40000/46344 barov, 41 obchodov
+hotovo: 44 obchodov, nerozhodnutelnych minut 0
+kresby: {'lliq_session': 513, 'lliq_mark': 112, 'tp_box': 44, 'sl_box': 44, 'lliq_entry': 44}

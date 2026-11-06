@@ -1,0 +1,69 @@
+$ emulator MultiCharts MGC 3m 20150101-20260926 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: swingy 6m @6m 84/84
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 1267430 barov 3m, 3359189 1m, 0 HTF
+  20000/1267430 barov, 43 obchodov
+  40000/1267430 barov, 91 obchodov
+  60000/1267430 barov, 136 obchodov
+  80000/1267430 barov, 170 obchodov
+  100000/1267430 barov, 217 obchodov
+  120000/1267430 barov, 254 obchodov
+  140000/1267430 barov, 297 obchodov
+  160000/1267430 barov, 343 obchodov
+  180000/1267430 barov, 391 obchodov
+  200000/1267430 barov, 437 obchodov
+  220000/1267430 barov, 483 obchodov
+  240000/1267430 barov, 523 obchodov
+  260000/1267430 barov, 560 obchodov
+  280000/1267430 barov, 597 obchodov
+  300000/1267430 barov, 631 obchodov
+  320000/1267430 barov, 662 obchodov
+  340000/1267430 barov, 687 obchodov
+  360000/1267430 barov, 724 obchodov
+  380000/1267430 barov, 751 obchodov
+  400000/1267430 barov, 788 obchodov
+  420000/1267430 barov, 812 obchodov
+  440000/1267430 barov, 847 obchodov
+  460000/1267430 barov, 879 obchodov
+  480000/1267430 barov, 905 obchodov
+  500000/1267430 barov, 934 obchodov
+  520000/1267430 barov, 957 obchodov
+  540000/1267430 barov, 980 obchodov
+  560000/1267430 barov, 1010 obchodov
+  580000/1267430 barov, 1036 obchodov
+  600000/1267430 barov, 1063 obchodov
+  620000/1267430 barov, 1084 obchodov
+  640000/1267430 barov, 1106 obchodov
+  660000/1267430 barov, 1121 obchodov
+  680000/1267430 barov, 1147 obchodov
+  700000/1267430 barov, 1170 obchodov
+  720000/1267430 barov, 1189 obchodov
+  740000/1267430 barov, 1219 obchodov
+  760000/1267430 barov, 1248 obchodov
+  780000/1267430 barov, 1279 obchodov
+  800000/1267430 barov, 1305 obchodov
+  820000/1267430 barov, 1336 obchodov
+  840000/1267430 barov, 1365 obchodov
+  860000/1267430 barov, 1390 obchodov
+  880000/1267430 barov, 1414 obchodov
+  900000/1267430 barov, 1438 obchodov
+  920000/1267430 barov, 1458 obchodov
+  940000/1267430 barov, 1481 obchodov
+  960000/1267430 barov, 1505 obchodov
+  980000/1267430 barov, 1532 obchodov
+  1000000/1267430 barov, 1557 obchodov
+  1020000/1267430 barov, 1591 obchodov
+  1040000/1267430 barov, 1613 obchodov
+  1060000/1267430 barov, 1639 obchodov
+  1080000/1267430 barov, 1664 obchodov
+  1100000/1267430 barov, 1685 obchodov
+  1120000/1267430 barov, 1709 obchodov
+  1140000/1267430 barov, 1731 obchodov
+  1160000/1267430 barov, 1755 obchodov
+  1180000/1267430 barov, 1777 obchodov
+  1200000/1267430 barov, 1798 obchodov
+  1220000/1267430 barov, 1813 obchodov
+  1240000/1267430 barov, 1836 obchodov
+  1260000/1267430 barov, 1867 obchodov
+hotovo: 1875 obchodov, nerozhodnutelnych minut 1
+kresby: {'fib_entry': 1876, 'fib_leg': 2296, 'fib_level': 11480}

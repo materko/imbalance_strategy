@@ -1,0 +1,8 @@
+$ emulator MultiCharts MNQ 5m 20190506-20200101 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: EMA 204 @5m @5m 0/510, filter volatility ATR 14 / 100 barov @5m 0/156
+predhistoria grafu: 23 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 46344 barov 5m, 228289 1m, 0 HTF
+  20000/46344 barov, 32 obchodov
+  40000/46344 barov, 58 obchodov
+hotovo: 66 obchodov, nerozhodnutelnych minut 0
+kresby: {'m7_vwap': 12924, 'm7_line': 12924, 'm7_open': 12924, 'm7_window': 171, 'm7_measure': 171, 'm7_ema': 12900, 'tp_box': 66, 'sl_box': 66, 'm7_entry': 66}

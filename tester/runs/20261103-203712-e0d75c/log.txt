@@ -1,0 +1,6 @@
+$ emulator MultiCharts MGC 30m 20200101-20210101 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 60m @60m 500/500
+predhistoria grafu: 864 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 11798 barov 30m, 350416 1m, 0 HTF
+hotovo: 192 obchodov, nerozhodnutelnych minut 0
+kresby: {'sigma_band': 10227, 'sl_box': 200, 'sigma_entry': 200}

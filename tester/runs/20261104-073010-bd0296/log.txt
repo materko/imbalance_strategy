@@ -1,0 +1,49 @@
+$ emulator MultiCharts MNQ 3m 20190506-20260926 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 14/5 @60m 0/75
+predhistoria grafu: 33 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 870709 barov 3m, 2608174 1m, 870742 HTF
+  20000/870709 barov, 6 obchodov
+  40000/870709 barov, 23 obchodov
+  60000/870709 barov, 27 obchodov
+  80000/870709 barov, 28 obchodov
+  100000/870709 barov, 68 obchodov
+  120000/870709 barov, 149 obchodov
+  140000/870709 barov, 178 obchodov
+  160000/870709 barov, 209 obchodov
+  180000/870709 barov, 253 obchodov
+  200000/870709 barov, 264 obchodov
+  220000/870709 barov, 302 obchodov
+  240000/870709 barov, 330 obchodov
+  260000/870709 barov, 338 obchodov
+  280000/870709 barov, 341 obchodov
+  300000/870709 barov, 361 obchodov
+  320000/870709 barov, 402 obchodov
+  340000/870709 barov, 465 obchodov
+  360000/870709 barov, 529 obchodov
+  380000/870709 barov, 572 obchodov
+  400000/870709 barov, 602 obchodov
+  420000/870709 barov, 649 obchodov
+  440000/870709 barov, 677 obchodov
+  460000/870709 barov, 715 obchodov
+  480000/870709 barov, 727 obchodov
+  500000/870709 barov, 743 obchodov
+  520000/870709 barov, 757 obchodov
+  540000/870709 barov, 769 obchodov
+  560000/870709 barov, 781 obchodov
+  580000/870709 barov, 795 obchodov
+  600000/870709 barov, 812 obchodov
+  620000/870709 barov, 851 obchodov
+  640000/870709 barov, 881 obchodov
+  660000/870709 barov, 892 obchodov
+  680000/870709 barov, 912 obchodov
+  700000/870709 barov, 982 obchodov
+  720000/870709 barov, 1016 obchodov
+  740000/870709 barov, 1026 obchodov
+  760000/870709 barov, 1036 obchodov
+  780000/870709 barov, 1072 obchodov
+  800000/870709 barov, 1111 obchodov
+  820000/870709 barov, 1148 obchodov
+  840000/870709 barov, 1202 obchodov
+  860000/870709 barov, 1234 obchodov
+hotovo: 1245 obchodov, nerozhodnutelnych minut 1
+kresby: {'session': 12669, 'imb_box': 30167, 'sd_zone_pre': 103758, 'sd_zone_post': 103758, 'structure': 81776, 'swing': 105769, 'skip': 5723, 'adx_state': 43695, 'liq_sweep': 5788, 'tp_box': 1485, 'sl_box': 1485, 'expired': 240, 'counter': 316, 'imb_zero': 34, 'sr_level': 6, 'sr_golden': 4}

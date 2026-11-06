@@ -1,0 +1,45 @@
+$ emulator MultiCharts MGC 5m 20150101-20260926 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 5m @5m 500/500
+predhistoria grafu: 9504 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 789574 barov 5m, 3359189 1m, 0 HTF
+  20000/789574 barov, 77 obchodov
+  40000/789574 barov, 143 obchodov
+  60000/789574 barov, 199 obchodov
+  80000/789574 barov, 245 obchodov
+  100000/789574 barov, 309 obchodov
+  120000/789574 barov, 372 obchodov
+  140000/789574 barov, 422 obchodov
+  160000/789574 barov, 478 obchodov
+  180000/789574 barov, 544 obchodov
+  200000/789574 barov, 589 obchodov
+  220000/789574 barov, 650 obchodov
+  240000/789574 barov, 692 obchodov
+  260000/789574 barov, 743 obchodov
+  280000/789574 barov, 810 obchodov
+  300000/789574 barov, 874 obchodov
+  320000/789574 barov, 932 obchodov
+  340000/789574 barov, 981 obchodov
+  360000/789574 barov, 1028 obchodov
+  380000/789574 barov, 1064 obchodov
+  400000/789574 barov, 1098 obchodov
+  420000/789574 barov, 1146 obchodov
+  440000/789574 barov, 1203 obchodov
+  460000/789574 barov, 1250 obchodov
+  480000/789574 barov, 1305 obchodov
+  500000/789574 barov, 1350 obchodov
+  520000/789574 barov, 1392 obchodov
+  540000/789574 barov, 1435 obchodov
+  560000/789574 barov, 1485 obchodov
+  580000/789574 barov, 1517 obchodov
+  600000/789574 barov, 1557 obchodov
+  620000/789574 barov, 1612 obchodov
+  640000/789574 barov, 1660 obchodov
+  660000/789574 barov, 1697 obchodov
+  680000/789574 barov, 1741 obchodov
+  700000/789574 barov, 1781 obchodov
+  720000/789574 barov, 1824 obchodov
+  740000/789574 barov, 1869 obchodov
+  760000/789574 barov, 1900 obchodov
+  780000/789574 barov, 1938 obchodov
+hotovo: 1956 obchodov, nerozhodnutelnych minut 4
+kresby: {'ivb_zone': 3073, 'tp_box': 1980, 'sl_box': 1980, 'ivb_entry': 1980}

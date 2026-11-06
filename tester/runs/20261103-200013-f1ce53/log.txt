@@ -1,0 +1,5 @@
+$ emulator MultiCharts MGC 30m 20170101-20180101 (MGC_USD-1m.feather)
+predhistoria grafu: 500 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 11767 barov 30m, 193004 1m, 0 HTF
+hotovo: 33 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 536, 'orb_high': 536, 'orb_low': 536, 'orb_entry': 33}

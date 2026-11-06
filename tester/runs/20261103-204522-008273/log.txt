@@ -1,0 +1,8 @@
+$ emulator MultiCharts MNQ 5m 20190506-20200101 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: likvidita dňa a ATR @5m 0/328
+predhistoria grafu: 23 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 46344 barov 5m, 228289 1m, 0 HTF
+  20000/46344 barov, 19 obchodov
+  40000/46344 barov, 33 obchodov
+hotovo: 37 obchodov, nerozhodnutelnych minut 0
+kresby: {'sb_liq_sell': 718, 'sb_liq_buy': 722, 'sb_window': 171, 'sb_sweep': 235, 'sb_fvg': 62, 'tp_box': 37, 'sl_box': 37, 'sb_entry': 37}

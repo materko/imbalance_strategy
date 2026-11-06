@@ -1,0 +1,47 @@
+$ emulator MultiCharts ES 5m 20150101-20260926 (ES_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 15m @15m 500/500
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 827141 barov 5m, 4122352 1m, 0 HTF
+  20000/827141 barov, 48 obchodov
+  40000/827141 barov, 92 obchodov
+  60000/827141 barov, 156 obchodov
+  80000/827141 barov, 194 obchodov
+  100000/827141 barov, 247 obchodov
+  120000/827141 barov, 290 obchodov
+  140000/827141 barov, 338 obchodov
+  160000/827141 barov, 382 obchodov
+  180000/827141 barov, 433 obchodov
+  200000/827141 barov, 482 obchodov
+  220000/827141 barov, 545 obchodov
+  240000/827141 barov, 607 obchodov
+  260000/827141 barov, 667 obchodov
+  280000/827141 barov, 702 obchodov
+  300000/827141 barov, 762 obchodov
+  320000/827141 barov, 815 obchodov
+  340000/827141 barov, 874 obchodov
+  360000/827141 barov, 938 obchodov
+  380000/827141 barov, 997 obchodov
+  400000/827141 barov, 1065 obchodov
+  420000/827141 barov, 1113 obchodov
+  440000/827141 barov, 1174 obchodov
+  460000/827141 barov, 1225 obchodov
+  480000/827141 barov, 1275 obchodov
+  500000/827141 barov, 1323 obchodov
+  520000/827141 barov, 1367 obchodov
+  540000/827141 barov, 1421 obchodov
+  560000/827141 barov, 1463 obchodov
+  580000/827141 barov, 1513 obchodov
+  600000/827141 barov, 1569 obchodov
+  620000/827141 barov, 1604 obchodov
+  640000/827141 barov, 1664 obchodov
+  660000/827141 barov, 1720 obchodov
+  680000/827141 barov, 1776 obchodov
+  700000/827141 barov, 1825 obchodov
+  720000/827141 barov, 1871 obchodov
+  740000/827141 barov, 1922 obchodov
+  760000/827141 barov, 1973 obchodov
+  780000/827141 barov, 2019 obchodov
+  800000/827141 barov, 2064 obchodov
+  820000/827141 barov, 2114 obchodov
+hotovo: 2129 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb15_zone': 3027, 'tp_box': 2129, 'sl_box': 2129, 'orb15_entry': 2129}

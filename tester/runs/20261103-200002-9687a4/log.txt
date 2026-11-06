@@ -1,0 +1,7 @@
+$ emulator MultiCharts MGC 5m 20260101-20260926 (MGC_USD-1m.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 50296 barov 5m, 251476 1m, 0 HTF
+  20000/50296 barov, 0 obchodov
+  40000/50296 barov, 0 obchodov
+hotovo: 0 obchodov, nerozhodnutelnych minut 0
+kresby: {'st_swing_low': 1604, 'st_level': 3191, 'st_swing_high': 1587, 'st_bos': 835, 'st_choch': 634, 'st_entry': 1, 'tp_box': 1, 'sl_box': 1}
