@@ -7,7 +7,7 @@ Funguje aj na telefóne.
 
 Jediná externá knižnica je Chart.js z `cdnjs.cloudflare.com`; všetko ostatné je v súbore.
 Štatistiky v detaile (win rate, PF, priemerný zisk/strata, séria strát, prepad, obchody
-za rok, očakávanie) sa počítajú v prehliadači z `trades`; kalendár a mesačné súčty z `daily`;
+za rok, očakávanie, kde zatvára ziskový / stratový obchod v R z poľa `r`) sa počítajú v prehliadači z `trades`; kalendár a mesačné súčty z `daily`;
 krivka z `equity`. Hodnoty `is`, `oos`, `years` a `plateau_min` sa iba zobrazujú.
 
 `dashboard_data.json` v tomto priečinku sú **ukážkové, vymyslené dáta** na odskúšanie stránky.

@@ -87,6 +87,9 @@ function srepKpis(s, perf) {
     ${k("Zisk / rok", srepPct(s.pnl_year), srepCls(s.pnl_year))}
     ${k("PF", catNum(s.profit_factor, 2), "", "hrubý zisk / hrubá strata")}
     ${k("RR", catNum(s.rr, 2), "", "priemerný zisk / priemerná strata")}
+    ${s.r_n ? k("Ø zisk zatvára", s.r_win != null ? `${catSigned(s.r_win, 2)} R` : "—", "pos", `kde ziskové obchody v priemere zatvoria — v násobkoch rizika (vzdialenosti stopu); ${s.r_n} obchodov so stopom`) : ""}
+    ${s.r_n ? k("Ø strata zatvára", s.r_loss != null ? `${catSigned(s.r_loss, 2)} R` : "—", "neg", "kde stratové obchody v priemere zatvoria; −1 R = plný stop") : ""}
+    ${s.r_n ? k("Ø R / obchod", `${catSigned(s.r_avg, 3)} R`, srepCls(s.r_avg), "priemerný výsledok obchodu v R (očakávanie v násobkoch rizika)") : ""}
     ${k("Winrate", `${catNum(s.winrate)} %`)}
     ${k("Max DD", `${catNum(s.max_dd_pct)} %`, "", "najväčší pokles spojenej krivky v % účtu")}
     ${k("Zisk / DD", catNum(s.recovery, 1), "", "recovery factor — zisk spolu / max drawdown")}

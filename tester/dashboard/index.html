@@ -378,9 +378,22 @@
       maxLoss: losses.length ? Math.min.apply(null, losses) : null,
       streak: maxStreak, maxdd: dd,
       perYear: n ? n / years : null,
-      expectancy: n ? (gw - gl) / n : null
+      expectancy: n ? (gw - gl) / n : null,
+      r: rStats(trades)
     };
   }
+  // Kde obchody zatvárajú v R (násobky rizika = vzdialenosti stopu), z poľa `r` obchodu.
+  function rStats(trades) {
+    var w = [], l = [], all = [];
+    (trades || []).forEach(function (t) {
+      var r = t.r == null ? NaN : +t.r;
+      if (!isFinite(r)) return;
+      all.push(r); if (r > 0) w.push(r); else if (r < 0) l.push(r);
+    });
+    function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; }
+    return { win: avg(w), loss: avg(l), avg: avg(all), n: all.length };
+  }
+  function rFmt(v, d) { return v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + num(Math.abs(v), d == null ? 2 : d) + " R"; }
   function worstYear(st) {
     var y = (st.is && st.is.years) || {}, v = Object.keys(y).map(function (k) { return y[k]; }).filter(function (x) { return x != null; });
     return v.length ? Math.min.apply(null, v) : null;
@@ -720,6 +733,8 @@
     function card(s) {
       var sets = s.settings || [];
       var best = sets.reduce(function (m, x) { return x.is && x.is.pf != null && (m == null || x.is.pf > m) ? x.is.pf : m; }, null);
+      var bestSt = sets.filter(function (x) { return x.is && x.is.pf === best; })[0];
+      var br = bestSt ? rStats(bestSt.trades) : { n: 0 };
       var cand = sets.filter(isCandidate).length;
       var s1 = String(s.step1 || "").toLowerCase();
       var badge = s.testing ? '<span class="badge warn">v teste</span>'
@@ -731,7 +746,10 @@
         "<div><span>" + (s.testing ? "Najlepší kandidáti" : "Kandidáti") + "</span><b>" + cand + ' <small class="muted">/ ' + sets.length + "</small></b></div>" +
         '<div><span>Najlepší PF (in-sample)</span><b class="' + pfCls(best) + '">' + pfFmt(best) + "</b></div>" +
         "<div><span>" + (s.testing ? "Prešlo smernicou" : "Nastavení") + "</span><b>" + (s.testing ? "0" : sets.length) + "</b></div>" +
-        "</div>" + stepsRow(s, true) + "</a>";
+        "</div>" +
+        (br.n ? '<div class="muted" style="font-size:12.5px;margin-top:8px" title="najlepšie nastavenie (PF in-sample): kde v priemere zatvára ziskový / stratový obchod, v násobkoch rizika">Ø zatvára: zisk <b class="pos">' +
+          rFmt(br.win) + '</b> · strata <b class="neg">' + rFmt(br.loss) + "</b> · obchod <b>" + rFmt(br.avg) + "</b></div>" : "") +
+        stepsRow(s, true) + "</a>";
     }
     var inM = DATA.strategies.filter(function (s) { return marketOf(s) === market; });
     var ok = inM.filter(function (s) { return !s.testing; }), test = inM.filter(function (s) { return s.testing; });
@@ -754,6 +772,8 @@
         '<td class="l">' + esc(st.label) + "</td><td class=\"l\">" + statusBadge(st.status) + "</td>" +
         '<td class="' + pfCls(st.is && st.is.pf) + '">' + pfFmt(st.is && st.is.pf) + "</td>" +
         "<td>" + num(st.is && st.is.trades_per_year) + "</td>" +
+        (function () { var r = rStats(st.trades); return '<td title="kde zatvárajú ziskové / stratové obchody, v násobkoch rizika">' +
+          (r.n ? '<span class="pos">' + rFmt(r.win) + '</span> / <span class="neg">' + rFmt(r.loss) + "</span>" : "—") + "</td>"; })() +
         '<td class="' + pfCls(w) + '">' + pfFmt(w) + "</td>" +
         '<td class="' + (st.oos ? pfCls(st.oos.pf) : "muted") + '">' + (st.oos ? pfFmt(st.oos.pf) : "—") + "</td>" +
         FIRMS.map(function (f) { return propCell(st, f); }).join("") + "</tr>";
@@ -761,9 +781,9 @@
     return '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span>' + marketCrumb(s) + "<span>" + esc(s.name) + "</span></div>" +
       "<h1>" + esc(s.name) + '</h1><p class="sub">' + esc(s.guideline_step || "") + " · krok 1: " + esc(s.step1 || "—") +
       " · skúšaných kombinácií " + num(s.combos) + "</p>" +
-      '<div class="card"><div class="table-wrap"><table><thead><tr><th>Nastavenie</th><th class="l">Stav</th><th>PF IS</th><th>Obch./rok</th><th>Najhorší rok PF</th><th>PF OOS</th>' +
+      '<div class="card"><div class="table-wrap"><table><thead><tr><th>Nastavenie</th><th class="l">Stav</th><th>PF IS</th><th>Obch./rok</th><th title="kde v priemere zatvára ziskový / stratový obchod, v násobkoch rizika (vzdialenosti stopu)">Ø zatvára zisk / strata</th><th>Najhorší rok PF</th><th>PF OOS</th>' +
       FIRMS.map(function (f) { return "<th>" + f.short + "</th>"; }).join("") + '</tr></thead><tbody>' +
-      (rows || '<tr><td colspan="10" class="muted">Žiadne nastavenia.</td></tr>') + "</tbody></table></div>" +
+      (rows || '<tr><td colspan="11" class="muted">Žiadne nastavenia.</td></tr>') + "</tbody></table></div>" +
       '<p class="muted" style="margin:10px 0 0">Prop výzvy: koľkokrát prešla / koľko výziev sa za 2021–2026 odohralo za sebou (' + propSizeText() +
       '). Veľkosť a účet zmeníš v detaile nastavenia.</p></div>' +
       '<div class="card section"><h2>Postup podľa smernice</h2>' + stepsRow(s, false) + "</div>" + analyticsSection(s) + nasSection(s);
@@ -913,7 +933,9 @@
       t("Max. prepad", s.n ? "−$" + num(s.maxdd) : "—", s.maxdd ? "neg" : "") +
       t("Obchodov za rok", num(s.perYear)) +
       t("Očakávanie / obchod", money(s.expectancy, 2), cls(s.expectancy)) +
-      t("Počet obchodov", num(s.n));
+      t("Počet obchodov", num(s.n)) +
+      (s.r.n ? t("Ø zisk zatvára na", rFmt(s.r.win), "pos") + t("Ø strata zatvára na", rFmt(s.r.loss), "neg") +
+        t("Ø R na obchod", rFmt(s.r.avg), cls(s.r.avg)) : "");
     Array.prototype.forEach.call($("scope").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-s") === state.scope); });
   }
 

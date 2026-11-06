@@ -154,7 +154,10 @@ function catCard(f) {
       ${kpi("Win", `${catNum(b.winrate)} %`)}
       ${kpi("DD", `${catNum(b.max_drawdown_pct)} %`)}
       ${kpi("BE", b.break_even_pct != null ? `${catNum(b.break_even_pct, 4)} %` : "—")}
-    </div>` : `<div class="cat-nobest muted small">Žiadny beh v histórii neprešiel sitom (aspoň 40 obchodov, PF &gt; 1, DD pod 35 %).
+    </div>
+    ${b.r_n ? `<div class="cat-rline small" title="kde obchody najlepšieho behu v priemere zatvoria, v násobkoch rizika (vzdialenosti stopu); ${b.r_n} obchodov">
+      Ø zatvára: zisk <b class="pos">${b.r_win != null ? `${catSigned(b.r_win, 2)} R` : "—"}</b> · strata <b class="neg">${b.r_loss != null ? `${catSigned(b.r_loss, 2)} R` : "—"}</b>
+      · obchod <b>${catSigned(b.r_avg, 2)} R</b></div>` : ""}` : `<div class="cat-nobest muted small">Žiadny beh v histórii neprešiel sitom (aspoň 40 obchodov, PF &gt; 1, DD pod 35 %).
       Behov spolu: ${f.runs}.</div>`}
     <section class="cat-prof">
       <div class="cat-prof-head"><b>${n} ${n === 1 ? "profil" : n < 5 && n > 0 ? "profily" : "profilov"}</b>

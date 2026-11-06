@@ -849,6 +849,9 @@ table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(
 .cat-lead { margin: -2px 0 0; color: var(--muted); line-height: 1.45; }
 .cat-lead button.linkish { font-size: inherit; color: var(--accent); white-space: nowrap; }
 .cat-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.cat-rline { color: var(--muted); margin-top: -2px; }
+.cat-rline b { font-variant-numeric: tabular-nums; color: var(--ink); }
+.cat-rline b.pos { color: var(--pos-strong); } .cat-rline b.neg { color: var(--neg-strong); }
 .cat-badge.run { background: var(--chip-bg); color: var(--chip-fg); }
 .cat-rest { margin-top: 18px; }
 .cat-rest > summary { cursor: pointer; font-weight: 600; padding: 8px 0; }

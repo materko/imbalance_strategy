@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from tester.webapp.api.catalog import equity_curve, explainer_lead, payoff_ratio, profile_group, title_metrics
+from tester.webapp.api.catalog import equity_curve, explainer_lead, payoff_ratio, profile_group, realized_r, title_metrics
 from tester.webapp.store import RunStore
 
 
@@ -200,3 +200,16 @@ def test_report_dokument_len_zo_zoznamu(client):
         first = d["docs"][0]["id"]
         assert c.get("/api/catalog/ibs/doc", params={"id": first}).json()["markdown"]
     assert c.get("/api/catalog/ibs/doc", params={"id": "s/../../../../README.md"}).status_code == 404
+
+
+def test_realized_r_kde_zatvara_v_nasobkoch_rizika():
+    """Long s TP na 0,5 R, short so stopom (−1 R), obchod bez stopu sa nepočíta."""
+    t = [
+        {"open_rate": 100.0, "close_rate": 105.0, "initial_stop_loss_abs": 90.0, "is_short": False},   # +0,5 R
+        {"open_rate": 200.0, "close_rate": 204.0, "initial_stop_loss_abs": 204.0, "is_short": True},   # −1 R
+        {"open_rate": 50.0, "close_rate": 51.0, "is_short": False},                                    # bez stopu
+        {"open_rate": 10.0, "close_rate": 9.0, "initial_stop_loss_abs": 10.0, "is_short": False},      # nulové riziko
+    ]
+    r = realized_r(t)
+    assert r == {"r_win": 0.5, "r_loss": -1.0, "r_avg": -0.25, "r_n": 2}
+    assert realized_r([]) == {}

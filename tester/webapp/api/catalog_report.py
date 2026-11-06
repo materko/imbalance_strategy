@@ -29,7 +29,7 @@ from ...checkup import DOC_NAME, doc_path, extract_posudok
 from ...hyperopt import REFERENCE_WINDOWS
 from ..repo_profiles import default_params, profile_info
 from ..store import strategy_of
-from .catalog import _metrics, _profile_stem, explainer_lead, payoff_ratio, profile_group, title_metrics
+from .catalog import _metrics, _profile_stem, explainer_lead, payoff_ratio, profile_group, realized_r, title_metrics
 
 #: Krivka do okna: dosť bodov na tvar aj na roky, nie celý zoznam obchodov.
 CURVE_POINTS = 400
@@ -191,7 +191,20 @@ def curve(trades: list[tuple[str, float]], points: int = CURVE_POINTS) -> list[l
     return ([[trades[0][0][:16], 0.0]] if trades else []) + out
 
 
-def performance(runs: list[dict[str, Any]], load_run: Callable[[str], dict[str, Any] | None]) -> dict[str, Any]:
+def window_trades(windows: list[dict[str, Any]], load_trades) -> list[dict[str, Any]]:
+    """Obchody referenčných okien po sebe; obchod z prekryvu dvoch okien (rovnaký vstup) len raz."""
+    seen, out = set(), []
+    for r in windows:
+        for t in (load_trades(r["id"]) if load_trades else []) or []:
+            k = (t.get("open_date"), t.get("open_rate"), t.get("is_short"))
+            if k not in seen:
+                seen.add(k)
+                out.append(t)
+    return out
+
+
+def performance(runs: list[dict[str, Any]], load_run: Callable[[str], dict[str, Any] | None],
+                load_trades=None) -> dict[str, Any]:
     windows, checkup_id = pick_windows(runs)
     full = [load_run(r["id"]) for r in windows]
     rows = []
@@ -209,11 +222,12 @@ def performance(runs: list[dict[str, Any]], load_run: Callable[[str], dict[str, 
         "positive_windows": sum(1 for r in rows if (r.get("pnl_pct") or 0) > 0),
         "pair": head.get("pair"), "timeframe": head.get("timeframe"), "engine": head.get("engine"),
         "fee": head.get("fee"), "wallet": head.get("wallet"),
-        "stats": trade_stats(trades), "years": years, "months": months, "curve": curve(trades),
+        "stats": {**trade_stats(trades), **realized_r(window_trades(windows, load_trades))},
+        "years": years, "months": months, "curve": curve(trades),
     }
 
 
-def best_single(runs: list[dict[str, Any]], load_run) -> dict[str, Any] | None:
+def best_single(runs: list[dict[str, Any]], load_run, load_trades=None) -> dict[str, Any] | None:
     """Keď okná chýbajú: najnovší hotový beh profilu s krivkou a jeho číslami."""
     done = sorted((r for r in runs if r.get("status") == "done"), key=lambda r: r.get("id") or "", reverse=True)
     if not done:
@@ -221,7 +235,8 @@ def best_single(runs: list[dict[str, Any]], load_run) -> dict[str, Any] | None:
     rec = load_run(done[0]["id"])
     trades = chain_trades([rec])
     years, months = by_period(trades)
-    return {**_metrics(done[0]), "stats": trade_stats(trades), "years": years, "months": months,
+    r = realized_r(load_trades(done[0]["id"])) if load_trades else {}
+    return {**_metrics(done[0]), "stats": {**trade_stats(trades), **r}, "years": years, "months": months,
             "curve": curve(trades)}
 
 
@@ -296,7 +311,7 @@ def resolve_key(key: str) -> str:
     return k
 
 
-def report(key: str, profile: str, records: list[dict[str, Any]], load_run) -> dict[str, Any]:
+def report(key: str, profile: str, records: list[dict[str, Any]], load_run, load_trades=None) -> dict[str, Any]:
     """Hodnotenie stratégie `key` s profilom `profile` (prázdny = profil, na ktorom je analytika)."""
     spec = STRATEGIES[key]
     path = doc_path(key)
@@ -308,7 +323,7 @@ def report(key: str, profile: str, records: list[dict[str, Any]], load_run) -> d
     name = lower.get(profile.lower(), profile)
     info = infos.get(name)
     runs = _profile_runs(records, key, name) if name else []
-    perf = performance(runs, load_run) if runs else None
+    perf = performance(runs, load_run, load_trades) if runs else None
     if perf and not perf["windows"]:
         perf = None
     group = profile_group(name, key) if info else ""
@@ -325,7 +340,7 @@ def report(key: str, profile: str, records: list[dict[str, Any]], load_run) -> d
         } if info else None,
         "analytika": {**analytika, "matches_profile": bool(name) and analytika.get("profile") == name.lower()},
         "performance": perf,
-        "single": None if perf else best_single(runs, load_run),
+        "single": None if perf else best_single(runs, load_run, load_trades),
         "runs": {
             "strategy_total": sum(1 for r in all_runs if r.get("status") == "done"),
             "profile_total": sum(1 for r in runs if r.get("status") == "done"),

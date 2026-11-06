@@ -90,6 +90,30 @@ def payoff_ratio(result: dict[str, Any]) -> float | None:
     return round(pf * losses / wins, 3) if wins > 0 and losses > 0 else None
 
 
+def realized_r(trades: list[dict[str, Any]]) -> dict[str, Any]:
+    """Kde obchody zatvárajú v R: (výstup − vstup) / (vstup − počiatočný stop), so znamienkom smeru.
+
+    Priemer ziskových, stratových a všetkých obchodov — „Ø zisk zatvára na +0,52 R, Ø strata na −0,98 R“.
+    Obchod bez stopu (`initial_stop_loss_abs`) sa nepočíta. Prázdny slovník, keď nie je z čoho.
+    """
+    rs: list[float] = []
+    for t in trades or []:
+        try:
+            o, c, sl = float(t["open_rate"]), float(t["close_rate"]), float(t["initial_stop_loss_abs"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        risk = abs(o - sl)
+        if risk <= 0:
+            continue
+        rs.append((c - o) / risk * (-1.0 if t.get("is_short") else 1.0))
+    if not rs:
+        return {}
+    win, loss = [r for r in rs if r > 0], [r for r in rs if r < 0]
+    return {"r_win": round(sum(win) / len(win), 3) if win else None,
+            "r_loss": round(sum(loss) / len(loss), 3) if loss else None,
+            "r_avg": round(sum(rs) / len(rs), 3), "r_n": len(rs)}
+
+
 def _metrics(rec: dict[str, Any]) -> dict[str, Any]:
     s, r = rec.get("settings") or {}, rec.get("result") or {}
     return {"id": rec.get("id"), "pair": s.get("pair"), "timeframe": s.get("timeframe"),
@@ -122,8 +146,9 @@ def equity_curve(rec: dict[str, Any] | None, points: int = EQUITY_POINTS) -> lis
     return [round(v, 2) for v in vals]
 
 
-def catalog(records: list[dict[str, Any]], load_run) -> list[dict[str, Any]]:
-    """Karta za každú stratégiu registry. `load_run(id)` vráti celý záznam behu (so `series`)."""
+def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[dict[str, Any]]:
+    """Karta za každú stratégiu registry. `load_run(id)` vráti celý záznam behu (so `series`),
+    `load_trades(id)` jeho obchody (na „kde zatvára v R“; bez neho sa nepočíta)."""
     by_strategy: dict[str, list[dict[str, Any]]] = {}
     for rec in records:
         by_strategy.setdefault(strategy_of(rec), []).append(rec)
@@ -156,7 +181,8 @@ def catalog(records: list[dict[str, Any]], load_run) -> list[dict[str, Any]]:
         best_out = None
         if best:
             best_out = {**_metrics(best), "profile": _profile_stem((best.get("settings") or {}).get("profile")),
-                        "equity": equity_curve(load_run(best["id"]))}
+                        "equity": equity_curve(load_run(best["id"])),
+                        **(realized_r(load_trades(best["id"])) if load_trades else {})}
         out.append({
             "key": key, "title": spec.title, "csharp": spec.csharp_dir is not None,
             "default_timeframe": spec.default_timeframe, "has_explainer": spec.explainer_path.is_file(),
@@ -175,14 +201,14 @@ def build(ctx: AppContext) -> APIRouter:
     @router.get("/api/catalog")
     def catalog_view():
         """Všetky stratégie s profilmi a najlepším behom — karta Stratégie."""
-        return {"strategies": catalog(store.all(), store.get)}
+        return {"strategies": catalog(store.all(), store.get, store.trades)}
 
     @router.get("/api/catalog/{key}/report")
     def report_view(key: str, profile: str = ""):
         """Hodnotenie stratégie s profilom — okno po kliknutí na kartu (výkon, analytika, posudok…)."""
         from . import catalog_report as cr
 
-        return cr.report(cr.resolve_key(key), profile, store.all(), store.get)
+        return cr.report(cr.resolve_key(key), profile, store.all(), store.get, store.trades)
 
     @router.get("/api/catalog/{key}/doc")
     def doc_view(key: str, id: str):
