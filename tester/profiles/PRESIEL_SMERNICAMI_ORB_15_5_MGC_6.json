@@ -1,0 +1,20 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "closeAtEnd": false,
+ "orMinutes": 30,
+ "rr": 2.0,
+ "maxTradesPerDay": 3,
+ "useDailyBias": true,
+ "useWickFilter": true,
+ "maxWickPct": 20.0,
+ "lastEntry": 1600,
+ "trendFilter": "with",
+ "trendEmaLen": 95,
+ "trendTF": 35,
+ "volFilter": "off",
+ "_strategy": "orb15mgc",
+ "_instrument": "mgc_databento",
+ "_timeframe": "3m",
+ "_title": "ORB 15/5 MGC 6 · RR 2 · PF 1,38 · WR 40 % · 153 obch/rok · MGC 3m · max DD 7 299 $ · posl. rok PF 1,34"
+}

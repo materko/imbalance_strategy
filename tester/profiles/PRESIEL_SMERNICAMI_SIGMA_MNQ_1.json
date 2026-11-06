@@ -1,0 +1,21 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "nSigmaDays": 10,
+ "bandMult": 1.0,
+ "useVwap": false,
+ "entryOrderType": "market",
+ "trendEmaLen": 50,
+ "limitOffsetPct": 25,
+ "entryConfirm": "pinbar",
+ "confirmBars": 2,
+ "slPct": 0.0,
+ "trendTF": 60,
+ "useCloseAtEnd": true,
+ "volFilter": "high",
+ "trendFilter": "with",
+ "_strategy": "sigma",
+ "_instrument": "mnq_databento",
+ "_timeframe": "3m",
+ "_title": "SIGMA MNQ 1 · PF 1,41 · WR 56 % · 170 obch/rok · MNQ 3m · max DD 3 424 $ · posl. rok PF 1,67"
+}

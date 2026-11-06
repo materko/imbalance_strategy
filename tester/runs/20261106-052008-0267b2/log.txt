@@ -1,0 +1,22 @@
+$ emulator MultiCharts NAS100 5m 20211001-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: štruktúra 5m @5m 82/82, filter volatility ATR 14 / 100 barov @5m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 336741 barov 5m, 1682665 1m, 0 HTF
+  20000/336741 barov, 48 obchodov
+  40000/336741 barov, 86 obchodov
+  60000/336741 barov, 109 obchodov
+  80000/336741 barov, 142 obchodov
+  100000/336741 barov, 181 obchodov
+  120000/336741 barov, 228 obchodov
+  140000/336741 barov, 268 obchodov
+  160000/336741 barov, 313 obchodov
+  180000/336741 barov, 363 obchodov
+  200000/336741 barov, 405 obchodov
+  220000/336741 barov, 441 obchodov
+  240000/336741 barov, 479 obchodov
+  260000/336741 barov, 517 obchodov
+  280000/336741 barov, 558 obchodov
+  300000/336741 barov, 590 obchodov
+  320000/336741 barov, 619 obchodov
+hotovo: 642 obchodov, nerozhodnutelnych minut 0
+kresby: {'jss_choch': 16102, 'jss_bos': 16348, 'jss_zone': 21600, 'jss_fib': 129600, 'jss_entry': 643}

@@ -1,0 +1,35 @@
+$ emulator MultiCharts MNQ 3m 20211001-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 60m @60m 125/125, filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 581435 barov 3m, 1744299 1m, 0 HTF
+  20000/581435 barov, 41 obchodov
+  40000/581435 barov, 82 obchodov
+  60000/581435 barov, 110 obchodov
+  80000/581435 barov, 141 obchodov
+  100000/581435 barov, 173 obchodov
+  120000/581435 barov, 212 obchodov
+  140000/581435 barov, 245 obchodov
+  160000/581435 barov, 277 obchodov
+  180000/581435 barov, 312 obchodov
+  200000/581435 barov, 345 obchodov
+  220000/581435 barov, 376 obchodov
+  240000/581435 barov, 402 obchodov
+  260000/581435 barov, 436 obchodov
+  280000/581435 barov, 467 obchodov
+  300000/581435 barov, 503 obchodov
+  320000/581435 barov, 532 obchodov
+  340000/581435 barov, 568 obchodov
+  360000/581435 barov, 601 obchodov
+  380000/581435 barov, 628 obchodov
+  400000/581435 barov, 664 obchodov
+  420000/581435 barov, 696 obchodov
+  440000/581435 barov, 722 obchodov
+  460000/581435 barov, 753 obchodov
+  480000/581435 barov, 780 obchodov
+  500000/581435 barov, 811 obchodov
+  520000/581435 barov, 843 obchodov
+  540000/581435 barov, 879 obchodov
+  560000/581435 barov, 915 obchodov
+  580000/581435 barov, 942 obchodov
+hotovo: 944 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb15_zone': 1271, 'tp_box': 946, 'sl_box': 946, 'orb15_entry': 946}

@@ -5,7 +5,7 @@
  "entryLevel": -90.0,
  "exitMode": 1,
  "exitLevel": -10.0,
- "stopPct": 2.0,
+ "stopPct": 0.0,
  "trendFilter": "with",
  "trendEmaLen": 100,
  "trendTF": 0,

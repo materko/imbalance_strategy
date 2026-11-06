@@ -1,21 +1,21 @@
 {
  "fixedQty": true,
  "qty": 1.0,
- "wprLen": 21,
- "entryLevel": -95.0,
+ "wprLen": 14,
+ "entryLevel": -98.0,
  "exitMode": 0,
  "trendFilter": "with",
  "trendEmaLen": 100,
  "trendTF": 15,
- "volFilter": "off",
+ "volFilter": "high",
  "entryOrderType": "limit",
- "limitOffsetPct": 75,
+ "limitOffsetPct": 50,
  "entryConfirm": "none",
- "confirmBars": 5,
- "exitLevel": -20.0,
+ "confirmBars": 3,
+ "exitLevel": -60.0,
  "stopPct": 1.0,
  "_strategy": "wprmgc",
  "_instrument": "mgc_databento",
  "_timeframe": "3m",
- "_title": "WILLIAMS %R MGC 9 · PF 1,50 · WR 69 % · 550 obch/rok · MGC 3m · max DD 763 $ · posl. rok PF 1,57"
+ "_title": "WILLIAMS %R MGC 9 · PF 1,51 · WR 68 % · 204 obch/rok · MGC 3m · max DD 420 $ · posl. rok PF 1,62"
 }
