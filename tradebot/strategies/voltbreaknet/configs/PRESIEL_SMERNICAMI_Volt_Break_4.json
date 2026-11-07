@@ -1,0 +1,14 @@
+{
+ "useTimeExit": false,
+ "noisePct": 40.0,
+ "tpUsd": 1200.0,
+ "slUsd": 1000.0,
+ "startHHMM": 1000,
+ "endHHMM": 1430,
+ "maxTrades": 3,
+ "avgLen": 10,
+ "_strategy": "voltbreaknet",
+ "_instrument": "mnq_databento",
+ "_timeframe": "30m",
+ "_title": "VOLT 4 C# · PF 1,46 · WR 55 % · 170 obch/rok · MNQ 30m · max DD 1 309 $ · posl. rok PF 1,36"
+}

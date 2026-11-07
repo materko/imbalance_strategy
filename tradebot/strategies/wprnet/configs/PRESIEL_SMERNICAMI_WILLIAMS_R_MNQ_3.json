@@ -1,0 +1,21 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "wprLen": 14,
+ "entryLevel": -90.0,
+ "exitMode": 1,
+ "exitLevel": -10.0,
+ "stopPct": 2.0,
+ "trendFilter": "with",
+ "trendEmaLen": 100,
+ "trendTF": 0,
+ "volFilter": "off",
+ "entryConfirm": "any",
+ "entryOrderType": "limit",
+ "limitOffsetPct": 25,
+ "confirmBars": 3,
+ "_strategy": "wprnet",
+ "_instrument": "mnq_databento",
+ "_timeframe": "3m",
+ "_title": "WILLIAMS %R MNQ 3 C# · PF 1,44 · WR 72 % · 225 obch/rok · MNQ 3m · max DD 987 $ · posl. rok PF 1,41"
+}

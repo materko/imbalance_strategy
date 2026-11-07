@@ -1,0 +1,10 @@
+{
+ "useTimeExit": false,
+ "noisePct": 40.0,
+ "tpUsd": 1200.0,
+ "slUsd": 1000.0,
+ "_strategy": "voltbreaknet",
+ "_instrument": "mnq_databento",
+ "_timeframe": "30m",
+ "_title": "VOLT 8 C# · PF 1,42 · WR 54 % · 170 obch/rok · MNQ 30m · max DD 1 410 $ · posl. rok PF 1,33"
+}

@@ -1,0 +1,19 @@
+{
+ "useTimeExit": false,
+ "noisePct": 40.0,
+ "tpUsd": 1200.0,
+ "slUsd": 1000.0,
+ "startHHMM": 1000,
+ "endHHMM": 1430,
+ "maxTrades": 3,
+ "avgLen": 20,
+ "atrSource": "Seansa 0:00–16:00 CT (ako vo videu)",
+ "atrLen": 20,
+ "trendFilter": "off",
+ "volFilter": "off",
+ "limitOffsetPct": 75,
+ "_strategy": "voltbreaknet",
+ "_instrument": "mnq_databento",
+ "_timeframe": "30m",
+ "_title": "VOLT 9 C# · PF 1,44 · WR 54 % · 168 obch/rok · MNQ 30m · max DD 1 511 $ · posl. rok PF 1,32"
+}

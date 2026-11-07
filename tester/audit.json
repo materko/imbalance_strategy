@@ -40,7 +40,7 @@
    "cls": "A",
    "sortino": 2.93,
    "sortino_ok": true,
-   "csharp": false,
+   "csharp": true,
    "why": [],
    "name": "SIGMA (MGC)",
    "market": "GOLD"
@@ -49,7 +49,7 @@
    "cls": "A",
    "sortino": 2.68,
    "sortino_ok": true,
-   "csharp": false,
+   "csharp": true,
    "why": [],
    "name": "SIGMA (MNQ)",
    "market": "NASDAQ"
@@ -76,7 +76,7 @@
    "cls": "A",
    "sortino": 1.28,
    "sortino_ok": false,
-   "csharp": false,
+   "csharp": true,
    "why": [],
    "name": "WILLIAMS %R (MNQ)",
    "market": "NASDAQ"
@@ -85,7 +85,7 @@
    "cls": "A",
    "sortino": 3.87,
    "sortino_ok": true,
-   "csharp": false,
+   "csharp": true,
    "why": [],
    "name": "Volt Break",
    "market": "NASDAQ"

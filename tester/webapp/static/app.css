@@ -1109,3 +1109,4 @@ main.view#view-history.peeking:has(#run-detail:not([hidden])) { grid-template-co
 .cat-nocs { position: absolute; right: 12px; bottom: 10px; font-size: 11px; font-weight: 600; color: #b45309; background: rgba(217,119,6,.10);
   border: 1px solid rgba(217,119,6,.35); border-radius: 6px; padding: 2px 7px; }
 .cat-card .cat-actions { padding-bottom: 22px; }
+.cat-group-head { grid-column: 1 / -1; margin: 10px 0 -4px; font-size: 15px; font-weight: 700; border-bottom: 1px solid var(--border, rgba(127,127,127,.25)); padding-bottom: 6px; }

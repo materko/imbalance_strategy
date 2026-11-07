@@ -32,6 +32,10 @@ from .m2mnq import SPEC as M2MNQ_SPEC
 from .m2eur import SPEC as M2EUR_SPEC
 from .m2mgc import SPEC as M2MGC_SPEC
 from .ivb import SPEC as IVB_SPEC
+from .wprnet import SPEC as WPRNET_SPEC
+from .voltbreaknet import SPEC as VOLTBREAKNET_SPEC
+from .sigmamgcnet import SPEC as SIGMAMGCNET_SPEC
+from .sigmanet import SPEC as SIGMANET_SPEC
 from .orb15 import SPEC as ORB15_SPEC
 from .orb15es import SPEC as ORB15ES_SPEC
 from .orb15mgc import SPEC as ORB15MGC_SPEC
@@ -162,6 +166,10 @@ STRATEGIES: dict[str, StrategySpec] = {
     M2EUR_SPEC.key: M2EUR_SPEC,
     M2MGC_SPEC.key: M2MGC_SPEC,
     IVB_SPEC.key: IVB_SPEC,
+    WPRNET_SPEC.key: WPRNET_SPEC,
+    VOLTBREAKNET_SPEC.key: VOLTBREAKNET_SPEC,
+    SIGMAMGCNET_SPEC.key: SIGMAMGCNET_SPEC,
+    SIGMANET_SPEC.key: SIGMANET_SPEC,
     ORB15_SPEC.key: ORB15_SPEC,
     ORB15ES_SPEC.key: ORB15ES_SPEC,
     ORB15MGC_SPEC.key: ORB15MGC_SPEC,

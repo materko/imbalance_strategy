@@ -1,0 +1,21 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "nSigmaDays": 10,
+ "bandMult": 1.0,
+ "useVwap": false,
+ "entryOrderType": "limit",
+ "trendEmaLen": 50,
+ "limitOffsetPct": 50,
+ "entryConfirm": "pinbar",
+ "confirmBars": 2,
+ "slPct": 0.0,
+ "trendTF": 60,
+ "useCloseAtEnd": true,
+ "volFilter": "high",
+ "trendFilter": "with",
+ "_strategy": "sigmanet",
+ "_instrument": "mnq_databento",
+ "_timeframe": "3m",
+ "_title": "SIGMA MNQ 2 C# · PF 1,37 · WR 56 % · 155 obch/rok · MNQ 3m · max DD 3 023 $ · posl. rok PF 1,52"
+}

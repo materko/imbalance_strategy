@@ -1,0 +1,21 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "nSigmaDays": 10,
+ "bandMult": 0.5,
+ "useVwap": true,
+ "trendFilter": "with",
+ "trendEmaLen": 200,
+ "trendTF": 60,
+ "volFilter": "off",
+ "entryOrderType": "limit",
+ "limitOffsetPct": 50,
+ "entryConfirm": "none",
+ "confirmBars": 2,
+ "useCloseAtEnd": true,
+ "slPct": 0.5,
+ "_strategy": "sigmamgcnet",
+ "_instrument": "mgc_databento",
+ "_timeframe": "30m",
+ "_title": "SIGMA MGC 3 C# · PF 1,43 · WR 48 % · 191 obch/rok · MGC 30m · max DD 772 $ · posl. rok PF 1,59"
+}

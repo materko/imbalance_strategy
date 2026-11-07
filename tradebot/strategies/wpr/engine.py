@@ -76,18 +76,18 @@ class WprEngine:
         if pos == 0.0 and not self.wait and wpr < cfg.entryLevel:
             pct = cfg.stopPct / 100.0 if cfg.stopPct > 0 else _FAR_STOP
             plan = market_entry(out, cfg, self.inst, bar, idx, "wpr", True, bar.close * (1 - pct), None,
-                                f"%R long ({wpr:.1f})")
+                                "%R long (prepad pod úroveň vstupu)")
             self.wait = True
             if plan:
                 self.draw.start(out, bar, "wpr", plan.entry, plan.stop_loss, plan.take_profit, WPR_ENTRY,
-                                f"%R {wpr:.0f}", True, show_tp=False)
+                                "%R", True, show_tp=False)
 
         # ---- 4. výstup ----------------------------------------------------------- #
         mode = int(cfg.exitMode)
         ex_prior = in_long and mode in (0, 2) and self.prev_high is not None and bar.close > self.prev_high
         ex_wpr = in_long and mode in (1, 2) and wpr >= cfg.exitLevel
         if ex_prior or ex_wpr:
-            close_all(out, ctx, idx, "nad high predošlej sviečky" if ex_prior else f"%R {wpr:.0f}")
+            close_all(out, ctx, idx, "nad high predošlej sviečky" if ex_prior else "%R nad úrovňou výstupu")
             self.wait = True
         self.prev_high = bar.high
         return out

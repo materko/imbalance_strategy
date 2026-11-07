@@ -21,7 +21,8 @@ from tradebot.strategies import STRATEGIES
 SPECS = [s for s in STRATEGIES.values() if s.csharp_dir is not None]
 IDS = [s.key for s in SPECS]
 
-_DECL = re.compile(r"^\s*public\s+(?!static|const|readonly|sealed|class|enum)([\w.<>?]+)\s+([^;()]+);", re.M)
+# default môže byť reťazec so zátvorkami ("Seansa 0:00–16:00 CT (ako vo videu)"); mimo reťazca zátvorky = metóda
+_DECL = re.compile(r'^\s*public\s+(?!static|const|readonly|sealed|class|enum)([\w.<>?]+)\s+([^;()"]+(?:"[^"]*"[^;()"]*)*);', re.M)
 _SIZE = re.compile(r'new SizeSpec\(([-\d.]+),\s*"(\w+)"\)')
 
 

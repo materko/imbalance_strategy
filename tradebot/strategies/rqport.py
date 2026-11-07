@@ -37,8 +37,8 @@ class TradeDraw:
         self.was_in = False
 
     def tick(self, out: EngineOutput, bar: Bar, pos: float) -> None:
-        if not self.boxes:
-            return
+        if not self.boxes or (pos == 0.0 and not self.was_in):
+            return                          # vstup ešte čaká (limitka, potvrdenie) — box drží obal, nepredlžovať
         for oid in self.boxes:
             out.drawings.append(DrawUpdate(oid, "x2_ms", bar.time + self.step_ms))
         if pos != 0.0:

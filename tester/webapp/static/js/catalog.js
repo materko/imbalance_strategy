@@ -4,7 +4,7 @@
  * `strategyClass` zo settings.js — ten istý, ktorý triedi výber stratégie vo formulári. */
 "use strict";
 
-const cat = { data: null, deployments: [], market: "", type: "", sort: "score", query: "", onlySmernica: false,
+const cat = { data: null, deployments: [], market: "", type: "", sort: "audit", query: "", onlySmernica: false,
   state: "", drawer: null, tab: "all" };
 
 /** Filter Stav: "" = všetky, run = len bežiace, stop = nasadené, ale zastavené. */
@@ -182,6 +182,15 @@ function catCard(f) {
   </article>`;
 }
 
+/** Skupina auditu rodiny: 0 = AS, 1 = A, 2 = BS, 3 = B, 4 = C, 5 = bez hodnotenia (tester/audit.json). */
+const CAT_AUDIT_GROUPS = ["AS — funguje a prešiel Sortino", "A — funguje, Sortino neprešiel", "BS — s výhradou, prešiel Sortino",
+  "B — s výhradou, Sortino neprešiel", "C — nefunguje (zatiaľ)", "Bez hodnotenia auditu"];
+function catAuditRank(f) {
+  const a = auditOf(f.key);
+  if (!a) return 5;
+  return a.cls === "A" ? (a.sortino_ok ? 0 : 1) : a.cls === "B" ? (a.sortino_ok ? 2 : 3) : 4;
+}
+
 function catFiltered() {
   const q = cat.query.trim().toLowerCase();
   const list = catFamilies(cat.data).filter(f =>
@@ -193,6 +202,8 @@ function catFiltered() {
       .some(s => String(s).toLowerCase().includes(q))));
   const val = (f, k) => f.best && f.best[k] != null ? f.best[k] : -Infinity;
   const by = {
+    audit: (a, b) => catAuditRank(a) - catAuditRank(b) || ((auditOf(b.key) || {}).sortino ?? -99) - ((auditOf(a.key) || {}).sortino ?? -99)
+      || catScore(b.best) - catScore(a.best),
     score: (a, b) => catScore(b.best) - catScore(a.best),
     pnl: (a, b) => val(b, "pnl_pct") - val(a, "pnl_pct"),
     rr: (a, b) => val(b, "rr") - val(a, "rr"),
@@ -230,7 +241,15 @@ function renderCatalog() {
   const nRun = all.filter(f => f.running.length).length, nStop = all.filter(f => f.deps.length && !f.running.length).length;
   $("#cat-summary").textContent = `${list.length} z ${all.length} stratégií · ${nProf} profilov · ${all.filter(f => f.live).length} s C# portom`
     + (nRun ? ` · ${nRun} beží` : "") + (nStop ? ` · ${nStop} zastavených` : "");
-  $("#cat-grid").innerHTML = shown.map(catCard).join("")
+  // pri poradí podľa hodnotenia nadpis pred každou skupinou (AS, A, BS, B, C, bez hodnotenia)
+  let lastGroup = -1;
+  $("#cat-grid").innerHTML = shown.map(f => {
+    if (cat.sort !== "audit") return catCard(f);
+    const g = catAuditRank(f), head = g !== lastGroup
+      ? `<h3 class="cat-group-head">${esc(CAT_AUDIT_GROUPS[g])} <span class="muted small">(${shown.filter(x => catAuditRank(x) === g).length})</span></h3>` : "";
+    lastGroup = g;
+    return head + catCard(f);
+  }).join("")
     || (rest.length ? "" : '<div class="muted">Filtru nezodpovedá žiadna stratégia.</div>');
   const restEl = $("#cat-rest");
   restEl.hidden = !rest.length;

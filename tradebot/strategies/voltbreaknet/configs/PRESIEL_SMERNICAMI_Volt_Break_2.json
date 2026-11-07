@@ -1,0 +1,22 @@
+{
+ "useTimeExit": false,
+ "noisePct": 10.0,
+ "tpUsd": 200.0,
+ "slUsd": 2000.0,
+ "startHHMM": 900,
+ "endHHMM": 1500,
+ "maxTrades": 5,
+ "avgLen": 15,
+ "atrSource": "Denné sviečky burzy",
+ "atrLen": 7,
+ "trendFilter": "off",
+ "volFilter": "off",
+ "entryOrderType": "market",
+ "limitOffsetPct": 25,
+ "entryConfirm": "any",
+ "confirmBars": 3,
+ "_strategy": "voltbreaknet",
+ "_instrument": "mnq_databento",
+ "_timeframe": "1h",
+ "_title": "VOLT 2 C# · PF — · WR 100 % · 210 obch/rok · MNQ 1h · max DD 0 $ · posl. rok PF 0,00"
+}
