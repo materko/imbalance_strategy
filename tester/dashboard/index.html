@@ -856,9 +856,12 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
     function dt(iso) { return iso ? fmtDate(iso) : "—"; }
     function days(a, b) { if (!a) return null; var x = (new Date(b || Date.now()) - new Date(a)) / 864e5; return Math.max(0, Math.round(x)); }
     function stats(tr) {
-      var n = tr.length, w = 0, gw = 0, gl = 0, pnl = 0, r = 0, last = null;
-      tr.forEach(function (t) { var v = +t.pnl || 0; pnl += v; r += +t.r || 0; if (v > 0) { w++; gw += v; } else gl -= v; if (!last || t.close > last) last = t.close; });
-      return { n: n, wr: n ? 100 * w / n : null, pf: gl > 0 ? gw / gl : (gw > 0 ? null : null), pnl: pnl, r: r, last: last };
+      var n = tr.length, w = 0, gw = 0, gl = 0, pnl = 0, r = 0, last = null, risk = 0, rn = 0;
+      tr.forEach(function (t) {
+        var v = +t.pnl || 0; pnl += v; r += +t.r || 0; if (v > 0) { w++; gw += v; } else gl -= v; if (!last || t.close > last) last = t.close;
+        if (t.r && Math.abs(t.r) > 1e-9) { risk += Math.abs(v / t.r); rn++; }
+      });
+      return { n: n, wr: n ? 100 * w / n : null, pf: gl > 0 ? gw / gl : null, pnl: pnl, r: r, last: last, risk: rn ? risk / rn : null };
     }
     var acc = {};
     inst.forEach(function (x) {
@@ -878,6 +881,34 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
       "Zisk je hrubý (bez poplatkov), v mene účtu; MT5 CFD má inú veľkosť kontraktu ako futures v NinjaTraderi. Dáta: " + esc(fmtDateTime(L.generated || "")) + ' UTC. Podrobnosti obchodov: <a class="pos" href="#/live">Live</a>.</p></div>' +
       '<div class="kpis">' + kpi("Účtov", keys.length, "#6366f1") + kpi("Inštancií", inst.length, "#22d3ee") + kpi("Beží", running, "#34d399", "pos") +
       kpi("Stojí", inst.length - running, "#f87171", "neg") + kpi("Obchodov naživo", tot.n, "#fbbf24") + "</div></section>";
+    var dep = DATA.deployments || [];
+    if (dep.length) {
+      // nasadenie ↔ živá inštancia: tá istá stratégia a platforma, symbol bez mesiaca kontraktu (MNQ 12-26 = MNQ);
+      // účet nasadenia je na hube len menovka (live, traeidify) — skutočné číslo účtu je z inštancie s tou menovkou
+      function symKey(v) { return String(v || "").split(" ")[0]; }
+      function findInst(d) {
+        var c = inst.filter(function (x) { return x.engine === d.strategy && x.platform === d.platform && symKey(x.symbol) === symKey(d.symbol); });
+        c.sort(function (a, b) { return (a.status === "beží" ? 0 : 1) - (b.status === "beží" ? 0 : 1) || (a.last_event < b.last_event ? 1 : -1); });
+        return c[0] || null;
+      }
+      var labelAcc = {};
+      dep.forEach(function (d) { var li = findInst(d); if (li && li.status === "beží") labelAcc[d.platform + "|" + d.account] = li.account; });
+      dep = dep.slice().sort(function (a, b) { return (b.active ? 1 : 0) - (a.active ? 1 : 0) || (a.strategy < b.strategy ? -1 : 1); });
+      html += '<div class="card section"><div class="card-head"><div><div class="card-title">Čo sa bude brať — nasadenia na hube</div><div class="muted">' +
+        "Aktívne nasadenie = stratégia beží a bude obchodovať pri ďalšom signáli. Pozastavené / odobraté nebude, kým ho niekto znova nezapne.</div></div>" +
+        '<span class="badge pos">' + dep.filter(function (d) { return d.active; }).length + " aktívnych</span></div>" +
+        '<div class="table-wrap"><table><thead><tr><th class="l">Stratégia</th><th class="l">Platforma · účet</th><th class="l">Symbol · TF</th><th class="l">Profil</th><th class="l">Stav</th>' +
+        '<th>Posledná zmena</th><th class="l">Kto</th><th>Riziko / obchod</th></tr></thead><tbody>' +
+        dep.map(function (d) {
+          var li = findInst(d), acct = (labelAcc[d.platform + "|" + d.account] || (li && li.account) || "?") + " (" + d.account + ")";
+          var st = d.active ? '<span class="badge pos">● aktívne</span>' : '<span class="badge neg">■ ' + (d.mode === "paused" ? "pozastavené" : "odobraté") + "</span>";
+          var risk = d.fixedQty ? num(d.qty) + " ks" : d.riskDollar ? "$" + num(d.riskDollar, 0) : (li ? (function () { var z = stats(li.trades || []); return z.risk == null ? "—" : "≈ $" + num(z.risk, 0); })() : "—");
+          return '<tr><td class="l"><b>' + esc(d.strategy) + '</b></td><td class="l">' + esc(platName[d.platform] || d.platform) + " · " + esc(acct) + '</td><td class="l">' + esc(d.symbol) + " · " + esc(d.tf) + 'm</td><td class="l" style="font-size:12px">' +
+            esc(d.profile) + '</td><td class="l">' + st + "</td><td>" + (d.updated ? esc(fmtDateTime(new Date(d.updated * 1000).toISOString())) : "—") + '</td><td class="l">' + esc(d.by || "—") + "</td><td>" + risk + "</td></tr>";
+        }).join("") + "</tbody></table></div></div>";
+    }
+    html += '<p class="au-rule">Pozor pri súčtoch: 27. 10. (12:58) – 30. 10. (8:48) bežali na NAS-WIN11 naraz dva MT5 účty — starý 1514925336 (FTMO-Demo) a nový 531513073 (FTMO-Server3) — ' +
+      "s tými istými stratégiami, takže 7 obchodov z tých dní je na oboch účtoch (každý účet ich naozaj urobil, nie je to dvojité započítanie v jednom účte).</p>";
     keys.forEach(function (k) {
       var a = acc[k];
       var st = stats([].concat.apply([], a.list.map(function (x) { return x.trades || []; })));
@@ -888,7 +919,7 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
         '<div style="text-align:right"><span class="badge ' + (st.pnl > 0 ? "pos" : st.pnl < 0 ? "neg" : "") + '">' + money(st.pnl) + "</span>" +
         '<div class="muted" style="font-size:12px;margin-top:4px">' + st.n + " obchodov · WR " + (st.wr == null ? "—" : num(st.wr, 0) + " %") + "</div></div></div>" +
         '<div class="table-wrap"><table><thead><tr><th class="l">Stratégia</th><th class="l">Symbol · TF</th><th class="l">Stav</th><th>Beží od</th><th>Dní</th><th>Posledná správa</th>' +
-        "<th>Obchody</th><th>WR</th><th>PF</th><th>Zisk</th><th>Σ R</th><th>Posledný obchod</th></tr></thead><tbody>" +
+        "<th>Obchody</th><th>WR</th><th>PF</th><th>Zisk</th><th>Σ R</th><th title=\"priemerné riziko na obchod = |zisk / R|\">Ø riziko</th><th>Posledný obchod</th></tr></thead><tbody>" +
         a.list.map(function (x) {
           var s2 = stats(x.trades || []), c = x.status === "beží" ? "pos" : x.status === "zastavená" ? "neg" : "warn";
           var stop = x.status === "beží" ? null : x.last_event;
@@ -897,7 +928,7 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
             (stop ? '<div class="muted" style="font-size:11.5px">od ' + dt(stop) + "</div>" : "") + "</td>" +
             "<td>" + dt(x.since) + "</td><td>" + num(days(x.since, stop)) + "</td><td>" + (x.last_event ? esc(fmtDateTime(x.last_event)) : "—") + "</td>" +
             "<td>" + s2.n + "</td><td>" + (s2.wr == null ? "—" : num(s2.wr, 0) + " %") + '</td><td class="' + pfCls(s2.pf) + '">' + pfFmt(s2.pf) + "</td>" +
-            '<td class="' + cls(s2.pnl) + '">' + (s2.n ? money(s2.pnl) : "—") + '</td><td class="' + cls(s2.r) + '">' + (s2.n ? rFmt(s2.r, 1) : "—") + "</td><td>" + dt(s2.last) + "</td></tr>";
+            '<td class="' + cls(s2.pnl) + '">' + (s2.n ? money(s2.pnl) : "—") + '</td><td class="' + cls(s2.r) + '">' + (s2.n ? rFmt(s2.r, 1) : "—") + "</td><td>" + (s2.risk == null ? "—" : "$" + num(s2.risk, 0)) + "</td><td>" + dt(s2.last) + "</td></tr>";
         }).join("") + "</tbody></table></div></div>";
     });
     return html;
