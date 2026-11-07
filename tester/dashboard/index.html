@@ -12,6 +12,8 @@
     if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
   })();
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
@@ -243,13 +245,109 @@
 .lv-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:5px 12px 5px 8px;font-size:13px;cursor:pointer;background:var(--surface-2)}
 .lv-chip input{margin:0}
 .lv-chip:has(input:not(:checked)){opacity:.5;background:transparent}
+
+/* ===== Vzhľad 2.0 (7. 11. 2026): modernejšia stránka — farby, písmo, sklenená hlavička, karty, súhrn, Audit ===== */
+:root {
+  --bg: #070a10; --surface: rgba(20, 26, 38, .78); --surface-2: rgba(32, 40, 56, .7); --border: rgba(148, 163, 184, .13);
+  --text: #eef2f8; --muted: #8b98ad; --accent: #6366f1; --accent-2: #22d3ee;
+  --pos: #34d399; --pos-bg: rgba(52, 211, 153, .14); --neg: #f87171; --neg-bg: rgba(248, 113, 113, .14);
+  --warn: #fbbf24; --warn-bg: rgba(251, 191, 36, .14); --grid: rgba(148, 163, 184, .12);
+  --shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 10px 30px -12px rgba(0,0,0,.6);
+  --glow: radial-gradient(1200px 600px at 10% -10%, rgba(99,102,241,.18), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(34,211,238,.10), transparent 55%);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f5f7fb; --surface: rgba(255,255,255,.9); --surface-2: #eef2f8; --border: rgba(15, 23, 42, .09);
+    --text: #0f172a; --muted: #5b6678; --accent: #4f46e5; --accent-2: #0891b2;
+    --pos: #059669; --pos-bg: rgba(5,150,105,.11); --neg: #dc2626; --neg-bg: rgba(220,38,38,.10);
+    --warn: #b45309; --warn-bg: rgba(217,119,6,.12); --grid: rgba(15,23,42,.08);
+    --shadow: 0 1px 2px rgba(15,23,42,.05), 0 12px 32px -16px rgba(15,23,42,.18);
+    --glow: radial-gradient(1200px 600px at 10% -10%, rgba(79,70,229,.10), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(8,145,178,.08), transparent 55%);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f5f7fb; --surface: rgba(255,255,255,.9); --surface-2: #eef2f8; --border: rgba(15, 23, 42, .09);
+  --text: #0f172a; --muted: #5b6678; --accent: #4f46e5; --accent-2: #0891b2;
+  --pos: #059669; --pos-bg: rgba(5,150,105,.11); --neg: #dc2626; --neg-bg: rgba(220,38,38,.10);
+  --warn: #b45309; --warn-bg: rgba(217,119,6,.12); --grid: rgba(15,23,42,.08);
+  --shadow: 0 1px 2px rgba(15,23,42,.05), 0 12px 32px -16px rgba(15,23,42,.18);
+  --glow: radial-gradient(1200px 600px at 10% -10%, rgba(79,70,229,.10), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(8,145,178,.08), transparent 55%);
+}
+body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14.5px;
+  background: var(--glow), var(--bg); background-attachment: fixed; font-feature-settings: "cv11", "ss01"; }
+.wrap { max-width: 1280px; }
+header.top { background: color-mix(in srgb, var(--bg) 72%, transparent); backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px); border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+header.top .wrap { padding-top: 14px; padding-bottom: 14px; }
+.brand { font-size: 17px; font-weight: 800; letter-spacing: -.2px; display: inline-block; }
+.brand::before { content: ""; display: inline-block; vertical-align: -7px; width: 26px; height: 26px; border-radius: 8px; margin-right: 9px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 6px 18px -6px var(--accent); }
+.brand span { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.topnav { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 3px; }
+.topnav a { border-radius: 9px; padding: 6px 12px; }
+.topnav a.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+h1 { font-size: 28px; font-weight: 800; letter-spacing: -.6px; }
+h2 { font-size: 16px; font-weight: 700; letter-spacing: -.2px; }
+.sub { font-size: 14.5px; }
+.card, .tile { border-radius: 16px; background: var(--surface); border-color: var(--border); box-shadow: var(--shadow);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.card { padding: 18px; }
+a.card { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+a.card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), 0 18px 40px -20px var(--accent); }
+.card-title { font-size: 17px; font-weight: 700; letter-spacing: -.2px; }
+.kv div b { font-size: 20px; font-weight: 700; letter-spacing: -.3px; }
+.tile b { font-weight: 700; letter-spacing: -.3px; }
+.badge { border-radius: 999px; padding: 3px 9px; font-weight: 600; font-size: 11.5px; border: 1px solid transparent; }
+.badge.pos { border-color: color-mix(in srgb, var(--pos) 30%, transparent); }
+.badge.neg { border-color: color-mix(in srgb, var(--neg) 30%, transparent); }
+.badge.warn { border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+.icon-btn, .btn, .seg { border-radius: 10px; }
+th { text-transform: uppercase; letter-spacing: .04em; font-size: 11px; font-weight: 600; }
+tbody tr { transition: background .12s; }
+tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparent); }
+.cell { border-radius: 10px; }
+.step { border-radius: 12px; }
+/* súhrn na úvode */
+.hero { display: grid; gap: 18px; margin-bottom: 26px; }
+.hero h1 { font-size: clamp(26px, 4vw, 38px); margin: 0; }
+.hero p { margin: 0; color: var(--muted); max-width: 70ch; }
+.kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.kpi { position: relative; overflow: hidden; border-radius: 16px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.kpi span { display: block; color: var(--muted); font-size: 12px; font-weight: 500; }
+.kpi b { display: block; font-size: 28px; font-weight: 800; letter-spacing: -.8px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.kpi::after { content: ""; position: absolute; inset: auto -30px -40px auto; width: 120px; height: 120px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--k, var(--accent)) 28%, transparent), transparent 70%); }
+.mk-card { position: relative; overflow: hidden; }
+.mk-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, var(--k, var(--accent)), transparent); }
+.abc { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+.cls { display: inline-grid; place-items: center; min-width: 26px; height: 22px; padding: 0 7px; border-radius: 7px; font-size: 12px; font-weight: 800; }
+.cls.A { background: var(--pos-bg); color: var(--pos); } .cls.B { background: var(--warn-bg); color: var(--warn); } .cls.C { background: var(--neg-bg); color: var(--neg); }
+/* Audit */
+.au-tabs { display: inline-flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 3px; margin: 4px 0 16px; flex-wrap: wrap; }
+.au-tabs button { border: 0; background: transparent; padding: 7px 14px; border-radius: 9px; cursor: pointer; color: var(--muted); font-weight: 600; }
+.au-tabs button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.au-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.au-card .why { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 12.5px; display: grid; gap: 3px; }
+.au-card .nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.au-card .nums div span { display: block; color: var(--muted); font-size: 11.5px; }
+.au-card .nums div b { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.au-rule { border-left: 3px solid var(--k, var(--accent)); padding: 8px 12px; background: var(--surface-2); border-radius: 0 10px 10px 0; margin: 0 0 14px; font-size: 13.5px; }
+@media (max-width: 640px) {
+  header.top .wrap { flex-wrap: wrap; row-gap: 10px; }
+  .topnav { order: 3; width: 100%; overflow-x: auto; justify-content: space-between; }
+  .topnav a { flex: 1; text-align: center; white-space: nowrap; }
+  #nav-home { display: inline-block !important; }
+  header.top { margin-bottom: 18px; }
+}
+@media (max-width: 520px) { .kpi b { font-size: 22px; } h1 { font-size: 22px; } .au-card .nums { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#/">Trade<span>Bot</span> výsledky</a>
-    <nav class="topnav" aria-label="Sekcie"><a href="#/" id="nav-home">Prehľad</a><a href="#/div" id="nav-div">Diverzifikácia</a><a href="#/live" id="nav-live">Live</a></nav>
+    <nav class="topnav" aria-label="Sekcie"><a href="#/" id="nav-home">Prehľad</a><a href="#/audit" id="nav-audit">Audit</a><a href="#/div" id="nav-div">Diverzifikácia</a><a href="#/live" id="nav-live">Live</a></nav>
     <div class="meta"><span id="updated"></span><span class="note" id="note"></span></div>
     <button class="icon-btn" id="theme" title="Prepnúť svetlý / tmavý režim" aria-label="Prepnúť svetlý / tmavý režim">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -715,19 +813,93 @@
   function marketOf(s) { return s.market || "NASDAQ"; }
   function marketHref(m) { return "#/m/" + encodeURIComponent(m); }
   function marketCrumb(s) { var m = marketOf(s); return '<a href="' + marketHref(m) + '">' + esc(m) + "</a><span>/</span>"; }
+  var MK_COLOR = { "NASDAQ": "#6366f1", "GOLD": "#f59e0b", "DOW": "#94a3b8", "SP 500": "#22d3ee", "EURUSD": "#a78bfa" };
+  function auditOf(key) {
+    var rows = (DATA.audit && DATA.audit.rows) || [];
+    return rows.filter(function (r) { return r.key === key; })[0] || null;
+  }
+  function clsBadge(key) {
+    var a = auditOf(key);
+    return a ? '<span class="cls ' + a.cls + '" title="audit: ' + esc((DATA.audit.rules || {})[a.cls] || "") + '">' + a.cls + "</span>" : "";
+  }
   function viewMarkets() {
+    var all = DATA.strategies, au = (DATA.audit && DATA.audit.rows) || [];
+    var passed = all.filter(function (s) { return !s.testing; }).length;
+    var sets = all.reduce(function (n, s) { return n + (s.testing ? 0 : (s.settings || []).length); }, 0);
+    var nA = au.filter(function (r) { return r.cls === "A"; }).length;
+    var live = au.filter(function (r) { return r.live; }).length;
+    function kpi(label, val, color) { return '<div class="kpi" style="--k:' + color + '"><span>' + label + "</span><b>" + val + "</b></div>"; }
+    var hero = '<section class="hero"><div><h1>Prehľad trhov</h1><p>Stratégie testované podľa smernice — ladenie 10/2021–9/2025, odložený rok 9/2025–9/2026, ' +
+      'iný trh a robustnosť. Triedy A / B / C sú z <a class="pos" href="#/audit">auditu</a>; viac stratégií naraz ukáže <a class="pos" href="#/div">Diverzifikácia</a>.</p></div>' +
+      '<div class="kpis">' + kpi("Stratégií na stránke", all.length, "#6366f1") + kpi("Prešli smernicou", passed, "#34d399") +
+      kpi("Nastavení", sets, "#22d3ee") + (au.length ? kpi("Trieda A — funguje", nA, "#34d399") : "") + (au.length ? kpi("Beží naživo", live, "#fbbf24") : "") + "</div></section>";
     var cards = MARKETS.map(function (mk) {
-      var list = DATA.strategies.filter(function (s) { return marketOf(s) === mk[0]; });
+      var list = all.filter(function (s) { return marketOf(s) === mk[0]; });
       var ok = list.filter(function (s) { return !s.testing; }).length;
-      var sets = list.reduce(function (n, s) { return n + (s.testing ? 0 : (s.settings || []).length); }, 0);
-      return '<a class="card" href="' + marketHref(mk[0]) + '"><div class="card-head"><div><div class="card-title">' + esc(mk[0]) +
+      var n = list.reduce(function (k, s) { return k + (s.testing ? 0 : (s.settings || []).length); }, 0);
+      var cnt = { A: 0, B: 0, C: 0 };
+      list.forEach(function (s) { var a = auditOf(s.key); if (a) cnt[a.cls]++; });
+      return '<a class="card mk-card" style="--k:' + (MK_COLOR[mk[0]] || "#6366f1") + '" href="' + marketHref(mk[0]) + '"><div class="card-head"><div><div class="card-title">' + esc(mk[0]) +
         '</div><div class="muted">' + esc(mk[1]) + "</div></div>" +
         (list.length ? '<span class="badge pos">' + list.length + " stratégií</span>" : '<span class="badge">pripravené</span>') + "</div>" +
         '<div class="kv"><div><span>Prešli smernicou</span><b>' + ok + "</b></div><div><span>V teste</span><b>" + (list.length - ok) +
-        "</b></div><div><span>Nastavení</span><b>" + sets + "</b></div></div></a>";
+        "</b></div><div><span>Nastavení</span><b>" + n + "</b></div></div>" +
+        (au.length && list.length ? '<div class="abc"><span class="cls A">A ' + cnt.A + '</span><span class="cls B">B ' + cnt.B + '</span><span class="cls C">C ' + cnt.C + "</span></div>" : "") + "</a>";
     }).join("");
-    return '<h1>Prehľad trhov</h1><p class="sub">Stratégie sú v priečinkoch podľa trhu. Ako by vyzerali viaceré naraz, ukáže <a class="pos" href="#/div">Diverzifikácia</a>.</p>' +
-      '<div class="grid cards">' + cards + "</div>";
+    return hero + '<div class="grid cards">' + cards + "</div>";
+  }
+  var AU = { tab: "A" };
+  function viewAudit() {
+    var A = DATA.audit;
+    if (!A || !A.rows) return '<h1>Audit</h1><p class="sub">Audit ešte nebol vypočítaný.</p>';
+    var cnt = { A: 0, B: 0, C: 0 }; A.rows.forEach(function (r) { cnt[r.cls]++; });
+    return '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span><span>Audit</span></div>' +
+      '<section class="hero"><div><h1>Audit stratégií</h1><p>Stav ' + esc(A.date) + ': každá stratégia na stránke zaradená podľa toho, či funguje (kroky smernice 4–9), ' +
+      'a podľa trhu, na ktorý sa hodí najlepšie. Čísla sú najlepšie nastavenie stratégie, 1 kontrakt, s poplatkom.</p></div>' +
+      '<div class="kpis"><div class="kpi" style="--k:#34d399"><span>A — funguje</span><b class="pos">' + cnt.A + '</b></div>' +
+      '<div class="kpi" style="--k:#fbbf24"><span>B — s výhradou</span><b class="warn">' + cnt.B + '</b></div>' +
+      '<div class="kpi" style="--k:#f87171"><span>C — nefunguje (zatiaľ)</span><b class="neg">' + cnt.C + "</b></div></div></section>" +
+      '<div class="au-tabs" id="au-tabs"><button data-t="A">A · funguje</button><button data-t="B">B · s výhradou</button><button data-t="C">C · nefunguje</button>' +
+      '<button data-t="M">Podľa trhu</button><button data-t="F">Kde sa hodí najlepšie</button></div><div id="au-body"></div>';
+  }
+  function mountAudit() {
+    var A = DATA.audit; if (!A || !A.rows) return;
+    var mkName = { "NASDAQ": "Nasdaq (MNQ)", "SP 500": "S&P 500 (ES)", "GOLD": "Zlato (MGC)", "EURUSD": "EUR/USD (6E)" };
+    var col = { A: "#34d399", B: "#fbbf24", C: "#f87171" };
+    function card(r) {
+      return '<a class="card au-card" href="#/s/' + encodeURIComponent(r.key) + '"><div class="card-head"><div><div class="card-title">' + esc(r.name) +
+        '</div><div class="muted">' + esc(mkName[r.market] || r.market) + (r.live ? ' · <span class="pos">● beží naživo</span>' : "") + '</div></div><span class="cls ' + r.cls + '">' + r.cls + "</span></div>" +
+        '<div class="nums"><div><span>PF ladenie</span><b class="' + pfCls(r.is_pf) + '">' + pfFmt(r.is_pf) + '</b></div><div><span>Najhorší rok</span><b class="' + pfCls(r.worst) + '">' + pfFmt(r.worst) +
+        '</b></div><div><span>PF odložený rok</span><b class="' + pfCls(r.oos) + '">' + pfFmt(r.oos) + "</b></div>" +
+        "<div><span>Obchodov / rok</span><b>" + num(r.tpy) + "</b></div><div><span>Win rate</span><b>" + num(r.wr) + ' %</b></div><div><span>Iný trh</span><b style="font-size:13px">' + esc(r.other) + "</b></div></div>" +
+        (r.cls !== "A" && r.why.length ? '<ul class="why">' + r.why.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>" : "") + "</a>";
+    }
+    function render() {
+      Array.prototype.forEach.call(document.querySelectorAll("#au-tabs button"), function (b) { b.className = b.getAttribute("data-t") === AU.tab ? "on" : ""; });
+      var body = $("au-body"), t = AU.tab;
+      if (t === "A" || t === "B" || t === "C") {
+        var rows = A.rows.filter(function (r) { return r.cls === t; });
+        body.innerHTML = '<p class="au-rule" style="--k:' + col[t] + '">' + esc((A.rules || {})[t] || "") + "</p>" +
+          (rows.length ? '<div class="au-grid">' + rows.map(card).join("") + "</div>" : '<p class="muted">Žiadna.</p>');
+      } else if (t === "M") {
+        body.innerHTML = ["NASDAQ", "SP 500", "GOLD", "EURUSD"].map(function (m) {
+          var rows = A.rows.filter(function (r) { return r.market === m; }); if (!rows.length) return "";
+          return '<h2 class="section">' + esc(mkName[m]) + '</h2><div class="card table-wrap"><table><thead><tr><th class="l">Stratégia</th><th>Trieda</th><th>PF ladenie</th><th>Najhorší rok</th><th>PF odložený rok</th><th>Obch/rok</th><th>WR</th></tr></thead><tbody>' +
+            rows.map(function (r) { return '<tr class="click" onclick="location.hash=\'#/s/' + encodeURIComponent(r.key) + '\'"><td class="l">' + esc(r.name) + (r.live ? ' <span class="badge pos">live</span>' : "") +
+              '</td><td><span class="cls ' + r.cls + '">' + r.cls + '</span></td><td class="' + pfCls(r.is_pf) + '">' + pfFmt(r.is_pf) + '</td><td class="' + pfCls(r.worst) + '">' + pfFmt(r.worst) +
+              '</td><td class="' + pfCls(r.oos) + '">' + pfFmt(r.oos) + "</td><td>" + num(r.tpy) + "</td><td>" + num(r.wr) + " %</td></tr>"; }).join("") + "</tbody></table></div>";
+        }).join("");
+      } else {
+        var fams = Object.keys(A.families || {}).map(function (k) { return A.families[k]; }).sort(function (x, y) { return x.name < y.name ? -1 : 1; });
+        body.innerHTML = '<p class="au-rule">Tá istá logika testovaná na viacerých trhoch — poradie podľa triedy, potom PF odloženého roka.</p>' +
+          '<div class="card table-wrap"><table><thead><tr><th class="l">Stratégia</th><th class="l">Najlepší trh</th><th class="l">Poradie trhov</th></tr></thead><tbody>' +
+          fams.map(function (f) { return '<tr><td class="l"><b>' + esc(f.name) + '</b></td><td class="l">' + esc(mkName[f.best] || f.best) + '</td><td class="l">' +
+            f.ranking.map(function (x) { return esc(mkName[x[0]] || x[0]) + ' <span class="cls ' + x[1] + '">' + x[1] + "</span> " + pfFmt(x[2]); }).join(" &nbsp;·&nbsp; ") + "</td></tr>"; }).join("") +
+          "</tbody></table></div>";
+      }
+    }
+    $("au-tabs").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; AU.tab = b.getAttribute("data-t"); render(); });
+    render();
   }
   function viewOverview(market) {
     function card(s) {
@@ -740,7 +912,7 @@
       var badge = s.testing ? '<span class="badge warn">v teste</span>'
         : '<span class="badge ' + (s1.indexOf("neprešiel") === 0 ? "neg" : s1.indexOf("prešiel") === 0 ? "pos" : "") + '">krok 1: ' + esc(s.step1 || "—") + "</span>";
       return '<a class="card" href="#/s/' + encodeURIComponent(s.key) + '">' +
-        '<div class="card-head"><div><div class="card-title">' + esc(s.name) + '</div><div class="muted">' + esc(s.guideline_step || "") + "</div></div>" + badge + "</div>" +
+        '<div class="card-head"><div><div class="card-title">' + clsBadge(s.key) + " " + esc(s.name) + '</div><div class="muted">' + esc(s.guideline_step || "") + "</div></div>" + badge + "</div>" +
         '<div class="kv">' +
         "<div><span>Skúšané kombinácie</span><b>" + num(s.combos) + "</b></div>" +
         "<div><span>" + (s.testing ? "Najlepší kandidáti" : "Kandidáti") + "</span><b>" + cand + ' <small class="muted">/ ' + sets.length + "</small></b></div>" +
@@ -2016,13 +2188,20 @@
     destroyCharts();
     var h = location.hash.replace(/^#\/?/, ""), parts = h.split("/").map(decodeURIComponent), app = $("app");
     window.scrollTo(0, 0);
-    $("nav-home").className = parts[0] === "div" || parts[0] === "live" ? "" : "on";
+    $("nav-home").className = parts[0] === "div" || parts[0] === "live" || parts[0] === "audit" ? "" : "on";
+    if ($("nav-audit")) $("nav-audit").className = parts[0] === "audit" ? "on" : "";
     $("nav-div").className = parts[0] === "div" ? "on" : "";
     $("nav-live").className = parts[0] === "live" ? "on" : "";
     if (parts[0] === "live") {
       app.innerHTML = viewLive();
       document.title = "Live — Výsledky testovania";
       mountLive();
+      return;
+    }
+    if (parts[0] === "audit") {
+      app.innerHTML = viewAudit();
+      document.title = "Audit — Výsledky testovania";
+      mountAudit();
       return;
     }
     if (parts[0] === "div") {

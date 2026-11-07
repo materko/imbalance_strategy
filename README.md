@@ -177,7 +177,10 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 - **Roboquant šablóny** (31. 10.): ďalších sedem prepisov Rust stratégií (`rq_sdk`) — ORB 15/5 (`orb15`), Flash Trigger ORB
   (`flashorb`), Sigma Breakout (`sigma`), NQ Precision (`nqprec`), London Liquidity IFVG (`lliq`), T-Mean Reversion (`tmr`),
   Williams %R Long (`wpr`); každá aj s IVB ako varianty `…es` (ES) a `…mgc` (MGC); spoločné kúsky v
-  `tradebot/strategies/rqport.py`. Testujú sa podľa smernice na MNQ, ES a MGC.
+  `tradebot/strategies/rqport.py`. Týždeň smernice na MNQ, ES a MGC (31. 10.–7. 11.): prešli Williams %R, ORB 15/5,
+  IVB, Sigma, London IFVG, NQ Precision a Flash ORB (aspoň na jednom trhu), T-Mean Reversion nie.
+- **Audit stratégií** [2026-11-07](docs/audity/AUDIT_strategie_2026-11-07.md): triedy A / B / C podľa krokov smernice
+  4–9 a najlepší trh; stránka výsledkov má nový vzhľad a kartu Audit.
 - **Parita**: Python port sedí s TradingView na cent (golden test,
   [GOLDEN_binance_2026-08-24](docs/audity/GOLDEN_binance_2026-08-24.md)); C# jadro sedí s Python
   predlohou bar po bare (`tester/tests/test_csharp_parity*.py`).
