@@ -1,8 +1,0 @@
-$ emulator MultiCharts ES 5m 20230101-20240101 (ES_USD-1m.feather)
-predhistoria grafu: 300 barov pred oknom (bez obchodov)
-emulacia MultiCharts: 70690 barov 5m, 353193 1m, 0 HTF
-  20000/70690 barov, 16 obchodov
-  40000/70690 barov, 34 obchodov
-  60000/70690 barov, 46 obchodov
-hotovo: 52 obchodov, nerozhodnutelnych minut 0
-kresby: {'lliq_session': 777, 'lliq_mark': 137, 'tp_box': 53, 'sl_box': 53, 'lliq_entry': 53}
