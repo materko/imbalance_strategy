@@ -16,6 +16,9 @@ krivka z `equity`. Hodnoty `is`, `oos`, `years` a `plateau_min` sa iba zobrazuj�
 
 - **Vzhľad 2.0** (7. 11. 2026): písmo Inter (Google Fonts), sklenená hlavička, súhrn (KPI) na prehľade trhov,
   karty s farbou trhu a triedami auditu A / B / C; pôvodné pravidlá CSS ostali, nový vzhľad je blok na konci štýlov.
+- **Účty** (`#/ucty`) — živé inštancie podľa účtu (platforma, účet, stroj): stratégia, symbol a TF, profil, stav
+  (beží / stojí od …), beží od, počet dní, posledná správa a výsledky naživo (obchody, WR, PF, zisk, Σ R, posledný obchod);
+  súčet za účet. Z tých istých dát `live` ako karta Live.
 - **Audit** (`#/audit`) — každá stratégia stránky v triede A (funguje), B (s výhradou), C (nefunguje zatiaľ) podľa
   krokov smernice 4–9, pohľad podľa trhu a „kde sa hodí najlepšie“ pre tú istú logiku na viacerých trhoch; dáta `audit`
   (počíta ich ranné generovanie, `.nightsearch/glaudit.py`).
