@@ -38,6 +38,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     'returnBarMin': (5, 60),
     'minOpenOutside': (0.0, 2.0),
     'lastEntry': (930, 1559),
+    'maxTradesPerDay': (1, 10),
     'exitTime': (1000, 1600),
     'slBufferVa': (0.0, 1.0),
     'minRR': (0.0, 5.0),
@@ -68,6 +69,8 @@ class Va80Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
     minOpenOutside: float = 0.0
     lastEntry: int = 1200
     exitTime: int = 1555
+    requireOpenOutside: bool = True
+    maxTradesPerDay: int = 1
     allowLong: bool = True
     allowShort: bool = True
     # ---- 🛡️ Stop a cieľ -------------------------------------------------------- #

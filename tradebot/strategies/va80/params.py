@@ -26,6 +26,8 @@ PARAMS: dict[str, dict[str, Any]] = {
     'minOpenOutside': dict(group=_G1, title='Otvorenie mimo VA aspoň (× šírka VA)', tooltip='0 = stačí otvoriť mimo.'),
     'lastEntry': dict(group=_G1, title='Posledný vstup (HHMM)', tooltip='Prieskum: 12:00–14:00.'),
     'exitTime': dict(group=_G1, title='Výstup v čase (HHMM)', tooltip='Intraday — pozícia cez noc nejde.'),
+    'requireOpenOutside': dict(group=_G1, title='Len dni s otvorením mimo VA', tooltip='Vypnuté = signál dá aj výbeh mimo VA počas dňa (zavretie sviečky mimo VA a návrat).'),
+    'maxTradesPerDay': dict(group=_G1, title='Max obchodov za deň', tooltip='Po pokuse sa stratégia znova nabije zavretím sviečky mimo VA.'),
     'allowLong': dict(group=_G1, title='Long', inline='dir', tooltip=''),
     'allowShort': dict(group=_G1, title='Short', inline='dir', tooltip=''),
     'tpMode': dict(group=_G2, title='Cieľ', options=['poc', 'opp', 'mid'], tooltip='poc = včerajší POC, opp = opačný okraj VA, mid = stred VA.'),

@@ -35,6 +35,8 @@ namespace TradeBot.Strategies.Va80Net
         public double minOpenOutside = 0.0;
         public int lastEntry = 1200;
         public int exitTime = 1555;
+        public bool requireOpenOutside = true;
+        public int maxTradesPerDay = 1;
         public bool allowLong = true;
         public bool allowShort = true;
         // ---- stop, ciel, velkost ----------------------------------------------

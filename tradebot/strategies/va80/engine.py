@@ -6,8 +6,9 @@
      nad VAH / pod VAL aspoň o `minOpenOutside` šírky VA; extrém dňa a stav signálu od nuly,
   2. **profil dňa** — zavretie a objem baru do koša (`vaBinPct` % otvorenia dňa, zaokrúhlené na tick),
   3. **výstup v čase** — pozícia a koniec baru ≥ `exitTime` → zavrieť,
-  4. **návrat** — na poslednom bare každej sviečky `returnBarMin` minút od 9:30: prvé zavretie späť vo VA (do
-     `lastEntry`) dá jeden pokus za deň: stop za extrémom dňa + `slBufferVa` × šírka VA, cieľ POC / opačný okraj /
+  4. **návrat** — na poslednom bare každej sviečky `returnBarMin` minút od 9:30: nabitie otvorením mimo VA (alebo
+     zavretím sviečky mimo VA — bez `requireOpenOutside` a po prvom pokuse), prvé zavretie späť vo VA (do `lastEntry`)
+     je pokus, najviac `maxTradesPerDay` za deň: stop za extrémom dňa + `slBufferVa` × šírka VA, cieľ POC / opačný okraj /
      stred; neplatný plán (stop alebo cieľ na zlej strane, RR pod `minRR`) deň ukončí bez obchodu.
 
 Engine je čistý: žiadne I/O, žiadny globálny stav.
@@ -86,7 +87,8 @@ class Va80Engine:
         self.bins: dict[float, float] = {}
         self.bin_step = 0.0
         self.va: tuple[float, float, float] | None = None
-        self.side = 0                # -1 otvorenie nad VAH (short), +1 pod VAL (long), 0 nič
+        self.side = 0                # nabité: -1 short (cena nad VAH), +1 long (pod VAL), 0 nič
+        self.trades = 0
         self.done = False
         self.ext_h = self.ext_l = 0.0
         self.day_start_ms = 0
@@ -118,6 +120,7 @@ class Va80Engine:
         self.bin_step = max(tick, round(bar.open * cfg.vaBinPct / 100.0 / tick) * tick)
         self.done = False
         self.side = 0
+        self.trades = 0
         self.ext_h, self.ext_l = bar.high, bar.low
         self.day_start_ms = bar.time
         if self.va is None:
@@ -166,20 +169,29 @@ class Va80Engine:
             return out
 
         # ---- 4. návrat do VA na zavretí sviečky returnBarMin ---------------------- #
-        if self.done or self.side == 0 or pos != 0.0 or (end_m - _OPEN) % int(cfg.returnBarMin) != 0:
+        # nabitie: otvorenie mimo VA (pri novom dni) alebo zavretie sviečky mimo VA (bez `requireOpenOutside`, alebo po
+        # prvom pokuse dňa); vybitie: zavretie sviečky späť vo VA = pokus, najviac `maxTradesPerDay` za deň
+        if self.done or self.va is None or pos != 0.0 or (end_m - _OPEN) % int(cfg.returnBarMin) != 0:
             return out
         if end_hm > int(cfg.lastEntry):
             self.done = True
             return out
         vah, val, poc = self.va
         if not val <= bar.close <= vah:
+            if not cfg.requireOpenOutside or self.trades > 0:
+                self.side = -1 if bar.close > vah else 1
             return out
-        self.done = True
+        if self.side == 0 or self.trades >= int(cfg.maxTradesPerDay):
+            return out
+        self.trades += 1
         long = self.side > 0
+        self.side = 0
+        stop_h, stop_l = self.ext_h, self.ext_l
+        self.ext_h, self.ext_l = bar.high, bar.low          # extrém ďalšieho výbehu sa počíta od tohto pokusu
         if (long and not cfg.allowLong) or (not long and not cfg.allowShort):
             return out
         width = vah - val
-        stop = self.ext_l - cfg.slBufferVa * width if long else self.ext_h + cfg.slBufferVa * width
+        stop = stop_l - cfg.slBufferVa * width if long else stop_h + cfg.slBufferVa * width
         take = {"poc": poc, "opp": vah if long else val, "mid": (vah + val) / 2}[cfg.tpMode]
         entry = bar.close
         if cfg.minRR > 0 and abs(take - entry) < cfg.minRR * abs(entry - stop):

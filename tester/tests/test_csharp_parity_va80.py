@@ -30,6 +30,9 @@ VARIANTS = {
     "expand_opp": {"vaMethod": "expand", "tpMode": "opp", "lastEntry": 1500, "vaBinPct": 0.1},
     "mid_15m_minRR": {"tpMode": "mid", "returnBarMin": 15, "minRR": 0.3, "lastEntry": 1530, "slBufferVa": 0.0},
     "strop_straty_skipOverRisk": {"fixedQty": False, "riskDollar": 300.0, "skipOverRisk": True, "lastEntry": 1500},
+    "vybehy_cez_den_viac_obchodov": {"requireOpenOutside": False, "maxTradesPerDay": 3, "returnBarMin": 15, "lastEntry": 1500,
+                                     "minRR": 0.0},
+    "po_otvoreni_druhy_pokus": {"maxTradesPerDay": 2, "returnBarMin": 5, "lastEntry": 1530, "minRR": 0.0},
     "filter_stopu_atr": {"maxStopAtr": 5.0, "lastEntry": 1500, "minRR": 0.0},
     "riziko_len_short": {"fixedQty": False, "riskDollar": 800.0, "allowLong": False, "lastEntry": 1500},
 }

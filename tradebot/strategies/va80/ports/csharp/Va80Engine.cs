@@ -41,6 +41,7 @@ namespace TradeBot.Strategies.Va80Net
         private bool _hasVa;
         private double _vah, _val, _poc;
         private int _side;
+        private int _trades;
         private bool _done;
         private double _extH, _extL;
         // denne ATR z RTH dni (true range voci predoslemu zavretiu, priemer 14 hotovych dni)
@@ -179,6 +180,7 @@ namespace TradeBot.Strategies.Va80Net
             _binStep = Math.Max(tick, Math.Round(bar.Open * cfg.vaBinPct / 100.0 / tick, MidpointRounding.ToEven) * tick);
             _done = false;
             _side = 0;
+            _trades = 0;
             _extH = bar.High; _extL = bar.Low;
             if (!_hasVa) return;
             double width = _vah - _val;
@@ -236,14 +238,22 @@ namespace TradeBot.Strategies.Va80Net
                 CloseAll(o, ctx, idx, "výstup v čase " + cfg.exitTime.ToString("0000", CultureInfo.InvariantCulture));
                 return o;
             }
-            if (_done || _side == 0 || pos != 0.0 || (endM - OpenMin) % cfg.returnBarMin != 0) return o;
+            if (_done || !_hasVa || pos != 0.0 || (endM - OpenMin) % cfg.returnBarMin != 0) return o;
             if (endHm > cfg.lastEntry) { _done = true; return o; }
-            if (!(_val <= bar.Close && bar.Close <= _vah)) return o;
-            _done = true;
+            if (!(_val <= bar.Close && bar.Close <= _vah))
+            {
+                if (!cfg.requireOpenOutside || _trades > 0) _side = bar.Close > _vah ? -1 : 1;
+                return o;
+            }
+            if (_side == 0 || _trades >= cfg.maxTradesPerDay) return o;
+            _trades += 1;
             bool isLong = _side > 0;
+            _side = 0;
+            double stopH = _extH, stopL = _extL;
+            _extH = bar.High; _extL = bar.Low;     // extrem dalsieho vybehu sa pocita od tohto pokusu
             if ((isLong && !cfg.allowLong) || (!isLong && !cfg.allowShort)) return o;
             double width = _vah - _val;
-            double stop = isLong ? _extL - cfg.slBufferVa * width : _extH + cfg.slBufferVa * width;
+            double stop = isLong ? stopL - cfg.slBufferVa * width : stopH + cfg.slBufferVa * width;
             double take = cfg.tpMode == "poc" ? _poc : cfg.tpMode == "opp" ? (isLong ? _vah : _val) : (_vah + _val) / 2;
             double entry = bar.Close;
             if (cfg.minRR > 0 && Math.Abs(take - entry) < cfg.minRR * Math.Abs(entry - stop)) return o;
