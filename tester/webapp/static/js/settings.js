@@ -558,6 +558,21 @@ const STRATEGIA_TRH_TYP = {
 };
 /** Práve pridané stratégie — štítok „nová“, kým žiadne ich nastavenie neprejde smernicou. */
 const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet", "nb", "m2", "m2mnq", "m2mgc", "m2eur", "spravy", "ivb", "orb15", "orb15es", "orb15mgc", "flashorb", "flashorbes", "flashorbmgc", "sigma", "sigmaes", "sigmamgc", "nqprec", "nqpreces", "nqprecmgc", "lliq", "lliqes", "lliqmgc", "tmr", "tmres", "tmrmgc", "wpr", "wpres", "wprmgc", "ivbes", "ivbmgc"]);
+/** Značky auditu pri názve stratégie (tester/audit.json): trieda A / B / C a Sortino (S zelené = prešiel, červené = nie).
+ *  Kľúč C# portu (`ibsentrynet`) berie audit predlohy. */
+function auditOf(k) {
+  const a = (state.meta && state.meta.audit && state.meta.audit.strategies) || {};
+  return a[k] || a[baseStrategyKey(k)] || null;
+}
+function auditBadges(k) {
+  const a = auditOf(k);
+  if (!a) return "";
+  const rules = (state.meta.audit.rules || {})[a.cls] || "";
+  const min = state.meta.audit.sortino_min;
+  const s = a.sortino == null ? "—" : String(a.sortino).replace(".", ",");
+  return `<span class="au-mark cls-${esc(a.cls)}" title="Audit ${esc(state.meta.audit.date || "")}: trieda ${esc(a.cls)} — ${esc(rules)}">${esc(a.cls)}</span>`
+    + `<span class="au-mark s-${a.sortino_ok ? "ok" : "no"}" title="Sortino ${s} (hranica ${min}; počíta sa len pri stratégii, ktorá prešla smernicou)">S</span>`;
+}
 /** Kľúč predlohy C# portu: `ibsentryneteod` → `ibsentry`, `tksnet` → `tks`, `ibsnet` → `ibs`. */
 function baseStrategyKey(k) {
   let b = String(k).replace(/eod$/, "");
@@ -596,7 +611,7 @@ function renderStrategyPicker() {
   pickerInit = true;                        // na začiatku sú všetky priečinky zatvorené: vidno NASDAQ, ZLATO, S&P 500, EURUSD
   const badges = s => (inSmernice(s.key) ? ' <span class="spicker-badge ok" title="má nastavenia, ktoré prešli smernicou">✓ smernica</span>' : "")
     + (NOVE_STRATEGIE.has(s.key) && !inSmernice(s.key) ? ' <span class="spicker-badge new">nová</span>' : "");
-  const item = (s, depth) => `<button type="button" class="spicker-item${depth ? " sub" : ""}${s.key === sel.value ? " sel" : ""}"${depth > 1 ? ' style="padding-left:44px"' : ""} data-key="${esc(s.key)}">${esc(s.title || s.key)}${badges(s)}</button>`;
+  const item = (s, depth) => `<button type="button" class="spicker-item${depth ? " sub" : ""}${s.key === sel.value ? " sel" : ""}"${depth > 1 ? ' style="padding-left:44px"' : ""} data-key="${esc(s.key)}">${auditBadges(s.key)}${esc(s.title || s.key)}${badges(s)}</button>`;
   const folderBtn = (id, name, members, depth, cls) => {
     const open = pickerOpenFolders.has(id), active = members.some(x => x.key === sel.value);
     return `<button type="button" class="spicker-folder${cls ? " " + cls : ""}${active ? " active" : ""}"${depth ? ' style="padding-left:24px"' : ""} data-folder="${esc(id)}">`

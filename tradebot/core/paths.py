@@ -50,7 +50,7 @@ __all__ = [
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR", "NINJATRADER_DIR", "MT5_DIR",
     "STRATEGIES_DIR", "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST", "PLATFORM_CODE",
-    "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
+    "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "STRATEGY_AUDIT", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE", "HUB_PULL_REQUEST", "HUB_PULL_RESULT", "HUB_DELIVERED",
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
@@ -136,6 +136,8 @@ PLATFORM_CODE = ("tradebot/core/ports/csharp", "tradebot/strategies/*/ports/csha
 TESTER_DIR = REPO / "tester"
 RUNS_DIR = TESTER_DIR / "runs"
 PROFILES_DIR = TESTER_DIR / "profiles"
+#: audit stratégií zo stránky výsledkov (trieda A / B / C, Sortino, C# jadro) — webapp ho ukazuje pri názve stratégie
+STRATEGY_AUDIT = TESTER_DIR / "audit.json"
 #: Dočasné profily rozbehnutých behov — vedľa histórie, ale gitignored.
 TMP_PROFILES = RUNS_DIR / ".profiles"
 #: História analytiky. Vedľa behov, nie v nich: analytika nie je beh, je to pohľad na

@@ -1,0 +1,433 @@
+{
+ "date": "2026-11-07",
+ "sortino_min": 2.0,
+ "rules": {
+  "A": "Funguje — prešla smernicou, iný trh, 2× poplatok aj oneskorený vstup držia, odložený rok PF ≥ 1,4, žiadny rok ladenia pod 1,2. Na forward test / live.",
+  "B": "Funguje s výhradou — prešla smernicou, ale jedna z podmienok A chýba (je vypísaná). Forward test, menšia veľkosť.",
+  "C": "Nefunguje (zatiaľ) — neprešla smernicou (odložený rok, plató alebo počet obchodov). Nie na live."
+ },
+ "strategies": {
+  "spravy": {
+   "cls": "A",
+   "sortino": 6.84,
+   "sortino_ok": true,
+   "csharp": true,
+   "why": [
+    "výnimka 150 obch/rok (schválil používateľ)"
+   ],
+   "name": "SPRÁVY (MGC)",
+   "market": "GOLD"
+  },
+  "ibsentry": {
+   "cls": "A",
+   "sortino": 3.68,
+   "sortino_ok": true,
+   "csharp": true,
+   "why": [],
+   "name": "IBS Entry Zone",
+   "market": "NASDAQ"
+  },
+  "tks": {
+   "cls": "A",
+   "sortino": 3.2,
+   "sortino_ok": true,
+   "csharp": true,
+   "why": [],
+   "name": "TKS 1.0 (NQ Kompas)",
+   "market": "NASDAQ"
+  },
+  "sigmamgc": {
+   "cls": "A",
+   "sortino": 2.93,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [],
+   "name": "SIGMA (MGC)",
+   "market": "GOLD"
+  },
+  "sigma": {
+   "cls": "A",
+   "sortino": 2.68,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [],
+   "name": "SIGMA (MNQ)",
+   "market": "NASDAQ"
+  },
+  "noa": {
+   "cls": "A",
+   "sortino": 5.73,
+   "sortino_ok": true,
+   "csharp": true,
+   "why": [],
+   "name": "NOA 1.0",
+   "market": "NASDAQ"
+  },
+  "vwaporb": {
+   "cls": "A",
+   "sortino": 0.33,
+   "sortino_ok": false,
+   "csharp": true,
+   "why": [],
+   "name": "VWAP ORB",
+   "market": "NASDAQ"
+  },
+  "wpr": {
+   "cls": "A",
+   "sortino": 1.28,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [],
+   "name": "WILLIAMS %R (MNQ)",
+   "market": "NASDAQ"
+  },
+  "voltbreak": {
+   "cls": "A",
+   "sortino": 3.87,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [],
+   "name": "Volt Break",
+   "market": "NASDAQ"
+  },
+  "ibsentryes": {
+   "cls": "A",
+   "sortino": 2.2,
+   "sortino_ok": true,
+   "csharp": true,
+   "why": [],
+   "name": "IBS EZ ES",
+   "market": "SP 500"
+  },
+  "wprmgc": {
+   "cls": "B",
+   "sortino": 2.53,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "iný trh (XAU/USD) neprešiel"
+   ],
+   "name": "WILLIAMS %R (MGC)",
+   "market": "GOLD"
+  },
+  "wpres": {
+   "cls": "B",
+   "sortino": 2.99,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "iný trh (US500) neprešiel"
+   ],
+   "name": "WILLIAMS %R (ES)",
+   "market": "SP 500"
+  },
+  "ivbes": {
+   "cls": "B",
+   "sortino": 2.29,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "iný trh (US500) neprešiel"
+   ],
+   "name": "IVB (ES)",
+   "market": "SP 500"
+  },
+  "lliqes": {
+   "cls": "B",
+   "sortino": 1.58,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "iný trh (US500) neprešiel",
+    "najhorší rok ladenia PF 0.93"
+   ],
+   "name": "LONDON IFVG (ES)",
+   "market": "SP 500"
+  },
+  "orb15": {
+   "cls": "B",
+   "sortino": 2.68,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "najhorší rok ladenia PF 1.11"
+   ],
+   "name": "ORB 15/5 (MNQ)",
+   "market": "NASDAQ"
+  },
+  "nqprec": {
+   "cls": "B",
+   "sortino": 1.63,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "iný trh (NAS100) neprešiel",
+    "vstup o sviečku neskôr nedrží",
+    "najhorší rok ladenia PF 1.06"
+   ],
+   "name": "NQ PRECISION (MNQ)",
+   "market": "NASDAQ"
+  },
+  "ivb": {
+   "cls": "B",
+   "sortino": 2.09,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "vstup o sviečku neskôr nedrží"
+   ],
+   "name": "IVB (MNQ)",
+   "market": "NASDAQ"
+  },
+  "orb15mgc": {
+   "cls": "B",
+   "sortino": 2.83,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "najhorší rok ladenia PF 1.11"
+   ],
+   "name": "ORB 15/5 (MGC)",
+   "market": "GOLD"
+  },
+  "svp": {
+   "cls": "B",
+   "sortino": 2.66,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "najhorší rok ladenia PF 1.03"
+   ],
+   "name": "Volume Profile POC",
+   "market": "NASDAQ"
+  },
+  "lliqmgc": {
+   "cls": "B",
+   "sortino": 2.78,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "iný trh (XAU/USD) neprešiel",
+    "najhorší rok ladenia PF 0.91"
+   ],
+   "name": "LONDON IFVG (MGC)",
+   "market": "GOLD"
+  },
+  "fibomgc": {
+   "cls": "B",
+   "sortino": 2.16,
+   "sortino_ok": true,
+   "csharp": true,
+   "why": [
+    "iný trh (XAU/USD) neprešiel"
+   ],
+   "name": "Fibo 1.0 (MGC)",
+   "market": "GOLD"
+  },
+  "jss": {
+   "cls": "B",
+   "sortino": 0.82,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "iný trh (NAS100) neprešiel"
+   ],
+   "name": "JSS",
+   "market": "NASDAQ"
+  },
+  "nyvaes": {
+   "cls": "B",
+   "sortino": 0.85,
+   "sortino_ok": false,
+   "csharp": true,
+   "why": [
+    "iný trh (US500) neprešiel",
+    "vstup o sviečku neskôr nedrží",
+    "odložený rok PF 1.40 < 1,4"
+   ],
+   "name": "NY VA BREAKOUT ES",
+   "market": "SP 500"
+  },
+  "dailyopen": {
+   "cls": "B",
+   "sortino": 2.01,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "odložený rok PF 1.38 < 1,4",
+    "najhorší rok ladenia PF 1.10"
+   ],
+   "name": "DAILY OPEN",
+   "market": "NASDAQ"
+  },
+  "orb15es": {
+   "cls": "B",
+   "sortino": 2.52,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "odložený rok PF 1.38 < 1,4"
+   ],
+   "name": "ORB 15/5 (ES)",
+   "market": "SP 500"
+  },
+  "crt": {
+   "cls": "B",
+   "sortino": 0.98,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "iný trh (NAS100) neprešiel",
+    "odložený rok PF 1.35 < 1,4"
+   ],
+   "name": "CRT + TBS",
+   "market": "NASDAQ"
+  },
+  "ivbmgc": {
+   "cls": "B",
+   "sortino": 2.06,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "odložený rok PF 1.33 < 1,4"
+   ],
+   "name": "IVB (MGC)",
+   "market": "GOLD"
+  },
+  "vwapadx": {
+   "cls": "B",
+   "sortino": 1.4,
+   "sortino_ok": false,
+   "csharp": true,
+   "why": [
+    "iný trh (NAS100) neprešiel",
+    "2× poplatok nedrží",
+    "odložený rok PF 1.32 < 1,4"
+   ],
+   "name": "VWAP ADX Pullback",
+   "market": "NASDAQ"
+  },
+  "flashorb": {
+   "cls": "B",
+   "sortino": 2.66,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "odložený rok PF 1.32 < 1,4",
+    "najhorší rok ladenia PF 1.18"
+   ],
+   "name": "FLASH ORB (MNQ)",
+   "market": "NASDAQ"
+  },
+  "mag7": {
+   "cls": "B",
+   "sortino": 2.71,
+   "sortino_ok": true,
+   "csharp": false,
+   "why": [
+    "odložený rok PF 1.31 < 1,4"
+   ],
+   "name": "SPX sila",
+   "market": "NASDAQ"
+  },
+  "flashorbes": {
+   "cls": "C",
+   "sortino": 1.9,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "kandidát — neprešiel odloženým rokom"
+   ],
+   "name": "FLASH ORB (ES)",
+   "market": "SP 500"
+  },
+  "nqpreces": {
+   "cls": "C",
+   "sortino": 1.23,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "kandidát — neprešiel odloženým rokom"
+   ],
+   "name": "NQ PRECISION (ES)",
+   "market": "SP 500"
+  },
+  "sigmaes": {
+   "cls": "C",
+   "sortino": 2.58,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "kandidát — neprešiel odloženým rokom"
+   ],
+   "name": "SIGMA (ES)",
+   "market": "SP 500"
+  },
+  "nqprecmgc": {
+   "cls": "C",
+   "sortino": 1.9,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "najlepší na ladení — odložený rok ešte nebežal"
+   ],
+   "name": "NQ PRECISION (MGC)",
+   "market": "GOLD"
+  },
+  "tmr": {
+   "cls": "C",
+   "sortino": 0.26,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "najlepší na ladení — odložený rok ešte nebežal"
+   ],
+   "name": "T-MEAN REV (MNQ)",
+   "market": "NASDAQ"
+  },
+  "tmres": {
+   "cls": "C",
+   "sortino": 0.16,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "najlepší na ladení — odložený rok ešte nebežal"
+   ],
+   "name": "T-MEAN REV (ES)",
+   "market": "SP 500"
+  },
+  "tmrmgc": {
+   "cls": "C",
+   "sortino": -0.19,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "najlepší na ladení — odložený rok ešte nebežal"
+   ],
+   "name": "T-MEAN REV (MGC)",
+   "market": "GOLD"
+  },
+  "flashorbmgc": {
+   "cls": "C",
+   "sortino": 2.04,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "kandidát — plató pod 80 %"
+   ],
+   "name": "FLASH ORB (MGC)",
+   "market": "GOLD"
+  },
+  "lliq": {
+   "cls": "C",
+   "sortino": 2.05,
+   "sortino_ok": false,
+   "csharp": false,
+   "why": [
+    "kandidát — plató pod 80 %"
+   ],
+   "name": "LONDON IFVG (MNQ)",
+   "market": "NASDAQ"
+  }
+ }
+}

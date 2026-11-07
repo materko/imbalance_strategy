@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import re
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 
+from tradebot.core.paths import STRATEGY_AUDIT
 from tradebot.strategies import STRATEGIES
 
 from .. import gitsync, profiles as user_profiles
@@ -21,6 +23,14 @@ from .context import AppContext
 #: `SMERNICE_CS_` sú kópie pre stratégie s C# jadrom (ibsentrynet, vwaporbnet, vwapadxnet) — vlastný
 #: prefix, aby ich ten export nezmazal.
 SMERNICE_PREFIXES = ("PRESIEL_SMERNICAMI_", "SMERNICE_CS_")
+
+
+def _audit() -> dict:
+    """tester/audit.json (píše ho ranné generovanie stránky výsledkov); bez neho prázdne."""
+    try:
+        return json.loads(STRATEGY_AUDIT.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
 
 
 def build(ctx: AppContext) -> APIRouter:
@@ -79,6 +89,8 @@ def build(ctx: AppContext) -> APIRouter:
             # Stratégie s profilom, ktorý prešiel smernicou — priečinok SMERNICE vo výbere stratégie.
             "smernice_strategies": user_profiles.strategies_with_prefix(SMERNICE_PREFIXES),
             "strategies": [spec.public() for spec in STRATEGIES.values()],
+            # Audit stratégií zo stránky výsledkov (trieda A / B / C, Sortino, C# jadro) — značky pri názve stratégie.
+            "audit": _audit(),
             "exchanges": [{"key": e, "title": engines.EXCHANGE_TITLES.get(e, e)}
                           for e in engines.EXCHANGES],
             "default_exchange": engines.DEFAULT_EXCHANGE,

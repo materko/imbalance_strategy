@@ -139,7 +139,7 @@ function catCard(f) {
     `<button type="button" class="linkish" data-cat-open="${esc(p.key)}">${esc(p.key)}</button>`).join(", ")}</div>` : "";
   return `<article class="cat-card card" data-key="${esc(f.key)}" title="klik otvorí hodnotenie stratégie">
     <div class="cat-head">
-      <div><h3 class="cat-title">${esc(f.title)}</h3>
+      <div><h3 class="cat-title">${auditBadges(f.key)}${esc(f.title)}</h3>
         <div class="cat-tags"><span class="chip">${esc(f.market)}</span>${f.type ? `<span class="chip">${esc(f.type)}</span>` : ""}${badges}</div></div>
       <code class="muted small">${esc(f.key)}</code>
     </div>
@@ -178,6 +178,7 @@ function catCard(f) {
       <span class="spacer"></span>
       <button type="button" class="primary small" data-cat-open="${esc(f.key)}">Otestovať</button>
     </div>
+    ${f.ports.length || (auditOf(f.key) && auditOf(f.key).csharp) ? "" : '<div class="cat-nocs" title="stratégia nemá C# jadro — na NinjaTrader 8 / MetaTrader 5 (live) ju treba najprv prepísať do jadra (docs/STRATEGIE.md, „Stratégia s jadrom v C#“)">⚙ treba prepísať do jadra (C#)</div>'}
   </article>`;
 }
 

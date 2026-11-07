@@ -820,7 +820,9 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
   }
   function clsBadge(key) {
     var a = auditOf(key);
-    return a ? '<span class="cls ' + a.cls + '" title="audit: ' + esc((DATA.audit.rules || {})[a.cls] || "") + '">' + a.cls + "</span>" : "";
+    if (!a) return "";
+    return '<span class="cls ' + a.cls + '" title="audit: ' + esc((DATA.audit.rules || {})[a.cls] || "") + '">' + a.cls + "</span> " +
+      '<span class="cls ' + (a.sortino_ok ? "A" : "C") + '" title="Sortino ' + (a.sortino == null ? "—" : num(a.sortino, 2)) + " (hranica " + num(DATA.audit.sortino_min || 2, 1) + ')">S</span>';
   }
   function viewMarkets() {
     var all = DATA.strategies, au = (DATA.audit && DATA.audit.rows) || [];
@@ -956,7 +958,8 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
         '</div><div class="muted">' + esc(mkName[r.market] || r.market) + (r.live ? ' · <span class="pos">● beží naživo</span>' : "") + '</div></div><span class="cls ' + r.cls + '">' + r.cls + "</span></div>" +
         '<div class="nums"><div><span>PF ladenie</span><b class="' + pfCls(r.is_pf) + '">' + pfFmt(r.is_pf) + '</b></div><div><span>Najhorší rok</span><b class="' + pfCls(r.worst) + '">' + pfFmt(r.worst) +
         '</b></div><div><span>PF odložený rok</span><b class="' + pfCls(r.oos) + '">' + pfFmt(r.oos) + "</b></div>" +
-        "<div><span>Obchodov / rok</span><b>" + num(r.tpy) + "</b></div><div><span>Win rate</span><b>" + num(r.wr) + ' %</b></div><div><span>Iný trh</span><b style="font-size:13px">' + esc(r.other) + "</b></div></div>" +
+        "<div><span>Obchodov / rok</span><b>" + num(r.tpy) + "</b></div><div><span>Win rate</span><b>" + num(r.wr) + ' %</b></div><div><span>Sortino</span><b class="' + (r.sortino_ok ? "pos" : "neg") + '">' + (r.sortino == null ? "—" : num(r.sortino, 2)) + "</b></div></div>" +
+        (r.csharp ? "" : '<div class="muted" style="font-size:12px;margin-top:8px;text-align:right">⚙ treba prepísať do jadra (C#)</div>') +
         (r.cls !== "A" && r.why.length ? '<ul class="why">' + r.why.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>" : "") + "</a>";
     }
     function render() {

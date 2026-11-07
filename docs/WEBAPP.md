@@ -802,3 +802,17 @@ výsledky.
 Testy: `tester/tests/test_webapp.py`, `tester/tests/test_webapp_catalog.py`, `tester/tests/test_chart_export.py`,
 `tester/tests/test_webapp_multicharts.py`, `tester/tests/test_montecarlo.py`.
 Cesty (`tester/runs`, `tester/profiles`, dáta platforiem): `tradebot/core/paths.py`.
+
+
+## Značky auditu pri názve stratégie (7. 11. 2026)
+
+Pred názvom stratégie (karta Stratégie, výber stratégie v Novom behu) sú dve značky z `tester/audit.json`
+(`paths.STRATEGY_AUDIT`, píše ho ranné generovanie stránky výsledkov, `.nightsearch/glaudit.py`):
+
+- **A / B / C** — trieda auditu: A funguje (smernica, iný trh, 2× poplatok, oneskorený vstup, odložený rok PF ≥ 1,4,
+  žiadny rok ladenia pod 1,2), B s výhradou, C nefunguje zatiaľ;
+- **S** — Sortino najlepšieho nastavenia (ročný, z denných výsledkov 10/2021–9/2026): zelené ≥ 2,0 pri stratégii, ktorá
+  prešla smernicou, inak červené.
+
+Karta stratégie bez C# jadra (bez portu `<kľúč>net`) má vpravo dole „⚙ treba prepísať do jadra (C#)“ — na NinjaTrader 8
+a MetaTrader 5 ide len stratégia s C# jadrom.
