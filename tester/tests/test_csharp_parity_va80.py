@@ -26,10 +26,11 @@ from tradebot.core.candles import resample_ohlcv  # noqa: E402
 from tradebot.strategies.va80net import CONFIG_DIR  # noqa: E402
 
 VARIANTS = {
-    "default": {"returnBarMin": 30, "lastEntry": 1500},
+    "default": {"returnBarMin": 30, "lastEntry": 1500, "minRR": 0.0},
     "expand_opp": {"vaMethod": "expand", "tpMode": "opp", "lastEntry": 1500, "vaBinPct": 0.1},
     "mid_15m_minRR": {"tpMode": "mid", "returnBarMin": 15, "minRR": 0.3, "lastEntry": 1530, "slBufferVa": 0.0},
     "strop_straty_skipOverRisk": {"fixedQty": False, "riskDollar": 300.0, "skipOverRisk": True, "lastEntry": 1500},
+    "filter_stopu_atr": {"maxStopAtr": 5.0, "lastEntry": 1500, "minRR": 0.0},
     "riziko_len_short": {"fixedQty": False, "riskDollar": 800.0, "allowLong": False, "lastEntry": 1500},
 }
 
@@ -51,7 +52,7 @@ def _walk(days: int, seed: int = 31) -> pd.DataFrame:
 
 @pytest.fixture(scope="module")
 def frames():
-    base = _walk(20)
+    base = _walk(40)
     return {m: _with_ts(base if m == 1 else resample_ohlcv(base, m)) for m in (1, 5, 15, 60)}
 
 

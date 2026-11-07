@@ -1,4 +1,4 @@
-"""VA NÁVRAT 1.0 (C# jadro) — `va80` s jadrom v C#, aby bežala naživo v NinjaTraderi 8 a MetaTraderi 5.
+"""MTK RANGE 1.0 (C# jadro) — `va80` s jadrom v C#, aby bežala naživo v NinjaTraderi 8 a MetaTraderi 5.
 
 Logika je prepis `tradebot/strategies/va80` do C# (`tradebot/strategies/va80/ports/csharp`, kľúč `va80net`) s obalmi
 vstupov a veľkosti pozície z `EntryLayers`. Profily: zatiaľ profil repozitára predlohy (smernica beží). Zhodu s Python predlohou `va80` bar po bare stráži `tester/tests/test_csharp_parity_va80.py`.
@@ -20,7 +20,7 @@ CSHARP_KEY = "va80net"
 SPEC = replace(
     BASE_SPEC,
     key="va80net",
-    title="VA NÁVRAT 1.0 (C# jadro)",
+    title="MTK RANGE 1.0 (C# jadro)",
     config_cls=Va80NetConfig,
     profile_dir=CONFIG_DIR,
     default_profile="mnq_databento_1m",

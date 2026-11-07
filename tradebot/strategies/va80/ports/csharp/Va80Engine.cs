@@ -1,4 +1,4 @@
-// `Va80Engine` - VA NAVRAT 1.0 (pravidlo 80 %) s jadrom v C#. Zrkadlo `tradebot/strategies/va80/engine.py`; s Python
+// `Va80Engine` - MTK RANGE 1.0 (pravidlo 80 %) s jadrom v C#. Zrkadlo `tradebot/strategies/va80/engine.py`; s Python
 // enginom sa porovnava bar po bare, na rovnost (ordery, kresby, koniec seansy). Cas New York, RTH 9:30-16:00:
 //   1. novy den - value area z barov predosleho dna (zavretie a objem v kosoch vaBinPct % otvorenia), otvorenie
 //      nad VAH / pod VAL aspon o minOpenOutside sirky VA,
@@ -14,7 +14,7 @@ using TradeBot.Core;
 
 namespace TradeBot.Strategies.Va80Net
 {
-    [TradeBotEngine("va80net", "VA NÁVRAT 1.0 (C# jadro)")]
+    [TradeBotEngine("va80net", "MTK RANGE 1.0 (C# jadro)")]
     public sealed class Va80Engine : IEngine, IConfigured
     {
         private const string Ny = "America/New_York";
@@ -43,6 +43,12 @@ namespace TradeBot.Strategies.Va80Net
         private int _side;
         private bool _done;
         private double _extH, _extL;
+        // denne ATR z RTH dni (true range voci predoslemu zavretiu, priemer 14 hotovych dni)
+        private bool _hasD;
+        private double _dH, _dL, _dC;
+        private bool _hasPrevC;
+        private double _prevC;
+        private readonly List<double> _trs = new List<double>();
         private readonly List<string> _boxes = new List<string>();
         private bool _wasIn;
 
@@ -59,7 +65,7 @@ namespace TradeBot.Strategies.Va80Net
             _stepMs = _tf * 60000L;
             _zone = TimeZones.Get(Ny);
             History = new BarHistory(2, 14);
-            _warmup = new Warmup(_tf).Add("profil predošlého dňa", 4 * 1440 / _tf);
+            _warmup = new Warmup(_tf).Add("profil predošlého dňa a ATR 14 dní", 24 * 1440 / _tf);
             _requiredHistory = _warmup.ChartBars;
         }
 
@@ -156,6 +162,16 @@ namespace TradeBot.Strategies.Va80Net
                 _hasVa = ValueArea(_bins, cfg.vaPct, cfg.vaMethod, out h, out l, out p);
                 if (_hasVa) { _vah = h; _val = l; _poc = p; }
             }
+            if (_hasD)
+            {
+                double tr = !_hasPrevC ? _dH - _dL : Math.Max(_dH, _prevC) - Math.Min(_dL, _prevC);
+                _trs.Add(tr);
+                while (_trs.Count > 14) _trs.RemoveAt(0);
+                _prevC = _dC;
+                _hasPrevC = true;
+            }
+            _hasD = true;
+            _dH = bar.High; _dL = bar.Low;
             _hasDay = true;
             _day = day;
             _bins.Clear();
@@ -213,6 +229,7 @@ namespace TradeBot.Strategies.Va80Net
             _bins[b] = v + bar.Volume;
             _extH = Math.Max(_extH, bar.High);
             _extL = Math.Min(_extL, bar.Low);
+            _dH = Math.Max(_dH, bar.High); _dL = Math.Min(_dL, bar.Low); _dC = bar.Close;
 
             if (pos != 0.0 && endHm >= cfg.exitTime)
             {
@@ -230,6 +247,7 @@ namespace TradeBot.Strategies.Va80Net
             double take = cfg.tpMode == "poc" ? _poc : cfg.tpMode == "opp" ? (isLong ? _vah : _val) : (_vah + _val) / 2;
             double entry = bar.Close;
             if (cfg.minRR > 0 && Math.Abs(take - entry) < cfg.minRR * Math.Abs(entry - stop)) return o;
+            if (cfg.maxStopAtr > 0 && (_trs.Count < 14 || Math.Abs(entry - stop) > cfg.maxStopAtr * (PyMath.Sum(_trs) / _trs.Count))) return o;
             Enter(o, bar, idx, isLong, stop, take);
             return o;
         }

@@ -184,8 +184,8 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 - **C# jadro pre AS stratégie** (7. 11.): Sigma Breakout (`sigmanet`, `sigmamgcnet`), Volt Break (`voltbreaknet`) a Williams %R
   (`wprnet`) — parita bar po bare s Pythonom, profily PRESIEL_SMERNICAMI, šablóny NT8 / MT5; webapp radí stratégie podľa
   hodnotenia auditu (AS → A → BS → B → C) a ukazuje značky A / B / C, Sortino S a „treba prepísať do jadra“.
-- **VA NÁVRAT 1.0** (`va80`, `va80net`, 7. 11.): pravidlo 80 % z Market Profile (otvorenie mimo včerajšej value area
-  a návrat do nej) — prieskum rangeových dní na Nasdaqu ([docs/prieskum](docs/prieskum/README.md)); edge v 5 z 5 rokov na MNQ, na ES a MGC nie.
+- **MTK RANGE 1.0** (`va80`, `va80net`, 7. 11.): pravidlo 80 % z Market Profile (otvorenie mimo včerajšej value area
+  a návrat do nej, cieľ opačný okraj VA, RR ≥ 0,5) — prieskum rangeových dní na Nasdaqu ([docs/prieskum](docs/prieskum/README.md)); edge v 5 z 5 rokov na MNQ, na ES a MGC nie.
 - **Parita**: Python port sedí s TradingView na cent (golden test,
   [GOLDEN_binance_2026-08-24](docs/audity/GOLDEN_binance_2026-08-24.md)); C# jadro sedí s Python
   predlohou bar po bare (`tester/tests/test_csharp_parity*.py`).

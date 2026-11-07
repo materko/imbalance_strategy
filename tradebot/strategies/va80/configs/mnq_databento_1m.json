@@ -1,6 +1,6 @@
 {
-  "_title": "VA NÁVRAT 1.0 · MNQ 1m · pravidlo 80 % (návrat 30m sviečkou, cieľ POC, vstup do 12:00)",
   "_strategy": "va80",
   "_instrument": "mnq_databento",
-  "_timeframe": "1m"
+  "_timeframe": "1m",
+  "_title": "MTK RANGE 1.0 · MNQ 1m · oba smery (VA 70 %, cieľ opačný okraj VA, RR ≥ 0,5, vstup do 12:00)"
 }

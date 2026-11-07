@@ -1,4 +1,4 @@
-# VA NÁVRAT 1.0 — ako funguje
+# MTK RANGE 1.0 — ako funguje
 
 > V jednej vete: keď Nasdaq otvorí mimo včerajšej „férovej“ zóny (value area) a vráti sa do nej, ide sa na jej druhú stranu — klasické pravidlo 80 % z Market Profile.
 
@@ -13,8 +13,9 @@ Prieskum 7. 11. 2026 na MNQ (2021–2026): edge v každom z 5 rokov, potvrdený 
 - Najviac jeden obchod za deň, vstup najneskôr do 12:00 NY.
 
 ## Stop a cieľ
-- **Stop** za extrémom dňa od otvorenia (+ malá rezerva).
-- **Cieľ** včerajší **POC** (predvolene), alebo opačný okraj value area.
+- **Stop** za extrémom dňa od otvorenia.
+- **Cieľ** **opačný okraj** včerajšej value area (predvolene), alebo POC; obchod, ktorého cieľ je bližšie ako pol stopu (RR < 0,5), sa vynechá.
+- Voliteľne sa vynechá deň, keď je stop ďalej ako zvolený násobok denného ATR (cena vybehla príliš ďaleko mimo VA).
 - O **15:55 NY** sa pozícia zavrie — stratégia je len v rámci dňa.
 
 ## Slovníček

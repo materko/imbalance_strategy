@@ -1,4 +1,4 @@
-"""Engine VA NÁVRAT 1.0 — pravidlo 80 % (Market Profile) bar po bare.
+"""Engine MTK RANGE 1.0 — pravidlo 80 % (Market Profile) bar po bare.
 
 Čas New York, RTH = bary s otvorením 9:30 ≤ t < 16:00 v pracovný deň. Na každom uzavretom bare:
 
@@ -15,6 +15,7 @@ Engine je čistý: žiadne I/O, žiadny globálny stav.
 
 from __future__ import annotations
 
+from collections import deque
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -79,7 +80,7 @@ class Va80Engine:
         self.chart_tf_minutes = max(1, int(chart_tf_minutes))
         self.step_ms = self.chart_tf_minutes * 60_000
         self.history = BarHistory(maxlen=2, atr_len=14)
-        self.warmup = Warmup(self.chart_tf_minutes).add("profil predošlého dňa", 4 * 1440 // self.chart_tf_minutes)
+        self.warmup = Warmup(self.chart_tf_minutes).add("profil predošlého dňa a ATR 14 dní", 24 * 1440 // self.chart_tf_minutes)
         self.required_history = self.warmup.chart_bars
         self.day = None
         self.bins: dict[float, float] = {}
@@ -89,15 +90,28 @@ class Va80Engine:
         self.done = False
         self.ext_h = self.ext_l = 0.0
         self.day_start_ms = 0
+        # denné ATR z RTH dní (true range voči predošlému zavretiu, priemer 14 hotových dní)
+        self.d_h = self.d_l = self.d_c = None
+        self.prev_c: float | None = None
+        self.trs: deque[float] = deque(maxlen=14)
         self.draw = TradeDraw(self.step_ms)
 
     def _bin(self, price: float) -> float:
         return self.inst.round_price(round(price / self.bin_step) * self.bin_step)
 
+    @property
+    def atr(self) -> float | None:
+        return sum(self.trs) / len(self.trs) if len(self.trs) == self.trs.maxlen else None
+
     def _new_day(self, out: EngineOutput, bar: Bar, day) -> None:
         cfg = self.cfg
         if self.bins:
             self.va = value_area(self.bins, cfg.vaPct, cfg.vaMethod)
+        if self.d_h is not None:
+            tr = self.d_h - self.d_l if self.prev_c is None else max(self.d_h, self.prev_c) - min(self.d_l, self.prev_c)
+            self.trs.append(tr)
+            self.prev_c = self.d_c
+        self.d_h, self.d_l = bar.high, bar.low
         self.day = day
         self.bins = {}
         tick = self.inst.tick_size
@@ -144,6 +158,7 @@ class Va80Engine:
         b = self._bin(bar.close)
         self.bins[b] = self.bins.get(b, 0.0) + float(bar.volume)
         self.ext_h, self.ext_l = max(self.ext_h, bar.high), min(self.ext_l, bar.low)
+        self.d_h, self.d_l, self.d_c = max(self.d_h, bar.high), min(self.d_l, bar.low), bar.close
 
         # ---- 3. výstup v čase -------------------------------------------------- #
         if pos != 0.0 and end_hm >= int(cfg.exitTime):
@@ -168,6 +183,8 @@ class Va80Engine:
         take = {"poc": poc, "opp": vah if long else val, "mid": (vah + val) / 2}[cfg.tpMode]
         entry = bar.close
         if cfg.minRR > 0 and abs(take - entry) < cfg.minRR * abs(entry - stop):
+            return out
+        if cfg.maxStopAtr > 0 and (self.atr is None or abs(entry - stop) > cfg.maxStopAtr * self.atr):
             return out
         plan = market_entry(out, cfg, self.inst, bar, idx, "va80", long, stop, take,
                             f"návrat do včerajšej VA ({'long' if long else 'short'})")

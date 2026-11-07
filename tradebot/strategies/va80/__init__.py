@@ -1,4 +1,4 @@
-"""VA NÁVRAT 1.0 — pravidlo 80 %: otvorenie mimo včerajšej value area a návrat do nej.
+"""MTK RANGE 1.0 — pravidlo 80 %: otvorenie mimo včerajšej value area a návrat do nej.
 
 Prepis Rust stratégie (`rq_sdk`, roboquant.dev Templates), ktorú poslal používateľ 29. 10. 2026; zadanie týždňa 31. 10. 2026.
 Pine predlohu nemá.
@@ -16,7 +16,7 @@ from .params import GROUPS, PARAMS
 
 SPEC = StrategySpec(
     key="va80",
-    title="VA NÁVRAT 1.0",
+    title="MTK RANGE 1.0",
     config_cls=Va80Config,
     profile_dir=CONFIG_DIR,
     default_profile="mnq_databento_1m",

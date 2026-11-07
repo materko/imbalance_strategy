@@ -1,4 +1,4 @@
-// Konfiguracia VA NAVRAT 1.0 (C#) - zrkadlo `tradebot/strategies/va80/config.py`.
+// Konfiguracia MTK RANGE 1.0 (C#) - zrkadlo `tradebot/strategies/va80/config.py`.
 // Nazvy poli su zhodne s JSON profilmi. Polia obalov vstupov (trendFilter, entryConfirm, entryOrderType...) cita
 // `EntryLayers` v C# jadre priamo z configu - tu su ako text kvoli zhode configu s Pythonom.
 using System;
@@ -28,8 +28,8 @@ namespace TradeBot.Strategies.Va80Net
         public bool limitKeepRR = true;
         // ---- value area -------------------------------------------------------
         public double vaPct = 70.0;
-        public double vaBinPct = 0.05;
-        public string vaMethod = "rank";
+        public double vaBinPct = 0.03;
+        public string vaMethod = "expand";
         // ---- navrat a vstup ---------------------------------------------------
         public int returnBarMin = 30;
         public double minOpenOutside = 0.0;
@@ -38,9 +38,10 @@ namespace TradeBot.Strategies.Va80Net
         public bool allowLong = true;
         public bool allowShort = true;
         // ---- stop, ciel, velkost ----------------------------------------------
-        public string tpMode = "poc";
-        public double slBufferVa = 0.1;
-        public double minRR = 0.0;
+        public string tpMode = "opp";
+        public double slBufferVa = 0.0;
+        public double minRR = 0.5;
+        public double maxStopAtr = 0.0;
         public bool fixedQty = true;
         public double qty = 1.0;
         public bool skipOverRisk = false;   // strop straty - cita ho EntrySizingEngine v EntryLayers.cs

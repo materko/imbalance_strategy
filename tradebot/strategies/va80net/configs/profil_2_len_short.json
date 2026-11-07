@@ -1,0 +1,7 @@
+{
+  "_strategy": "va80net",
+  "_instrument": "mnq_databento",
+  "_timeframe": "1m",
+  "allowLong": false,
+  "_title": "MTK RANGE C# 2 · MNQ 1m · len short (otvorenie nad VAH a návrat dole)"
+}
