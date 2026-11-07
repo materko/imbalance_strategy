@@ -33,6 +33,7 @@ VARIANTS = {
     "vybehy_cez_den_viac_obchodov": {"requireOpenOutside": False, "maxTradesPerDay": 3, "returnBarMin": 15, "lastEntry": 1500,
                                      "minRR": 0.0},
     "po_otvoreni_druhy_pokus": {"maxTradesPerDay": 2, "returnBarMin": 5, "lastEntry": 1530, "minRR": 0.0},
+    "ciel_rr_2": {"tpMode": "rr", "rrRatio": 2.0, "requireOpenOutside": False, "maxTradesPerDay": 3, "lastEntry": 1500},
     "filter_stopu_atr": {"maxStopAtr": 5.0, "lastEntry": 1500, "minRR": 0.0},
     "riziko_len_short": {"fixedQty": False, "riskDollar": 800.0, "allowLong": False, "lastEntry": 1500},
 }

@@ -254,8 +254,9 @@ namespace TradeBot.Strategies.Va80Net
             if ((isLong && !cfg.allowLong) || (!isLong && !cfg.allowShort)) return o;
             double width = _vah - _val;
             double stop = isLong ? stopL - cfg.slBufferVa * width : stopH + cfg.slBufferVa * width;
-            double take = cfg.tpMode == "poc" ? _poc : cfg.tpMode == "opp" ? (isLong ? _vah : _val) : (_vah + _val) / 2;
             double entry = bar.Close;
+            double take = cfg.tpMode == "rr" ? entry + cfg.rrRatio * (entry - stop)
+                : cfg.tpMode == "poc" ? _poc : cfg.tpMode == "opp" ? (isLong ? _vah : _val) : (_vah + _val) / 2;
             if (cfg.minRR > 0 && Math.Abs(take - entry) < cfg.minRR * Math.Abs(entry - stop)) return o;
             if (cfg.maxStopAtr > 0 && (_trs.Count < 14 || Math.Abs(entry - stop) > cfg.maxStopAtr * (PyMath.Sum(_trs) / _trs.Count))) return o;
             Enter(o, bar, idx, isLong, stop, take);

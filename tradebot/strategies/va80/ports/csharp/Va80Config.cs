@@ -41,6 +41,7 @@ namespace TradeBot.Strategies.Va80Net
         public bool allowShort = true;
         // ---- stop, ciel, velkost ----------------------------------------------
         public string tpMode = "opp";
+        public double rrRatio = 2.0;
         public double slBufferVa = 0.0;
         public double minRR = 0.5;
         public double maxStopAtr = 0.0;
@@ -68,7 +69,7 @@ namespace TradeBot.Strategies.Va80Net
                 else f.SetValue(cfg, Convert.ToString(raw, CultureInfo.InvariantCulture));
             }
             ConfigChoice.Check("vaMethod", cfg.vaMethod, "rank", "expand");
-            ConfigChoice.Check("tpMode", cfg.tpMode, "poc", "opp", "mid");
+            ConfigChoice.Check("tpMode", cfg.tpMode, "poc", "opp", "mid", "rr");
             return cfg;
         }
     }

@@ -192,8 +192,11 @@ class Va80Engine:
             return out
         width = vah - val
         stop = stop_l - cfg.slBufferVa * width if long else stop_h + cfg.slBufferVa * width
-        take = {"poc": poc, "opp": vah if long else val, "mid": (vah + val) / 2}[cfg.tpMode]
         entry = bar.close
+        if cfg.tpMode == "rr":
+            take = entry + cfg.rrRatio * (entry - stop)          # pevné RR od stopu (long: stop pod vstupom)
+        else:
+            take = {"poc": poc, "opp": vah if long else val, "mid": (vah + val) / 2}[cfg.tpMode]
         if cfg.minRR > 0 and abs(take - entry) < cfg.minRR * abs(entry - stop):
             return out
         if cfg.maxStopAtr > 0 and (self.atr is None or abs(entry - stop) > cfg.maxStopAtr * self.atr):

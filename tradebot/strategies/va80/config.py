@@ -42,6 +42,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     'exitTime': (1000, 1600),
     'slBufferVa': (0.0, 1.0),
     'minRR': (0.0, 5.0),
+    'rrRatio': (0.5, 10.0),
     'maxStopAtr': (0.0, 5.0),
     'riskDollar': (0, 100000),
     'leverage': (1, 125),
@@ -75,6 +76,7 @@ class Va80Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
     allowShort: bool = True
     # ---- 🛡️ Stop a cieľ -------------------------------------------------------- #
     tpMode: str = 'opp'
+    rrRatio: float = 2.0
     slBufferVa: float = 0.0
     minRR: float = 0.5
     maxStopAtr: float = 0.0
@@ -91,7 +93,7 @@ class Va80Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
                 yield f"{name}={v}: minúty musia byť 00–59 (HHMM)"
         if self.vaMethod not in ("rank", "expand"):
             yield f"vaMethod={self.vaMethod!r}: rank alebo expand"
-        if self.tpMode not in ("poc", "opp", "mid"):
-            yield f"tpMode={self.tpMode!r}: poc, opp alebo mid"
+        if self.tpMode not in ("poc", "opp", "mid", "rr"):
+            yield f"tpMode={self.tpMode!r}: poc, opp, mid alebo rr"
         if self.leverage < 1:
             yield f"leverage={self.leverage} musí byť >= 1"
