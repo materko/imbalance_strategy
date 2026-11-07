@@ -9,6 +9,7 @@ z 21. 10. 2026, aby ich mal každý stroj aj cez git.
 | [ZLATO_STRATEGIE_PRIESKUM.md](ZLATO_STRATEGIE_PRIESKUM.md) | prvé testy stratégií na zlate (ORB, NOA, VWAP fade, denný trend) a prehľad profilov na MGC vo webapp | `ZLATO-PRIESKUM/skripty/` |
 | [SP500_ES_TRH.md](SP500_ES_TRH.md) | S&P 500 / ES: rešerš + merania na US500 (Dukascopy) vs NAS100; skripty pripravené na ES z Databenta | `SP500-ES/skripty/` |
 | [FONDY_TESTOVANIE_LIVE_2026-11-07.md](FONDY_TESTOVANIE_LIVE_2026-11-07.md) | ako testujú a spúšťajú stratégie fondy (Man AHL, AQR, López de Prado, multi-manager fondy) a čo z toho zaviesť do smernice | `TYZDEN-2026-11/` |
+| [RANGE_DNI_NASDAQ_2026-11-07.md](RANGE_DNI_NASDAQ_2026-11-07.md) | rangeové dni na Nasdaqu: čo ich predpovedá, fade IB, návrat k VWAP a pravidlo 80 % (→ stratégia `va80`) | `RANGE-DEN/` |
 | [VIDEA_MATFINOG.md](VIDEA_MATFINOG.md) | výťahy z videí MatFinOg (Fabio ORB, Turtle, veľké obchody v MBO, nočná anomália, PEAD) a naše overenia na MNQ | `ZALOZNE-STRATEGIE/videa_matfinog/skripty/` |
 
 Pozor: MGC dáta pred rokom 2019 sú nepoužiteľné (pozri ZLATO_TRH_MGC.md, B0). Odložený rok 2025/26 sa pri ladení nepoužíva.
