@@ -1,0 +1,30 @@
+$ emulator MultiCharts MNQ 5m 20190904-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 15m @15m 125/125, filter volatility ATR 14 / 100 barov @5m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 494604 barov 5m, 2471322 1m, 0 HTF
+  20000/494604 barov, 101 obchodov
+  40000/494604 barov, 183 obchodov
+  60000/494604 barov, 283 obchodov
+  80000/494604 barov, 366 obchodov
+  100000/494604 barov, 462 obchodov
+  120000/494604 barov, 534 obchodov
+  140000/494604 barov, 622 obchodov
+  160000/494604 barov, 709 obchodov
+  180000/494604 barov, 784 obchodov
+  200000/494604 barov, 851 obchodov
+  220000/494604 barov, 919 obchodov
+  240000/494604 barov, 983 obchodov
+  260000/494604 barov, 1051 obchodov
+  280000/494604 barov, 1122 obchodov
+  300000/494604 barov, 1188 obchodov
+  320000/494604 barov, 1254 obchodov
+  340000/494604 barov, 1330 obchodov
+  360000/494604 barov, 1414 obchodov
+  380000/494604 barov, 1491 obchodov
+  400000/494604 barov, 1572 obchodov
+  420000/494604 barov, 1656 obchodov
+  440000/494604 barov, 1747 obchodov
+  460000/494604 barov, 1815 obchodov
+  480000/494604 barov, 1906 obchodov
+hotovo: 1955 obchodov, nerozhodnutelnych minut 0
+kresby: {'sl_box': 1956, 'wpr_entry': 1956}

@@ -1,0 +1,11 @@
+$ emulator MultiCharts ES 3m 20211001-20221001 (ES_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 118465 barov 3m, 355367 1m, 0 HTF
+  20000/118465 barov, 21 obchodov
+  40000/118465 barov, 35 obchodov
+  60000/118465 barov, 50 obchodov
+  80000/118465 barov, 60 obchodov
+  100000/118465 barov, 76 obchodov
+hotovo: 92 obchodov, nerozhodnutelnych minut 0
+kresby: {'nv_range': 260, 'nv_poc': 260, 'nv_va': 520, 'tp_box': 115, 'sl_box': 115, 'nv_entry': 115}
