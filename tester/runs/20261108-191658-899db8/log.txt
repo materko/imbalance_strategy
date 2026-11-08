@@ -1,0 +1,22 @@
+$ emulator MultiCharts MGC 1m 20240904-20250904 (MGC_USD-1m.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 354325 barov 1m, 354325 1m, 0 HTF
+  20000/354325 barov, 8 obchodov
+  40000/354325 barov, 15 obchodov
+  60000/354325 barov, 24 obchodov
+  80000/354325 barov, 30 obchodov
+  100000/354325 barov, 39 obchodov
+  120000/354325 barov, 50 obchodov
+  140000/354325 barov, 59 obchodov
+  160000/354325 barov, 68 obchodov
+  180000/354325 barov, 75 obchodov
+  200000/354325 barov, 87 obchodov
+  220000/354325 barov, 94 obchodov
+  240000/354325 barov, 100 obchodov
+  260000/354325 barov, 112 obchodov
+  280000/354325 barov, 118 obchodov
+  300000/354325 barov, 124 obchodov
+  320000/354325 barov, 132 obchodov
+  340000/354325 barov, 139 obchodov
+hotovo: 148 obchodov, nerozhodnutelnych minut 0
+kresby: {'lliq_session': 777, 'lliq_mark': 376, 'tp_box': 148, 'sl_box': 148, 'lliq_entry': 148}

@@ -1,0 +1,11 @@
+$ emulator MultiCharts MGC 3m 20211001-20221001 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 15m @15m 125/125, filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 118525 barov 3m, 348341 1m, 0 HTF
+  20000/118525 barov, 52 obchodov
+  40000/118525 barov, 102 obchodov
+  60000/118525 barov, 148 obchodov
+  80000/118525 barov, 174 obchodov
+  100000/118525 barov, 209 obchodov
+hotovo: 243 obchodov, nerozhodnutelnych minut 0
+kresby: {'sl_box': 248, 'wpr_entry': 248}

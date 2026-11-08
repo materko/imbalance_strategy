@@ -1,0 +1,9 @@
+$ emulator MultiCharts ES 5m 20240904-20250904 (ES_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 15m @15m 500/500
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 70647 barov 5m, 353169 1m, 0 HTF
+  20000/70647 barov, 48 obchodov
+  40000/70647 barov, 94 obchodov
+  60000/70647 barov, 146 obchodov
+hotovo: 174 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb15_zone': 258, 'tp_box': 174, 'sl_box': 174, 'orb15_entry': 174}

@@ -1,0 +1,23 @@
+$ emulator MultiCharts ES 1m 20211001-20221001 (ES_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 1m @1m 125/125
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 355367 barov 1m, 355367 1m, 0 HTF
+  20000/355367 barov, 10 obchodov
+  40000/355367 barov, 21 obchodov
+  60000/355367 barov, 38 obchodov
+  80000/355367 barov, 52 obchodov
+  100000/355367 barov, 68 obchodov
+  120000/355367 barov, 75 obchodov
+  140000/355367 barov, 88 obchodov
+  160000/355367 barov, 98 obchodov
+  180000/355367 barov, 111 obchodov
+  200000/355367 barov, 124 obchodov
+  220000/355367 barov, 135 obchodov
+  240000/355367 barov, 150 obchodov
+  260000/355367 barov, 161 obchodov
+  280000/355367 barov, 172 obchodov
+  300000/355367 barov, 186 obchodov
+  320000/355367 barov, 199 obchodov
+  340000/355367 barov, 214 obchodov
+hotovo: 223 obchodov, nerozhodnutelnych minut 0
+kresby: {'sl_box': 223, 'wpr_entry': 223}
