@@ -156,9 +156,9 @@ function catCard(f) {
       ${kpi("Zisk", `${catSigned(b.pnl_pct)} %`, (b.pnl_pct || 0) >= 0 ? "pos" : "neg")}
       ${kpi("PF", catNum(b.profit_factor, 2))}
       ${(() => { const a = auditOf(f.key); return kpi("Sortino", a && a.sortino != null ? catNum(a.sortino, 2) : "—", a && a.sortino != null ? (a.sortino_ok ? "pos" : "neg") : ""); })()}
-      ${kpi("Monte Carlo", f.mc && f.mc.p_edge != null ? `${catNum(f.mc.p_edge, 0)} %${f.mc.dd95 != null ? ` · DD ${catNum(f.mc.dd95, 0)} %` : ""}` : "—",
+      ${kpi("MC", f.mc && f.mc.p_edge != null ? `${catNum(f.mc.p_edge, 0)} %${f.mc.dd95 != null ? `<small class="cat-kpi-sub">DD ${catNum(f.mc.dd95, 0)} %</small>` : ""}` : "—",
         f.mc && f.mc.p_edge != null ? (f.mc.p_edge >= 95 ? "pos" : "neg") : "",
-        "Monte Carlo (bootstrap 10 000×, analytika nastavenia č. 1): pravdepodobnosť, že edge prekoná poplatok" + (f.mc && f.mc.dd95 != null ? `; max DD 95. percentil ${catNum(f.mc.dd95, 1)} %` : ""))}
+        "Monte Carlo (bootstrap 10 000×, analytika nastavenia č. 1): hore pravdepodobnosť, že edge prekoná poplatok" + (f.mc && f.mc.dd95 != null ? `; dole max drawdown v 95 % prípadov (95. percentil): ${catNum(f.mc.dd95, 1)} %` : ""))}
       ${kpi("RR", b.rr != null ? catNum(b.rr, 2) : "—")}
       ${kpi("Win", `${catNum(b.winrate)} %`)}
       ${kpi("DD", `${catNum(b.max_drawdown_pct)} %`)}
