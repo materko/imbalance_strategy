@@ -1,7 +1,0 @@
-{
-  "_strategy": "va80net",
-  "_instrument": "mnq_databento",
-  "_timeframe": "1m",
-  "maxStopAtr": 0.4,
-  "_title": "MTK RANGE C# 3 · MNQ 1m · oba smery, stop najviac 0,4 denného ATR"
-}

@@ -1,5 +1,5 @@
 {
- "date": "2026-11-07",
+ "date": "2026-11-08",
  "sortino_min": 2.0,
  "rules": {
   "A": "Funguje — prešla smernicou, iný trh, 2× poplatok aj oneskorený vstup držia, odložený rok PF ≥ 1,4, žiadny rok ladenia pod 1,2. Na forward test / live.",
@@ -328,105 +328,6 @@
     "odložený rok PF 1.31 < 1,4"
    ],
    "name": "SPX sila",
-   "market": "NASDAQ"
-  },
-  "flashorbes": {
-   "cls": "C",
-   "sortino": 1.9,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "kandidát — neprešiel odloženým rokom"
-   ],
-   "name": "FLASH ORB (ES)",
-   "market": "SP 500"
-  },
-  "nqpreces": {
-   "cls": "C",
-   "sortino": 1.23,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "kandidát — neprešiel odloženým rokom"
-   ],
-   "name": "NQ PRECISION (ES)",
-   "market": "SP 500"
-  },
-  "sigmaes": {
-   "cls": "C",
-   "sortino": 2.58,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "kandidát — neprešiel odloženým rokom"
-   ],
-   "name": "SIGMA (ES)",
-   "market": "SP 500"
-  },
-  "nqprecmgc": {
-   "cls": "C",
-   "sortino": 1.9,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "najlepší na ladení — odložený rok ešte nebežal"
-   ],
-   "name": "NQ PRECISION (MGC)",
-   "market": "GOLD"
-  },
-  "tmr": {
-   "cls": "C",
-   "sortino": 0.26,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "najlepší na ladení — odložený rok ešte nebežal"
-   ],
-   "name": "T-MEAN REV (MNQ)",
-   "market": "NASDAQ"
-  },
-  "tmres": {
-   "cls": "C",
-   "sortino": 0.16,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "najlepší na ladení — odložený rok ešte nebežal"
-   ],
-   "name": "T-MEAN REV (ES)",
-   "market": "SP 500"
-  },
-  "tmrmgc": {
-   "cls": "C",
-   "sortino": -0.19,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "najlepší na ladení — odložený rok ešte nebežal"
-   ],
-   "name": "T-MEAN REV (MGC)",
-   "market": "GOLD"
-  },
-  "flashorbmgc": {
-   "cls": "C",
-   "sortino": 2.04,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "kandidát — plató pod 80 %"
-   ],
-   "name": "FLASH ORB (MGC)",
-   "market": "GOLD"
-  },
-  "lliq": {
-   "cls": "C",
-   "sortino": 2.05,
-   "sortino_ok": false,
-   "csharp": false,
-   "why": [
-    "kandidát — plató pod 80 %"
-   ],
-   "name": "LONDON IFVG (MNQ)",
    "market": "NASDAQ"
   }
  }
