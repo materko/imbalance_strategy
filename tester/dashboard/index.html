@@ -822,7 +822,11 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
     var a = auditOf(key);
     if (!a) return "";
     return '<span class="cls ' + a.cls + '" title="audit: ' + esc((DATA.audit.rules || {})[a.cls] || "") + '">' + a.cls + "</span> " +
-      '<span class="cls ' + (a.sortino_ok ? "A" : "C") + '" title="Sortino ' + (a.sortino == null ? "—" : num(a.sortino, 2)) + " (hranica " + num(DATA.audit.sortino_min || 2, 1) + ')">S</span>';
+      '<span class="cls ' + (a.sortino_ok ? "A" : "C") + '" title="Sortino ' + (a.sortino == null ? "—" : num(a.sortino, 2)) + " (hranica " + num(DATA.audit.sortino_min || 2, 1) + ')">S</span>' + sortinoTxt(a);
+  }
+  // Sortino číslom vedľa značky S (používateľ 8. 11. 2026: „body koľko malo sortino, nielen znak“)
+  function sortinoTxt(a) {
+    return a.sortino == null ? "" : ' <small class="' + (a.sortino_ok ? "pos" : "neg") + '" style="font-weight:600">' + num(a.sortino, 2) + "</small>";
   }
   function viewMarkets() {
     var all = DATA.strategies, au = (DATA.audit && DATA.audit.rows) || [];
@@ -972,10 +976,10 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
       } else if (t === "M") {
         body.innerHTML = ["NASDAQ", "SP 500", "GOLD", "EURUSD"].map(function (m) {
           var rows = A.rows.filter(function (r) { return r.market === m; }); if (!rows.length) return "";
-          return '<h2 class="section">' + esc(mkName[m]) + '</h2><div class="card table-wrap"><table><thead><tr><th class="l">Stratégia</th><th>Trieda</th><th>PF ladenie</th><th>Najhorší rok</th><th>PF odložený rok</th><th>Obch/rok</th><th>WR</th></tr></thead><tbody>' +
+          return '<h2 class="section">' + esc(mkName[m]) + '</h2><div class="card table-wrap"><table><thead><tr><th class="l">Stratégia</th><th>Trieda</th><th>PF ladenie</th><th>Najhorší rok</th><th>PF odložený rok</th><th>Sortino</th><th>Obch/rok</th><th>WR</th></tr></thead><tbody>' +
             rows.map(function (r) { return '<tr class="click" onclick="location.hash=\'#/s/' + encodeURIComponent(r.key) + '\'"><td class="l">' + esc(r.name) + (r.live ? ' <span class="badge pos">live</span>' : "") +
               '</td><td><span class="cls ' + r.cls + '">' + r.cls + '</span></td><td class="' + pfCls(r.is_pf) + '">' + pfFmt(r.is_pf) + '</td><td class="' + pfCls(r.worst) + '">' + pfFmt(r.worst) +
-              '</td><td class="' + pfCls(r.oos) + '">' + pfFmt(r.oos) + "</td><td>" + num(r.tpy) + "</td><td>" + num(r.wr) + " %</td></tr>"; }).join("") + "</tbody></table></div>";
+              '</td><td class="' + pfCls(r.oos) + '">' + pfFmt(r.oos) + '</td><td class="' + (r.sortino_ok ? "pos" : "neg") + '">' + (r.sortino == null ? "—" : num(r.sortino, 2)) + "</td><td>" + num(r.tpy) + "</td><td>" + num(r.wr) + " %</td></tr>"; }).join("") + "</tbody></table></div>";
         }).join("");
       } else {
         var fams = Object.keys(A.families || {}).map(function (k) { return A.families[k]; }).sort(function (x, y) { return x.name < y.name ? -1 : 1; });
@@ -1005,6 +1009,7 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
         "<div><span>Skúšané kombinácie</span><b>" + num(s.combos) + "</b></div>" +
         "<div><span>" + (s.testing ? "Najlepší kandidáti" : "Kandidáti") + "</span><b>" + cand + ' <small class="muted">/ ' + sets.length + "</small></b></div>" +
         '<div><span>Najlepší PF (in-sample)</span><b class="' + pfCls(best) + '">' + pfFmt(best) + "</b></div>" +
+        (auditOf(s.key) && auditOf(s.key).sortino != null ? '<div><span>Sortino</span><b class="' + (auditOf(s.key).sortino_ok ? "pos" : "neg") + '">' + num(auditOf(s.key).sortino, 2) + "</b></div>" : "") +
         "<div><span>" + (s.testing ? "Prešlo smernicou" : "Nastavení") + "</span><b>" + (s.testing ? "0" : sets.length) + "</b></div>" +
         "</div>" +
         (br.n ? '<div class="muted" style="font-size:12.5px;margin-top:8px" title="najlepšie nastavenie (PF in-sample): kde v priemere zatvára ziskový / stratový obchod, v násobkoch rizika">Ø zatvára: zisk <b class="pos">' +
