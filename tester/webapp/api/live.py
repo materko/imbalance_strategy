@@ -696,9 +696,13 @@ def build(ctx: AppContext) -> APIRouter:
 
     @router.get("/api/live/profiles")
     def live_profiles(strategy: str = Query("ibs")):
-        """Profily stratégie (repozitár + vlastné) do výberu pri nasadení — ako formulár behu."""
+        """Profily stratégie (repozitár + vlastné) do výberu pri nasadení — ako formulár behu, len tie z výberu webapp
+        (`tester/webapp_vyber.json`: nastavenia zo stránky výsledkov a profily aktívnych nasadení)."""
+        from .. import vyber
+
         key = _strategy(strategy)
-        return {"strategy": key, "profiles": list_profiles(key), "profile_titles": profile_titles(key)}
+        return {"strategy": key, "profiles": vyber.filter_names(key, list_profiles(key)),
+                "profile_titles": vyber.filter_map(key, profile_titles(key))}
 
     def _profile_meta(strategy: str, profile: str) -> dict[str, Any]:
         """`_instrument` a `_timeframe` profilu (repozitár aj vlastný); bez profilu prázdne."""
