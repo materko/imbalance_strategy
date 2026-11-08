@@ -16,7 +16,7 @@ from fastapi import APIRouter
 
 from tradebot.strategies import STRATEGIES
 
-from .. import profiles as user_profiles
+from .. import profiles as user_profiles, vyber
 from ..repo_profiles import profile_info
 from ..store import strategy_of
 from .context import AppContext
@@ -155,6 +155,8 @@ def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[d
 
     out = []
     for key, spec in STRATEGIES.items():
+        if not vyber.strategy_visible(key):
+            continue
         runs = by_strategy.get(key, [])
         scored = [(sc, rec) for rec in runs if (sc := _score(rec)) is not None]
         best = max(scored, key=lambda x: x[0])[1] if scored else None
@@ -167,7 +169,7 @@ def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[d
                 best_of_profile[stem] = (sc, rec)
 
         profiles = []
-        for name, info in profile_info(key).items():
+        for name, info in vyber.filter_map(key, profile_info(key)).items():
             group = profile_group(name, key)
             hit = best_of_profile.get(name.lower())
             profiles.append({

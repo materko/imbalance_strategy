@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from tradebot.core.env import getenv
 from tradebot.strategies import STRATEGIES
 
-from .. import profiles as user_profiles
+from .. import profiles as user_profiles, vyber
 from ..anstore import AnalyticsStore
 from ..param_meta import param_metadata
 from ..replay import ChartReplayer
@@ -46,17 +46,17 @@ class AppContext:
     def strategy_meta_version(self, key: str) -> str:
         """Verzia `strategy_meta(key)`: proces (parametre a defaulty sú kód, menia sa reštartom)
         + odtlačok profilových súborov stratégie."""
-        return f"{self.boot}-{user_profiles.files_version(key)}"
+        return f"{self.boot}-{user_profiles.files_version(key)}-{vyber.version()}"
 
     def strategy_meta(self, key: str) -> dict[str, Any]:
         return {
             "params": self.param_meta[key],
             "defaults": self.defaults[key],
-            "profiles": list_profiles(key),
-            "profile_titles": profile_titles(key),
-            "profile_instruments": profile_instruments(key),
-            "profile_info": profile_info(key),
-            "user_profiles": user_profiles.user_names(key),
+            "profiles": vyber.filter_names(key, list_profiles(key)),
+            "profile_titles": vyber.filter_map(key, profile_titles(key)),
+            "profile_instruments": vyber.filter_map(key, profile_instruments(key)),
+            "profile_info": vyber.filter_map(key, profile_info(key)),
+            "user_profiles": vyber.filter_names(key, user_profiles.user_names(key)),
         }
 
     def defaults_of(self, rec: dict[str, Any]) -> dict[str, Any]:

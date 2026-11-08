@@ -1,0 +1,95 @@
+{
+ "_popis": "webapp ukazuje len tieto stratégie a profily — .nightsearch/glwebvyber.py",
+ "strategies": {
+  "ibsentrynet": [
+   "SMERNICE_CS_IBS_Entry_Zone_1",
+   "SMERNICE_CS_IBS_Entry_Zone_2",
+   "SMERNICE_CS_IBS_Entry_Zone_3",
+   "SMERNICE_CS_IBS_Entry_Zone_1_OPRAVA_KODU"
+  ],
+  "ibsentryneteod": [
+   "SMERNICE_CS_EOD_IBS_Entry_Zone_1",
+   "SMERNICE_CS_EOD_IBS_Entry_Zone_2",
+   "SMERNICE_CS_EOD_IBS_Entry_Zone_3"
+  ],
+  "tksnet": [
+   "SMERNICE_CS_TKS_1",
+   "SMERNICE_CS_TKS_2",
+   "SMERNICE_CS_TKS_3",
+   "SMERNICE_CS_TKS_4"
+  ],
+  "tksneteod": [
+   "SMERNICE_CS_EOD_TKS_1",
+   "SMERNICE_CS_EOD_TKS_2",
+   "SMERNICE_CS_EOD_TKS_3"
+  ],
+  "noanet": [
+   "SMERNICE_CS_NOA_1",
+   "SMERNICE_CS_NOA_2",
+   "SMERNICE_CS_NOA_3"
+  ],
+  "noaneteod": [
+   "SMERNICE_CS_EOD_NOA_1",
+   "SMERNICE_CS_EOD_NOA_2",
+   "SMERNICE_CS_EOD_NOA_3"
+  ],
+  "vwaporbnet": [
+   "SMERNICE_CS_VWAP_ORB_1",
+   "SMERNICE_CS_VWAP_ORB_2",
+   "SMERNICE_CS_VWAP_ORB_3",
+   "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1"
+  ],
+  "vwaporbneteod": [
+   "SMERNICE_CS_EOD_VWAP_ORB_1",
+   "SMERNICE_CS_EOD_VWAP_ORB_2",
+   "SMERNICE_CS_EOD_VWAP_ORB_3"
+  ],
+  "vwapadxnet": [
+   "SMERNICE_CS_VWAP_ADX_Pullback_1",
+   "SMERNICE_CS_VWAP_ADX_Pullback_2"
+  ],
+  "vwapadxneteod": [
+   "SMERNICE_CS_EOD_VWAP_ADX_Pullback_1",
+   "SMERNICE_CS_EOD_VWAP_ADX_Pullback_2"
+  ],
+  "ibsentryesnet": [
+   "PRESIEL_SMERNICAMI_IBS_EZ_ES_1"
+  ],
+  "nyvaesnet": [
+   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_1",
+   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_2",
+   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_3"
+  ],
+  "fibomgcnet": [
+   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1",
+   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_2",
+   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_3"
+  ],
+  "voltbreaknet": [
+   "PRESIEL_SMERNICAMI_Volt_Break_1",
+   "PRESIEL_SMERNICAMI_Volt_Break_2",
+   "PRESIEL_SMERNICAMI_Volt_Break_3"
+  ],
+  "sigmamgcnet": [
+   "PRESIEL_SMERNICAMI_SIGMA_MGC_1",
+   "PRESIEL_SMERNICAMI_SIGMA_MGC_2",
+   "PRESIEL_SMERNICAMI_SIGMA_MGC_3"
+  ],
+  "sigmanet": [
+   "PRESIEL_SMERNICAMI_SIGMA_MNQ_1",
+   "PRESIEL_SMERNICAMI_SIGMA_MNQ_2",
+   "PRESIEL_SMERNICAMI_SIGMA_MNQ_3"
+  ],
+  "wprnet": [
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_1",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_2",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_3"
+  ],
+  "spravynet": [
+   "profil_1",
+   "profil_2",
+   "profil_3",
+   "profil_4"
+  ]
+ }
+}

@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse
 from tradebot.core.paths import STRATEGY_AUDIT
 from tradebot.strategies import STRATEGIES
 
-from .. import gitsync, profiles as user_profiles
+from .. import gitsync, profiles as user_profiles, vyber
 from ... import engines
 from ..runner import available_pairs
 from .common import STATIC, SECONDS_PER_YEAR, asset_version, current_user
@@ -87,8 +87,8 @@ def build(ctx: AppContext) -> APIRouter:
             # kompatibilita pre CLI a testy); stránka pracuje so `strategy_meta[key]`.
             **strategy_meta("ibs"),
             # Stratégie s profilom, ktorý prešiel smernicou — priečinok SMERNICE vo výbere stratégie.
-            "smernice_strategies": user_profiles.strategies_with_prefix(SMERNICE_PREFIXES),
-            "strategies": [spec.public() for spec in STRATEGIES.values()],
+            "smernice_strategies": [k for k in user_profiles.strategies_with_prefix(SMERNICE_PREFIXES) if vyber.strategy_visible(k)],
+            "strategies": [spec.public() for spec in STRATEGIES.values() if vyber.strategy_visible(spec.key)],
             # Audit stratégií zo stránky výsledkov (trieda A / B / C, Sortino, C# jadro) — značky pri názve stratégie.
             "audit": _audit(),
             "exchanges": [{"key": e, "title": engines.EXCHANGE_TITLES.get(e, e)}

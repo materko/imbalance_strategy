@@ -184,6 +184,8 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 - **C# jadro pre AS stratégie** (7. 11.): Sigma Breakout (`sigmanet`, `sigmamgcnet`), Volt Break (`voltbreaknet`) a Williams %R
   (`wprnet`) — parita bar po bare s Pythonom, profily PRESIEL_SMERNICAMI, šablóny NT8 / MT5; webapp radí stratégie podľa
   hodnotenia auditu (AS → A → BS → B → C) a ukazuje značky A / B / C, Sortino S a „treba prepísať do jadra“.
+- **Webapp len C# jadro** (8. 11.): katalóg a formulár ukazujú 18 C# stratégií zo stránky výsledkov s nastaveniami
+  1–3 zo stránky (`tester/webapp_vyber.json`, [docs/WEBAPP.md](docs/WEBAPP.md)); ostatné ostávajú v repozitári.
 - **Parita**: Python port sedí s TradingView na cent (golden test,
   [GOLDEN_binance_2026-08-24](docs/audity/GOLDEN_binance_2026-08-24.md)); C# jadro sedí s Python
   predlohou bar po bare (`tester/tests/test_csharp_parity*.py`).

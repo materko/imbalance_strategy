@@ -138,6 +138,8 @@ RUNS_DIR = TESTER_DIR / "runs"
 PROFILES_DIR = TESTER_DIR / "profiles"
 #: audit stratégií zo stránky výsledkov (trieda A / B / C, Sortino, C# jadro) — webapp ho ukazuje pri názve stratégie
 STRATEGY_AUDIT = TESTER_DIR / "audit.json"
+#: výber stratégií a profilov, ktoré webapp ukazuje (C# jadro, top 3 zo stránky výsledkov); bez súboru ukáže všetko
+WEBAPP_SELECTION = TESTER_DIR / "webapp_vyber.json"
 #: Dočasné profily rozbehnutých behov — vedľa histórie, ale gitignored.
 TMP_PROFILES = RUNS_DIR / ".profiles"
 #: História analytiky. Vedľa behov, nie v nich: analytika nie je beh, je to pohľad na
