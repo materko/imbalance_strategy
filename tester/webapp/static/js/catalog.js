@@ -4,7 +4,7 @@
  * `strategyClass` zo settings.js — ten istý, ktorý triedi výber stratégie vo formulári. */
 "use strict";
 
-const cat = { data: null, deployments: [], market: "", type: "", sort: "audit", query: "", onlySmernica: false,
+const cat = { data: null, deployments: [], market: "", type: "", sort: "kind", query: "", onlySmernica: false,
   state: "", drawer: null, tab: "all" };
 
 /** Filter Stav: "" = všetky, run = len bežiace, stop = nasadené, ale zastavené. */
@@ -77,6 +77,8 @@ function catFamilies(rows) {
       runs: f.members.reduce((s, m) => s + (m.runs || 0), 0),
       lastRun: f.members.map(m => m.last_run || "").sort().pop() || "",
       isNew: NOVE_STRATEGIE.has(f.key),
+      mc: (f.members.find(m => m.mc && m.mc.p_edge != null) || head).mc || {},
+      kind: (STRATEGIA_TRH_TYP[baseStrategyKey(f.key)] || [])[1] || "",
       other: !sel(head),
     };
   });
@@ -136,7 +138,7 @@ function catCard(f) {
   const b = f.best, n = f.profiles.length;
   const seg = g => n ? (f.counts[g] / n * 100).toFixed(1) : 0;
   const top = [catTopProfile(f)].filter(Boolean);
-  const kpi = (label, val, cls = "") => `<div class="cat-kpi"><span>${label}</span><b class="${cls}">${val}</b></div>`;
+  const kpi = (label, val, cls = "", tip = "") => `<div class="cat-kpi"${tip ? ` title="${esc(tip)}"` : ""}><span>${label}</span><b class="${cls}">${val}</b></div>`;
   const badges = catLiveBadges(f) + (f.isNew ? '<span class="cat-badge new">nová</span>' : "");
   const ports = f.ports.length ? `<div class="cat-ports small muted">C# porty: ${f.ports.map(p =>
     `<button type="button" class="linkish" data-cat-open="${esc(p.key)}">${esc(p.key)}</button>`).join(", ")}</div>` : "";
@@ -153,6 +155,10 @@ function catCard(f) {
     <div class="cat-kpis">
       ${kpi("Zisk", `${catSigned(b.pnl_pct)} %`, (b.pnl_pct || 0) >= 0 ? "pos" : "neg")}
       ${kpi("PF", catNum(b.profit_factor, 2))}
+      ${(() => { const a = auditOf(f.key); return kpi("Sortino", a && a.sortino != null ? catNum(a.sortino, 2) : "—", a && a.sortino != null ? (a.sortino_ok ? "pos" : "neg") : ""); })()}
+      ${kpi("Monte Carlo", f.mc && f.mc.p_edge != null ? `${catNum(f.mc.p_edge, 0)} %${f.mc.dd95 != null ? ` · DD ${catNum(f.mc.dd95, 0)} %` : ""}` : "—",
+        f.mc && f.mc.p_edge != null ? (f.mc.p_edge >= 95 ? "pos" : "neg") : "",
+        "Monte Carlo (bootstrap 10 000×, analytika nastavenia č. 1): pravdepodobnosť, že edge prekoná poplatok" + (f.mc && f.mc.dd95 != null ? `; max DD 95. percentil ${catNum(f.mc.dd95, 1)} %` : ""))}
       ${kpi("RR", b.rr != null ? catNum(b.rr, 2) : "—")}
       ${kpi("Win", `${catNum(b.winrate)} %`)}
       ${kpi("DD", `${catNum(b.max_drawdown_pct)} %`)}
@@ -188,7 +194,14 @@ function catCard(f) {
 /** Skupina auditu rodiny: 0 = AS, 1 = A, 2 = BS, 3 = B, 4 = C, 5 = bez hodnotenia (tester/audit.json). */
 const CAT_AUDIT_GROUPS = ["AS — funguje a prešiel Sortino", "A — funguje, Sortino neprešiel", "BS — s výhradou, prešiel Sortino",
   "B — s výhradou, Sortino neprešiel", "C — nefunguje (zatiaľ)", "Bez hodnotenia auditu",
-  "Ostatné stratégie — mimo C# jadra zo stránky výsledkov"];
+  "Ostatné stratégie — mimo výberu (neprešli smernicou a Sortino)"];
+/** Skupina podľa typu: 0 trendové, 1 skalpovacie, 2 rangeové, 3 nezaradené, 4 ostatné (dole). */
+const CAT_KIND_GROUPS = ["Trendové", "Skalpovacie", "Rangeové", "Nezaradené", "Ostatné stratégie — mimo výberu (neprešli smernicou a Sortino)"];
+function catKindRank(f) {
+  if (f.other) return 4;
+  const i = TYPY.indexOf(f.kind);
+  return i < 0 ? 3 : i;
+}
 function catAuditRank(f) {
   if (f.other) return 6;
   const a = auditOf(f.key);
@@ -207,6 +220,8 @@ function catFiltered() {
       .some(s => String(s).toLowerCase().includes(q))));
   const val = (f, k) => f.best && f.best[k] != null ? f.best[k] : -Infinity;
   const by = {
+    kind: (a, b) => catKindRank(a) - catKindRank(b) || catAuditRank(a) - catAuditRank(b)
+      || ((auditOf(b.key) || {}).sortino ?? -99) - ((auditOf(a.key) || {}).sortino ?? -99),
     audit: (a, b) => catAuditRank(a) - catAuditRank(b) || ((auditOf(b.key) || {}).sortino ?? -99) - ((auditOf(a.key) || {}).sortino ?? -99)
       || catScore(b.best) - catScore(a.best),
     score: (a, b) => catScore(b.best) - catScore(a.best),
@@ -249,9 +264,11 @@ function renderCatalog() {
   // pri poradí podľa hodnotenia nadpis pred každou skupinou (AS, A, BS, B, C, bez hodnotenia)
   let lastGroup = -1;
   $("#cat-grid").innerHTML = shown.map(f => {
-    if (cat.sort !== "audit" && !f.other) return catCard(f);
-    const g = cat.sort === "audit" ? catAuditRank(f) : 6, head = g !== lastGroup
-      ? `<h3 class="cat-group-head">${esc(CAT_AUDIT_GROUPS[g])} <span class="muted small">(${shown.filter(x => catAuditRank(x) === g).length})</span></h3>` : "";
+    if (cat.sort !== "audit" && cat.sort !== "kind" && !f.other) return catCard(f);
+    const rk = cat.sort === "kind" ? catKindRank : cat.sort === "audit" ? catAuditRank : (x => x.other ? 6 : -1);
+    const names = cat.sort === "kind" ? CAT_KIND_GROUPS : CAT_AUDIT_GROUPS;
+    const g = rk(f), head = g !== lastGroup
+      ? `<h3 class="cat-group-head">${esc(names[g])} <span class="muted small">(${shown.filter(x => rk(x) === g).length})</span></h3>` : "";
     lastGroup = g;
     return head + catCard(f);
   }).join("")

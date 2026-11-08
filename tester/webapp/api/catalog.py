@@ -146,6 +146,28 @@ def equity_curve(rec: dict[str, Any] | None, points: int = EQUITY_POINTS) -> lis
     return [round(v, 2) for v in vals]
 
 
+_MC_EDGE = re.compile(r"P\(edge > poplatok\) = \*\*([\d.]+) %\*\*")
+_MC_DD = re.compile(r"max drawdown: medián ([\d.]+) %, 95\. percentil ([\d.]+) %")
+
+
+def monte_carlo(key: str) -> dict[str, float]:
+    """Monte Carlo (bootstrap) z analytiky stratégie (`docs/ANALYTIKA.md`, nastavenie č. 1): pravdepodobnosť,
+    že edge prekoná poplatok, a 95. percentil max drawdownu. Pri C# porte bez vlastnej analytiky z predlohy."""
+    from tester.checkup import doc_path
+
+    base = key[:-3] if key.endswith("eod") else key
+    base = base[:-3] if base.endswith("net") and base[:-3] in STRATEGIES else base
+    for k in dict.fromkeys((key, base)):
+        try:
+            text = doc_path(k).read_text(encoding="utf-8")
+        except (OSError, KeyError, ValueError):
+            continue
+        e, d = _MC_EDGE.search(text), _MC_DD.search(text)
+        if e or d:
+            return {**({"p_edge": float(e.group(1))} if e else {}), **({"dd95": float(d.group(2))} if d else {})}
+    return {}
+
+
 def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[dict[str, Any]]:
     """Karta za každú stratégiu registry. `load_run(id)` vráti celý záznam behu (so `series`),
     `load_trades(id)` jeho obchody (na „kde zatvára v R“; bez neho sa nepočíta)."""
@@ -190,7 +212,7 @@ def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[d
             "lead": explainer_lead(spec.explainer()),
             "runs": sum(1 for r in runs if r.get("status") == "done"),
             "last_run": max((r.get("id") or "" for r in runs), default="") or None,
-            "best": best_out, "profiles": profiles,
+            "best": best_out, "profiles": profiles, "mc": monte_carlo(key),
         })
     return out
 

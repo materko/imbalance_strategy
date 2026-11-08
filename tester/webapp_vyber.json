@@ -77,16 +77,76 @@
    "PRESIEL_SMERNICAMI_SIGMA_MNQ_2",
    "PRESIEL_SMERNICAMI_SIGMA_MNQ_3"
   ],
-  "wprnet": [
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_1",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_2",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_3"
-  ],
   "spravynet": [
    "profil_1",
    "profil_2",
    "profil_3",
    "profil_4"
+  ],
+  "crt": [
+   "PRESIEL_SMERNICAMI_CRT_TBS_1"
+  ],
+  "dailyopen": [
+   "PRESIEL_SMERNICAMI_DAILY_OPEN_1"
+  ],
+  "flashorb": [
+   "PRESIEL_SMERNICAMI_FLASH_ORB_MNQ_1"
+  ],
+  "ivb": [
+   "PRESIEL_SMERNICAMI_IVB_MNQ_1",
+   "PRESIEL_SMERNICAMI_IVB_MNQ_2",
+   "PRESIEL_SMERNICAMI_IVB_MNQ_3"
+  ],
+  "ivbes": [
+   "PRESIEL_SMERNICAMI_IVB_ES_1",
+   "PRESIEL_SMERNICAMI_IVB_ES_2",
+   "PRESIEL_SMERNICAMI_IVB_ES_3"
+  ],
+  "ivbmgc": [
+   "PRESIEL_SMERNICAMI_IVB_MGC_1",
+   "PRESIEL_SMERNICAMI_IVB_MGC_2"
+  ],
+  "jss": [
+   "PRESIEL_SMERNICAMI_JSS_1",
+   "PRESIEL_SMERNICAMI_JSS_2",
+   "PRESIEL_SMERNICAMI_JSS_3"
+  ],
+  "lliqmgc": [
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_1",
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_2",
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_3"
+  ],
+  "mag7": [
+   "PRESIEL_SMERNICAMI_SPX_sila_1"
+  ],
+  "orb15": [
+   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_1",
+   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_2",
+   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_3"
+  ],
+  "orb15es": [
+   "PRESIEL_SMERNICAMI_ORB_15_5_ES_1",
+   "PRESIEL_SMERNICAMI_ORB_15_5_ES_2"
+  ],
+  "orb15mgc": [
+   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_1",
+   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_2",
+   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_3"
+  ],
+  "svp": [
+   "PRESIEL_SMERNICAMI_Volume_Profile_POC_1",
+   "PRESIEL_SMERNICAMI_Volume_Profile_POC_2",
+   "PRESIEL_SMERNICAMI_Volume_Profile_POC_3"
+  ],
+  "wpres": [
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_1",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_2",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_3"
+  ],
+  "wprmgc": [
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_1",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_2",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_3"
   ]
  },
  "dole": {
@@ -160,14 +220,6 @@
    "PRESIEL_SMERNICAMI_VWAP_ORB_2",
    "PRESIEL_SMERNICAMI_VWAP_ORB_3"
   ],
-  "jss": [
-   "PRESIEL_SMERNICAMI_JSS_1",
-   "PRESIEL_SMERNICAMI_JSS_2",
-   "PRESIEL_SMERNICAMI_JSS_3"
-  ],
-  "crt": [
-   "PRESIEL_SMERNICAMI_CRT_TBS_1"
-  ],
   "scalp3ma": [
    "mnq_databento_5m"
   ],
@@ -182,11 +234,6 @@
    "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_2",
    "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_3"
   ],
-  "svp": [
-   "PRESIEL_SMERNICAMI_Volume_Profile_POC_1",
-   "PRESIEL_SMERNICAMI_Volume_Profile_POC_2",
-   "PRESIEL_SMERNICAMI_Volume_Profile_POC_3"
-  ],
   "percoco": [
    "mnq_databento_1m"
   ],
@@ -200,14 +247,8 @@
    "FPC_MNQ_1m_365obch_WR69_PF1_45",
    "mnq_databento_1m"
   ],
-  "mag7": [
-   "PRESIEL_SMERNICAMI_SPX_sila_1"
-  ],
   "asiasweep": [
    "eurusd_dukascopy_5m"
-  ],
-  "dailyopen": [
-   "PRESIEL_SMERNICAMI_DAILY_OPEN_1"
   ],
   "noa": [
    "PRESIEL_SMERNICAMI_NOA_1_0_1",
@@ -249,25 +290,6 @@
   "m2mgc": [
    "mgc_databento_1m"
   ],
-  "ivb": [
-   "PRESIEL_SMERNICAMI_IVB_MNQ_1",
-   "PRESIEL_SMERNICAMI_IVB_MNQ_2",
-   "PRESIEL_SMERNICAMI_IVB_MNQ_3"
-  ],
-  "orb15": [
-   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_1",
-   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_2",
-   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_3"
-  ],
-  "orb15es": [
-   "PRESIEL_SMERNICAMI_ORB_15_5_ES_1",
-   "PRESIEL_SMERNICAMI_ORB_15_5_ES_2"
-  ],
-  "orb15mgc": [
-   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_1",
-   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_2",
-   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_3"
-  ],
   "tmr": [],
   "tmres": [],
   "tmrmgc": [],
@@ -275,19 +297,6 @@
    "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_1",
    "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_2",
    "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_3"
-  ],
-  "wpres": [
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_1",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_2",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_3"
-  ],
-  "wprmgc": [
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_1",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_2",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_3"
-  ],
-  "flashorb": [
-   "PRESIEL_SMERNICAMI_FLASH_ORB_MNQ_1"
   ],
   "flashorbes": [],
   "flashorbmgc": [],
@@ -311,20 +320,6 @@
   "lliqes": [
    "PRESIEL_SMERNICAMI_LONDON_IFVG_ES_1"
   ],
-  "lliqmgc": [
-   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_1",
-   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_2",
-   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_3"
-  ],
-  "ivbes": [
-   "PRESIEL_SMERNICAMI_IVB_ES_1",
-   "PRESIEL_SMERNICAMI_IVB_ES_2",
-   "PRESIEL_SMERNICAMI_IVB_ES_3"
-  ],
-  "ivbmgc": [
-   "PRESIEL_SMERNICAMI_IVB_MGC_1",
-   "PRESIEL_SMERNICAMI_IVB_MGC_2"
-  ],
   "spravy": [
    "profil_1",
    "profil_2",
@@ -343,6 +338,11 @@
   "varev": [
    "VARev_POC_15m_NY",
    "mnq_databento_15m"
+  ],
+  "wprnet": [
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_1",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_2",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_3"
   ]
  }
 }
