@@ -20,7 +20,7 @@
   },
   "ibsentry": {
    "cls": "A",
-   "sortino": 3.68,
+   "sortino": 2.98,
    "sortino_ok": true,
    "csharp": true,
    "why": [],
@@ -65,8 +65,8 @@
   },
   "vwaporb": {
    "cls": "A",
-   "sortino": 0.33,
-   "sortino_ok": false,
+   "sortino": 3.02,
+   "sortino_ok": true,
    "csharp": true,
    "why": [],
    "name": "VWAP ORB",
@@ -92,7 +92,7 @@
   },
   "ibsentryes": {
    "cls": "A",
-   "sortino": 2.2,
+   "sortino": 2.58,
    "sortino_ok": true,
    "csharp": true,
    "why": [],
@@ -192,7 +192,7 @@
   },
   "svp": {
    "cls": "B",
-   "sortino": 2.66,
+   "sortino": 3.09,
    "sortino_ok": true,
    "csharp": false,
    "why": [
@@ -215,7 +215,7 @@
   },
   "fibomgc": {
    "cls": "B",
-   "sortino": 2.16,
+   "sortino": 2.85,
    "sortino_ok": true,
    "csharp": true,
    "why": [
@@ -226,8 +226,8 @@
   },
   "jss": {
    "cls": "B",
-   "sortino": 0.82,
-   "sortino_ok": false,
+   "sortino": 3.18,
+   "sortino_ok": true,
    "csharp": false,
    "why": [
     "iný trh (NAS100) neprešiel"
@@ -237,8 +237,8 @@
   },
   "nyvaes": {
    "cls": "B",
-   "sortino": 0.85,
-   "sortino_ok": false,
+   "sortino": 2.53,
+   "sortino_ok": true,
    "csharp": true,
    "why": [
     "iný trh (US500) neprešiel",
@@ -273,8 +273,8 @@
   },
   "crt": {
    "cls": "B",
-   "sortino": 0.98,
-   "sortino_ok": false,
+   "sortino": 2.57,
+   "sortino_ok": true,
    "csharp": false,
    "why": [
     "iný trh (NAS100) neprešiel",
@@ -296,8 +296,8 @@
   },
   "vwapadx": {
    "cls": "B",
-   "sortino": 1.4,
-   "sortino_ok": false,
+   "sortino": 3.06,
+   "sortino_ok": true,
    "csharp": true,
    "why": [
     "iný trh (NAS100) neprešiel",
