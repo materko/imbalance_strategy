@@ -87,8 +87,8 @@ def build(ctx: AppContext) -> APIRouter:
             # kompatibilita pre CLI a testy); stránka pracuje so `strategy_meta[key]`.
             **strategy_meta("ibs"),
             # Stratégie s profilom, ktorý prešiel smernicou — priečinok SMERNICE vo výbere stratégie.
-            "smernice_strategies": [k for k in user_profiles.strategies_with_prefix(SMERNICE_PREFIXES) if vyber.strategy_visible(k)],
-            "strategies": [spec.public() for spec in STRATEGIES.values() if vyber.strategy_visible(spec.key)],
+            "smernice_strategies": user_profiles.strategies_with_prefix(SMERNICE_PREFIXES),
+            "strategies": [{**STRATEGIES[k].public(), "selected": vyber.selected(k)} for k in vyber.ordered(list(STRATEGIES))],
             # Audit stratégií zo stránky výsledkov (trieda A / B / C, Sortino, C# jadro) — značky pri názve stratégie.
             "audit": _audit(),
             "exchanges": [{"key": e, "title": engines.EXCHANGE_TITLES.get(e, e)}

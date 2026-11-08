@@ -43,10 +43,12 @@ function catLiveBadges(f) {
 /** Stratégie zlúčené do rodín: predloha + jej C# porty. Profily rodiny sú spolu (s kľúčom
  *  stratégie, ku ktorej patria), najlepší beh je najlepší z celej rodiny. */
 function catFamilies(rows) {
-  const keys = new Set(rows.map(r => r.key));
+  // stratégie z výberu webapp (C# jadro zo stránky výsledkov, `selected`) a ostatné sa do rodiny nespájajú — ostatné idú dole
+  const sel = r => r.selected !== false;
+  const keys = [new Set(rows.filter(r => !sel(r)).map(r => r.key)), new Set(rows.filter(sel).map(r => r.key))];
   const fam = new Map();
   for (const r of rows) {
-    const base = keys.has(baseStrategyKey(r.key)) ? baseStrategyKey(r.key) : r.key;
+    const base = keys[+sel(r)].has(baseStrategyKey(r.key)) ? baseStrategyKey(r.key) : r.key;
     if (!fam.has(base)) fam.set(base, { key: base, members: [] });
     fam.get(base).members.push(r);
   }
@@ -75,6 +77,7 @@ function catFamilies(rows) {
       runs: f.members.reduce((s, m) => s + (m.runs || 0), 0),
       lastRun: f.members.map(m => m.last_run || "").sort().pop() || "",
       isNew: NOVE_STRATEGIE.has(f.key),
+      other: !sel(head),
     };
   });
 }
@@ -184,8 +187,10 @@ function catCard(f) {
 
 /** Skupina auditu rodiny: 0 = AS, 1 = A, 2 = BS, 3 = B, 4 = C, 5 = bez hodnotenia (tester/audit.json). */
 const CAT_AUDIT_GROUPS = ["AS — funguje a prešiel Sortino", "A — funguje, Sortino neprešiel", "BS — s výhradou, prešiel Sortino",
-  "B — s výhradou, Sortino neprešiel", "C — nefunguje (zatiaľ)", "Bez hodnotenia auditu"];
+  "B — s výhradou, Sortino neprešiel", "C — nefunguje (zatiaľ)", "Bez hodnotenia auditu",
+  "Ostatné stratégie — mimo C# jadra zo stránky výsledkov"];
 function catAuditRank(f) {
+  if (f.other) return 6;
   const a = auditOf(f.key);
   if (!a) return 5;
   return a.cls === "A" ? (a.sortino_ok ? 0 : 1) : a.cls === "B" ? (a.sortino_ok ? 2 : 3) : 4;
@@ -215,7 +220,7 @@ function catFiltered() {
   }[cat.sort];
   // typ LIVE = nasadené na účtoch: najprv bežiace, potom zastavené, v rámci nich zvolené poradie
   if (cat.type === "LIVE") return list.sort((a, b) => (b.running.length > 0) - (a.running.length > 0) || by(a, b));
-  return list.sort(by);
+  return list.sort((a, b) => a.other - b.other || by(a, b));   // ostatné stratégie celkom dole
 }
 
 function catPills(el, values, current, attr) {
@@ -244,8 +249,8 @@ function renderCatalog() {
   // pri poradí podľa hodnotenia nadpis pred každou skupinou (AS, A, BS, B, C, bez hodnotenia)
   let lastGroup = -1;
   $("#cat-grid").innerHTML = shown.map(f => {
-    if (cat.sort !== "audit") return catCard(f);
-    const g = catAuditRank(f), head = g !== lastGroup
+    if (cat.sort !== "audit" && !f.other) return catCard(f);
+    const g = cat.sort === "audit" ? catAuditRank(f) : 6, head = g !== lastGroup
       ? `<h3 class="cat-group-head">${esc(CAT_AUDIT_GROUPS[g])} <span class="muted small">(${shown.filter(x => catAuditRank(x) === g).length})</span></h3>` : "";
     lastGroup = g;
     return head + catCard(f);

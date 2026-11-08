@@ -154,9 +154,8 @@ def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[d
         by_strategy.setdefault(strategy_of(rec), []).append(rec)
 
     out = []
-    for key, spec in STRATEGIES.items():
-        if not vyber.strategy_visible(key):
-            continue
+    for key in vyber.ordered(list(STRATEGIES)):
+        spec = STRATEGIES[key]
         runs = by_strategy.get(key, [])
         scored = [(sc, rec) for rec in runs if (sc := _score(rec)) is not None]
         best = max(scored, key=lambda x: x[0])[1] if scored else None
@@ -186,7 +185,7 @@ def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[d
                         "equity": equity_curve(load_run(best["id"])),
                         **(realized_r(load_trades(best["id"])) if load_trades else {})}
         out.append({
-            "key": key, "title": spec.title, "csharp": spec.csharp_dir is not None,
+            "key": key, "title": spec.title, "csharp": spec.csharp_dir is not None, "selected": vyber.selected(key),
             "default_timeframe": spec.default_timeframe, "has_explainer": spec.explainer_path.is_file(),
             "lead": explainer_lead(spec.explainer()),
             "runs": sum(1 for r in runs if r.get("status") == "done"),

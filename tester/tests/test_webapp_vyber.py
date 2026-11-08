@@ -7,7 +7,7 @@ from tester.webapp import vyber
 
 def test_bez_suboru_je_vsetko_viditelne():
     assert vyber.selection() is None
-    assert vyber.strategy_visible("ibs") and vyber.profile_visible("ibs", "hocico")
+    assert vyber.selected("ibs") and vyber.profile_visible("ibs", "hocico")
     assert vyber.filter_names("ibs", ["a", "b"]) == ["a", "b"]
 
 
@@ -16,10 +16,11 @@ def test_vyber_skryje_ostatne(tmp_path, monkeypatch):
     f.write_text(json.dumps({"strategies": {"tksnet": ["SMERNICE_CS_TKS_1", "SMERNICE_CS_TKS_2"]}}))
     monkeypatch.setattr(vyber, "WEBAPP_SELECTION", f)
     monkeypatch.setattr(vyber, "_cache", None)
-    assert vyber.strategy_visible("tksnet") and not vyber.strategy_visible("ibs")
+    assert vyber.selected("tksnet") and not vyber.selected("ibs")
+    assert vyber.ordered(["ibs", "tksnet", "orb"]) == ["tksnet", "ibs", "orb"]
     assert vyber.filter_names("tksnet", ["SMERNICE_CS_TKS_2", "mnq_databento_3m"]) == ["SMERNICE_CS_TKS_2"]
     assert vyber.filter_map("tksnet", {"SMERNICE_CS_TKS_1": 1, "x": 2}) == {"SMERNICE_CS_TKS_1": 1}
-    assert vyber.filter_names("ibs", ["a"]) == []
+    assert vyber.filter_names("ibs", ["a"]) == ["a"]          # stratégia mimo výberu: všetky profily (je len dole)
 
 
 def test_chybny_subor_nic_neskryje(tmp_path, monkeypatch):
@@ -28,3 +29,13 @@ def test_chybny_subor_nic_neskryje(tmp_path, monkeypatch):
     monkeypatch.setattr(vyber, "WEBAPP_SELECTION", f)
     monkeypatch.setattr(vyber, "_cache", None)
     assert vyber.selection() is None
+
+
+def test_dole_len_vymenovane_profily(tmp_path, monkeypatch):
+    f = tmp_path / "webapp_vyber.json"
+    f.write_text(json.dumps({"strategies": {"tksnet": ["A"]}, "dole": {"ibs": ["B"]}}))
+    monkeypatch.setattr(vyber, "WEBAPP_SELECTION", f)
+    monkeypatch.setattr(vyber, "_cache", None)
+    assert not vyber.selected("ibs")
+    assert vyber.filter_names("ibs", ["B", "C"]) == ["B"]
+    assert vyber.filter_names("orb", ["X"]) == ["X"]

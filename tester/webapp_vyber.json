@@ -1,11 +1,10 @@
 {
- "_popis": "webapp ukazuje len tieto stratégie a profily — .nightsearch/glwebvyber.py",
+ "_popis": "navrchu webapp tieto stratégie a profily, dole ostatné len s profilmi z „dole“ — .nightsearch/glwebvyber.py",
  "strategies": {
   "ibsentrynet": [
    "SMERNICE_CS_IBS_Entry_Zone_1",
    "SMERNICE_CS_IBS_Entry_Zone_2",
-   "SMERNICE_CS_IBS_Entry_Zone_3",
-   "SMERNICE_CS_IBS_Entry_Zone_1_OPRAVA_KODU"
+   "SMERNICE_CS_IBS_Entry_Zone_3"
   ],
   "ibsentryneteod": [
    "SMERNICE_CS_EOD_IBS_Entry_Zone_1",
@@ -15,8 +14,7 @@
   "tksnet": [
    "SMERNICE_CS_TKS_1",
    "SMERNICE_CS_TKS_2",
-   "SMERNICE_CS_TKS_3",
-   "SMERNICE_CS_TKS_4"
+   "SMERNICE_CS_TKS_3"
   ],
   "tksneteod": [
    "SMERNICE_CS_EOD_TKS_1",
@@ -36,8 +34,7 @@
   "vwaporbnet": [
    "SMERNICE_CS_VWAP_ORB_1",
    "SMERNICE_CS_VWAP_ORB_2",
-   "SMERNICE_CS_VWAP_ORB_3",
-   "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1"
+   "SMERNICE_CS_VWAP_ORB_3"
   ],
   "vwaporbneteod": [
    "SMERNICE_CS_EOD_VWAP_ORB_1",
@@ -90,6 +87,262 @@
    "profil_2",
    "profil_3",
    "profil_4"
+  ]
+ },
+ "dole": {
+  "ibs": [
+   "golden_coinbase_btcusd_3m"
+  ],
+  "ibsnet": [],
+  "ibszones": [
+   "NOCNE2_D_najstabilnejsi_zones",
+   "MNQ_R05_WR80_najlepsi_pomer_zones",
+   "multicharts_mnq_3m"
+  ],
+  "ibsentry": [
+   "PRESIEL_SMERNICAMI_IBS_Entry_Zone_1",
+   "PRESIEL_SMERNICAMI_IBS_Entry_Zone_2",
+   "PRESIEL_SMERNICAMI_IBS_Entry_Zone_3"
+  ],
+  "ibsentrymgc": [
+   "mgc_databento_3m"
+  ],
+  "ibsentryes": [
+   "PRESIEL_SMERNICAMI_IBS_EZ_ES_1"
+  ],
+  "ibsfvg": [
+   "LEN_FVG_WR81_ibsfvg",
+   "multicharts_mnq_3m"
+  ],
+  "structure": [],
+  "demo_breakout": [],
+  "orb": [],
+  "orbnet": [
+   "NINJA_ORB_RRR1.0_15m",
+   "NINJA_ORB_3m_20obchodov"
+  ],
+  "gap": [],
+  "range": [],
+  "sdzone": [],
+  "breakout": [],
+  "divergence": [],
+  "trendlines": [
+   "TL_5R_RR0_75_615obch_WR62",
+   "TL_5R_RR1_0_404obch_WR54",
+   "TL_5R_RR0_5_647obch_WR69"
+  ],
+  "liquidity": [
+   "LQB_1R_RR1_5_477obch_WR50",
+   "mnq_databento_5m"
+  ],
+  "vwapdrift": [
+   "mnq_databento_5m"
+  ],
+  "vwapadx": [
+   "PRESIEL_SMERNICAMI_VWAP_ADX_Pullback_1",
+   "PRESIEL_SMERNICAMI_VWAP_ADX_Pullback_2"
+  ],
+  "voltbreak": [
+   "PRESIEL_SMERNICAMI_Volt_Break_1",
+   "PRESIEL_SMERNICAMI_Volt_Break_2",
+   "PRESIEL_SMERNICAMI_Volt_Break_3"
+  ],
+  "onbiasorb": [
+   "mnq_databento_15m"
+  ],
+  "vwapop": [
+   "R1_vwapop_MGC_243obch_WR63",
+   "mnq_databento_5m",
+   "VWAP_OP_Pine_presne"
+  ],
+  "vwaporb": [
+   "PRESIEL_SMERNICAMI_VWAP_ORB_1",
+   "PRESIEL_SMERNICAMI_VWAP_ORB_2",
+   "PRESIEL_SMERNICAMI_VWAP_ORB_3"
+  ],
+  "jss": [
+   "PRESIEL_SMERNICAMI_JSS_1",
+   "PRESIEL_SMERNICAMI_JSS_2",
+   "PRESIEL_SMERNICAMI_JSS_3"
+  ],
+  "crt": [
+   "PRESIEL_SMERNICAMI_CRT_TBS_1"
+  ],
+  "scalp3ma": [
+   "mnq_databento_5m"
+  ],
+  "scalp3mamgc": [
+   "WK_scalp3ma_MGC_156obch_WR40_R2_0"
+  ],
+  "fibo": [
+   "mnq_databento_5m"
+  ],
+  "fibomgc": [
+   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1",
+   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_2",
+   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_3"
+  ],
+  "svp": [
+   "PRESIEL_SMERNICAMI_Volume_Profile_POC_1",
+   "PRESIEL_SMERNICAMI_Volume_Profile_POC_2",
+   "PRESIEL_SMERNICAMI_Volume_Profile_POC_3"
+  ],
+  "percoco": [
+   "mnq_databento_1m"
+  ],
+  "fvgpolarity": [
+   "mnq_databento_15m"
+  ],
+  "fvgpolaritymgc": [
+   "WK_fvgpolarity_MGC_161obch_WR61_R1_1"
+  ],
+  "fpc": [
+   "FPC_MNQ_1m_365obch_WR69_PF1_45",
+   "mnq_databento_1m"
+  ],
+  "mag7": [
+   "PRESIEL_SMERNICAMI_SPX_sila_1"
+  ],
+  "asiasweep": [
+   "eurusd_dukascopy_5m"
+  ],
+  "dailyopen": [
+   "PRESIEL_SMERNICAMI_DAILY_OPEN_1"
+  ],
+  "noa": [
+   "PRESIEL_SMERNICAMI_NOA_1_0_1",
+   "PRESIEL_SMERNICAMI_NOA_1_0_2",
+   "PRESIEL_SMERNICAMI_NOA_1_0_3"
+  ],
+  "tks": [
+   "PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_1",
+   "PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_2",
+   "PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_3"
+  ],
+  "nocpon": [
+   "mnq_databento_5m"
+  ],
+  "nyvaes": [
+   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_1",
+   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_2",
+   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_3"
+  ],
+  "sdeur": [
+   "eurusd_6e_5m"
+  ],
+  "sdeurnet": [
+   "eurusd_6e_5m"
+  ],
+  "nb": [
+   "mnq_databento_15m",
+   "es_databento_15m"
+  ],
+  "m2": [
+   "es_databento_1m"
+  ],
+  "m2mnq": [
+   "mnq_databento_1m"
+  ],
+  "m2eur": [
+   "6e_databento_1m"
+  ],
+  "m2mgc": [
+   "mgc_databento_1m"
+  ],
+  "ivb": [
+   "PRESIEL_SMERNICAMI_IVB_MNQ_1",
+   "PRESIEL_SMERNICAMI_IVB_MNQ_2",
+   "PRESIEL_SMERNICAMI_IVB_MNQ_3"
+  ],
+  "orb15": [
+   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_1",
+   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_2",
+   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_3"
+  ],
+  "orb15es": [
+   "PRESIEL_SMERNICAMI_ORB_15_5_ES_1",
+   "PRESIEL_SMERNICAMI_ORB_15_5_ES_2"
+  ],
+  "orb15mgc": [
+   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_1",
+   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_2",
+   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_3"
+  ],
+  "tmr": [],
+  "tmres": [],
+  "tmrmgc": [],
+  "wpr": [
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_1",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_2",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MNQ_3"
+  ],
+  "wpres": [
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_1",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_2",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_3"
+  ],
+  "wprmgc": [
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_1",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_2",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_3"
+  ],
+  "flashorb": [
+   "PRESIEL_SMERNICAMI_FLASH_ORB_MNQ_1"
+  ],
+  "flashorbes": [],
+  "flashorbmgc": [],
+  "sigma": [
+   "PRESIEL_SMERNICAMI_SIGMA_MNQ_1",
+   "PRESIEL_SMERNICAMI_SIGMA_MNQ_2",
+   "PRESIEL_SMERNICAMI_SIGMA_MNQ_3"
+  ],
+  "sigmaes": [],
+  "sigmamgc": [
+   "PRESIEL_SMERNICAMI_SIGMA_MGC_1",
+   "PRESIEL_SMERNICAMI_SIGMA_MGC_2",
+   "PRESIEL_SMERNICAMI_SIGMA_MGC_3"
+  ],
+  "nqprec": [
+   "PRESIEL_SMERNICAMI_NQ_PRECISION_MNQ_1"
+  ],
+  "nqpreces": [],
+  "nqprecmgc": [],
+  "lliq": [],
+  "lliqes": [
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_ES_1"
+  ],
+  "lliqmgc": [
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_1",
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_2",
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_3"
+  ],
+  "ivbes": [
+   "PRESIEL_SMERNICAMI_IVB_ES_1",
+   "PRESIEL_SMERNICAMI_IVB_ES_2",
+   "PRESIEL_SMERNICAMI_IVB_ES_3"
+  ],
+  "ivbmgc": [
+   "PRESIEL_SMERNICAMI_IVB_MGC_1",
+   "PRESIEL_SMERNICAMI_IVB_MGC_2"
+  ],
+  "spravy": [
+   "profil_1",
+   "profil_2",
+   "profil_3",
+   "profil_4"
+  ],
+  "sweepfvg": [
+   "mnq_databento_5m"
+  ],
+  "silverbullet": [
+   "mnq_databento_5m"
+  ],
+  "sweepengulf": [
+   "mnq_databento_4h"
+  ],
+  "varev": [
+   "VARev_POC_15m_NY",
+   "mnq_databento_15m"
   ]
  }
 }

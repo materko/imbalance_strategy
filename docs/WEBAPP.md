@@ -139,7 +139,8 @@ prehliadači; predvolené je `TRADEBOT_USER` z prostredia, inak `git config user
 katalóg, výber stratégie aj profily vo formulári ukážu len stratégie a profily v ňom — dnes C# jadro zo stránky
 výsledkov, pri každej nastavenia 1–3 zo stránky (SPRÁVY všetky 4) a profily aktívnych živých nasadení. Súbor a C#
 profily (presne parametre Python predlohy zo stránky) píše ranná úloha `.nightsearch/glwebvyber.py --apply`;
-ostatné stratégie a profily ostávajú na disku, len sa neukazujú. Bez súboru webapp ukáže všetko.
+ostatné stratégie sú celkom dole, každá len s najviac 3 profilmi s analytikou (stratégia zo stránky s nastaveniami
+1–3 zo stránky, `"dole"` v súbore); ostatné profily ostávajú na disku. Bez súboru webapp ukáže všetko.
 
 Úvodná karta (adresa bez `#`; ostatné karty majú `#new`, `#history`…) je katalóg: každá stratégia
 registry ako karta s trhom a typom (`STRATEGIA_TRH_TYP`, to isté, čo triedi výber stratégie vo formulári),
