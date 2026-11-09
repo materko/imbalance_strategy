@@ -789,14 +789,17 @@ void OnDeinit(const int reason)
    // SL/TP otvorenych pozicii ostavaju - chrania ich aj bez EA. Zmena uctu: tickety su z ineho uctu.
    if(g_engine > 0 && g_controlOn && reason != REASON_ACCOUNT)
      {
-      int left = 0;
+      int left = 0, filledLate = 0;
       for(int i = ArraySize(g_orders) - 1; i >= 0; i--)
          if(!g_orders[i].filled && g_orders[i].orderTicket > 0)
            {
-            if(DeleteOrGone(g_orders[i].orderTicket)) RemoveOrder(i);
+            int state = EntryCancelState(g_orders[i].orderTicket);
+            if(state > 0) RemoveOrder(i);
+            else if(state < 0) filledLate++;   // ostava v stave: RestoreState poziciu po starte prevezme
             else left++;
            }
       if(left > 0) Report("error", "TradeBot: pri odchode EA sa " + IntegerToString(left) + " cakajucich vstupov nedalo zrusit - over ich v terminali");
+      if(filledLate > 0) Report("error", "TradeBot: pri odchode EA sa " + IntegerToString(filledLate) + " vstupov vyplnilo tesne pred zrusenim - pozicie over v terminali, EA ich prevezme po starte");
      }
    if(g_engine > 0) SaveState();
    if(g_engine > 0)
@@ -1249,12 +1252,37 @@ bool CancelExits(int i)
    return ok;
   }
 
-/// Zrusi cakajuci vstup u brokera a prestane ho sledovat. Ked zrusenie neprejde a order tam stale je, ostava
-/// sledovany (`cancelWanted`): OnTimer to skusa znova, a keby sa medzitym vyplnil, zavrie sa hned (RetryGuards).
+/// Pokus o zrusenie cakajuceho VSTUPU: 1 = u brokera prec bez vyplnenia, 0 = stale stoji (zrusenie neprislo),
+/// -1 = medzi cakajucimi uz nie je a vyplnil sa (aj ciastocne) alebo sa to este neda zistit. Na rozdiel od
+/// `DeleteOrGone` (SL/TP) sa vyplneny vstup NESMIE brat ako zmiznuty: jeho deal este caka vo fronte a pozicia by
+/// ostala bez sledovania - v nettingu bez SL/TP (audit M-LIVE-3; to iste v exekutore routing K1).
+int EntryCancelState(ulong ticket)
+  {
+   if(ticket == 0) return 1;
+   if(g_trade.OrderDelete(ticket)) return 1;
+   if(OrderSelect(ticket)) return 0;
+   if(!HistoryOrderSelect(ticket)) return -1;   // v historii este nie je - radsej sledovat dalej
+   ENUM_ORDER_STATE st = (ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE);
+   if(st != ORDER_STATE_CANCELED && st != ORDER_STATE_REJECTED && st != ORDER_STATE_EXPIRED) return -1;
+   // zruseny az po ciastocnom vyplneni: cast je u brokera ako pozicia
+   if(HistoryOrderGetDouble(ticket, ORDER_VOLUME_CURRENT) < HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL) - 1e-9) return -1;
+   return 1;
+  }
+
+/// Zrusi cakajuci vstup u brokera a prestane ho sledovat. Ked zrusenie neprejde a order tam stale je, alebo sa
+/// medzitym vyplnil, ostava sledovany (`cancelWanted`): OnTimer to skusa znova a vyplneny zavrie hned (RetryGuards).
 void CancelEntry(int idx)
   {
    ulong ticket = g_orders[idx].orderTicket;
-   if(DeleteOrGone(ticket)) { RemoveOrder(idx); return; }
+   int state = EntryCancelState(ticket);
+   if(state > 0) { RemoveOrder(idx); return; }
+   if(state < 0)
+     {
+      if(!g_orders[idx].cancelWanted)
+         Report("warn", "TradeBot: vstup " + g_orders[idx].id + " sa vyplnil tesne pred zrusenim - po prichode dealu ho zatvaram");
+      g_orders[idx].cancelWanted = true;
+      return;
+     }
    if(!g_orders[idx].cancelWanted)
       Report("error", "TradeBot: cakajuci vstup " + g_orders[idx].id + " sa neda zrusit: " + IntegerToString(g_trade.ResultRetcode())
              + " " + g_trade.ResultRetcodeDescription() + " - skusam znova");

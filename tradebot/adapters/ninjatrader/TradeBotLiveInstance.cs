@@ -236,6 +236,25 @@ namespace NinjaTrader.NinjaScript.AddOns
         private int _maxDailyWins;
         private long _stepMs;
         private readonly Dictionary<string, Tracked> _orders = new Dictionary<string, Tracked>();
+
+        /// <summary>
+        /// Vstup, ktory strategia uz nechce (cancel z enginu, flatten / EOD, nahradeny, zvysok po zavreti pozicie), ale
+        /// broker jeho zrusenie este nepotvrdil. Z `_orders` je prec (engine ma id volne), sledovat sa vsak musi dalej:
+        /// fill, ktory pride skor nez potvrdenie, by inak skoncil ako pozicia bez SL/TP, trailingu aj EOD
+        /// (audit M-LIVE-1, M-LIVE-2, M-LIVE-6). Taky fill sa prevezme a hned zavrie trhom (`AdoptLate`).
+        /// </summary>
+        private sealed class Dying
+        {
+            public string Id;
+            public Order Entry;
+            public TB.OrderIntent Intent;
+            public DateTime Since;
+            public int Tries;
+        }
+
+        private readonly List<Dying> _dying = new List<Dying>();
+        /// <summary>Po kolkych sekundach bez potvrdenia sa zrusenie posle znova.</summary>
+        private const int DyingRetrySeconds = 5;
         private readonly Dictionary<string, int> _dailyWins = new Dictionary<string, int>();
         private readonly Dictionary<string, int> _dailyWinsSeen = new Dictionary<string, int>();
         private TB.LiveSpool _spool;
@@ -467,6 +486,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                     PublishNet();
                     try { if (_live && !Routed) ReconcileExternal(); }
                     catch (Exception e) { Note("error", "kontrola pozicie uctu - " + e.Message); }
+                    try { if (!Routed) SweepDying(); }
+                    catch (Exception e) { Note("error", "rusene vstupy - " + e.Message); }
                     try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
                     catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
                     try { if (_live && !Routed) GuardExits(); }   // route: SL strazi exekutor
@@ -948,6 +969,123 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (t.RemoteLive) _route.Cancel(NowMs(), id, why);
         }
 
+        /// <summary>
+        /// Vstup, ktory sa prestava sledovat v `_orders` (volajuci ho odtial vyhodi sam): zrusit u brokera a drzat
+        /// v `_dying`, kym broker zrusenie nepotvrdi. Route: zrusenie potvrdzuje exekutor (`RemoteLive`), ten si
+        /// neskory fill osetri sam.
+        /// </summary>
+        private void Retire(string id, Tracked t, string why)
+        {
+            if (Routed) { CancelEntry(id, t, why); return; }
+            RetireOrder(id, t.Entry, t.Intent);
+        }
+
+        private void RetireOrder(string id, Order o, TB.OrderIntent intent)
+        {
+            if (!Alive(o)) return;
+            if (DyingIndex(o) < 0)
+            {
+                Dying d = new Dying();
+                d.Id = id;
+                d.Entry = o;
+                d.Intent = intent;
+                d.Since = DateTime.UtcNow;
+                _dying.Add(d);
+            }
+            CancelOrder(o);
+        }
+
+        private int DyingIndex(Order o)
+        {
+            for (int i = 0; i < _dying.Count; i++)
+                if (ReferenceEquals(_dying[i].Entry, o)) return i;
+            return -1;
+        }
+
+        /// <summary>Stary order s tymto id sa este rusi - novy vstup s tym istym id pocka (inak by mohli stat dva).</summary>
+        private bool DyingFor(string id)
+        {
+            for (int i = 0; i < _dying.Count; i++)
+                if (_dying[i].Id == id) return true;
+            return false;
+        }
+
+        /// <summary>Vyhod sledovany obchod; nevyplneny zvysok jeho vstupu (ciastocny fill) u brokera zrus a strazi dalej.</summary>
+        private void Drop(string key, Tracked t)
+        {
+            _orders.Remove(key);
+            if (!Routed) RetireOrder(key, t.Entry, t.Intent);
+        }
+
+        /// <summary>
+        /// Rusene vstupy: potvrdene prec sa zabudnu, nepotvrdene sa rusia znova, a vyplneny order, ktoreho exekucia
+        /// neprisla (stratena udalost), sa prevezme z udajov orderu.
+        /// </summary>
+        private void SweepDying()
+        {
+            DateTime now = DateTime.UtcNow;
+            for (int i = _dying.Count - 1; i >= 0; i--)
+            {
+                Dying d = _dying[i];
+                double age = (now - d.Since).TotalSeconds;
+                if (Alive(d.Entry))
+                {
+                    if (age < DyingRetrySeconds) continue;
+                    d.Since = now;
+                    d.Tries++;
+                    if (d.Tries == 1 || d.Tries % 12 == 0)
+                        Note("warn", "zrusenie vstupu " + d.Id + " broker nepotvrdil - rusim znova (pokus " + (d.Tries + 1) + ")");
+                    CancelOrder(d.Entry);
+                    continue;
+                }
+                if (d.Entry.OrderState == OrderState.Filled)
+                {
+                    if (age < DyingRetrySeconds) continue;   // exekucia este pride (HandleExecution)
+                    _dying.RemoveAt(i);
+                    AdoptLate(d, d.Entry.AverageFillPrice, d.Entry.Filled, NowMs());
+                    continue;
+                }
+                _dying.RemoveAt(i);
+            }
+        }
+
+        /// <summary>
+        /// Fill vstupu, ktory strategia uz zrusila: pozicia je u brokera, takze sa sleduje ako kazda ina (vystup do
+        /// spoolu, strazca SL pri neuspesnom zatvoreni) a hned sa zatvara trhom. Ked je id medzitym obsadene novym
+        /// vstupom, ide pod klucom `id~late`.
+        /// </summary>
+        private void AdoptLate(Dying d, double price, int qty, long execMs)
+        {
+            if (qty <= 0) return;
+            string key = d.Id;
+            for (int n = 1; _orders.ContainsKey(key); n++) key = d.Id + "~late" + (n > 1 ? n.ToString(CultureInfo.InvariantCulture) : "");
+            Tracked t = new Tracked();
+            t.Intent = d.Intent;
+            t.Entry = d.Entry;
+            t.LastStop = d.Intent.Plan.StopLoss;
+            t.Filled = true;
+            t.FilledAt = DateTime.UtcNow;
+            t.FilledMs = execMs;
+            t.OpenQty = qty;
+            _orders[key] = t;
+            Note("error", "vstup " + d.Id + " sa vyplnil (x" + qty + " @" + price.ToString(CultureInfo.InvariantCulture)
+                 + ") az po zruseni - poziciu zatvaram trhom" + (key != d.Id ? " (sledovana ako " + key + ")" : ""));
+            SpoolFill(execMs, key, true, "", price, qty, _live);
+            ParkOthers(key);
+            RequestClose(key, t, "tb_close");
+        }
+
+        /// <summary>Sledovany vstup podla objektu orderu: pod svojim menom, alebo prevzaty pod inym klucom (`AdoptLate`).</summary>
+        private bool FindEntry(Order o, string name, out string key, out Tracked t)
+        {
+            key = name;
+            if (_orders.TryGetValue(name, out t) && (t.Entry == null || ReferenceEquals(t.Entry, o))) return true;
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+                if (ReferenceEquals(kv.Value.Entry, o)) { key = kv.Key; t = kv.Value; return true; }
+            t = null;
+            return false;
+        }
+
         private static long NowMs() { return (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds); }
 
         /// <summary>Pozicia uctu na instrumente (aj cudzia - napr. z predosleho behu alebo z grafu).</summary>
@@ -1020,6 +1158,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                 }
                 if (_orders.TryGetValue(intent.OrderId, out t) && t.Filled && t.OpenQty > 0) return;
                 Tracked previous = t;
+                // stary order s tym istym id najprv zrusit - a strazit, kym ho broker nepotvrdi (audit M-LIVE-2)
+                if (!Routed && previous != null && !previous.Filled) Retire(intent.OrderId, previous, "nahradeny");
                 t = new Tracked();
                 t.Intent = intent;
                 t.LastStop = intent.Plan.StopLoss;
@@ -1027,8 +1167,15 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (HasOpenPosition())
                 {
                     t.Parked = true;
-                    if (previous != null && !previous.Filled) CancelEntry(intent.OrderId, previous, "nahradeny");
+                    if (Routed && previous != null && !previous.Filled) CancelEntry(intent.OrderId, previous, "nahradeny");
                     Log("ENTRY " + intent.OrderId + " odlozeny - bezi pozicia");
+                    return;
+                }
+                if (!Routed && DyingFor(intent.OrderId))
+                {
+                    // posle ho ReleaseParked, ked broker zrusenie stareho potvrdi - dva ordery s jednym id nesmu stat naraz
+                    t.Parked = true;
+                    Log("ENTRY " + intent.OrderId + " caka - stary order s tym istym id sa este rusi");
                     return;
                 }
                 SubmitEntry(intent.OrderId, t);
@@ -1040,7 +1187,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 if (!t.Filled)
                 {
-                    CancelEntry(intent.OrderId, t, intent.Reason);
+                    Retire(intent.OrderId, t, intent.Reason);
                     _orders.Remove(intent.OrderId);
                 }
                 Log("CANCEL " + intent.OrderId + " (" + intent.Reason + ")");
@@ -1170,6 +1317,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             t.Closing = signal;
             t.ClosingSince = DateTime.UtcNow;
             if (Routed) { _route.Close(NowMs(), id, signal); t.CloseSent = true; Log("EXIT " + id + " -> MT5 (" + signal + ")"); return; }
+            // nevyplneny zvysok vstupu (ciastocny fill) uz nechceme; co sa z neho este vyplni, pojde von s poziciou (M-LIVE-6)
+            if (Alive(t.Entry)) CancelOrder(t.Entry);
             List<Order> cancel = new List<Order>();
             if (Alive(t.Sl)) cancel.Add(t.Sl);
             if (Alive(t.Tp)) cancel.Add(t.Tp);
@@ -1279,6 +1428,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 Tracked t = kv.Value;
                 if (!t.Parked || EntryPending(t)) continue;
+                if (!Routed && DyingFor(kv.Key)) continue;   // stary order s tym istym id sa este rusi
                 t.Parked = false;
                 SubmitEntry(kv.Key, t);
             }
@@ -1391,7 +1541,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 SpoolFill(ms, kv.Key, false, "close", price, t.OpenQty, _live);
                 if (Alive(t.Sl)) CancelOrder(t.Sl);
                 if (Alive(t.Tp)) CancelOrder(t.Tp);
-                _orders.Remove(kv.Key);
+                Drop(kv.Key, t);
             }
             _foreignMs = 0;
         }
@@ -1470,7 +1620,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 Tracked t = kv.Value;
                 if (!t.Filled)
                 {
-                    CancelEntry(kv.Key, t, signal);
+                    Retire(kv.Key, t, signal);
                     _orders.Remove(kv.Key);
                 }
                 else if (t.OpenQty > 0) RequestClose(kv.Key, t, signal);
@@ -1541,11 +1691,22 @@ namespace NinjaTrader.NinjaScript.AddOns
         {
             Tracked t;
             string name = o.Name;
-            if (_orders.TryGetValue(name, out t))
+            int dying = DyingIndex(o);
+            if (dying >= 0)
+            {
+                // ruseny vstup: potvrdene prec -> zabudnut; fill pride ako exekucia (HandleExecution / SweepDying)
+                if (state == OrderState.Cancelled || state == OrderState.Rejected)
+                {
+                    _dying.RemoveAt(dying);
+                    ReleaseParked();
+                }
+                return;
+            }
+            string key;
+            if (FindEntry(o, name, out key, out t))
             {
                 // vstup
-                if (t.Entry != null && !ReferenceEquals(t.Entry, o)) return;   // neskora sprava o starom orderi s tym istym menom
-                if (state == OrderState.Rejected) Note("error", "vstup " + name + " odmietnuty: " + error + " " + comment);
+                if (state == OrderState.Rejected) Note("error", "vstup " + key + " odmietnuty: " + error + " " + comment);
                 if ((state == OrderState.Cancelled || state == OrderState.Rejected) && !t.Filled)
                 {
                     if (t.Parked && state == OrderState.Cancelled)
@@ -1553,10 +1714,11 @@ namespace NinjaTrader.NinjaScript.AddOns
                         t.Entry = null;
                         ReleaseParked();
                     }
-                    else _orders.Remove(name);
+                    else _orders.Remove(key);
                 }
                 return;
             }
+            if (_orders.ContainsKey(name)) return;   // neskora sprava o starom orderi s tym istym menom
             int colon = name.LastIndexOf(':');
             if (colon <= 0) return;
             string id = name.Substring(0, colon);
@@ -1614,20 +1776,31 @@ namespace NinjaTrader.NinjaScript.AddOns
             Tracked t;
             string name = o.Name;
             long execMs = ToMs(time);
-            if (_orders.TryGetValue(name, out t))
+            int dying = DyingIndex(o);
+            if (dying >= 0)
+            {
+                // fill vstupu, ktory uz strategia zrusila a broker to este nepotvrdil (audit M-LIVE-1)
+                Dying d = _dying[dying];
+                _dying.RemoveAt(dying);
+                AdoptLate(d, price, qty, execMs);
+                return;
+            }
+            string key;
+            if (FindEntry(o, name, out key, out t))
             {
                 // vyplnenie vstupu
-                if (t.Entry != null && !ReferenceEquals(t.Entry, o)) return;
                 if (!t.Filled) { t.FilledAt = DateTime.UtcNow; t.FilledMs = execMs; }
                 t.Filled = true;
                 t.Parked = false;
                 t.OpenQty += qty;
-                Log("FILL in " + name + " @" + price + " x" + qty);
-                SpoolFill(execMs, name, true, "", price, qty, _live);
-                ParkOthers(name);
-                EnsureExits(name, t);
+                Log("FILL in " + key + " @" + price + " x" + qty);
+                SpoolFill(execMs, key, true, "", price, qty, _live);
+                ParkOthers(key);
+                // pocas zatvarania SL/TP uz nechceme: objem navyse pojde von trhovym vystupom (CloseTimeouts)
+                if (t.Closing == null || t.Protect) EnsureExits(key, t);
                 return;
             }
+            if (_orders.ContainsKey(name)) return;   // order s tym istym menom, ktory nie je nas (ina instancia)
             int colon = name.LastIndexOf(':');
             if (colon <= 0 || !_orders.TryGetValue(name.Substring(0, colon), out t))
             {
@@ -1642,11 +1815,16 @@ namespace NinjaTrader.NinjaScript.AddOns
             Log("FILL out " + id + " " + exitName + " @" + price + " x" + qty);
             SpoolFill(execMs, id, false, exitName, price, qty, _live);
             t.OpenQty -= qty;
-            if (t.OpenQty > 0) return;
+            if (t.OpenQty > 0)
+            {
+                // trhovy vystup sa vyplnil cely, ale vstup medzitym pribral objem: zvysok posle CloseTimeouts znova
+                if (suffix != "sl" && suffix != "tp" && o.OrderState == OrderState.Filled) t.CloseSent = false;
+                return;
+            }
             // druhy z OCO dvojice zrusi NT sam; keby nie, stiahni ho
             if (suffix == "sl" && Alive(t.Tp)) CancelOrder(t.Tp);
             if (suffix == "tp" && Alive(t.Sl)) CancelOrder(t.Sl);
-            _orders.Remove(id);
+            Drop(id, t);
             ReleaseParked();
 
             CountWin(t.Intent.Plan, suffix, price, execMs);
@@ -1760,7 +1938,7 @@ namespace NinjaTrader.NinjaScript.AddOns
 
         private bool IsFlat()
         {
-            return _orders.Count == 0 && AccountPosition() - OthersNet() == 0;
+            return _orders.Count == 0 && _dying.Count == 0 && AccountPosition() - OthersNet() == 0;
         }
 
         private void RememberProfile(string path, string text)
@@ -2046,7 +2224,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 {
                     // cakajuci vstup: zvysok u brokera zrusit; co sa z neho vyplnilo pocas vypadku, sa prevezme
                     Order entry = Named(working, id);
-                    if (entry != null) { CancelOrder(entry); cancelled++; }
+                    if (entry != null) { RetireOrder(id, entry, intent); cancelled++; }
                     double value = 0;
                     long firstMs = 0;
                     foreach (Execution x in execs)
