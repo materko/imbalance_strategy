@@ -156,6 +156,41 @@ def test_stake_prezije_orezanie_na_krok_kontraktu(strategy, rate, leverage, qty)
     assert amount == pytest.approx(qty)
 
 
+@pytest.mark.parametrize("gap", [0.25, 15.0, -0.25, -15.0])
+def test_market_vstup_po_gape_drzi_pocet_kontraktov(strategy, gap):
+    """Market vstup sa plní na open ďalšej sviečky, nie na close signálnej z plánu (audit M-CORE-1).
+
+    Stake počítaný z ceny plánu dal po gape nahor `qty · close / open` < qty a Freqtrade ho
+    orezal na krok kontraktu: z 1 kontraktu s krokom 1 (MNQ) ostalo 0 a obchod vypadol.
+    """
+    amount_to_contract_precision = pytest.importorskip(
+        "freqtrade.exchange").amount_to_contract_precision
+
+    close, qty, leverage = 20000.0, 1.0, 1.0
+    fill = close + gap   # open ďalšej sviečky = `proposed_rate`, ktorý vráti `custom_entry_price`
+    row = SignalRow(enter_long=1, entry=close, stop_loss=close - 50, take_profit=close + 50,
+                    qty=qty, in_trade_window=True, market=True)
+    strategy._runners[PAIR] = _Runner(row, row)
+    tag = f"{ENTRY_TAG_PREFIX}{_ms(T_SIGNAL)}"
+    when = T_SIGNAL + MIN3
+
+    assert strategy.custom_entry_price(PAIR, None, when, fill, tag, "long") == fill
+    stake = strategy.custom_stake_amount(PAIR, when, fill, 999.0, None, 1e12, leverage, tag, "long")
+    # to isté, čo robí freqtrade/optimize/backtesting.py::_enter_trade — krok kontraktu 1
+    amount = amount_to_contract_precision((stake / fill) * leverage, 1.0, 4, 1.0)
+    assert amount == qty
+
+
+def test_limitny_vstup_pocita_stake_z_ceny_planu(strategy):
+    """Limitka sa plní na cene plánu, nech Freqtrade navrhuje čokoľvek — stake ostáva z nej."""
+    row = SignalRow(enter_long=1, entry=20000.0, stop_loss=19950.0, take_profit=20050.0,
+                    qty=2.0, in_trade_window=True)
+    strategy._runners[PAIR] = _Runner(row, row)
+    tag = f"{ENTRY_TAG_PREFIX}{_ms(T_SIGNAL)}"
+    stake = strategy.custom_stake_amount(PAIR, T_SIGNAL + MIN3, 20015.0, 999.0, None, 1e12, 1.0, tag, "long")
+    assert stake == pytest.approx(2.0 * 20000.0)
+
+
 # --------------------------------------------------------------------------- #
 # check_entry_timeout
 # --------------------------------------------------------------------------- #

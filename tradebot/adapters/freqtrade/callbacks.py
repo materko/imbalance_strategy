@@ -158,7 +158,12 @@ class CallbacksMixin(IStrategy):
         if row is None or row.qty != row.qty or current_rate <= 0:
             return proposed_stake
 
-        rate = row.entry if row.entry == row.entry and row.entry > 0 else current_rate
+        # Market vstup sa plní na cene, ktorú navrhol Freqtrade (`custom_entry_price` vráti `proposed_rate`,
+        # v backteste open ďalšej sviečky), nie na close signálnej z plánu. Stake z ceny plánu by po gape
+        # nahor dal o zlomok menej než `qty` a orezanie na krok kontraktu by z 1 kontraktu spravilo 0
+        # (audit M-CORE-1). `current_rate` je tu už cena po `custom_entry_price`.
+        planned = row.entry == row.entry and row.entry > 0 and not row.market
+        rate = row.entry if planned else current_rate
         # Časť 2: čím si je model istejší, tým väčšia pozícia. Mantinely sú zo zadania
         # behu, takže model nemôže poslať veľkosť ani do neba, ani na nulu.
         ts = self._tag_ts(entry_tag) or 0

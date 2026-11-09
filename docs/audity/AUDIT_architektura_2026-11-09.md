@@ -207,6 +207,14 @@ dá 0,9999… → 0, obchod vypadne; `_STAKE_EPS` to nekryje. *Oprava:* `rate = 
 else row.entry` a integračný test Freqtrade vs. emulátor s gapom. Kým to nie je, merania market
 stratégií na futures cez Freqtrade majú menej obchodov než emulátor a platforma.
 
+> **Stav 10. 11. 2026: opravené.** Market vstup počíta stake z `current_rate` (cena po `custom_entry_price`),
+> limitka ďalej z ceny plánu. Test `test_market_vstup_po_gape_drzi_pocet_kontraktov`
+> (`tradebot/tests/test_freqtrade_entries.py`) prechádza a bez opravy pri gape nahor padá; golden testy proti
+> TradingView prešli. Je to test na vzorci, ktorým Freqtrade množstvo dopočíta, nie celý backtest Freqtrade
+> vs. emulátor. **Behy market stratégií cez Freqtrade spred opravy majú o obchod či kontrakt menej** tam, kde
+> je krok kontraktu hrubý (futures a CFD na burze Tester); merania z nich treba prepočítať. Na krypte s krokom
+> 0,001 je rozdiel najviac jeden krok.
+
 **M-CORE-2 (P2) ✔ `tester/robust.py`: prekryv okien sa počíta dvakrát.** Komentár na `:128` tvrdí,
 že prekrytie sa započíta raz, `_daily` (`:80–85`) ale sčíta. Okná `20231001-20241001` a
 `20240904-20250904` sa prekrývajú 4.–30. 9. 2024, takže tie obchody sú v `all_base` dvakrát a skresľujú
