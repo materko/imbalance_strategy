@@ -222,6 +222,7 @@ def emulate(
     spec=None,
     fee: float = 0.0,
     entry_delay: int = 0,
+    observe: Callable[[Bar, Any], None] | None = None,
 ) -> tuple[EmulationResult, MCRunner]:
     """Prehrá stratégiu cez `MCRunner` s emulovaným brokerom MultiCharts.
 
@@ -230,6 +231,8 @@ def emulate(
     obchodu pre denný limit výhier (Pine `strategy.closedtrades.profit` je po poplatku).
     `entry_delay` (test robustnosti, smernica): vstupné ordery stratégie dostane broker o toľko barov
     neskôr — zadanie aj zrušenie, ako latencia; 0 = presne ako platforma.
+    `observe(bar, výstup)` sa zavolá po `on_bar` na každom bare okna (nie predhistórie) — len na čítanie,
+    beh nemení (test utnutia dát `tester.lookahead`).
     """
     out_log = log or (lambda _s: None)
     chart = bars_from_frame(m1, chart_tf, from_ms, to_ms)
@@ -351,6 +354,8 @@ def emulate(
                             filled_order_id=filled_id)
         reported = len(trades)
         registry.extend(out.drawings)
+        if observe is not None:
+            observe(bar, out)
 
         if out.close_session and open_trade is not None:
             open_trade.exit, open_trade.close_ms, open_trade.reason = bar.close, bar.time, "session_end"

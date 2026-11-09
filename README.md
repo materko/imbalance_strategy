@@ -134,7 +134,8 @@ Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCH
 | čísla z meraní | [docs/merania/](docs/merania/README.md) |
 | prieskum trhov a stratégií (zlato, S&P 500, videá) | [docs/prieskum/](docs/prieskum/README.md) |
 
-Audity: [architektúra 2026-10-25](docs/audity/AUDIT_architektura_2026-10-25.md),
+Audity: [lookahead 2026-11-09](docs/audity/AUDIT_lookahead_2026-11-09.md),
+[architektúra 2026-10-25](docs/audity/AUDIT_architektura_2026-10-25.md),
 [smerovanie NT → MT5 2026-10-26](docs/audity/AUDIT_routing_2026-10-26.md),
 [main 2026-09-17](docs/audity/AUDIT_main_2026-09-17.md), [Pine 2026-09-05](docs/audity/AUDIT_pine_2026-09-05.md).
 
@@ -155,7 +156,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-08)
+## Kde sme (2026-11-09)
 
 - **Výber stratégií** ide cez [smernicu testovania](docs/SMERNICA_TESTOVANIA.md) — séria
   skúšok, ktoré môžu stratégiu „zabiť" (päť okien, náhoda, Monte Carlo, náklady, …).
@@ -181,6 +182,8 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   IVB, Sigma, London IFVG, NQ Precision a Flash ORB (aspoň na jednom trhu), T-Mean Reversion nie.
 - **Audit stratégií** [2026-11-07](docs/audity/AUDIT_strategie_2026-11-07.md): triedy A / B / C podľa krokov smernice
   4–9 a najlepší trh; stránka výsledkov má nový vzhľad a kartu Audit.
+- **Lookahead** [2026-11-09](docs/audity/AUDIT_lookahead_2026-11-09.md): všetky stratégie v registry prešli testom
+  utnutia dát (smernica 1b/1c, `python -m tester.lookahead`) bez rozdielu; feedre a vlastné dáta prejdené v kóde.
 - **C# jadro pre AS stratégie** (7. 11.): Sigma Breakout (`sigmanet`, `sigmamgcnet`), Volt Break (`voltbreaknet`) a Williams %R
   (`wprnet`) — parita bar po bare s Pythonom, profily PRESIEL_SMERNICAMI, šablóny NT8 / MT5; webapp radí stratégie podľa
   hodnotenia auditu (AS → A → BS → B → C) a ukazuje značky A / B / C, Sortino S a „treba prepísať do jadra“.

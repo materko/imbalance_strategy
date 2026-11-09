@@ -51,6 +51,11 @@ odkiaľ začala počítať. Robí sa s predvoleným profilom na 1 roku (napr. `2
 - Ak stratégia berie niečo z vyššieho TF (15m, 1h, deň), utni dáta uprostred jeho sviečky.
 - Rozhodnutie musí byť rovnaké ako pri celých dátach. Vyšší TF sa smie použiť **až po zatvorení** svojej sviečky.
 
+**1b + 1c naraz, automaticky:** `python -m tester.lookahead --strategy <kľúč> [--profile <profil>]` utne dáta na baroch
+s novým vstupom aj na náhodných baroch (väčšinou uprostred vyššieho TF) a porovná, čo engine povedal brokerovi, bar po
+bare. Bez `--strategy` prejde všetky stratégie. Vlastné súbory stratégie (Mag7 symboly, kalendár správ) sa neutínajú —
+tie treba prečítať v kóde ([audit 2026-11-09](audity/AUDIT_lookahead_2026-11-09.md)).
+
 **1d. Závislosť od predošlých obchodov**
 - Ak stratégia riadi podľa výsledku obchodu (straty po sebe, pauza, denný limit výhier, max. obchodov), výsledok
   sa musí určiť zo sviečky zavretia: zasiahnutý SL = strata, aj keď sviečka zasiahla aj TP.
