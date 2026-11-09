@@ -1,0 +1,22 @@
+{
+ "useTimeExit": false,
+ "slPct": 20.0,
+ "rr": 3.0,
+ "avgLen": 10,
+ "minEntryHHMM": 845,
+ "exitHHMM": 1430,
+ "adxLen": 7,
+ "adxMin": 20.0,
+ "atrLen": 20,
+ "trendFilter": "with",
+ "confirmBars": 3,
+ "entryConfirm": "imbalance",
+ "entryOrderType": "market",
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
+ "_strategy": "onbiasorb",
+ "_instrument": "mnq_databento",
+ "_timeframe": "5m",
+ "_title": "ON BIAS 2 · RR 3 · PF 1,47 · WR 33 % · 80 obch/rok · MNQ 5m · max DD 1 977 $ · posl. rok PF 1,32"
+}

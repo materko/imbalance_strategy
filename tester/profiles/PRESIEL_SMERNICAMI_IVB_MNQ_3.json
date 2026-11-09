@@ -21,6 +21,7 @@
  "entryOrderType": "market",
  "entryConfirm": "any",
  "confirmBars": 5,
+ "skipOverRisk": false,
  "_strategy": "ivb",
  "_instrument": "mnq_databento",
  "_timeframe": "5m",

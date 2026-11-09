@@ -1,0 +1,11 @@
+$ emulator MultiCharts NAS100 15m 20211001-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: SMA 150 denných zavretí (5m) @5m 46080/46080, filter volatility ATR 14 / 100 barov @15m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 112333 barov 15m, 1682665 1m, 0 HTF
+  20000/112333 barov, 38 obchodov
+  40000/112333 barov, 103 obchodov
+  60000/112333 barov, 209 obchodov
+  80000/112333 barov, 296 obchodov
+  100000/112333 barov, 389 obchodov
+hotovo: 442 obchodov, nerozhodnutelnych minut 0
+kresby: {'np_sma': 1272, 'tp_box': 446, 'sl_box': 446, 'np_entry': 446}

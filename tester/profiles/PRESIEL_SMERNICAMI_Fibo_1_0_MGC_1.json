@@ -49,8 +49,11 @@
  "legacyPineSizing": false,
  "minSlDistance": 0.0,
  "leverage": 1.0,
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
  "_strategy": "fibomgc",
  "_instrument": "mgc_databento",
  "_timeframe": "3m",
- "_title": "Fibo 1.0 (MGC) 1 · RR 0,75 · PF 1,36 · WR 64 % · 170 obch/rok · MGC 3m · max DD 917 $ · posl. rok PF 0,98"
+ "_title": "Fibo 1.0 (MGC) 1 · RR 0,75 · PF 1,42 · WR 64 % · 170 obch/rok · MGC 3m · max DD 3 619 $ · posl. rok PF 1,55"
 }

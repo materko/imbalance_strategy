@@ -14,6 +14,7 @@
  "entryOrderType": "limit",
  "limitOffsetPct": 75,
  "confirmBars": 2,
+ "skipOverRisk": false,
  "_strategy": "wpr",
  "_instrument": "mnq_databento",
  "_timeframe": "1m",

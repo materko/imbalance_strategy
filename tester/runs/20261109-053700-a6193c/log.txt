@@ -1,0 +1,7 @@
+$ emulator MultiCharts MNQ 15m 20231001-20241001 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: SMA 150 denných zavretí (5m) @5m 46080/46080, filter volatility ATR 14 / 100 barov @15m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 23602 barov 15m, 354030 1m, 0 HTF
+  20000/23602 barov, 97 obchodov
+hotovo: 107 obchodov, nerozhodnutelnych minut 0
+kresby: {'np_sma': 263, 'tp_box': 107, 'sl_box': 107, 'np_entry': 107}

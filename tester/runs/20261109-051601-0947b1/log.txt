@@ -1,0 +1,23 @@
+$ emulator MultiCharts MNQ 5m 20211001-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 15m @15m 500/500
+predhistoria grafu: 6336 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 348861 barov 5m, 1744299 1m, 0 HTF
+  20000/348861 barov, 46 obchodov
+  40000/348861 barov, 88 obchodov
+  60000/348861 barov, 130 obchodov
+  80000/348861 barov, 179 obchodov
+  100000/348861 barov, 221 obchodov
+  120000/348861 barov, 269 obchodov
+  140000/348861 barov, 314 obchodov
+  160000/348861 barov, 359 obchodov
+  180000/348861 barov, 394 obchodov
+  200000/348861 barov, 441 obchodov
+  220000/348861 barov, 487 obchodov
+  240000/348861 barov, 523 obchodov
+  260000/348861 barov, 555 obchodov
+  280000/348861 barov, 606 obchodov
+  300000/348861 barov, 648 obchodov
+  320000/348861 barov, 697 obchodov
+  340000/348861 barov, 753 obchodov
+hotovo: 769 obchodov, nerozhodnutelnych minut 0
+kresby: {'noa_vwap': 97971, 'noa_level': 63180, 'sl_box': 3204, 'noa_entry': 3204, 'noa_stop': 8210}

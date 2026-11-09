@@ -24,6 +24,7 @@
  "useDayFilter": true,
  "tradeMon": true,
  "tradeFri": true,
+ "skipOverRisk": false,
  "_strategy": "lliqes",
  "_instrument": "es_databento",
  "_timeframe": "1m",

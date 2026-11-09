@@ -24,6 +24,7 @@
  "volFilter": "off",
  "trendFilter": "off",
  "trendEmaLen": 50,
+ "skipOverRisk": false,
  "_strategy": "lliqmgc",
  "_instrument": "mgc_databento",
  "_timeframe": "1m",

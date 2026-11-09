@@ -168,8 +168,11 @@
  "trendTF": 0,
  "volFilter": "high",
  "volLookback": 500,
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
  "_strategy": "ibsentryes",
  "_instrument": "es_databento",
  "_timeframe": "3m",
- "_title": "IBS EZ ES 1 · RR 0,5 · PF 1,36 · WR 74 % · 174 obch/rok · ES 3m · max DD 7 169 $ · posl. rok PF 1,50"
+ "_title": "IBS EZ ES 1 · RR 0,5 · PF 1,38 · WR 74 % · 174 obch/rok · ES 3m · max DD 6 844 $ · posl. rok PF 1,47"
 }

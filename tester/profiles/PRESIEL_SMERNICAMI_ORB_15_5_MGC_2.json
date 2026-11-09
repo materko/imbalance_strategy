@@ -21,6 +21,7 @@
  "targetMode": 0,
  "entryConfirm": "any",
  "confirmBars": 2,
+ "skipOverRisk": false,
  "_strategy": "orb15mgc",
  "_instrument": "mgc_databento",
  "_timeframe": "5m",

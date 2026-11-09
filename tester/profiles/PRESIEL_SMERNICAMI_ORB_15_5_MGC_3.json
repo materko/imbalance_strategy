@@ -20,6 +20,7 @@
  "orStart": 930,
  "targetMode": 0,
  "confirmBars": 5,
+ "skipOverRisk": false,
  "_strategy": "orb15mgc",
  "_instrument": "mgc_databento",
  "_timeframe": "5m",

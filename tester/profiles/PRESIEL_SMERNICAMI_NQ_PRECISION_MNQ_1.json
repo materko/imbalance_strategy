@@ -24,6 +24,7 @@
  "limitOffsetPct": 25,
  "entryConfirm": "none",
  "entryOrderType": "limit",
+ "skipOverRisk": false,
  "_strategy": "nqprec",
  "_instrument": "mnq_databento",
  "_timeframe": "2m",

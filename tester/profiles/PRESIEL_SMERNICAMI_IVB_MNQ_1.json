@@ -19,6 +19,7 @@
  "trendEmaLen": 200,
  "trendTF": 60,
  "confirmBars": 5,
+ "skipOverRisk": false,
  "_strategy": "ivb",
  "_instrument": "mnq_databento",
  "_timeframe": "5m",

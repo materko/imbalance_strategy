@@ -21,6 +21,7 @@
  "orStart": 1000,
  "targetMode": 0,
  "entryConfirm": "any",
+ "skipOverRisk": false,
  "_strategy": "orb15",
  "_instrument": "mnq_databento",
  "_timeframe": "15m",

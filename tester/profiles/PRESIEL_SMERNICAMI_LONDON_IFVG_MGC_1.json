@@ -18,6 +18,7 @@
  "useDayFilter": false,
  "tradeMon": false,
  "tradeFri": false,
+ "skipOverRisk": false,
  "_strategy": "lliqmgc",
  "_instrument": "mgc_databento",
  "_timeframe": "3m",

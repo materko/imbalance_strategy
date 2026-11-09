@@ -12,6 +12,7 @@
  "limitOffsetPct": 50,
  "entryConfirm": "none",
  "confirmBars": 3,
+ "skipOverRisk": false,
  "_strategy": "sigmamgc",
  "_instrument": "mgc_databento",
  "_timeframe": "30m",

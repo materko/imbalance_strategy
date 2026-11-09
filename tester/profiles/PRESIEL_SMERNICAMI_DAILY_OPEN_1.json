@@ -35,6 +35,7 @@
  "showLevels": true,
  "leverage": 1.0,
  "useExit": false,
+ "skipOverRisk": false,
  "_strategy": "dailyopen",
  "_instrument": "mnq_databento",
  "_timeframe": "5m",

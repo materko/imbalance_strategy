@@ -21,6 +21,7 @@
  "confirmBars": 3,
  "entryConfirm": "imbalance",
  "entryOrderType": "market",
+ "skipOverRisk": false,
  "_strategy": "ivbes",
  "_instrument": "es_databento",
  "_timeframe": "15m",

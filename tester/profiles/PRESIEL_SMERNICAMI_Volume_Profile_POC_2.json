@@ -57,8 +57,11 @@
  "legacyPineSizing": false,
  "minSlDistance": 0.0,
  "leverage": 1.0,
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
  "_strategy": "svp",
  "_instrument": "mnq_databento",
  "_timeframe": "15m",
- "_title": "SVP POC 2 · RR 1,25 · PF 1,29 · WR 52 % · 152 obch/rok · MNQ 15m · max DD 1 123 $ · posl. rok PF 1,22"
+ "_title": "SVP POC 2 · RR 1,25 · PF 1,38 · WR 52 % · 152 obch/rok · MNQ 15m · max DD 1 416 $ · posl. rok PF 1,57"
 }

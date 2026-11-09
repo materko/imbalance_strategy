@@ -18,6 +18,7 @@
  "ibRangeLookback": 10,
  "sessionEnd": 1000,
  "entryWindowEnd": 1600,
+ "skipOverRisk": false,
  "_strategy": "ivbmgc",
  "_instrument": "mgc_databento",
  "_timeframe": "5m",

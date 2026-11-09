@@ -14,6 +14,7 @@
  "confirmBars": 2,
  "useCloseAtEnd": true,
  "slPct": 0.5,
+ "skipOverRisk": false,
  "_strategy": "sigmamgc",
  "_instrument": "mgc_databento",
  "_timeframe": "30m",

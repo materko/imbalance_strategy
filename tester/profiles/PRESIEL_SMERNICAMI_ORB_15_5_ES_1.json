@@ -21,6 +21,7 @@
  "entryOrderType": "market",
  "limitOffsetPct": 75,
  "confirmBars": 5,
+ "skipOverRisk": false,
  "_strategy": "orb15es",
  "_instrument": "es_databento",
  "_timeframe": "5m",

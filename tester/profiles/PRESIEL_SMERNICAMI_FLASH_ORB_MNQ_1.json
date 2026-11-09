@@ -18,6 +18,7 @@
  "entryConfirm": "none",
  "trendFilter": "off",
  "trendEmaLen": 100,
+ "skipOverRisk": false,
  "_strategy": "flashorb",
  "_instrument": "mnq_databento",
  "_timeframe": "1h",

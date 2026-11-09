@@ -144,8 +144,11 @@
  "fvgUse60m": false,
  "enableFvgTrading": true,
  "enableIfvgTrading": true,
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
  "_strategy": "ibsentry",
  "_instrument": "mnq_databento",
  "_timeframe": "3m",
- "_title": "IBS EZ 2 · RR 0,5 · PF 1,46 · WR 75 % · 161 obch/rok · MNQ 3m · max DD 9 536 $ · posl. rok PF 1,79"
+ "_title": "IBS EZ 2 · RR 0,5 · PF 1,44 · WR 75 % · 161 obch/rok · MNQ 3m · max DD 1 144 $ · posl. rok PF 1,78"
 }

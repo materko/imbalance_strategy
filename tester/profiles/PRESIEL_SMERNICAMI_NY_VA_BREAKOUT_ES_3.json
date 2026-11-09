@@ -18,8 +18,11 @@
  "maxSlAtr": 3.0,
  "slCapMode": "cap",
  "vaMaxPoints": 0.0,
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
  "_strategy": "nyvaes",
  "_instrument": "es_databento",
  "_timeframe": "3m",
- "_title": "NY VA ES 3 · RR 0,5 · PF 1,19 · WR 71 % · 153 obch/rok · ES 3m · max DD 3 333 $ · posl. rok PF 1,33"
+ "_title": "NY VA ES 3 · RR 0,5 · PF 1,36 · WR 72 % · 153 obch/rok · ES 3m · max DD 7 531 $ · posl. rok PF 1,30"
 }

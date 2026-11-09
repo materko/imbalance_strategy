@@ -1,0 +1,11 @@
+$ emulator MultiCharts MNQ 3m 20231001-20241001 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 100 na 3m @3m 250/250
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 118010 barov 3m, 354030 1m, 0 HTF
+  20000/118010 barov, 27 obchodov
+  40000/118010 barov, 53 obchodov
+  60000/118010 barov, 75 obchodov
+  80000/118010 barov, 105 obchodov
+  100000/118010 barov, 149 obchodov
+hotovo: 181 obchodov, nerozhodnutelnych minut 0
+kresby: {'va_range': 312, 'va_vwap': 7369, 'va_entry': 185, 'tp_box': 185, 'sl_box': 185}

@@ -1,0 +1,23 @@
+{
+ "trendFilter": "with",
+ "trendEmaLen": 50,
+ "engulfMode": "body",
+ "prevCandle": "same",
+ "tradeDirection": "Long only",
+ "trendTF": 0,
+ "volFilter": "off",
+ "rrRatio": 1.0,
+ "atrMult": 2.0,
+ "slBufferAtr": 0.0,
+ "entryOrderType": "market",
+ "entryConfirm": "any",
+ "limitOffsetPct": 50,
+ "confirmBars": 2,
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
+ "_strategy": "sweepengulf",
+ "_instrument": "mnq_databento",
+ "_timeframe": "30m",
+ "_title": "SW ENGULF 2 · RR 1 · PF 1,69 · WR 57 % · 85 obch/rok · MNQ 30m · max DD 1 473 $ · posl. rok PF 1,30"
+}
