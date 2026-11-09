@@ -98,6 +98,10 @@ CREATE TABLE IF NOT EXISTS audit (
     old        TEXT,
     new        TEXT
 );
+CREATE TABLE IF NOT EXISTS meta (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS applied (
     deployment  TEXT PRIMARY KEY,
     agent       TEXT NOT NULL DEFAULT '',
@@ -279,6 +283,16 @@ class DeployStore:
             self._migrate()
 
     def _migrate(self) -> None:
+        # Identita skladu a revízia požadovaného stavu (audit M-HUB-2): agent podľa nich spozná prázdnu alebo
+        # staršiu databázu (stratený volume, obnovená záloha) a nezloží kvôli nej grafy zo strojov. Revíziu
+        # dvíhajú triggery pri každej zmene účtov a nasadení — nikdy neklesne, kým žije ten istý súbor.
+        self._db.execute("INSERT OR IGNORE INTO meta (key, value) VALUES ('store_id', ?)", (uuid.uuid4().hex,))
+        self._db.execute("INSERT OR IGNORE INTO meta (key, value) VALUES ('rev', '0')")
+        for table in ("accounts", "deployments"):
+            for op in ("INSERT", "UPDATE", "DELETE"):
+                self._db.execute(
+                    f"CREATE TRIGGER IF NOT EXISTS rev_{table}_{op.lower()} AFTER {op} ON {table} BEGIN "
+                    "UPDATE meta SET value = CAST(value AS INTEGER) + 1 WHERE key = 'rev'; END")
         pridane = set()
         for table, col, ddl in _MIGRATIONS:
             mena = {r["name"] for r in self._db.execute(f"PRAGMA table_info({table})")}
@@ -318,6 +332,39 @@ class DeployStore:
     def close(self) -> None:
         with self._lock:
             self._db.close()
+
+    # -- identita skladu ------------------------------------------------------- #
+
+    def _identity(self) -> dict[str, Any]:
+        meta = {r["key"]: r["value"] for r in self._db.execute("SELECT key, value FROM meta")}
+        out: dict[str, Any] = {"id": meta.get("store_id", ""), "rev": int(meta.get("rev") or 0)}
+        if meta.get("supersedes"):
+            out["supersedes"] = meta["supersedes"]
+        return out
+
+    def identity(self) -> dict[str, Any]:
+        """`{"id", "rev"[, "supersedes"]}` — ide agentom v `desired_for_agent` ako `store`."""
+        with self._lock:
+            return self._identity()
+
+    def adopt(self, previous_id: str, by: str) -> dict[str, Any]:
+        """Správca potvrdzuje, že tento sklad nahrádza sklad `previous_id` (nová databáza po strate starej):
+        agenti, ktorí si pamätajú starý, začnú tento brať za platný — a zosúladia stroje s ním."""
+        previous_id = str(previous_id or "").strip()
+        if not previous_id:
+            raise DeployError("chýba id pôvodného skladu")
+        with self._lock, self._db:
+            self._db.execute("INSERT INTO meta (key, value) VALUES ('supersedes', ?) "
+                             "ON CONFLICT(key) DO UPDATE SET value = excluded.value", (previous_id,))
+            self._audit(by, "store_adopt", new={"supersedes": previous_id})
+            return self._identity()
+
+    def raise_rev(self, rev: int, by: str) -> dict[str, Any]:
+        """Správca potvrdzuje stav z obnovenej zálohy: revízia sa zdvihne aspoň na `rev` (tú, čo si pamätajú agenti)."""
+        with self._lock, self._db:
+            self._db.execute("UPDATE meta SET value = MAX(CAST(value AS INTEGER), ?) WHERE key = 'rev'", (int(rev),))
+            self._audit(by, "store_raise_rev", new={"rev": int(rev)})
+            return self._identity()
 
     # -- pomocné --------------------------------------------------------------- #
 
@@ -839,7 +886,8 @@ class DeployStore:
                                 "ON CONFLICT(account, agent) DO UPDATE SET sent_rev = excluded.sent_rev",
                                 (acc_id, agent, r["secret_rev"]))
                 accs.append(a)
-        return {"accounts": accs, "deployments": deps}
+            store = self._identity()
+        return {"accounts": accs, "deployments": deps, "store": store}
 
     def _executors(self, agent: str, deps: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Route nasadení NinjaTradera tohto stroja: doplní im `route.to` (id exekútora z prihlásenia MT5 účtu)

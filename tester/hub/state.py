@@ -338,6 +338,14 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             # odosielanie spoolu (čakajúce bajty, dávka, chyba) — backlog po reštarte platforiem
             "ship": dict(zive["ship"]) if isinstance(zive.get("ship"), dict) else None,
         }
+        # stroj požadovaný stav neberie (iný sklad / staršia revízia, audit M-HUB-2) — raz do logu udalostí
+        refused = zive.get("store_refused") if isinstance(zive.get("store_refused"), dict) else None
+        if refused:
+            agent["live"]["store_refused"] = dict(refused)
+        if (refused or {}).get("error") != agent.get("store_refused_logged"):
+            agent["store_refused_logged"] = (refused or {}).get("error")
+            if refused:
+                self.log("live_store_refused", agent=name, error=str(refused.get("error"))[:500])
         if self.deploy is not None:
             ex = zive.get("exec_symbols")
             self.deploy.report_applied(name, zive.get("applied") or [], zive.get("secret_ack") or [],

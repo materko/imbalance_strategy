@@ -2878,7 +2878,7 @@ def test_live_deploy_heartbeat_nesie_pozadovany_stav_a_prijme_applied(tmp_path: 
     assert [a["id"] for a in hb["live"]["accounts"]] == ["ic"] and hb["live"]["accounts"][0]["secret"] == "tajne"
     assert [x["id"] for x in hb["live"]["deployments"]] == [d["id"]] and hb["live"]["deployments"][0]["config"] == {"rrRatio": 3.0, "p": "p1"}
     hb2 = c.post("/api/agents/iny-pc/heartbeat", json={"jobs": []}, headers=H(t_iny)).json()
-    assert hb2["live"] == {"accounts": [], "deployments": []}     # účet bez nasadenia na stroji nedostane
+    assert {k: v for k, v in hb2["live"].items() if k != "store"} == {"accounts": [], "deployments": []}     # účet bez nasadenia na stroji nedostane
     assert state.live_state("trade-pc") is None
 
     # nový agent: applied + secret_ack + instances + drivers

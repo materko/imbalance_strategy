@@ -283,7 +283,7 @@ def test_heslo_dostane_kazdy_stroj_s_nasadenim_raz_za_verziu(store: DeployStore)
     assert want["accounts"][0]["rev"] == store.account(a["id"])["rev"] and "agent" not in want["accounts"][0]
     assert [x["id"] for x in want["deployments"]] == [d["id"]] and want["deployments"][0]["config"] == d["config"]
     # účet bez nasadenia na stroji stroj nedostane
-    assert store.desired_for_agent("iny-pc") == {"accounts": [], "deployments": []}
+    assert store.desired_for_agent("iny-pc") == {"accounts": [], "deployments": [], "store": store.identity()}
     assert [x["id"] for x in store.desired_for_agent("trade-pc")["accounts"]] == [a["id"]]   # nie `b`
 
     # cudzí agent heslo nepotvrdí (a cudzie applied sa ignoruje)
@@ -564,3 +564,39 @@ def test_nasadenie_prepocita_prahy_v_tickoch_na_body_nastroja_ladenia():
     assert out["pbMinRangePoints"] == 4.0 and out["minImbSizePoints"] == {"value": 0.3, "unit": "atr"}
     assert out["_instrument"] == "mnq_databento"
     assert ticks_to_points("ibsentrynet", cfg, None) is cfg      # bez nástroja ladenia bez zmeny
+
+
+# --------------------------------------------------------------------------- #
+# identita skladu (audit M-HUB-2)
+# --------------------------------------------------------------------------- #
+
+
+def test_sklad_ma_stalu_identitu_a_reviziu_ktora_len_rastie(tmp_path: Path, store: DeployStore):
+    """Agent podľa `store` v požadovanom stave spozná prázdnu alebo staršiu databázu hubu."""
+    prva = store.identity()
+    assert prva["id"] and "supersedes" not in prva
+    a = _acc(store)
+    po_ucte = store.identity()
+    assert po_ucte["id"] == prva["id"] and po_ucte["rev"] > prva["rev"]
+    d = store.create_deployment({"account": a["id"], "agent": "pc", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3,
+                                 "profile": "p1"}, by="rasto")
+    po_nasadeni = store.identity()
+    assert po_nasadeni["rev"] > po_ucte["rev"]
+    assert store.desired_for_agent("pc")["store"] == po_nasadeni
+    store.update_deployment(d["id"], {"mode": "flatten" if d["mode"] != "flatten" else "paused"}, by="rasto")
+    assert store.identity()["rev"] > po_nasadeni["rev"]
+
+    # ten istý súbor po reštarte hubu: identita ostáva, revízia neklesne
+    posledna = store.identity()
+    store.close()
+    znova = DeployStore(store.path, clock=Clock(), config_resolver=_resolver, vault=Vault(key=b"k" * 32))
+    assert znova.identity()["id"] == posledna["id"] and znova.identity()["rev"] >= posledna["rev"]
+
+    # nová databáza (stratený volume) je iný sklad; správca ju vie vyhlásiť za nástupcu a zdvihnúť revíziu
+    novy = DeployStore(tmp_path / "novy.sqlite", clock=Clock(), config_resolver=_resolver, vault=Vault(key=b"k" * 32))
+    assert novy.identity()["id"] != posledna["id"] and novy.identity()["rev"] == 0
+    assert novy.adopt(posledna["id"], "rasto")["supersedes"] == posledna["id"]
+    assert novy.raise_rev(500, "rasto")["rev"] == 500
+    assert novy.raise_rev(3, "rasto")["rev"] == 500          # nikdy nadol
+    with pytest.raises(DeployError):
+        novy.adopt("", "rasto")

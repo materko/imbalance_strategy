@@ -116,6 +116,31 @@ def cmd_ship(args: argparse.Namespace) -> int:
         time.sleep(SHIP_INTERVAL)
 
 
+def cmd_store(args: argparse.Namespace) -> int:
+    """Identita skladu nasadení hubu (na stroji hubu). Agent odmietne stav z iného skladu alebo zo staršej
+    revízie, než pozná; `--adopt` a `--raise-rev` sú výslovné potvrdenie správcu, že stav hubu platí."""
+    from tradebot.core.paths import HUB_LIVE_DB
+
+    from .deploy import DeployStore
+
+    path = Path(args.db) if args.db else HUB_LIVE_DB
+    if not path.is_file():
+        raise SystemExit(f"databáza hubu {path} neexistuje (zadaj --db)")
+    store = DeployStore(path)
+    try:
+        if args.adopt:
+            ident = store.adopt(args.adopt, "cli")
+        elif args.raise_rev is not None:
+            ident = store.raise_rev(args.raise_rev, "cli")
+        else:
+            ident = store.identity()
+    finally:
+        store.close()
+    print(f"sklad {ident['id']}, revízia {ident['rev']}"
+          + (f", nahrádza {ident['supersedes']}" if ident.get("supersedes") else ""))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m tradebot.live", description="live telemetria zo spoolu platforiem")
     ap.add_argument("--cursor", default=str(LIVE_CURSOR), help="súbor kurzora (predvolene tester/live/cursor.json)")
@@ -128,6 +153,12 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("ship", help="posielať spool na hub podľa tester/agent.json")
     s.add_argument("--once", action="store_true", help="jedno kolo a koniec")
     s.set_defaults(fn=cmd_ship)
+    d = sub.add_parser("store", help="identita skladu nasadení hubu; potvrdenie novej databázy alebo obnovenej zálohy")
+    d.add_argument("--db", help="live.sqlite hubu (predvolene tester/hub_data/live.sqlite)")
+    g = d.add_mutually_exclusive_group()
+    g.add_argument("--adopt", metavar="ID", help="tento sklad nahrádza sklad ID (agenti ho začnú brať)")
+    g.add_argument("--raise-rev", type=int, metavar="N", help="zdvihnúť revíziu aspoň na N (stav z obnovenej zálohy platí)")
+    d.set_defaults(fn=cmd_store)
     args = ap.parse_args(argv)
     return args.fn(args)
 

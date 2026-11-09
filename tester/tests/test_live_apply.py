@@ -632,3 +632,65 @@ def test_exekutor_ostava_kym_podrzane_nt_nasadenie_nan_smeruje(tmp_path: Path):
     rec.run(desired(accounts=(sim, ACC)))
     assert kinds(mt5.calls, "remove_instance") == [("remove_instance", "ftmo", "exec-ftmo")]
     assert kinds(nt.calls, "remove_instance")[-1] == ("remove_instance", "sim", "n1") and rec.state["held"] == {}
+
+
+def test_stav_z_ineho_alebo_starsieho_skladu_hubu_sa_neaplikuje(tmp_path: Path):
+    """Audit M-HUB-2: hub s prázdnou databázou (stratený volume) alebo s obnovenou zálohou poslal prázdny či
+    starý zoznam a kolo zložilo grafy zo stroja. Stroj berie stav len zo skladu, ktorý pozná, a nie zo
+    staršej revízie — kým to správca na hube výslovne nepotvrdí."""
+    drv = FakeDriver()
+    rec = Reconciler({"mt5": drv}, tmp_path / "s.json")
+    rec.run({**desired(dep("d1")), "store": {"id": "A", "rev": 7}})
+    assert rec.state["store"] == {"id": "A", "rev": 7}
+    drv.calls.clear()
+
+    # nová prázdna databáza: iný sklad, žiadne nasadenia — nič sa neodstráni a hub sa dozvie prečo
+    out = rec.run({**desired(), "store": {"id": "B", "rev": 0}})
+    assert drv.calls == [] and "d1" in rec.state["applied"]
+    assert "store --adopt A" in out["store_refused"]["error"] and out["store_refused"]["known"] == {"id": "A", "rev": 7}
+    assert rec.status()["last_error"] == out["store_refused"]["error"]
+
+    # obnovená záloha: ten istý sklad, nižšia revízia
+    out = rec.run({**desired(), "store": {"id": "A", "rev": 3}})
+    assert drv.calls == [] and "store --raise-rev 7" in out["store_refused"]["error"]
+
+    # odmietnutie prežije reštart agenta (známy sklad je v stave na disku)
+    rec2 = Reconciler({"mt5": drv}, tmp_path / "s.json")
+    rec2.run({**desired(), "store": {"id": "B", "rev": 0}})
+    assert drv.calls == [] and rec2.store_refused
+
+    # starý hub bez `store` a ten istý sklad s vyššou revíziou idú ako doteraz
+    rec2.run({**desired(dep("d1")), "store": {"id": "A", "rev": 8}})
+    assert rec2.store_refused is None and "store_refused" not in rec2.fragment()
+    assert rec2.state["store"] == {"id": "A", "rev": 8}
+    rec2.run(desired(dep("d1")))
+    assert rec2.store_refused is None and rec2.state["store"] == {"id": "A", "rev": 8}
+
+    # správca novú databázu potvrdil (`supersedes`): berie sa — a až teraz sa zmazané nasadenie odstráni
+    drv.calls.clear()
+    rec2.run({**desired(), "store": {"id": "B", "rev": 1, "supersedes": "A"}})
+    assert kinds(drv.calls, "remove_instance") == [("remove_instance", "ftmo", "d1")]
+    assert rec2.state["store"] == {"id": "B", "rev": 1}
+
+
+def test_nezistitelna_pozicia_drzi_graf_chybajuci_spool_nie(tmp_path: Path):
+    """Audit M-HUB-3: chyba pri čítaní pozície graf zložila, hoci komentár sľuboval opak. Podrží sa; inštancia,
+    ktorá v spoole vôbec nie je (`None`, nikdy nebežala), sa odstráni ako doteraz."""
+    stav: dict[str, object] = {"chyba": True}
+
+    def pozicia(inst: str):
+        if stav["chyba"]:
+            raise OSError("spool sa nedá čítať")
+        return None
+
+    drv = FakeDriver()
+    rec = Reconciler({"mt5": drv}, tmp_path / "s.json", position=pozicia)
+    rec.run(desired(dep("d1")))
+    drv.calls.clear()
+    rec.run(desired(dep("d1", active=False)))
+    assert kinds(drv.calls, "remove_instance") == []
+    assert "nedá zistiť" in rec.state["applied"]["d1"]["held"] and "d1" in rec.state["held"]
+    stav["chyba"] = False
+    drv.calls.clear()
+    rec.run(desired(dep("d1", active=False)))
+    assert kinds(drv.calls, "remove_instance") == [("remove_instance", "ftmo", "d1")]

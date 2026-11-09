@@ -374,6 +374,25 @@ control → `write_control`, inštancie → `ensure_instance`/`remove_instance`;
 v ďalšom heartbeate. Nič nesmie vyhodiť výnimku von (chyba = `status: error` k danému deploymentu).
 Vypnuté nasadenie (`active: false`) odstránené z platformy hlási `status: removed` — webapp ho ukáže ako
 „odstránené“ a dá ho zmazať z hubu; podržané pre otvorenú pozíciu (`held`) ostáva `ok`, teda „odstraňuje sa“.
+Podrží sa aj nasadenie, ktorého pozícia sa **nedá zistiť** (chyba pri čítaní spoolu); inštancia, ktorá v spoole
+vôbec nie je (nikdy nebežala), sa odstráni hneď.
+
+**Z ktorého skladu stav je (`store`).** Požadovaný stav nesie `store: {id, rev}`: `id` vznikne s databázou hubu
+a `rev` zdvihne každá zmena účtov a nasadení (triggery, nikdy neklesne). Stroj si po každom kole zapamätá, čo
+aplikoval, a stav z **iného skladu** alebo zo **staršej revízie** neaplikuje vôbec — hub s prázdnou databázou
+(stratený volume) alebo s obnovenou zálohou by inak poslal prázdny či starý zoznam a reconciler by zložil grafy
+zo všetkých strojov, prípadne vrátil pozastavené nasadenie do starého režimu. Odmietnutie je v `last_error`
+agenta, v heartbeate (`live.store_refused`) a v logu udalostí hubu (`live_store_refused`); text povie presný
+príkaz. Správca to potvrdí **na stroji hubu**:
+
+```
+python -m tradebot.live store                    # id a revízia skladu
+python -m tradebot.live store --adopt <staré id> # nová databáza nahrádza starú — stroje sa zosúladia s ňou
+python -m tradebot.live store --raise-rev <N>    # stav z obnovenej zálohy platí
+```
+
+Pred potvrdením si over, že nasadenia v hube sú také, aké majú byť: po ňom stroje odstránia všetko, čo v ňom
+nie je (otvorené pozície sa podržia). Starý hub bez `store` a prvý sklad, ktorý stroj uvidí, sa berú bez otázok.
 
 **Inštancia nenabehla.** Driver súbory zapíše bez chyby, ale platforma inštanciu nespustí (NT: účet nie
 je Connected, pripojenie nie je v `ConnectOptions`, inštrument, profil, engine, `BarsRequest`) — to vie

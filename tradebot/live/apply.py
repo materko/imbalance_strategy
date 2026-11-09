@@ -86,6 +86,10 @@ def _spool_position(instance: str) -> float | None:
     return position_from_spool(default_roots(), instance)
 
 
+class StoreRefused(Exception):
+    """Požadovaný stav prišiel z iného alebo staršieho skladu hubu, než si stroj pamätá — neaplikuje sa."""
+
+
 class Reconciler:
     def __init__(self, drivers: dict[str, Driver], state_path: Path | None = None, *,
                  by: str = "hub", clock=time.time, position=None) -> None:
@@ -103,6 +107,8 @@ class Reconciler:
         #: Chyby, ktoré sa už logovali — tá istá chyba každých 10 s do logu nepatrí.
         self._logged: dict[str, str] = {}
         self._issues_checked: float | None = None
+        #: Prečo sa posledný požadovaný stav neaplikoval (`StoreRefused`), inak None.
+        self.store_refused: str | None = None
 
     # -- stav na disku ------------------------------------------------------- #
 
@@ -136,8 +142,11 @@ class Reconciler:
         na symbol, ktorý účet nemá)."""
         with self._lock:
             applied = [{k: v for k, v in e.items() if k not in _LOCAL_FIELDS} for e in self.state["applied"].values()]
-            return {"applied": applied, "secret_ack": list(self.state.get("secret_ack") or []),
-                    "exec_symbols": self.exec_symbols()}
+            out = {"applied": applied, "secret_ack": list(self.state.get("secret_ack") or []),
+                   "exec_symbols": self.exec_symbols()}
+            if self.store_refused:   # hub (a správca) musí vidieť, že stroj jeho stav neberie a prečo
+                out["store_refused"] = {"error": self.store_refused, "known": dict(self.state.get("store") or {})}
+            return out
 
     def exec_symbols(self) -> dict[str, list[str]]:
         """`{MT5 účet: [symbol, …]}` z `exec/<id>.hb.json` exekútorov z požadovaného stavu (`kind: executor`);
@@ -204,8 +213,14 @@ class Reconciler:
             return self.fragment()   # starý hub bez `live` — nič sa nemení
         try:
             with self._lock:
+                self._check_store(desired.get("store"))
+                self.store_refused = None
                 self._run(desired)
                 self.last_error = None
+        except StoreRefused as exc:
+            # nič sa nemení: stroje ostávajú, ako sú, kým správca nepovie, ktorý stav platí (audit M-HUB-2)
+            self.store_refused = self.last_error = str(exc)
+            self._warn_once("sklad hubu", self.store_refused)
         except Exception as exc:  # noqa: BLE001 - kolo nesmie zhodiť pomalé vlákno agenta
             self.last_error = _short(exc)
             log.exception("live apply: kolo zlyhalo: %s", self.last_error)
@@ -259,6 +274,31 @@ class Reconciler:
                 entry["error"] = error
                 changed = True
         return changed
+
+    def _check_store(self, store: Any) -> None:
+        """Požadovaný stav sa berie len zo skladu, ktorý stroj pozná, a nie zo staršej revízie. Hub s prázdnou
+        databázou (stratený volume) alebo s obnovenou zálohou by inak poslal prázdny či starý zoznam a kolo by
+        zložilo grafy zo stroja, prípadne vrátilo pozastavené nasadenie do starého režimu (audit M-HUB-2).
+        Prvý sklad, ktorý stroj uvidí, si zapamätá; starý hub bez `store` sa berie ako doteraz."""
+        if not isinstance(store, dict) or not store.get("id"):
+            return
+        known = self.state.get("store") or {}
+        if not known.get("id"):
+            return
+        sid, rev, known_rev = str(store["id"]), int(store.get("rev") or 0), int(known.get("rev") or 0)
+        if sid != known["id"]:
+            if store.get("supersedes") == known["id"]:
+                log.warning("live apply: sklad hubu %s nahrádza %s (potvrdené správcom) — beriem ho", sid, known["id"])
+                return
+            raise StoreRefused(
+                f"hub posiela nasadenia z iného skladu ({sid}), než tento stroj pozná ({known['id']}, revízia {known_rev}) — "
+                "nič sa nemení. Ak je nová databáza hubu správna, potvrď to na stroji hubu: "
+                f"python -m tradebot.live store --adopt {known['id']}")
+        if rev < known_rev:
+            raise StoreRefused(
+                f"hub posiela staršiu revíziu nasadení ({rev}), než tento stroj už aplikoval ({known_rev}) — obnovená "
+                "záloha? Nič sa nemení. Ak stav hubu platí, potvrď to na stroji hubu: "
+                f"python -m tradebot.live store --raise-rev {known_rev}")
 
     def _run(self, desired: dict[str, Any]) -> None:
         accounts = {a.id: a for a in (Account.from_dict(d) for d in desired.get("accounts") or [] if isinstance(d, dict)) if a.id}
@@ -397,6 +437,9 @@ class Reconciler:
                 self._logged.pop(f"inštancia {acc_id}", None)
 
         self.state["held"] = self._held
+        store = desired.get("store")
+        if isinstance(store, dict) and store.get("id"):
+            self.state["store"] = {"id": str(store["id"]), "rev": int(store.get("rev") or 0)}
         self.state["desired"] = {"accounts": [_scrub(a) for a in desired.get("accounts") or [] if isinstance(a, dict)],
                                  "deployments": [d for d in desired.get("deployments") or [] if isinstance(d, dict)]}
         self.state["applied"] = applied
@@ -423,16 +466,19 @@ class Reconciler:
             self._held[dep.id] = {**(dep.raw or dataclasses.asdict(dep)), "active": True}
             self._warn_once(f"podržané {dep.id}", entry["held"])
             return True
+        unknown = False
         try:
             pos = self.position(dep.instance)
-        except Exception:  # noqa: BLE001 - pozícia sa nedá zistiť: radšej podržať, než zavrieť graf naslepo
-            pos = None
-            log.warning("live apply: pozícia %s sa nedá zistiť", dep.instance, exc_info=True)
-        if not pos:
+        except Exception as exc:  # noqa: BLE001 - pozícia sa nedá zistiť: radšej podržať, než zavrieť graf naslepo
+            pos, unknown = None, True
+            self._warn_once(f"pozícia {dep.instance}", f"nedá sa zistiť ({_short(exc)}) — nasadenie {dep.id} sa drží")
+        # `None` bez chyby = inštancia v spoole nie je (nikdy nebežala) — tam pozícia byť nemôže
+        if not pos and not unknown:
             return False
         held = dataclasses.replace(dep, mode="flatten" if dep.mode == "flatten" else "paused", active=True)
         entry["control"] = str(drv.write_control(held))
-        entry["held"] = f"otvorená pozícia {pos:g} — graf ostáva v režime {held.mode}, odoberie sa po jej zatvorení"
+        entry["held"] = (f"pozícia sa nedá zistiť — graf ostáva v režime {held.mode}, kým sa to nepodarí" if unknown else
+                         f"otvorená pozícia {pos:g} — graf ostáva v režime {held.mode}, odoberie sa po jej zatvorení")
         active_ok.append(held)
         self._held[dep.id] = {**(dep.raw or dataclasses.asdict(dep)), "active": True}
         self._warn_once(f"podržané {dep.id}", entry["held"])

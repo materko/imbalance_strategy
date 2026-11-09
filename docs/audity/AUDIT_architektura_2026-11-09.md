@@ -280,6 +280,14 @@ cudzie id, nižšiu revíziu aj „zmizlo všetko naraz" bez výslovného potvrd
 hovorí „radšej podržať", ale výnimka aj `None` (inštancia nie je v spoole) padnú do `if not pos:
 return False`. *Oprava:* `None` = podržať, odstrániť len pri známej nule.
 
+> **Stav 10. 11. 2026: M-HUB-2 a M-HUB-3 sú opravené.** Požadovaný stav nesie `store: {id, rev}` (meta tabuľka
+> a triggery v `DeployStore`); reconciler stav z iného skladu alebo zo staršej revízie neaplikuje a hlási to hubu
+> (`live_store_refused`), správca ho potvrdí cez `python -m tradebot.live store --adopt / --raise-rev`
+> ([docs/LIVE.md](../LIVE.md)). M-HUB-3 bol užší, než hovorí nález: `None` z `position_from_spool` znamená
+> „inštancia v spoole nie je" a tam sa odstraňuje správne (inak by sa nikdy nebežiace nasadenie neodstránilo);
+> chybou bola len vetva s výnimkou, ktorá teraz nasadenie podrží. Pokryté testami v `test_live_apply.py` a
+> `test_live_deploy.py`. Zostáva: stroj so zmazaným spoolom bežiacej inštancie pozíciu nepozná.
+
 **M-HUB-4 (P2) Hub ticho zahadzuje udalosti, ktoré nevie validovať, a agent aj tak posunie kurzor.**
 `live/store.py:263–266` bez logu a počítadla; `live/shipper.py:94–99` potvrdí vždy. Hub starší než
 schéma platformy (nový druh udalosti) ich stratí natrvalo. *Oprava:* vracať `rejected` s dôvodmi,
