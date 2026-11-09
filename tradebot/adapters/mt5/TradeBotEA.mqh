@@ -111,7 +111,10 @@ struct Tracked
    int      slFails;          // kolko pokusov polozit chybajuci SL zlyhalo
    datetime noStopSince;      // od kedy pozicia nema SL (0 = ma)
    bool     cancelWanted;     // cakajuci vstup sa nepodarilo zrusit - OnTimer to skusa znova
+   datetime goneSince;        // od kedy pozicia / cakajuci vstup u brokera chyba bez dealu (0 = je tam) - ReconcileBroker
   };
+const int GoneGraceSec     = 10;  // pozicia / order u brokera chyba: tolko sekund sa caka na deal, potom sa zladi z historie
+const int ConnectSettleSec = 30;  // po pripojeni sa pozicie chvilu synchronizuju - dovtedy sa "chyba" neposudzuje
 const int NoStopGraceSec   = 2;   // pozicia bez SL: po tolkych sekundach sa polozi znova
 const int MaxExitAttempts  = 3;   // ...najviac tolkokrat, potom sa zavrie trhom
 const int MaxCloseAttempts = 3;   // po tolkych neuspesnych zatvoreniach trhom stoja SL/TP medzi pokusmi znova
@@ -119,7 +122,7 @@ const int MaxCloseAttempts = 3;   // po tolkych neuspesnych zatvoreniach trhom s
 void ResetGuard(Tracked &t)
   {
    t.closeTicket = 0; t.closing = false; t.closeFails = 0; t.closeRetryAt = 0; t.protect = false;
-   t.slFails = 0; t.noStopSince = 0; t.cancelWanted = false;
+   t.slFails = 0; t.noStopSince = 0; t.cancelWanted = false; t.goneSince = 0;
   }
 Tracked g_orders[];
 
@@ -151,6 +154,12 @@ int    g_staleLogged = 0;
 bool   g_stateOn   = false;
 string g_stateText = "";      // naposledy zapisany obsah - nezmeneny sa neprepisuje
 bool   g_stateWarned = false;
+//--- Zladenie s brokerom ma zmysel az po pripojeni: pred nim terminal pozicie "nema" a stav by sa zahodil ako
+//--- zavrety (audit M-LIVE-4; exekutor to robi rovnako). Kym caka, stav sa neprepisuje a vstupy sa neposielaju.
+bool     g_restorePending = false;
+datetime g_connectedSince = 0;   // od kedy je terminal pripojeny k brokerovi (cas PC; 0 = nie je)
+
+bool BrokerReady() { return TerminalInfoInteger(TERMINAL_CONNECTED) && AccountInfoInteger(ACCOUNT_LOGIN) != 0; }
 
 //+------------------------------------------------------------------+
 //| Pomocne                                                          |
@@ -388,7 +397,16 @@ int OnInit()
    SpoolControl(g_mode, g_profile, source);
    // obchody spred restartu (az po predhistorii - ta sa prehrava bez obchodov a s prazdnym zoznamom vstupov)
    g_stateOn = g_controlOn;
-   if(g_stateOn && InpRestoreState) RestoreState();
+   if(g_stateOn && InpRestoreState)
+     {
+      if(MQLInfoInteger(MQL_TESTER) || BrokerReady()) RestoreState();
+      else
+        {
+         // terminal sa este neprihlasil (start s EA na grafe): zladenie spravi OnTimer po pripojeni
+         g_restorePending = true;
+         Print("TradeBot: cakam na pripojenie k brokerovi - obchody spred restartu sa zladia potom, nove vstupy dovtedy stoja");
+        }
+     }
    // rezim flatten z control suboru plati aj na prevzate pozicie (pred prevzatim nebolo co zatvorit - audit N-LIVE-9)
    if(g_mode == "flatten" && ArraySize(g_orders) > 0) { Print("TradeBot control: flatten po prevzati obchodov"); Flatten("tb_flatten"); }
    SaveState();
@@ -561,6 +579,7 @@ void RememberProfile(string path, string config)
 /// Bez pozicie a bez cakajucich vstupov u brokera (odlozene vstupy u brokera nie su - novy engine ich nepozna).
 bool IsFlat()
   {
+   if(g_restorePending) return false;   // co je u brokera, sa este nevie
    for(int i = 0; i < ArraySize(g_orders); i++)
      {
       if(g_orders[i].filled && g_orders[i].openQty > 0) return false;
@@ -689,7 +708,16 @@ void OnTimer()
    CheckTradeAllowed();
    if(!MQLInfoInteger(MQL_TESTER)) RefreshGmtOffset();
    if(g_engine > 0) SpoolBrokerPosition();
-   if(g_engine > 0 && g_controlOn) { RetryGuards(); EodByClock(); FeedWatch(); }
+   if(g_engine > 0 && g_controlOn)
+     {
+      if(!BrokerReady()) g_connectedSince = 0;
+      else if(g_connectedSince == 0) g_connectedSince = TimeLocal();
+      if(g_restorePending && g_connectedSince > 0 && TimeLocal() - g_connectedSince >= 4) FinishRestore();
+      RetryGuards();
+      ReconcileBroker();
+      EodByClock();
+      FeedWatch();
+     }
    if(g_controlOn) CheckControl();
    else EventKillTimer();
   }
@@ -1059,6 +1087,9 @@ void Apply(CJson *intent, bool ready)
      {
       CJson *p = intent.Find("p");
       if(!ready || p == NULL) return;
+      // stav spred restartu este nie je zladeny s brokerom: novy vstup by mohol pyramidovat na poziciu, o ktorej
+      // EA zatial nevie (audit M-LIVE-4) - engine si ho odpise timeoutom ako pri !ready
+      if(g_restorePending) { if(InpLogEvents) Print("ENTRY ", id, " potlaceny - cakam na pripojenie k brokerovi"); return; }
       // paused / flatten (control subor): vstup sa brokerovi neposle, engine si ho odpise timeoutom ako pri !ready
       if(g_mode != "enabled")
         {
@@ -1394,6 +1425,124 @@ void RetryGuards()
      }
   }
 
+/// Odlozene zladenie stavu spred restartu (OnInit bez pripojenia) - to iste, co OnInit robi pri pripojenom terminali.
+void FinishRestore()
+  {
+   g_restorePending = false;
+   RestoreState();
+   if(g_mode == "flatten" && ArraySize(g_orders) > 0) { Print("TradeBot control: flatten po prevzati obchodov"); Flatten("tb_flatten"); }
+   SaveState();
+   Print("TradeBot: pripojeny k brokerovi - stav spred restartu zladeny, ", ArraySize(g_orders), " sledovanych obchodov");
+  }
+
+/// Sledovana pozicia u brokera uz nie je a deal o zatvoreni neprisiel (stratena transakcia, vypadok): hedging dohlada
+/// vystupy v historii (spool, denny limit vyhier), netting zrusi jej SL/TP. Bez toho by fantomova pozicia natrvalo
+/// blokovala nove vstupy aj zmenu profilu (audit M-LIVE-7).
+void ClosedAway(int i)
+  {
+   Tracked t = g_orders[i];
+   int found = g_hedging ? ReportClosedAway(t) : 0;
+   if(!g_hedging) CancelExits(i);
+   Report("warn", "TradeBot: pozicia " + t.id + " u brokera uz nie je a deal o zatvoreni neprisiel - prestava sa sledovat ("
+          + (found > 0 ? "vystup dohladany v historii" : "vystup len v historii uctu") + ")");
+   RemoveOrder(i);
+  }
+
+/// Cakajuci vstup medzi ordermi brokera uz nie je a deal neprisiel: podla historie sa bud prestane sledovat
+/// (zruseny / odmietnuty / expirovany bez vyplnenia), alebo sa prevezme ako vyplneny - a ak mal byt zruseny,
+/// RetryGuards ho hned zavrie (audit M-LIVE-3, M-LIVE-7).
+void EntryAway(int i)
+  {
+   ulong ticket = g_orders[i].orderTicket;
+   string id = g_orders[i].id;
+   if(!HistoryOrderSelect(ticket)) return;   // v historii este nie je - posudi sa o GoneGraceSec znova
+   ENUM_ORDER_STATE st = (ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE);
+   double filledVol = HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL) - HistoryOrderGetDouble(ticket, ORDER_VOLUME_CURRENT);
+   ulong posId = (ulong)HistoryOrderGetInteger(ticket, ORDER_POSITION_ID);
+   if(filledVol <= 1e-9 && st != ORDER_STATE_FILLED && st != ORDER_STATE_PARTIAL)
+     {
+      Report("warn", "TradeBot: cakajuci vstup " + id + " u brokera uz nie je (" + EnumToString(st) + ") - prestava sa sledovat");
+      RemoveOrder(i);
+      return;
+     }
+   // cena, objem a cas vstupu z dealov orderu; ked sa nenajdu, z planu
+   double vol = 0, value = 0;
+   datetime when = 0;
+   if(posId > 0 && HistorySelectByPosition(posId))
+      for(int k = 0; k < HistoryDealsTotal(); k++)
+        {
+         ulong d = HistoryDealGetTicket(k);
+         if((ulong)HistoryDealGetInteger(d, DEAL_ORDER) != ticket) continue;
+         double v = HistoryDealGetDouble(d, DEAL_VOLUME);
+         vol += v;
+         value += v * HistoryDealGetDouble(d, DEAL_PRICE);
+         if(when == 0) when = (datetime)HistoryDealGetInteger(d, DEAL_TIME);
+        }
+   if(vol <= 1e-9) { vol = filledVol > 1e-9 ? filledVol : g_orders[i].lots; value = vol * g_orders[i].entry; when = TimeCurrent(); }
+   double price = value / vol;
+   g_orders[i].filled = true;
+   g_orders[i].parked = false;
+   g_orders[i].orderTicket = 0;
+   g_orders[i].positionTicket = posId;
+   g_orders[i].openQty = vol;
+   ExportFill(when, id, true, "", price, vol);
+   SpoolFill(when, id, true, "", price, vol, true);
+   Report("error", "TradeBot: vstup " + id + " sa vyplnil (" + DoubleToString(vol, 2) + " @" + DoubleToString(price, _Digits)
+          + ") a deal neprisiel - prevzaty z historie");
+   bool open;
+   if(g_hedging) open = posId > 0 && PositionSelectByTicket(posId);
+   else open = PositionSelect(_Symbol) && (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY ? 1 : -1) == g_orders[i].dir;
+   if(!open) { ClosedAway(i); return; }
+   g_orders[i].openQty = MathMin(vol, PositionGetDouble(POSITION_VOLUME));
+   PlaceExits(i);    // netting; v hedgingu ma SL/TP pozicia z orderu
+   ParkOthers(i);
+  }
+
+/// Hedging: pozicia s tymto identifikatorom u brokera je. Najprv podla ticketu; broker, ktory poziciu pri rollovere
+/// znovu otvara, jej da novy ticket a identifikator necha - taka sa za zavretu brat nesmie.
+bool HedgePositionAlive(ulong id)
+  {
+   if(PositionSelectByTicket(id)) return true;
+   for(int p = 0; p < PositionsTotal(); p++)
+     {
+      if(PositionGetTicket(p) == 0 || PositionGetString(POSITION_SYMBOL) != _Symbol) continue;
+      if((ulong)PositionGetInteger(POSITION_IDENTIFIER) == id) return true;
+     }
+   return false;
+  }
+
+/// Kazdy tik timera (nazivo): co EA sleduje, musi u brokera naozaj byt. Posudzuje sa len pri stabilnom spojeni
+/// a az po `GoneGraceSec` - deal o zatvoreni ci vyplneni bezne pride do zlomku sekundy (audit M-LIVE-7).
+void ReconcileBroker()
+  {
+   datetime now = TimeLocal();
+   bool steady = !g_restorePending && g_connectedSince > 0 && now - g_connectedSince >= ConnectSettleSec;
+   bool changed = false;
+   for(int i = ArraySize(g_orders) - 1; i >= 0; i--)
+     {
+      if(i >= ArraySize(g_orders)) continue;
+      if(!steady) { g_orders[i].goneSince = 0; continue; }
+      bool gone = false;
+      if(g_orders[i].filled)
+        {
+         if(g_orders[i].openQty <= 0) continue;
+         if(g_hedging) gone = g_orders[i].positionTicket > 0 && !HedgePositionAlive(g_orders[i].positionTicket);
+         else gone = !PositionSelect(_Symbol) || (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY ? 1 : -1) != g_orders[i].dir;
+        }
+      else gone = g_orders[i].orderTicket > 0 && !OrderSelect(g_orders[i].orderTicket);
+      if(!gone) { g_orders[i].goneSince = 0; continue; }
+      if(g_orders[i].goneSince == 0) { g_orders[i].goneSince = now; continue; }
+      if(now - g_orders[i].goneSince < GoneGraceSec) continue;
+      g_orders[i].goneSince = 0;
+      if(g_orders[i].filled) ClosedAway(i); else EntryAway(i);
+      changed = true;
+     }
+   if(!changed) return;
+   ReleaseParked();
+   RetryPendingProfile();
+   SaveState();
+  }
+
 /// Pozicia bez SL: polozit znova (netting: SL + TP ako pri vyplneni; hedging: SL/TP na poziciu), po MaxExitAttempts
 /// neuspechoch zavriet trhom.
 void GuardStop(int i, datetime now)
@@ -1643,7 +1792,7 @@ string StateJson()
 /// Zapise stav, ked sa zmenil (atomicky: tmp + presun). Chyba EA nezhodi - zaloguje sa raz.
 void SaveState()
   {
-   if(!g_stateOn || g_replaying) return;
+   if(!g_stateOn || g_replaying || g_restorePending) return;   // pred zladenim by prazdny stav prepisal obchody spred restartu
    string text = StateJson();
    if(text == g_stateText) return;
    string path = StatePath(), tmp = path + ".tmp";

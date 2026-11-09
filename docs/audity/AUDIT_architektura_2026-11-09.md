@@ -143,9 +143,12 @@ Demo test exekútora z auditu routingu stále nie je urobený; kroky 1 a 2 ho ne
 > (stav orderu v histórii), vyplnený ostáva sledovaný s `cancelWanted` a `RetryGuards` ho po príchode dealu
 > zavrie. Overené prekladom (`ninjatrader check`, MetaEditor na dočasnom strome) a existujúcimi testmi;
 > **správanie pri skutočných pretekoch cancel/fill nie je overené** — testy na stavový automat adaptérov
-> neexistujú (§5 bod 2) a treba to prejsť na Sim101 / deme. Route (NT → exekútor) sa nemenil. M-LIVE-4, 5, 7,
-> 8 ostávajú otvorené; M-LIVE-7 je teraz dôležitejší: vstup, ktorého deal sa stratí, ostane v EA sledovaný
-> ako nevyplnený s `cancelWanted` a zavrie sa až po reštarte (`RestoreState`).
+> neexistujú (§5 bod 2) a treba to prejsť na Sim101 / deme. Route (NT → exekútor) sa nemenil.
+>
+> **M-LIVE-4 a 7 sú opravené v EA** (tiež len preklad, bez dema): `RestoreState` beží až po pripojení k brokerovi
+> (dovtedy sa stav neprepisuje a vstupy stoja) a `ReconcileBroker` na timeri zosúlaďuje sledované pozície a
+> čakajúce vstupy s brokerom — pozícia bez dealu o zatvorení sa prestane sledovať, vstup vyplnený bez dealu sa
+> prevezme z histórie. Exekútor (druhá polovica M-LIVE-7) sa nemenil. M-LIVE-5 a 8 ostávajú otvorené.
 
 **M-LIVE-1 (P1) ✔ NT: preteky cancel/fill nechajú pozíciu bez ochrany.** `LI:1041–1045` (cancel
 z enginu), `1471–1475` (Flatten/EOD), `2049` (obnova) zrušia vstup a `Tracked` hneď vyhodia z `_orders`.

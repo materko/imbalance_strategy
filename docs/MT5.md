@@ -482,7 +482,10 @@ nezmenený sa neprepisuje): sledované vstupy s plánom (vstup, SL, TP, trailing
 posledný stop), tickety orderu a pozície, magic, posledný spracovaný bar a stav denného limitu výhier.
 
 Po štarte (`OnInit`, **po** predhistórii, ktorá beží bez obchodov) ho `RestoreState` zladí s brokerom — zdroj
-pravdy je broker, stav dodá plán, ktorý u brokera nie je:
+pravdy je broker, stav dodá plán, ktorý u brokera nie je. Zladenie beží **až po pripojení terminálu k brokerovi**
+(`TERMINAL_CONNECTED` a prihlásený účet, 4 s v kuse): pri štarte terminálu s EA na grafe `OnInit` pripojenie
+predbehne, terminál by pozície „nemal" a stav by sa zahodil ako zavretý. Kým sa čaká, stav sa neprepisuje,
+nové vstupy sa neposielajú a profil sa nemení (audit M-LIVE-4):
 
 - **hedging**: každá otvorená pozícia so svojím magic na symbole sa prevezme — podľa ticketu pozície zo stavu,
   vstup vyplnený počas výpadku podľa ticketu orderu (`POSITION_IDENTIFIER`) alebo komentára (= id vstupu); SL
@@ -499,7 +502,15 @@ pravdy je broker, stav dodá plán, ktorý u brokera nie je:
 Prevzaté vstupy idú enginu v `positionSize` a `openIds` ako pred reštartom — ORB/VWAP stratégie ich zavrú
 vlastnými výstupmi (EMA, koniec seansy), koniec seansy (`cs`) a `flatten` ich zatvoria ako každé iné. Súhrn
 („po reštarte prevzatých N pozícií…“) je v Experts logu aj v spoole (`note`). Vstup `InpRestoreState` (predvolene
-zapnutý) to vypne. V Strategy Testeri sa stav nepíše ani nečíta. **Neoverené naživo** — EA sa tu nedá preložiť
+zapnutý) to vypne. V Strategy Testeri sa stav nepíše ani nečíta.
+
+**Zladenie za behu** (`ReconcileBroker`, každý tik timera, audit M-LIVE-7): čo EA sleduje, musí u brokera byť.
+Posudzuje sa až 30 s po pripojení a po 10 s, čo pozícia alebo čakajúci vstup chýba — deal bežne príde hneď.
+Sledovaná pozícia, ktorá u brokera nie je a deal o zatvorení neprišiel, sa prestane sledovať (hedging: výstup
+z histórie do spoolu a denného limitu; netting: zrušia sa jej SL/TP). Čakajúci vstup, ktorý medzi ordermi nie je,
+sa podľa histórie buď prestane sledovať (zrušený, odmietnutý, expirovaný), alebo prevezme ako vyplnený (`error`
+do hubu); ak mal byť zrušený, hneď sa zatvára. Vstup vyplnený tesne pred zrušením sa nikdy neberie ako zrušený
+(`EntryCancelState`, audit M-LIVE-3). **Neoverené naživo** — EA sa tu nedá preložiť
 (MetaEditor je len na Windows); overenie: demo účet, otvorená pozícia, `taskkill` terminálu, štart, v logu
 súhrn a v spoole pokračujúci trailing.
 
