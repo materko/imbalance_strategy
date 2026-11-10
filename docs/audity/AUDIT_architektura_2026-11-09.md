@@ -69,6 +69,80 @@ Demo test exekútora z auditu routingu stále nie je urobený; kroky 1 a 2 ho ne
 > nebeží; M-LIVE-3 a routing ostávajú na Strategy Testeri a deme. Model brokera je predpoklad, nie NT:
 > skúšku na Sim101 nenahrádza.
 
+### 2.1 Stav 10. 11. 2026 večer: druhé kolo — všetky otvorené nálezy naraz
+
+Po krokoch 1–10 sa prešli všetky nálezy, ktoré ostali otvorené alebo čiastočné (§3, §4) a vylepšenia z §5.
+Tento blok je platný stav; tabuľky v §3 a texty v §4 opisujú stav pri audite. **Overené:** `ruff`, preklad C# jadra,
+preklad adaptéra proti NinjaTraderu 8, preklad EA a exekútora MetaEditorom z repa (dočasný strom), sada testov
+a simulátor porúch (33 scenárov). **Neoverené:** nič z toho nebežalo u brokera (Sim101, MT5 demo) ani proti živému
+hubu; ESLint sa lokálne pustiť nedá (bez Node) — skripty webapp prešli len načítaním v prehliadači.
+
+**Živé adaptéry**
+
+| Nález | Stav | Čo sa zmenilo |
+|---|---|---|
+| M-LIVE-5 | opravené | EA `PlaceExits` starú dvojicu SL/TP najprv zruší; čo sa zrušiť nedá, ostáva sledované (`exitsStale`) a timer to skúša znova |
+| M-LIVE-7 (exekútor) | opravené | `PositionGone`: vyplnená pozícia, ktorá u brokera 10 s chýba bez dealu, sa dohľadá v histórii; nenájdená ostáva s `error` |
+| M-LIVE-8 | opravené | EA `EngineFail`: zlyhanie `OnBar`, `FeedHtf`, `EodDue` ide do hubu ako `note error` s tlmením |
+| M-LIVE-9 | opravené | most: `BridgeError` aj pri zavretej rúre, stderr hosta v chybe; build: DLL a Host.exe sa menia spolu alebo vôbec, timeout kompilátora; NT: udalosť route, ktorá hodí výnimku, sa skúša 5× a až potom zahodí s `error`; stav nesie `closing` (zatváranie sa po reštarte dokončí, aj v EA) a vlastný trailing enginu sa pri prevzatí ohlási |
+| N-LIVE-7 | opravené | NT: mŕtvy rad barov pri pripojenom účte (10 min) = reštart inštancie `feed_dead`, AddOn ju spustí znova |
+| N-LIVE-8 | opravené | grafová `Strategy`: `OnBarUpdate`, `OnOrderUpdate`, `OnExecutionUpdate` naživo výnimku zachytia a nahlásia; v histórii ju neprehltnú |
+| N-LIVE-23 | čiastočne | prehrávanie predhistórie už nedostáva živú pozíciu účtu; sklz market orderov EA je vstup `InpDeviationPts` (50). Ostatné drobnosti riadku (hodiny hubu vs. agenta, F5 cez `SendInput`, denný limit podľa UTC dňa) ostávajú |
+| N-LIVE-13, 20, 22 | prijaté obmedzenie | dve inštancie na jednom účte a inštrumente, podlaha 1 kontrakt nad rizikom a rollover kontraktu majú alarm, nie automatiku — zmena je rozhodnutie o správaní, nie oprava |
+| Routing H1–H6 | opravené podľa auditu routingu | každý má v [AUDIT_routing_2026-10-26.md](AUDIT_routing_2026-10-26.md) poznámku *(opravené)* a test; znova sa nečítali |
+| §5 bod 1 | hotové | [docs/STAV_ORDERU.md](../STAV_ORDERU.md): jedna tabuľka stavov a pravidiel pre NT, EA a exekútor |
+| §5 bod 6 | hotové pre kalendár | `IPreflight` v C# jadre, `StaticHost.Preflight` pre MT5; SPRÁVY pri živom štarte hlási koniec pokrytia kalendára 45 dní vopred. Vek profilu a verziu DLL voči commitu hub už ukazuje (`live.installed`), do preflightu nešli |
+
+**Jadro, dáta, C# most**
+
+| Nález | Stav | Čo sa zmenilo |
+|---|---|---|
+| M-CORE-2 | opravené | súčty cez okná berú obchod z prekrytia raz — reže sa podľa času (skoršie okno vyhráva); kľúč `(open_date, enter_tag)` z nálezu nefunguje, `enter_tag` nesie číslo baru od začiatku behu |
+| M-CORE-5 | opravené | `timeframes --force` prepíše len súbory z manifestu odvodených |
+| M-CORE-6 | opravené | `rolls.json` sa zlučuje podľa dátumu |
+| M-CORE-7, N-CORE-7 | opravené | `canonical_key` v configu; jedno pravidlo PF (`core.money.profit_factor`); TF cez `timeframe_minutes`; Sharpe zo všetkých obchodných dní okien (deň bez obchodu = 0). **Sharpe a DSR nových posudkov vyjdú nižšie než v už napísaných dokumentoch**, tie sa neprepisovali |
+| M-CORE-8, §5 bod 3 | otvorené (rozhodnutie) | spoločný čas New Yorku a seansa naprieč enginmi sa nerobili |
+| M-CORE-9 | opravené | dvojitý kľúč v registry je chyba; pokazený `calendar.json` nezhodí import, chyba príde až pri použití SPRÁV. Trhové varianty ostali balíkmi (rozhodnutie) |
+| N-CORE-9 | opravené, jedna časť čiastočne | chýbajúci `engine_factory` je `ValueError`, zlyhané záverečné kresby a chýbajúci detail sú v logu; chýbajúci TF vo Freqtrade je `error` s tracebackom, ale beh pokračuje |
+| N-CORE-10, §5 bod 4 | čiastočne | emulátor reže m1 raz (`searchsorted`, `BarCache`; výsledky 8 stratégií bit po bite rovnaké, behy ~20 % rýchlejšie). `BarHistory._sma` a `StateMachine` IBS bez zmeny — bit po bite rovnaký výsledok by nedali |
+| N-CORE-12 | opravené | sedem testov DST v `tradebot/tests/test_clock.py`, C# strana kontrolovaná tiež |
+| N-DATA-5 | opravené | zápis ASCII po stĺpcoch (bajt po bajte rovnaký), cache pohľadu `livesim` sleduje len súbory svojej inštancie |
+| N-CS-2 | opravené pre most | neznáme kľúče profilu sú v `Info()` ako `unknown_config` a most ich loguje; NT a MT5 ich ešte neukazujú |
+| N-CS-6, 7, 9 | opravené | stdio vs. inproc pre každú C# stratégiu; `SessionClock.LocalToUtcMs`; EMA z orezaného N; TF grafu pod 1 minútu je chyba; zmenená DLL po načítaní sa ohlási |
+| N-CS-8 | čiastočne | cache `SessionClock.Local`, buffer v `OrbEngine.VolumeOk`; ostatné alokácie ostali |
+
+**Hub, agent, telemetria**
+
+| Nález | Stav | Čo sa zmenilo |
+|---|---|---|
+| M-HUB-7 | opravené | Telegram 409 príkazy len pozastaví, skúša znova (30 s – 10 min), trvalý konflikt ohlási raz |
+| M-HUB-8 | opravené | heartbeat má vlastný timeout 10 s, verzia kódu sa číta zo súborov `.git`, spool sa nevypisuje pri každom tiku |
+| M-HUB-9 | opravené | zrkadlo webapp si drží kotvu riadku pod kurzorom; iná DB na hube = odznova |
+| M-HUB-10, N-HUB-10 | opravené | agent stráži svoje vlákna, pokazený stav a kurzor je vidno, `computing` sa mení len pod zámkom |
+| M-HUB-11 | opravené pre hub | strážca ide cez `PluginContext.agents()`; zlyhaný reload nechá bežať starý plugin. Hostiteľ pluginov **agenta** návrat nemá — znamenal by zmenu kontraktu a reštart obchodných strojov |
+| N-HUB-3, 7, 8, 11, 12, 13, 15 | opravené | `/api/health` s chybami zápisu, zápis `state.json` mimo zámku, zip pred zmenou výpočtu, platnosť nevyzdvihnutých výsledkov (30 dní), chyba živej DB nezhodí heartbeat, SIGTERM = `bye`, strop veľkosti výsledku. Popis: [docs/HUB.md](../HUB.md) |
+| zvyšok M-HUB-6 | opravené | strážca hlási stroj, ktorý 10 minút nevie poslať telemetriu |
+
+**Webapp**
+
+| Nález | Stav | Čo sa zmenilo |
+|---|---|---|
+| M-WEB-7, N-FE-4, §5 bod 5 | opravené | jeden `makePoller` (backoff, koniec pri 404, viditeľná chyba) pre frontu, sweep, hyperopt a maticu; fronta polluje aj prázdna |
+| M-WEB-8, 9 | opravené | CLI berie HTTP chybu ako chybu (výpadok je len 502–504); zrušenie čakajúceho behu je pod zámkom fronty |
+| M-WEB-10 | opravené | `StrategySpec.base_key` namiesto hádania z mena; jedna konštanta `DEFAULT_STRATEGY`; `demo_breakout` má trh a typ |
+| N-WEB-4, 8, 12–18 | opravené | atomický `log.txt` a obnova z archívu; stĺpce `batch_kind`/`batch_id` v indexe a odhad času z indexu; GET histórie analytík nič nezapisuje; overenie id behu, strop dobehnutých úloh, `workers` platí hneď, zámky cache, timeout gitu, limit čakania na pracovný proces |
+| N-WEB-19 | opravené skôr | `docs/API.md` a `docs/WEBAPP.md` už sedeli |
+| N-FE-5 | opravené pre kreslenie | graf Live sa pri prúde udalostí prekresľuje najviac raz za 500 ms |
+
+**Ostáva otvorené — menia obchody alebo dáta, treba rozhodnúť**
+
+- **N-CORE-8** (SL/TP na bare výplne vo Freqtrade): zmení, čo engine vidí ako pozíciu, a tým obchody existujúcich stratégií.
+- **N-CORE-11** (zaokrúhlenie `entry` pred `sl_distance` v ORB, RETEST limitka v počte obchodov): zmení množstvá a stopy
+  ORB / ORBNet / VWAP ORB až o tick; rovnaká zmena patrí do `OrbEngine.cs`.
+- **N-DATA-6**: front-month podľa dňa seansy mení commitnuté dáta archívu, zahodenie neúplnej poslednej odvodenej
+  sviečky mení bary.
+- **M-CORE-8** a §5 bod 3: nechané otvorené rozhodnutím z 10. 11.
+
 ## 3. Stav nálezov z 25. 10. a 26. 10.
 
 ### 3.1 Jadro, backtest adaptéry, dáta

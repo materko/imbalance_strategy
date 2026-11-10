@@ -43,12 +43,14 @@ import os
 import re
 import shutil
 import sqlite3
+import threading
 from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
-from tester.atomic import write_json_atomic
+from tradebot.core.config import DEFAULT_STRATEGY
+from tester.atomic import write_json_atomic, write_text_atomic
 from tradebot.core.paths import CHART_CACHE, REPO, RUNS_DIR, SWEEPS_DIR  # noqa: F401  (REPO sa reexportuje)
 from tradebot.strategies import canonical_key
 
@@ -101,7 +103,7 @@ def _write_json(path: Path, data: Any) -> None:
 
 
 def plan_objects(chart: dict[str, Any] | None, trades: Iterable[dict[str, Any]],
-                 strategy: str = "ibs", engine: str = "") -> list[dict[str, Any]]:
+                 strategy: str = DEFAULT_STRATEGY, engine: str = "") -> list[dict[str, Any]]:
     """SL/TP boxy, ktoré analytika spáruje s obchodmi behu — nič viac z kresieb.
 
     Párovanie je to isté ako v `tester.analytics.enrich` (čas signálu z `enter_tag`, pri
@@ -186,27 +188,34 @@ class RunStore:
         # Ohraničené: celá história v pamäti mala 24 GB a každý zber odpadkov nad ňou
         # sekundy. Hromadné čítanie patrí indexu, nie tejto cache.
         self._cache: OrderedDict[str, tuple[tuple[int, int], dict[str, Any]]] = OrderedDict()
+        #: Endpointy bežia vo vláknach: `move_to_end` kľúča, ktorý iné vlákno práve vyhodilo, je KeyError
+        #: a teda 500 (audit N-WEB-16). Zámok drží len prácu s cache, čítanie súboru je mimo neho.
+        self._cache_lock = threading.Lock()
 
     def _cached(self, run_id: str, path: Path) -> dict[str, Any] | None:
         """Záznam behu z cache, alebo zo súboru, keď sa zmenil. `None` = niet/rozbitý."""
         try:
             st = path.stat()
         except OSError:
-            self._cache.pop(run_id, None)
+            with self._cache_lock:
+                self._cache.pop(run_id, None)
             return None
         podpis = (st.st_mtime_ns, st.st_size)
-        hit = self._cache.get(run_id)
-        if hit is not None and hit[0] == podpis:
-            self._cache.move_to_end(run_id)
-            return hit[1]
+        with self._cache_lock:
+            hit = self._cache.get(run_id)
+            if hit is not None and hit[0] == podpis:
+                self._cache.move_to_end(run_id)
+                return hit[1]
         try:
             rec = _with_strategy(_read_json(path))
         except (OSError, json.JSONDecodeError):
-            self._cache.pop(run_id, None)
+            with self._cache_lock:
+                self._cache.pop(run_id, None)
             return None  # rozbitý súbor nemá zhodiť celý zoznam
-        self._cache[run_id] = (podpis, rec)
-        while len(self._cache) > CACHE_RUNS:
-            self._cache.popitem(last=False)
+        with self._cache_lock:
+            self._cache[run_id] = (podpis, rec)
+            while len(self._cache) > CACHE_RUNS:
+                self._cache.popitem(last=False)
         return rec
 
     # -- zápis -------------------------------------------------------------- #
@@ -224,7 +233,7 @@ class RunStore:
         if trades is not None:
             _write_json(d / "trades.json", trades)
         if log is not None:
-            (d / "log.txt").write_text(log, encoding="utf-8", newline="\n")
+            write_text_atomic(d / "log.txt", log)   # pád uprostred nenechá polovičný log (zvyšok N-WEB-4)
         if chart_path is not None and Path(chart_path).exists():
             nastavenia = record.get("settings") or {}
             if trades:
@@ -265,19 +274,26 @@ class RunStore:
         shutil.rmtree(d)
         for p in (self.chart_cache / f"{run_id}.json.gz", self.chart_cache / f"{run_id}.check.json"):
             p.unlink(missing_ok=True)
-        self._cache.pop(run_id, None)
+        with self._cache_lock:
+            self._cache.pop(run_id, None)
         self.index.forget(run_id)
         return True
 
     # -- čítanie ------------------------------------------------------------ #
 
     def get(self, run_id: str) -> dict[str, Any] | None:
+        # `run_id` chodí z URL: bez kontroly tvaru by `..\\..\\x` na Windows prečítalo cudzí `run.json`
+        # (audit N-WEB-13). To isté v `trades` a `log`.
+        if not _ID_RE.match(str(run_id)):
+            return None
         # Plytká kópia: detail behu si do záznamu dopisuje polia (`overrides`, `has_chart`)
         # a tie do cache nepatria.
         rec = self._cached(run_id, self.root / run_id / "run.json")
         return dict(rec) if rec is not None else None
 
     def trades(self, run_id: str) -> list[dict[str, Any]]:
+        if not _ID_RE.match(str(run_id)):
+            return []
         p = self.root / run_id / "trades.json"
         if not p.exists():
             return []
@@ -291,6 +307,8 @@ class RunStore:
         return rows
 
     def log(self, run_id: str) -> str:
+        if not _ID_RE.match(str(run_id)):
+            return ""
         p = self.root / run_id / "log.txt"
         return p.read_text(encoding="utf-8") if p.exists() else ""
 
@@ -355,10 +373,17 @@ class RunStore:
         celej histórie v Pythone pri každom volaní (pri 37 k behoch ~1 s, viac razy na request - N-WEB-8)."""
         if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", kind) and self.index.sync():
             cesta = f"$.settings.{kind}.id"
+            # Stĺpce `batch_kind`/`batch_id` (s indexom) nesú prvú značku behu, takže bežný dopyt neprechádza
+            # JSON celej histórie. Beh s dvoma značkami má v stĺpci len jednu — druhú nájde `json_extract`,
+            # ale už len nad behmi, ktoré nejakú značku majú (tých je zlomok).
             try:
                 if batch_id is None:
-                    return self.index.records("json_extract(slim, ?) IS NOT NULL", [cesta])
-                return self.index.records("json_extract(slim, ?) = ?", [cesta, batch_id])
+                    return self.index.records(
+                        "batch_kind = ? OR (batch_kind IS NOT NULL AND batch_kind != ? "
+                        "AND json_extract(slim, ?) IS NOT NULL)", [kind, kind, cesta])
+                return self.index.records(
+                    "(batch_kind = ? AND batch_id = ?) OR (batch_kind IS NOT NULL AND batch_kind != ? "
+                    "AND json_extract(slim, ?) = ?)", [kind, batch_id, kind, cesta, batch_id])
             except sqlite3.Error:
                 pass
         return [r for r in self.all()
@@ -378,6 +403,26 @@ class RunStore:
             except sqlite3.Error:
                 pass
         return self._scan()
+
+    def timing_history(self) -> list[dict[str, Any]]:
+        """Hotové behy s trvaním v tvare, z ktorého sa odhaduje čas výpočtu (`tester.hub.protocol.
+        estimate_seconds`): len `id`, `status`, trvanie a tie nastavenia, podľa ktorých sa hľadajú podobné
+        behy. Odhad z toho vyjde rovnaký ako z `all()`, ale nečíta sa a neparsuje celý záznam každého behu
+        histórie pri každom zadaní na hub (audit N-WEB-8)."""
+        if self.index.sync():
+            try:
+                return self.index.timing_rows()
+            except sqlite3.Error:
+                pass
+        out = []
+        for r in self._scan():
+            s = r.get("settings") or {}
+            dur = (r.get("result") or {}).get("duration_s")
+            if r.get("status") != "done" or not dur:
+                continue
+            out.append({"id": r.get("id"), "status": "done", "result": {"duration_s": dur},
+                        "settings": {k: s.get(k) for k in ("engine", "timerange", "timeframe_detail", "ai", "hyperopt")}})
+        return out
 
     def of_strategy(self, strategy: str) -> list[dict[str, Any]]:
         """Behy jednej stratégie od najnovšieho, bez `series` — to isté ako `all()` + `strategy_of`,

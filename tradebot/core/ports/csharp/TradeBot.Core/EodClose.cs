@@ -90,7 +90,7 @@ namespace TradeBot.Core
                 if (day.DayOfWeek == DayOfWeek.Saturday || day.DayOfWeek == DayOfWeek.Sunday) continue;
                 DateTime close = DateTime.SpecifyKind(day.AddSeconds(ClockCloseSec), DateTimeKind.Unspecified);
                 if (close <= local) continue;
-                return (long)(TimeZoneInfo.ConvertTimeToUtc(close, tz) - epoch).TotalMilliseconds;
+                return SessionClock.LocalToUtcMs(tz, close);
             }
             return 0;
         }

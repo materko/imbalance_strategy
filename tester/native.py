@@ -128,6 +128,10 @@ class _Worker:
             self.proc.kill()
 
 
+class PoolBusy(RuntimeError):
+    """Pracovné procesy sa do časového limitu neuvoľnili (`WorkerPool.acquire(timeout=…)`)."""
+
+
 class WorkerPool:
     """Pracovné procesy zdieľané procesom: kto potrebuje N, požičia si ich a vráti.
 
@@ -141,12 +145,22 @@ class WorkerPool:
         self._busy = 0
         self._cv = threading.Condition()
 
-    def acquire(self, n: int) -> list[_Worker]:
-        """Aspoň jeden, najviac `n` procesov (podľa toho, koľko je voľných pod stropom)."""
+    def acquire(self, n: int, timeout: float | None = None) -> list[_Worker]:
+        """Aspoň jeden, najviac `n` procesov (podľa toho, koľko je voľných pod stropom).
+
+        `timeout` (s) = ako dlho čakať, kým sa nejaký uvoľní; potom `PoolBusy`. Bez neho sa čaká bez konca —
+        to chce hyperopt vo fronte, ale nie HTTP request (audit N-WEB-18)."""
         n = max(1, min(int(n), self.limit))
+        koniec = None if timeout is None else time.monotonic() + max(0.0, float(timeout))
         with self._cv:
             while self._busy >= self.limit:
-                self._cv.wait()
+                if koniec is None:
+                    self._cv.wait()
+                    continue
+                ostava = koniec - time.monotonic()
+                if ostava <= 0:
+                    raise PoolBusy(f"všetky pracovné procesy C# ({self.limit}) sú obsadené už {timeout:.0f} s")
+                self._cv.wait(ostava)
             teraz = time.time()
             for w in [w for w in self._idle if teraz - w.last_used > IDLE_SECONDS]:
                 self._idle.remove(w)
@@ -211,6 +225,9 @@ class NativeRunner:
         self.fee = float(fee)
         self.threads = int(threads)
         self.pool = pool or POOL
+        #: Ako dlho smie `run_many` čakať na voľný pracovný proces (s); `None` = bez limitu. Nastavuje si
+        #: ho volajúci, ktorý čakať nemôže (`/api/native/backtests`) — po limite letí `PoolBusy`.
+        self.pool_timeout: float | None = None
         self.workers = self.threads if self.threads > 0 else self.pool.limit
         self.mode = mode
         self.m1_path = engines.one_minute_file(inst)
@@ -247,7 +264,7 @@ class NativeRunner:
                     out[i] = json.loads(r)
             return out
 
-        workers = self.pool.acquire(min(self.workers, len(tasks)))
+        workers = self.pool.acquire(min(self.workers, len(tasks)), timeout=self.pool_timeout)
         out2: list[dict[str, Any] | None] = [None] * len(tasks)
         fronta = iter(range(len(tasks)))
         zamok = threading.Lock()

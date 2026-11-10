@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,7 +11,7 @@ from tester.hub.plugins import HubPlugin, NotifyError, PluginHost, discover
 from tester.hub.plugins.ff_calendar.alerts import CalendarConfig, remind_offsets
 from tester.hub.plugins.ff_calendar.feed import feed_week, ny_week, parse_feed
 from tester.hub.plugins.ff_calendar.plugin import RETRY_FAIL, STALE_AFTER, FFCalendar
-from tester.hub.plugins.watchdog.plugin import OFFLINE_GRACE, PLUGIN_GRACE, Watchdog
+from tester.hub.plugins.watchdog.plugin import OFFLINE_GRACE, PLUGIN_GRACE, SHIP_GRACE, Watchdog
 
 FEED = [
     {"title": "CPI m/m", "country": "USD", "date": "2026-10-14T08:30:00-04:00", "impact": "High",
@@ -271,8 +270,10 @@ def test_vypadok_zdroja_zasoba_problem_a_html_namiesto_json(tmp_path: Path):
 # --------------------------------------------------------------------------- #
 
 def _hub(t: list[float]):
-    return SimpleNamespace(deploy=SimpleNamespace(active_agents=lambda: ["nas"]), agent_timeout=45.0,
-                           agents={"nas": {"last_seen": t[0]}}, _lock=threading.RLock())
+    """Hub, ako ho vidí plugin: bez `_lock` — strážca ide cez `PluginContext.agents()` (audit M-HUB-11)."""
+    agents = {"nas": {"last_seen": t[0]}}
+    return SimpleNamespace(deploy=SimpleNamespace(active_agents=lambda: ["nas"]), agent_timeout=45.0, agents=agents,
+                           agents_snapshot=lambda: {n: dict(a) for n, a in agents.items()})
 
 
 def test_strazca_hlasi_offline_a_navrat_a_po_restarte_neopakuje(tmp_path: Path):
@@ -487,3 +488,51 @@ def test_sync_pushne_potvrdene_terminy_do_repozitara_raz_za_mesiac(tmp_path: Pat
     t[0] = datetime(2027, 1, 2, 12, 0, tzinfo=timezone.utc).timestamp()
     host.run_once("ff_calendar")
     assert len(pushe) == 2
+
+
+def test_strazca_hlasi_stroj_ktory_dlho_neposiela_telemetriu(tmp_path: Path):
+    """Zvyšok auditu M-HUB-6: stroj je online, ale spool sa mu nedarí poslať — vek chyby stráži hub."""
+    t = [10_000.0]
+    hub = _hub(t)
+    hub.agents["nas"].update(online=True, live={"ship": {"last_error": "hub 503: <dole>", "last_ok": 1.0}})
+    n = Notifier()
+    host = _host(tmp_path, {"watchdog": Watchdog}, t, n, hub)
+
+    def kolo(posun: float) -> None:
+        t[0] += posun
+        hub.agents["nas"]["last_seen"] = t[0]
+        host.run_once("watchdog")
+
+    kolo(0)
+    kolo(SHIP_GRACE - 1)
+    assert n.sent == []                                           # krátky výpadok hubu nespamuje
+    kolo(2)
+    assert len(n.sent) == 1 and "stroj nas už 10 min neposiela telemetriu" in n.sent[0] and "hub 503: &lt;dole&gt;" in n.sent[0]
+    kolo(60)
+    assert len(n.sent) == 1 and host.get("watchdog").status()["ship_bad"] == ["nas"]
+    host2 = _host(tmp_path, {"watchdog": Watchdog}, t, n, hub)    # reštart hubu to isté neohlási znova
+    host2.run_once("watchdog")
+    assert len(n.sent) == 1
+    hub.agents["nas"]["live"]["ship"]["last_error"] = None
+    host2.run_once("watchdog")
+    assert n.sent[-1] == "[hub] 🟢 stroj nas znova posiela telemetriu" and host2.get("watchdog").status()["ship_bad"] == []
+    # offline stroj: posledný známy `ship` je starý — to hlási strážca strojov, nie tento
+    hub.agents["nas"].update(online=False, live={"ship": {"last_error": "stará chyba"}})
+    assert host2.get("watchdog").ship_messages(t[0]) == ([], False)
+    assert host2.get("watchdog").ship_messages(t[0] + SHIP_GRACE + 1) == ([], False)
+
+
+def test_kontext_pluginu_da_kopiu_agentov_bez_zamku_hubu(tmp_path: Path):
+    """Audit M-HUB-11: plugin sa k agentom dostane cez `PluginContext.agents()`, nie cez `hub._lock` a `hub.agents`."""
+    from tester.hub.plugins.base import PluginContext
+    from tester.hub.state import HubState
+
+    state = HubState(tmp_path / "hub", version="x")
+    state.register("nas", instance="i", cores=2, slots=2, accept=False)
+    ctx = PluginContext("x", tmp_path / "plugins", state, None)
+    kopia = ctx.agents()
+    assert kopia["nas"]["online"] is True and kopia["nas"]["last_seen"] > 0
+    kopia["nas"]["online"] = "zmenené"
+    kopia.pop("nas")
+    assert state.agents["nas"]["online"] is True and "nas" in ctx.agents()
+    assert PluginContext("x", tmp_path / "plugins", SimpleNamespace(), None).agents() == {}   # hub bez snímky

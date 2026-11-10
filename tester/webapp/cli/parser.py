@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from .analysis import cmd_analytics, cmd_decay, cmd_nulltest, cmd_paper, cmd_prop
 from .common import DEFAULT_URL
 from .history import (
@@ -50,7 +51,7 @@ def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
     `checkup` beží na piatich oknách naraz, takže jediné `--timerange` nemá; všetko
     ostatné (profil, pár, poplatok, peňaženka) má rovnaké, a preto to je tu.
     """
-    p.add_argument("--strategy", default="ibs", help="stratégia z registry (default ibs)")
+    p.add_argument("--strategy", default=DEFAULT_STRATEGY, help=f"stratégia z registry (default {DEFAULT_STRATEGY})")
     p.add_argument("--profile", help="východiskový profil z tradebot/strategies/<stratégia>/configs/ alebo cesta k JSON (bez neho Pine defaulty)")
     p.add_argument("--set", action="append", metavar="KLUC=HODNOTA", help="zmena parametra, opakovateľné")
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
@@ -153,7 +154,7 @@ def build_parser(description: str) -> argparse.ArgumentParser:
     p = sub.add_parser("paper", help="meranie do docs/merania/ zo všetkého, čo vieme")
     p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
     p.add_argument("--runs", help="konkrétne behy oddelené čiarkou (namiesto dopytu)")
-    p.add_argument("--strategy", default="ibs", help="stratégia (default ibs)")
+    p.add_argument("--strategy", default=DEFAULT_STRATEGY, help=f"stratégia (default {DEFAULT_STRATEGY})")
     p.add_argument("--title", default="", help="nadpis dokumentu")
     p.add_argument("--name", default="", help="názov súboru (inak MERANIE_<strategia>_<trh>_<datum>.md)")
     p.add_argument("--risk-pct", type=float, default=1.0, dest="risk_pct",
@@ -358,7 +359,7 @@ def build_parser(description: str) -> argparse.ArgumentParser:
 
     p = sub.add_parser("params", help="zoznam parametrov (názov, skupina, titulok, typ, rozsah)")
     p.add_argument("filter", nargs="?")
-    p.add_argument("--strategy", default="ibs", help="stratégia z registry (default ibs)")
+    p.add_argument("--strategy", default=DEFAULT_STRATEGY, help=f"stratégia z registry (default {DEFAULT_STRATEGY})")
     p.set_defaults(func=cmd_params)
 
     return ap

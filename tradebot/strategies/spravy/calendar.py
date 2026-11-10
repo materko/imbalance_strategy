@@ -17,19 +17,48 @@ from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-__all__ = ["CALENDAR_FILE", "TYPES", "NY", "load", "events_utc", "parse_add", "parse_skip", "to_utc_ms",
+__all__ = ["CALENDAR_FILE", "TYPES", "NY", "CalendarError", "load", "events_utc", "parse_add", "parse_skip", "to_utc_ms",
            "last_dates", "coverage_gaps"]
 
 CALENDAR_FILE = Path(__file__).resolve().parent / "calendar.json"
 NY = ZoneInfo("America/New_York")
 
 
+#: Typy správ = polia `use<TYP>` v `SpravyConfig`; zhodu s `calendar.json` stráži `test_spravy_calendar.py`.
+#: Použijú sa len vtedy, keď sa kalendár pri importe nedá prečítať (viď `_types`).
+_KNOWN_TYPES: tuple[str, ...] = ("FOMC", "FOMC_MIN", "CPI", "NFP", "PPI", "JOLTS", "RETAIL", "PCE", "GDP",
+                                 "ISM_M", "ISM_S", "CLAIMS")
+
+
+class CalendarError(ValueError):
+    """`calendar.json` chýba alebo je pokazený — stratégia SPRÁVY bez neho nemá čo obchodovať."""
+
+
 @lru_cache(maxsize=1)
 def load() -> dict:
-    return json.loads(CALENDAR_FILE.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(CALENDAR_FILE.read_text(encoding="utf-8"))
+        if not isinstance(data, dict) or not isinstance(data.get("events"), dict):
+            raise ValueError("chýba objekt 'events'")
+    except (OSError, ValueError) as exc:
+        raise CalendarError(f"kalendár správ {CALENDAR_FILE} sa nedá načítať: {exc}") from exc
+    return data
 
 
-TYPES: tuple[str, ...] = tuple(load()["events"].keys())
+def _types() -> tuple[str, ...]:
+    """Typy z kalendára. Pokazený súbor nesmie pri importe zhodiť celý registry stratégií (audit M-CORE-9):
+    formulár a config dostanú známe typy a chybu povie až `load()` — keď sa SPRÁVY naozaj použijú
+    (engine pri štarte, kontrola pokrytia, generovanie C#)."""
+    try:
+        return tuple(load()["events"].keys())
+    except CalendarError as exc:
+        import logging
+
+        logging.getLogger(__name__).error("%s — stratégia SPRÁVY nepôjde, ostatné áno", exc)
+        return _KNOWN_TYPES
+
+
+TYPES: tuple[str, ...] = _types()
 
 
 def last_dates() -> dict[str, date]:

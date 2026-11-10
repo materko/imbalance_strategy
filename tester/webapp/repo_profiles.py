@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.core import load_profile
 from tradebot.core.types import INSTRUMENTS
 from tradebot.strategies import get_spec
@@ -16,7 +17,7 @@ from tradebot.strategies import get_spec
 from . import profiles
 
 
-def default_params(profile: "str | Path | None" = None, strategy: str = "ibs",
+def default_params(profile: "str | Path | None" = None, strategy: str = DEFAULT_STRATEGY,
                    engine: str | None = None) -> tuple[dict[str, Any], str | None]:
     """Parametre formulára: Pine defaulty stratégie, profil z jej priečinka, vlastný profil testera
     alebo cesta k JSON v repozitári (archív profilov).
@@ -30,7 +31,7 @@ def default_params(profile: "str | Path | None" = None, strategy: str = "ibs",
     return get_spec(strategy).config_cls().to_dict(), None
 
 
-def list_profiles(strategy: str = "ibs") -> list[str]:
+def list_profiles(strategy: str = DEFAULT_STRATEGY) -> list[str]:
     """Profily repozitára stratégie a za nimi vlastné profily testera tej istej stratégie."""
     return profiles.all_names(strategy)
 
@@ -46,17 +47,17 @@ def _profile_key(strategy: str, key: str) -> dict[str, str]:
     return out
 
 
-def profile_instruments(strategy: str = "ibs") -> dict[str, str]:
+def profile_instruments(strategy: str = DEFAULT_STRATEGY) -> dict[str, str]:
     """`_instrument` z profilu — aby stránka vedela, ktorý profil sedí na ktorý pár."""
     return _profile_key(strategy, "_instrument")
 
 
-def profile_titles(strategy: str = "ibs") -> dict[str, str]:
+def profile_titles(strategy: str = DEFAULT_STRATEGY) -> dict[str, str]:
     """`_title` z profilu — ľudský popis do dropdownu (bez neho ostane názov súboru)."""
     return {name: title or name for name, title in _profile_key(strategy, "_title").items()}
 
 
-def profile_info(strategy: str = "ibs") -> dict[str, dict[str, str]]:
+def profile_info(strategy: str = DEFAULT_STRATEGY) -> dict[str, dict[str, str]]:
     """Ku každému profilu: kedy vznikol, pár, TF a popis — stránka z toho skladá názov
     „dátum · pár TF · popis". Vlastný profil bez `_created` (starší) dostane čas súboru;
     profil repozitára dátum nemá (čas súboru je čas checkoutu, nie vzniku)."""

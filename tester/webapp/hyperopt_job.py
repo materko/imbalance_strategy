@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.core.paths import REPO, FREQTRADE_USER_DIR as USER_DIR
 from tradebot.core.types import INSTRUMENTS
 from tradebot.strategies import get_spec
@@ -42,7 +43,7 @@ class HyperoptJobMixin:
 
         settings = job.settings
         zadanie = settings["hyperopt"]
-        plan = ho.build_plan(zadanie["knobs"], strategy=settings.get("strategy") or "ibs",
+        plan = ho.build_plan(zadanie["knobs"], strategy=settings.get("strategy") or DEFAULT_STRATEGY,
                              goal=zadanie.get("goal") or "break_even",
                              max_dd=zadanie.get("max_dd"), min_trades=zadanie.get("min_trades"),
                              note=job.note)
@@ -133,7 +134,7 @@ class HyperoptJobMixin:
             self.python, plan=plan_file,
             config=engines.stake_config(inst, settings.get("exchange")),
             userdir=USER_DIR, datadir=engines.data_dir(inst, settings.get("exchange")),
-            strategy_class=get_spec(settings.get("strategy") or "ibs").freqtrade_class,
+            strategy_class=get_spec(settings.get("strategy") or DEFAULT_STRATEGY).freqtrade_class,
             pair=settings["pair"], timerange=timerange,
             timeframe=settings.get("timeframe") or "3m",
             epochs=int(epochs),
@@ -203,7 +204,7 @@ class HyperoptJobMixin:
         from .command import write_profile
         from .results import result_from_zip
 
-        strategy = job.settings.get("strategy") or "ibs"
+        strategy = job.settings.get("strategy") or DEFAULT_STRATEGY
         spec = get_spec(strategy)
         base = {k: v for k, v in job.settings.items() if k != "hyperopt"}
         zaklad = {k: v for k, v in (job.params or {}).items() if not k.startswith("_")}

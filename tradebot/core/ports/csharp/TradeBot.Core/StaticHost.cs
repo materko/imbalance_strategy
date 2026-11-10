@@ -66,6 +66,14 @@ public static class StaticHost
     /// <summary>Verzia fasady - hostitel si ju overi, kym zacne (zmena kontraktu = ina verzia).</summary>
     public static int Version() { return 5; }
 
+    /// <summary>Kontrola pred zivym startom (`IPreflight`): upozornenia enginu k `nowMs` (UTC), jedno na riadok;
+    /// "" = ziadne (alebo engine bez kontroly). Chyba ide tiez ako upozornenie, nie ako vynimka.</summary>
+    public static string Preflight(int handle, long nowMs)
+    {
+        try { return string.Join("\n", TradeBot.Core.Preflight.Run(Get(handle).Host.Engine, nowMs).ToArray()); }
+        catch (Exception e) { Fail(e); return "kontrola pred startom zlyhala - " + e.Message; }
+    }
+
     /// <summary>Zivy EA: engine s koncom dna (EOD) chce byt v `nowMs` (UTC) bez pozicie aj bez barov - zatvorenie
     /// podla hodin, ked bar pred 15:59 NY neprisiel (audit N-LIVE-7). 1 ano, 0 nie (alebo engine bez EOD), -1 chyba.</summary>
     public static int EodDue(int handle, long nowMs)

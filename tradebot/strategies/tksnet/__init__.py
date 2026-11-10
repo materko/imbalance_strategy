@@ -26,6 +26,7 @@ CSHARP_KEY = "tksnet"
 
 SPEC = StrategySpec(
     key="tksnet",
+    base_key="tks",
     title="TKS 1.0 (C# jadro)",
     config_cls=TksNetConfig,
     profile_dir=CONFIG_DIR,

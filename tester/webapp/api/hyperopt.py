@@ -6,7 +6,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from tradebot.core.config import ConfigError
+from tradebot.core.config import ConfigError, DEFAULT_STRATEGY
 from tradebot.strategies import STRATEGIES, get_spec
 
 from ..batches import strip_tag
@@ -25,7 +25,7 @@ def build(ctx: AppContext) -> APIRouter:
     DEFAULTS = ctx.defaults
 
     @router.get("/api/hyperopt/meta")
-    def hyperopt_meta(strategy: str = "ibs"):
+    def hyperopt_meta(strategy: str = DEFAULT_STRATEGY):
         """Čo o ladení vie stratégia — odporúčaný priestor a varovania.
 
         Vedomosť je pri stratégii (`hyperopt_cls`), nie v appke; stránka ju len ukáže.
@@ -51,7 +51,7 @@ def build(ctx: AppContext) -> APIRouter:
 
         if not req.space:
             raise HTTPException(422, "hyperopt potrebuje aspoň jeden parameter")
-        defaults = DEFAULTS.get(req.strategy) or DEFAULTS["ibs"]
+        defaults = DEFAULTS.get(req.strategy) or DEFAULTS[DEFAULT_STRATEGY]
         for name in req.space:
             if name not in defaults:
                 raise HTTPException(422, f"neznámy parameter {name!r}")

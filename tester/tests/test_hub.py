@@ -3374,3 +3374,410 @@ def test_opakovane_zadanie_s_tym_istym_request_id_neda_druhy_vypocet(hub):
     assert retry_delay(3, 0) == 3.0
     assert [round(retry_delay(3, n, rnd=lambda: 0.5), 1) for n in (1, 2, 3, 4, 9)] == [3.0, 6.0, 12.0, 15.0, 15.0]
     assert retry_delay(3, 3, rnd=lambda: 0.0) == pytest.approx(9.6) and retry_delay(3, 3, rnd=lambda: 1.0) == pytest.approx(14.4)
+
+
+# --------------------------------------------------------------------------- #
+# audit 9. 11. 2026 — zvyšky N-HUB-3, 7, 8, 10 až 13, 15, M-HUB-8, M-HUB-10 a N-WEB-8 (agent)
+# --------------------------------------------------------------------------- #
+
+
+def test_stav_sa_zapisuje_mimo_zamku_a_po_navrate_metody_je_na_disku(hub, monkeypatch):
+    """Audit N-HUB-7 (zvyšok): pod zámkom sa stav len zoserializuje, na disk ide až po jeho uvoľnení — a kto
+    metódu hubu zavolal, má po jej návrate stav na disku ako doteraz."""
+    from tester.hub import state as state_mod
+
+    state, _ = hub
+    hlbka_zamku = []
+    povodny = state_mod.write_text_atomic
+
+    def zapis(path, text, **kw):
+        hlbka_zamku.append(state._lock._depth)
+        return povodny(path, text, **kw)
+
+    monkeypatch.setattr(state_mod, "write_text_atomic", zapis)
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    assert hlbka_zamku and set(hlbka_zamku) == {0}
+    assert json.loads(state.state_file.read_text(encoding="utf-8"))["jobs"][job["id"]]["status"] == "assigned"
+    assert HubState(state.root, token="tajne").jobs[job["id"]]["agent"] == "srv"
+
+
+def test_health_ukaze_ze_hub_bezi_z_pamati_a_log_udalosti_nezlyha_potichu(hub_api, monkeypatch, caplog):
+    """Audit N-HUB-3 (zvyšok): `/api/health` nesie `persist_error`; zlyhaný zápis `events.jsonl` je vidno."""
+    from tester.hub import events as events_mod
+    from tester.hub import state as state_mod
+
+    c, state, _ = hub_api
+    assert c.get("/api/health").json() == {"ok": True, "hub": True, "online": 0, "persist_error": None,
+                                           "events_error": None, "live_error": None}
+
+    def pad(*a, **k):
+        raise OSError(28, "No space left on device")
+
+    with monkeypatch.context() as m:
+        m.setattr(state_mod.os, "replace", pad)
+        _reg(state)
+        h = c.get("/api/health").json()
+        assert h["ok"] and h["online"] == 1 and h["persist_error"]["error"] == "OSError" and h["persist_error"]["at"]
+    _reg(state)
+    assert c.get("/api/health").json()["persist_error"] is None
+
+    with monkeypatch.context() as m:
+        m.setattr(events_mod, "open", pad, raising=False)
+        state.log("skuska_bez_disku")
+        assert state.events(limit=1)[0]["event"] == "skuska_bez_disku"          # v pamäti ostáva
+        assert "No space" in state.overview()["events_error"]["error"]
+        assert c.get("/api/health").json()["events_error"]["error"] == "OSError"
+        assert "log udalostí" in caplog.text
+    state.log("skuska_s_diskom")
+    assert state.overview()["events_error"] is None
+
+
+def test_chyba_live_db_nezhodi_heartbeat(hub):
+    """Audit N-HUB-12: chyba sqlite v live DB nesmie dať 500 všetkým heartbeatom — idú ďalej bez `live`."""
+    import sqlite3
+
+    state, _ = hub
+
+    class Deploy:
+        zla = True
+
+        def agents(self):
+            return []
+
+        def _mozno(self):
+            if self.zla:
+                raise sqlite3.OperationalError("database is locked")
+
+        def report_applied(self, *a, **k):
+            self._mozno()
+
+        def desired_for_agent(self, name):
+            self._mozno()
+            return {"deployments": [], "accounts": []}
+
+    state.deploy = Deploy()
+    _reg(state)
+    telo = {"instance": "i1", "live": {"instances": [], "applied": []}}
+    out = state.heartbeat("srv", telo)
+    assert "live" not in out and out["assign"] == [] and state.agents["srv"]["online"]
+    assert "database is locked" in state.overview()["live_error"]["error"]
+    state.heartbeat("srv", telo)
+    assert len(state.events(event="live_db_error")) == 1                        # raz, nie pri každom heartbeate
+    assert state.health()["live_error"]["error"] == "OperationalError"
+    state.deploy.zla = False
+    assert state.heartbeat("srv", telo)["live"] == {"deployments": [], "accounts": []}
+    assert state.overview()["live_error"] is None and len(state.events(event="live_db_ok")) == 1
+
+
+def test_vysledok_najprv_zip_mimo_zamku_a_az_potom_zmena_vypoctu(hub, monkeypatch):
+    """Audit N-HUB-8 (zvyšok): zlyhaný zápis zipu nenechá výpočet zmenený; zip sa píše mimo zámku stavu."""
+    from tester.hub import state as state_mod
+
+    state, clock = hub
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    state.heartbeat("srv", {"instance": "i1", "jobs": [{"id": job["id"], "status": "running"}]})
+    clock.t += 100
+    assert state.list_jobs()[0]["status"] == "failed"                            # agent sa odmlčal
+    pred = dict(state.jobs[job["id"]])
+    hlbka_zamku = []
+    povodny = state_mod.write_bytes_atomic
+    plny_disk = [True]
+
+    def zapis(path, data):
+        hlbka_zamku.append(state._lock._depth)
+        if plny_disk[0]:
+            raise OSError(28, "No space left on device")
+        return povodny(path, data)
+
+    monkeypatch.setattr(state_mod, "write_bytes_atomic", zapis)
+    with pytest.raises(OSError):
+        state.result(job["id"], b"PK", status="done", agent="srv")
+    assert state.jobs[job["id"]] == pred and "late" not in pred                  # výpočet ostal, ako bol
+    assert not state.result_path(job["id"]).exists() and list(state.result_path(job["id"]).parent.iterdir()) == []
+    assert state.events(event="job_result_write_failed")[0]["job"] == job["id"]
+    plny_disk[0] = False
+    j = state.result(job["id"], b"PK", status="done", agent="srv")
+    assert j["status"] == "done" and j["late"] and j["has_result"] and state.result_path(job["id"]).read_bytes() == b"PK"
+    assert set(hlbka_zamku) == {0}
+    assert [p.name for p in state.result_path(job["id"]).parent.iterdir()] == [f"{job['id']}.zip"]
+
+
+def test_nevyzdvihnuty_vysledok_po_case_platnosti_prepadne_s_udalostou(tmp_path: Path, monkeypatch):
+    """Audit N-HUB-11: nevyzdvihnutý výsledok so zipom neostáva navždy — a neprepadne potichu."""
+    from tester.hub.state import DEFAULT_RESULT_TTL_DAYS, JobGone
+
+    clock = Clock()
+    state = HubState(tmp_path / "hub", token="tajne", clock=clock, result_ttl_seconds=10 * 86400)
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    state.result(job["id"], b"PK", status="done", agent="srv", run_ids=["20260901-000001-aaaaaa"])
+    clock.t += 9 * 86400
+    assert [j["id"] for j in state.list_jobs()] == [job["id"]] and state.result_path(job["id"]).exists()
+    clock.t += 2 * 86400
+    assert state.list_jobs() == [] and not state.result_path(job["id"]).exists()
+    ev = state.events(event="job_result_expired")
+    assert len(ev) == 1 and ev[0]["job"] == job["id"] and ev[0]["submitter"] == "lap"
+    assert ev[0]["run_ids"] == ["20260901-000001-aaaaaa"] and ev[0]["ttl_days"] == 10
+    with pytest.raises(JobGone):                                                 # hub vie, že ho vybavil
+        state.result(job["id"], b"PK", status="done", agent="srv")
+
+    # 0 = nikdy; bez nastavenia štedrá predvoľba, z prostredia TRADEBOT_HUB_RESULT_TTL_DAYS
+    nikdy = HubState(tmp_path / "hub0", token="tajne", clock=clock, result_ttl_seconds=0)
+    _reg(nikdy)
+    j0 = nikdy.submit(kind="backtest", payload=_payload(), submitter="lap")
+    nikdy.result(j0["id"], b"PK", status="done", agent="srv")
+    clock.t += 400 * 86400
+    assert [j["id"] for j in nikdy.list_jobs()] == [j0["id"]]
+    monkeypatch.delenv("TRADEBOT_HUB_RESULT_TTL_DAYS", raising=False)
+    assert HubState(tmp_path / "hub1", version="x").result_ttl_seconds == DEFAULT_RESULT_TTL_DAYS * 86400 >= 14 * 86400
+    monkeypatch.setenv("TRADEBOT_HUB_RESULT_TTL_DAYS", "2")
+    assert HubState(tmp_path / "hub2", version="x").result_ttl_seconds == 2 * 86400
+
+
+def test_prilis_velky_vysledok_hub_odmietne(hub_api, monkeypatch):
+    """Audit N-HUB-15: telo výsledku má strop — jeden POST nezaplní hubu pamäť."""
+    c, state, _ = hub_api
+    h = {"Authorization": "Bearer tajne"}
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    url = f"/api/jobs/{job['id']}/result?status=done&agent=srv"
+    monkeypatch.setenv("TRADEBOT_HUB_RESULT_MAX_MB", "0.001")                    # ~1 kB
+    r = c.post(url, content=b"x" * 5000, headers=h)
+    assert r.status_code == 413 and "TRADEBOT_HUB_RESULT_MAX_MB" in r.json()["detail"]
+    assert state.jobs[job["id"]]["status"] == "assigned" and not state.result_path(job["id"]).exists()
+    assert state.events(event="job_result_too_big")[0]["bytes"] == 5000
+    assert c.post(url, content=b"PK", headers=h).json()["status"] == "done"       # malý prejde
+    monkeypatch.setenv("TRADEBOT_HUB_RESULT_MAX_MB", "0")                        # 0 = bez stropu
+    job2 = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    assert c.post(f"/api/jobs/{job2['id']}/result?status=done&agent=srv", content=b"x" * 5000, headers=h).status_code == 200
+
+
+def test_unpack_runs_odmietne_zip_bombu(tmp_path: Path, monkeypatch):
+    """Audit N-HUB-15: rozbalená veľkosť sa overí z hlavičiek zipu skôr, než sa čokoľvek zapíše."""
+    from tester.hub import transfer
+
+    store = RunStore(tmp_path / "runs")
+    store.save(_rec("20260901-000001-aaaaaa"))
+    data = pack_runs(store.root, ["20260901-000001-aaaaaa"])
+    assert unpack_runs(data, tmp_path / "dobre") == ["20260901-000001-aaaaaa"]
+    monkeypatch.setattr(transfer, "UNPACK_MAX_BYTES", 10)
+    with pytest.raises(ValueError, match="nerozbaľujem"):
+        unpack_runs(data, tmp_path / "ciel")
+    assert not (tmp_path / "ciel").exists()
+
+
+def test_heartbeat_ma_kratky_timeout_pod_limitom_hubu(tmp_path: Path):
+    """Audit M-HUB-8: jeden zaseknutý heartbeat (odpoveď + pokusy o spojenie) sa musí zmestiť hlboko pod
+    `agent_timeout` hubu; zipy a dávky spoolu ostávajú na dlhom timeoute."""
+    from tester.hub import agent as agent_mod
+    from tester.hub.agent import HubAgent
+    from tester.hub.client import CONNECT_ATTEMPTS
+    from tester.hub.state import DEFAULT_AGENT_TIMEOUT
+
+    cfg = AgentConfig(name="srv", hub_url="http://127.0.0.1:9", token="t")
+    a = HubAgent(cfg, None, RunStore(tmp_path / "runs"), state_path=tmp_path / "state.json", version="abc")
+    assert a._hb_http is not a.http and a._hb_http.timeout == agent_mod.HEARTBEAT_TIMEOUT and a.http.timeout == 30.0
+    assert a._hb_http.timeout + CONNECT_ATTEMPTS * a._hb_http.connect_timeout <= DEFAULT_AGENT_TIMEOUT / 2
+    # podstrčené spojenie (testy, webapp) sa použije na všetko
+    http = object()
+    assert HubAgent(cfg, None, RunStore(tmp_path / "runs"), http=http, state_path=tmp_path / "s2.json",
+                    version="abc")._hb_http is http
+
+
+def test_gitcode_version_sa_nepyta_gitu_kym_sa_head_nepohol(tmp_path: Path, monkeypatch):
+    """Audit M-HUB-8: `tick()` volá `gitcode.version()` každé 3 s — podproces `git` len keď sa HEAD zmenil."""
+    import subprocess
+    from tester.hub import gitcode
+
+    def git(*a):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=tmp_path,
+                              capture_output=True, text=True, check=True).stdout.strip()
+
+    def commit(msg):
+        (tmp_path / "f.txt").write_text(msg, encoding="utf-8")
+        git("add", "f.txt")
+        git("commit", "-m", msg)
+
+    git("init", "-b", "main")
+    commit("prvy")
+    monkeypatch.setattr(gitcode, "REPO", tmp_path)
+    gitcode._short_cache.clear()
+    volania = []
+    povodny = gitcode._git
+    monkeypatch.setattr(gitcode, "_git", lambda *a: volania.append(a) or povodny(*a))
+    assert gitcode._head_sha() == git("rev-parse", "HEAD")
+    prvy = gitcode.version()
+    assert prvy == git("rev-parse", "--short", "HEAD") and gitcode.version() == prvy and len(volania) == 1
+    commit("druhy")                                                              # HEAD sa pohol → git ešte raz
+    druhy = gitcode.version()
+    assert druhy == git("rev-parse", "--short", "HEAD") != prvy and gitcode.version() == druhy and len(volania) == 2
+    git("pack-refs", "--all")                                                    # ref len v packed-refs
+    assert gitcode._head_sha() == git("rev-parse", "HEAD") and gitcode.version() == druhy and len(volania) == 2
+    git("checkout", "--detach", "HEAD~1")                                        # odpojený HEAD
+    assert gitcode.version() == prvy and len(volania) == 2
+    monkeypatch.setattr(gitcode, "REPO", tmp_path / "nie-je-git")                # mimo gitu ako doteraz
+    assert gitcode._head_sha() is None
+
+
+def test_agent_strazi_svoje_vlakna(hub_api, tmp_path: Path, monkeypatch, caplog):
+    """Audit M-HUB-10: mŕtve vlákno agenta sa spustí znova a je to vidno (log, `public()`)."""
+    import threading
+
+    from tester.hub import agent as agent_mod
+
+    c, _, _ = hub_api
+    srv, _, _ = _agent("srv", tmp_path, FakeHttp(c, "tajne"))
+    assert srv.supervise() == []                                                 # pred `start()` sa nestráži
+    konce = {loop: threading.Event() for _, loop, _ in agent_mod.THREADS}
+    for loop, koniec in konce.items():
+        monkeypatch.setattr(srv, loop, lambda k=koniec: k.wait(30), raising=False)
+    try:
+        srv._started = True
+        assert srv._ensure_threads() == []
+        vlakna = {attr: getattr(srv, attr) for attr, _, _ in agent_mod.THREADS}
+        assert all(t.is_alive() for t in vlakna.values()) and srv.supervise() == []
+        konce["_work_loop"].set()                                                # pomalé vlákno umrie
+        vlakna["_worker"].join(5)
+        konce["_work_loop"].clear()
+        assert srv.supervise() == ["hub-agent-work"]
+        assert srv._worker is not vlakna["_worker"] and srv._worker.is_alive() and srv._thread is vlakna["_thread"]
+        assert srv.public()["thread_restarts"] == {"hub-agent-work": 1} and "hub-agent-work umrelo" in caplog.text
+        assert srv.supervise() == []
+    finally:
+        srv._stop.set()
+        for koniec in konce.values():
+            koniec.set()
+    assert srv.supervise() == []                                                 # po `stop()` sa nič nespúšťa
+
+
+def test_pokazeny_stav_agenta_je_vidno(hub_api, tmp_path: Path, caplog):
+    """Audit M-HUB-10: pokazený `agent_state.json` sa odloží a agent povie, čo tým stratil — nie tichý prázdny stav."""
+    c, _, _ = hub_api
+    (tmp_path / "srv").mkdir()
+    (tmp_path / "srv" / "state.json").write_text('{"computing": {"abc": ', encoding="utf-8")
+    srv, _, _ = _agent("srv", tmp_path, FakeHttp(c, "tajne"))
+    assert srv.state.computing == {} and "pokazený" in srv.public()["state_error"]
+    assert "zabudol, čo počítal" in caplog.text
+    assert len(list((tmp_path / "srv").glob("state.json.corrupt-*"))) == 1
+    lap, _, _ = _agent("lap", tmp_path, FakeHttp(c, "tajne"))                    # prvý štart nie je chyba
+    assert lap.public()["state_error"] is None and lap.public()["thread_restarts"] == {}
+
+
+def test_stav_agenta_sa_meni_len_pod_zamkom(hub_api, tmp_path: Path):
+    """Audit N-HUB-10: `computing`/`sent`/`undelivered` a ich záznamy mení heartbeat aj pomalé vlákno — každá
+    zmena musí byť pod zámkom stavu, inak zápis stavu z druhého vlákna padá na `dictionary changed size`."""
+    from tester.hub.client import HubClient
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    lap, _, lap_store = _agent("lap", tmp_path, http, accept=False)
+    porusenia: list[str] = []
+
+    def strazeny(agent):
+        class Strazeny(dict):
+            def _pod_zamkom(self, co):
+                if not agent._state_lock._is_owned():
+                    porusenia.append(f"{agent.cfg.name}: {co}")
+
+            def __setitem__(self, k, v):
+                self._pod_zamkom(f"[{k}] =")
+                super().__setitem__(k, Strazeny(v) if type(v) is dict else v)
+
+            def setdefault(self, k, v=None):
+                self._pod_zamkom(f"setdefault {k}")
+                return super().setdefault(k, Strazeny(v) if type(v) is dict else v)
+
+            def update(self, *a, **kw):
+                self._pod_zamkom(f"update {sorted(kw) or a}")
+                super().update(*a, **kw)
+
+            def pop(self, *a):
+                self._pod_zamkom(f"pop {a[0]}")
+                return super().pop(*a)
+
+            def clear(self):
+                self._pod_zamkom("clear")
+                super().clear()
+
+        return Strazeny
+
+    for agent in (srv, lap):
+        S = strazeny(agent)
+        agent.state.computing, agent.state.sent, agent.state.undelivered = S(), S(), S()
+    srv.tick(); lap.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload(), estimate_seconds=30)
+    lap.note_sent(job, "test")
+    srv.tick()                                                                   # prijatie
+    run_id = next(iter(runner.jobs))
+    runner.start_run(run_id)
+    srv.tick()                                                                   # odhad a strop do záznamu
+    assert srv.state.computing[job["id"]]["estimate_seconds"] and srv.state.computing[job["id"]]["max_seconds"]
+    http.down = True                                                             # odovzdanie zlyhá → `deliver_fails`
+    runner.finish(run_id, "done")
+    with pytest.raises(OSError):
+        srv.tick()
+    assert srv.state.computing[job["id"]]["deliver_fails"] == 1
+    http.down = False
+    srv.tick()
+    lap.tick()                                                                   # vyzdvihnutie u zadávateľa
+    assert job["id"] not in srv.state.computing and lap.state.sent[job["id"]]["status"] == "done"
+    assert lap_store.get(run_id)["status"] == "done"
+    # hub výpočet nepozná → odloženie do `undelivered` a jeho vymazanie
+    srv._park("stratene", {"run_id": run_id, "kind": "backtest"}, [run_id], "done", "hub 404")
+    assert srv.clear_undelivered() == 1
+    srv._cancel(job["id"])                                                       # nič také nepočíta — len povie hubu
+    assert porusenia == []
+
+
+def test_odhad_casu_v_heartbeate_necita_celu_historiu(hub_api, tmp_path: Path, monkeypatch):
+    """Audit N-WEB-8 (časť agenta): odhad času berie z indexu len najnovšie hotové behy, raz na heartbeat."""
+    from types import SimpleNamespace
+
+    from tester.hub import agent as agent_mod
+
+    c, state, _ = hub_api
+    srv, runner, store = _agent("srv", tmp_path, FakeHttp(c, "tajne"))
+    for i in range(5):
+        store.save(_rec(f"20260801-00000{i}-bbbbbb", duration=73.0))
+    store.save(_rec("20260801-000009-bbbbbb", status="failed", duration=1.0))
+    srv.tick()
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    srv.tick()
+    run_id = srv.state.computing[job["id"]]["run_id"]
+    runner.start_run(run_id)
+    dopyty = []
+    povodny = store.index.page
+    monkeypatch.setattr(store.index, "page", lambda *a: dopyty.append(a) or povodny(*a))
+    with monkeypatch.context() as m:
+        m.setattr(store, "all", lambda: pytest.fail("heartbeat číta celú históriu"))
+        telo = srv._heartbeat_body()
+    assert len(dopyty) == 1 and dopyty[0][-1] == agent_mod.HISTORY_ROWS and "status" in dopyty[0][0]
+    hotove = [r for r in store.all() if r["status"] == "done" and r["id"].endswith("bbbbbb")]
+    assert len(hotove) == 5
+    assert srv.state.computing[job["id"]]["estimate_seconds"] == pytest.approx(P.estimate_seconds(BT, hotove))
+    assert telo["jobs"][0]["id"] == job["id"]
+    # sklad bez indexu (alebo s nefunkčným) číta po starom
+    srv.store = SimpleNamespace(all=lambda: hotove)
+    srv._history_memo = None
+    assert srv._history() == hotove
+    srv.store = SimpleNamespace(all=lambda: hotove, index=SimpleNamespace(sync=lambda: False))
+    srv._history_memo = None
+    assert srv._history() == hotove
+
+
+def test_sigterm_headless_agenta_je_ako_ctrl_c():
+    """Audit N-HUB-13 (zvyšok): SIGTERM (`docker stop`, systemd) ide vetvou Ctrl+C — agent sa zastaví a odhlási."""
+    import signal
+
+    from tester.hub.__main__ import _sigterm_as_interrupt
+
+    povodny = signal.getsignal(signal.SIGTERM)
+    try:
+        assert _sigterm_as_interrupt() is True
+        with pytest.raises(KeyboardInterrupt):
+            signal.getsignal(signal.SIGTERM)(signal.SIGTERM, None)
+    finally:
+        signal.signal(signal.SIGTERM, povodny)

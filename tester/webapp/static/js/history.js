@@ -19,7 +19,7 @@ const historyPeek = { id: null };
 function peekRun(run) {
   historyPeek.id = run.id;
   for (const tr of $$("#runs-table tbody tr")) tr.classList.toggle("sel", tr.dataset.id === run.id);
-  const res = run.result || {}, s = run.settings || {}, strat = s.strategy || "ibs";
+  const res = run.result || {}, s = run.settings || {}, strat = s.strategy || DEFAULT_STRATEGY;
   const rr = res.wins > 0 && res.losses > 0 && res.profit_factor != null ? res.profit_factor * res.losses / res.wins : null;
   const tile = (k, v, cls = "") => `<div class="peek-kpi"><span>${k}</span><b class="${cls}">${v}</b></div>`;
   const ov = Object.entries(run.overrides || {});
@@ -115,7 +115,7 @@ async function loadRuns() {
     const tr = document.createElement("tr");
     const ov = Object.entries(run.overrides || {}).map(([k, v]) => `<span class="kv">${k}=${esc(fmtVal(v))}</span>`).join("");
     const failed = run.status !== "done";
-    const strat = run.settings?.strategy || "ibs";
+    const strat = run.settings?.strategy || DEFAULT_STRATEGY;
     tr.innerHTML = `<td><div>${run.id}</div><div class="muted small">${(run.created || "").replace("T", " ").slice(0, 16)} · ${esc(run.user || "")}</div></td>
       <td title="${esc(strat)}">${esc((strategySpec(strat) || {}).title || strat)}</td>
       <td>${esc(run.settings?.pair || "")}<div class="muted small">${esc(run.settings?.timeframe || "3m")}</div></td><td>${esc(run.settings?.timerange || "")}<div class="muted small">fee ${run.settings?.fee != null ? (run.settings.fee * 100).toFixed(3) + " %" : "—"} · ${run.settings?.wallet ?? ""}</div></td>
@@ -147,14 +147,22 @@ async function loadRuns() {
   }
 }
 
+/** Otvorí detail behu. Beh, ktorý sa nedá načítať (zmazaný, v archíve, výpadok webapp), ohlási a vráti
+ *  `false` — volajú ho obsluhy klikov bez `await`, takže chyba inak skončila len v konzole (audit N-FE-4). */
 async function openRun(id) {
-  const r = await api(`/api/runs/${id}`);
+  let r;
+  try {
+    r = await api(`/api/runs/${id}`);
+  } catch (e) {
+    alert(`Beh ${id} sa nedá otvoriť: ${e.message}`);
+    return false;
+  }
   const rec = r.record;
   state.detailId = id;
   state.detailRecord = rec;
   $("#runs-table").parentElement.parentElement.hidden = true;
   $("#run-detail").hidden = false;
-  const runStrategy = rec.settings.strategy || "ibs";
+  const runStrategy = rec.settings.strategy || DEFAULT_STRATEGY;
   const runMeta = (await ensureStrategyMeta(runStrategy).catch(() => null)) || state.meta;
   $("#detail-title").textContent = `${(strategySpec(runStrategy) || {}).title || runStrategy} · ${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
   $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · engine ${rec.settings.engine || "freqtrade"}${rec.settings.exchange ? " (" + rec.settings.exchange + ")" : ""} · detail ${rec.settings.timeframe_detail || "bez"}${rec.repo_version ? " · kód " + rec.repo_version : ""}${rec.note ? " · " + rec.note : ""}`;

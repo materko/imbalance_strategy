@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
 
-from tradebot.core.config import ConfigError
+from tradebot.core.config import ConfigError, DEFAULT_STRATEGY
 from tradebot.strategies import STRATEGIES, get_spec
 
 from ..batches import strip_tag
@@ -49,7 +49,7 @@ def build(ctx: AppContext) -> APIRouter:
         if req.goal not in sweep_mod.GOALS:
             raise HTTPException(422, f"neznáme kritérium {req.goal!r}; "
                                      f"známe: {', '.join(sweep_mod.GOALS)}")
-        defaults = DEFAULTS.get(req.strategy) or DEFAULTS["ibs"]
+        defaults = DEFAULTS.get(req.strategy) or DEFAULTS[DEFAULT_STRATEGY]
         space = {}
         for name, spec in req.space.items():
             if name not in defaults:

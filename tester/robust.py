@@ -4,7 +4,9 @@
 2. **Vstup o sviečku neskôr** — emulátor MultiCharts s `entry_delay=1`: broker dostane zadanie aj zrušenie
    vstupného orderu o bar neskôr (latencia). Edge, ktorý závisí od presného časovania, tu zmizne.
 3. **Deflated Sharpe Ratio** (Bailey & López de Prado, 2014) — pravdepodobnosť, že skutočný Sharpe je nad nulou,
-   keď sa najlepšie nastavenie vybralo z `trials` skúšok. Sharpe z denných výnosov všetkých okien spolu,
+   keď sa najlepšie nastavenie vybralo z `trials` skúšok. Sharpe z denných výnosov všetkých okien spolu —
+   zo **všetkých obchodných dní** (pondelok–piatok) okien, deň bez obchodu má výnos 0 (inak by √252
+   riedku stratégiu nadhodnotila) —,
    so šikmosťou a špicatosťou; očakávané maximum `trials` nezávislých skúšok pri nulovom edgi
    (rozptyl Sharpe pod nulou = 1 / T). Skúšky z hľadania sú korelované → N je horná hranica, test je prísny.
 
@@ -24,9 +26,10 @@ from dataclasses import dataclass, field
 from statistics import NormalDist
 from typing import Any
 
-from tradebot.adapters.multicharts.emulator import emulate, rows_from_trades
+from tradebot.adapters.multicharts.emulator import BarCache, emulate, rows_from_trades
+from tradebot.core.candles import timeframe_minutes
 from tradebot.core.config import load_profile
-from tradebot.core.money import summary_money
+from tradebot.core.money import profit_factor, summary_money
 from tradebot.core.types import INSTRUMENTS
 
 from . import engines
@@ -72,9 +75,51 @@ def deflated_sharpe(daily: list[float], trials: int) -> dict[str, float]:
 
 
 def _pf(rows: list[dict[str, Any]]) -> float:
+    """PF podľa jediného pravidla v jadre (`tradebot.core.money.profit_factor`)."""
     gp = sum(r["profit_abs"] for r in rows if r["profit_abs"] > 0)
     gl = -sum(r["profit_abs"] for r in rows if r["profit_abs"] < 0)
-    return gp / gl if gl else (99.0 if gp else 0.0)
+    return profit_factor(gp, gl)
+
+
+def _open_ms(row: dict[str, Any]) -> int:
+    from datetime import datetime
+
+    return int(datetime.fromisoformat(str(row["open_date"])).timestamp() * 1000)
+
+
+def _outside(rows: list[dict[str, Any]], earlier) -> list[dict[str, Any]]:
+    """Obchody okna, ktoré sa neotvorili v čase už pokrytom skorším oknom (`earlier` = okná pred ním).
+
+    Okná sa prekrývajú (`20231001-20241001` a `20240904-20250904` majú spoločné 4.–30. 9. 2024) a obchody
+    z prekrytia sú v oboch behoch — do súčtov cez okná smú ísť raz. Reže sa podľa **času**, nie podľa
+    orderu: `enter_tag` nesie číslo baru od začiatku behu, takže ten istý obchod má v každom okne iný,
+    a beh s iným začiatkom nemusí v prekrytí dať presne tie isté obchody. Prekrytie patrí skoršiemu oknu.
+    """
+    spans = [tuple(_ms(x) for x in w.split("-")) for w in earlier]
+    if not spans:
+        return list(rows)
+    return [r for r in rows if not any(a <= _open_ms(r) < b for a, b in spans)]
+
+
+def _trading_days(windows) -> list[str]:
+    """Všetky obchodné dni (pondelok–piatok, UTC) okien `YYYYMMDD-YYYYMMDD`, koniec okna nepatrí; každý raz."""
+    from datetime import datetime, timedelta
+
+    days: set[str] = set()
+    for w in windows:
+        a, b = (datetime.strptime(x, "%Y%m%d") for x in w.split("-"))
+        while a < b:
+            if a.weekday() < 5:
+                days.add(a.strftime("%Y-%m-%d"))
+            a += timedelta(days=1)
+    return sorted(days)
+
+
+def _daily_returns(rows: list[dict[str, Any]], wallet: float, windows) -> list[float]:
+    """Denné výnosy cez všetky obchodné dni okien; deň bez obchodu = 0. Obchod zavretý mimo nich
+    (nedeľný Globex, krypto víkend) svoj deň pridá, aby sa žiadny zisk ani strata nestratili."""
+    daily = _daily(rows, wallet)
+    return [daily.get(d, 0.0) for d in sorted(set(_trading_days(windows)) | set(daily))]
 
 
 def _daily(rows: list[dict[str, Any]], wallet: float) -> dict[str, float]:
@@ -102,19 +147,22 @@ def robustness(profile: str, pair: str, timeframe: str, fee: float, trials: int,
     inst = INSTRUMENTS[instrument_for_pair(pair)]
     if m1 is None:
         m1 = pd.read_feather(engines.one_minute_file(inst))
-    tf = int(timeframe.rstrip("m"))
+    tf = timeframe_minutes(timeframe)
     rep = Report(profile=str(profile))
     all_base, all_fee2, all_delay = [], [], []
     for w in windows:
         a, b = w.split("-")
-        res, _ = emulate(cfg, inst, m1, tf, from_ms=_ms(a), to_ms=_ms(b), fee=fee)
+        bars = BarCache(m1)        # oba behy okna (bez posunu a s posunom) skladajú tie isté bary raz
+        res, _ = emulate(cfg, inst, m1, tf, from_ms=_ms(a), to_ms=_ms(b), fee=fee, bars=bars)
         base = rows_from_trades(res.trades, inst, fee)
         fee2 = rows_from_trades(res.trades, inst, fee * fee_mult)
-        res_d, _ = emulate(cfg, inst, m1, tf, from_ms=_ms(a), to_ms=_ms(b), fee=fee, entry_delay=delay)
+        res_d, _ = emulate(cfg, inst, m1, tf, from_ms=_ms(a), to_ms=_ms(b), fee=fee, entry_delay=delay, bars=bars)
         dl = rows_from_trades(res_d.trades, inst, fee)
-        all_base += base
-        all_fee2 += fee2
-        all_delay += dl
+        # do súčtov cez okná len to, čo skoršie okno ešte nepokrylo (audit M-CORE-2); riadok okna je celý
+        seen = list(windows)[:len(rep.windows)]
+        all_base += _outside(base, seen)
+        all_fee2 += _outside(fee2, seen)
+        all_delay += _outside(dl, seen)
         row = {"window": w, "trades": len(base), "pf": _pf(base), "pf_fee2": _pf(fee2),
                "trades_delay": len(dl), "pf_delay": _pf(dl),
                "be": summary_money(base, wallet).get("break_even_pct")}
@@ -125,9 +173,7 @@ def robustness(profile: str, pair: str, timeframe: str, fee: float, trials: int,
                  "trades": len(all_base), "trades_delay": len(all_delay),
                  "win_fee2": sum(1 for r in rep.windows if r["pf_fee2"] >= 1.0),
                  "win_delay": sum(1 for r in rep.windows if r["pf_delay"] >= 1.0)}
-    # denné výnosy cez všetky okná; prekrytie okien 4.–30. 9. 2025 sa započíta raz (posledný výskyt)
-    daily = _daily(all_base, wallet)
-    rep.dsr = deflated_sharpe([daily[d] for d in sorted(daily)], trials)
+    rep.dsr = deflated_sharpe(_daily_returns(all_base, wallet, windows), trials)
     t = rep.total
     rep.verdict = {
         "fee2": t["pf_fee2"] >= 1.0 and t["win_fee2"] >= 3,
@@ -158,8 +204,8 @@ def main(argv: list[str] | None = None) -> int:
         rep = robustness(p, args.pair, args.timeframe, args.fee, args.trials, fee_mult=args.fee_mult,
                          delay=args.delay, m1=m1)
         t, d = rep.total, rep.dsr
-        print(f"  spolu: PF {t['pf']:.2f} | 2× poplatok {t['pf_fee2']:.2f} ({t['win_fee2']}/5 okien ≥ 1) | "
-              f"o sviečku neskôr {t['pf_delay']:.2f} ({t['win_delay']}/5) | Sharpe {d.get('sr_annual', 0):.2f} "
+        print(f"  spolu: PF {t['pf']:.2f} | 2× poplatok {t['pf_fee2']:.2f} ({t['win_fee2']}/{len(rep.windows)} okien ≥ 1) | "
+              f"o sviečku neskôr {t['pf_delay']:.2f} ({t['win_delay']}/{len(rep.windows)}) | Sharpe {d.get('sr_annual', 0):.2f} "
               f"vs prah {d.get('sr0_annual', 0):.2f} pri {args.trials} skúškach → DSR {d.get('dsr', 0):.3f}")
         print(f"  verdikt: {rep.verdict}")
         out.append(rep.__dict__)

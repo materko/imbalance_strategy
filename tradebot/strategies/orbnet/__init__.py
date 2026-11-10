@@ -29,6 +29,7 @@ CSHARP_KEY = "orbnet"
 
 SPEC = StrategySpec(
     key="orbnet",
+    base_key="orb",
     title="ORBNet Opening Range Breakout (C# jadro)",
     config_cls=ORBNetConfig,
     profile_dir=CONFIG_DIR,

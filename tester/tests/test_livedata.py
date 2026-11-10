@@ -318,3 +318,23 @@ def test_hub_subory_pluginu_cez_api(tmp_path: Path) -> None:
     assert cl.get("/api/plugins/livedata/files/tajne.txt").status_code == 404
     assert cl.get("/api/plugins/livedata/files/candles/../tajne.txt").status_code == 404
     assert cl.get("/api/plugins/nic/files").status_code == 404
+
+
+def test_cache_pohladu_sleduje_len_subory_svojej_instancie(tmp_path: Path) -> None:
+    """N-DATA-5: pečiatka cache pohľadu = sviečky symbolu inštancie + jej obchody a záznam, nie celý strom."""
+    mirror, root = tmp_path / "mirror.sqlite", tmp_path / "data_live"
+    _mirror(mirror)
+    livedata.export(mirror, root, tmp_path / "cur.json", now_ms=T0 + 30 * MIN)
+    inst = livedata.instance(INST, root)
+    pred = livesim._view_stamp([root], INST, inst)
+    svoje = {Path(p) for p, _ in pred}
+    sym = livedata.symbol_dir(inst["platform"], inst["symbol"], root)
+    assert {p for p in sym.glob("*.feather")} <= svoje and any("trades" in p.parts for p in svoje)
+    assert all(p.is_file() for p in svoje)
+
+    cudzi = livedata.symbol_dir(inst["platform"], "INY-SYMBOL", root)       # nový bar cudzieho trhu
+    cudzi.mkdir(parents=True)
+    (cudzi / "1m-2026-10.feather").write_bytes(b"x")
+    assert livesim._view_stamp([root], INST, inst) == pred
+    (sym / "1m-2099-01.feather").write_bytes(b"x")                           # nový súbor vlastného symbolu
+    assert livesim._view_stamp([root], INST, inst) != pred

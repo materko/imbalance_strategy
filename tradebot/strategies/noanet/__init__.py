@@ -25,6 +25,7 @@ CSHARP_KEY = "noanet"
 
 SPEC = StrategySpec(
     key="noanet",
+    base_key="noa",
     title="NOA 1.0 (C# jadro)",
     config_cls=NoaNetConfig,
     profile_dir=CONFIG_DIR,

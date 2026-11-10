@@ -20,6 +20,7 @@ CSHARP_KEY = "sdeurnet"
 SPEC = replace(
     BASE_SPEC,
     key="sdeurnet",
+    base_key="sdeur",
     title="SD ZÓNY EURUSD (C# jadro)",
     config_cls=SdEurNetConfig,
     profile_dir=CONFIG_DIR,

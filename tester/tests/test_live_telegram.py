@@ -17,6 +17,8 @@ from tradebot.live.spool import SpoolReader
 from tester.hub.agent_plugins.telegram.service import (ControlFiles, LiveNotifier, TelegramBot, TelegramCommands, TelegramConfig,
                                     TelegramConflict, TelegramError, TelegramState, akey, format_event, ikey,
                                     load_config)
+from tester.hub.agent_plugins.telegram.service import (CONFLICT_CALM_SECONDS, CONFLICT_RETRY_MAX,
+                                    CONFLICT_RETRY_SECONDS, TelegramService)
 from tradebot.live.vault import Vault
 
 INST = "mt5_1514925336-FTMO-Demo_US100.cash_3m_vwaporbnet"
@@ -624,3 +626,90 @@ def test_bez_admins_ovladanie_len_v_sukromnom_chate_a_pause_podla_videneho_statu
     bot.ups = [msg("/pause 1", user=7, chat=7, uid=4)]
     cmd.poll()
     assert ctl.modes[novy] == "enabled" and ctl.modes[INST] == "paused"   # č. 1 z videného /status
+
+
+class _BotSKonfliktom(FakeBot):
+    """`getUpdates` vracia 409, kým je `konflikt`; správy (`send`) idú ďalej ako na skutočnom bote."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.konflikt = False
+        self.dopyty: list[int] = []
+
+    def set_commands(self, commands):
+        pass
+
+    def updates(self, offset, timeout=3):
+        self.dopyty.append(timeout)
+        if self.konflikt:
+            raise TelegramConflict("getUpdates: 409")
+        return super().updates(offset, timeout)
+
+
+def test_409_prikazy_len_pozastavi_a_po_pauze_sa_vratia(tmp_path: Path):
+    """Audit M-HUB-7: prechodná 409 (po výpadku siete) nesmie vypnúť `/pause` a `/flatten` do reštartu."""
+    bot, ctl, t = _BotSKonfliktom(), FakeControls(), [1000.0]
+    cmd = TelegramCommands(bot, CFG, TelegramState(tmp_path / "s.json"), ctl, clock=lambda: t[0])
+    bot.konflikt = True
+    assert cmd.poll() == 0 and "pozastavené" in cmd.disabled and cmd.conflict_since == 1000.0
+    t[0] += CONFLICT_RETRY_SECONDS - 1
+    assert cmd.poll() == 0 and bot.dopyty == [3]                    # počas pauzy sa Telegramu nepýta
+    bot.konflikt = False
+    t[0] += 2
+    bot.ups = [msg("/pause US100", uid=1)]
+    assert cmd.poll() == 1 and cmd.disabled is None and ctl.modes[INST] == "paused"
+    assert bot.dopyty == [3, 0]                                     # skúšobný dopyt je krátky, nie long-poll
+    assert cmd.poll() == 0 and bot.dopyty[-1] == 3                  # a potom zas počúva normálne
+    assert not any("nefungujú" in s[1] for s in bot.sent)           # krátky konflikt bez upozornenia
+    t[0] += CONFLICT_CALM_SECONDS + 1
+    cmd.poll()
+    assert cmd.conflict_since is None and cmd._conflicts == 0
+
+
+def test_409_trvajuci_konflikt_sa_ohlasi_a_dva_procesy_sa_nebiju_donekonecna(tmp_path: Path):
+    """Audit M-HUB-7: trvajúci konflikt ide do chatov (raz), pauza medzi pokusmi rastie po strop a striedanie
+    dvoch procesov na jednom bote sa počíta ako jeden trvajúci konflikt."""
+    bot, t = _BotSKonfliktom(), [1000.0]
+    svc_cfg = TelegramConfig(token="t", chats=[7], admins=[42], label="nt-pc")
+    cmd = TelegramCommands(bot, svc_cfg, TelegramState(tmp_path / "s.json"), FakeControls(), clock=lambda: t[0])
+    bot.konflikt = True
+    pauzy = []
+    for _ in range(7):
+        cmd.poll()
+        pauzy.append(cmd._retry_at - t[0])
+        t[0] = cmd._retry_at
+    assert pauzy == [30.0, 60.0, 120.0, 240.0, 480.0, 600.0, 600.0] and len(bot.dopyty) == 7
+    upozornenia = [s for s in bot.sent if "nefungujú" in s[1]]
+    assert len(upozornenia) == 1 and upozornenia[0][0] == 7 and upozornenia[0][1].startswith("[nt-pc] ⚠️ Príkazy bota")
+    # druhý proces na chvíľu pustí: počúvame, ale konflikt sa nenuluje — ďalšia 409 pokračuje v dlhej pauze
+    bot.konflikt = False
+    assert cmd.poll() == 0 and cmd.disabled is None and cmd.conflict_since == 1000.0
+    bot.konflikt = True
+    t[0] += 5
+    cmd.poll()
+    assert cmd.disabled and cmd._retry_at - t[0] == CONFLICT_RETRY_MAX and len(upozornenia) == 1
+    # až dlhší pokoj konflikt uzavrie a ohlási návrat
+    bot.konflikt = False
+    t[0] = cmd._retry_at
+    cmd.poll()
+    assert not any("znova fungujú" in s[1] for s in bot.sent)
+    t[0] += CONFLICT_CALM_SECONDS + 1
+    cmd.poll()
+    assert bot.sent[-1][1] == "[nt-pc] ✅ Príkazy bota znova fungujú." and cmd.conflict_since is None
+
+
+def test_sluzba_pri_konflikte_spi_a_stav_ukaze_od_kedy(tmp_path: Path):
+    """Audit M-HUB-7: kým sú príkazy pozastavené, slučka služby netočí naprázdno a stav pluginu nesie dôvod."""
+    bot, t, spanok = _BotSKonfliktom(), [1000.0], []
+    svc = TelegramService(TelegramConfig(token="t", chats=[7], admins=[42]), tmp_path / "s.json", tmp_path / "c.json",
+                          roots=lambda: [], bot=bot, clock=lambda: t[0], sleep=spanok.append)
+    bot.konflikt = True
+    svc.tick(3.0)
+    svc.tick(3.0)
+    assert spanok == [3.0, 3.0] and len(bot.dopyty) == 1
+    st = svc.status()
+    assert "pozastavené" in st["commands_error"] and st["commands_error_since"] == 1000.0
+    bot.konflikt = False
+    t[0] += CONFLICT_RETRY_SECONDS + 1
+    svc.tick(3.0)
+    assert svc.status()["commands_error"] is None and spanok == [3.0, 3.0]

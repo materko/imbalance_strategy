@@ -14,7 +14,7 @@ function restoreSweep() {
   let ulozeny = null;
   try { ulozeny = localStorage.getItem(sweepKey()); } catch (e) { /* súkromné okno */ }
   sweep.id = ulozeny || null;
-  clearTimeout(sweep.timer);
+  sweepPoller.stop();
   $("#sweep-status").textContent = "";
   $("#sweep-result").innerHTML = "";
   $("#sweep-cancel").hidden = true;
@@ -135,7 +135,7 @@ function openSweep(id) {
   try {
     id ? localStorage.setItem(sweepKey(), id) : localStorage.removeItem(sweepKey());
   } catch (e) { /* súkromné okno */ }
-  clearTimeout(sweep.timer);
+  sweepPoller.stop();
   if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
   $("#sweep-box").open = true;
   pollSweep();
@@ -147,7 +147,7 @@ function openMatrix(id) {
   try {
     id ? localStorage.setItem(matrixKey(), id) : localStorage.removeItem(matrixKey());
   } catch (e) { /* súkromné okno */ }
-  clearTimeout(matrixState.timer);
+  matrixPoller.stop();
   if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
   $("#sweep-box").open = true;
   pollMatrix();
@@ -159,7 +159,7 @@ function openHyper(id) {
   try {
     id ? localStorage.setItem(hyperKey(), id) : localStorage.removeItem(hyperKey());
   } catch (e) { /* súkromné okno */ }
-  clearTimeout(hyper.timer);
+  hyperPoller.stop();
   if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
   $("#sweep-box").open = true;
   pollHyper();

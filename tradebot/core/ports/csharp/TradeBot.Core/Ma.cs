@@ -17,7 +17,9 @@ namespace TradeBot.Core
         public Ema(int n)
         {
             N = Math.Max(1, n);
-            Alpha = 2.0 / (n + 1);
+            // z orezaneho N, nie z povodneho `n`: n <= 0 by dalo alpha >= 1 (alebo delenie nulou) a priemer by
+            // osciloval (audit N-CS-7); pre n >= 1 je to to iste cislo. Python `ma.EMA` rovnako.
+            Alpha = 2.0 / (N + 1);
         }
 
         public double? Value { get { return _value; } }

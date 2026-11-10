@@ -164,9 +164,18 @@ namespace TradeBot.Core
             Sessions = sessions;
         }
 
+        // Posledny prevod na vlakno: `State` sa na jeden bar a jednu seansu pyta na ten isty (cas, pasmo) 5x
+        // (den v tyzdni, dve okna, zvysok dna) a `ConvertTimeFromUtc` je z toho najdrahsie (audit N-CS-8).
+        [ThreadStatic] private static long _lastTs;
+        [ThreadStatic] private static TimeZoneInfo _lastTz;
+        [ThreadStatic] private static DateTime _lastLocal;
+
         private static DateTime Local(long tsMs, TimeZoneInfo tz)
         {
-            return TimeZoneInfo.ConvertTimeFromUtc(Epoch.AddMilliseconds(tsMs), tz);
+            if (_lastTz == tz && _lastTs == tsMs) return _lastLocal;
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(Epoch.AddMilliseconds(tsMs), tz);
+            _lastTs = tsMs; _lastTz = tz; _lastLocal = local;
+            return local;
         }
 
         /// <summary>Pine `timestamp(tz, y, mo, d, h, m)` - lokalny cas v pasme -> ms epoch.
@@ -174,7 +183,16 @@ namespace TradeBot.Core
         /// posun platny PRED prechodom, resp. prvy (letny) vyskyt.</summary>
         private static long TimestampMs(TimeZoneInfo tz, DateTime localDate, int hour, int minute)
         {
-            DateTime local = new DateTime(localDate.Year, localDate.Month, localDate.Day, hour, minute, 0, DateTimeKind.Unspecified);
+            return LocalToUtcMs(tz, new DateTime(localDate.Year, localDate.Month, localDate.Day, hour, minute, 0, DateTimeKind.Unspecified));
+        }
+
+        /// <summary>Lokalny cas v pasme -> ms epoch presne ako Python `datetime(..., tzinfo=ZoneInfo(tz))` (`fold=0`).
+        /// `TimeZoneInfo.ConvertTimeToUtc` pri neexistujucom case (jarny posun) hodi `ArgumentException` a pri
+        /// dvojznacnom (jesenny) berie zimny cas - o hodinu inak nez Python (audit N-CS-7). Jedno miesto pre
+        /// jadro aj strategie.</summary>
+        public static long LocalToUtcMs(TimeZoneInfo tz, DateTime local)
+        {
+            local = DateTime.SpecifyKind(local, DateTimeKind.Unspecified);
             TimeSpan offset;
             if (tz.IsInvalidTime(local))
             {

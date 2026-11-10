@@ -37,6 +37,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.core.paths import REPO, BACKTEST_RESULTS as RESULTS_DIR, TMP_PROFILES
 from tradebot.core.types import INSTRUMENTS
 from tradebot.core.version import repo_version
@@ -63,6 +64,11 @@ from .repo_profiles import (  # noqa: F401
 #: Koľko riadkov logu sa uloží k behu — celý log Freqtradu má stovky riadkov
 #: o načítavaní dát, ktoré nikoho nezaujímajú.
 LOG_KEEP_LINES = 400
+
+#: Koľko dobehnutých behov si fronta drží v pamäti (stav pre CLI, agenta hubu a detail behu, kým sa
+#: nepozrú do histórie). Staršie sa zahadzujú — bez toho `jobs` rástol až do reštartu webapp, každý Job
+#: s tisíckami riadkov logu (audit N-WEB-14). Výsledok je aj tak na disku (`store.find`).
+KEEP_FINISHED = 200
 
 
 @dataclass
@@ -179,7 +185,7 @@ class BacktestRunner(HyperoptJobMixin):
         # a beh si zapíše celý efektívny config — nie len to, čo poslal formulár
         if self._refuse:
             raise RunnerClosed(f"{self._refuse} — beh zadaj o chvíľu znova")
-        params = effective_params(params, settings.get("strategy") or "ibs")
+        params = effective_params(params, settings.get("strategy") or DEFAULT_STRATEGY)
         check_market_rules(settings["pair"], params)
         settings = {**settings, "instrument": instrument_for_pair(settings["pair"])}
         teraz = datetime.now(timezone.utc)
@@ -200,15 +206,22 @@ class BacktestRunner(HyperoptJobMixin):
         return job
 
     def cancel(self, job_id: str) -> bool:
-        job = self.jobs.get(job_id)
-        if job is None:
-            return False
-        job.cancel_requested = True
-        if job.status == "queued":
-            job.status = "failed"
-            job.error = "zrušené používateľom"
-            job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        # Stav sa číta a mení pod tým istým zámkom, pod ktorým worker prepína `queued → running`
+        # (`_loop_once`): inak sa beh zrušený práve vo chvíli štartu zapísal ako zrušený a aj tak zbehol
+        # (audit M-WEB-9). Zápis do histórie a zabíjanie procesov sú už mimo zámku.
+        with self._lock:
+            job = self.jobs.get(job_id)
+            if job is None:
+                return False
+            job.cancel_requested = True
+            caka = job.status == "queued"
+            if caka:
+                job.status = "failed"
+                job.error = "zrušené používateľom"
+                job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        if caka:
             self._persist(job, None)
+            self._forget_old()
             return True
         if job.status == "running":
             # natívny beh (C# bod, hyperopt v procese) podproces nemá - dobehne a výsledok sa zahodí
@@ -260,6 +273,17 @@ class BacktestRunner(HyperoptJobMixin):
     def job(self, job_id: str) -> Job | None:
         return self.jobs.get(job_id)
 
+    def _forget_old(self) -> None:
+        """Nechá v pamäti len posledných `KEEP_FINISHED` dobehnutých behov; čakajúce a bežiace vždy."""
+        with self._lock:
+            hotove = [i for i in self.order if self.jobs[i].status not in ("queued", "running")]
+            prec = set(hotove[:-KEEP_FINISHED]) if len(hotove) > KEEP_FINISHED else set()
+            if not prec:
+                return
+            for i in prec:
+                del self.jobs[i]
+            self.order = [i for i in self.order if i not in prec]
+
     # -- vnútro ------------------------------------------------------------ #
 
     def _can_start(self, job: Job) -> bool:
@@ -269,6 +293,10 @@ class BacktestRunner(HyperoptJobMixin):
         if job.exclusive:
             return not bezia
         if any(j.exclusive for j in bezia):
+            return False
+        # `workers` sa dá znížiť za behu (nastavenie agenta hubu); vlákna navyše neumierajú, tak počet
+        # behov naraz stráži táto podmienka, nie počet vlákien (audit N-WEB-15)
+        if len(bezia) >= self.workers:
             return False
         # hyperopt zaradený skôr čaká na prázdny stroj — ostatní workeri ho nesmú predbiehať
         # ďalšími bodmi, inak pri 24 slotoch nezačne, kým fronta nevyschne (audit N-WEB-11)
@@ -311,14 +339,22 @@ class BacktestRunner(HyperoptJobMixin):
         finally:
             with self._slot:
                 self._slot.notify_all()
+            self._forget_old()
 
     def _run(self, job: Job) -> None:
         job.status = "running"
         job.started = datetime.now(timezone.utc).isoformat(timespec="seconds")
         t0 = time.time()
+        if job.cancel_requested:
+            # zrušené medzi prepnutím na `running` a štartom podprocesu — `cancel` nemal čo zabiť (M-WEB-9)
+            job.status = "failed"
+            job.error = "zrušené používateľom"
+            job.finished = job.started
+            self._persist(job, None, 0.0)
+            return
         _refresh_derived(job.log_lines)
         instrument = instrument_for_pair(job.settings["pair"])
-        profile = write_profile(job.id, job.params, instrument, job.settings.get("strategy") or "ibs")
+        profile = write_profile(job.id, job.params, instrument, job.settings.get("strategy") or DEFAULT_STRATEGY)
         # Engine si volí tester; keď nepovie, rozhodne to, čo je na disku (tester.engines).
         # Hyperopt je iny druh behu: vysledkom nie su obchody, ale epochy - a po nich
         # overovacie behy na referencnych oknach. Ide tou istou frontou, lebo vytazi
@@ -354,6 +390,8 @@ class BacktestRunner(HyperoptJobMixin):
             text=True, encoding="utf-8", errors="replace", bufsize=1,
         )
         assert job.proc.stdout is not None
+        if job.cancel_requested:   # `cancel` prišiel, kým sa podproces spúšťal — vtedy ešte nebolo čo zabiť
+            self._kill_procs(job)
         with job.proc.stdout:  # rúra sa zatvorí hneď — Job (a jeho Popen) ostáva v pamäti
             for line in job.proc.stdout:
                 job.log_lines.append(line.rstrip("\n"))

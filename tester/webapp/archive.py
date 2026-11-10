@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
-from tester.atomic import write_json_atomic
+from tester.atomic import write_json_atomic, write_text_atomic
 from tradebot.core.paths import ARCHIVE_DIR
 
 from .store import PLAN_FILE, RunStore
@@ -207,12 +207,12 @@ def restore(store: RunStore, run_id: str, root: Path | None = None) -> Path | No
                     continue
                 d = store.root / run_id
                 d.mkdir(parents=True, exist_ok=True)
-                with open(d / "run.json", "w", encoding="utf-8", newline="\n") as out:
-                    json.dump(data["run"], out, ensure_ascii=False, indent=2, default=str)
-                    out.write("\n")
+                # Každý súbor atomicky a `run.json` až posledný: beh je v histórii vtedy, keď má `run.json`,
+                # takže pád uprostred nenechá beh s polovicou obchodov ani rozbitý JSON (zvyšok N-WEB-4).
                 for meno in FILES:
                     if meno in data:
-                        (d / meno).write_text(data[meno], encoding="utf-8", newline="")
+                        write_text_atomic(d / meno, data[meno])
+                write_json_atomic(d / "run.json", data["run"], indent=2, default=str)
                 store.index.put(run_id)
                 return d
     except OSError:

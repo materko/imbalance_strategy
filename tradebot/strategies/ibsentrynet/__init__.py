@@ -31,6 +31,7 @@ CSHARP_KEY = "ibsentrynet"
 
 SPEC = StrategySpec(
     key="ibsentrynet",
+    base_key="ibsentry",
     title="IBS Entry Zone (C# jadro)",
     config_cls=IBSEntryNetConfig,
     profile_dir=CONFIG_DIR,

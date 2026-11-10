@@ -118,6 +118,15 @@ namespace TradeBot.Backtest
             {
                 throw new InvalidDataException("feather " + path + ": " + exc.Message, exc);
             }
+            catch (Exception exc)
+            {
+                // skrateny alebo poskodeny subor (nedopisany zapis, preruseny sync): citanie mimo pola alebo
+                // nezmyselna dlzka - nech chyba povie KTORY subor, nie holy IndexOutOfRangeException (N-CS-7)
+                if (exc is IndexOutOfRangeException || exc is ArgumentException || exc is OverflowException
+                    || exc is EndOfStreamException)
+                    throw new InvalidDataException("feather " + path + ": subor je skrateny alebo poskodeny (" + exc.GetType().Name + ": " + exc.Message + ")", exc);
+                throw;
+            }
         }
 
         public static Candles ReadCandles(string path)

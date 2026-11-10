@@ -35,7 +35,7 @@ from typing import Any, Iterable, Sequence
 __all__ = [
     "TradeMoney", "trade_money", "row_money", "row_point_value", "point_value_for_pair",
     "fill_point_value", "gross_and_volume", "break_even_pct", "max_drawdown", "streaks",
-    "summary_money",
+    "profit_factor", "summary_money",
 ]
 
 
@@ -221,6 +221,18 @@ def streaks(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
     return out
 
 
+def profit_factor(gross_profit: float, gross_loss: float) -> float:
+    """Profit factor — jedno pravidlo pre celý repozitár (súhrn behu aj `tester.robust`).
+
+    Bez stratových obchodov podiel neexistuje: vracia sa hrubý zisk (tak ho ukazuje história behov),
+    bez ziskov aj strát 0. `gross_loss` je kladné číslo.
+    """
+    gp, gl = float(gross_profit), float(gross_loss)
+    if gl:
+        return gp / gl
+    return gp if gp else 0.0
+
+
 def summary_money(rows: Sequence[dict[str, Any]], wallet: float) -> dict[str, Any]:
     """Peňažná časť súhrnu behu z uložených obchodov (zoradených podľa zatvorenia).
 
@@ -247,7 +259,7 @@ def summary_money(rows: Sequence[dict[str, Any]], wallet: float) -> dict[str, An
         "trades": len(rows), "wins": wins, "losses": losses, "draws": len(rows) - wins - losses,
         "winrate": round(100.0 * wins / len(rows), 2) if rows else 0.0,
         "pnl_abs": round(pnl, 2), "pnl_pct": round(pnl / wallet * 100.0, 3) if wallet else 0.0,
-        "profit_factor": round(gp / gl, 3) if gl else (round(gp, 3) if gp else 0.0),
+        "profit_factor": round(profit_factor(gp, gl), 3),
         "max_drawdown_abs": round(dd_abs, 2), "max_drawdown_pct": round(dd_pct, 3),
         "starting_balance": wallet, "final_balance": round(wallet + pnl, 2),
         "gross_abs": round(gross, 2), "volume_abs": round(volume, 2),

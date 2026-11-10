@@ -534,7 +534,7 @@ const STRATEGIA_TRH_TYP = {
   vwaporb: ["NASDAQ", "TRENDOVÉ"], jss: ["NASDAQ", "TRENDOVÉ"], fibo: ["NASDAQ", "TRENDOVÉ"],
   mag7: ["NASDAQ", "TRENDOVÉ"], dailyopen: ["NASDAQ", "TRENDOVÉ"], noa: ["NASDAQ", "TRENDOVÉ"],
   tks: ["NASDAQ", "TRENDOVÉ"], nocpon: ["NASDAQ", "TRENDOVÉ"], nyvaes: ["S&P 500", "TRENDOVÉ"],
-  nb: ["NASDAQ", "TRENDOVÉ"],
+  nb: ["NASDAQ", "TRENDOVÉ"], demo_breakout: ["NASDAQ", "TRENDOVÉ"],   // ukážková Donchian Breakout (docs/STRATEGIE.md)
   // NASDAQ — skalpovacie: malý cieľ, obchod na minúty
   ibs: ["NASDAQ", "SKALPOVACIE"], ibszones: ["NASDAQ", "SKALPOVACIE"], ibsentry: ["NASDAQ", "SKALPOVACIE"],
   ibsfvg: ["NASDAQ", "SKALPOVACIE"], scalp3ma: ["NASDAQ", "SKALPOVACIE"], fvgpolarity: ["NASDAQ", "SKALPOVACIE"],
@@ -573,11 +573,11 @@ function auditBadges(k) {
   return `<span class="au-mark cls-${esc(a.cls)}" title="Audit ${esc(state.meta.audit.date || "")}: trieda ${esc(a.cls)} — ${esc(rules)}">${esc(a.cls)}</span>`
     + `<span class="au-mark s-${a.sortino_ok ? "ok" : "no"}" title="Sortino ${s} (hranica ${min}; počíta sa len pri stratégii, ktorá prešla smernicou)">S</span>`;
 }
-/** Kľúč predlohy C# portu: `ibsentryneteod` → `ibsentry`, `tksnet` → `tks`, `ibsnet` → `ibs`. */
+/** Kľúč predlohy C# portu: `ibsentryneteod` → `ibsentry`, `tksnet` → `tks`, `ibsnet` → `ibs`. Povie ho server
+ *  (`base_key` zo `StrategySpec`), z mena kľúča sa neháda (audit M-WEB-10); čo nie je prepis, je samo sebe predlohou. */
 function baseStrategyKey(k) {
-  let b = String(k).replace(/eod$/, "");
-  if (/net$/.test(b) && STRATEGIA_TRH_TYP[b.slice(0, -3)]) b = b.slice(0, -3);
-  return b;
+  const s = ((state.meta && state.meta.strategies) || []).find(x => x.key === k);
+  return (s && s.base_key) || k;
 }
 /** [trh, typ] stratégie; C# porty → [trh predlohy, "LIVE"]; nezaradené → ["OSTATNÉ", null]. */
 function strategyClass(k) {

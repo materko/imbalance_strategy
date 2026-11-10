@@ -94,7 +94,8 @@ class MCRunner:
         self.inst = inst
         self.chart_tf_minutes = chart_tf_minutes
         self.step_ms = chart_tf_minutes * 60_000
-        assert self.spec.engine_factory is not None, f"{self.spec.key}: chýba engine_factory"
+        if self.spec.engine_factory is None:      # nie `assert` — ten pri `python -O` zmizne (audit N-CORE-9)
+            raise ValueError(f"{self.spec.key}: chýba engine_factory")
         # market vstupy stratégie ako limitky, keď to config chce (`entryOrderType`); inak ten istý engine
         engine = wrap_entry_filter(self.spec.engine_factory(cfg, inst, chart_tf_minutes), cfg, chart_tf_minutes)
         self.engine = wrap_entry_sizing(wrap_entry_order(wrap_entry_confirm(engine, cfg), cfg), cfg)

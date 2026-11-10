@@ -21,6 +21,7 @@ CSHARP_KEY = "voltbreaknet"
 SPEC = replace(
     BASE_SPEC,
     key="voltbreaknet",
+    base_key="voltbreak",
     title="Volt Break (C# jadro)",
     config_cls=VoltBreakNetConfig,
     profile_dir=CONFIG_DIR,

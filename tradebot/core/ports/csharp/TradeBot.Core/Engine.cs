@@ -136,6 +136,10 @@ namespace TradeBot.Core
                 keys.Sort();
                 throw new ArgumentException("neznama C# strategia '" + key + "'; zname: " + string.Join(", ", keys.ToArray()));
             }
+            // TF grafu <= 0 (graf v sekundach / tickoch, zabudnuty parameter) da krok baru 0 ms a okna v baroch
+            // bez zmyslu - engine by bezal a ratal nezmysly. Jedno miesto pre vsetky strategie (audit N-CS-7).
+            if (chartTfMinutes < 1)
+                throw new ArgumentException("TF grafu musi byt aspon 1 minuta, je " + chartTfMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture));
             IEngine engine;
             try
             {

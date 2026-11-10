@@ -233,3 +233,75 @@ def test_odtlacok_webapp_ignoruje_kod_pluginov_nie_rozhranie():
     assert not _plugin_file("tester/hub/agent_plugins/base.py")
     assert not _plugin_file("tester/hub/plugins/__init__.py")
     assert not _plugin_file("tester/hub/agent.py")
+
+
+def test_hub_plugin_reload_pri_zlyhanom_importe_necha_bezat_stary(tmp_path: Path, monkeypatch):
+    """Audit M-HUB-11: nový kód pluginu sa nedá naimportovať → starý beží ďalej a chybu je vidno; po oprave sa
+    načíta nový."""
+    from tester.hub import plugins as plugins_mod
+
+    class Stary(HubPlugin):
+        interval = 1.0
+        teardowns = 0
+
+        def teardown(self) -> None:
+            type(self).teardowns += 1
+
+    class Novy(HubPlugin):
+        interval = 1.0
+
+    def nacitaj(name, fresh=False):
+        if fresh:
+            raise SyntaxError("preklep v novom kóde")
+        return Stary
+
+    monkeypatch.setattr(plugins_mod, "_load_class", nacitaj)
+    monkeypatch.setattr(plugins_mod, "discover", lambda: ["p"])
+    host = PluginHost(tmp_path, None, None, names=["p"])
+    host.start()
+    stary = host.slots["p"]
+    assert host.reload({"p"}) is True
+    s = host.slots["p"]
+    assert s is stary and isinstance(s.plugin, Stary) and s.thread.is_alive() and Stary.teardowns == 0
+    st = host.status()[0]
+    assert st["running"] and st["enabled"] and st["load_error"] == "" and "preklep" in st["reload_error"]
+    assert st["problem"] == "nový kód sa nenačítal, beží starý: SyntaxError: preklep v novom kóde"
+    assert host.run_once("p") is True
+    monkeypatch.setattr(plugins_mod, "_load_class", lambda name, fresh=False: Novy)   # opravený kód
+    assert host.reload({"p"}) is True
+    st = host.status()[0]
+    assert isinstance(host.slots["p"].plugin, Novy) and Stary.teardowns == 1 and st["reload_error"] == ""
+    assert st["problem"] is None and st["running"]
+    host.stop()
+
+
+def test_hub_plugin_reload_pri_zlyhanom_setupe_vrati_stary(tmp_path: Path):
+    """Audit M-HUB-11: nový kód sa naimportuje, ale `setup` padne — starý plugin (už po `teardown`) sa nastaví
+    znova a beží ďalej; nikdy sa nenačítaný plugin ostáva s `load_error` ako doteraz."""
+    class Stary(HubPlugin):
+        interval = 1.0
+        setups = 0
+        teardowns = 0
+
+        def setup(self, ctx) -> None:
+            super().setup(ctx)
+            type(self).setups += 1
+
+        def teardown(self) -> None:
+            type(self).teardowns += 1
+
+    class Zly(HubPlugin):
+        def setup(self, ctx) -> None:
+            raise RuntimeError("zlý setup")
+
+    classes = {"p": Stary, "novy": Zly}
+    host = PluginHost(tmp_path, None, None, classes=classes)
+    host.start()
+    stary = host.slots["p"]
+    classes["p"] = Zly
+    assert host.reload({"p", "novy"}) is True
+    s = host.slots["p"]
+    assert s is stary and isinstance(s.plugin, Stary) and s.thread.is_alive()
+    assert (Stary.teardowns, Stary.setups) == (1, 2) and "zlý setup" in s.reload_error and s.load_error == ""
+    assert host.slots["novy"].plugin is None and "zlý setup" in host.slots["novy"].load_error   # nebolo čo zachrániť
+    host.stop()

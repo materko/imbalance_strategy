@@ -26,7 +26,8 @@ from tradebot.core.paths import CSHARP_DLL, CSHARP_HOST
 
 from .build import ensure_built
 
-__all__ = ["BridgeError", "Transport", "InprocTransport", "StdioTransport", "open_transport", "bridge_mode"]
+__all__ = ["BridgeError", "Transport", "InprocTransport", "StdioTransport", "open_transport", "bridge_mode",
+           "loaded_dll_is_stale"]
 
 _log = logging.getLogger(__name__)
 
@@ -79,16 +80,47 @@ class Transport:
 
 _clr_lock = threading.Lock()
 _clr_host_cls = None
+#: (mtime_ns, veľkosť) DLL, ktorá je v procese načítaná, a tá, na ktorú sme už upozornili (N-CS-9)
+_clr_loaded_stamp: tuple[int, int] | None = None
+_clr_warned_stamp: tuple[int, int] | None = None
+
+
+def _dll_stamp() -> tuple[int, int] | None:
+    try:
+        st = CSHARP_DLL.stat()
+    except OSError:
+        return None
+    return st.st_mtime_ns, st.st_size
+
+
+def loaded_dll_is_stale() -> bool:
+    """Je na disku iná `TradeBot.dll` než tá, ktorú má tento proces načítanú?
+
+    .NET Framework assembly z predvolenej domény neuvoľní, takže po preklade jadra beží dlho žijúci proces
+    (webapp, agent) ďalej so starým kódom, kým sa nereštartuje (audit N-CS-9). Aspoň to povieme."""
+    global _clr_warned_stamp
+    if _clr_host_cls is None or _clr_loaded_stamp is None:
+        return False
+    now = _dll_stamp()
+    if now is None or now == _clr_loaded_stamp:
+        return False
+    if now != _clr_warned_stamp:
+        _clr_warned_stamp = now
+        _log.warning("C# jadro %s sa od načítania do tohto procesu zmenilo - beží STARÁ verzia, kým sa proces "
+                     "nereštartuje (stdio most `TRADEBOT_CSHARP_BRIDGE=stdio` berie vždy novú)", CSHARP_DLL.name)
+    return True
 
 
 def _load_clr():
     """Načíta `TradeBot.dll` do procesu raz. Z bajtov, nie zo súboru — .NET Framework by si
     inak DLL zamkol a ďalší preklad (iný beh, vývoj) by ju nemal ako prepísať."""
-    global _clr_host_cls
+    global _clr_host_cls, _clr_loaded_stamp
     with _clr_lock:
         if _clr_host_cls is not None:
+            loaded_dll_is_stale()      # len upozornenie; načítanú assembly už vymeniť nejde
             return _clr_host_cls
         dll = ensure_built()
+        stamp = _dll_stamp()
         try:
             import pythonnet
 
@@ -106,6 +138,7 @@ def _load_clr():
         except Exception as exc:  # pythonnet hlási všeličo: chýbajúci runtime, zlá architektúra...
             raise BridgeError(f"pythonnet nevie načítať {dll}: {exc}") from exc
         _clr_host_cls = EngineHost
+        _clr_loaded_stamp = stamp
         return _clr_host_cls
 
 
@@ -140,6 +173,15 @@ class InprocTransport(Transport):
 
     def stats(self):
         return json.loads(self._host.Stats())
+
+    def close(self) -> None:
+        """Pustí C# engine (stav, história barov) — ďalšie volanie je chyba, nie tichý beh na starom stave."""
+        self._host = _ClosedHost()
+
+
+class _ClosedHost:
+    def __getattr__(self, name: str):
+        raise BridgeError("C# engine je zatvorený")
 
 
 # --------------------------------------------------------------------------- #
@@ -195,26 +237,74 @@ class LineReader:
 CALL_TIMEOUT = float(os.environ.get("TRADEBOT_CSHARP_TIMEOUT") or 120)
 
 
+class StderrTail:
+    """Posledné riadky stderr hostiteľa — čítacie vlákno rúru vyprázdňuje (plná by hostiteľa zastavila)
+    a chyba mosta tak vie povedať, PREČO hostiteľ skončil (neošetrená výnimka .NET, chýbajúce Mono)."""
+
+    def __init__(self, stream, keep: int = 30) -> None:
+        from collections import deque
+
+        self._lines: "deque[str]" = deque(maxlen=keep)
+        self._thread = threading.Thread(target=self._run, args=(stream,), name="csharp-stderr", daemon=True)
+        self._thread.start()
+
+    def _run(self, stream) -> None:
+        try:
+            for line in stream:
+                self._lines.append(line.rstrip())
+        except (OSError, ValueError):
+            pass
+
+    def text(self, wait: float = 0.5) -> str:
+        """Čo hostiteľ napísal na stderr; `wait` = koľko počkať, kým vlákno dočíta po jeho konci."""
+        self._thread.join(wait)
+        return "\n".join(x for x in self._lines if x)
+
+
 class StdioTransport(Transport):
     def __init__(self, key: str, config_json: str, instrument_json: str, chart_tf_minutes: int) -> None:
         self._proc = subprocess.Popen(_host_command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                      cwd=str(CSHARP_DLL.parent), encoding="utf-8", bufsize=1)
+                                      stderr=subprocess.PIPE, cwd=str(CSHARP_DLL.parent), encoding="utf-8",
+                                      errors="replace", bufsize=1)
         self._reader = LineReader(self._proc.stdout)
+        self._stderr = StderrTail(self._proc.stderr)
         self.info = self._call({"op": "create", "key": key, "config": config_json,
                                 "instrument": instrument_json, "tf": int(chart_tf_minutes)})
 
+    def _died(self, what: str) -> BridgeError:
+        """Chyba mosta s tým, čo hostiteľ stihol napísať na stderr."""
+        err = self._stderr.text()
+        return BridgeError(what + (f"\nstderr hostiteľa:\n{err}" if err else ""))
+
     def _call(self, req: dict[str, Any]) -> Any:
         proc = self._proc
-        if proc is None or proc.poll() is not None:
+        if proc is None:
             raise BridgeError("C# hostiteľ nebeží")
-        proc.stdin.write(json.dumps(req, separators=(",", ":")) + "\n")
-        proc.stdin.flush()
+        if proc.poll() is not None:
+            raise self._died(f"C# hostiteľ nebeží (skončil s kódom {proc.poll()})")
+        try:
+            proc.stdin.write(json.dumps(req, separators=(",", ":")) + "\n")
+            proc.stdin.flush()
+        except (OSError, ValueError) as exc:
+            # hostiteľ skončil medzi `poll()` a zápisom (BrokenPipeError / zavretá rúra) — rovnaká chyba mosta
+            # ako pri prázdnej odpovedi, nie holá výnimka OS (audit M-LIVE-9)
+            try:
+                code = proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                code = None
+            raise self._died(f"C# hostiteľ neprijal príkaz {req.get('op')!r} ({type(exc).__name__}: {exc}; "
+                             f"kód {code})") from exc
         line = self._reader.readline(CALL_TIMEOUT)
         if line is None:
             proc.kill()
-            raise BridgeError(f"C# hostiteľ neodpovedal do {CALL_TIMEOUT:.0f} s (op {req.get('op')}) - zabitý")
+            raise self._died(f"C# hostiteľ neodpovedal do {CALL_TIMEOUT:.0f} s (op {req.get('op')}) - zabitý")
         if not line:
-            raise BridgeError(f"C# hostiteľ skončil (kód {proc.poll()})")
+            try:
+                code = proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                code = proc.poll()
+            raise self._died(f"C# hostiteľ skončil (kód {code})")
         reply = json.loads(line)
         if isinstance(reply, dict) and "error" in reply:
             raise BridgeError(reply["error"])

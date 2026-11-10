@@ -78,11 +78,12 @@ class EMA(_Smooth):
     """Exponenciálny kĺzavý priemer, `alpha = 2/(n+1)`."""
 
     def __init__(self, n: int) -> None:
-        super().__init__(n, 2.0 / (int(n) + 1))
+        # z orezaného n (ako `_Smooth.n`): n <= 0 by dalo alpha >= 1 alebo delenie nulou (audit N-CS-7)
+        super().__init__(n, 2.0 / (max(1, int(n)) + 1))
 
 
 class RMA(_Smooth):
     """Wilderov kĺzavý priemer (Pine `ta.rma`, základ ATR aj RSI), `alpha = 1/n`."""
 
     def __init__(self, n: int) -> None:
-        super().__init__(n, 1.0 / int(n))
+        super().__init__(n, 1.0 / max(1, int(n)))

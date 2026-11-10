@@ -69,6 +69,7 @@ class _Slot:
         self.stop = threading.Event()
         self.reloads = 0
         self.loaded_at = 0.0
+        self.reload_error = ""   # nový kód sa pri reloade nenačítal a beží ďalej tento (starý)
 
 
 class PluginHost:
@@ -88,11 +89,12 @@ class PluginHost:
         for name in (sorted(classes) if classes is not None else (names if names is not None else discover())):
             self.slots[name] = self._load(name)
 
-    def _load(self, name: str, fresh: bool = False) -> _Slot:
+    def _load(self, name: str, fresh: bool = False, cls: type[HubPlugin] | None = None) -> _Slot:
         slot = _Slot(name)
         slot.loaded_at = self.clock()
         try:
-            cls = self._classes[name] if self._classes is not None else _load_class(name, fresh)
+            if cls is None:
+                cls = self._classes[name] if self._classes is not None else _load_class(name, fresh)
             p = cls()
             p.name = name
             p.title = p.title or name
@@ -170,8 +172,12 @@ class PluginHost:
     def reload(self, names: set[str] | list[str], *, join_seconds: float = RELOAD_JOIN_SECONDS) -> bool:
         """Načíta pluginy `names` znova z disku za behu: zastaví vlákno (počká, kým dobehne tick), `teardown`,
         nový import balíka, `setup`, nové vlákno. Plugin, ktorý na disku pribudol, sa pridá; ktorý zmizol, sa
-        odoberie. `False` = niektorý starý plugin nedobehol do `join_seconds` (volajúci reštartuje proces);
-        plugin, ktorý sa po novom nenačíta, ostane v stave s `load_error` (strážca ho ohlási)."""
+        odoberie. `False` = niektorý starý plugin nedobehol do `join_seconds` (volajúci reštartuje proces).
+
+        **Návrat k starému** (audit M-HUB-11): nový kód sa naimportuje ešte **pred** `teardown` starého. Keď import
+        zlyhá (syntaktická chyba, chýbajúca závislosť), starý plugin beží ďalej a chyba je v jeho stave ako
+        `reload_error` (strážca ju ohlási ako problém). Keď zlyhá až `setup` nového, starý sa skúsi nastaviť
+        znova; len keď nejde ani to, ostane plugin vypnutý s `load_error`."""
         with self._reload_lock:
             na_disku = set(discover()) if self._classes is None else set(self._classes)
             for name in sorted(set(names)):
@@ -183,16 +189,31 @@ class PluginHost:
                         if stary.thread.is_alive():
                             log.warning("plugin %s nedobehol do %.0f s — reload sa vzdáva", name, join_seconds)
                             return False
-                    if stary.plugin is not None:
-                        try:
-                            stary.plugin.teardown()
-                        except Exception as exc:  # noqa: BLE001
-                            log.warning("plugin %s teardown: %s", name, exc)
                 if name not in na_disku:
+                    self._teardown(stary)
                     self.slots.pop(name, None)
                     log.info("plugin %s z disku zmizol — odobratý", name)
                     continue
-                novy = self._load(name, fresh=True)
+                bezal = stary is not None and stary.plugin is not None
+                try:
+                    cls = self._classes[name] if self._classes is not None else _load_class(name, fresh=True)
+                except Exception as exc:  # noqa: BLE001 - nový kód sa nedá ani naimportovať
+                    if not bezal:
+                        cls = None      # nebolo čo zachrániť — `_load` chybu zapíše ako `load_error`
+                    else:
+                        self._keep_old(stary, f"{type(exc).__name__}: {exc}")
+                        continue
+                self._teardown(stary)
+                novy = self._load(name, fresh=True, cls=cls) if cls is not None else self._load(name, fresh=True)
+                if novy.plugin is None and bezal:
+                    # nový sa naimportoval, ale nenastavil (`setup`) — starý je už po `teardown`, skúsiť ho znova
+                    try:
+                        stary.plugin.setup(stary.ctx)
+                    except Exception as exc:  # noqa: BLE001
+                        log.warning("plugin %s: ani starý kód sa po zlyhanom reloade nenastavil: %s", name, exc)
+                    else:
+                        self._keep_old(stary, novy.load_error)
+                        continue
                 novy.reloads = (stary.reloads + 1) if stary is not None else 0
                 self.slots[name] = novy
                 self.slots = dict(sorted(self.slots.items()))
@@ -200,6 +221,22 @@ class PluginHost:
                     self._start_slot(novy)
                 log.info("plugin %s načítaný znova%s", name, f" — CHYBA {novy.load_error}" if novy.load_error else "")
             return True
+
+    @staticmethod
+    def _teardown(s: _Slot | None) -> None:
+        if s is not None and s.plugin is not None:
+            try:
+                s.plugin.teardown()
+            except Exception as exc:  # noqa: BLE001
+                log.warning("plugin %s teardown: %s", s.name, exc)
+
+    def _keep_old(self, s: _Slot, error: str) -> None:
+        """Nový kód pluginu sa nenačítal: starý beží ďalej (nové vlákno), chyba je v stave ako `reload_error`."""
+        s.reload_error = error
+        s.stop = threading.Event()
+        log.error("plugin %s: nový kód sa nenačítal (%s) — beží ďalej starý", s.name, error)
+        if self._started:
+            self._start_slot(s)
 
     def status(self) -> list[dict[str, Any]]:
         out = []
@@ -218,8 +255,11 @@ class PluginHost:
                 "last_error": s.last_error, "errors": s.errors, "error_since": s.error_since,
                 "tick_started": s.tick_started, "max_tick": s.plugin.max_tick if s.plugin else 0.0,
                 "interval": s.plugin.interval if s.plugin else 0.0,
-                "reloads": s.reloads, "loaded_at": s.loaded_at,
-                "problem": detail.pop("problem", None), "detail": detail,
+                "reloads": s.reloads, "loaded_at": s.loaded_at, "reload_error": s.reload_error,
+                # plugin beží na starom kóde, lebo nový sa nenačítal — strážca to ohlási ako problém pluginu
+                "problem": detail.pop("problem", None) or (
+                    f"nový kód sa nenačítal, beží starý: {s.reload_error}" if s.reload_error else None),
+                "detail": detail,
             })
         return out
 
@@ -233,7 +273,8 @@ class PluginHost:
                 zapnuty = False
             out[name] = {"title": s.plugin.title if s.plugin else name, "enabled": zapnuty,
                          "running": bool(s.thread and s.thread.is_alive()),
-                         "error": str(s.load_error or s.last_error or "")[:300]}
+                         "error": str(s.load_error or (s.reload_error and f"nový kód sa nenačítal, beží starý: {s.reload_error}")
+                                      or s.last_error or "")[:300]}
         return out
 
     def views(self) -> list[dict[str, str]]:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import sys
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from .common import warn_parity
 from .remote import _remote_prefetch
 from .run import _execute, _prepare
@@ -26,7 +27,7 @@ def cmd_sweeps(args: argparse.Namespace) -> int:
         tag = (rec.get("settings") or {}).get("sweep") or {}
         # Parametre su v kazdej strategii ine, takze mriezka cez rrRatio nema pri
         # Donchian breakoute co robit - zoznam patri strategii.
-        if args.strategy and (rec.get("settings") or {}).get("strategy", "ibs") != args.strategy:
+        if args.strategy and (rec.get("settings") or {}).get("strategy", DEFAULT_STRATEGY) != args.strategy:
             continue
         if tag.get("id"):
             skupiny.setdefault(tag["id"], []).append(rec)
@@ -182,7 +183,7 @@ def cmd_portfolio(args: argparse.Namespace) -> int:
         meno = (f"{rec['settings'].get('pair')} {rec['settings'].get('timeframe')} "
                 f"{rec['settings'].get('timerange')}")
         per[meno] = an.enrich([dict(x) for x in t], store.chart(rec["id"]),
-                              rec["settings"].get("strategy") or "ibs")
+                              rec["settings"].get("strategy") or DEFAULT_STRATEGY)
 
     risks = [float(x) for x in args.risks.split(",") if x.strip()] if args.risks else pf.RISKS
     vysledok = pf.analyze(per, records=zaznamy, account=args.account, risks=risks,

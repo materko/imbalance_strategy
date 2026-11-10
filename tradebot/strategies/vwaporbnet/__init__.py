@@ -30,6 +30,7 @@ CSHARP_KEY = "vwaporbnet"
 
 SPEC = StrategySpec(
     key="vwaporbnet",
+    base_key="vwaporb",
     title="VWAP ORB 1.5 (C# jadro)",
     config_cls=VwapOrbNetConfig,
     profile_dir=CONFIG_DIR,

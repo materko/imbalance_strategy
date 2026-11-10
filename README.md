@@ -125,6 +125,7 @@ Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCH
 | MetaTrader 5 nad tým istým C# jadrom | [docs/MT5.md](docs/MT5.md) |
 | stratégia v NinjaTraderi, ordery v MT5 | [docs/ROUTING.md](docs/ROUTING.md) |
 | čo adaptér NinjaTradera urobí pri poruche brokera (simulátor) | [docs/SIMULATOR_PORUCH.md](docs/SIMULATOR_PORUCH.md) |
+| jedny pravidlá životného cyklu orderu pre NT, EA a exekútor | [docs/STAV_ORDERU.md](docs/STAV_ORDERU.md) |
 | telemetria bežiacich stratégií (karta Live) | [docs/LIVE.md](docs/LIVE.md) |
 | zdieľať trhy medzi NT8 a MT5 (návrh) | [docs/FEED.md](docs/FEED.md) |
 | počítať na viac strojoch (hub, agenti, pluginy) | [docs/HUB.md](docs/HUB.md), [deploy/agent/](deploy/agent/README.md) |
@@ -170,7 +171,11 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   ([docs/ROUTING.md](docs/ROUTING.md), audit [2026-10-26](docs/audity/AUDIT_routing_2026-10-26.md)).
   Exekúciu adaptéra NinjaTradera pri poruchách brokera (odmietnutý order, výplň po zrušení, výpadok, pád)
   overuje simulátor nad skutočným kódom inštancie ([docs/SIMULATOR_PORUCH.md](docs/SIMULATOR_PORUCH.md));
-  MT5 ostáva na Strategy Testeri a deme.
+  MT5 ostáva na Strategy Testeri a deme. Pravidlá životného cyklu orderu sú pre všetky tri adaptéry jedny
+  ([docs/STAV_ORDERU.md](docs/STAV_ORDERU.md)).
+- **Audit architektúry z 9. 11.** je v kóde uzavretý okrem bodov, ktoré menia obchody alebo dáta a čakajú na
+  rozhodnutie (zoznam v §2 [auditu](docs/audity/AUDIT_architektura_2026-11-09.md)); na obchodných strojoch a hube
+  ešte nasadený nie je a naživo (Sim101, MT5 demo) overený nebol.
 - **Pluginy** (4. 11.): Telegram je plugin agenta (`tester/hub/agent_plugins/telegram/`) vedľa pluginov hubu;
   nový kód len v plugine sa načíta za behu — obchodný stroj si ho stiahne sám, bez pauzy nasadení a reštartu,
   hub bez drainu ([docs/HUB.md](docs/HUB.md), „Pluginy agenta“).

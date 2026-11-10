@@ -168,6 +168,8 @@ class AgentState:
     sent: dict[str, dict[str, Any]] = field(default_factory=dict)
     computing: dict[str, dict[str, Any]] = field(default_factory=dict)
     undelivered: dict[str, dict[str, Any]] = field(default_factory=dict)
+    #: Neprázdne = súbor so stavom bol pri načítaní pokazený a stav je prázdny (text, čo sa stalo). Na disk nejde.
+    recovered: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {"sent": self.sent, "computing": self.computing, "undelivered": self.undelivered}
@@ -176,9 +178,12 @@ class AgentState:
 def load_state(path: Path | None = None) -> AgentState:
     path = Path(path or AGENT_STATE)
     # pokazený stav sa odloží a zaloguje: agent zabudne, čo počítal a čo má doručiť — nech je aspoň vidno prečo
+    bol = path.is_file()
     data = read_json(path, None, what="stav agenta")
     if not isinstance(data, dict):
-        return AgentState()
+        # prázdny stav po pokazenom súbore nie je to isté ako prvý štart — agent to ohlási (audit M-HUB-10)
+        return AgentState(recovered=f"stav agenta {path.name} bol pokazený a je odložený ako "
+                                    f"{path.name}.corrupt-<čas>" if bol else "")
     return AgentState(sent=dict(data.get("sent") or {}), computing=dict(data.get("computing") or {}),
                       undelivered=dict(data.get("undelivered") or {}))
 

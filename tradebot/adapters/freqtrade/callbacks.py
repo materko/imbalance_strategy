@@ -122,11 +122,17 @@ class CallbacksMixin(IStrategy):
             tf = self.config.get("timeframe_detail") or self.timeframe
             try:
                 df = self.dp.historic_ohlcv(pair, tf)
-            except Exception:  # pragma: no cover - chýbajúce dáta, nie chyba logiky
+            except Exception as exc:  # noqa: BLE001 - chýbajúce dáta, nie chyba logiky
+                logger.warning("%s: sviečky %s sa nedali načítať (%s)", pair, tf, exc)
                 df = None
             closes = {} if df is None or df.empty else dict(
                 zip(_ts_ms(df["date"]), df["close"].astype(float))
             )
+            if not closes:
+                # raz na pár, nie potichu: bez close sviečky sa spiatočná noha baru nedá dopočítať a trailing
+                # berie stop po posune (`after_stop`) — výsledok sa môže líšiť od behu s dátami (audit N-CORE-9)
+                logger.warning("%s: chýbajú %s sviečky pre trailing stop - spiatočná noha baru sa nepočíta, "
+                               "stop sa berie po posune", pair, tf)
             self._closes[pair] = closes
         return closes.get(int(when.timestamp() * 1000))
 

@@ -156,6 +156,17 @@ def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
             try:
                 det = api(args.url, f"/api/runs/{job['id']}")
                 vypadok = 0.0
+            except urllib.error.HTTPError as exc:
+                # `HTTPError` je podtrieda `URLError`, ale nie je to výpadok: webapp odpovedala. 404 = beh
+                # nepozná (po reštarte zanikol), 500 = chyba — čakať na to 5 minút nemá zmysel (audit M-WEB-8).
+                # Len 502/503/504 (proxy pred reštartujúcou sa webapp) sa berú ako výpadok.
+                if exc.code not in (502, 503, 504):
+                    raise SystemExit(f"webapp na beh {job['id']} odpovedala chybou {exc.code}: "
+                                     f"{exc.read().decode('utf-8', 'replace')[:300]}")
+                vypadok += 3
+                if vypadok > 300:
+                    raise SystemExit(f"webapp neodpovedá 5 min ({exc}) - beh {job['id']} pozri v histórii")
+                continue
             except (urllib.error.URLError, ConnectionError, TimeoutError) as exc:
                 # webapp sa práve reštartuje (auto-reštart po pulle, Ctrl+C): čakať, nie traceback (N-WEB-1)
                 vypadok += 3

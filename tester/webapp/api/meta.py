@@ -8,6 +8,7 @@ import re
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.core.paths import STRATEGY_AUDIT
 from tradebot.strategies import STRATEGIES
 
@@ -85,7 +86,7 @@ def build(ctx: AppContext) -> APIRouter:
         return {
             # `params`/`defaults`/`profiles`… na najvyššej úrovni = stratégia "ibs" (spätná
             # kompatibilita pre CLI a testy); stránka pracuje so `strategy_meta[key]`.
-            **strategy_meta("ibs"),
+            **strategy_meta(DEFAULT_STRATEGY),
             # Stratégie s profilom, ktorý prešiel smernicou — priečinok SMERNICE vo výbere stratégie.
             "smernice_strategies": user_profiles.strategies_with_prefix(SMERNICE_PREFIXES),
             "strategies": [{**STRATEGIES[k].public(), "selected": vyber.selected(k)} for k in vyber.ordered(list(STRATEGIES))],

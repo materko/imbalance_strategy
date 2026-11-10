@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import threading
 from collections import OrderedDict
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -25,18 +26,26 @@ SECONDS_PER_YEAR = 30
 #: dá vždy to isté (seed je fixný) — a pri behu s tisíckami obchodov to trvá sekundy.
 _MC_CACHE: "OrderedDict[tuple, dict[str, Any]]" = OrderedDict()
 _MC_CACHE_MAX = 32
+#: Endpointy bežia vo vláknach: medzi `in` a `move_to_end` mohlo iné vlákno kľúč vyhodiť → KeyError → 500
+#: (audit N-WEB-16). Výpočet sám beží mimo zámku, aby dva rôzne dopyty na seba nečakali.
+_MC_LOCK = threading.Lock()
 
 
 def montecarlo_cached(run_id: str, trades: list[dict[str, Any]], opts: dict[str, Any]) -> dict[str, Any]:
     key = (run_id, *(round(v, 6) if isinstance(v, float) else v for v in opts.values()))
-    if key not in _MC_CACHE:
-        result = montecarlo.analyze(trades, **opts)
-        result["run_id"] = run_id
-        _MC_CACHE[key] = result
+    with _MC_LOCK:
+        hit = _MC_CACHE.get(key)
+        if hit is not None:
+            _MC_CACHE.move_to_end(key)
+            return hit
+    result = montecarlo.analyze(trades, **opts)
+    result["run_id"] = run_id
+    with _MC_LOCK:
+        result = _MC_CACHE.setdefault(key, result)   # dva súbežné rovnaké dopyty vrátia ten istý objekt
+        _MC_CACHE.move_to_end(key)
         while len(_MC_CACHE) > _MC_CACHE_MAX:
             _MC_CACHE.popitem(last=False)
-    _MC_CACHE.move_to_end(key)
-    return _MC_CACHE[key]
+    return result
 
 
 def asset_version() -> str:

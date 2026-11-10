@@ -80,16 +80,22 @@ def write_csv(df, dst: Path, *, stamp: str = "close", date_format: str = DATE_FO
         raise ValueError(f"stamp musí byť 'close' alebo 'open', nie {stamp!r}")
     shift = MINUTE if stamp == "close" else timedelta(0)
     dst.parent.mkdir(parents=True, exist_ok=True)
-    rows = 0
+    # Po stĺpcoch, nie riadok po riadku cez `itertuples` (rok 1m dát = státisíce `Timestamp` objektov;
+    # audit N-DATA-5). Text je bajt po bajte ten istý ako z `format_row` — stráži to test.
+    when = df["date"] + shift
+    dates = when.dt.strftime(date_format).tolist()
+    times = when.dt.strftime("%H:%M:%S").tolist()
+    o, h, l, c = (df[k].astype(float).tolist() for k in ("open", "high", "low", "close"))  # noqa: E741
+    vol = [int(round(v * volume_scale)) for v in df["volume"].astype(float).tolist()]
+    rows = len(dates)
     with open(dst, "w", encoding="utf-8", newline="\n") as out:
         out.write(HEADER + "\n")
-        for r in df.itertuples(index=False):
-            out.write(format_row(
-                r.date.to_pydatetime() + shift,
-                float(r.open), float(r.high), float(r.low), float(r.close),
-                int(round(float(r.volume) * volume_scale)), date_format,
-            ) + "\n")
-            rows += 1
+        step = 50_000
+        for a in range(0, rows, step):
+            b = min(a + step, rows)
+            out.write("".join(
+                f"{dates[i]},{times[i]},{num(o[i])},{num(h[i])},{num(l[i])},{num(c[i])},{vol[i]}\n"
+                for i in range(a, b)))
     return rows
 
 

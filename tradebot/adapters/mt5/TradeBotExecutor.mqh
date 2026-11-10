@@ -99,7 +99,11 @@ struct XOrder
    datetime noStopSince;
    bool   cancelWanted;
    string cancelWhy;
+   datetime goneSince;  // od kedy vyplnena pozicia u brokera chyba bez dealu (0 = je tam) - len v pamati
+   datetime goneNoted;  // kedy sa naposledy hlasilo, ze sa nenasla ani v historii
   };
+const int GoneGraceSec     = 10;  // pozicia u brokera chyba: tolko sekund sa caka na deal, potom sa zladi z historie
+const int ConnectSettleSec = 30;  // po pripojeni sa pozicie chvilu synchronizuju - dovtedy sa "chyba" neposudzuje
 
 int      g_x = -1;              // handle exekutora v StaticHost
 string   g_root = "";
@@ -118,6 +122,7 @@ datetime g_lastMaintain = 0;
 int      g_symbolsTotal = -1;
 bool     g_hedging = false;
 bool     g_reconciled = false;  // stav spred restartu zladeny s brokerom (az po pripojeni terminalu)
+datetime g_connectedSince = 0;  // od kedy je terminal pripojeny k brokerovi (cas PC; 0 = nie je)
 
 //+------------------------------------------------------------------+
 //| Pomocne                                                          |
@@ -1212,6 +1217,7 @@ void Guards()
          continue;
         }
       DropRemainder(i);   // zvysok ciastocneho fillu (aj prevzaty po restarte alebo neuspesne zruseny)
+      if(PositionGone(i, now)) continue;
       if(g_xo[i].closing)
         {
          if(now >= g_xo[i].closeRetryAt) ClosePosition(i);
@@ -1219,6 +1225,30 @@ void Guards()
         }
       GuardStop(i, now);
      }
+  }
+
+/// Vyplnena pozicia u brokera chyba a deal o zatvoreni neprisiel (zmeskany DEAL_ADD pri vypadku): bez zladenia by
+/// zaznam ostal fantomom a route by natrvalo blokoval vstupy (audit M-LIVE-7). Posudzuje sa len pri stabilnom
+/// spojeni a az po `GoneGraceSec` - deal bezne pride do zlomku sekundy. `true` = pozicia tam nie je (zaznam mohol
+/// zaniknut), strazcovia stopu a zatvarania sa na nu v tomto tiku nepustaju.
+bool PositionGone(int i, datetime now)
+  {
+   if(PositionSelectByTicket(g_xo[i].ticket)) { g_xo[i].goneSince = 0; return false; }
+   bool steady = g_connectedSince > 0 && now - g_connectedSince >= ConnectSettleSec;
+   if(!steady) { g_xo[i].goneSince = 0; return true; }
+   if(g_xo[i].goneSince == 0) { g_xo[i].goneSince = now; return true; }
+   if(now - g_xo[i].goneSince < GoneGraceSec) return true;
+   g_xo[i].goneSince = 0;
+   string route = g_xo[i].route, id = g_xo[i].id;
+   datetime noted = g_xo[i].goneNoted;
+   int res = ReconcileOrder(i, "bez dealu o zatvoreni");
+   if(res == 1) { Note(route, "error", "pozicia " + id + " sa zavrela a deal neprisiel - dohlasena z historie"); return true; }
+   if(res == 2 && now - noted >= 15 * 60)
+     {
+      g_xo[i].goneNoted = now;
+      Note(route, "error", "pozicia " + id + " u brokera nie je a v historii sa nenasla - zaznam ostava, skusam znova");
+     }
+   return true;
   }
 
 void GuardStop(int i, datetime now)
@@ -1319,6 +1349,8 @@ void OnTimer()
    PollCommands();
    if(now == g_lastSlow) return;
    g_lastSlow = now;
+   if(!TerminalInfoInteger(TERMINAL_CONNECTED) || AccountInfoInteger(ACCOUNT_LOGIN) == 0) g_connectedSince = 0;
+   else if(g_connectedSince == 0) g_connectedSince = now;
    // raz za sekundu
    RefreshGmtOffset();
    if(now - g_lastRoutes >= 2) { RefreshRoutes(); g_lastRoutes = now; }

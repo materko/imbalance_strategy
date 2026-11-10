@@ -103,6 +103,10 @@ def is_stale() -> bool:
     return any(s.stat().st_mtime > built for s in sources([*library_dirs(), *host_dirs()]))
 
 
+#: Najdlhší beh kompilátora (s). Celé jadro sa prekladá sekundy; dlhšie = uviaznutý proces.
+COMPILE_TIMEOUT = float(os.environ.get("TRADEBOT_CSC_TIMEOUT") or 300)
+
+
 def _compile(compiler: list[str], target: str, out: Path, files: list[Path], refs: list[Path]) -> None:
     # Zoznam súborov ide cez response súbor — príkazový riadok má na Windows limit dĺžky.
     # `-codepage:65001`: zdrojáky sú UTF-8 bez BOM a obsahujú znaky mimo ASCII (šípky v štítkoch).
@@ -113,7 +117,11 @@ def _compile(compiler: list[str], target: str, out: Path, files: list[Path], ref
         fh.write("\n".join(lines))
         rsp = fh.name
     try:
-        done = subprocess.run([*compiler, f"@{rsp}"], capture_output=True, text=True)
+        done = subprocess.run([*compiler, f"@{rsp}"], capture_output=True, text=True, timeout=COMPILE_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        # uviaznutý kompilátor (antivírus, zamknutý disk) nesmie navždy zastaviť beh, ktorý naň čaká
+        raise BuildError(f"preklad {out.name} neskončil do {COMPILE_TIMEOUT:.0f} s - kompilátor zabitý "
+                         "(limit: TRADEBOT_CSC_TIMEOUT)") from None
     finally:
         os.unlink(rsp)
     if done.returncode != 0:
@@ -131,17 +139,41 @@ def build() -> None:
         dll, exe = tmp / CSHARP_DLL.name, tmp / CSHARP_HOST.name
         _compile(compiler, "library", dll, sources(library_dirs()), [])
         _compile(compiler, "exe", exe, sources(host_dirs()), [dll])
-        for built, final in ((dll, CSHARP_DLL), (exe, CSHARP_HOST)):
-            try:
-                os.replace(built, final)
-            except PermissionError:
-                # beží iný beh cez stdio hostiteľa a súbor drží; ostáva stará verzia
-                if not final.exists():
-                    raise
-                _log.warning("C# jadro: %s je práve používaný, ostáva predošlý preklad", final.name)
-        (CSHARP_BIN / ".built-by").write_text(_stamp(), encoding="utf-8")
+        if _swap([(dll, CSHARP_DLL), (exe, CSHARP_HOST)], tmp):
+            (CSHARP_BIN / ".built-by").write_text(_stamp(), encoding="utf-8")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _swap(pairs: list[tuple[Path, Path]], tmp: Path) -> bool:
+    """Vymení knižnicu aj hostiteľa **spolu alebo vôbec**. Vráti, či je na disku nový preklad.
+
+    Keď niektorý cieľ drží bežiaci stdio hostiteľ (`PermissionError`), vráti sa aj to, čo sa už vymenilo:
+    nová DLL so starým `Host.exe` (alebo naopak) je dvojica, ktorú nikto nepreložil spolu, a značka
+    `.built-by` by ju vyhlásila za hotový preklad (audit M-LIVE-9). Starý pár ostáva celý a bez značky
+    nového prekladu — `is_stale()` ho pri ďalšom volaní skúsi vymeniť znova.
+    """
+    done: list[tuple[Path, Path | None]] = []
+    try:
+        for built, final in pairs:
+            backup: Path | None = None
+            if final.exists():
+                backup = tmp / (final.name + ".old")
+                shutil.copy2(final, backup)
+            os.replace(built, final)
+            done.append((final, backup))
+    except PermissionError as exc:
+        for final, backup in reversed(done):
+            if backup is not None:
+                os.replace(backup, final)
+            else:
+                final.unlink(missing_ok=True)
+        if not all(final.exists() for _, final in pairs):
+            raise BuildError(f"C# jadro sa nedá zapísať do {CSHARP_BIN}: {exc}") from exc
+        _log.warning("C# jadro: %s je práve používaný (beží iný beh cez stdio hostiteľa) - ostáva celý "
+                     "predošlý preklad", Path(exc.filename).name if exc.filename else "výstup")
+        return False
+    return True
 
 
 def ensure_built(force: bool = False) -> Path:

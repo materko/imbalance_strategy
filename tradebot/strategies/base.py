@@ -90,6 +90,10 @@ class StrategySpec:
     #: stratégie vie spustiť adaptér NinjaTrader; pod Freqtrade bežia cez most
     #: `tradebot.adapters.csharp`. `None` = stratégia je v Pythone.
     csharp_dir: Path | None = None
+    #: Kľúč Python predlohy, ktorej je táto stratégia prepisom (`ibsnet` → `ibs`; kópia `…eod` ho dedí od
+    #: svojho `…net`). Webapp podľa neho berie analytiku, audit a zaradenie predlohy — z mena kľúča sa to
+    #: hádať nemá (audit M-WEB-10). `None` = stratégia nie je prepis.
+    base_key: str | None = None
     #: Kľúč stratégie, ktorej Python kód táto stratégia používa ako svoju logiku (engine,
     #: state machine, zóny). Varianty ako IBSZones majú vlastný len ten kúsok, v ktorom sa
     #: od predlohy líšia — polia configu číta kód TAMTOHO balíka. Statická kontrola
@@ -143,4 +147,6 @@ class StrategySpec:
             "has_explainer": self.explainer_path.is_file(),
             # live (NinjaTrader, MT5) beží len C# jadro — pythonová stratégia sa dá nasadiť až po porte
             "csharp": self.csharp_dir is not None,
+            # predloha prepisu (`ibsnet` → `ibs`) — stránka podľa nej berie audit a trh, z mena ju neháda
+            "base_key": self.base_key,
         }

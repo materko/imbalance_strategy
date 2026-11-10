@@ -23,6 +23,7 @@ _GF = "🧭 Filter trendu a volatility (len ES)"
 SPEC = replace(
     BASE_SPEC,
     key="ibsentryesnet",
+    base_key="ibsentryes",
     title="IBS EZ ES (C# jadro)",
     config_cls=IBSEntryEsNetConfig,
     profile_dir=CONFIG_DIR,

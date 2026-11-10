@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+log = logging.getLogger(__name__)
 
 #: Koľko udalostí sa drží v pamäti na čítanie cez API; súbor rastie ďalej (rotuje sa).
 EVENTS_KEEP = 5000
@@ -49,8 +51,17 @@ class EventsMixin:
                     os.replace(self.events_file, self.events_file.with_suffix(".1.jsonl"))
                 with open(self.events_file, "a", encoding="utf-8", newline="\n") as fh:
                     fh.write(json.dumps(zaznam, ensure_ascii=False, default=str) + "\n")
-            except OSError:
-                pass
+            except OSError as exc:
+                # Udalosť ostáva v pamäti (API ju ukáže), na disku chýba: raz do logu procesu a do prehľadu hubu
+                # (`events_error`), nie potichu — po reštarte by v histórii udalostí bola diera (audit N-HUB-3).
+                if getattr(self, "events_error", None) is None:
+                    log.error("hub: log udalostí %s sa nedá zapisovať (%s: %s) — udalosti ostávajú len v pamäti",
+                              self.events_file, type(exc).__name__, exc)
+                self.events_error = {"at": zaznam["ts"], "error": f"{type(exc).__name__}: {exc}"}
+            else:
+                if getattr(self, "events_error", None) is not None:
+                    log.info("hub: log udalostí sa znova zapisuje")
+                    self.events_error = None
 
     def events(self, limit: int = 100, job: str | None = None, agent: str | None = None,
                event: str | None = None) -> list[dict[str, Any]]:

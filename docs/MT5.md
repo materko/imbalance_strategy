@@ -514,6 +514,22 @@ do hubu); ak mal byť zrušený, hneď sa zatvára. Vstup vyplnený tesne pred z
 (MetaEditor je len na Windows); overenie: demo účet, otvorená pozícia, `taskkill` terminálu, štart, v logu
 súhrn a v spoole pokračujúci trailing.
 
+**Netting, ďalšia čiastočná výplň vstupu** (audit M-LIVE-5): `PlaceExits` starú dvojicu SL/TP najprv zruší a až
+potom položí novú s celým objemom — inak by nový ticket prepísal starý a osirelý stop by ostal GTC u brokera.
+Čo sa zrušiť nedalo, ostáva sledované so starým objemom (`error` do hubu) a timer to skúša znova.
+
+**Zatváranie prerušené reštartom**: stav nesie `closing`; pozícia, ktorá sa pred reštartom zatvárala trhom, sa po
+prevzatí zatvára ďalej (engine o nej po predhistórii nevie). Pravidlá spoločné s NinjaTraderom a exekútorom sú
+v [STAV_ORDERU.md](STAV_ORDERU.md).
+
+**Chyby enginu** (audit M-LIVE-8): zlyhanie `OnBar`, `FeedHtf` alebo `EodDue` ide do hubu ako `note error`
+(prvé hneď, ďalšie raz za 15 minút s počtom) — bar je už spracovaný, takže strážca feedu by mlčal.
+
+Sklz market orderov je vstup `InpDeviationPts` (predvolene 50 bodov symbolu, ako exekútor; pôvodných 10 bolo
+na US100.cash 0,1 bodu a broker s instant exekúciou vracal requote). Exekútor má rovnaké zladenie za behu pre
+vyplnené pozície (`PositionGone`): pozícia, ktorá u brokera 10 s chýba bez dealu, sa dohľadá v histórii a jej
+výstupy idú do NT; kým sa v histórii nenájde, záznam ostáva a hlási sa `error`.
+
 ### Nový kód z hubu (fáza 2c)
 
 `install` zapisuje marker `Common\Files\TradeBot\installed.json` (`version` = commit klonu, `installed`, `by`);

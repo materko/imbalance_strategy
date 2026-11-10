@@ -21,6 +21,7 @@ CSHARP_KEY = "spravynet"
 SPEC = replace(
     BASE_SPEC,
     key="spravynet",
+    base_key="spravy",
     title="SPRÁVY 3.0 (C# jadro)",
     config_cls=SpravyNetConfig,
     profile_dir=CONFIG_DIR,

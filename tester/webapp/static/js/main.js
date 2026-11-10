@@ -99,7 +99,7 @@ async function init() {
   $("#load-params").onclick = loadDetailIntoForm;
   $("#run-peek-close").onclick = closePeek;
   $("#run-peek-open").onclick = () => historyPeek.id && openRun(historyPeek.id);
-  $("#run-peek-load").onclick = async () => { if (historyPeek.id) { await openRun(historyPeek.id); await loadDetailIntoForm(); } };
+  $("#run-peek-load").onclick = async () => { if (historyPeek.id && (await openRun(historyPeek.id)) !== false) await loadDetailIntoForm(); };
   for (const b of $$(".chip-btn[data-range]")) b.onclick = () => setQuickRange(b.dataset.range);
   for (const field of [$("#from"), $("#to"), $("#pair"), $("#profile")]) field.addEventListener("change", () => markQuickRange(null));
   initSweep();
@@ -125,7 +125,13 @@ async function init() {
   $("#mc-run").onclick = () => loadMonteCarlo(true);
   $("#delete-run").onclick = async () => {
     if (!confirm("Zmazať tento beh z histórie? (zmaže adresár v runs/)")) return;
-    await api(`/api/runs/${state.detailId}`, { method: "DELETE" }); closeDetail(); loadRuns();
+    try {
+      await api(`/api/runs/${state.detailId}`, { method: "DELETE" });
+    } catch (e) {
+      alert(`Beh sa nepodarilo zmazať: ${e.message}`);
+      return;
+    }
+    closeDetail(); loadRuns();
   };
   $("#profile-save").onclick = saveFormAsProfile;
   $("#profile-rename").onclick = renameProfile;

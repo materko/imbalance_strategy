@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
 
-from tradebot.core.config import ConfigError
+from tradebot.core.config import ConfigError, DEFAULT_STRATEGY
 from tradebot.strategies import STRATEGIES
 
 from ... import engines
@@ -26,7 +26,7 @@ def build(ctx: AppContext) -> APIRouter:
     runner = ctx.runner
 
     @router.get("/api/matrix/meta")
-    def matrix_meta(wallet: float = 10000, timeframe: str = "3m", strategy: str = "ibs"):
+    def matrix_meta(wallet: float = 10000, timeframe: str = "3m", strategy: str = DEFAULT_STRATEGY):
         """Čo o matici treba vedieť dopredu: kde sa jeden kontrakt nezmestí do peňaženky."""
         from ... import matrix as mx
 

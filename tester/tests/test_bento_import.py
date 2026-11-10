@@ -153,3 +153,41 @@ def test_cli_neznamy_symbol_a_chybajuci_zdroj(tmp_path, capsys):
     src = raw(tmp_path, row("2026-06-12T13:30:00.000000000Z", "MNQM6", 20000.0, 900))
     assert main([str(src), "--symbol", "NAS100", "--archive", str(tmp_path / "a"), "--no-merge"]) == 1
     assert "instruments_databento.json" in capsys.readouterr().err
+
+
+# --------------------------------------------------------------------------- #
+# rolls.json opisuje celý archív, nie posledný export (audit M-CORE-6)
+# --------------------------------------------------------------------------- #
+
+
+def test_rolly_sa_zlucia_podla_datumu():
+    from tester.bento_import import merge_rolls
+
+    stare = [("2025-01-02", "MNQH5"), ("2025-03-14", "MNQM5"), ("2025-06-13", "MNQU5")]
+    # export marca: roll o deň skôr než v starom zozname; rok okolo neho ostáva
+    nove = [("2025-03-03", "MNQH5"), ("2025-03-13", "MNQM5")]
+    assert merge_rolls(stare, nove, "2025-03-03", "2025-03-31", continues=True) == [
+        ("2025-01-02", "MNQH5"), ("2025-03-13", "MNQM5"), ("2025-06-13", "MNQU5")]
+    # export končí na staršom kontrakte, než na akom archív po ňom pokračuje -> prechod deň po exporte
+    assert merge_rolls(stare, [("2025-03-03", "MNQH5")], "2025-03-03", "2025-03-20", continues=True) == [
+        ("2025-01-02", "MNQH5"), ("2025-03-21", "MNQM5"), ("2025-06-13", "MNQU5")]
+    # doplnenie na konci archívu: staré ostáva celé, pribudne len nový roll
+    assert merge_rolls(stare, [("2025-09-01", "MNQU5"), ("2025-09-12", "MNQZ5")], "2025-09-01", "2025-09-30") == [
+        *stare, ("2025-09-12", "MNQZ5")]
+    assert merge_rolls([], nove, "2025-03-03", "2025-03-31") == nove
+
+
+def test_cli_ciastocny_import_nezahodi_rolly_zvysku_archivu(tmp_path):
+    archive = tmp_path / "archiv"
+    cely = raw(tmp_path,
+               row("2025-12-15T13:30:00.000000000Z", "MNQZ5", 20000.0, 900),
+               row("2026-01-05T13:30:00.000000000Z", "MNQH6", 20100.0, 900),
+               row("2026-03-16T13:30:00.000000000Z", "MNQM6", 20200.0, 900))
+    assert main([str(cely), "--symbol", "MNQ", "--archive", str(archive), "--no-merge"]) == 0
+    (tmp_path / "druhy").mkdir()
+    cast = raw(tmp_path / "druhy", row("2026-01-06T13:30:00.000000000Z", "MNQH6", 20150.0, 900))
+    assert main([str(cast), "--symbol", "MNQ", "--archive", str(archive), "--no-merge"]) == 0
+
+    rolls = json.loads((archive / "databento" / "futures" / "MNQ_USD-1m.rolls.json").read_text(encoding="utf-8"))
+    assert rolls == [{"date": "2025-12-15", "contract": "MNQZ5"}, {"date": "2026-01-05", "contract": "MNQH6"},
+                     {"date": "2026-03-16", "contract": "MNQM6"}]

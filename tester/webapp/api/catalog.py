@@ -157,8 +157,8 @@ def monte_carlo(key: str) -> dict[str, float]:
     že edge prekoná poplatok, a 95. percentil max drawdownu. Pri C# porte bez vlastnej analytiky z predlohy."""
     from tester.checkup import doc_path
 
-    base = key[:-3] if key.endswith("eod") else key
-    base = base[:-3] if base.endswith("net") and base[:-3] in STRATEGIES else base
+    spec = STRATEGIES.get(key)
+    base = (spec.base_key if spec is not None else None) or key   # predlohu povie spec, nie meno kľúča (M-WEB-10)
     for k in dict.fromkeys((key, base)):
         try:
             text = doc_path(k).read_text(encoding="utf-8")

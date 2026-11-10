@@ -16,6 +16,7 @@ Nič sa tu nepočíta nanovo z dát trhu — všetko sa skladá z toho, čo už 
 from __future__ import annotations
 
 import re
+import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
@@ -262,9 +263,31 @@ def profile_params(key: str, name: str) -> list[dict[str, Any]]:
     return out
 
 
+#: Texty dokumentov podľa `(mtime, veľkosť)` súboru. Okno hodnotenia hľadá kľúč stratégie vo všetkých
+#: meraniach (`docs/merania/`) a čítalo ich z disku pri každom otvorení; teraz sa súbor číta znova, len
+#: keď sa zmenil (zvyšok auditu M-WEB-4).
+_DOC_CACHE: dict[str, tuple[tuple[int, int], str]] = {}
+_DOC_LOCK = threading.Lock()
+
+
+def _doc_text(path: Path) -> str:
+    """Text dokumentu z cache, alebo zo súboru, keď sa zmenil. Chýbajúci súbor = `OSError` ako pri čítaní."""
+    st = path.stat()
+    podpis = (st.st_mtime_ns, st.st_size)
+    kluc = str(path)
+    with _DOC_LOCK:
+        hit = _DOC_CACHE.get(kluc)
+        if hit is not None and hit[0] == podpis:
+            return hit[1]
+    text = path.read_text(encoding="utf-8")
+    with _DOC_LOCK:
+        _DOC_CACHE[kluc] = (podpis, text)
+    return text
+
+
 def _doc_title(path: Path) -> str:
     try:
-        for line in path.read_text(encoding="utf-8").splitlines()[:5]:
+        for line in _doc_text(path).splitlines()[:5]:
             if line.startswith("# "):
                 return line[2:].strip()
     except OSError:
@@ -284,7 +307,7 @@ def strategy_docs(key: str) -> list[dict[str, str]]:
     pat = re.compile(rf"(--strategy {re.escape(key)}\b|`{re.escape(key)}`)")
     for p in sorted(MERANIA_DIR.glob("*.md")) if MERANIA_DIR.is_dir() else []:
         try:
-            if pat.search(p.read_text(encoding="utf-8")):
+            if pat.search(_doc_text(p)):
                 out.append({"id": f"m/{p.name}", "title": _doc_title(p), "kind": "meranie"})
         except OSError:
             continue

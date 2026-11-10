@@ -146,7 +146,7 @@ namespace TradeBot.Strategies.NyVaNet
         private long NyMs(DateTime day, int h, int m)
         {
             DateTime local = new DateTime(day.Year, day.Month, day.Day, h, m, 0, DateTimeKind.Unspecified);
-            return (long)(TimeZoneInfo.ConvertTimeToUtc(local, _ny) - Epoch).TotalMilliseconds;
+            return SessionClock.LocalToUtcMs(_ny, local);   // neexistujuci / dvojznacny cas ako Python (N-CS-7)
         }
 
         private static string Ms(long ms) { return ms.ToString(CultureInfo.InvariantCulture); }
@@ -315,7 +315,10 @@ namespace TradeBot.Strategies.NyVaNet
             if (cfg.useCloseTime && pos != 0.0 && cur >= cfg.CloseTime && (!_prevMin.HasValue || _prevMin.Value < cfg.CloseTime))
             {
                 o.CloseSession = true;
-                foreach (string oid in ctx.OpenOrderIds)
+                // zoradene: poradie mnoziny nie je dane a hostitel by pri dvoch orderoch zatvaral zakazdym inak (N-CS-7)
+                List<string> open = new List<string>(ctx.OpenOrderIds);
+                open.Sort(StringComparer.Ordinal);
+                foreach (string oid in open)
                     o.Orders.Add(new OrderIntent(OrderAction.Close, oid, idx, "zavretie v čase"));
             }
 

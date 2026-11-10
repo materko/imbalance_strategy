@@ -733,6 +733,36 @@ namespace TradeBot.Core
             return engine;
         }
 
+        /// <summary>Kluce, ktore citaju obaly vstupov priamo z profilu (config strategie ich mat nemusi).</summary>
+        public static readonly string[] LayerKeys = {
+            "trendFilter", "trendEmaLen", "trendTF", "volFilter", "volLookback",
+            "entryConfirm", "confirmBars", "confirmImbMinAtr", "confirmPbWickPct", "confirmPbBodyPct",
+            "entryOrderType", "limitOffsetPct", "limitValidBars", "limitKeepRR",
+            "fixedQty", "qty", "skipOverRisk", "legacyPineSizing", "riskDollar", "maxLossDollar" };
+
+        /// <summary>
+        /// Kluce profilu, ktore v C# nic necita: nie su polom configu strategie ani klucom obalov vstupov (kluce
+        /// s podtrznikom su metadata). `FromDict` strategii ich preskakuje, takze preklep v rucne upravenom profile
+        /// NinjaTradera / MT5 (`maxTradesPerDay` -> `maxTradePerDay`) by potichu obchodoval default - Python by
+        /// profil odmietol (audit N-CS-2). Zoradene; hostitel ich da do `Info()` a platforma / most do logu.
+        /// </summary>
+        public static List<string> UnknownKeys(Dictionary<string, object> cfg, IEngine engine)
+        {
+            List<string> unknown = new List<string>();
+            IConfigured strategy = EngineLayer.Unwrap(engine) as IConfigured;
+            object settings = strategy != null ? strategy.Settings : null;
+            if (cfg == null || settings == null) return unknown;   // engine bez configu - nie je s cim porovnat
+            foreach (string key in cfg.Keys)
+            {
+                if (key.StartsWith("_", StringComparison.Ordinal)) continue;
+                if (Array.IndexOf(LayerKeys, key) >= 0) continue;
+                if (settings.GetType().GetField(key, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance) != null) continue;
+                unknown.Add(key);
+            }
+            unknown.Sort(StringComparer.Ordinal);
+            return unknown;
+        }
+
         /// <summary>Kopia `cfg` doplnena o `StrategyDefaultKeys`, ktore v nej chybaju a config strategie ich ma ako verejne pole.</summary>
         public static Dictionary<string, object> WithStrategyDefaults(Dictionary<string, object> cfg, IConfigured strategy)
         {

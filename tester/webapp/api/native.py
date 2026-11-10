@@ -20,6 +20,11 @@ from .models import NativeBacktestRequest
 from .settings import TIMERANGE_RE, fee_for
 
 
+#: Ako dlho request čaká na voľný pracovný proces C# (s). Keď ich všetky drží hyperopt, request inak visel,
+#: kým hyperopt nedobehol — teraz dostane 503 a môže to skúsiť neskôr (audit N-WEB-18).
+POOL_WAIT_SECONDS = 60.0
+
+
 def build(ctx: AppContext) -> APIRouter:
     router = APIRouter()
 
@@ -73,7 +78,11 @@ def build(ctx: AppContext) -> APIRouter:
             raise HTTPException(422, str(exc))
         t0 = time.perf_counter()
         ulohy = [(c, w) for c in configs for w in okna]
-        vysledky = runner.run_many(ulohy)
+        runner.pool_timeout = POOL_WAIT_SECONDS
+        try:
+            vysledky = runner.run_many(ulohy)
+        except native.PoolBusy as exc:
+            raise HTTPException(503, f"{exc} — skús to o chvíľu znova")
         out: list[dict[str, Any]] = []
         for i, ((_c, w), res) in enumerate(zip(ulohy, vysledky)):
             bod = i // len(okna)

@@ -201,11 +201,13 @@ class StrategyConfig(SizingFields):
 
 
 def _spec(strategy: str):
-    from ..strategies import STRATEGIES  # lokálny import — stratégie importujú core
+    from ..strategies import STRATEGIES, canonical_key  # lokálny import — stratégie importujú core
 
-    if strategy not in STRATEGIES:
+    # starý kľúč (`ibsninja`) patrí premenovanej stratégii — profily a história sa na disku neprepisujú
+    key = canonical_key(strategy)
+    if key not in STRATEGIES:
         raise ConfigError(f"neznáma stratégia {strategy!r}; známe: {sorted(STRATEGIES)}")
-    return STRATEGIES[strategy]
+    return STRATEGIES[key]
 
 
 def profile_dir(strategy: str = DEFAULT_STRATEGY) -> Path:
@@ -276,6 +278,12 @@ def load_profile(name: str | Path, *, strategy: str | None = None, engine: str |
 
     declared = data.get("_strategy")
     if declared is not None and strategy is not None and declared != strategy:
+        from ..strategies import canonical_key
+
+        same = canonical_key(str(declared)) == canonical_key(str(strategy))
+    else:
+        same = True
+    if not same:
         raise ConfigError(f"{path.name}: _strategy={declared!r} nesedí so stratégiou {strategy!r}")
     spec = _spec(declared or strategy or DEFAULT_STRATEGY)
 

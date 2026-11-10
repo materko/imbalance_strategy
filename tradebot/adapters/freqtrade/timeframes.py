@@ -74,8 +74,10 @@ class TimeframesMixin(IStrategy):
             )
             return True
         except Exception as exc:  # noqa: BLE001  (dopocet je pomoc, nie podmienka behu)
-            logger.warning("%s %s: %s sa dopocitat nepodarilo (%s)", self.spec.key, pair,
-                           timeframe, exc)
+            # chyba, nie varovanie, a s tracebackom: strategia pobezi bez tohto TF (IBS bez zon) a vysledok
+            # behu tym nie je to, co si pouzivatel objednal (audit N-CORE-9)
+            logger.error("%s %s: %s sa dopocitat nepodarilo (%s) - beh pokracuje BEZ tohto timeframu",
+                         self.spec.key, pair, timeframe, exc, exc_info=True)
             return False
 
     def _may_derive(self) -> bool:

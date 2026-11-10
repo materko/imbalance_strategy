@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.core.candles import timeframe_minutes
 from tradebot.core.paths import TMP_PROFILES, FREQTRADE_USER_DIR as USER_DIR
 from tradebot.core.types import INSTRUMENTS
@@ -74,7 +75,7 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
         trening = {k: {**engines.AI_DEFAULTS, **ai}.get(k)
                    for k in ("train_period_days", "backtest_period_days", "model")}
         odtlacok = hashlib.sha1(_json.dumps(
-            {"p": parametre, "s": settings.get("strategy") or "ibs", "tf": tf, "ai": trening},
+            {"p": parametre, "s": settings.get("strategy") or DEFAULT_STRATEGY, "tf": tf, "ai": trening},
             sort_keys=True, default=str).encode("utf-8")).hexdigest()[:10]
         ai = {**ai, "identifier": f"tb-{settings.get('strategy') or 'ibs'}-{odtlacok}"}
     cmd = [
@@ -89,7 +90,7 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
                         if ai else
                         engines.stake_config(inst, settings.get("exchange"))),
         "--userdir", str(USER_DIR),
-        "--strategy", get_spec(settings.get("strategy") or "ibs").freqtrade_class,
+        "--strategy", get_spec(settings.get("strategy") or DEFAULT_STRATEGY).freqtrade_class,
         "--cache", "none",
         "--export", "trades",
         "--timerange", settings["timerange"],
@@ -112,7 +113,7 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     return cmd
 
 
-def effective_params(params: dict[str, Any], strategy: str = "ibs") -> dict[str, Any]:
+def effective_params(params: dict[str, Any], strategy: str = DEFAULT_STRATEGY) -> dict[str, Any]:
     """Celý config behu: poslané hodnoty doplnené defaultmi stratégie, overené a v tvare
     `config.to_dict()` — presne to, s čím beh pobeží.
 
@@ -126,7 +127,7 @@ def effective_params(params: dict[str, Any], strategy: str = "ibs") -> dict[str,
     return cfg.to_dict()
 
 
-def write_profile(run_id: str, params: dict[str, Any], instrument: str, strategy: str = "ibs",
+def write_profile(run_id: str, params: dict[str, Any], instrument: str, strategy: str = DEFAULT_STRATEGY,
                   directory: Path | None = None) -> Path:
     """Dočasný profil pre `TRADEBOT_PROFILE`. Validácia configu tu spadne skôr než Freqtrade.
 

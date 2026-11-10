@@ -63,7 +63,9 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
 
+from tradebot.core.env import getenv
 from tradebot.core.paths import HUB_DIR, HUB_LIVE_DB
 from tradebot.live.deploy import DeployStore
 from tradebot.live.store import LiveStore
@@ -145,6 +147,18 @@ class SubmitRequest(BaseModel):
 
 #: Najviac toľko bajtov smie mať rozbalené telo POST-u (dávka spoolu 2000 udalostí má ~1 MB) — proti zip bombe.
 GZIP_REQUEST_MAX = 64 * 1024 * 1024
+
+#: Strop na zip výsledku od agenta v MB (`TRADEBOT_HUB_RESULT_MAX_MB`, 0 = bez stropu). Bežný beh má jednotky MB,
+#: hyperopt s overeniami desiatky; telo sa drží v pamäti hubu, takže bez stropu ju jeden POST zaplní (N-HUB-15).
+DEFAULT_RESULT_MAX_MB = 1024.0
+
+
+def result_max_bytes() -> int:
+    try:
+        mb = float(getenv("HUB_RESULT_MAX_MB") or DEFAULT_RESULT_MAX_MB)
+    except ValueError:
+        mb = DEFAULT_RESULT_MAX_MB
+    return int(max(0.0, mb) * 1024 * 1024)
 
 
 class GzipRequests:
@@ -245,7 +259,9 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
 
     @app.get("/api/health")
     def health():
-        return {"ok": True, "hub": True, "online": state.overview()["online"]}
+        # `persist_error` / `events_error` / `live_error`: hub odpovedá, ale beží z pamäti alebo bez live DB —
+        # monitoring to vidí aj bez tokenu (audit N-HUB-3, N-HUB-12); `ok` ostáva „proces žije"
+        return {"ok": True, "hub": True, **state.health()}
 
     @app.get("/api/status")
     def status(who: str = Depends(auth)):
@@ -377,11 +393,30 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
             if agent and agent != who:
                 raise HTTPException(403, f"token patrí agentovi {who!r}, nie {agent!r}")
             agent = who
-        data = await request.body()
+        # Telo sa číta po kusoch so stropom (`result_max_bytes`): kompromitovaný alebo pokazený agent nesmie hubu
+        # zaplniť pamäť jedným POST-om (audit N-HUB-15). Zápis zipu a zmena stavu idú do vlákna, nech neblokujú
+        # event loop a s ním heartbeaty ostatných (audit N-HUB-8).
+        limit = result_max_bytes()
         try:
-            return state.result(job_id, data, status=status, error=error,
-                                run_ids=[r for r in run_ids.split(",") if r], agent=agent,
-                                version=version or None)
+            dlzka = int(request.headers.get("content-length") or 0)
+        except ValueError:
+            dlzka = 0
+        kusy: list[bytes] = []
+        spolu = 0
+        if not (limit and dlzka > limit):
+            async for kus in request.stream():
+                spolu += len(kus)
+                if limit and spolu > limit:
+                    break
+                kusy.append(kus)
+        if limit and max(dlzka, spolu) > limit:
+            state.log("job_result_too_big", job=job_id, agent=agent, bytes=max(dlzka, spolu), limit=limit)
+            raise HTTPException(413, f"výsledok je väčší než {limit // (1024 * 1024)} MB (TRADEBOT_HUB_RESULT_MAX_MB)")
+        data = b"".join(kusy)
+        try:
+            return await run_in_threadpool(
+                state.result, job_id, data, status=status, error=error,
+                run_ids=[r for r in run_ids.split(",") if r], agent=agent, version=version or None)
         except JobGone:
             raise HTTPException(410, "výpočet je už vybavený (výsledok má zadávateľ) — tento netreba")
         except KeyError:
@@ -390,6 +425,8 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
             raise HTTPException(403, str(exc))
         except ValueError as exc:
             raise HTTPException(422, str(exc))
+        except OSError as exc:   # zip sa nedal zapísať (plný disk) — výpočet ostal nezmenený, agent to skúsi znova
+            raise HTTPException(507, f"výsledok sa nedal uložiť: {type(exc).__name__}: {exc}")
 
     @app.get("/api/jobs/{job_id}/result")
     def result_download(job_id: str, who: str = Depends(auth)):

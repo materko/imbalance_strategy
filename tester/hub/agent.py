@@ -138,6 +138,20 @@ HEARTBEAT_MIN, HEARTBEAT_MAX = 1, 600
 #: `TRADEBOT_AGENT_PLUGIN_UPDATE` = minúty, 0 = vypnuté).
 PLUGIN_UPDATE_SECONDS = 300.0
 
+#: Heartbeat (a registrácia) čaká na odpoveď hubu najviac toľko — s nadviazaním spojenia (3 pokusy po
+#: `HEARTBEAT_CONNECT_TIMEOUT`) sa jeden pokus zmestí hlboko pod `agent_timeout` hubu (45 s). So spoločným
+#: 30 s timeoutom a 3×5 s na spojenie mohol jediný zaseknutý heartbeat limit presiahnuť sám (audit M-HUB-8).
+HEARTBEAT_TIMEOUT = 10.0
+HEARTBEAT_CONNECT_TIMEOUT = 4.0
+
+#: Koľko najnovších hotových behov sa číta z indexu histórie na odhad času (odhad berie posledných
+#: `protocol.HISTORY_WINDOW` podobných) — nie celá história pri každom heartbeate (audit N-WEB-8).
+HISTORY_ROWS = 400
+
+#: Vlákna agenta `(atribút, slučka, meno)` — spúšťa ich `start()` a stráži `supervise()` (audit M-HUB-10).
+THREADS = (("_thread", "_loop", "hub-agent"), ("_worker", "_work_loop", "hub-agent-work"),
+           ("_shipper_thread", "_ship_loop", "hub-agent-ship"), ("_watcher", "_spool_watch_loop", "hub-agent-spool"))
+
 #: Nový kód na stroji (fáza 2c): ako často sa blokovaný / chybný cieľ skúša znova.
 CODE_RETRY_BLOCKED = 60.0
 CODE_RETRY_ERROR = 300.0
@@ -188,6 +202,10 @@ class HubAgent:
         self.runner = runner
         self.store = store
         self.http = http or HubHttp(cfg.hub_url, cfg.token)
+        #: Heartbeat a registrácia idú vlastným spojením s krátkym timeoutom (`HEARTBEAT_TIMEOUT`); zipy a dávky
+        #: spoolu ostávajú na `self.http` s dlhým.
+        self._hb_http = http or HubHttp(cfg.hub_url, cfg.token, timeout=HEARTBEAT_TIMEOUT,
+                                        connect_timeout=HEARTBEAT_CONNECT_TIMEOUT)
         self.state_path = state_path
         self.config_path = Path(config_path or AGENT_CONFIG)
         #: Live telemetria (docs/LIVE.md): shipper vznikne, až keď je na stroji spool platformy.
@@ -197,6 +215,11 @@ class HubAgent:
         self._live_error: str | None = None
         #: Odtlačok spoolu (počet súborov, bajty spolu) z posledného pohľadu strážcu.
         self._spool_stamp: tuple[int, int] | None = None
+        #: Bajty čakajúce za kurzorom z posledného pohľadu strážcu a kedy to bolo (`time.monotonic`) — heartbeat
+        #: ich berie odtiaľ a spool sám neprehľadáva.
+        self._spool_pending: tuple[float, int] | None = None
+        #: Výpisy adresárov spoolu pre `latest_state` (adresár → čas zmeny a obsah).
+        self._live_dirs: dict[str, Any] = {}
         #: Interval heartbeatu, ktorý poslal hub v odpovedi (None = z configu).
         self.hub_heartbeat: int | None = None
         #: Nasadenia z hubu (fáza 2b): reconciler vznikne pri prvom `live` v odpovedi; požadovaný
@@ -232,12 +255,21 @@ class HubAgent:
         self.cores = os.cpu_count() or 1
         self.slots = cfg.slots(self.cores)
         self.state: AgentState = load_state(state_path)
+        #: Stav agenta bol pri štarte pokazený (odložený ako `.corrupt-…`) — čo z toho plynie, je v `public()`.
+        self.state_error: str | None = None
+        if getattr(self.state, "recovered", ""):
+            self.state_error = (f"{self.state.recovered} — agent zabudol, čo počítal pre hub (hub to po troch "
+                                "heartbeatoch zaradí znova) a ktoré zadané výpočty čakajú na vyzdvihnutie "
+                                "(vyzdvihnú sa, keď ich hub ponúkne v heartbeate)")
+            log.error("hub agent: %s", self.state_error)
         self.registered = False
         self.last_error: str | None = None
         self.last_ok: float | None = None
         self.ticks = 0
         #: Koľko tickov je lokálny beh výpočtu už v konečnom stave (odovzdá sa po SETTLE_TICKS).
         self._final_ticks: dict[str, int] = {}
+        #: História pre odhad času, načítaná najviac raz na heartbeat (`_history`).
+        self._history_memo: list[dict[str, Any]] | None = None
         #: Commit, ktorý sa práve ťahá (`git pull`). Kým sa ťahá, agent neberie nové výpočty
         #: a hub to vie z heartbeatu — kód pod bežiacim behom sa nemá meniť.
         self.updating: str | None = None
@@ -259,6 +291,10 @@ class HubAgent:
         #: Odosielanie spoolu na hub — vlastné vlákno, aby backlog grafových dát nezdržal nasadenia a nový kód.
         self._ship = threading.Event()
         self._shipper_thread: threading.Thread | None = None
+        #: `start()` už bežal (stráženie vlákien má zmysel) a koľkokrát ktoré vlákno umrelo a spustilo sa znova.
+        self._started = False
+        self.thread_restarts: dict[str, int] = {}
+        self._threads_lock = threading.Lock()
         #: Kedy sa naposledy upratovali odovzdané behy (`None` = ešte nie, prvé kolo aj
         #: presunie cudzie behy spred `tester.hub.delivered`).
         self._delivered_at: float | None = None
@@ -269,23 +305,43 @@ class HubAgent:
         self._stop.clear()
         # Klon nastavený pred presunom dát pod data/ (docs/DIRECTORIES.md): pravidlá chudého klonu na nové cesty.
         threading.Thread(target=_migrate_sparse, name="hub-agent-sparse", daemon=True).start()
-        if self._thread is None or not self._thread.is_alive():
-            self._thread = threading.Thread(target=self._loop, name="hub-agent", daemon=True)
-            self._thread.start()
-        if self._worker is None or not self._worker.is_alive():
-            self._worker = threading.Thread(target=self._work_loop, name="hub-agent-work",
-                                            daemon=True)
-            self._worker.start()
-        if self._shipper_thread is None or not self._shipper_thread.is_alive():
-            self._shipper_thread = threading.Thread(target=self._ship_loop, name="hub-agent-ship", daemon=True)
-            self._shipper_thread.start()
-        if self._watcher is None or not self._watcher.is_alive():
-            self._watcher = threading.Thread(target=self._spool_watch_loop, name="hub-agent-spool",
-                                             daemon=True)
-            self._watcher.start()
+        self._started = True
+        self._ensure_threads()
         if self._plugins is None:
             self._plugins = self._plugin_host()
             self._plugins.start()
+
+    def _ensure_threads(self, supervising: bool = False) -> list[str]:
+        """Spustí vlákna, ktoré nebežia. Pri strážení (`supervising`) je nebežiace vlákno mŕtve vlákno: zaloguje
+        sa ako chyba, spočíta (`thread_restarts`, vidno v `public()`) a spustí znova. Vráti mená znova spustených."""
+        znova: list[str] = []
+        with self._threads_lock:
+            if self._stop.is_set():
+                return znova
+            for attr, loop, name in THREADS:
+                t = getattr(self, attr)
+                if t is not None and t.is_alive():
+                    continue
+                if supervising and t is not None:
+                    self.thread_restarts[name] = self.thread_restarts.get(name, 0) + 1
+                    znova.append(name)
+                    log.error("hub agent: vlákno %s umrelo — spúšťam ho znova (%d. raz)", name, self.thread_restarts[name])
+                t = threading.Thread(target=getattr(self, loop), name=name, daemon=True)
+                setattr(self, attr, t)
+                t.start()
+        return znova
+
+    def supervise(self) -> list[str]:
+        """Dohľad nad vláknami agenta (audit M-HUB-10): vlákna sa navzájom strážia — heartbeat, pomalé vlákno aj
+        strážca spoolu to volajú v každom svojom kole. Mŕtve vlákno heartbeatu by inak znamenalo agenta, ktorého
+        hub odpíše, hoci proces beží; mŕtve pomalé vlákno výsledky, ktoré sa nikdy neodovzdajú."""
+        if not self._started or self._stop.is_set():
+            return []
+        try:
+            return self._ensure_threads(supervising=True)
+        except Exception as exc:  # noqa: BLE001 - stráženie nesmie zhodiť vlákno, ktoré stráži (ani preskočiť heartbeat)
+            log.warning("hub agent: stráženie vlákien zlyhalo: %s: %s", type(exc).__name__, exc)
+            return []
 
     def stop(self) -> None:
         self._stop.set()
@@ -303,6 +359,7 @@ class HubAgent:
         zlyhalo = 0
         while not self._stop.is_set():
             try:
+                self.supervise()
                 self.tick()
                 zlyhalo = 0
             except Exception as exc:  # noqa: BLE001 - výpadok hubu nesmie zhodiť agenta
@@ -317,6 +374,7 @@ class HubAgent:
         """Ľahký strážca spoolu: každú sekundu `stat` súborov; rast = zobudiť pomalé vlákno."""
         while not self._stop.wait(SPOOL_WATCH_SECONDS):
             try:
+                self.supervise()
                 self.watch_spool()
             except Exception as exc:  # noqa: BLE001 - strážca nesmie umrieť
                 log.debug("hub agent: strážca spoolu: %s", exc)
@@ -331,6 +389,7 @@ class HubAgent:
         st = shipper.reader.status()
         subory = st.get("files") or []
         stamp = (len(subory), sum(int(f.get("size") or 0) for f in subory))
+        self._spool_pending = (time.monotonic(), int(st.get("pending_bytes") or 0))
         zmena = self._spool_stamp is not None and stamp != self._spool_stamp
         self._spool_stamp = stamp
         if zmena:
@@ -457,6 +516,7 @@ class HubAgent:
             self._work.clear()
             if self._stop.is_set():
                 return
+            self.supervise()
             self.work()
 
     def work(self) -> None:
@@ -494,6 +554,9 @@ class HubAgent:
 
         self._live = LiveShipper(SpoolReader(roots, self.live_cursor), self.http, self.cfg.name)
         log.info("hub agent: live spool %s", ", ".join(str(r) for r in roots))
+        if getattr(self._live.reader, "cursor_reset", False):
+            log.error("hub agent: kurzor spoolu %s bol pokazený (odložený ako .corrupt-…) — celý spool sa pošle "
+                      "na hub znova; hub duplicity zahodí, ale odosielanie bude chvíľu zaostávať", self.live_cursor)
         return self._live
 
     def _ship_live(self) -> bool:
@@ -538,6 +601,7 @@ class HubAgent:
                 "last_error": st.get("last_error"), "sent_total": st.get("sent_total", 0),
                 "accepted_total": st.get("accepted_total", 0),
                 "pending_bytes": reader.get("pending_bytes", 0), "files": len(reader.get("files") or []),
+                "cursor_reset": bool(getattr(self._live.reader, "cursor_reset", False)),
                 "apply": apply, "plugins": plugins}
 
     # -- nasadenia z hubu (fáza 2b) ----------------------------------------- #
@@ -563,7 +627,8 @@ class HubAgent:
             roots = self._live.reader.roots if self._live is not None else default_roots()
             out["instances"] = [{"instance": s["instance"], "session": s["session"], "last_t": s["last_t"],
                                  "last_bar_ms": s["last_bar_ms"], "last_hb": s.get("last_hb"), "mode": s["mode"],
-                                 "profile": s["profile"], "ended": s["ended"]} for s in latest_state(roots, self._live_cache)]
+                                 "profile": s["profile"], "ended": s["ended"]}
+                                for s in latest_state(roots, self._live_cache, self._live_dirs)]
         except Exception as exc:  # noqa: BLE001
             log.debug("hub agent: stav spoolu sa nedal zistiť: %s", exc)
         rec = self._reconciler
@@ -576,8 +641,8 @@ class HubAgent:
         # odosielanie spoolu: koľko čaká a akou dávkou — backlog po reštarte platforiem je vidno na karte Stroje
         if self._live is not None:
             try:
-                st = self._live.status()
-                out["ship"] = {"pending_bytes": int((st.get("reader") or {}).get("pending_bytes") or 0),
+                st = self._live.status(reader=False)
+                out["ship"] = {"pending_bytes": self._pending_bytes(),
                                "batch": st.get("batch"), "last_ok": st.get("last_ok"), "last_error": st.get("last_error"),
                                **{k: st.get(k) for k in ("read_ms", "post_ms", "rate", "files",
                                                          "rejected_total", "poison_total")}}
@@ -599,6 +664,15 @@ class HubAgent:
             except Exception as exc:  # noqa: BLE001
                 log.debug("hub agent: prekrytia pluginov: %s", exc)
         return out
+
+    def _pending_bytes(self) -> int:
+        """Bajty spoolu čakajúce za kurzorom. Keď beží strážca spoolu, berie sa jeho posledný pohľad (najviac pár
+        sekúnd starý) — heartbeat tak neprehľadáva celý spool (po dňoch reštartov tisíce súborov, na Windows VM
+        sekundy; audit M-HUB-8). Bez vlákien (testy, `tick()` naholo) sa spočíta hneď."""
+        videne = self._spool_pending
+        if videne is not None and time.monotonic() - videne[0] <= 5 * SPOOL_WATCH_SECONDS:
+            return videne[1]
+        return int(self._live.reader.status().get("pending_bytes") or 0)
 
     def _note_live(self, desired: Any) -> None:
         """Heartbeat priniesol požadovaný stav — odloží sa pomalému vláknu (nikdy sa neaplikuje tu)."""
@@ -745,17 +819,17 @@ class HubAgent:
         """Heartbeat; keď hub agenta nepozná (nový hub, stratený `state.json`), prihlási sa
         znova a skúsi to ešte raz — inak by agent mlčal donekonečna."""
         try:
-            return self.http.post(f"/api/agents/{self.cfg.name}/heartbeat", self._heartbeat_body())
+            return self._hb_http.post(f"/api/agents/{self.cfg.name}/heartbeat", self._heartbeat_body())
         except HubError as exc:
             if exc.status != 404:
                 raise
             log.info("hub agent: hub ma nepozna, prihlasujem sa znova")
             self.registered = False
             self._register()
-            return self.http.post(f"/api/agents/{self.cfg.name}/heartbeat", self._heartbeat_body())
+            return self._hb_http.post(f"/api/agents/{self.cfg.name}/heartbeat", self._heartbeat_body())
 
     def _register(self) -> None:
-        self.http.post("/api/agents/register", {
+        self._hb_http.post("/api/agents/register", {
             "name": self.cfg.name, "instance": self.instance, "cores": self.cores,
             "slots": self.slots, "accept": self.cfg.accept, "send": self.cfg.send,
             "version": self.version, "role": self.cfg.role, "kind": self.kind,
@@ -788,9 +862,10 @@ class HubAgent:
 
     def clear_undelivered(self) -> int:
         """Zabudne zoznam nedoručených (tester ho videl) — behy ostávajú v histórii tohto klonu."""
-        n = len(self.state.undelivered)
-        self.state.undelivered.clear()
-        self._save()
+        with self._state_lock:
+            n = len(self.state.undelivered)
+            self.state.undelivered.clear()
+            self._save()
         return n
 
     def set_accept(self, value: bool, persist: bool = True) -> bool:
@@ -820,20 +895,59 @@ class HubAgent:
     def bye(self) -> None:
         """Odhlásenie pred reštartom: hub meno uvoľní hneď a pridelené výpočty podrží."""
         try:
-            self.http.post(f"/api/agents/{self.cfg.name}/bye")
+            self._hb_http.post(f"/api/agents/{self.cfg.name}/bye")   # krátky timeout: koniec procesu nečaká 30 s
         except (HubError, OSError, ValueError):
             pass
         self.registered = False
 
     def _save(self) -> None:
-        """Stav na disk — pod zámkom, lebo doň píše heartbeat aj pomalé vlákno."""
+        """Stav na disk — pod zámkom, lebo doň píše heartbeat aj pomalé vlákno. Pod tým istým zámkom sa `computing`,
+        `sent`, `undelivered` aj ich záznamy **menia** (`_set`, `_drop`, …): zápis ich prechádza a zmena z druhého
+        vlákna uprostred dávala občasné `RuntimeError: dictionary changed size during iteration` (audit N-HUB-10)."""
         with self._state_lock:
             save_state(self.state, self.state_path)
+
+    def _computing(self) -> list[tuple[str, dict[str, Any]]]:
+        """Snímka `computing` na prechádzanie (druhé vlákno do slovníka medzitým pridáva a uberá)."""
+        with self._state_lock:
+            return list(self.state.computing.items())
+
+    def _set(self, entry: dict[str, Any], **fields: Any) -> None:
+        """Zmena záznamu výpočtu pod zámkom stavu."""
+        with self._state_lock:
+            entry.update(fields)
+
+    def _drop(self, job_id: str) -> None:
+        """Výpočet von z `computing` (odovzdaný, stratený, odložený) a stav na disk."""
+        with self._state_lock:
+            self.state.computing.pop(job_id, None)
+            self._final_ticks.pop(job_id, None)
+            self._save()
+
+    def _history(self) -> list[dict[str, Any]]:
+        """Behy pre odhad času: `HISTORY_ROWS` najnovších hotových behov s trvaním z indexu histórie, raz na
+        heartbeat — nie `store.all()` (celá história, pri tisícoch behov stovky ms) pri každom odhade (audit
+        N-WEB-8). Sklad bez indexu (alebo s nefunkčným) = celá história ako doteraz."""
+        if self._history_memo is not None:
+            return self._history_memo
+        recs: list[dict[str, Any]] | None = None
+        index = getattr(self.store, "index", None)
+        if index is not None:
+            try:
+                if index.sync():
+                    recs = index.page("status = ? AND duration_s > 0", ["done"], 0, HISTORY_ROWS)
+            except Exception as exc:  # noqa: BLE001 - index je odvodený; bez neho sa číta po starom
+                log.debug("hub agent: index histórie pre odhad času: %s", exc)
+                recs = None
+        if recs is None:
+            recs = self.store.all()
+        self._history_memo = recs
+        return recs
 
     # -- heartbeat ---------------------------------------------------------- #
 
     def _hub_run_ids(self) -> set[str]:
-        return {e.get("run_id") for e in self.state.computing.values() if e.get("run_id")}
+        return {e.get("run_id") for _, e in self._computing() if e.get("run_id")}
 
     def _local_load(self) -> dict[str, Any]:
         """Lokálna fronta bez výpočtov hubu: čo si tester spustil sám."""
@@ -848,12 +962,9 @@ class HubAgent:
             elif j.get("status") == "queued":
                 caka += 1
         eta = 0.0
-        historia = None
         for j in bezia:
             s = j.get("settings") or {}
-            if historia is None:
-                historia = self.store.all()
-            odhad = P.estimate_seconds(s, historia, cores=self.cores)
+            odhad = P.estimate_seconds(s, self._history(), cores=self.cores)
             uplynulo = max(0.0, self.clock() - (_parse_iso(j.get("started")) or self.clock()))
             eta = max(eta, P.remaining_seconds(odhad, uplynulo, None))
         return {"running": len(bezia), "queued": caka,
@@ -884,7 +995,7 @@ class HubAgent:
             # hotový a stroj nie je voľný. Zvyšok je najdlhšie z toho, čo ešte beží alebo čaká.
             hotove = len(self._verification_ids(run_id))
             eta = 0.0
-            historia = self.store.all()
+            historia = self._history()
             for j in overenia:
                 odhad = P.estimate_seconds(j.get("settings") or {}, historia, cores=self.cores)
                 zacal = _parse_iso(j.get("started")) if j.get("status") == "running" else None
@@ -897,14 +1008,15 @@ class HubAgent:
         uplynulo = max(0.0, self.clock() - (_parse_iso(started) or self.clock())) if started else 0.0
         odhad = entry.get("estimate_seconds")
         if odhad is None:
-            odhad = P.estimate_seconds(settings, self.store.all(), cores=self.cores)
-            entry["estimate_seconds"] = odhad
+            odhad = P.estimate_seconds(settings, self._history(), cores=self.cores)
+            self._set(entry, estimate_seconds=odhad)
         limit = entry.get("max_seconds") or max(MAX_RUNTIME_FACTOR * float(odhad), MIN_MAX_SECONDS)
-        entry["max_seconds"] = limit
+        if entry.get("max_seconds") != limit:
+            self._set(entry, max_seconds=limit)
         if status == "running" and uplynulo > limit and not entry.get("timed_out"):
             # Zaseknutý beh: zabiť a nahlásiť ako zlyhaný — hub nesmie čakať donekonečna.
             log.warning("hub agent: beh %s prekrocil strop %.0f min, zabijam", run_id, limit / 60)
-            entry["timed_out"] = True
+            self._set(entry, timed_out=True)
             self._save()
             self._kill(run_id)
         epochs = (settings.get("hyperopt") or {}).get("epochs") if P.kind_of(settings) == P.KIND_HYPEROPT else None
@@ -921,7 +1033,8 @@ class HubAgent:
 
     def _heartbeat_body(self) -> dict[str, Any]:
         jobs = []
-        for job_id, entry in list(self.state.computing.items()):
+        self._history_memo = None   # história pre odhady sa číta najviac raz na heartbeat
+        for job_id, entry in self._computing():
             r = self._report(job_id, entry)
             if r is not None:
                 jobs.append(r)
@@ -1104,11 +1217,12 @@ class HubAgent:
         except Exception as exc:  # noqa: BLE001 - zlý config nech zlyhá ako výpočet, nie ako agent
             self._fail(job_id, str(exc))
             return
-        self.state.computing[job_id] = {"run_id": local.id, "kind": job.get("kind"),
-                                        "submitter": job.get("submitter"),
-                                        "max_seconds": job.get("max_seconds"),
-                                        "accepted": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-        self._save()
+        with self._state_lock:
+            self.state.computing[job_id] = {"run_id": local.id, "kind": job.get("kind"),
+                                            "submitter": job.get("submitter"),
+                                            "max_seconds": job.get("max_seconds"),
+                                            "accepted": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+            self._save()
 
     def _cancel(self, job_id: str) -> None:
         entry = self.state.computing.get(job_id)
@@ -1116,7 +1230,7 @@ class HubAgent:
             # nič také nepočítame — hubu to povieme hneď, nech nečaká
             self.http.post_bytes(f"/api/jobs/{job_id}/result?status=cancelled&agent={self.cfg.name}", b"")
             return
-        entry["cancel_requested"] = True
+        self._set(entry, cancel_requested=True)
         self._save()
         if entry.get("run_id"):
             self._kill(entry["run_id"])
@@ -1162,7 +1276,7 @@ class HubAgent:
         ticku (aj o hodinu, aj po reštarte agenta). Zahodí sa až vtedy, keď ho hub odmietne
         natrvalo — vtedy ide do `undelivered` a behy ostanú aspoň v histórii tohto klonu.
         """
-        for job_id, entry in list(self.state.computing.items()):
+        for job_id, entry in self._computing():
             run_id = entry.get("run_id")
             if not run_id:
                 continue
@@ -1176,9 +1290,7 @@ class HubAgent:
                 # do fronty (`_lost`, raz sa skúsi znova) - aj tomuto agentovi, `_accept` ho už nezahodí.
                 log.warning("hub agent: vypocet %s (beh %s) sa po restarte agenta stratil - vraciam ho hubu",
                             job_id, run_id)
-                self.state.computing.pop(job_id, None)
-                self._final_ticks.pop(job_id, None)
-                self._save()
+                self._drop(job_id)
                 continue
             n = self._final_ticks.get(job_id, 0) + 1
             self._final_ticks[job_id] = n
@@ -1211,18 +1323,16 @@ class HubAgent:
                     # navyše; nie je to nedoručené, behy idú preč z histórie ako odovzdané.
                     log.info("hub agent: vypocet %s uz hub vybavil inde — vysledok %s netreba",
                              job_id, ", ".join(run_ids))
-                    self.state.computing.pop(job_id, None)
-                    self._final_ticks.pop(job_id, None)
-                    self._save()
+                    self._drop(job_id)
                     self._retire(entry, run_ids)
                     continue
                 if exc.status == 404:
                     # Hub môže byť po reštarte ešte bez stavu — pár tickov to skúsime znova.
-                    entry["notfound"] = int(entry.get("notfound") or 0) + 1
+                    self._set(entry, notfound=int(entry.get("notfound") or 0) + 1)
                     if entry["notfound"] < DELIVER_404_TRIES:
                         self._deliver_failed(job_id, entry, f"hub 404: {exc.detail}")
                         continue
-                if exc.status in (400, 403, 404, 422):
+                if exc.status in (400, 403, 404, 413, 422):   # 413: zip nad strop hubu — opakovanie nepomôže
                     self._park(job_id, entry, run_ids, stav, f"hub {exc.status}: {exc.detail}")
                     continue
                 self._deliver_failed(job_id, entry, str(exc))  # 401, 5xx — chyba sa dá opraviť
@@ -1230,9 +1340,7 @@ class HubAgent:
             except (OSError, ValueError) as exc:  # hub mimo, sieť, rozsypaná odpoveď
                 self._deliver_failed(job_id, entry, f"{type(exc).__name__}: {exc}")
                 continue
-            self.state.computing.pop(job_id, None)
-            self._final_ticks.pop(job_id, None)
-            self._save()
+            self._drop(job_id)
             self._retire(entry, run_ids)
 
     def _retire(self, entry: dict[str, Any], run_ids: list[str]) -> None:
@@ -1259,11 +1367,13 @@ class HubAgent:
         self._delivered_at = now
         if prvy:
             keep: set[str] = set()
-            for entry in list(self.state.computing.values()):
+            for _, entry in self._computing():
                 if entry.get("run_id"):
                     keep.add(entry["run_id"])
                     keep.update(self._verification_ids(entry["run_id"]))
-            for zaznam in list(self.state.undelivered.values()):
+            with self._state_lock:
+                nedorucene = list(self.state.undelivered.values())
+            for zaznam in nedorucene:
                 keep.update(zaznam.get("run_ids") or [])
             ids = delivered.foreign(self.store, self.cfg.name, keep)
             if ids:
@@ -1276,8 +1386,7 @@ class HubAgent:
 
     def _deliver_failed(self, job_id: str, entry: dict[str, Any], reason: str) -> None:
         """Odovzdanie neprešlo (hub mimo) — necháme si ho a skúsime to o tick znova."""
-        entry["deliver_fails"] = int(entry.get("deliver_fails") or 0) + 1
-        entry["deliver_error"] = reason[:300]
+        self._set(entry, deliver_fails=int(entry.get("deliver_fails") or 0) + 1, deliver_error=reason[:300])
         if entry["deliver_fails"] in (1, 10) or entry["deliver_fails"] % 60 == 0:
             log.warning("hub agent: vysledok %s sa nedari odovzdat (%dx): %s — necham si ho",
                         job_id, entry["deliver_fails"], reason)
@@ -1289,24 +1398,24 @@ class HubAgent:
         Beh je v histórii tohto klonu — zapíšeme, čo sa nedoručilo, nech sa to dá nájsť."""
         log.warning("hub agent: vypocet %s uz hub neprijal (%s) — behy %s ostavaju v historii "
                     "tohto klonu", job_id, reason, ", ".join(run_ids))
-        self.state.undelivered[job_id] = {
-            "run_ids": run_ids, "status": status, "reason": reason[:300],
-            "kind": entry.get("kind"),
-            "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        }
-        self.state.computing.pop(job_id, None)
-        self._final_ticks.pop(job_id, None)
-        self._save()
+        with self._state_lock:
+            self.state.undelivered[job_id] = {
+                "run_ids": run_ids, "status": status, "reason": reason[:300],
+                "kind": entry.get("kind"),
+                "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            }
+            self._drop(job_id)
 
     # -- výsledky toho, čo sme poslali -------------------------------------- #
 
     def note_sent(self, job: dict[str, Any], note: str = "") -> None:
         """Zapíše, že sme výpočet zadali — heartbeat si potom výsledok vyzdvihne sám."""
-        self.state.sent[job["id"]] = {
-            "kind": job.get("kind"), "note": note, "created": job.get("created"),
-            "status": job.get("status"), "run_ids": [], "error": None,
-        }
-        self._save()
+        with self._state_lock:
+            self.state.sent[job["id"]] = {
+                "kind": job.get("kind"), "note": note, "created": job.get("created"),
+                "status": job.get("status"), "run_ids": [], "error": None,
+            }
+            self._save()
 
     def _queue_collect(self, job: dict[str, Any]) -> None:
         """Hotový výpočet zadávateľa: zip sťahuje pomalé vlákno, nie heartbeat."""
@@ -1333,8 +1442,9 @@ class HubAgent:
 
     def _collect(self, job: dict[str, Any]) -> None:
         job_id = job["id"]
-        zaznam = self.state.sent.setdefault(job_id, {"kind": job.get("kind"), "note": job.get("note") or "",
-                                                     "created": job.get("created"), "run_ids": []})
+        with self._state_lock:
+            zaznam = self.state.sent.setdefault(job_id, {"kind": job.get("kind"), "note": job.get("note") or "",
+                                                         "created": job.get("created"), "run_ids": []})
         run_ids: list[str] = []
         if job.get("has_result"):
             try:
@@ -1345,16 +1455,19 @@ class HubAgent:
                 data = b""
             if data:
                 run_ids = unpack_runs(data, self.store.root, self.store.batches)
-        zaznam.update({"status": job.get("status"), "error": job.get("error"),
-                       "run_ids": run_ids or list(job.get("run_ids") or []),
-                       "agent": job.get("agent"),
-                       "collected": datetime.now(timezone.utc).isoformat(timespec="seconds")})
+        self._set(zaznam, status=job.get("status"), error=job.get("error"),
+                  run_ids=run_ids or list(job.get("run_ids") or []), agent=job.get("agent"),
+                  collected=datetime.now(timezone.utc).isoformat(timespec="seconds"))
         self._save()
         self.http.post(f"/api/jobs/{job_id}/ack")
 
     # -- stav pre API ------------------------------------------------------- #
 
     def public(self) -> dict[str, Any]:
+        with self._state_lock:
+            computing = {k: dict(v) for k, v in self.state.computing.items()}
+            sent = {k: dict(v) for k, v in self.state.sent.items()}
+            undelivered = {k: dict(v) for k, v in self.state.undelivered.items()}
         return {
             "name": self.cfg.name, "hub_url": self.cfg.hub_url, "accept": self.cfg.accept,
             "role": self.cfg.role, "kind": self.kind,
@@ -1365,11 +1478,11 @@ class HubAgent:
             "heartbeat_seconds": self.heartbeat_seconds,
             "last_ok": datetime.fromtimestamp(self.last_ok, tz=timezone.utc).isoformat(timespec="seconds")
             if self.last_ok else None,
-            "computing": {k: dict(v) for k, v in self.state.computing.items()},
-            "sent": {k: dict(v) for k, v in self.state.sent.items()},
-            "undelivered": {k: dict(v) for k, v in self.state.undelivered.items()},
+            "computing": computing, "sent": sent, "undelivered": undelivered,
             # Spočítané a čakajúce na hub (výpadok) — beh je hotový, len sa ešte neodovzdal.
-            "pending_upload": sum(1 for v in self.state.computing.values() if v.get("deliver_fails")),
+            "pending_upload": sum(1 for v in computing.values() if v.get("deliver_fails")),
+            # dohľad (audit M-HUB-10): vlákna, ktoré umreli a bežia znova, a stav agenta stratený pri štarte
+            "thread_restarts": dict(self.thread_restarts), "state_error": self.state_error,
             "live": self.live_status(),
             "code_target": dict(self._code_target) if self._code_target else None,
             "code_update": dict(self._code_update) if self._code_update else None,

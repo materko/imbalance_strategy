@@ -83,13 +83,15 @@ class CutReport:
 def cut_test(cfg, inst, m1, chart_tf: int, from_ms: int, to_ms: int, *, spec=None,
              signal_cuts: int = 6, random_cuts: int = 4, seed: int = 0) -> CutReport:
     """Plný beh + behy utnuté na konci vybraných barov; porovná výstup enginu bar po bare."""
-    from tradebot.adapters.multicharts.emulator import emulate
+    from tradebot.adapters.multicharts.emulator import BarCache, emulate
 
     step = chart_tf * MIN_MS
+    # zdieľa sa len to, čo má rovnaký výrez (predhistória pred oknom); utnutý beh má vlastný koniec okna
+    bars = BarCache(m1)
 
     def run(end_ms: int) -> dict[int, tuple]:
         log: dict[int, tuple] = {}
-        emulate(cfg, inst, m1, chart_tf, from_ms=from_ms, to_ms=end_ms, spec=spec,
+        emulate(cfg, inst, m1, chart_tf, from_ms=from_ms, to_ms=end_ms, spec=spec, bars=bars,
                 observe=lambda bar, out: log.__setitem__(bar.time, _record(out)))
         return log
 
@@ -120,10 +122,9 @@ def cut_test(cfg, inst, m1, chart_tf: int, from_ms: int, to_ms: int, *, spec=Non
 
 
 def _tf_minutes(tf: str | None) -> int:
-    t = str(tf or "5m").strip()
-    if t.endswith("h"):
-        return int(t[:-1]) * 60
-    return int(t.rstrip("m"))
+    from tradebot.core.candles import timeframe_minutes
+
+    return timeframe_minutes(tf or "5m")
 
 
 def pick_profile(key: str) -> Path:

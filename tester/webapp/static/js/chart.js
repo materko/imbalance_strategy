@@ -36,7 +36,7 @@ const MAX_CANDLES = 6000;  // rovnaké ako server (tradebot/webapp/chart.py)
 const DASH = { dotted: "dot", dashed: "dash" };
 
 const pc = { rec: null, trades: [], runFrom: 0, runTo: 0, from: 0, to: 0, tf: "auto", layers: {}, meta: null, last: null,
-  seq: 0, bound: false, relayoutTimer: null, quietUntil: 0, strategy: "ibs", L: null };
+  seq: 0, bound: false, relayoutTimer: null, quietUntil: 0, strategy: DEFAULT_STRATEGY, L: null };
 
 const utc = ms => new Date(ms).toISOString().slice(0, 19).replace("T", " ");
 const parseUtc = s => Date.parse(String(s).replace(" ", "T").replace(/(\.\d+)?$/, "Z"));
@@ -59,7 +59,7 @@ function tfOptions() {
 
 function initPairChart(rec, trades) {
   pc.rec = rec; pc.trades = trades; pc.meta = null; pc.last = null; pc.seq++;
-  pc.strategy = rec.settings.strategy || "ibs";
+  pc.strategy = rec.settings.strategy || DEFAULT_STRATEGY;
   pc.L = layersFor(pc.strategy);
   const [a, b] = rec.settings.timerange.split("-");
   pc.runFrom = Date.parse(`${a.slice(0, 4)}-${a.slice(4, 6)}-${a.slice(6)}T00:00:00Z`);
@@ -420,7 +420,7 @@ function closeDetail() {
 async function loadDetailIntoForm() {
   const r = await api(`/api/runs/${state.detailId}`);
   const rec = r.record;
-  await setStrategy(rec.settings.strategy || "ibs");  // formulár musí byť tej stratégie, ktorej sú parametre
+  await setStrategy(rec.settings.strategy || DEFAULT_STRATEGY);  // formulár musí byť tej stratégie, ktorej sú parametre
   state.profile = rec.settings.profile || null;
   // základ = profil (aby sa zvýraznili odchýlky), hodnoty = beh. Profil behu už nemusí
   // existovať (archivované presety) — vtedy je základom Pine default a odchýlky sú voči nemu.

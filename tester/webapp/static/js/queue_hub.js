@@ -5,18 +5,25 @@
 // Fronta
 // --------------------------------------------------------------------------- //
 
-/** Fronta každé 2 s, kým niečo beží. Chyba spojenia (reštart webapp, 502) reťaz nesmie zastaviť —
- *  inak by karta navždy ukazovala starý „running" a história by sa po dobehnutí neobnovila (audit N-FE-1). */
-async function pollQueue() {
-  try {
-    await pollQueueOnce();
-  } catch (e) {
+/** Fronta každé 2 s, kým niečo beží, inak raz za 10 s — beh zadaný z CLI alebo z hubu sa inak neukáže, kým
+ *  tester niečo nespustí sám (audit M-WEB-7). Chyba spojenia (reštart webapp, 502) reťaz nesmie zastaviť —
+ *  inak by karta navždy ukazovala starý „running" a história by sa po dobehnutí neobnovila (audit N-FE-1);
+ *  poller pauzu len predlžuje a chybu ukáže. */
+let queueBusy = false;   // v poslednom kole niečo bežalo — po vyprázdnení fronty sa obnoví história
+const queuePoller = makePoller({
+  interval: 2000, idle: 10000, maxDelay: 15000, forever: true,
+  step: pollQueueOnce,
+  onError(e, info) {
+    const text = `fronta sa nedá načítať (${e.message}) — skúšam znova o ${Math.round(info.delay / 1000)} s`;
     const c = $("#queue-count");
-    if (c) c.title = `fronta sa nedá načítať (${e.message}) — skúšam znova`;
-    clearTimeout(state.pollTimer);
-    state.pollTimer = setTimeout(pollQueue, 5000);
-  }
-}
+    if (c) c.title = text;
+    const box = $("#queue");
+    if (box && !box.querySelector(".job")) box.innerHTML = `<div class="error">${esc(text)}</div>`;
+  },
+});
+
+/** Načíta frontu hneď (po zadaní alebo zrušení behu) a obtáča ju ďalej. */
+function pollQueue() { return queuePoller.kick(); }
 
 async function pollQueueOnce() {
   const jobs = await api("/api/queue");
@@ -32,9 +39,9 @@ async function pollQueueOnce() {
   $("#queue-count").textContent = jobs.length ? String(jobs.length) : "";
   if (!jobs.length) {
     box.innerHTML = `<div class="muted">Nič nebeží.</div>`;
-    if (state.pollTimer) { clearTimeout(state.pollTimer); state.pollTimer = null; if (!$("#view-history").hidden) loadRuns(); }
+    if (queueBusy) { queueBusy = false; if (!$("#view-history").hidden) loadRuns(); }
     await refreshLiveLog([]);
-    return;
+    return false;
   }
   // Prvky behov sa držia a len aktualizujú — prekreslenie celého HTML každé 2 s by
   // zhodilo pozíciu scrollu v logu a tester by nič nedočítal.
@@ -56,7 +63,14 @@ async function pollQueueOnce() {
       <span class="actions">${running ? `<button class="ghost small" data-expand="${j.id}" title="celý log v plnej šírke, s formátovaním">⤢ Log</button>` : ""}
       <button class="ghost small" data-cancel="${j.id}" title="zrušiť beh">✕</button></span>
       ${j.note ? `<div class="note muted" title="${esc(j.note)}">${esc(j.note)}</div>` : ""}`;
-    el.querySelector("[data-cancel]").onclick = async () => { await api(`/api/queue/${j.id}/cancel`, { method: "POST" }); pollQueue(); };
+    el.querySelector("[data-cancel]").onclick = async () => {
+      try {
+        await api(`/api/queue/${j.id}/cancel`, { method: "POST" });
+      } catch (e) {
+        alert(`Beh sa nepodarilo zrušiť: ${e.message}`);
+      }
+      pollQueue();
+    };
     const expand = el.querySelector("[data-expand]");
     if (expand) expand.onclick = () => openLiveLog(j);
     const pre = el.querySelector("pre.live");
@@ -65,8 +79,8 @@ async function pollQueueOnce() {
   }
   for (const el of box.querySelectorAll(".job")) if (!seen.has(el.dataset.job)) el.remove();
   await refreshLiveLog(jobs);
-  clearTimeout(state.pollTimer);
-  state.pollTimer = setTimeout(pollQueue, 2000);
+  queueBusy = true;
+  return true;
 }
 
 // --------------------------------------------------------------------------- //

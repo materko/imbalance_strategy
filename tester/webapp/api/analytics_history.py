@@ -6,6 +6,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.strategies import STRATEGIES
 
 from ..anstore import fingerprint as an_fingerprint, summary as an_summary
@@ -25,6 +26,8 @@ def build(ctx: AppContext) -> APIRouter:
         from ... import analytics as an
 
         zaznamy = [z for z in (store.get(i) for i in run_ids) if z]
+        if not zaznamy:
+            return {}      # behy už v histórii nie sú (zmazané, archivované) — niet z čoho, uložené platí
         kluce = {an.config_key(z) for z in zaznamy}
         trhy = {market_config_key(z).split("|", 1)[1] for z in zaznamy}
         nast = [z.get("settings") or {} for z in zaznamy]
@@ -44,15 +47,24 @@ def build(ctx: AppContext) -> APIRouter:
 
         Vlastnosti aj parametre sú pri každej stratégii iné, takže zliať ich do jedného
         zoznamu by znamenalo porovnávať neporovnateľné. Staršie záznamy bez konfigurácie
-        si ju doplnia z behov, na ktoré sa odkazujú.
+        (alebo s kľúčom z čias pred defaultmi) ju dostanú z behov, na ktoré sa odkazujú — len v odpovedi:
+        GET na disk nič nezapisuje (audit N-WEB-12). Kedysi tu každé otvorenie histórie prepisovalo súbory
+        v `tester/analytics/`, ktoré idú do gitu, a záznamu so zmazanými behmi konfiguráciu vymazalo.
         """
         if strategy and strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
-        for x in anstore.list(strategy, limit=500):
-            konfig = _config_of_runs(x.get("run_ids") or [])
-            if any(x.get(k) != v for k, v in konfig.items()):
-                anstore.patch(x["id"], **konfig)   # starší záznam alebo kľúč z čias pred defaultmi
-        return {"items": anstore.list(strategy, limit=limit, config_key=config_key, market=market)}
+        items = []
+        for i, x in enumerate(anstore.list(strategy, limit=1_000_000)):
+            if i < 500:    # dopočet číta behy záznamu; staršie než 500 najnovších ostanú pri uloženom
+                x = {**x, **_config_of_runs(x.get("run_ids") or [])}
+            if config_key and x.get("config_key") != config_key:
+                continue
+            if market and x.get("market") != market:
+                continue
+            items.append(x)
+            if len(items) >= limit:
+                break
+        return {"items": items}
 
     @router.get("/api/analytics/history/{an_id}")
     def analytics_history_one(an_id: str):
@@ -64,7 +76,7 @@ def build(ctx: AppContext) -> APIRouter:
     @router.post("/api/analytics/history")
     def analytics_save(req: AnalyticsSaveRequest):
         """Uloží záver, nie obchody — tie ostávajú v behoch, na ktoré sa záznam odkazuje."""
-        strategy = req.report.get("strategy") or "ibs"
+        strategy = req.report.get("strategy") or DEFAULT_STRATEGY
         if strategy not in STRATEGIES:
             raise HTTPException(422, f"neznáma stratégia {strategy!r}")
         if not (req.report.get("runs") or []):

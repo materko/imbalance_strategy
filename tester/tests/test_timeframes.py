@@ -125,11 +125,21 @@ def test_stiahnuty_timeframe_sa_neprepise(sklad, config):
     assert len(pd.read_feather(cudzi)) == 3
 
 
-def test_force_prepise_aj_existujuce(sklad, config):
+def test_force_prepise_len_odvodene(sklad, config):
+    """M-CORE-5: `--force` prerobí odvodené súbory, stiahnutý TF nechá a za odvodený ho neoznačí."""
+    manifest = sklad / ".derived.json"
     cudzi = sklad / "binance" / "spot" / "BTC_USDT-5m.feather"
-    m1(3).to_feather(cudzi)
-    tf.ensure(sklad, config, force=True, verbose=False, manifest=sklad / ".derived.json")
-    assert len(pd.read_feather(cudzi)) == 120     # 600 minút / 5
+    m1(3).to_feather(cudzi)                      # „z burzy"
+    tf.ensure(sklad, config, verbose=False, manifest=manifest)
+    nas = sklad / "binance" / "futures" / "BTC_USDT_USDT-5m-futures.feather"
+    assert nas in tf.derived(manifest)
+    m1(3).to_feather(nas)                        # odvodený súbor s iným obsahom, novší než 1m
+
+    made = tf.ensure(sklad, config, force=True, verbose=False, manifest=manifest)
+
+    assert nas in made and len(pd.read_feather(nas)) == 120     # 600 minút / 5
+    assert cudzi not in made and len(pd.read_feather(cudzi)) == 3
+    assert cudzi not in tf.derived(manifest)
 
 
 def test_druhe_spustenie_uz_nic_nerobi(sklad, config):

@@ -35,6 +35,7 @@ import threading
 from pathlib import Path
 from typing import Any, Iterable
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tester.atomic import write_json_atomic
 from tradebot.core.paths import SWEEPS_DIR
 
@@ -90,7 +91,7 @@ def new_batch(record: dict[str, Any]) -> dict[str, Any]:
     settings = strip_tag(dict(record.get("settings") or {}))
     return {
         "version": 1, "kind": kind, "id": batch_id,
-        "strategy": settings.get("strategy") or "ibs",
+        "strategy": settings.get("strategy") or DEFAULT_STRATEGY,
         "created": record.get("created"), "user": record.get("user") or "",
         "base": {"params": dict(record.get("params") or {}), "settings": settings},
         "points": [],

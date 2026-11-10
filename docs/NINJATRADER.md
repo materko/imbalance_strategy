@@ -476,7 +476,14 @@ dodá plán, ktorý na účte nie je:
 
 Súhrn ide do telemetrie ako `note` („po reštarte prevzatých N pozícií …“). Iné ordery a pozície na inštrumente sa
 nemenia. Trailing s vlastným stopom (potomok `TrailingPlan`, napr. stop na VWAP) sa do stavu nezapíše — prevzatá
-pozícia má potom pevný stop. Webapp na karte Live vstup bez zatvorenia, ktorý už nebeží (neskôr ďalší vstup, cena
+pozícia má potom pevný stop a inštancia to pri prevzatí ohlási (`note warn`). Zatváranie, ktoré reštart prerušil
+(engine pozíciu zavrel, trhový výstup ešte neodišiel), si stav pamätá (`closing`) a nový beh ho dokončí — engine
+o pozícii po predhistórii nevie a znova by ju nezavrel (audit M-LIVE-9).
+
+**Mŕtvy rad barov** (zvyšok auditu N-LIVE-7): keď je účet pripojený 60 s a bar počas seansy neprišiel 10 minút,
+`BarsRequest` po reconnecte ostal mŕtvy a sám sa neobnoví. Inštancia to ohlási (`note error`) a skončí s dôvodom
+`feed_dead`; AddOn ju do minúty spustí znova (nový `BarsRequest`, predhistória, pozície zo stavu ako vyššie). Najviac
+raz za 30 minút na inštanciu, nie počas zatvárania a nie 10 minút pred koncom dňa podľa hodín (EOD). Webapp na karte Live vstup bez zatvorenia, ktorý už nebeží (neskôr ďalší vstup, cena
 prešla SL / TP), do pozície nepočíta — rovnako ako stránka výsledkov (`tester.dashboard.live.trades_of`).
 **Neoverené naživo**: preložené proti NinjaTrader 8, ale reštart s otvorenou pozíciou na Sim účte ešte nebežal.
 

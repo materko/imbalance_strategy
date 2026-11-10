@@ -187,3 +187,36 @@ def test_kazda_strategia_ma_vysvetlivku_pre_laika(spec):
     assert text.startswith("# "), f"{spec.key}: vysvetlivka má začínať nadpisom „# <názov> — ako funguje\""
     assert "V jednej vete" in text, f"{spec.key}: vysvetlivke chýba úvod „V jednej vete\""
     assert "## " in text and "Stop" in text, f"{spec.key}: vysvetlivke chýbajú sekcie (aspoň stop a cieľ)"
+
+
+def test_dvojity_kluc_v_registry_je_chyba():
+    """M-CORE-9: dva balíky s tým istým kľúčom nesmú jeden druhého potichu prepísať."""
+    from dataclasses import replace
+
+    from tradebot import strategies as reg
+
+    specs = tuple(reg.STRATEGIES.values())
+    assert reg._registry(specs) == reg.STRATEGIES
+    kopia = replace(specs[1], key=specs[0].key)          # skopírovaný balík so zabudnutým `key`
+    with pytest.raises(ValueError, match="dvakrát"):
+        reg._registry((*specs, kopia))
+    assert not set(reg.ALIASES) & set(reg.STRATEGIES)
+
+
+def test_profil_so_starym_klucom_sa_nacita(tmp_path):
+    """M-CORE-7: `_strategy: "ibsninja"` v starom profile patrí dnešnej stratégii `ibsnet`."""
+    import json
+
+    from tradebot.core.config import load_profile, profile_dir
+    from tradebot.strategies import get_spec
+
+    spec = get_spec("ibsnet")
+    src = profile_dir("ibsninja") / f"{spec.default_profile}.json"
+    data = json.loads(src.read_text(encoding="utf-8"))
+    data["_strategy"] = "ibsninja"
+    stary = tmp_path / "stary.json"
+    stary.write_text(json.dumps(data), encoding="utf-8")
+    cfg, _ = load_profile(stary)
+    assert type(cfg) is spec.config_cls
+    cfg2, _ = load_profile(stary, strategy="ibsnet")      # starý kľúč v súbore, dnešný v argumente — nie je nezhoda
+    assert cfg2 == cfg

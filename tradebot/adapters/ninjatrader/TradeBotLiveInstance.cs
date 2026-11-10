@@ -842,6 +842,13 @@ namespace NinjaTrader.NinjaScript.AddOns
                    + Epoch.AddMilliseconds(_lastBarMs).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) + " UTC)" : ""));
             _live = true;
             if (_spool != null) { _spool.Realtime = true; SpoolCheck(); }
+            // kontrola pred zivym startom (TB.IPreflight): co engine vie, ze ho o chvilu ticho vypne, ide do hubu hned
+            try
+            {
+                long nowMs = (long)Math.Round((LiveClock.UtcNow - Epoch).TotalMilliseconds);
+                foreach (string warning in TB.Preflight.Run(_engine, nowMs)) Note("warn", "kontrola pred startom: " + warning);
+            }
+            catch (Exception e) { Log("kontrola pred startom: " + e.Message); }
         }
 
         /// <summary>Vsetky uzavrete, este nepodane bary: informativny TF pred barom grafu, s ktorym sa uzavrel.</summary>
@@ -908,7 +915,9 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (kv.Value.Filled && kv.Value.OpenQty > 0)
                     tracked += (kv.Value.Intent.Plan.Direction == TB.Direction.Long ? 1 : -1) * kv.Value.OpenQty;
             // vlastna pozicia hned (PositionUpdate uctu chodi o chvilu neskor), inak pozicia uctu (cudzia / z predosleho behu)
-            ctx.PositionSize = tracked != 0 ? tracked : AccountPosition() - OthersNet();
+            // Pocas prehravania predhistorie nie: dnesna pozicia uctu by sa tvarila ako pozicia na kazdom historickom
+            // bare a engine by po restarte skoncil v inom stave podla toho, co prave bezi (audit N-LIVE-23).
+            ctx.PositionSize = tracked != 0 ? tracked : (_live ? AccountPosition() - OthersNet() : 0);
             // Market vstup, ktory uz odisiel, ale fill este neprisiel, sa pocita ako pozicia (inak engine
             // posle dalsi a dalsi - 25. 9. 2026 ORB 20 market orderov v jednej sekunde).
             foreach (KeyValuePair<string, Tracked> kv in _orders)
@@ -1653,11 +1662,45 @@ namespace NinjaTrader.NinjaScript.AddOns
                 return;
             }
             if (!InSession(NinjaTrader.Core.Globals.Now)) return;
+            if (_feedStale && FeedRestartDue(nowMs)) return;
             if (_feedStale && (LiveClock.UtcNow - _feedNoted).TotalMinutes < 15) return;
             _feedStale = true;
             _feedNoted = LiveClock.UtcNow;
             Note("error", "pocas seansy neprisiel bar " + (int)((nowMs - _lastBarMs - _stepMs) / 60000L) + " min (posledny " + LastBarText()
                  + ") - feed alebo pripojenie (" + Deployment.Connection + "), trailing a zatvorenie na bare stoja");
+        }
+
+        private const int FeedRestartMinutes = 10;        // tolko minut bez baru pri pripojenom ucte = BarsRequest je mrtvy
+        private const int FeedRestartEveryMinutes = 30;   // samooprava najviac raz za tolko minut na instanciu
+        private static readonly Dictionary<string, DateTime> FeedRestarts = new Dictionary<string, DateTime>();
+
+        /// <summary>
+        /// Samooprava mrtveho radu barov (zvysok auditu N-LIVE-7): `BarsRequest`, ktory po reconnecte prestal dostavat
+        /// bary, sa sam neobnovi a alarm ho neopravi. Ked je ucet pripojeny a bar neprisiel `FeedRestartMinutes`,
+        /// instancia skonci s dovodom `feed_dead` - AddOn ju do minuty spusti znova (novy BarsRequest, predhistoria,
+        /// pozicie a ich SL/TP sa prevezmu zo stavu ako po kazdom restarte). Nie pocas zatvarania a nie tesne pred
+        /// koncom dna podla hodin (EOD musi stihnut bezat). `true` = restart bol vyziadany.
+        /// </summary>
+        private bool FeedRestartDue(long nowMs)
+        {
+            if (_stopRequested || nowMs < _lastBarMs + _stepMs + FeedRestartMinutes * 60000L) return false;
+            if (_account == null || _account.ConnectionStatus != ConnectionStatus.Connected) return false;
+            if (_connectedSince == DateTime.MinValue || (LiveClock.UtcNow - _connectedSince).TotalSeconds < 60) return false;
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+                if (kv.Value.Filled && kv.Value.Closing != null) return false;
+            TB.IClockFlatten clock = TB.ClockFlatten.Find(_engine);
+            if (clock != null && (clock.FlattenDue(nowMs) || clock.FlattenDue(nowMs + 10 * 60000L))) return false;
+            DateTime last;
+            lock (FeedRestarts)
+            {
+                if (FeedRestarts.TryGetValue(Deployment.Key, out last) && (LiveClock.UtcNow - last).TotalMinutes < FeedRestartEveryMinutes) return false;
+                FeedRestarts[Deployment.Key] = LiveClock.UtcNow;
+            }
+            Note("error", "ucet je pripojeny, ale bary nechodia " + (int)((nowMs - _lastBarMs - _stepMs) / 60000L)
+                 + " min - restartujem instanciu (novy BarsRequest); pozicie a SL/TP ostavaju na ucte a prevezmu sa zo stavu");
+            SaveState();
+            Stop("feed_dead");
+            return true;
         }
 
         /// <summary>Cas platformy je v obchodnej seanse instrumentu; ked sa to zistit neda, berie sa ako v seanse (radsej alarm navyse).</summary>
@@ -2152,6 +2195,9 @@ namespace NinjaTrader.NinjaScript.AddOns
                      .Key("off").Value(plan.Trailing.OffsetPriceDistance).Key("act_t").Value(plan.Trailing.ActivationTicks)
                      .Key("off_t").Value(plan.Trailing.OffsetTicks).EndObject();
                 else w.Key("trail").Null();
+                // rozbehnute zatvaranie a vlastny trailing enginu sa po restarte nesmu stratit potichu (audit M-LIVE-9)
+                w.Key("closing").Value(t.Filled && t.Closing != null ? t.Closing : "")
+                 .Key("trail_custom").Value(plan.Trailing != null && plan.Trailing.GetType() != typeof(TB.TrailingPlan));
                 w.Key("extreme").Value(t.Extreme).Key("last_stop").Value(t.LastStop).EndObject();
             }
             return w.EndArray().EndObject().ToString();
@@ -2350,7 +2396,12 @@ namespace NinjaTrader.NinjaScript.AddOns
                 t.Extreme = CatchUpExtreme(plan, extreme, filled && savedBarMs > 0 ? savedBarMs : inMs);
                 t.LastStop = sl != null && sl.StopPrice > 0 ? sl.StopPrice : TB.Json.GetDouble(s, "last_stop", plan.StopLoss);
                 _orders[id] = t;
-                if (sl != null && tp != null && sl.Quantity == open && tp.Quantity == open) { t.Sl = sl; t.Tp = tp; }
+                // zatvaranie, ktore restart prerusil (SL/TP uz mohli byt zrusene, trhovy vystup neodisiel): dokoncit ho,
+                // nie prevziat poziciu ako beznu - engine o nej po predhistorii nevie a znova by ju nezavrel
+                string closing = TB.Json.GetString(s, "closing", "");
+                bool resumeClose = closing.Length > 0 && Named(working, id + ":" + closing) == null;
+                if (resumeClose) { t.Sl = sl; t.Tp = tp; }
+                else if (sl != null && tp != null && sl.Quantity == open && tp.Quantity == open) { t.Sl = sl; t.Tp = tp; }
                 else
                 {
                     // chyba jeden z vystupov alebo nesedi objem: polozit dvojicu znova
@@ -2361,6 +2412,14 @@ namespace NinjaTrader.NinjaScript.AddOns
                 adopted++;
                 Log("RESTORE " + id + ": prevzaty " + (plan.Direction == TB.Direction.Long ? "long" : "short") + " x" + open
                     + " vstup " + plan.Entry + " SL " + t.LastStop + " TP " + plan.TakeProfit + (plan.Trailing != null ? " s trailingom" : ""));
+                if (TB.Json.GetBool(s, "trail_custom", false))
+                    Note("warn", "vstup " + id + " mal vlastny trailing enginu (napr. stop na VWAP), ktory sa cez restart neprenasa - stop ostava na "
+                         + t.LastStop + " a dalej sa sam neposuva");
+                if (resumeClose)
+                {
+                    Note("warn", "vstup " + id + " sa pred restartom zatvaral (" + closing + ") - zatvaranie pokracuje");
+                    RequestClose(id, t, closing);
+                }
             }
             if (adopted + filledAway + closedAway + cancelled + lost == 0) return;
             Note("info", "po restarte prevzatych " + adopted + " pozicii (" + filledAway + " vyplnenych pocas vypadku), " + closedAway
@@ -2495,16 +2554,36 @@ namespace NinjaTrader.NinjaScript.AddOns
         {
             // kurzor evt.jsonl sa potvrdi az po spracovani a zapise stavu: pad medzi nimi udalosti neprehra do prazdna,
             // po restarte pridu znova (spracovanie je idempotentne - fill in neprirata, fill out nezname preskoci)
-            List<Dictionary<string, object>> events = _route.Poll(false);
-            if (events.Count == 0) return;
-            foreach (Dictionary<string, object> ev in events)
+            // Udalost, pri ktorej spracovanie hodilo vynimku, ostava na cele fronty a skusa sa znova (poradie sa
+            // nemeni, kurzor sa nepotvrdi - po pade pridu vsetky znova). Az po RouteEventAttempts pokusoch sa
+            // zahodi s `error`, aby jedna otravena udalost nezastavila fily za nou (audit M-LIVE-9).
+            _routeQueue.AddRange(_route.Poll(false));
+            if (_routeQueue.Count == 0) return;
+            while (_routeQueue.Count > 0)
             {
+                Dictionary<string, object> ev = _routeQueue[0];
                 try { HandleRouteEvent(ev); }
-                catch (Exception e) { Note("error", "udalost z MT5 " + TB.Json.GetString(ev, "k", "?") + " - " + e.Message); }
+                catch (Exception e)
+                {
+                    string what = "udalost z MT5 " + TB.Json.GetString(ev, "k", "?") + " " + TB.Json.GetString(ev, "id", "") + " - " + e.Message;
+                    if (++_routeEventFails < RouteEventAttempts)
+                    {
+                        if (_routeEventFails == 1) Note("warn", what + " - skusam znova");
+                        SaveState();
+                        return;
+                    }
+                    Note("error", what + " - po " + RouteEventAttempts + " pokusoch zahodena, stav over snapshotom / rucne");
+                }
+                _routeEventFails = 0;
+                _routeQueue.RemoveAt(0);
             }
             SaveState();
             _route.CommitCursor();
         }
+
+        private const int RouteEventAttempts = 5;
+        private readonly List<Dictionary<string, object>> _routeQueue = new List<Dictionary<string, object>>();
+        private int _routeEventFails;
 
         /// <summary>Koniec obchodnej seansy instrumentu (TradingHours) v ms UTC; 0 = neda sa zistit.</summary>
         private long SessionEndMs()

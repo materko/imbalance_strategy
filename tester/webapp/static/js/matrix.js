@@ -95,22 +95,17 @@ async function startMatrix() {
 }
 
 const matrixKey = () => `matrix:${state.strategy}`;
-const matrixState = { id: null, timer: null };
+const matrixState = { id: null };
 
-async function pollMatrix() {
-  if (!matrixState.id) return;
-  try {
-    const r = await api(`/api/matrices/${matrixState.id}`);
-    renderMatrix(r);
-    if (r.pending) {
-      clearTimeout(matrixState.timer);
-      matrixState.timer = setTimeout(pollMatrix, 4000);
-    }
-  } catch (e) {
-    clearTimeout(matrixState.timer);
-    matrixState.timer = setTimeout(pollMatrix, 4000);
-  }
+/** Jedno načítanie matice; pravda, kým má nedobehnuté bunky. */
+async function pollMatrixOnce() {
+  if (!matrixState.id) return false;
+  const r = await api(`/api/matrices/${matrixState.id}`);
+  renderMatrix(r);
+  return !!r.pending;
 }
+const matrixPoller = makePoller({ interval: 4000, step: pollMatrixOnce, onError: searchPollError("matica"), onOk: searchPollOk });
+function pollMatrix() { return matrixPoller.kick(); }
 
 function renderMatrix(r) {
   $("#sweep-status").textContent = `hotových ${r.done} z ${r.total ?? (r.done + r.pending)}`

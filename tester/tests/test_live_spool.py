@@ -469,3 +469,53 @@ def test_shipper_vidi_udalosti_ktore_hub_neulozil(reader, tmp_path: Path):
     s = LiveShipper(r, Hlasi(hub_store), "nt-pc")
     s._note_rejected(2)
     assert s.status()["rejected_total"] == 2 and s.status()["poison_total"] == 0
+
+
+def test_latest_state_s_dirs_nevypisuje_adresare_pri_kazdom_volani(reader, monkeypatch):
+    """Audit M-HUB-8: heartbeat agenta volá `latest_state` každé 3 s — s `dirs` sa adresár vypíše znova, len keď
+    sa zmenil (nový súbor, nová inštancia); rast posledného súboru vidno zo `stat`."""
+    import time
+
+    from tradebot.live.spool import latest_state
+
+    _, root = reader
+    p = spool_file(root, INST, "s1")
+    p.write_bytes(line(hello(1, "s1")) + line(bar(2, 0)))
+    vypisy: list[str] = []
+    povodny = Path.iterdir
+    monkeypatch.setattr(Path, "iterdir", lambda self: vypisy.append(self.name) or povodny(self))
+    cache: dict = {}
+    dirs: dict = {}
+    prvy = latest_state([root], cache, dirs)
+    assert len(vypisy) == 2 and prvy[0]["session"] == "s1"                    # koreň + inštancia
+    with open(p, "ab") as fh:
+        fh.write(line(bar(3, 1)))
+    druhy = latest_state([root], cache, dirs)
+    assert len(vypisy) == 2 and druhy[0]["last_bar_ms"] > prvy[0]["last_bar_ms"]
+    time.sleep(0.05)
+    spool_file(root, INST, "s2", stamp="20260929-100000").write_bytes(line(hello(1, "s2")))   # reštart platformy
+    assert latest_state([root], cache, dirs)[0]["session"] == "s2" and len(vypisy) == 3
+    time.sleep(0.05)
+    spool_file(root, INST2, "s9").write_bytes(line(hello(1, "s9", "mt5")))                    # nová inštancia
+    s_dirs = latest_state([root], cache, dirs)
+    assert {s["instance"] for s in s_dirs} == {INST, INST2} and s_dirs == latest_state([root])
+
+
+def test_pokazeny_kurzor_spoolu_je_vidno(tmp_path: Path):
+    """Audit M-HUB-10: pokazený `cursor.json` = celý spool znova; reader to povie tomu, kto ho drží."""
+    root = tmp_path / "spool"
+    root.mkdir()
+    kurzor = tmp_path / "cursor.json"
+    assert SpoolReader([root], kurzor).cursor_reset is False                  # prvý štart nie je chyba
+    kurzor.write_text('{"x": 1', encoding="utf-8")
+    r = SpoolReader([root], kurzor)
+    assert r.cursor_reset is True and r.cursor == {} and len(list(tmp_path.glob("cursor.json.corrupt-*"))) == 1
+
+
+def test_shipper_status_bez_citaca_neprehladava_spool(reader, tmp_path: Path, monkeypatch):
+    """Audit M-HUB-8: stav odosielania pre heartbeat (`reader=False`) nerobí scandir celého spoolu."""
+    r, _ = reader
+    s = LiveShipper(r, FakeHub(LiveStore(tmp_path / "hub.sqlite")), "nt-pc")
+    monkeypatch.setattr(r, "scan_sizes", lambda: pytest.fail("status(reader=False) prehľadáva spool"))
+    st = s.status(reader=False)
+    assert "reader" not in st and st["last_error"] is None and st["agent"] == "nt-pc"

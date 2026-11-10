@@ -6,7 +6,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Query
 
-from tradebot.core.config import ConfigError
+from tradebot.core.config import ConfigError, DEFAULT_STRATEGY
 from tradebot.strategies import STRATEGIES
 
 from .. import profiles as user_profiles
@@ -24,7 +24,7 @@ def build(ctx: AppContext) -> APIRouter:
     store = ctx.store
 
     @router.get("/api/profiles")
-    def profiles_list(strategy: str = Query("ibs")):
+    def profiles_list(strategy: str = Query(DEFAULT_STRATEGY)):
         """Profily stratégie do formulára: z repozitára (nemenné) a vlastné (menné aj mazateľné)."""
         if strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
@@ -73,7 +73,7 @@ def build(ctx: AppContext) -> APIRouter:
         return {"name": req.name.strip(), **profiles_list(strategy)}
 
     @router.patch("/api/profiles/{name}")
-    def profile_rename(name: str, req: ProfileRenameRequest, strategy: str = Query("ibs")):
+    def profile_rename(name: str, req: ProfileRenameRequest, strategy: str = Query(DEFAULT_STRATEGY)):
         try:
             user_profiles.rename(name, req.name)
         except FileNotFoundError as exc:
@@ -85,7 +85,7 @@ def build(ctx: AppContext) -> APIRouter:
         return {"name": req.name.strip(), **profiles_list(strategy)}
 
     @router.delete("/api/profiles/{name}")
-    def profile_delete(name: str, strategy: str = Query("ibs")):
+    def profile_delete(name: str, strategy: str = Query(DEFAULT_STRATEGY)):
         try:
             if not user_profiles.delete(name):
                 raise HTTPException(404, f"profil {name} neexistuje")
@@ -94,7 +94,7 @@ def build(ctx: AppContext) -> APIRouter:
         return {"ok": True, **profiles_list(strategy)}
 
     @router.get("/api/profiles/{name:path}")
-    def profile(name: str, strategy: str = Query("ibs")):
+    def profile(name: str, strategy: str = Query(DEFAULT_STRATEGY)):
         """Názov profilu stratégie (`golden_binance_btcusdt_3m` alebo `ibs/golden_binance_btcusdt_3m`),
         alebo cesta k JSON v repozitári (napr. `docs/profily_archiv/ibs/x.json`)."""
         if strategy not in STRATEGIES:

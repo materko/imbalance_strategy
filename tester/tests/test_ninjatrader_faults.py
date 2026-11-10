@@ -330,6 +330,27 @@ def test_vystup_vyplneny_pocas_vypadku_sa_po_starte_zapise():
     assert_flat(out["trace"][-1])
 
 
+def test_zatvaranie_prerusene_padom_sa_po_starte_dokonci():
+    """Engine pozíciu zavrel, zrušenie SL/TP sa nepotvrdilo a platforma spadla: nový beh nesmie pozíciu prevziať
+    ako bežnú (engine o nej po predhistórii nevie a znova ju nezavrie) — zatváranie dokončí (audit M-LIVE-9)."""
+    out = play([ENTRY, {"bar": 2, "action": "close", "id": "L1"}],
+               [rule("cancel", "L1:*", "ignore", times=2), *OPEN, {"do": "bar"}, wait(2), {"do": "crash"}, {"do": "start"}, wait(5)])
+    assert out["trace"][5]["position"] == 1   # pred pádom trhový výstup ešte neodišiel
+    assert logged(out, "zatvaranie pokracuje")
+    assert_flat(out["trace"][-1])
+
+
+def test_mrtvy_rad_barov_pri_pripojenom_ucte_restartuje_instanciu():
+    """Účet je pripojený, ale bary 10 minút nechodia (mŕtvy BarsRequest po reconnecte): inštancia si vyžiada reštart,
+    pozícia a jej SL/TP ostávajú u brokera a nový beh ich prevezme (zvyšok auditu N-LIVE-7)."""
+    out = play([ENTRY], [*OPEN, wait(900), {"do": "stop", "reason": "feed_dead"}, {"do": "start"}, wait(5)])
+    assert logged(out, "restartujem instanciu")
+    assert out["trace"][3]["position"] == 1 and working(out["trace"][3]) == ["L1:sl", "L1:tp"]
+    last = out["trace"][-1]
+    assert last["position"] == 1 and working(last) == ["L1:sl", "L1:tp"] and last["tracked"][0]["open"] == 1
+    assert_clean(last)
+
+
 def test_vstup_vyplneny_po_zastaveni_instancie_sa_po_starte_prevezme():
     """Zastavenie ruší čakajúce vstupy a na potvrdenie nečaká; výplň, ktorá zrušenie predbehne, prevezme až ďalší
     štart (do tej doby pozíciu nemá kto strážiť — preto AddOn inštanciu po páde spúšťa znova)."""

@@ -36,8 +36,9 @@ from typing import Any, Iterable
 
 __all__ = ["RunIndex"]
 
-#: Zvýš pri zmene schémy alebo obsahu `slim` — index sa postaví odznova.
-SCHEMA = 1
+#: Zvýš pri zmene schémy alebo obsahu `slim` — index sa postaví odznova (starý sa pri otvorení zahodí,
+#: je odvodený). 2: stĺpce `batch_kind`/`batch_id` (značka celku: mriežka, matica, overenie, okolie).
+SCHEMA = 2
 
 #: Ako často sa okrem zoznamu adresárov kontrolujú aj časy súborov (sekundy). Pribudnutý
 #: a zmiznutý beh sa nájde vždy, toto je len na prepis existujúceho `run.json` cudzím
@@ -84,14 +85,17 @@ CREATE TABLE IF NOT EXISTS runs (
     {", ".join(f"{c} TEXT" for c in TEXT_COLS.values() if c != "id")},
     hay TEXT,
     {", ".join(f"{c} REAL" for c in NUM_COLS.values())},
+    batch_kind TEXT,
+    batch_id TEXT,
     slim TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS runs_strategy ON runs(strategy);
 CREATE INDEX IF NOT EXISTS runs_pair ON runs(pair);
+CREATE INDEX IF NOT EXISTS runs_batch ON runs(batch_kind, batch_id);
 """
 
 _COLS = ["id", "mtime", "size", *[c for c in TEXT_COLS.values() if c != "id"], "hay",
-         *NUM_COLS.values(), "slim"]
+         *NUM_COLS.values(), "batch_kind", "batch_id", "slim"]
 
 
 def _txt(v: Any) -> str | None:
@@ -134,6 +138,13 @@ def row_of(record: dict[str, Any], mtime: int, size: int) -> tuple:
                                else settings.get(kluc.split(".", 1)[1]))
     for kluc, stlpec in NUM_COLS.items():
         hodnoty[stlpec] = _num(result.get(kluc.split(".", 1)[1]))
+    # Značka celku (`settings.sweep.id`…): prvá v poradí `batches.KINDS`, tak ako ju číta `batch_tag`. Id sa
+    # ukladá presne (bez malých písmen) a len keď je text — iné `store._tagged_runs` porovnáva cez JSON.
+    from .batches import batch_tag      # kruhový import len tu, nie pri načítaní
+
+    tag = batch_tag(settings)
+    hodnoty["batch_kind"] = tag[0] if tag else None
+    hodnoty["batch_id"] = tag[1]["id"] if tag and isinstance(tag[1].get("id"), str) else None
     return tuple(hodnoty[c] for c in _COLS)
 
 
@@ -405,6 +416,34 @@ class RunIndex:
         """Záznamy (bez `series`) zoradené od najnovšieho — presne jedna stránka."""
         return self._read(f"SELECT slim FROM runs WHERE {sql} ORDER BY id DESC LIMIT ? OFFSET ?",
                           [*hodnoty, limit, offset])
+
+    def timing_rows(self) -> list[dict[str, Any]]:
+        """Hotové behy s trvaním — len polia pre odhad času (`RunStore.timing_history`), od najnovšieho.
+        Z `slim` sa vyberajú priamo v sqlite, celý záznam behu sa v Pythone neparsuje."""
+        sql = ("SELECT id, duration_s, json_extract(slim, '$.settings.engine'), "
+               "json_extract(slim, '$.settings.timerange'), json_extract(slim, '$.settings.timeframe_detail'), "
+               "json_extract(slim, '$.settings.ai.enabled'), json_extract(slim, '$.settings.hyperopt') "
+               "FROM runs WHERE status = 'done' AND duration_s IS NOT NULL AND duration_s != 0 ORDER BY id DESC")
+        with self._lock:
+            conn = self._db()
+            if conn is None:
+                raise sqlite3.Error("index nie je k dispozícii")
+            try:
+                riadky = conn.execute(sql).fetchall()
+            except sqlite3.Error:
+                self._fail()
+                raise
+        out = []
+        for run_id, dur, engine, timerange, detail, ai, hyper in riadky:
+            try:
+                hyper = json.loads(hyper) if isinstance(hyper, str) else None
+            except json.JSONDecodeError:
+                hyper = None
+            out.append({"id": run_id, "status": "done", "result": {"duration_s": dur},
+                        "settings": {"engine": engine, "timerange": timerange, "timeframe_detail": detail,
+                                     "ai": {"enabled": bool(ai)} if ai is not None else None,
+                                     "hyperopt": hyper if isinstance(hyper, dict) else None}})
+        return out
 
     def records(self, sql: str = "1", hodnoty: list[Any] | None = None) -> list[dict[str, Any]]:
         """Všetky záznamy (bez `series`), od najnovšieho — pre analytiku a dofiltrovanie."""

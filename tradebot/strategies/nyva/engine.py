@@ -248,7 +248,7 @@ class NyVaEngine:
         if (cfg.useCloseTime and pos != 0.0 and cur >= cfg.close_time
                 and (self.prev_min is None or self.prev_min < cfg.close_time)):
             out.close_session = True
-            for oid in ctx.open_order_ids:
+            for oid in sorted(ctx.open_order_ids):      # zoradené — poradie množiny nie je dané (N-CS-7)
                 out.orders.append(OrderIntent(OrderAction.CLOSE, oid, idx, reason="zavretie v čase"))
 
         # ---- retest: vyplnenie / zrušenie limitky -------------------------- #

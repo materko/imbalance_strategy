@@ -189,6 +189,22 @@ def _cfg_or_die() -> agent_config.AgentConfig:
     return cfg
 
 
+def _sigterm_as_interrupt() -> bool:
+    """SIGTERM (`docker stop`, systemd, `kill`) headless agenta ukončí rovnako ako Ctrl+C: vetva
+    `KeyboardInterrupt` agenta zastaví a odhlási (`bye`), takže hub nečaká `agent_timeout`, kým zistí, že stroj
+    skončil (zvyšok auditu N-HUB-13). `False` = signál sa nedal nastaviť (nie hlavné vlákno)."""
+    import signal
+
+    def koniec(signum, frame):   # noqa: ARG001
+        raise KeyboardInterrupt
+
+    try:
+        signal.signal(signal.SIGTERM, koniec)
+    except (ValueError, OSError, AttributeError):
+        return False
+    return True
+
+
 def cmd_agent(args: argparse.Namespace) -> int:
     """Headless agent: vlastný runner s toľkými workermi, koľko je slotov, a slučka heartbeatu."""
     import time
@@ -215,6 +231,7 @@ def cmd_agent(args: argparse.Namespace) -> int:
     agent.runner = runner
     runner.start()
     agent.start()
+    _sigterm_as_interrupt()
     print(f"agent {cfg.name!r} -> {cfg.hub_url}: rola={cfg.role}, prijima={cfg.accept}, posiela={cfg.send}, "
           f"jadier {agent.cores}, slotov {agent.slots}, kod {agent.version or '?'}", flush=True)
     try:

@@ -354,3 +354,35 @@ def test_runner_prevezme_plan_vyplneneho_orderu():
     assert r._adopt_open_plan("A")[1] == "A" and r._adopt_open_plan("A")[0].stop_loss == 90.0
     assert r._adopt_open_plan()[1] == "B"            # študia MultiCharts id nevie: posledný (pôvodné správanie)
     assert r._adopt_open_plan("cudzi")[1] == "B"
+
+
+def test_zlyhanie_zaverecnych_kresieb_je_v_logu(tmp_path: Path, monkeypatch, caplog):
+    """N-CORE-9: chyba vo `final_drawings` graf nezhodí, ale nesmie zmiznúť bez stopy."""
+    rows = flat(range(0, 12), 100)
+    scripted(monkeypatch, {})
+    registry = DrawRegistry()
+    result, runner = emulate(cfg(), MNQ, m1_frame(rows), 3, registry=registry)
+
+    def zle(_bar):
+        raise RuntimeError("kresba spadla")
+
+    monkeypatch.setattr(runner.engine, "final_drawings", zle, raising=False)
+    with caplog.at_level("WARNING"):
+        header = write_chart(runner, registry, result, "NAS100/USD", "3m", tmp_path / "chart.json")
+    assert header["bars"] == 4
+    assert "final_drawings" in caplog.text and "kresba spadla" in caplog.text
+
+
+def test_chybajuci_engine_factory_je_chyba_aj_s_optimalizaciou():
+    """N-CORE-9: kontrola nie je `assert` (pri `python -O` by zmizla)."""
+    from dataclasses import replace
+
+    from tradebot.adapters.freqtrade.runner import EngineRunner
+    from tradebot.adapters.multicharts.runner import MCRunner
+    from tradebot.strategies import spec_for_config
+
+    bez = replace(spec_for_config(cfg()), engine_factory=None)
+    with pytest.raises(ValueError, match="engine_factory"):
+        MCRunner(cfg(), MNQ, 3, spec=bez)
+    with pytest.raises(ValueError, match="engine_factory"):
+        EngineRunner(cfg(), MNQ, 3, spec=bez)

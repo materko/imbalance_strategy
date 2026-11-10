@@ -31,6 +31,8 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import threading
+import time
 from pathlib import Path
 from typing import Any
 
@@ -66,11 +68,39 @@ Overenie: v termináli v adresári repozitára `git push` musí prejsť bez pýt
 """.strip()
 
 
+#: Strop na jeden príkaz gitu (s). Sieťový príkaz proti nedostupnému GitHubu inak visel bez konca a s ním
+#: vlákno requestu — karta s Push/Pull sa už neozvala (audit N-WEB-17).
+GIT_TIMEOUT = 120.0
+
+#: `status()` robil `git fetch` pri každom volaní (hlavička stránky sa pýta opakovane). Stačí raz za
+#: toľko sekúnd; Pull a Push si fetch robia samy a čas tu obnovia.
+FETCH_EVERY = 60.0
+_last_fetch: dict[str, float] = {}
+
+#: Pull a Push menia index a pracovný strom — dva naraz (dvojklik, dve karty) skončili na `index.lock`.
+_WRITE_LOCK = threading.Lock()
+
+
 def _git(*args: str, check: bool = False) -> subprocess.CompletedProcess:
-    return subprocess.run(
-        ["git", *args], cwd=str(REPO), capture_output=True, text=True, encoding="utf-8",
-        errors="replace", check=check, env={**os.environ, **_NO_PROMPT_ENV},
-    )
+    try:
+        return subprocess.run(
+            ["git", *args], cwd=str(REPO), capture_output=True, text=True, encoding="utf-8",
+            errors="replace", check=check, env={**os.environ, **_NO_PROMPT_ENV}, timeout=GIT_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired as exc:
+        # ako neúspešný príkaz, nie výnimka: volajúci aj tak čítajú `returncode` a výstup ukážu testerovi
+        return subprocess.CompletedProcess(
+            ["git", *args], 124, stdout=exc.stdout if isinstance(exc.stdout, str) else "",
+            stderr=f"git {args[0] if args else ''} neodpovedal do {GIT_TIMEOUT:.0f} s — prerušený")
+
+
+def _fetch_for_status(br: str) -> None:
+    """`fetch` pre `status()`, najviac raz za `FETCH_EVERY` s."""
+    teraz = time.monotonic()
+    if teraz - _last_fetch.get(br, -FETCH_EVERY) < FETCH_EVERY:
+        return
+    _last_fetch[br] = teraz
+    _git("fetch", "--quiet", "origin", br)
 
 
 def _auth_failed(output: str) -> bool:
@@ -146,7 +176,7 @@ def status() -> dict[str, Any]:
     br = target()
     paths = _paths()
     changed = _git("status", "--porcelain", "--", *paths).stdout.splitlines() if paths else []
-    _git("fetch", "--quiet", "origin", br)
+    _fetch_for_status(br)
     ahead = behind = None
     rev = _git("rev-list", "--left-right", "--count", f"origin/{br}...HEAD")
     if rev.returncode == 0 and rev.stdout.strip():
@@ -334,10 +364,24 @@ def _pull_rebase(br: str) -> list[subprocess.CompletedProcess]:
     f = _git("fetch", "origin", br)
     if f.returncode != 0:
         return [f]
+    _last_fetch[br] = time.monotonic()   # `status()` hneď po Pull/Push už fetch opakovať nemusí
     return [f, _git("rebase", "--autostash", f"origin/{br}")]
 
 
+def _busy() -> dict[str, Any]:
+    return {"ok": False, "output": "Iný Pull alebo Push práve beží — počkaj, kým dobehne.", **status()}
+
+
 def pull() -> dict[str, Any]:
+    if not _WRITE_LOCK.acquire(blocking=False):
+        return _busy()
+    try:
+        return _pull()
+    finally:
+        _WRITE_LOCK.release()
+
+
+def _pull() -> dict[str, Any]:
     br = target()
     steps = _pull_rebase(br)
     out = _out(*steps)
@@ -348,6 +392,15 @@ def pull() -> dict[str, Any]:
 
 
 def push(message: str | None = None, author: str | None = None) -> dict[str, Any]:
+    if not _WRITE_LOCK.acquire(blocking=False):
+        return _busy()
+    try:
+        return _push(message, author)
+    finally:
+        _WRITE_LOCK.release()
+
+
+def _push(message: str | None = None, author: str | None = None) -> dict[str, Any]:
     br = target()
     steps: list[subprocess.CompletedProcess] = []
     paths = _paths()

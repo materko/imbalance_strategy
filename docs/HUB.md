@@ -253,6 +253,27 @@ fronty (ak ju dovolili), inak zlyhajú — a keď sa predsa vráti s hotovým be
 bod 3 a 4 vyššie. Zadávateľ z CLI (`cli run --remote`) výpadok hubu prečká: čaká ďalej
 s hláškou „hub nedostupny" a pokračuje, keď hub vstane.
 
+**Čo hub a agent hlásia o sebe** (audit 9. 11. 2026, zvyšky N-HUB a M-HUB-7 až 11):
+
+- `GET /api/health` vracia popri `ok` aj `persist_error`, `events_error` a `live_error` (čas a trieda výnimky, bez
+  ciest — endpoint je bez tokenu): hub, ktorý nevie zapísať stav, log udalostí alebo čítať živú DB, beží ďalej
+  z pamäte a je to vidno. Chyba živej DB heartbeat nezhodí; odpoveď len nenesie `live`, takže stroj drží posledný
+  požadovaný stav.
+- `state.json` sa serializuje pod zámkom, ale zapisuje mimo neho (kompaktný JSON); výsledok výpočtu sa najprv zapíše
+  ako zip a až potom sa zmení výpočet — neúspešný zápis vráti agentovi 507 a ten to skúsi znova.
+- Nevyzdvihnutý výsledok prepadne po `TRADEBOT_HUB_RESULT_TTL_DAYS` dňoch (predvolene 30, 0 = nikdy) s udalosťou
+  `job_result_expired`. Výsledok väčší než `TRADEBOT_HUB_RESULT_MAX_MB` (predvolene 1024, 0 = bez stropu) hub odmietne
+  (413, `job_result_too_big`) a agent si ho odloží ako nedoručený; zip, ktorý by sa rozbalil na viac než 8 GiB, sa
+  nerozbalí.
+- Agent stráži svoje vlákna (mŕtve spustí znova, `thread_restarts`), heartbeat má vlastný krátky timeout (10 s, pod
+  45 s limitom hubu) a pokazený `agent_state.json` či kurzor spoolu je vidno (`state_error`, `cursor_reset`) — nestane
+  sa z neho potichu prázdny stav. Headless agent sa odhlási aj pri SIGTERM (`docker stop`).
+- Strážca (`watchdog`) číta agentov cez `PluginContext.agents()` a hlási stroj s aktívnym nasadením, ktorý 10 minút
+  nevie poslať telemetriu (`ship.last_error`). Zlyhaný reload pluginu hubu nechá bežať starú verziu a chybu ukáže
+  (`reload_error`); hostiteľ pluginov **agenta** tento návrat nemá.
+- Telegram: HTTP 409 (druhý proces na tom istom bote) príkazy len pozastaví — skúša sa znova po 30 s až 10 min,
+  konflikt dlhší než 5 min príde ako jedna správa do chatov.
+
 ### Ručný reštart hubu (upgrade)
 
 Hub sa dá zhodiť kedykoľvek — nič sa nestratí (viď vyššie). Aby sa ale nič nerozpočítalo

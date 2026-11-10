@@ -7,6 +7,7 @@ from typing import Any
 
 from fastapi import FastAPI
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.core.env import getenv
 from tradebot.strategies import STRATEGIES
 
@@ -60,7 +61,7 @@ class AppContext:
         }
 
     def defaults_of(self, rec: dict[str, Any]) -> dict[str, Any]:
-        return self.defaults.get(strategy_of(rec), self.defaults["ibs"])
+        return self.defaults.get(strategy_of(rec), self.defaults[DEFAULT_STRATEGY])
 
     def chart_state(self, rec: dict[str, Any]) -> dict[str, Any]:
         """Stav grafu behu: hotový (lokálne), počíta sa, zlyhal, chýba — alebo sa nedá."""

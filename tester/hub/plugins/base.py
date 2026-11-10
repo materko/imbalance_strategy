@@ -137,6 +137,12 @@ class PluginContext:
         if callable(log):
             log(f"plugin_{event}", plugin=self.name, **fields)
 
+    def agents(self) -> dict[str, dict[str, Any]]:
+        """Kópia záznamov agentov hubu (meno → `last_seen`, `online`, `live` …) — plugin nesiaha na zámok ani
+        slovníky hubu (audit M-HUB-11). Hub bez `agents_snapshot` = `{}`."""
+        snapshot = getattr(self.hub, "agents_snapshot", None)
+        return dict(snapshot()) if callable(snapshot) else {}
+
     def plugins(self) -> list[dict[str, Any]]:
         """Stav všetkých pluginov (pre strážcu)."""
         return self.host.status() if self.host is not None else []

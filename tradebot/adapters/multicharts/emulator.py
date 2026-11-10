@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import logging
 from bisect import bisect_right
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -44,7 +45,7 @@ from ...core.candles import resample_ohlcv, timeframe_minutes
 from ...core.warmup import seed_engine
 from .runner import LiveOrder, MCRunner
 
-__all__ = ["EmuTrade", "EmulationResult", "emulate", "bars_from_frame", "rows_from_trades", "summarize",
+__all__ = ["EmuTrade", "EmulationResult", "emulate", "bars_from_frame", "BarCache", "rows_from_trades", "summarize",
            "equity_series", "write_chart"]
 
 MIN_MS = 60_000
@@ -98,16 +99,56 @@ class EmulationResult:
 # --------------------------------------------------------------------------- #
 
 
-def bars_from_frame(m1, minutes: int, from_ms: int | None = None, to_ms: int | None = None) -> list[Bar]:
-    """1m DataFrame (`date`, OHLCV) → uzavreté bary `minutes` zarovnané na epochu."""
+def _window(m1, from_ms: int | None, to_ms: int | None):
+    """Riadky 1m rámca s `from_ms <= date < to_ms`.
+
+    Zoradený rámec (sklad sviečok je vždy zoradený) sa reže dvoma `searchsorted` bez masky cez všetky
+    riadky — emulátor reže ten istý m1 4–5× na beh a test utnutia ho púšťa 11× (audit 11/2026, §5 bod 4).
+    Nezoradený ide pôvodnou maskou; výsledok je v oboch prípadoch ten istý.
+    """
+    if from_ms is None and to_ms is None:
+        return m1
     import pandas as pd
 
+    dates = m1["date"]
+    lo_ts = None if from_ms is None else pd.Timestamp(from_ms, unit="ms", tz="UTC")
+    hi_ts = None if to_ms is None else pd.Timestamp(to_ms, unit="ms", tz="UTC")
+    if dates.is_monotonic_increasing:
+        lo = 0 if lo_ts is None else int(dates.searchsorted(lo_ts, side="left"))
+        hi = len(dates) if hi_ts is None else int(dates.searchsorted(hi_ts, side="left"))
+        return m1.iloc[lo:max(lo, hi)]
     df = m1
-    if from_ms is not None:
-        df = df[df["date"] >= pd.Timestamp(from_ms, unit="ms", tz="UTC")]
-    if to_ms is not None:
-        df = df[df["date"] < pd.Timestamp(to_ms, unit="ms", tz="UTC")]
-    df = resample_ohlcv(df, minutes)
+    if lo_ts is not None:
+        df = df[df["date"] >= lo_ts]
+    if hi_ts is not None:
+        df = df[df["date"] < hi_ts]
+    return df
+
+
+class BarCache:
+    """Bary z jedného 1m rámca, každý výrez `(TF, od, do)` poskladaný raz.
+
+    Jeden beh emulátora si ho založí sám; kto púšťa viac behov nad tými istými dátami (`tester.robust`
+    dva na okno, `tester.lookahead` jedenásť), podá ten istý `emulate(..., bars=...)` a zhodné výrezy
+    (predhistória, graf, 1m detail) sa neskladajú znova. Zoznamy sú zdieľané — **nemeniť ich**.
+    Utnutý beh má iný koniec okna, teda iný kľúč: nič z dát za utnutím sa mu z cache nedostane.
+    """
+
+    def __init__(self, m1) -> None:
+        self.m1 = m1
+        self._bars: dict[tuple[int, int | None, int | None], list[Bar]] = {}
+
+    def bars(self, minutes: int, from_ms: int | None = None, to_ms: int | None = None) -> list[Bar]:
+        key = (int(minutes), from_ms, to_ms)
+        got = self._bars.get(key)
+        if got is None:
+            got = self._bars[key] = bars_from_frame(self.m1, minutes, from_ms, to_ms)
+        return got
+
+
+def bars_from_frame(m1, minutes: int, from_ms: int | None = None, to_ms: int | None = None) -> list[Bar]:
+    """1m DataFrame (`date`, OHLCV) → uzavreté bary `minutes` zarovnané na epochu."""
+    df = resample_ohlcv(_window(m1, from_ms, to_ms), minutes)
     ts = (df["date"].astype("datetime64[ns, UTC]").astype("int64") // 1_000_000).to_numpy()
     o, h, l, c, v = (df[k].astype(float).to_numpy() for k in ("open", "high", "low", "close", "volume"))
     return [Bar(time=int(ts[i]), open=float(o[i]), high=float(h[i]), low=float(l[i]), close=float(c[i]), volume=float(v[i]))
@@ -119,11 +160,14 @@ def bars_from_frame(m1, minutes: int, from_ms: int | None = None, to_ms: int | N
 WARMUP_BARS = 300
 
 
-def warmup_bars(m1, chart_tf: int, first_ms: int, n: int) -> list[Bar]:
+def warmup_bars(m1, chart_tf: int, first_ms: int, n: int, *, bars: BarCache | None = None) -> list[Bar]:
     """Posledných `n` uzavretých barov grafu pred `first_ms` (víkendy a sviatky sa preskočia)."""
     step = chart_tf * MIN_MS
     lo = first_ms - 3 * n * step - 7 * 86_400_000
-    return bars_from_frame(m1, chart_tf, lo, first_ms)[-n:] if n > 0 else []
+    if n <= 0:
+        return []
+    src = bars if bars is not None else BarCache(m1)
+    return src.bars(chart_tf, lo, first_ms)[-n:]
 
 
 def _seed_before(runner: MCRunner, m1, first_ms: int, log: Callable[[str], None]) -> None:
@@ -131,11 +175,7 @@ def _seed_before(runner: MCRunner, m1, first_ms: int, log: Callable[[str], None]
     warmup = getattr(runner.engine, "warmup", None)
     if warmup is None or not warmup.seeds:
         return
-    import pandas as pd
-
-    lo = pd.Timestamp(first_ms - warmup.seed_span_ms, unit="ms", tz="UTC")
-    hi = pd.Timestamp(first_ms, unit="ms", tz="UTC")
-    before = m1[(m1["date"] >= lo) & (m1["date"] < hi)]
+    before = _window(m1, first_ms - warmup.seed_span_ms, first_ms)
     got = seed_engine(runner.engine, before, first_ms)
     parts = [f"{n.name} @{n.tf_minutes}m {got.get(n.name, 0)}/{n.bars}" for n in warmup.seeds]
     log("predhistoria indikatorov z dat pred behom: " + ", ".join(parts))
@@ -223,6 +263,7 @@ def emulate(
     fee: float = 0.0,
     entry_delay: int = 0,
     observe: Callable[[Bar, Any], None] | None = None,
+    bars: BarCache | None = None,
 ) -> tuple[EmulationResult, MCRunner]:
     """Prehrá stratégiu cez `MCRunner` s emulovaným brokerom MultiCharts.
 
@@ -233,10 +274,12 @@ def emulate(
     neskôr — zadanie aj zrušenie, ako latencia; 0 = presne ako platforma.
     `observe(bar, výstup)` sa zavolá po `on_bar` na každom bare okna (nie predhistórie) — len na čítanie,
     beh nemení (test utnutia dát `tester.lookahead`).
+    `bars` je `BarCache` nad tým istým `m1` zdieľaná medzi behmi (len rýchlosť, výsledok je ten istý).
     """
     out_log = log or (lambda _s: None)
-    chart = bars_from_frame(m1, chart_tf, from_ms, to_ms)
-    detail = bars_from_frame(m1, 1, from_ms, to_ms)
+    src = bars if bars is not None and bars.m1 is m1 else BarCache(m1)
+    chart = src.bars(chart_tf, from_ms, to_ms)
+    detail = src.bars(1, from_ms, to_ms)
     step = chart_tf * MIN_MS
     by_bar: dict[int, list[Bar]] = {}
     for b in detail:
@@ -246,7 +289,7 @@ def emulate(
     pre: list[Bar] = []
     if chart and from_ms is not None:
         pre = warmup_bars(m1, chart_tf, chart[0].time,
-                          max(WARMUP_BARS, int(getattr(runner.engine, "required_history", 0) or 0)))
+                          max(WARMUP_BARS, int(getattr(runner.engine, "required_history", 0) or 0)), bars=src)
     if chart:
         _seed_before(runner, m1, pre[0].time if pre else chart[0].time, out_log)
     htf_bars: list[Bar] = []
@@ -254,7 +297,7 @@ def emulate(
     htf_pos = 0
     if runner.htf is not None and runner.spec.informative_tfs:
         htf_minutes = timeframe_minutes(runner.spec.informative_tfs(cfg)[0])
-        htf_bars = bars_from_frame(m1, htf_minutes, pre[0].time if pre else from_ms, to_ms)
+        htf_bars = src.bars(htf_minutes, pre[0].time if pre else from_ms, to_ms)
         htf_closes = [b.time + htf_minutes * MIN_MS for b in htf_bars]
     registry = registry if registry is not None else DrawRegistry()
 
@@ -481,8 +524,9 @@ def write_chart(runner: MCRunner, registry: DrawRegistry, result: EmulationResul
         try:
             objects.extend(runner.engine.final_drawings(_Bar(time=last, open=result.last_close, high=result.last_close,
                                                              low=result.last_close, close=result.last_close, volume=0.0)))
-        except Exception:  # noqa: BLE001 - záverečné kresby sú bonus
-            pass
+        except Exception:  # noqa: BLE001 - záverečné kresby sú bonus, ale chyba v nich sa nesmie stratiť
+            logging.getLogger(__name__).warning("%s: záverečné kresby (final_drawings) zlyhali, graf je bez nich",
+                                                runner.spec.key, exc_info=True)
     dicts = objects_to_dicts(objects)
     counts: dict[str, int] = {}
     for d in dicts:

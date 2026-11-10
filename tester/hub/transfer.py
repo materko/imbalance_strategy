@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import io
 import json
+import shutil
 import zipfile
 from pathlib import Path
 from typing import Any, Iterable
@@ -21,6 +22,9 @@ from typing import Any, Iterable
 from ..webapp.store import _ID_RE
 
 __all__ = ["pack_runs", "unpack_runs"]
+
+#: Najviac toľko bajtov smie mať výsledok po rozbalení (zip bomba); skutočné behy majú desiatky MB.
+UNPACK_MAX_BYTES = 8 * 1024 * 1024 * 1024
 
 #: Adresár bodov celkov v zipe. Staré `unpack_runs` ho preskočia (nie je to id behu).
 POINTS = "points"
@@ -58,6 +62,11 @@ def unpack_runs(data: bytes, root: Path, batches: Any = None) -> list[str]:
     root = Path(root)
     out: list[str] = []
     with zipfile.ZipFile(io.BytesIO(data)) as z:
+        # zip bomba od kompromitovaného agenta: rozbalená veľkosť sa pozná z hlavičiek ešte pred zápisom (N-HUB-15)
+        rozbalene = sum(int(i.file_size) for i in z.infolist())
+        if rozbalene > UNPACK_MAX_BYTES:
+            raise ValueError(f"zip výsledku by sa rozbalil na {rozbalene // (1024 * 1024)} MB "
+                             f"(strop {UNPACK_MAX_BYTES // (1024 * 1024)} MB) — nerozbaľujem")
         for info in z.infolist():
             parts = Path(info.filename).parts
             if info.is_dir() or len(parts) < 2 or any(p in ("..", "") for p in parts):
@@ -79,7 +88,7 @@ def unpack_runs(data: bytes, root: Path, batches: Any = None) -> list[str]:
             cieľ = root.joinpath(*parts)
             cieľ.parent.mkdir(parents=True, exist_ok=True)
             with z.open(info) as src, open(cieľ, "wb") as dst:
-                dst.write(src.read())
+                shutil.copyfileobj(src, dst, 1024 * 1024)   # po kusoch, nie celý súbor v pamäti
             if parts[0] not in out:
                 out.append(parts[0])
     return out

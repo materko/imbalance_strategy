@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.strategies import STRATEGIES, get_spec
 
 from ..runner import REPO
@@ -17,7 +18,7 @@ def build(ctx: AppContext) -> APIRouter:
     store = ctx.store
 
     @router.get("/api/ai/meta")
-    def ai_meta(strategy: str = "ibs"):
+    def ai_meta(strategy: str = DEFAULT_STRATEGY):
         """Predvolené hodnoty AI vrstvy a to, čo daná stratégia dovolí meniť."""
         from tradebot.strategies.hyperopt import StrategyHyperopt
 

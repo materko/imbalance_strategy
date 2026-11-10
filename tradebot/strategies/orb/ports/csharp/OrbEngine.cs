@@ -239,13 +239,17 @@ namespace TradeBot.Strategies.OrbNet
             return true;
         }
 
+        private double[] _volumes;
+
         private bool VolumeOk(Bar bar)
         {
             if (!Cfg.useVolumeFilter) return true;
             int n = Cfg.volSmaLen;
             if (!History.Has(n)) return false;
             // Python predloha tu ma `sum(...)` - kompenzovana suma, nie cyklus (PyMath.Sum)
-            double[] volumes = new double[n];
+            // jedno pole na engine, nie nove na kazdy bar s prerazenim (audit N-CS-8); `n` sa za behu nemeni
+            if (_volumes == null || _volumes.Length != n) _volumes = new double[n];
+            double[] volumes = _volumes;
             for (int i = 1; i <= n; i++) volumes[i - 1] = History[i].Volume;
             double avg = PyMath.Sum(volumes) / n;
             return avg > 0 && bar.Volume >= avg * Cfg.volMultiplier;

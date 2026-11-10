@@ -71,7 +71,8 @@ def _remote_submit(args: argparse.Namespace, params: dict, settings: dict, note:
     if getattr(args, "cores", None):
         cores = P.ALL if args.cores == P.ALL else int(args.cores)
     demand = cores if cores is not None else P.cores_for(settings, kind)
-    odhad = P.estimate_seconds(settings, RunStore().all(), cores=os.cpu_count() or 1)
+    # len hotové behy s trvaním z indexu — `all()` tu čítalo celú históriu na každý bod mriežky (audit N-WEB-8)
+    odhad = P.estimate_seconds(settings, RunStore().timing_history(), cores=os.cpu_count() or 1)
     max_wait = args.max_wait * 60 if getattr(args, "max_wait", None) else None
     max_seconds = args.max_runtime * 60 if getattr(args, "max_runtime", None) else None
     if queue is None:

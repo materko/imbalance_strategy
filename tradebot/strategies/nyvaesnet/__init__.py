@@ -22,6 +22,7 @@ CSHARP_KEY = "nyvaesnet"
 SPEC = replace(
     BASE_SPEC,
     key="nyvaesnet",
+    base_key="nyvaes",
     title="NY VA BREAKOUT ES (C# jadro)",
     config_cls=NyVaEsNetConfig,
     profile_dir=CONFIG_DIR,

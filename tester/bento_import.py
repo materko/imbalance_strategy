@@ -44,13 +44,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TextIO
 
-from tradebot.core.atomic import write_json_atomic
+from tradebot.core.atomic import read_json, write_json_atomic
 from tradebot.core.paths import TESTER_ARCHIVE
 from tradebot.core.types import INSTRUMENTS, InstrumentSpec
 
 from .dukas_import import store
 
-__all__ = ["ImportStats", "load_bento_frame", "front_month", "resolve_symbol", "degraded_days"]
+__all__ = ["ImportStats", "load_bento_frame", "front_month", "resolve_symbol", "degraded_days", "merge_rolls"]
 
 #: Riadny kontrakt: koreň + mesačný kód + rok (MNQU6, MNQH26). Všetko ostatné sú spready.
 CONTRACT_RE = re.compile(r"^([A-Z0-9]+?)([FGHJKMNQUVXZ])(\d{1,2})$")
@@ -234,6 +234,52 @@ def load_bento_frame(path: str | Path, *, root: str, date_from: str | None = Non
     return df
 
 
+def merge_rolls(old: list[tuple[str, str]], new: list[tuple[str, str]], first: str, last: str,
+                continues: bool = False) -> list[tuple[str, str]]:
+    """Rolly archívu po importe, ktorý nahradil dni `first`..`last` (vrátane, `YYYY-MM-DD`).
+
+    `rolls.json` opisuje **celý archív**, nie posledný export: záznam `(deň, kontrakt)` hovorí, od ktorého dňa
+    je rada na ktorom kontrakte. Staré záznamy mimo nahradeného úseku ostávajú, vnútri ich nahradia nové
+    (audit M-CORE-6). `continues` = archív má staré bary aj po `last`; ak tam rada pokračuje na inom kontrakte,
+    než na akom nový export skončil, zapíše sa prechod na deň po `last`. Záznam, ktorý kontrakt nemení, vypadne.
+    """
+    from datetime import date, timedelta
+
+    old = sorted((str(d), str(c)) for d, c in old)
+    out = [(d, c) for d, c in old if d < first] + sorted((str(d), str(c)) for d, c in new)
+    after = [(d, c) for d, c in old if d > last]
+    if continues or after:
+        held = [c for d, c in old if d <= last]
+        nxt = (date.fromisoformat(last) + timedelta(days=1)).isoformat()
+        if held and not any(d == nxt for d, _ in after):
+            out.append((nxt, held[-1]))
+    out += after
+    merged: list[tuple[str, str]] = []
+    for d, c in out:
+        if not merged or merged[-1][1] != c:
+            merged.append((d, c))
+    return merged
+
+
+def _read_rolls(path: Path) -> list[tuple[str, str]]:
+    rows = read_json(path, [], what="zoznam rollov")
+    if not isinstance(rows, list):
+        return []
+    return [(str(r["date"]), str(r["contract"])) for r in rows
+            if isinstance(r, dict) and r.get("date") and r.get("contract")]
+
+
+def _archive_last_day(folder: Path, stem: str) -> str | None:
+    """Posledný deň s barom v ročných súboroch archívu (číta len stĺpec `date` posledného roka)."""
+    import pandas as pd
+
+    years = sorted(folder.glob(f"{stem}-1m.[0-9][0-9][0-9][0-9].feather"))
+    if not years:
+        return None
+    dates = pd.read_feather(years[-1], columns=["date"])["date"]
+    return f"{dates.max():%Y-%m-%d}" if len(dates) else None
+
+
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
@@ -293,8 +339,16 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
     print("\narchiv (commitni ho):", file=err)
     files = store(df, inst, archive=args.archive, merge=not args.no_merge, replace=args.replace)
     rolls_path = files[0].with_name(f"{inst.data_stem}-1m.rolls.json")
-    write_json_atomic(rolls_path, [{"date": d, "contract": s} for d, s in stats.rolls], indent=1, newline=False)
-    print(f"  {rolls_path.name}  {len(stats.rolls)} zaznamov (den, kontrakt)", file=err)
+    # nahradený úsek: dni exportu, pri `--replace` celé jeho roky; zvyšok archívu si svoje rolly drží
+    first, last = stats.first[:10], stats.last[:10]
+    if args.replace:
+        first, last = f"{first[:4]}-01-01", f"{last[:4]}-12-31"
+    koniec = _archive_last_day(rolls_path.parent, inst.data_stem)
+    rolls = merge_rolls(_read_rolls(rolls_path), stats.rolls, first, last,
+                        continues=bool(koniec and koniec > last))
+    write_json_atomic(rolls_path, [{"date": d, "contract": s} for d, s in rolls], indent=1, newline=False)
+    print(f"  {rolls_path.name}  {len(rolls)} zaznamov (den, kontrakt), z toho {len(stats.rolls)} z tohto exportu",
+          file=err)
     if not args.no_merge:
         print("\npracovny subor pre Tester je zlozeny; vyssie TF dopocita `python -m tester.timeframes` "
               "alebo start webapp", file=err)

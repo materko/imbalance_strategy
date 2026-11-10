@@ -729,6 +729,13 @@ CONFIRM_SECONDS = 120
 PHOTO_QUEUE = 12
 #: Auto-obnova stavu: správa sa prepíše každých toľko sekúnd, kým ju človek nevypne.
 AUTO_SECONDS = 60
+#: 409 z `getUpdates` (na bote počúva iný proces): prvý ďalší pokus, strop pauzy medzi pokusmi a po akom čase
+#: trvajúceho konfliktu ide upozornenie do chatov.
+CONFLICT_RETRY_SECONDS = 30.0
+CONFLICT_RETRY_MAX = 600.0
+CONFLICT_ALERT_SECONDS = 300.0
+#: Tak dlho musia príkazy po konflikte počúvať bez ďalšej 409, kým sa konflikt berie za skončený.
+CONFLICT_CALM_SECONDS = 900.0
 
 
 def ikey(instance: str) -> str:
@@ -805,7 +812,13 @@ class TelegramCommands:
         self.on_change = on_change
         self.journal = journal
         self.hub = hub
+        #: prečo príkazy práve nepočúvajú (409: iný proces na tom istom bote), None = počúvajú; skúša sa znova
         self.disabled: str | None = None
+        self.conflict_since: float | None = None
+        self._conflicts = 0
+        self._retry_at = 0.0
+        self._calm_from = 0.0
+        self._conflict_alerted = False
         self._hub_views: list[dict[str, str]] = []
         self._hub_views_at: float | None = None
         self.photo_async = photo_async
@@ -1010,16 +1023,24 @@ class TelegramCommands:
         return user in self.cfg.admins if self.cfg.admins else (user is not None and chat == user)
 
     def poll(self, timeout: int = 3) -> int:
-        """Jedno kolo long-pollu; vráti počet spracovaných aktualizácií. 409 = príkazy sa vypnú (iný proces
-        na tom istom bote) — správy idú ďalej."""
-        if self.disabled:
+        """Jedno kolo long-pollu; vráti počet spracovaných aktualizácií. 409 (na bote počúva iný proces) príkazy
+        **pozastaví, nie vypne** (audit M-HUB-7): skúša sa znova s rastúcou pauzou (`CONFLICT_RETRY_SECONDS` až
+        `CONFLICT_RETRY_MAX`) krátkym dopytom bez long-pollu, takže skutočný druhý poslucháč nie je rušený viac
+        než raz za pár minút a prechodná 409 po výpadku siete prejde sama. Keď trvá dlhšie ako
+        `CONFLICT_ALERT_SECONDS`, ide upozornenie do chatov — `/pause` a `/flatten` nesmú zmiznúť potichu.
+        Správy idú ďalej celý čas."""
+        now = self.clock()
+        proba = bool(self.disabled)
+        if proba and now < self._retry_at:
             return 0
         try:
-            ups = self.bot.updates(int(self.state.data.get("update_offset") or 0), timeout)
+            ups = self.bot.updates(int(self.state.data.get("update_offset") or 0), 0 if proba else timeout)
         except TelegramConflict as exc:
-            self.disabled = f"príkazy vypnuté: na bote už počúva iný proces ({exc})"
-            log.warning("telegram: %s", self.disabled)
+            self._conflict(now, exc)
             return 0
+        if proba:
+            self._conflict_over(now)
+        self._conflict_calm(now)
         for u in ups:
             try:
                 self.handle(u)
@@ -1029,6 +1050,49 @@ class TelegramCommands:
         if ups:
             self.state.save()
         return len(ups)
+
+    def _conflict(self, now: float, exc: Exception) -> None:
+        if self.conflict_since is None:
+            self.conflict_since = now
+        self._conflicts += 1
+        pauza = min(CONFLICT_RETRY_MAX, CONFLICT_RETRY_SECONDS * (2 ** min(self._conflicts - 1, 10)))
+        self._retry_at = now + pauza
+        self.disabled = (f"príkazy pozastavené: na bote počúva iný proces ({exc}); "
+                         f"{self._conflicts}. pokus, ďalší o {int(pauza)} s")
+        if self._conflicts == 1:
+            log.warning("telegram: %s", self.disabled)
+        if not self._conflict_alerted and now - self.conflict_since >= CONFLICT_ALERT_SECONDS:
+            self._conflict_alerted = True
+            log.error("telegram: príkazy nefungujú už %d min — %s", int((now - self.conflict_since) // 60), self.disabled)
+            self._tell_all(f"⚠️ Príkazy bota (/pause, /flatten, gombíky) nefungujú už "
+                           f"{int((now - self.conflict_since) // 60)} min: na tom istom bote počúva iný proces "
+                           f"(druhý agent s rovnakým tokenom?). Správy chodia ďalej, príkazy skúšam znova každých "
+                           f"{int(CONFLICT_RETRY_MAX // 60)} min.")
+
+    def _conflict_over(self, now: float) -> None:
+        """Pokus prešiel: príkazy zas počúvajú. Počet konfliktov a ich začiatok sa ale nulujú až po
+        `CONFLICT_CALM_SECONDS` pokoja (`_conflict_calm`) — dva procesy na jednom bote si inak počúvanie
+        striedavo berú donekonečna, každý s dojmom, že konflikt práve skončil, a upozornenie by neprišlo nikdy.
+        Takto pauza medzi pokusmi rastie ďalej a striedanie sa ohlási ako trvajúci konflikt."""
+        log.info("telegram: príkazy znova počúvajú (%d. pokus)", self._conflicts)
+        self.disabled = None
+        self._calm_from = now
+
+    def _conflict_calm(self, now: float) -> None:
+        if self.conflict_since is None or self.disabled or now - self._calm_from < CONFLICT_CALM_SECONDS:
+            return
+        if self._conflict_alerted:
+            self._tell_all("✅ Príkazy bota znova fungujú.")
+        self.conflict_since, self._conflicts, self._conflict_alerted = None, 0, False
+
+    def _tell_all(self, text: str) -> None:
+        if self.cfg.label:
+            text = f"[{self.cfg.label}] {text}"
+        for chat in self.cfg.chats:
+            try:
+                self.bot.send(chat, text)
+            except Exception as exc:  # noqa: BLE001 - upozornenie nesmie zhodiť počúvanie
+                log.warning("telegram: upozornenie sa neposlalo: %s: %s", type(exc).__name__, exc)
 
     # -- vstup ------------------------------------------------------------- #
 
@@ -1509,14 +1573,17 @@ class TelegramService:
                 self._menu_set = True
             except TelegramError as exc:
                 log.debug("telegram: setMyCommands: %s", exc)
-        if self.commands is not None and not self.commands.disabled:
+        if self.commands is not None:
+            if not self.commands.disabled:
+                try:
+                    self.commands.refresh_auto()
+                except Exception as exc:  # noqa: BLE001 - obnova nesmie zastaviť príkazy
+                    log.debug("telegram: auto-obnova: %s", exc)
             try:
-                self.commands.refresh_auto()
-            except Exception as exc:  # noqa: BLE001 - obnova nesmie zastaviť príkazy
-                log.debug("telegram: auto-obnova: %s", exc)
-            try:
+                # pozastavené príkazy (409) si `poll` skúša znova sám, keď príde čas — vtedy vráti hneď a spí sa tu
                 self.commands.poll(int(max(1, wait)))
-                return
+                if not self.commands.disabled:
+                    return
             except TelegramError as exc:
                 log.debug("telegram: getUpdates: %s", exc)
         self.sleep(wait)
@@ -1524,6 +1591,7 @@ class TelegramService:
     def status(self) -> dict[str, Any]:
         return {"chats": len(self.cfg.chats), "commands": self.commands is not None,
                 "commands_error": self.commands.disabled if self.commands else None,
+                "commands_error_since": self.commands.conflict_since if self.commands else None,
                 "last_error": self.notifier.last_error if self.notifier else None,
                 "sent_total": self.notifier.sent_total if self.notifier else 0,
                 "overrides": self.state.overrides()}

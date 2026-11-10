@@ -21,6 +21,7 @@ CSHARP_KEY = "wprnet"
 SPEC = replace(
     BASE_SPEC,
     key="wprnet",
+    base_key="wpr",
     title="WILLIAMS %R LONG 1.0 (C# jadro)",
     config_cls=WprNetConfig,
     profile_dir=CONFIG_DIR,

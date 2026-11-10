@@ -13,6 +13,7 @@ Stratégia s C# jadrom si ho vyžiada v `StrategySpec.engine_factory`:
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from typing import Any, Callable
 
@@ -151,6 +152,12 @@ class CSharpEngine:
             self.key, json.dumps(self.cfg.to_dict()), json.dumps(instrument), self.chart_tf_minutes)
         info = self._transport.info
         self.required_history: int = int(info["required_history"])
+        #: kľúče configu, ktoré C# strana nečíta — pole pridané len do Python predlohy alebo preklep (audit N-CS-2)
+        self.unknown_config: list[str] = [str(k) for k in info.get("unknown_config") or []]
+        if self.unknown_config:
+            logging.getLogger(__name__).warning(
+                "C# stratégia %s nečíta tieto polia configu (platí pre ne default): %s",
+                self.key, ", ".join(self.unknown_config))
         self.warmup = self._warmup(info)
         #: evidencia zón pre logy adaptérov (`len(engine.book)`, `evicted_alive`...)
         self.book = _Stats(self)

@@ -918,7 +918,9 @@ def test_zrkadlo_dopyta_dieru_z_hubu_a_hlasi_co_chyba_aj_na_hube(tmp_path: Path)
     m = _mirror(tmp_path, hub=(cfg, t), clock=lambda: hodiny[0])
     # zrkadlo má dieru seq 3 (hub ju má) a nemá ani 5 (to hub tiež nemá)
     m.store.ingest("trade-pc", INSTANCE, "a1b2c3d4", [e for e in ev if e["seq"] in (1, 2, 4)])
-    m.hub_url, m.hub_cursor = cfg.hub_url, 10**9    # export už nič nedá — dopĺňa len kontrola dier
+    # export už nič nedá — dopĺňa len kontrola dier. Kurzor je skutočný koniec hubu: kurzor ZA koncom hubu
+    # zrkadlo berie ako novú databázu hubu a stiahlo by ju celú odznova (audit M-HUB-9)
+    m.hub_url, m.hub_cursor = cfg.hub_url, hub_store.cursor()
 
     m.tick()                               # prvé videnie: nič sa nedopĺňa ani nehlási
     assert m.status()["gaps"] == [] and m.gaps_refilled == 0 and len(m.store.events(INSTANCE)) == 3

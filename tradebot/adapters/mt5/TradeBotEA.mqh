@@ -59,6 +59,7 @@ input double InpPointValueOverride  = 0;      // Hodnota bodu (1.0 ceny) za 1 lo
 input bool   InpTelemetry           = true;   // Live telemetria: JSONL spool do Common\Files\TradeBot\spool (docs/LIVE.md)
 input bool   InpTelemetryInTester   = false;  // ...aj v Strategy Testeri (len na overenie; inak tester spool nepise)
 input bool   InpRestoreState        = true;   // Po restarte prevziat obchody spred neho (Common\Files\TradeBot\state, mimo testera)
+input int    InpDeviationPts        = 50;     // Povoleny sklz market orderov v bodoch symbolu (ako exekutor; 10 = 0,1 bodu na US100.cash -> requote)
 
 //--- stav adaptera
 int              g_engine      = -1;          // handle v StaticHost
@@ -112,6 +113,8 @@ struct Tracked
    datetime noStopSince;      // od kedy pozicia nema SL (0 = ma)
    bool     cancelWanted;     // cakajuci vstup sa nepodarilo zrusit - OnTimer to skusa znova
    datetime goneSince;        // od kedy pozicia / cakajuci vstup u brokera chyba bez dealu (0 = je tam) - ReconcileBroker
+   bool     exitsStale;       // netting: SL/TP stoja so starym objemom (zrusenie pred novou dvojicou nepreslo) - M-LIVE-5
+   bool     resumeClose;      // zo stavu: pred restartom sa zatvarala trhom - po prevzati sa zatvaranie dokonci
   };
 const int GoneGraceSec     = 10;  // pozicia / order u brokera chyba: tolko sekund sa caka na deal, potom sa zladi z historie
 const int ConnectSettleSec = 30;  // po pripojeni sa pozicie chvilu synchronizuju - dovtedy sa "chyba" neposudzuje
@@ -122,7 +125,7 @@ const int MaxCloseAttempts = 3;   // po tolkych neuspesnych zatvoreniach trhom s
 void ResetGuard(Tracked &t)
   {
    t.closeTicket = 0; t.closing = false; t.closeFails = 0; t.closeRetryAt = 0; t.protect = false;
-   t.slFails = 0; t.noStopSince = 0; t.cancelWanted = false; t.goneSince = 0;
+   t.slFails = 0; t.noStopSince = 0; t.cancelWanted = false; t.goneSince = 0; t.exitsStale = false; t.resumeClose = false;
   }
 Tracked g_orders[];
 
@@ -224,6 +227,25 @@ string EngineError(string where)
   {
    string e = StaticHost::LastError();
    return "TradeBot " + TRADEBOT_ENGINE_KEY + ": " + where + ": " + e;
+  }
+
+datetime g_engineFailNoted = 0;   // kedy sa chyba enginu naposledy hlasila hubu (cas PC)
+int      g_engineFails     = 0;   // kolko ich bolo od posledneho hlasenia
+
+/// Chyba enginu pocas behu (OnBar, FeedHtf, EodDue): do Experts logu vzdy, do hubu ako `note error` s tlmenim
+/// (prva hned, dalsie raz za 15 min s poctom) - bar je uz spracovany, takze strazca feedu mlci a bez hlasenia
+/// by strategia ticho prestala obchodovat (audit M-LIVE-8).
+void EngineFail(string where)
+  {
+   string msg = EngineError(where);
+   g_engineFails++;
+   if(g_replaying || MQLInfoInteger(MQL_TESTER)) { Print(msg); return; }
+   datetime now = TimeLocal();
+   if(g_engineFailNoted != 0 && now - g_engineFailNoted < 15 * 60) { Print(msg); return; }
+   Report("error", msg + (g_engineFails > 1 ? " (" + IntegerToString(g_engineFails) + "x od posledneho hlasenia)" : "")
+          + " - bar sa neobchodoval, trailing a zatvorenie na bare stoja");
+   g_engineFailNoted = now;
+   g_engineFails = 0;
   }
 
 //+------------------------------------------------------------------+
@@ -380,7 +402,7 @@ int OnInit()
 
    g_trade.SetExpertMagicNumber(InpMagic);
    g_trade.SetTypeFillingBySymbol(_Symbol);
-   g_trade.SetDeviationInPoints(10);
+   g_trade.SetDeviationInPoints(InpDeviationPts);
 
    if(InpExportSignals) OpenExport();
    OpenSpool(g_profile);
@@ -731,7 +753,9 @@ long     g_eodClockDay = 0;     // den (UTC), v ktorom sa uz zatvaralo podla hod
 void EodByClock()
   {
    long nowMs = (long)TimeGMT() * 1000;
-   if(StaticHost::EodDue(g_engine, nowMs) != 1) return;
+   int due = StaticHost::EodDue(g_engine, nowMs);
+   if(due < 0) EngineFail("EodDue");
+   if(due != 1) return;
    bool work = false;
    for(int i = 0; i < ArraySize(g_orders); i++)
       if((g_orders[i].filled && g_orders[i].openQty > 0 && !g_orders[i].closing) || (!g_orders[i].filled && g_orders[i].orderTicket > 0)) work = true;
@@ -881,6 +905,20 @@ void ReplayHistory()
       ChartRedraw(0);
       Print("TradeBot: na grafe je ", ObjectsTotalPrefix(), " objektov engine-u");
      }
+   PreflightNotes();
+  }
+
+/// Kontrola pred zivym startom (`IPreflight` enginu cez fasadu): co engine vie, ze ho o chvilu ticho vypne
+/// (kalendar sprav konci), ide do hubu ako `note warn` hned pri starte. V Strategy Testeri nie.
+void PreflightNotes()
+  {
+   if(MQLInfoInteger(MQL_TESTER)) return;
+   string text = StaticHost::Preflight(g_engine, (long)TimeGMT() * 1000);
+   if(text == "") return;
+   string lines[];
+   int n = StringSplit(text, '\n', lines);
+   for(int i = 0; i < n; i++)
+      if(lines[i] != "") Report("warn", "TradeBot: kontrola pred startom: " + lines[i]);
   }
 
 //+------------------------------------------------------------------+
@@ -948,7 +986,7 @@ void FeedHtf(const MqlRates &r)
    if(r.time <= g_lastHtf) return;
    bool real = r.real_volume > 0;
    if(StaticHost::FeedHtf(g_engine, ToMs(r.time), r.open, r.high, r.low, r.close, BarVolume(r, real)) < 0)
-      Print(EngineError("FeedHtf"));
+      EngineFail("FeedHtf");
    g_lastHtf = r.time;
    g_htfBars++;
   }
@@ -984,9 +1022,9 @@ void ProcessChartBar(const MqlRates &r)
    bool real = r.real_volume > 0;
    string json = StaticHost::OnBar(g_engine, barMs, r.open, r.high, r.low, r.close, BarVolume(r, real),
                                                    positionSize, dailyLimit, openIds);
-   if(json == "") { Print(EngineError("OnBar")); return; }
+   if(json == "") { EngineFail("OnBar"); return; }
    CJson *out = JsonParse(json);
-   if(out == NULL) { Print("TradeBot: nespracovatelny JSON z engine-u: ", StringSubstr(json, 0, 200)); return; }
+   if(out == NULL) { Print("TradeBot: nespracovatelny JSON z engine-u: ", StringSubstr(json, 0, 200)); EngineFail("OnBar (JSON)"); return; }
 
    // Signal z baru bez celej predhistorie vstup neurobi (engine si ho odpise sam timeoutom).
    bool ready = !g_replaying && g_chartBars >= g_required;
@@ -1258,12 +1296,28 @@ void PlaceExits(int i)
    bool isLong = g_orders[i].dir > 0;
    double vol = g_orders[i].openQty, sl = Tick(g_orders[i].lastStop), tp = Tick(g_orders[i].takeProfit);
    string id = g_orders[i].id;
-   if(isLong ? g_trade.SellStop(vol, sl, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id) : g_trade.BuyStop(vol, sl, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id))
-      if(Sent()) g_orders[i].slTicket = g_trade.ResultOrder();
-   if(g_orders[i].slTicket == 0) Report("error", "TradeBot: SL order " + id + " odmietnuty: " + IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription());
-   if(isLong ? g_trade.SellLimit(vol, tp, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id) : g_trade.BuyLimit(vol, tp, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id))
-      if(Sent()) g_orders[i].tpTicket = g_trade.ResultOrder();
-   if(g_orders[i].tpTicket == 0) Report("error", "TradeBot: TP order " + id + " odmietnuty: " + IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription());
+   // Dvojica uz stoji (druha ciastocna vypln vstupu): najprv ju zrusit, inak by novy ticket prepisal stary a
+   // osirely stop by ostal GTC u brokera a neskor otvoril opacnu poziciu (audit M-LIVE-5). Co sa zrusit nedalo,
+   // ostava sledovane so starym objemom a RetryGuards to skusi znova (`exitsStale`).
+   bool hadSl = g_orders[i].slTicket > 0, hadTp = g_orders[i].tpTicket > 0;
+   CancelExits(i);
+   g_orders[i].exitsStale = g_orders[i].slTicket > 0 || g_orders[i].tpTicket > 0;
+   if(g_orders[i].exitsStale)
+      Report("error", "TradeBot: SL/TP vstupu " + id + " sa nepodarilo zrusit pred polozenim s novym objemom "
+             + DoubleToString(vol, 2) + " - stary ostava, skusam znova");
+   if(g_orders[i].slTicket == 0)
+     {
+      if(isLong ? g_trade.SellStop(vol, sl, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id) : g_trade.BuyStop(vol, sl, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id))
+         if(Sent()) g_orders[i].slTicket = g_trade.ResultOrder();
+      if(g_orders[i].slTicket == 0) Report("error", "TradeBot: SL order " + id + " odmietnuty: " + IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription());
+     }
+   if(g_orders[i].tpTicket == 0)
+     {
+      if(isLong ? g_trade.SellLimit(vol, tp, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id) : g_trade.BuyLimit(vol, tp, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id))
+         if(Sent()) g_orders[i].tpTicket = g_trade.ResultOrder();
+      if(g_orders[i].tpTicket == 0) Report("error", "TradeBot: TP order " + id + " odmietnuty: " + IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription());
+     }
+   if((hadSl || hadTp) && !g_orders[i].exitsStale && InpLogEvents) Print("SL/TP ", id, " polozene znova s objemom ", DoubleToString(vol, 2));
   }
 
 /// Pending order je u brokera prec: zruseny teraz, alebo uz nie je medzi cakajucimi (vyplneny / zruseny inde).
@@ -1420,6 +1474,7 @@ void RetryGuards()
          if(now >= g_orders[i].closeRetryAt) ClosePosition(i);
          continue;
         }
+      if(g_orders[i].exitsStale && !g_orders[i].closing) PlaceExits(i);
       GuardStop(i, now);
       if(i < ArraySize(g_orders) && g_orders[i].closing && g_orders[i].protect && now >= g_orders[i].closeRetryAt) ClosePosition(i);
      }
@@ -1763,7 +1818,8 @@ string TrackedJson(const Tracked &t)
           + ",\"parked\":" + JsonBool(t.parked) + ",\"lots\":" + Num(t.lots) + ",\"open_qty\":" + Num(t.openQty)
           + ",\"dir\":" + IntegerToString(t.dir) + ",\"entry\":" + Num(t.entry) + ",\"sl\":" + Num(t.stopLoss)
           + ",\"tp\":" + Num(t.takeProfit) + ",\"trail\":" + JsonBool(t.hasTrail) + ",\"trail_act\":" + Num(t.trailActivation)
-          + ",\"trail_off\":" + Num(t.trailOffset) + ",\"extreme\":" + Num(t.extreme) + ",\"last_stop\":" + Num(t.lastStop) + "}";
+          + ",\"trail_off\":" + Num(t.trailOffset) + ",\"extreme\":" + Num(t.extreme) + ",\"last_stop\":" + Num(t.lastStop)
+          + ",\"closing\":" + JsonBool(t.filled && t.closing) + "}";
   }
 
 void TrackedFrom(CJson *o, Tracked &t)
@@ -1775,6 +1831,7 @@ void TrackedFrom(CJson *o, Tracked &t)
    t.hasTrail = o.Bool("trail"); t.trailActivation = o.Dbl("trail_act"); t.trailOffset = o.Dbl("trail_off");
    t.extreme = o.Dbl("extreme"); t.lastStop = o.Dbl("last_stop");
    ResetGuard(t);
+   t.resumeClose = o.Bool("closing");   // zatvaranie prerusene restartom - RestoreState ho dokonci
   }
 
 /// Obsah stavu: bez casu zapisu, aby sa nezmeneny stav neprepisoval (`bar_ms` sa meni s kazdym barom - trailing
@@ -1994,6 +2051,15 @@ void RestoreState()
         }
       if(left > 1e-9 && posDir != 0)
          SpoolNoteState("netto pozicia " + DoubleToString(left, 2) + " lotov na " + _Symbol + " nepatri ziadnemu vstupu zo stavu - EA ju nesleduje");
+     }
+   // zatvaranie, ktore restart prerusil: engine o pozicii po predhistorii nevie a znova by ju nezavrel
+   for(int i = ArraySize(g_orders) - 1; i >= 0; i--)
+     {
+      if(i >= ArraySize(g_orders) || !g_orders[i].resumeClose) continue;
+      g_orders[i].resumeClose = false;
+      if(!g_orders[i].filled || g_orders[i].openQty <= 0) continue;
+      Report("warn", "TradeBot: vstup " + g_orders[i].id + " sa pred restartom zatvaral - zatvaranie pokracuje");
+      ClosePosition(i);
      }
    // zvysok stavu (cakajuce, odlozene, market bez dealu) zanika s restartom
    int dropped = 0;

@@ -21,6 +21,7 @@ CSHARP_KEY = "sigmanet"
 SPEC = replace(
     BASE_SPEC,
     key="sigmanet",
+    base_key="sigma",
     title="SIGMA BREAKOUT 1.0 (C# jadro)",
     config_cls=SigmaNetConfig,
     profile_dir=CONFIG_DIR,

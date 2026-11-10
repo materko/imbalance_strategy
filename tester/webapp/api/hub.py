@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException
 
-from tradebot.core.config import ConfigError
+from tradebot.core.config import ConfigError, DEFAULT_STRATEGY
 from tradebot.strategies import get_spec
 
 from .common import clean_user, hyperopt_settings
@@ -220,7 +220,8 @@ def build(ctx: AppContext) -> APIRouter:
         from ...hub import protocol as P
 
         payload = {"params": params, "settings": settings, "note": note, "user": user or None}
-        odhad = P.estimate_seconds(settings, store.all(), cores=os.cpu_count() or 1)
+        # len hotové behy s trvaním z indexu, nie celá história na každé zadanie (audit N-WEB-8)
+        odhad = P.estimate_seconds(settings, store.timing_history(), cores=os.cpu_count() or 1)
         return _hub_send(kind, payload, cores=req.cores, queue=req.queue,
                          max_wait_seconds=req.max_wait_minutes * 60 if req.max_wait_minutes else None,
                          estimate_seconds=odhad, note=note, version=None,
@@ -245,7 +246,7 @@ def build(ctx: AppContext) -> APIRouter:
 
         if not req.space:
             raise HTTPException(422, "hyperopt potrebuje aspoň jeden parameter")
-        defaults = DEFAULTS.get(req.strategy) or DEFAULTS["ibs"]
+        defaults = DEFAULTS.get(req.strategy) or DEFAULTS[DEFAULT_STRATEGY]
         for name in req.space:
             if name not in defaults:
                 raise HTTPException(422, f"neznámy parameter {name!r}")

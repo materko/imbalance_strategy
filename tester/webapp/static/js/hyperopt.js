@@ -125,23 +125,18 @@ function slovom(n, jeden, malo, mnoho) {
 }
 
 const hyperKey = () => `hyperopt:${state.strategy}`;
-const hyper = { id: null, timer: null };
+const hyper = { id: null };
 
-async function pollHyper() {
-  if (!hyper.id) return;
-  try {
-    const r = await api(`/api/hyperopts/${hyper.id}`);
-    renderHyper(r);
-    if (r.status === "queued" || r.status === "running"
-        || (r.verify || []).some(v => v.status === "queued" || v.status === "running")) {
-      clearTimeout(hyper.timer);
-      hyper.timer = setTimeout(pollHyper, 4000);
-    }
-  } catch (e) {
-    clearTimeout(hyper.timer);
-    hyper.timer = setTimeout(pollHyper, 4000);
-  }
+/** Jedno načítanie hyperoptu; pravda, kým beží on alebo jeho overovacie behy. */
+async function pollHyperOnce() {
+  if (!hyper.id) return false;
+  const r = await api(`/api/hyperopts/${hyper.id}`);
+  renderHyper(r);
+  return r.status === "queued" || r.status === "running"
+    || (r.verify || []).some(v => v.status === "queued" || v.status === "running");
 }
+const hyperPoller = makePoller({ interval: 4000, step: pollHyperOnce, onError: searchPollError("hyperopt"), onOk: searchPollOk });
+function pollHyper() { return hyperPoller.kick(); }
 
 /** „beží · 37/200 epoch · ešte ~12 min". Odhad až keď sú aspoň dve dávky hotové —
  *  pred prvou epochou Freqtrade len načítava dáta a tempo z nej by klamalo. */

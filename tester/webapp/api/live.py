@@ -45,8 +45,9 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from tester.atomic import write_json_atomic
 from tester.dashboard.live import trades_of
-from tradebot.core.config import ConfigError
+from tradebot.core.config import ConfigError, DEFAULT_STRATEGY
 from tradebot.core.paths import LIVE_CURSOR_WEBAPP, LIVE_MIRROR, LIVE_MIRROR_CURSOR
 from tradebot.live.deploy import DEFAULT_MODE
 from tradebot.live.store import LiveStore
@@ -70,6 +71,8 @@ MIRROR_INTERVAL = 2.0
 #: (dávky jedného behu z dvoch súborov spoolu môžu prísť v opačnom poradí — to nie je strata).
 GAP_CHECK_SECONDS = 60.0
 GAP_GRACE_SECONDS = 60.0
+#: Ako často zrkadlo overí, že kurzor ešte patrí tej databáze hubu, z ktorej vznikol (`_hub_was_reset`).
+RESET_CHECK_SECONDS = 30.0
 #: Živé dáta mimo gitu (`tester.livedata`: z hubu, bez hubu zo zrkadla) najviac raz za toľko sekúnd.
 LIVEDATA_SECONDS = 300.0
 #: SSE: komentár každých toľko sekúnd, nech proxy a prehliadač spojenie nezavrú.
@@ -131,6 +134,11 @@ class LiveMirror:
         self._reader: Any | None = None
         self.hub_url: str | None = None
         self.hub_cursor = 0
+        #: Odtlačok riadku hubu, na ktorom kurzor stojí (`[inštancia, beh, seq, t]`) — podľa neho sa pozná,
+        #: že hub má inú databázu udalostí (reset, obnovená záloha) a kurzor v nej nič neznamená (M-HUB-9).
+        self.hub_anchor: list[Any] | None = None
+        self.hub_resets = 0
+        self._reset_checked: float | None = None
         self.local_agent = "local"
         self.local_roots: list[str] = []
         self.last_ok: float | None = None
@@ -178,6 +186,8 @@ class LiveMirror:
             return self._store
 
     def _load_cursor(self, hub_url: str) -> int:
+        self.hub_anchor = None
+        self._reset_checked = None   # nový hub (alebo štart): identitu kurzora over hneď v prvom tiku
         try:
             data = json.loads(self.cursor_path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
@@ -185,15 +195,46 @@ class LiveMirror:
         if not isinstance(data, dict) or data.get("hub_url") != hub_url:
             return 0
         try:
-            return max(0, int(data.get("cursor") or 0))
+            cursor = max(0, int(data.get("cursor") or 0))
         except (TypeError, ValueError):
             return 0
+        kotva = data.get("anchor")
+        self.hub_anchor = list(kotva) if isinstance(kotva, list) and cursor else None
+        return cursor
 
     def _save_cursor(self) -> None:
-        self.cursor_path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = self.cursor_path.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps({"hub_url": self.hub_url, "cursor": self.hub_cursor}), encoding="utf-8")
-        tmp.replace(self.cursor_path)
+        write_json_atomic(self.cursor_path, {"hub_url": self.hub_url, "cursor": self.hub_cursor,
+                                             "anchor": self.hub_anchor}, indent=None, newline=False)
+
+    @staticmethod
+    def _anchor_of(row: dict[str, Any]) -> list[Any]:
+        ev = row.get("event") if isinstance(row.get("event"), dict) else {}
+        return [str(row.get("instance") or ""), str(row.get("session") or ""), row.get("seq", ev.get("seq")), ev.get("t")]
+
+    def _hub_was_reset(self, transport: Any) -> bool:
+        """Má hub inú databázu udalostí než tú, z ktorej je kurzor? Kurzor je `rowid` hubu a kľúčuje sa len
+        adresou — po resete živej DB (nový súbor, obnovená záloha) by zrkadlo čakalo na `id > kurzor`, ktoré
+        v novej databáze dlho nepríde, a ticho stálo (audit M-HUB-9). API hubu identitu databázy udalostí
+        nedáva, tak sa overí riadok, na ktorom kurzor stojí: `id` hubu sa nikdy nepoužije znova
+        (AUTOINCREMENT), takže na tom istom hube je tam buď ten istý riadok, alebo (ping nahradený novším)
+        už len vyššie `id`. Prázdna odpoveď = hub má menej, než sme už videli; iný riadok na tom istom `id`
+        = iná databáza."""
+        if self.hub_cursor <= 0:
+            return False
+        rows = transport.pull_export(int(self.hub_cursor) - 1, 1)
+        if not isinstance(rows, list):
+            return False
+        if not rows:
+            return True
+        prvy = rows[0]
+        if int(prvy.get("id") or 0) != int(self.hub_cursor):
+            return False
+        kotva = self._anchor_of(prvy)
+        if self.hub_anchor is None:
+            self.hub_anchor = kotva        # kurzor spred kotiev: zapamätaj, nabudúce je s čím porovnať
+            self._save_cursor()
+            return False
+        return kotva != self.hub_anchor
 
     # -- zdroje ---------------------------------------------------------------- #
 
@@ -204,6 +245,13 @@ class LiveMirror:
         Riadky sa zoskupia podľa (agent, inštancia, session) — `ingest` je idempotentný, takže
         opakovaná stránka (pád medzi uložením a zápisom kurzora) nič nezdvojí."""
         transport = as_transport(transport)
+        if self._reset_checked is None or self.clock() - self._reset_checked >= RESET_CHECK_SECONDS:
+            if self._hub_was_reset(transport):
+                # od začiatku: `ingest` je idempotentný, takže čo zrkadlo už má, sa nezdvojí
+                self.hub_cursor, self.hub_anchor = 0, None
+                self.hub_resets += 1
+                self._save_cursor()
+            self._reset_checked = self.clock()
         total = 0
         while True:
             rows = transport.pull_export(int(self.hub_cursor), int(limit))
@@ -216,7 +264,9 @@ class LiveMirror:
             nove = 0
             for (agent, instance, session), events in groups.items():
                 nove += self.store.ingest(agent, instance, session, events)
-            self.hub_cursor = max(self.hub_cursor, max(int(r["id"]) for r in rows))
+            posledny = max(rows, key=lambda r: int(r["id"]))
+            if int(posledny["id"]) >= self.hub_cursor:
+                self.hub_cursor, self.hub_anchor = int(posledny["id"]), self._anchor_of(posledny)
             self._save_cursor()
             self._bump(nove)
             total += nove
@@ -379,6 +429,7 @@ class LiveMirror:
         return {
             "hub_url": self.hub_url,
             "hub_cursor": int(self.hub_cursor),
+            "hub_resets": self.hub_resets,     # koľkokrát zrkadlo zistilo inú databázu hubu a začalo odznova
             "last_ok": self.last_ok,
             "last_error": self.last_error,
             "local_roots": list(self.local_roots),
@@ -696,7 +747,7 @@ def build(ctx: AppContext) -> APIRouter:
         return _via_hub(lambda: http.delete(f"/api/live/agents/{name}/update?by={_by(user)}"))
 
     @router.get("/api/live/profiles")
-    def live_profiles(strategy: str = Query("ibs")):
+    def live_profiles(strategy: str = Query(DEFAULT_STRATEGY)):
         """Profily stratégie (repozitár + vlastné) do výberu pri nasadení — ako formulár behu, len tie z výberu webapp
         (`tester/webapp_vyber.json`: nastavenia zo stránky výsledkov a profily aktívnych nasadení)."""
         from .. import vyber

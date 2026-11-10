@@ -41,13 +41,56 @@ def _git(*args: str) -> subprocess.CompletedProcess:
                           encoding="utf-8", errors="replace", timeout=60)
 
 
+def _head_sha() -> str | None:
+    """Celý commit HEAD prečítaný priamo zo súborov `.git` (bez podprocesu); `None`, keď sa to takto nedá
+    (mimo gitu, neznámy tvar) — volajúci sa vtedy spýta gitu."""
+    try:
+        git = REPO / ".git"
+        if git.is_file():   # worktree: `.git` je súbor s `gitdir: …`
+            text = git.read_text(encoding="utf-8").strip()
+            if not text.startswith("gitdir:"):
+                return None
+            git = (REPO / text[7:].strip()).resolve()
+        head = (git / "HEAD").read_text(encoding="utf-8").strip()
+        if not head.startswith("ref:"):
+            return head or None   # odpojený HEAD
+        ref = head[4:].strip()
+        spolocny = git
+        if (git / "commondir").is_file():
+            spolocny = (git / (git / "commondir").read_text(encoding="utf-8").strip()).resolve()
+        for zaklad in (git, spolocny):
+            if (zaklad / ref).is_file():
+                return (zaklad / ref).read_text(encoding="utf-8").strip() or None
+        for riadok in (spolocny / "packed-refs").read_text(encoding="utf-8").splitlines():
+            if riadok.endswith(" " + ref):
+                return riadok.split(" ", 1)[0] or None
+    except (OSError, ValueError):
+        return None
+    return None
+
+
+#: celý commit HEAD -> jeho krátky tvar (`git rev-parse --short`), nech sa git nepýta pri každom volaní
+_short_cache: dict[tuple[str, str], str] = {}
+
+
 def version() -> str:
-    """Krátky commit HEAD; prázdny reťazec mimo gitu."""
+    """Krátky commit HEAD; prázdny reťazec mimo gitu. Agent sa pýta v každom heartbeate (každé 3 s) — kým sa
+    HEAD nepohol, odpoveď je z cache podľa celého commitu prečítaného zo súborov `.git` a podproces `git`
+    (desiatky ms, pri zamknutom repozitári aj dlhšie) sa nespúšťa (audit M-HUB-8)."""
+    full = _head_sha()
+    kluc = (str(REPO), full or "")
+    if full and kluc in _short_cache:
+        return _short_cache[kluc]
     try:
         r = _git("rev-parse", "--short", "HEAD")
     except (OSError, subprocess.SubprocessError):
         return ""
-    return r.stdout.strip() if r.returncode == 0 else ""
+    short = r.stdout.strip() if r.returncode == 0 else ""
+    if full and short and full.startswith(short):
+        if len(_short_cache) > 64:
+            _short_cache.clear()
+        _short_cache[kluc] = short
+    return short
 
 
 _deploy_cache: dict[str, str] = {}

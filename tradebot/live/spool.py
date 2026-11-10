@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -98,6 +99,7 @@ class SpoolReader:
     def __init__(self, roots: list[Path], cursor_path: Path) -> None:
         self.roots = [Path(r) for r in roots]
         self.cursor_path = Path(cursor_path)
+        self.cursor_reset = False
         self.cursor: dict[str, int] = self._load_cursor()
         #: session podľa prvého `hello` v súbore (cache; keď hello chýba, z názvu súboru)
         self._sessions: dict[str, str] = {}
@@ -108,8 +110,11 @@ class SpoolReader:
 
     def _load_cursor(self) -> dict[str, int]:
         # pokazený kurzor = celý spool sa pošle znova (hub je idempotentný); odloží sa a zaloguje, nech je vidno prečo
+        bol = self.cursor_path.is_file()
         data = read_json(self.cursor_path, None, what="kurzor spoolu")
         if not isinstance(data, dict):
+            #: kurzor existoval a nedal sa použiť — kto reader drží (agent), ohlási, že spool pôjde celý znova
+            self.cursor_reset = bol
             return {}
         out: dict[str, int] = {}
         for k, v in data.items():
@@ -260,22 +265,47 @@ class SpoolReader:
 _TAIL_BYTES = 65536
 
 
-def latest_state(roots: list[Path], cache: dict[str, tuple[int, dict[str, Any]]] | None = None) -> list[dict[str, Any]]:
+#: Ako často sa adresár spoolu vypíše znova, aj keď sa jeho čas zmeny nepohol (súborový systém, ktorý ho
+#: pri novom súbore nemení, alebo dva súbory v tom istom tiku hodín).
+_DIRS_RECHECK = 60.0
+
+
+def _listing(path: Path, dirs: dict[str, Any] | None, make: Any) -> list[Path]:
+    """Výpis adresára (`make()`), s `dirs` len keď sa adresár zmenil: pribudnutý či zmiznutý súbor mení čas
+    zmeny adresára, zápis do existujúceho súboru nie — a ten výpis nemení. Chyba ide von ako `OSError`."""
+    if dirs is None:
+        return make()
+    kluc = str(path)
+    zmena = os.stat(path).st_mtime_ns
+    teraz = time.monotonic()
+    mam = dirs.get(kluc)
+    if mam is not None and mam[0] == zmena and teraz - mam[1] < _DIRS_RECHECK:
+        return mam[2]
+    polozky = make()
+    dirs[kluc] = (zmena, teraz, polozky)
+    return polozky
+
+
+def latest_state(roots: list[Path], cache: dict[str, tuple[int, dict[str, Any]]] | None = None,
+                 dirs: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     """Posledný známy stav každej inštancie v spoole — pre `live.instances` v heartbeate agenta:
     `instance`, `session`, `platform`, `account`, `symbol`, `tf`, `strategy`, `profile`, `mode`,
     `last_t`, `last_bar_ms`, `last_hb` (posledný ping `hb`), `ended` (posledný súbor má `bye`).
 
     Číta len prvý riadok (`hello`) a chvost posledného súboru inštancie; `cache` (cesta →
-    (veľkosť, výsledok)) ušetrí čítanie, keď súbor od minula nenarástol. Nikdy nevyhodí výnimku."""
+    (veľkosť, výsledok)) ušetrí čítanie, keď súbor od minula nenarástol. `dirs` (prázdny slovník, ktorý si
+    volajúci drží medzi volaniami) ušetrí aj výpis adresárov: heartbeat každé 3 s potom robí jeden `stat` na
+    adresár a posledný súbor, nie výpis tisícov súborov spoolu (audit M-HUB-8). Nikdy nevyhodí výnimku."""
     out: list[dict[str, Any]] = []
     for root in roots:
         try:
-            instancie = sorted(p for p in Path(root).iterdir() if p.is_dir())
+            instancie = _listing(Path(root), dirs, lambda r=root: sorted(p for p in Path(r).iterdir() if p.is_dir()))
         except OSError:
             continue
         for inst in instancie:
             try:
-                subory = sorted(p for p in inst.iterdir() if p.is_file() and p.suffix == ".jsonl")
+                subory = _listing(inst, dirs, lambda d=inst: sorted(
+                    p for p in d.iterdir() if p.is_file() and p.suffix == ".jsonl")[-1:])
             except OSError:
                 continue
             if not subory:

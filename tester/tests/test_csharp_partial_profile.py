@@ -96,3 +96,85 @@ def test_neznama_hodnota_enumu_je_chyba(key, field, values):
     for v in values:
         assert opens(v), (key, field, v)
     assert not opens("Nezmysel"), (key, field)
+
+
+def _cs_strategies() -> list[str]:
+    from tradebot.adapters.csharp.engine import CSharpEngine
+    from tradebot.strategies import STRATEGIES
+
+    out = []
+    for key, spec in sorted(STRATEGIES.items()):
+        cfg = spec.config_cls()
+        try:
+            eng = spec.engine_factory(cfg, MNQ, 5)
+        except Exception:  # noqa: BLE001 - stratégia, ktorej default s MNQ nejde, sem nepatrí
+            continue
+        if isinstance(eng, CSharpEngine):
+            out.append(key)
+            eng.close()
+    return out
+
+
+def test_neznamy_kluc_profilu_je_v_info_a_uplny_config_ziadny_nema(caplog):
+    """N-CS-2: kľúč, ktorý C# nečíta (preklep v ručne upravenom profile NT8 / MT5), sa nesmie stratiť potichu —
+    hostiteľ ho vráti v `Info()`. A naopak: úplný config z Pythonu nesmie mať v C# neznáme pole (zabudnutý prepis)."""
+    from tradebot.adapters.csharp.engine import CSharpEngine
+
+    t = open_transport("noanet", json.dumps({**LOOSE, "maxTradePerDay": 3, "_title": "x", "trendFilter": "off"}), _INST, 5)
+    try:
+        assert t.info["unknown_config"] == ["maxTradePerDay"]
+    finally:
+        t.close()
+
+    keys = _cs_strategies()
+    assert len(keys) >= 15
+    for key in keys:
+        spec = get_spec(key)
+        with caplog.at_level("WARNING"):
+            eng = CSharpEngine(key, spec.config_cls(), MNQ, 5)
+        try:
+            assert eng.unknown_config == [], key
+        finally:
+            eng.close()
+    assert "nečíta" not in caplog.text
+
+    class Preklep:
+        def to_dict(self):
+            return {**LOOSE, "maxTradePerDay": 3}
+
+    with caplog.at_level("WARNING"):
+        eng = CSharpEngine("noanet", Preklep(), MNQ, 5)
+    eng.close()
+    assert eng.unknown_config == ["maxTradePerDay"] and "maxTradePerDay" in caplog.text
+
+
+def test_obal_trendu_pozna_rovnake_strategie_ako_python():
+    """Python zapína filter trendu len configu s `trendFilter` aj `trendTF` (pole `trendFilter` bez `trendTF` je
+    vlastný filter stratégie, dnes len Python stratégia `liquidity`), C# podľa hodnoty kľúča `trendFilter`.
+    Pre profil, ktorý Python načíta, je to to isté, kým C# stratégia nemá `trendFilter` bez `trendTF`."""
+    for key in _cs_strategies():
+        cfg = get_spec(key).config_cls()
+        assert hasattr(cfg, "trendFilter") == hasattr(cfg, "trendTF"), key
+
+
+def test_stdio_a_inproc_davaju_to_iste_pre_kazdu_cs_strategiu(bars):
+    """N-CS-6: stdio most (TradeBot.Host.exe) sa porovnával len pre `ibsnet` a `orbnet`. Tu každá C# stratégia
+    s predvoleným configom: odpoveď hostiteľa na bar musí byť tá istá ako v procese (čísla idú ako bitový vzor)."""
+    from tradebot.adapters.csharp.bridge import BridgeError, InprocTransport, StdioTransport
+
+    try:
+        InprocTransport("noanet", json.dumps(LOOSE), _INST, 5).close()
+    except BridgeError as exc:
+        pytest.skip(f"pythonnet/CLR nie je k dispozícii: {exc}")
+    for key in _cs_strategies():
+        cfg = json.dumps(get_spec(key).config_cls().to_dict())
+        a, b = InprocTransport(key, cfg, _INST, 5), StdioTransport(key, cfg, _INST, 5)
+        try:
+            assert a.info == b.info, key
+            for t, ohlcv in bars[:1200]:
+                assert a.on_bar(t, ohlcv, None, 0.0, False, "") == b.on_bar(t, ohlcv, None, 0.0, False, ""), (key, t)
+            assert a.final_drawings(*bars[1199]) == b.final_drawings(*bars[1199]), key
+            assert a.stats() == b.stats(), key
+        finally:
+            a.close()
+            b.close()

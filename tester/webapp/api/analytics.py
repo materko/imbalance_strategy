@@ -7,7 +7,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 
-from tradebot.core.config import ConfigError
+from tradebot.core.config import ConfigError, DEFAULT_STRATEGY
 from tradebot.strategies import STRATEGIES
 
 from ..runner import profile_titles
@@ -25,7 +25,7 @@ def build(ctx: AppContext) -> APIRouter:
     defaults_of = ctx.defaults_of
 
     @router.get("/api/analytics")
-    def analytics(q: str = "", runs: str = "", strategy: str = "ibs",
+    def analytics(q: str = "", runs: str = "", strategy: str = DEFAULT_STRATEGY,
                   quantiles: int = Query(4, ge=2, le=10),
                   min_bucket: int = Query(8, ge=2, le=200),
                   limit_runs: int = Query(40, ge=1, le=500),
@@ -363,7 +363,7 @@ def build(ctx: AppContext) -> APIRouter:
         return out
 
     @router.get("/api/analytics/configs")
-    def analytics_configs(strategy: str = "ibs", limit: int = Query(0, ge=0, le=5000)):
+    def analytics_configs(strategy: str = DEFAULT_STRATEGY, limit: int = Query(0, ge=0, le=5000)):
         """Nastavenia v histórii (profil + parametre) a pod nimi trhy s výsledkami po
         referenčných oknách — z hotových behov, nič sa nespúšťa.
 

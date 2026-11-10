@@ -43,6 +43,10 @@ namespace TradeBot.Core
             w.BeginObject();
             w.Key("key").Value(Key);
             w.Key("required_history").Value(Engine.RequiredHistory);
+            // kluce profilu, ktore C# strana necita (preklep, pole len v Pythone) - nech ich hostitel vidi (N-CS-2)
+            w.Key("unknown_config").BeginArray();
+            foreach (string k in EntryLayers.UnknownKeys(Config, Engine)) w.Value(k);
+            w.EndArray();
             w.Key("describe").Value(Engine.Warmup != null ? Engine.Warmup.Describe() : "");
             w.Key("warmup").BeginArray();
             if (Engine.Warmup != null)

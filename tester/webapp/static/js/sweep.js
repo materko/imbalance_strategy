@@ -8,7 +8,7 @@
 // Formulár len povie, ktoré parametre a aké hodnoty, a podľa čoho vybrať najlepší.
 // --------------------------------------------------------------------------- //
 
-const sweep = { id: null, timer: null };
+const sweep = { id: null };
 
 const GOAL_TITLES = {
   break_even: "najvyšší break-even poplatok",
@@ -209,19 +209,35 @@ async function startSweep() {
   }
 }
 
-async function pollSweep() {
-  if (!sweep.id) return;
-  try {
-    const r = await api(`/api/sweeps/${sweep.id}`);
-    renderSweep(r);
-    if (r.running) {
-      clearTimeout(sweep.timer);
-      sweep.timer = setTimeout(pollSweep, 3000);
-    } else {
-      loadSweepHistory();          // dobehnutá mriežka už nesie konečné počty
-    }
-  } catch (e) { /* beh ešte nič neuložil */ clearTimeout(sweep.timer); sweep.timer = setTimeout(pollSweep, 3000); }
+/** Chyba pollera do stavového riadku hľadania: 404 = celok už neexistuje (koniec), inak sa skúša znova. */
+function searchPollError(co) {
+  return (e, info) => {
+    const el = $("#sweep-status");
+    if (!el) return;
+    el.textContent = info.fatal
+      ? `${co} sa nedá načítať: ${e.message}`
+      : `${co} sa nedá načítať (${e.message}) — skúšam znova o ${Math.round(info.delay / 1000)} s`;
+    el.dataset.pollError = el.textContent;
+  };
 }
+/** Po úspešnom kole zmaže len hlásenie pollera — nie text, ktorý tam medzitým dalo vykreslenie alebo niekto iný. */
+function searchPollOk() {
+  const el = $("#sweep-status");
+  if (!el || el.dataset.pollError === undefined) return;
+  if (el.textContent === el.dataset.pollError) el.textContent = "";
+  delete el.dataset.pollError;
+}
+
+/** Jedno načítanie mriežky; pravda, kým beží. */
+async function pollSweepOnce() {
+  if (!sweep.id) return false;
+  const r = await api(`/api/sweeps/${sweep.id}`);
+  renderSweep(r);
+  if (!r.running) loadSweepHistory();          // dobehnutá mriežka už nesie konečné počty
+  return !!r.running;
+}
+const sweepPoller = makePoller({ interval: 3000, step: pollSweepOnce, onError: searchPollError("mriežka"), onOk: searchPollOk });
+function pollSweep() { return sweepPoller.kick(); }
 
 function renderSweep(r) {
   const casti = [`hotových ${r.done} z ${r.total ?? (r.done + r.running)}`];

@@ -123,6 +123,9 @@ def ensure(root: Path | None = None, config: Path | None = None, force: bool = F
 
     `only_stale` — len prerobiť odvodené súbory staršie než ich 1m zdroj, chýbajúce nedopĺňať;
     to volá runner pred každým behom, lebo 1m sa môže zmeniť aj počas behu webapp (audit N-DATA-2).
+    `force` prerobí aj čerstvé **odvodené** súbory; TF stiahnutý z burzy (nie je v zozname odvodených)
+    sa neprepíše nikdy — inak by ho `remember` označil za odvodený a `split` by ho prestal archivovať
+    (audit M-CORE-5).
     """
     import pandas as pd  # noqa: F401  (drží sa lenivo, aby import modulu nebol drahý)
 
@@ -136,7 +139,7 @@ def ensure(root: Path | None = None, config: Path | None = None, force: bool = F
     for src, outs in targets(base, config).items():
         todo = [(out, tf) for out, tf in zip(outs, wanted(config))
                 if _zastarany(out, src, nase)
-                or (not only_stale and (force or not out.exists()))]
+                or (not only_stale and (not out.exists() or (force and str(out) in nase)))]
         if not todo:
             continue
         df = pd.read_feather(src)

@@ -242,6 +242,30 @@ def _chart_bars(df, tf: int) -> list[list[Any]]:
             for t, o, h, l, c in zip(ts, r["open"], r["high"], r["low"], r["close"])]
 
 
+def _view_files(roots, inst_id: str, inst: dict[str, Any]) -> list[Path]:
+    """Súbory živých dát, z ktorých sa pohľad jednej inštancie počíta: sviečky **jej symbolu** a jej
+    obchody a záznam. Predtým sa pri každom volaní prešli (`rglob` + `stat`) sviečky všetkých symbolov
+    a nový bar cudzieho trhu zahodil cache každej inštancie (audit N-DATA-5)."""
+    files: list[Path] = []
+    for r in roots:
+        files += sorted(livedata.symbol_dir(inst["platform"], inst["symbol"], r).glob("*.feather"))
+        for top in ("trades", "instances"):
+            files += [p for p in sorted((r / top).rglob("*")) if inst_id in p.as_posix()]
+    return files
+
+
+def _view_stamp(roots, inst_id: str, inst: dict[str, Any]) -> tuple:
+    out = []
+    for p in _view_files(roots, inst_id, inst):
+        try:
+            st = p.stat()
+        except OSError:          # súbor medzitým zmizol (sync s hubom)
+            continue
+        if not p.is_dir():
+            out.append((str(p), st.st_mtime_ns))
+    return tuple(out)
+
+
 def live_view(inst_id: str, *, profile: str | None = None, pair: str | None = None, root: Path | str | None = None,
               simulate: bool = True, chart: bool = True) -> dict[str, Any]:
     """Všetko pre Diverzifikáciu k jednej živej inštancii (pozri docstring modulu). Výsledok sa cache-uje
@@ -252,9 +276,7 @@ def live_view(inst_id: str, *, profile: str | None = None, pair: str | None = No
     inst = livedata.instance(inst_id, root)
     if inst is None:
         raise KeyError(f"živá inštancia {inst_id} v živých dátach ({', '.join(map(str, roots))}) nie je")
-    files = [p for r in roots for top in ("candles", "trades", "instances") for p in sorted((r / top).rglob("*"))
-             if p.is_file() and (top == "candles" or inst_id in p.as_posix())]
-    stamp = tuple((str(p), p.stat().st_mtime_ns) for p in files)
+    stamp = _view_stamp(roots, inst_id, inst)
     key = (inst_id, profile, pair, tuple(map(str, roots)), simulate, chart, stamp)
     with _lock:
         if key in _cache:

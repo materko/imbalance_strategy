@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import threading
 import time
@@ -12,7 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
-from tradebot.core.atomic import read_json, write_bytes_atomic
+from tradebot.core.atomic import read_json, write_bytes_atomic, write_text_atomic
+from tradebot.core.env import getenv
 from tradebot.core.paths import HUB_DIR
 from tradebot.live.deploy import code_state
 
@@ -24,6 +26,8 @@ from .events import EVENTS_KEEP, EventsMixin, _iso
 from .plans import PlansMixin
 from .stats import StatsMixin, _ts
 from .tokens import ADMIN, TokensMixin
+
+log = logging.getLogger(__name__)
 
 
 #: Po koľkých sekundách bez heartbeatu je agent offline (heartbeat je ~10 s).
@@ -43,6 +47,43 @@ LIVE_CACHE_SECONDS = 5.0
 #: Heartbeat, ktorý nezmenil stav výpočtov (len `last_seen`, záťaž, postup), zapíše `state.json` najviac
 #: raz za toľko sekúnd — pri 2 000 bodoch fronty to bolo ~3 MB každé 3 s na agenta (audit N-HUB-7).
 LAZY_SAVE_SECONDS = 5.0
+#: Po koľkých dňoch sa zahodí aj nevyzdvihnutý výpočet **s výsledkom** (zip v `results/`) — zadávateľ, ktorý sa
+#: už nevráti, by ich inak nechal na hube navždy (audit N-HUB-11). Štedré: zadávateľ si výsledok berie sám
+#: v prvom heartbeate. `TRADEBOT_HUB_RESULT_TTL_DAYS` (0 = nikdy); každé zahodenie ide do logu udalostí.
+DEFAULT_RESULT_TTL_DAYS = 30.0
+
+
+def _result_ttl_seconds() -> float:
+    try:
+        dni = float(getenv("HUB_RESULT_TTL_DAYS") or DEFAULT_RESULT_TTL_DAYS)
+    except ValueError:
+        dni = DEFAULT_RESULT_TTL_DAYS
+    return max(0.0, dni) * 86400.0
+
+
+class _StateLock:
+    """Zámok stavu hubu (re-entrantný). Po uvoľnení **najvrchnejšej** úrovne zavolá `after` už mimo zámku —
+    `HubState` tak zapíše `state.json` zo snímky, ktorú si pod zámkom len pripravil, a pomalý disk nedrží
+    heartbeaty ostatných strojov (audit N-HUB-7). Kto metódu hubu zavolal, má po jej návrate stav na disku
+    ako doteraz."""
+
+    def __init__(self, after: Callable[[], None]) -> None:
+        self._lock = threading.RLock()
+        self._depth = 0          # mení sa len pod zámkom
+        self._after = after
+
+    def __enter__(self) -> "_StateLock":
+        self._lock.acquire()
+        self._depth += 1
+        return self
+
+    def __exit__(self, *exc: Any) -> bool:
+        self._depth -= 1
+        vonku = self._depth == 0
+        self._lock.release()
+        if vonku:
+            self._after()
+        return False
 
 
 class NoCapacity(Exception):
@@ -69,8 +110,11 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
     def __init__(self, root: Path | None = None, token: str | None = None, *,
                  heartbeat_seconds: int = DEFAULT_HEARTBEAT, agent_timeout: float = DEFAULT_AGENT_TIMEOUT,
                  clock: Callable[[], float] = time.time, version: str | None = None,
-                 ancestor: Callable[[str, str], bool] | None = None) -> None:
+                 ancestor: Callable[[str, str], bool] | None = None,
+                 result_ttl_seconds: float | None = None) -> None:
         self.root = Path(root or HUB_DIR)
+        #: po koľkých sekundách sa zahodí nevyzdvihnutý výsledok (0 = nikdy) — `DEFAULT_RESULT_TTL_DAYS`
+        self.result_ttl_seconds = float(_result_ttl_seconds() if result_ttl_seconds is None else result_ttl_seconds)
         self.token = token or None
         #: Commit, na ktorom hub beží — predvolená verzia nasadenia a cieľ „Aktualizovať kód“ (fáza 2c).
         self.version = version if version is not None else gitcode.version()
@@ -95,10 +139,18 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         self.plans: dict[str, dict[str, Any]] = {}
         #: posledné zlyhanie zápisu `state.json` (`_save`), None = zapisuje sa
         self.persist_error: dict[str, str] | None = None
+        #: posledné zlyhanie zápisu `events.jsonl` (`log`) a live DB v heartbeate (`_live_guard`), None = v poriadku
+        self.events_error: dict[str, str] | None = None
+        self.live_error: dict[str, str] | None = None
+        self._live_failed = False
         #: odložený zápis z heartbeatu (`_save(lazy=True)`): kedy sa naposledy zapisovalo a či niečo čaká
         self._saved_at = 0.0
         self._dirty = False
-        self._lock = threading.RLock()
+        #: snímka stavu (JSON text) pripravená pod zámkom, ktorú `_write_pending` zapíše mimo neho
+        self._pending: str | None = None
+        self._pending_lock = threading.Lock()
+        self._write_lock = threading.Lock()
+        self._lock = _StateLock(self._write_pending)
         self.root.mkdir(parents=True, exist_ok=True)
         (self.root / "results").mkdir(exist_ok=True)
         #: meno agenta -> jeho token (`tokens.json`); číta sa znova, keď sa súbor zmení,
@@ -158,30 +210,69 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         return tuple((i, j.get("status"), j.get("agent")) for i, j in self.jobs.items()), repr(pevne)
 
     def _save(self, lazy: bool = False) -> None:
-        """Stav na disk. `lazy` (heartbeat bez zmeny stavu výpočtov): najviac raz za `LAZY_SAVE_SECONDS`. Zlyhanie (plný disk, práva) hub nezhodí — beží ďalej z pamäti, ale chyba je
-        v `overview()["persist_error"]` a v udalostiach (raz), aby si ju niekto všimol skôr než po reštarte,
-        ktorý by vrátil stav spred zlyhania (audit N-HUB-3)."""
-        now = time.monotonic()
-        if lazy and now - self._saved_at < LAZY_SAVE_SECONDS:
-            self._dirty = True
+        """Stav na disk. `lazy` (heartbeat bez zmeny stavu výpočtov): najviac raz za `LAZY_SAVE_SECONDS`.
+
+        Pod zámkom sa stav len zoserializuje do textu (snímka; kompaktný JSON ide cez C enkodér, s odsadením by
+        to bolo rádovo pomalšie) a na disk ho zapíše `_write_pending`, keď volajúci zámok pustí — pomalý disk
+        tak nedrží heartbeaty ostatných strojov (audit N-HUB-7). Zlyhanie zápisu (plný disk, práva) hub nezhodí —
+        beží ďalej z pamäti, ale chyba je v `overview()["persist_error"]`, v `/api/health` a v udalostiach (raz),
+        aby si ju niekto všimol skôr než po reštarte, ktorý by vrátil stav spred zlyhania (audit N-HUB-3)."""
+        with self._lock:
+            now = time.monotonic()
+            if lazy and now - self._saved_at < LAZY_SAVE_SECONDS:
+                self._dirty = True
+                return
+            self._saved_at = now
+            self._dirty = False
+            text = json.dumps({"agents": self.agents, "jobs": self.jobs, "order": self.order,
+                               "forgotten": self.forgotten, "plans": self.plans},
+                              ensure_ascii=False, default=str)
+            with self._pending_lock:
+                self._pending = text
+
+    def _write_pending(self) -> None:
+        """Zapíše pripravenú snímku stavu — volá sa **mimo** zámku stavu (`_StateLock`). Zapisuje vždy len jeden
+        a vždy najnovšiu snímku, takže starší stav nikdy neprepíše novší."""
+        if self._pending is None:
             return
-        self._saved_at = now
-        self._dirty = False
-        tmp = self.state_file.with_suffix(".tmp")
-        try:
-            with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
-                json.dump({"agents": self.agents, "jobs": self.jobs, "order": self.order,
-                           "forgotten": self.forgotten, "plans": self.plans},
-                          fh, ensure_ascii=False, indent=1, default=str)
-            os.replace(tmp, self.state_file)
-        except OSError as exc:
-            if self.persist_error is None:
-                self.log("state_save_failed", error=f"{type(exc).__name__}: {exc}")
-            self.persist_error = {"at": _iso(self.clock()), "error": f"{type(exc).__name__}: {exc}"}
-            return
-        if self.persist_error is not None:
-            self.log("state_save_ok", was=self.persist_error.get("error"))
-        self.persist_error = None
+        chyba: str | None = None
+        zapisane = False
+        with self._write_lock:
+            with self._pending_lock:
+                text, self._pending = self._pending, None
+            if text is not None:
+                try:
+                    write_text_atomic(self.state_file, text)
+                    zapisane = True
+                except OSError as exc:
+                    chyba = f"{type(exc).__name__}: {exc}"
+        if chyba is not None:
+            prva = self.persist_error is None
+            self.persist_error = {"at": _iso(self.clock()), "error": chyba}
+            if prva:
+                log.error("hub: stav sa nedá zapísať (%s) — bežím z pamäti, po reštarte by sa vrátil starý stav", chyba)
+                self.log("state_save_failed", error=chyba)
+        elif zapisane and self.persist_error is not None:
+            bola, self.persist_error = self.persist_error, None
+            self.log("state_save_ok", was=bola.get("error"))
+
+    def agents_snapshot(self) -> dict[str, dict[str, Any]]:
+        """Kópia záznamov agentov (meno → záznam) — pre pluginy cez `PluginContext.agents()`, nech nesiahajú
+        na zámok a slovníky hubu (audit M-HUB-11)."""
+        with self._lock:
+            return {n: dict(a) for n, a in self.agents.items()}
+
+    def health(self) -> dict[str, Any]:
+        """Krátky stav pre `/api/health` (bez tokenu, preto len druh chyby a čas, nie cesty): beží hub z pamäti,
+        lebo sa nedá zapisovať stav alebo log udalostí, alebo padá live DB v heartbeate?"""
+        def kratko(e: dict[str, str] | None) -> dict[str, str] | None:
+            return {"at": str(e.get("at") or ""), "error": str(e.get("error") or "").split(":")[0]} if e else None
+
+        with self._lock:
+            self._sweep()
+            online = sum(1 for a in self.agents.values() if a.get("online"))
+        return {"online": online, "persist_error": kratko(self.persist_error),
+                "events_error": kratko(self.events_error), "live_error": kratko(self.live_error)}
 
     def result_path(self, job_id: str) -> Path:
         return self.root / "results" / f"{job_id}.zip"
@@ -224,6 +315,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             if agent is None:
                 raise KeyError(name)
             pred = self._jobs_fingerprint(agent)
+            self._live_failed = False   # zlyhalo v tomto heartbeate niektoré volanie do live DB? (`_live_guard`)
             inst = body.get("instance")
             if inst and agent.get("online") and agent.get("instance") not in (None, inst):
                 # Dva procesy s jedným menom (webapp agent + headless z toho istého agent.json, alebo
@@ -321,12 +413,34 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                    "set_accept": ziadane, "pull": agent.get("update_request"),
                    "heartbeat_seconds": self.heartbeat_seconds, "now": _iso(now)}
             if self.deploy is not None:
-                # vždy celý požadovaný stav tohto agenta (malý) — agent ho zosúlaďuje pri každom heartbeate
-                out["live"] = self.deploy.desired_for_agent(name)
-                # nový kód na stroji (fáza 2c): cieľ sa posiela, kým ho agent nepotvrdí ako `ok`
-                if agent.get("code_target"):
-                    out["live"]["code_target"] = dict(agent["code_target"])
+                # vždy celý požadovaný stav tohto agenta (malý) — agent ho zosúlaďuje pri každom heartbeate.
+                # Keď live DB padne, odpoveď ide bez `live`: agent si nechá posledný známy stav (nič nezloží)
+                # a heartbeat s výpočtami beží ďalej (audit N-HUB-12).
+                ok, ziadane_live = self._live_guard("desired", lambda: self.deploy.desired_for_agent(name))
+                if ok and not self._live_failed and self.live_error is not None:
+                    self.log("live_db_ok", was=str(self.live_error.get("error"))[:500])
+                    self.live_error = None
+                if ok and isinstance(ziadane_live, dict):
+                    out["live"] = ziadane_live
+                    # nový kód na stroji (fáza 2c): cieľ sa posiela, kým ho agent nepotvrdí ako `ok`
+                    if agent.get("code_target"):
+                        out["live"]["code_target"] = dict(agent["code_target"])
             return out
+
+    def _live_guard(self, what: str, fn: Callable[[], Any]) -> tuple[bool, Any]:
+        """Volanie do live DB (`DeployStore`) z heartbeatu: chyba sqlite (zamknutá, plný disk, pokazený súbor)
+        nesmie dať 500 všetkým heartbeatom — hub by odpísal všetkých agentov aj s ich výpočtami. Chyba je
+        v `overview()["live_error"]`, v `/api/health` a raz v udalostiach; vráti `(prešlo, výsledok)` (audit N-HUB-12)."""
+        try:
+            return True, fn()
+        except Exception as exc:  # noqa: BLE001 - sqlite3.Error aj čokoľvek z DeployStore
+            chyba = f"{type(exc).__name__}: {exc} ({what})"
+            if self.live_error is None:
+                log.error("hub: live DB v heartbeate zlyhala (%s) — heartbeaty idú ďalej bez live", chyba)
+                self.log("live_db_error", error=chyba[:500])
+            self.live_error = {"at": _iso(self.clock()), "error": chyba[:500]}
+            self._live_failed = True
+            return False, None
 
     def _live_report(self, name: str, agent: dict[str, Any], zive: dict[str, Any]) -> None:
         """`live` z heartbeatu: inštancie a drivery si hub pamätá pri agentovi (prehľad),
@@ -354,12 +468,14 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                 self.log("live_store_refused", agent=name, error=str(refused.get("error"))[:500])
         if self.deploy is not None:
             ex = zive.get("exec_symbols")
-            self.deploy.report_applied(name, zive.get("applied") or [], zive.get("secret_ack") or [],
-                                       exec_symbols=ex if isinstance(ex, dict) else None)
+            self._live_guard("report_applied", lambda: self.deploy.report_applied(
+                name, zive.get("applied") or [], zive.get("secret_ack") or [],
+                exec_symbols=ex if isinstance(ex, dict) else None))
             # režimy prepnuté na stroji (Telegram) — do nasadenia, aby webapp ukazovala skutočnosť
             ov = zive.get("overrides")
             if isinstance(ov, list) and ov:
-                self.deploy.apply_overrides(name, [o for o in ov if isinstance(o, dict)])
+                self._live_guard("apply_overrides", lambda: self.deploy.apply_overrides(
+                    name, [o for o in ov if isinstance(o, dict)]))
         target = agent.get("code_target")
         if target and isinstance(code_update, dict) and code_update.get("status") == "ok" \
                 and code_state(target.get("version"), code_update.get("version")) == "ok":
@@ -872,43 +988,74 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         """
         if status not in P.FINAL_STATES:
             raise ValueError(f"stav výsledku musí byť jeden z {P.FINAL_STATES}")
+        # Poradie (audit N-HUB-8): 1. pod zámkom len overiť, či výsledok berieme; 2. zip zapísať **mimo zámku**
+        # do dočasného súboru (pomalý disk nedrží heartbeaty); 3. pod zámkom overiť znova (medzitým mohol prísť
+        # iný výsledok), zip presunúť na miesto a **až potom** zmeniť výpočet. Zlyhaný zápis tak nenechá výpočet
+        # zmenený (neskorý výsledok: `late`, iný agent) bez zipu na disku.
         with self._lock:
-            job = self.jobs.get(job_id)
-            if job is None:
-                if job_id in self.forgotten:
-                    raise JobGone(job_id)
-                raise KeyError(job_id)
-            cudzi = bool(agent) and job.get("agent") not in (None, agent)
-            if cudzi and agent not in (job.get("lost_agents") or []):
-                raise PermissionError(f"výpočet {job_id} počíta {job['agent']}, nie {agent}")
-            if job["status"] in P.FINAL_STATES:
-                # Hotový výsledok oživí aj výpočet, ktorý už hub odpísal (agent sa odmlčal,
-                # alebo ho inde zlyhal) — pokiaľ naň nemá skutočný výsledok a nebol zrušený.
-                if not (status == "done" and data and not job.get("has_result")
-                        and job["status"] != "cancelled"):
-                    return self._job_public(job)
-                job.update({"agent": agent or job.get("agent"), "collected": False, "late": True})
-                self.log("job_late_result", job=job_id, agent=agent, was=job["status"])
-            elif cudzi:
-                # Beží u niekoho iného (hub ho po výpadku pridelil znova): hotový výsledok
-                # vezmeme a prvý vyhráva, chybu nie — druhý agent ešte môže uspieť.
-                if status != "done" or not data:
-                    return self._job_public(job)
-                job["agent"] = agent
-                job["late"] = True
-                self.log("job_late_result", job=job_id, agent=agent, was=job["status"])
-            ma_zip = bool(data)
-            if ma_zip:
-                write_bytes_atomic(self.result_path(job_id), data)   # nikdy napoly zapísaný zip (N-HUB-8)
-            if version:
-                job["agent_version"] = version
-            if job["status"] == "cancelling" and status != "done":
-                status = "cancelled"
-                error = f"zrušené ({job.get('cancelled_by') or 'hub'})" + (f": {error}" if error else "")
-            self._finish(job, status, error=error, run_ids=run_ids, has_result=ma_zip)
-            self._dispatch()
-            self._save()
-            return self._job_public(job)
+            hned = self._result_verdict(job_id, data, status, agent)[1]
+        if hned is not None:
+            return hned
+        cast: Path | None = None
+        if data:
+            cast = self.result_path(job_id).with_name(f"{job_id}.{uuid.uuid4().hex[:8]}.part")
+            try:
+                write_bytes_atomic(cast, data)
+            except OSError as exc:
+                self.log("job_result_write_failed", job=job_id, agent=agent, error=f"{type(exc).__name__}: {exc}")
+                raise
+        try:
+            with self._lock:
+                job, hned = self._result_verdict(job_id, data, status, agent)
+                if hned is not None:
+                    return hned
+                if cast is not None:
+                    os.replace(cast, self.result_path(job_id))   # nikdy napoly zapísaný zip
+                    cast = None
+                cudzi = bool(agent) and job.get("agent") not in (None, agent)
+                if job["status"] in P.FINAL_STATES:
+                    job.update({"agent": agent or job.get("agent"), "collected": False, "late": True})
+                    self.log("job_late_result", job=job_id, agent=agent, was=job["status"])
+                elif cudzi:
+                    job["agent"] = agent
+                    job["late"] = True
+                    self.log("job_late_result", job=job_id, agent=agent, was=job["status"])
+                if version:
+                    job["agent_version"] = version
+                if job["status"] == "cancelling" and status != "done":
+                    status = "cancelled"
+                    error = f"zrušené ({job.get('cancelled_by') or 'hub'})" + (f": {error}" if error else "")
+                self._finish(job, status, error=error, run_ids=run_ids, has_result=bool(data))
+                self._dispatch()
+                self._save()
+                return self._job_public(job)
+        finally:
+            if cast is not None:
+                cast.unlink(missing_ok=True)
+
+    def _result_verdict(self, job_id: str, data: bytes, status: str,
+                        agent: str | None) -> tuple[dict[str, Any], dict[str, Any] | None]:
+        """Berieme tento výsledok? `(výpočet, None)` = áno; `(výpočet, verejný záznam)` = nie, vrátiť ho tak, ako
+        je (platí prvý hotový). Nič nemení. Neznámy výpočet = `KeyError` / `JobGone`, cudzí agent = `PermissionError`."""
+        job = self.jobs.get(job_id)
+        if job is None:
+            if job_id in self.forgotten:
+                raise JobGone(job_id)
+            raise KeyError(job_id)
+        cudzi = bool(agent) and job.get("agent") not in (None, agent)
+        if cudzi and agent not in (job.get("lost_agents") or []):
+            raise PermissionError(f"výpočet {job_id} počíta {job['agent']}, nie {agent}")
+        if job["status"] in P.FINAL_STATES:
+            # Hotový výsledok oživí aj výpočet, ktorý už hub odpísal (agent sa odmlčal,
+            # alebo ho inde zlyhal) — pokiaľ naň nemá skutočný výsledok a nebol zrušený.
+            if not (status == "done" and data and not job.get("has_result")
+                    and job["status"] != "cancelled"):
+                return job, self._job_public(job)
+        elif cudzi and (status != "done" or not data):
+            # Beží u niekoho iného (hub ho po výpadku pridelil znova): hotový výsledok
+            # vezmeme a prvý vyhráva, chybu nie — druhý agent ešte môže uspieť.
+            return job, self._job_public(job)
+        return job, None
 
     def ack(self, job_id: str) -> dict[str, Any]:
         """Zadávateľ si výsledok vzal — zip už netreba."""
@@ -936,8 +1083,9 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             return True
 
     def _prune(self) -> bool:
-        """Zahodí staršie vyzdvihnuté výpočty nad `KEEP_FINISHED` a nevyzdvihnuté bez výsledku
-        staršie než `STALE_UNCOLLECTED`. Vráti, či niečo zahodil."""
+        """Zahodí staršie vyzdvihnuté výpočty nad `KEEP_FINISHED`, nevyzdvihnuté bez výsledku staršie než
+        `STALE_UNCOLLECTED` a nevyzdvihnuté **s výsledkom** staršie než `result_ttl_seconds` (tie s udalosťou
+        `job_result_expired`, audit N-HUB-11). Vráti, či niečo zahodil."""
         hotove = [i for i in self.order if self.jobs[i]["status"] in P.FINAL_STATES and self.jobs[i].get("collected")]
         von = set(hotove[:-KEEP_FINISHED] if len(hotove) > KEEP_FINISHED else [])
         hranica = self.clock() - STALE_UNCOLLECTED
@@ -946,6 +1094,20 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
             if (j["status"] in P.FINAL_STATES and not j.get("collected") and not j.get("has_result")
                     and (_ts(j.get("finished_at")) or hranica) < hranica):
                 von.add(i)
+        if self.result_ttl_seconds > 0:
+            # nevyzdvihnutý výsledok so zipom: zadávateľ si ho ešte mohol vziať — zahodenie nikdy nie potichu
+            stare = self.clock() - self.result_ttl_seconds
+            for i in self.order:
+                j = self.jobs[i]
+                if (i not in von and j["status"] in P.FINAL_STATES and not j.get("collected") and j.get("has_result")
+                        and (_ts(j.get("finished_at")) or stare) < stare):
+                    von.add(i)
+                    log.warning("hub: výsledok výpočtu %s (zadal %s, hotový %s) si nikto nevyzdvihol %.0f dní — zahadzujem",
+                                i, j.get("submitter"), j.get("finished_at"), self.result_ttl_seconds / 86400.0)
+                    self.log("job_result_expired", job=i, submitter=j.get("submitter"), agent=j.get("agent"),
+                             status=j["status"], finished_at=j.get("finished_at"),
+                             run_ids=list(j.get("run_ids") or []) or None,
+                             ttl_days=round(self.result_ttl_seconds / 86400.0, 2))
         if not von:
             return False
         self.order = [i for i in self.order if i not in von]
@@ -1010,6 +1172,9 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                 "agents": [self._agent_public(a) for a in self.agents.values()],
                 # stav sa nedá zapísať na disk (plný disk) - po reštarte by hub zabudol, čo odvtedy pridelil
                 "persist_error": self.persist_error,
+                # log udalostí sa nedá zapisovať / live DB v heartbeate padá (heartbeaty idú ďalej bez `live`)
+                "events_error": self.events_error,
+                "live_error": self.live_error,
                 "online": sum(1 for a in self.agents.values() if a.get("online")),
                 "queued": sum(1 for j in zive if j["status"] == "queued"),
                 "running": sum(1 for j in zive if j["status"] in ("assigned", "running", "cancelling")),

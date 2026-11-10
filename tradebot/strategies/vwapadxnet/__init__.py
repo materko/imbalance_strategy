@@ -26,6 +26,7 @@ CSHARP_KEY = "vwapadxnet"
 
 SPEC = StrategySpec(
     key="vwapadxnet",
+    base_key="vwapadx",
     title="VWAP ADX Pullback (C# jadro)",
     config_cls=VwapAdxNetConfig,
     profile_dir=CONFIG_DIR,

@@ -138,3 +138,24 @@ def test_cli_symbol_a_vlastny_vystup(sklad, capsys):
     assert qm.main(["--symbol", "NAS100", "--out", str(out)]) == 0
     assert out.exists()
     assert qm.main(["--symbol", "NECO"]) == 1
+
+
+def test_zapis_po_stlpcoch_je_bajt_po_bajte_ako_format_row(tmp_path):
+    """N-DATA-5: rýchly zápis po stĺpcoch nesmie zmeniť ani znak oproti `format_row` riadok po riadku."""
+    import random
+
+    rnd = random.Random(7)
+    n = 500
+    dates = pd.date_range("2026-03-07 23:30", periods=n, freq="1min", tz="UTC")
+    px = [rnd.choice([20000.25, 0.000123456789, 1.1, 24271.599, 1e-7, 123456789.125]) * rnd.random() for _ in range(n)]
+    df = pd.DataFrame({"date": dates, "open": px, "high": [p * 1.001 for p in px], "low": [p * 0.999 for p in px],
+                       "close": px[::-1], "volume": [rnd.choice([0.0, 0.5, 1.5, 2.5, 7.0, 0.0004]) for _ in range(n)]})
+    for stamp, fmt, scale in (("close", qm.DATE_FORMAT, qm.VOLUME_SCALE), ("open", "%d.%m.%Y", 1000.0)):
+        dst = tmp_path / f"{stamp}.csv"
+        assert qm.write_csv(df, dst, stamp=stamp, date_format=fmt, volume_scale=scale) == n
+        shift = qm.MINUTE if stamp == "close" else qm.timedelta(0)
+        cakane = [qm.HEADER] + [
+            qm.format_row(r.date.to_pydatetime() + shift, float(r.open), float(r.high), float(r.low), float(r.close),
+                          int(round(float(r.volume) * scale)), fmt)
+            for r in df.itertuples(index=False)]
+        assert dst.read_bytes() == ("\n".join(cakane) + "\n").encode("utf-8")

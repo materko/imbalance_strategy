@@ -6,11 +6,13 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from tradebot.core.config import DEFAULT_STRATEGY
+
 
 class RunRequest(BaseModel):
     params: dict[str, Any]
     pair: str
-    strategy: str = Field("ibs", description="kľúč stratégie z registry (tradebot.strategies.STRATEGIES)")
+    strategy: str = Field(DEFAULT_STRATEGY, description="kľúč stratégie z registry (tradebot.strategies.STRATEGIES)")
     timeframe: str = Field("3m", description="TF grafu, na ktorom stratégia počíta (ako v TradingView)")
     timerange: str = Field(..., description="YYYYMMDD-YYYYMMDD")
     fee: float | None = Field(None, description="poplatok na stranu ako podiel; "
@@ -61,7 +63,7 @@ class AnalyticsPrepareRequest(BaseModel):
     """Analytika profilu na trhu: ktoré referenčné okná už v histórii sú (a použijú sa)
     a ktoré sa dopočítajú. Tester zadá profil, pár a TF - behy si to nájde samo."""
 
-    strategy: str = "ibs"
+    strategy: str = DEFAULT_STRATEGY
     profile: str = Field("", description="profil (repozitár, vlastný alebo cesta k JSON); prázdne = Pine defaulty")
     pair: str
     timeframe: str = "3m"
@@ -95,7 +97,7 @@ class PropRequest(BaseModel):
 
     runs: list[str] = Field(default_factory=list, description="behy; prázdne = podľa `q`")
     q: str = Field("", description="dopyt na behy (syntax ako vyhľadávanie v histórii)")
-    strategy: str = Field("ibs")
+    strategy: str = Field(DEFAULT_STRATEGY)
     rules: str | list[str] = Field("ftmo2", description="predloha alebo zoznam predlôh; "
                                                         "`custom` = pravidlá z polí, `all` = všetky")
     limit: int = Field(40, ge=1, le=500)
@@ -121,7 +123,7 @@ class PaperRequest(BaseModel):
 
     runs: list[str] = Field(default_factory=list, description="behy; prázdne = podľa `q`")
     q: str = Field("", description="dopyt na behy (syntax ako vyhľadávanie v histórii)")
-    strategy: str = Field("ibs")
+    strategy: str = Field(DEFAULT_STRATEGY)
     title: str = Field("", description="nadpis dokumentu")
     name: str = Field("", description="názov súboru; inak MERANIE_<strategia>_<trh>_<datum>.md")
     risk_pct: float = Field(1.0, gt=0, le=10)
@@ -202,7 +204,7 @@ class ProfileSaveRequest(BaseModel):
     """Nový vlastný profil — buď z behu (`from_run`), alebo priamo z parametrov."""
 
     name: str = Field(..., max_length=48)
-    strategy: str = Field("ibs", description="stratégia profilu; pri `from_run` sa berie z behu")
+    strategy: str = Field(DEFAULT_STRATEGY, description="stratégia profilu; pri `from_run` sa berie z behu")
     from_run: str | None = None
     params: dict[str, Any] | None = None
     instrument: str | None = None

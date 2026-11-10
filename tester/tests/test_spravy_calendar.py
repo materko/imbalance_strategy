@@ -47,3 +47,27 @@ def test_kalendar_este_neskoncil():
                       + " — doplň termíny (python -m tradebot.strategies.spravy.calendar --check)", stacklevel=1)
     assert not skoncene, ("kalendár SPRÁVY už skončil pre: " + ", ".join(f"{t} (posledný {d})" for t, d in skoncene)
                           + " — tieto správy sa naživo neobchodujú, doplň termíny do calendar.json")
+
+
+def test_zname_typy_sedia_s_kalendarom():
+    """Záložný zoznam typov (pre pokazený súbor) je ten istý ako v `calendar.json`."""
+    assert cal._KNOWN_TYPES == tuple(cal.load()["events"].keys()) == cal.TYPES
+
+
+def test_pokazeny_kalendar_nezhodi_import_ale_pouzitie_ano(tmp_path, monkeypatch):
+    """M-CORE-9: pokazený `calendar.json` nesmie zhodiť registry; chybu povie až použitie stratégie SPRÁVY."""
+    import pytest
+
+    zly = tmp_path / "calendar.json"
+    zly.write_text('{"events": {"FOMC": ', encoding="utf-8")
+    monkeypatch.setattr(cal, "CALENDAR_FILE", zly)
+    cal.load.cache_clear()
+    try:
+        assert cal._types() == cal._KNOWN_TYPES             # to, čo beží pri importe modulu
+        with pytest.raises(cal.CalendarError, match="calendar.json"):
+            cal.events_utc({"FOMC"})
+        monkeypatch.setattr(cal, "CALENDAR_FILE", tmp_path / "nie_je.json")
+        with pytest.raises(cal.CalendarError):
+            cal.load()
+    finally:
+        cal.load.cache_clear()

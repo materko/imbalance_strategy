@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from tradebot.core.config import DEFAULT_STRATEGY
 from tradebot.core.paths import REPO
 
 from .common import _run_data, _run_record
@@ -284,7 +285,7 @@ def cmd_matrices(args: argparse.Namespace) -> int:
         tag = (rec.get("settings") or {}).get("matrix") or {}
         if not tag.get("id"):
             continue
-        if args.strategy and (rec.get("settings") or {}).get("strategy", "ibs") != args.strategy:
+        if args.strategy and (rec.get("settings") or {}).get("strategy", DEFAULT_STRATEGY) != args.strategy:
             continue
         skupiny.setdefault(tag["id"], []).append(rec)
     if not skupiny:

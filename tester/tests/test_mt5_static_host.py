@@ -448,6 +448,28 @@ def test_eod_podla_hodin(static_host):
         static_host.Destroy(plain)
 
 
+def test_kontrola_pred_startom_hlasi_koniec_kalendara(static_host):
+    """`Preflight` (audit 9. 11. 2026, vylepšenie 6): engine so zoznamom termínov povie pri živom štarte, že mu
+    kalendár končí — inak by typ správy ticho prestal obchodovať (M-CORE-3). Engine bez kontroly nehlási nič."""
+    from datetime import datetime, timezone
+
+    def ms(y, mo, d):
+        return int(datetime(y, mo, d, tzinfo=timezone.utc).timestamp() * 1000)
+
+    news = static_host.Create("spravynet", "{}", _INST, 1)
+    plain = static_host.Create("noanet", "{}", _INST, 3)
+    assert news > 0 and plain > 0, static_host.LastError()
+    try:
+        assert static_host.Preflight(news, ms(2022, 6, 1)) == ""          # kalendár má pred sebou roky
+        neskoro = static_host.Preflight(news, ms(2035, 1, 1))
+        assert neskoro and all("skoncil" in riadok for riadok in neskoro.split("\n"))
+        assert static_host.Preflight(plain, ms(2035, 1, 1)) == ""
+        assert "987654" in static_host.Preflight(987654, 0)                # chyba ako text, nie výnimka
+    finally:
+        static_host.Destroy(news)
+        static_host.Destroy(plain)
+
+
 def test_rozbity_spool_sa_otvori_znova(static_host, tmp_path):
     """Chyba zápisu spoolu nevypne telemetriu navždy (audit N-LIVE-19): po `ReopenSeconds` ďalšie volanie
     otvorí nový súbor tej istej session s `hello` a `note warn`, seq pokračuje."""

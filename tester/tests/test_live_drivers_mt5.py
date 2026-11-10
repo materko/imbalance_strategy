@@ -196,6 +196,7 @@ InpPointValueOverride=0.0
 InpTelemetry=true
 InpTelemetryInTester=false
 InpRestoreState=true
+InpDeviationPts=50
 </inputs>
 </expert>
 

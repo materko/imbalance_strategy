@@ -143,3 +143,17 @@ def test_real_candles(cs, path):
     assert np.array_equal(_np(c.Time, np.int64), want_ms)
     for name, arr in (("open", c.Open), ("high", c.High), ("low", c.Low), ("close", c.Close), ("volume", c.Volume)):
         assert np.array_equal(_np(arr, np.float64), df[name].to_numpy(np.float64), equal_nan=True), name
+
+
+def test_skrateny_subor_povie_ktory(cs, tmp_path):
+    """N-CS-7: nedopísaný / skrátený feather je chyba s cestou súboru, nie holý `IndexOutOfRangeException`."""
+    src = tmp_path / "cely.feather"
+    feather.write_feather(_synthetic(5000), str(src), compression="lz4")
+    raw = src.read_bytes()
+    # koniec súboru (pätička + magic) sedí, telo chýba — presne to, čo ostane po prerušenom kopírovaní s dopísaným koncom
+    for name, data in (("bez_tela", raw[:200] + raw[-400:]), ("pol_suboru", raw[: len(raw) // 2] + raw[-8:])):
+        path = tmp_path / f"{name}.feather"
+        path.write_bytes(data)
+        with pytest.raises(Exception) as err:
+            cs.Read(str(path))
+        assert f"{name}.feather" in str(err.value), (name, str(err.value)[:300])

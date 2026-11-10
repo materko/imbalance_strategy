@@ -695,7 +695,33 @@ namespace NinjaTrader.NinjaScript.Strategies
         // Bar
         // ------------------------------------------------------------------ //
 
+        private DateTime _guardNoted = DateTime.MinValue;
+
+        /// <summary>
+        /// Vynimka vo vstupnom bode strategie (engine, kreslenie, spool) NinjaTrader strategiu vypne a managed approach
+        /// pri vypnuti zrusi SetStopLoss/SetProfitTarget - pozicia by ostala bez stopu (audit N-LIVE-8). Nazivo sa
+        /// preto vynimka zachyti a nahlasi (`note error`, najviac raz za minutu) a strategia bezi dalej; v historii
+        /// (Strategy Analyzer, predhistoria) sa neprehltne - tam ma byt chyba vidiet a porovnanie nesmie ticho pokracovat.
+        /// `true` = zachytena.
+        /// </summary>
+        private bool Guarded(string where, Exception e)
+        {
+            if (State != State.Realtime) return false;
+            Print("TradeBot " + EngineKey + ": " + where + " - " + e);
+            if ((DateTime.UtcNow - _guardNoted).TotalSeconds < 60) return true;
+            _guardNoted = DateTime.UtcNow;
+            try { if (_spool != null) { _spool.Note("error", where + " zlyhal - " + e.Message + " (strategia bezi dalej, tento krok sa nevykonal)"); SpoolCheck(); } }
+            catch (Exception) { }
+            return true;
+        }
+
         protected override void OnBarUpdate()
+        {
+            try { BarUpdate(); }
+            catch (Exception e) { if (!Guarded("OnBarUpdate", e)) throw; }
+        }
+
+        private void BarUpdate()
         {
             if (_engine == null) return;
 
@@ -957,6 +983,12 @@ namespace NinjaTrader.NinjaScript.Strategies
         protected override void OnOrderUpdate(Order order, double limitPrice, double stopPrice, int quantity, int filled,
                                               double averageFillPrice, OrderState orderState, DateTime time, ErrorCode error, string comment)
         {
+            try { OrderUpdate(order, orderState); }
+            catch (Exception e) { if (!Guarded("OnOrderUpdate", e)) throw; }
+        }
+
+        private void OrderUpdate(Order order, OrderState orderState)
+        {
             Tracked t;
             if (order == null || !_orders.TryGetValue(order.Name, out t)) return;
             // neskora sprava o starom orderi s tym istym menom (zruseny pri odlozeni) - novy nechaj tak
@@ -977,6 +1009,12 @@ namespace NinjaTrader.NinjaScript.Strategies
 
         protected override void OnExecutionUpdate(Execution execution, string executionId, double price, int quantity,
                                                   MarketPosition marketPosition, string orderId, DateTime time)
+        {
+            try { ExecutionUpdate(execution, price, quantity, time); }
+            catch (Exception e) { if (!Guarded("OnExecutionUpdate", e)) throw; }
+        }
+
+        private void ExecutionUpdate(Execution execution, double price, int quantity, DateTime time)
         {
             if (execution == null || execution.Order == null) return;
             Order order = execution.Order;

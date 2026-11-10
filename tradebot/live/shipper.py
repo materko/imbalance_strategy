@@ -157,9 +157,13 @@ class LiveShipper:
             self.reader.commit(b)
         self.batch_now = min(BATCH_MIN, self.batch_events)
 
-    def status(self) -> dict[str, Any]:
-        return {"agent": self.agent, "last_ok": self.last_ok, "last_error": self.last_error, "batch": self.batch_now,
-                "rejected_total": self.rejected_total, "poison_total": self.poison_total,
-                "read_ms": self.read_ms, "post_ms": self.post_ms, "rate": self.rate, "files": self.reader.files,
-                "sent_total": self.sent_total, "accepted_total": self.accepted_total,
-                "reader": self.reader.status()}
+    def status(self, reader: bool = True) -> dict[str, Any]:
+        """Stav odosielania. `reader=False` vynechá stav čítača — ten prehľadáva celý spool a heartbeat agenta
+        ho každé 3 s nepotrebuje (audit M-HUB-8)."""
+        out = {"agent": self.agent, "last_ok": self.last_ok, "last_error": self.last_error, "batch": self.batch_now,
+               "rejected_total": self.rejected_total, "poison_total": self.poison_total,
+               "read_ms": self.read_ms, "post_ms": self.post_ms, "rate": self.rate, "files": self.reader.files,
+               "sent_total": self.sent_total, "accepted_total": self.accepted_total}
+        if reader:
+            out["reader"] = self.reader.status()
+        return out

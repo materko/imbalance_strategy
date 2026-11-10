@@ -7,7 +7,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from tradebot.core.config import ConfigError
+from tradebot.core.config import ConfigError, DEFAULT_STRATEGY
 from tradebot.core.types import INSTRUMENTS
 from tradebot.strategies import STRATEGIES
 
@@ -99,7 +99,7 @@ def build(ctx: AppContext) -> APIRouter:
             s = j.get("settings") or {}
             job = runner.job(j["id"])
             if (s.get("pair") == req.pair and s.get("timeframe") == req.timeframe
-                    and s.get("timerange") in okna and (s.get("strategy") or "ibs") == strategy
+                    and s.get("timerange") in okna and (s.get("strategy") or DEFAULT_STRATEGY) == strategy
                     and (s.get("engine") or engine) == engine and job is not None
                     and _same_config(norm, {"settings": s, "params": job.params})):
                 vo_fronte[s["timerange"]] = j
@@ -193,7 +193,7 @@ def build(ctx: AppContext) -> APIRouter:
             s = j.get("settings") or {}
             job = runner.job(j["id"])
             if (s.get("pair") == inst.symbol and s.get("timeframe") == req.timeframe
-                    and s.get("timerange") in okna and (s.get("strategy") or "ibs") == strategy
+                    and s.get("timerange") in okna and (s.get("strategy") or DEFAULT_STRATEGY) == strategy
                     and job is not None and _same_config(norm, {"settings": s, "params": job.params})):
                 vo_fronte[s["timerange"]] = j
         windows, queued = plan_okien(inst.symbol, hotove, vo_fronte, od, do, " · syntetický trh", engine_dvojcata)

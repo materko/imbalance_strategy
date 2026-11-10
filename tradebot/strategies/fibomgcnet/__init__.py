@@ -22,6 +22,7 @@ CSHARP_KEY = "fibomgcnet"
 SPEC = replace(
     BASE_SPEC,
     key="fibomgcnet",
+    base_key="fibomgc",
     title="Fibo 1.0 MGC (C# jadro)",
     config_cls=FiboMgcNetConfig,
     profile_dir=CONFIG_DIR,

@@ -30,6 +30,7 @@ CSHARP_KEY = "ibsnet"
 
 SPEC = StrategySpec(
     key="ibsnet",
+    base_key="ibs",
     title="IBSNet Imbalance Breakout (C# jadro)",
     config_cls=IBSNetConfig,
     profile_dir=CONFIG_DIR,

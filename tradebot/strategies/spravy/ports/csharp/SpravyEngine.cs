@@ -18,8 +18,30 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.SpravyNet
 {
     [TradeBotEngine("spravynet", "SPRÁVY 3.0 (C# jadro)")]
-    public sealed class SpravyEngine : IEngine, IConfigured
+    public sealed class SpravyEngine : IEngine, IConfigured, IPreflight
     {
+        /// <summary>Kolko dni pred koncom kalendara typu sa zivy start ozve (ako `calendar.coverage_gaps` v Pythone).</summary>
+        private const int CoverageWarnDays = 45;
+        /// <summary>Posledna sprava (UTC ms) kazdeho typu, ktory pravidla profilu obchoduju; 0 = typ nema ziadnu.</summary>
+        private readonly SortedDictionary<string, long> _lastByType = new SortedDictionary<string, long>(StringComparer.Ordinal);
+
+        /// <summary>Kalendar je zoznam znamych terminov: za jeho koncom engine typ ticho prestane obchodovat
+        /// (audit M-CORE-3). Pri zivom starte to povie vopred.</summary>
+        public List<string> Preflight(long nowMs)
+        {
+            List<string> outp = new List<string>();
+            foreach (KeyValuePair<string, long> kv in _lastByType)
+            {
+                if (kv.Value <= 0) { outp.Add("kalendar sprav nema pre typ " + kv.Key + " ziadny termin - pravidlo sa neobchoduje"); continue; }
+                if (kv.Value >= nowMs + CoverageWarnDays * 86400000L) continue;
+                string day = Epoch.AddMilliseconds(kv.Value).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                outp.Add(kv.Value < nowMs
+                    ? "kalendar sprav typu " + kv.Key + " skoncil " + day + " - tento typ sa uz neobchoduje, dopln terminy (newsAdd / calendar.json)"
+                    : "kalendar sprav typu " + kv.Key + " konci " + day + " - potom sa typ ticho prestane obchodovat, dopln terminy");
+            }
+            return outp;
+        }
+
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
         private const string LegColor = "#f59e0b";
@@ -99,8 +121,7 @@ namespace TradeBot.Strategies.SpravyNet
         private long ToUtcMs(int y, int m, int d, int h, int min)
         {
             DateTime local = new DateTime(y, m, d, h, min, 0, DateTimeKind.Unspecified);
-            DateTime utc = TimeZoneInfo.ConvertTimeToUtc(local, _ny);
-            return (long)(utc - Epoch).TotalMilliseconds;
+            return SessionClock.LocalToUtcMs(_ny, local);   // ako Python `to_utc_ms` aj v hodine zmeny casu (N-CS-7)
         }
 
         /// <summary>„14:30 SK / 8:30 NY“ - ten isty text ako `engine.sk_time` v Pythone.</summary>
@@ -150,8 +171,10 @@ namespace TradeBot.Strategies.SpravyNet
         {
             foreach (SpravyConfig.Rule r in _cfg.Rules())
             {
+                if (!_lastByType.ContainsKey(r.Event)) _lastByType[r.Event] = 0;
                 foreach (KeyValuePair<long, string> kv in EventsUtc(r.Event))
                 {
+                    if (kv.Key > _lastByType[r.Event]) _lastByType[r.Event] = kv.Key;
                     Ev ev = new Ev();
                     ev.T = kv.Key; ev.Typ = kv.Value; ev.Rule = r;
                     ev.A = kv.Key + r.From * MinMs; ev.B = kv.Key + r.To * MinMs; ev.E = kv.Key + r.Enter * MinMs;

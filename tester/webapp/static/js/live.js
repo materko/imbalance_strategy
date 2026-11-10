@@ -22,6 +22,7 @@ const LIVE_FILLS_PAGE = 5000;         // fillov a orderov na jednu požiadavku (
 const LIVE_POLL_MS = 5000;            // polling, keď stream nejde (starý server, proxy bez SSE)
 const LIVE_SSE_RETRY_MS = 60000;      // po chybe streamu: polling a o minútu stream znova
 const LIVE_DEPLOY_POLL_MS = 5000;     // účty a nasadenia idú z hubu (nie zo zrkadla) — pri streame sa obnovujú takto; živosť z hubu dopĺňa stream (`ldLive`)
+const LIVE_CHART_MIN_MS = 500;      // graf detailu sa po udalostiach zo streamu prekreslí najviac takto často (audit N-FE-5)
 const LIVE_WINDOW_BARS = 500;         // „aktuálny" detail drží toľko barov (ako snapshot servera)
 const LIVE_FILLS_LAYER = { id: "fills", title: "Vyplnenia u brokera", kinds: [], sw: BLUE, hollow_kinds: [] };
 const LIVE_MODIFY_COLOR = "#ff9800";
@@ -34,7 +35,7 @@ const LIVE_DRAW_FIELD = { x1_ms: "x1", x2_ms: "x2", x_ms: "x", fill_color: "fc",
 
 const lv = {
   timer: null, selected: null, instances: [], now: 0, mirror: null, deploy: null,
-  snap: null, seq: 0,
+  snap: null, seq: 0, chartTimer: null, chartAt: 0,   // odložené prekreslenie grafu (`liveChartSoon`)
   sse: null, sseFailedAt: 0, cursor: 0, snapCursor: 0, deployTimer: null,   // stream (SSE) a kurzory zrkadla
   session: "", sessions: [], sessionsKey: "", // vybraný beh ("" = aktuálny naprieč behmi) a zoznam behov inštancie
   strategy: null, L: null, layers: {},       // kontext kresieb pre objectTraces (ako `pc` pri behu)
@@ -179,7 +180,7 @@ async function liveApplyRows(id, rows) {
     }
   }
   renderLiveCards(snap);
-  if (bars || nove.some(r => ["draw", "fill", "order"].includes(r.event.k))) renderLiveChart(snap);
+  if (bars || nove.some(r => ["draw", "fill", "order"].includes(r.event.k))) liveChartSoon();
   renderLiveOrders(snap.orders);
   renderLiveFills(snap.fills, lv.session ? null : lv.fills[id]);
   renderLiveNotes(snap.notes);
@@ -753,6 +754,19 @@ function liveModifyTraces(snap) {
     if (p.tp !== null && p.tp !== undefined) { tp.x.push(utc(o.bt)); tp.y.push(p.tp); tp.text.push(txt); }
   }
   return [sl, tp];
+}
+
+/** Prekreslenie grafu po udalosti zo streamu: zlúči sa do jedného za `LIVE_CHART_MIN_MS`. Dávka udalostí
+ *  (backlog po opätovnom pripojení, rýchly trh) inak volala Plotly pri každej správe (audit N-FE-5).
+ *  Kreslí sa snapshot platný v čase kreslenia, takže medzitým prepnutá inštancia nedostane cudzie dáta. */
+function liveChartSoon() {
+  if (lv.chartTimer) return;
+  const wait = Math.max(0, LIVE_CHART_MIN_MS - (Date.now() - lv.chartAt));
+  lv.chartTimer = setTimeout(() => {
+    lv.chartTimer = null;
+    lv.chartAt = Date.now();
+    if (lv.snap) renderLiveChart(lv.snap);
+  }, wait);
 }
 
 function renderLiveChart(snap) {
