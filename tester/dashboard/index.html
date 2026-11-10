@@ -809,11 +809,11 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
 
   // ---------- obrazovky ----------
   // Priečinky podľa trhu (používateľ 20. 10. 2026): všetko doterajšie je Nasdaq; GOLD, DOW a SP 500 sú pripravené.
-  var MARKETS = [["NASDAQ", "Nasdaq 100 — NQ / MNQ"], ["GOLD", "Zlato — GC / MGC"], ["DOW", "Dow Jones — YM / MYM"], ["SP 500", "S&P 500 — ES / MES"], ["EURUSD", "Euro FX — 6E / M6E · EURUSD"]];
+  var MARKETS = [["NASDAQ", "Nasdaq 100 — NQ / MNQ"], ["GOLD", "Zlato — GC / MGC"], ["DOW", "Dow Jones — YM / MYM"], ["SP 500", "S&P 500 — ES / MES"], ["EURUSD", "Euro FX — 6E / M6E · EURUSD"], ["TOP AS 75", "Top stratégie webapp znova cez smernicu: min. 75 obch./rok, dobré PF, pevné RR 1 → 0,75 → 0,5, vyšší winrate"]];
   function marketOf(s) { return s.market || "NASDAQ"; }
   function marketHref(m) { return "#/m/" + encodeURIComponent(m); }
   function marketCrumb(s) { var m = marketOf(s); return '<a href="' + marketHref(m) + '">' + esc(m) + "</a><span>/</span>"; }
-  var MK_COLOR = { "NASDAQ": "#6366f1", "GOLD": "#f59e0b", "DOW": "#94a3b8", "SP 500": "#22d3ee", "EURUSD": "#a78bfa" };
+  var MK_COLOR = { "NASDAQ": "#6366f1", "GOLD": "#f59e0b", "DOW": "#94a3b8", "SP 500": "#22d3ee", "EURUSD": "#a78bfa", "TOP AS 75": "#f472b6" };
   function auditOf(key) {
     var rows = (DATA.audit && DATA.audit.rows) || [];
     return rows.filter(function (r) { return r.key === key; })[0] || null;
