@@ -89,6 +89,7 @@ from .percoco import SPEC as PERCOCO_SPEC
 from .svp import SPEC as SVP_SPEC
 from .sweepengulf import SPEC as SWEEPENGULF_SPEC
 from .mtkzone import SPEC as MTKZONE_SPEC
+from .mtkzonenet import SPEC as MTKZONENET_SPEC
 from .sweepfvg import SPEC as SWEEPFVG_SPEC
 from .silverbullet import SPEC as SILVERBULLET_SPEC
 from .noanet import SPEC as NOANET_SPEC
@@ -217,6 +218,7 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     NOANETEOD_SPEC,
     SWEEPENGULF_SPEC,
     MTKZONE_SPEC,
+    MTKZONENET_SPEC,
     VAREV_SPEC,
 ))
 

@@ -30,12 +30,13 @@ Engine je čistý: žiadne I/O, žiadny globálny stav.
 
 from __future__ import annotations
 
+import math
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from tradebot.core.drawing import DrawBox, DrawCommand, DrawDelete, DrawLabel, DrawLine, DrawUpdate, LineStyle
+from tradebot.core.drawing import DrawBox, DrawCommand, DrawDelete, DrawLabel, DrawLine, DrawUpdate
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
@@ -74,7 +75,7 @@ class _HtfSeries:
         closed = self.agg.push(chart_bar)
         if closed is None:
             return None
-        prev = self.bars[-1] if self.bars else None
+        prev = self.bars[-1] if self.bars else None   # (C# port: _prevClose)
         tr = closed.high - closed.low if prev is None else max(closed.high - closed.low, abs(closed.high - prev.close),
                                                                abs(closed.low - prev.close))
         if self._atr is None:
@@ -126,18 +127,21 @@ def _profile(bars: list[Bar], rows: int) -> _Profile | None:
         rng = b.high - b.low
         v = b.volume or 0.0
         if rng <= 0:
-            r0 = min(rows - 1, max(0, int((b.low - lo) // step)))
+            r0 = min(rows - 1, max(0, int(math.floor((b.low - lo) / step))))
             tot[r0] += v
             continue
-        ra = max(0, int((b.low - lo) // step))
-        rb = min(rows - 1, int((b.high - lo) // step))
+        ra = max(0, int(math.floor((b.low - lo) / step)))
+        rb = min(rows - 1, int(math.floor((b.high - lo) / step)))
         for r in range(ra, rb + 1):
             rl = lo + r * step
             sh = max(0.0, min(b.high, rl + step) - max(b.low, rl)) / rng
             if sh > 0:
                 tot[r] += v * sh
     total = sum(tot)
-    poc = max(range(rows), key=lambda r: tot[r])
+    poc = 0
+    for r in range(1, rows):           # prvý najväčší (C# port zhodne)
+        if tot[r] > tot[poc]:
+            poc = r
     return _Profile(tot, total, lo, step, poc)
 
 
@@ -230,8 +234,8 @@ class _AnchoredVwap:
             return (d.year, d.month, d.day)
         cme = (local + timedelta(hours=6)).date()          # obchodný deň CME začína 18:00 New York
         if self.anchor is VwapAnchor.WEEK:
-            y, w, _ = cme.isocalendar()
-            return (y, w)
+            monday = cme.toordinal() - cme.weekday()
+            return (monday,)
         if self.anchor is VwapAnchor.MONTH:
             return (cme.year, cme.month)
         return (cme.year, cme.month, cme.day)
@@ -259,7 +263,8 @@ class MtkZoneEngine:
                 self.slots.append(_HtfSeries(max(int(m), self.tf), int(cfg.atrLen), int(cfg.volLen), keep))
         self.warmup = Warmup(self.tf)
         for s in self.slots:
-            self.warmup.add(f"zóny {s.minutes}m ({cfg.lookback} sviečok)", keep, s.minutes)
+            n = keep if s.minutes == self.tf else (keep + 1) * math.ceil(s.minutes / self.tf)
+            self.warmup.add(f"zóny {s.minutes}m ({cfg.lookback} sviečok)", n)
         self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=max(64, int(cfg.imbLookback) + 4, int(cfg.ibsSlLookback) + 2),
                                   atr_len=int(cfg.atrLen))
@@ -387,11 +392,12 @@ class MtkZoneEngine:
         return out
 
     def _text(self, z: _Zone) -> str:
-        t = f"{'DOPYT' if z.dir == 1 else 'PONUKA'} {z.score:.0f} · {z.tf}m {z.src}"
+        # čísla useknuté (nie zaokrúhlené) — C# port formátuje zhodne
+        t = f"{'DOPYT' if z.dir == 1 else 'PONUKA'} {int(z.score)} · {z.tf}m {z.src}"
         if z.pk > 0:
-            t += f" · PEAK {100 * z.pk:.1f}% VOL"
+            t += f" · PEAK {math.floor(1000 * z.pk) / 10:.1f}% VOL"
         if z.rv > 0:
-            t += f" · OBJEM {z.rv:.1f}×"
+            t += f" · OBJEM {math.floor(10 * z.rv) / 10:.1f}×"
         return t + ("" if z.active else " · otestovaná")
 
     def _remove(self, z: _Zone, out: EngineOutput) -> None:
@@ -589,7 +595,8 @@ class MtkZoneEngine:
                 if cfg.showZones:
                     out.drawings.append(DrawUpdate(z.box_id, "extend_right", False))
                     out.drawings.append(DrawUpdate(z.box_id, "x2_ms", bar.time))
-                    out.drawings.append(DrawUpdate(z.box_id, "border_style", LineStyle.DASHED))
+                    col = VOL_COLOR if z.is_vol else (DEM_COLOR if z.dir == 1 else SUP_COLOR)
+                    out.drawings.append(DrawUpdate(z.box_id, "fill_color", col + "1a"))   # otestovaná = bledšia
                     out.drawings.append(DrawUpdate(z.box_id, "text", self._text(z)))
         # 3. modely IBS a pin bar na otestovaných zónach
         self._models(bar, idx, atr, out)

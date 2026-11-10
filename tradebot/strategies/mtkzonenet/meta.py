@@ -1,0 +1,5 @@
+"""Metadáta MTK ZONE (C# jadro) pre webapp — zhodné s predlohou."""
+
+from ..mtkzone.meta import FEATURES, INTENTIONAL_DEFAULT_DIFFS, KIND_TITLES, LAYERS, PARAM_NOTES, REMOVED_INPUTS
+
+__all__ = ["FEATURES", "INTENTIONAL_DEFAULT_DIFFS", "KIND_TITLES", "LAYERS", "PARAM_NOTES", "REMOVED_INPUTS"]
