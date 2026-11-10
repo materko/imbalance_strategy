@@ -756,7 +756,7 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
       if (at < 0) st.push(rb); else st.splice(at, 0, rb);
     }
     // posledný hotový krok smernice (2–3 sa ráta ako 3; 9 je len informácia), smernica má 11 krokov
-    var done = st.reduce(function (m, x) { return x[2] && x[0] !== "9" ? Math.max(m, +String(x[0]).split("–").pop()) : m; }, 0);
+    var done = st.reduce(function (m, x) { return x[2] && x[0] !== "9" && x[0] !== "12" ? Math.max(m, +String(x[0]).split("–").pop()) : m; }, 0);
     var total = st.reduce(function (m, x) { return Math.max(m, +String(x[0]).split("–").pop()); }, 0);
     if (compact) return '<div class="steps-mini" title="' + esc(st.map(function (x) { return (x[2] ? "✓ " : x[3] ? "✗ " : "☐ ") + x[0] + " " + x[1]; }).join("\n")) + '">' +
       st.map(function (x) { return '<i class="' + (x[2] ? "on" : x[3] ? "fail" : "") + '"></i>'; }).join("") + '<span class="muted">hotový krok ' + done + " z " + total + "</span></div>";
@@ -783,6 +783,36 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
       '<div class="table-wrap"><table><thead><tr><th class="l">Rok</th><th>Obchody</th><th>PF</th></tr></thead><tbody>' + yrs + "</tbody></table></div>" +
       '<p class="muted" style="margin:10px 0 0">' + (n.passed ? "Ide rovnakým smerom ako na " + base + " — výsledok je vlastnosť trhu, nie jedného zdroja dát." :
       "Na " + alt + " nejde rovnakým smerom (PF pod 1,1 alebo menej ako 4 roky v pluse) — výsledok na " + base + " môže byť vlastnosť dát; na CFD (FTMO) nepoužívať.") + "</p></div>";
+  }
+
+  // krok 12 — kontrola: CI90 (bootstrap), SHA-256 dát, druhý model (glcheck12.py; používateľ 10. 11. 2026)
+  function check12Section(s) {
+    var c = s.check12;
+    if (!c) return "";
+    function ci(v) { return v ? '<span class="' + (v[0] > 0 ? "pos" : "neg") + '">' + num(v[0], 1) + " až " + num(v[1], 1) + " $</span>" : "—"; }
+    var rows = (c.ci || []).map(function (r) {
+      return "<tr><td class=\"l\">" + esc(r.label || r.id) + "</td><td>" + num(r.n_is) + "</td><td>" + num(r.mean_is, 1) + " $</td><td>" + ci(r.ci_is) +
+        "</td><td>" + num(r.n_oos) + "</td><td>" + num(r.mean_oos, 1) + " $</td><td>" + ci(r.ci_oos) + "</td></tr>";
+    }).join("");
+    var d = c.data || {}, m = c.model;
+    var files = (d.files || []).map(function (f) {
+      return "<tr><td class=\"l\"><code>" + esc(f.file.split("/").pop()) + "</code></td><td><code title=\"" + esc(f.sha256) + "\">" + esc(f.sha256.slice(0, 16)) + "…</code></td><td>" + esc(f.since) + "</td></tr>";
+    }).join("");
+    var mHtml = m ? '<p style="margin:6px 0"><b class="' + (m.verdict === "ok" ? "pos" : "neg") + '">' + (m.verdict === "ok" ? "✓ sedí" : "✗ " + esc(m.verdict)) + "</b> · " +
+      esc(m.model || "druhý model") + " · prepočítaných obchodov " + num(m.checked) + ", zhoda " + num(m.matched) + " · " + esc(m.date || "") + "</p>" +
+      (m.notes ? '<ul class="an-list">' + (Array.isArray(m.notes) ? m.notes : [m.notes]).map(function (x) { return "<li>" + mdInline(String(x)) + "</li>"; }).join("") + "</ul>" : "")
+      : '<p class="muted" style="margin:6px 0">Druhý model ešte nebežal.</p>';
+    function badge(ok, t) { return '<span class="badge ' + (ok ? "pos" : "neg") + '">' + t + " " + (ok ? "✓" : "✗") + "</span> "; }
+    return '<div class="card section"><div class="row"><h2>🔎 Krok 12 — kontrola ' + badge(c.ci_ok && c.data_ok && c.model_ok, "krok 12") + "</h2>" +
+      '<span class="muted">' + esc(c.date || "") + "</span></div>" +
+      '<p class="muted" style="margin:0 0 8px">' + badge(c.ci_ok, "CI90") + badge(c.data_ok, "dáta") + badge(c.model_ok, "druhý model") + "</p>" +
+      "<h3>CI90 — 90 % interval priemerného zisku obchodu (bootstrap 2 000×)</h3>" +
+      '<p class="muted" style="margin:0 0 6px">Celý nad nulou = edge je štatisticky istý, nie náhoda. Rozhoduje ladenie; odložený rok je len jeden rok, preto je jeho interval širší.</p>' +
+      '<div class="table-wrap"><table><thead><tr><th class="l">Nastavenie</th><th>Obch. ladenie</th><th>Ø obchod</th><th>CI90 ladenie</th><th>Obch. odl. rok</th><th>Ø obchod</th><th>CI90 odl. rok</th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
+      "<h3>SHA-256 — odtlačok dát</h3>" +
+      '<p class="muted" style="margin:0 0 6px">' + (d.ok ? "Dáta sa od prvého zápisu nezmenili — výsledok sa dá doložiť presne týmito súbormi." : "POZOR: zmenené súbory od posledného zápisu: " + esc((d.changed || []).join(", "))) + "</p>" +
+      '<div class="table-wrap"><table><thead><tr><th class="l">Súbor</th><th>SHA-256</th><th>Platí od</th></tr></thead><tbody>' + files + "</tbody></table></div>" +
+      "<h3>Druhý model — nezávislý prepočet obchodov</h3>" + mHtml + "</div>";
   }
 
   function analyticsSection(s) {
@@ -1051,7 +1081,7 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparen
       (rows || '<tr><td colspan="11" class="muted">Žiadne nastavenia.</td></tr>') + "</tbody></table></div>" +
       '<p class="muted" style="margin:10px 0 0">Prop výzvy: koľkokrát prešla / koľko výziev sa za 2021–2026 odohralo za sebou (' + propSizeText() +
       '). Veľkosť a účet zmeníš v detaile nastavenia.</p></div>' +
-      '<div class="card section"><h2>Postup podľa smernice</h2>' + stepsRow(s, false) + "</div>" + analyticsSection(s) + nasSection(s);
+      '<div class="card section"><h2>Postup podľa smernice</h2>' + stepsRow(s, false) + "</div>" + analyticsSection(s) + nasSection(s) + check12Section(s);
   }
 
   function viewDetail(strat, st) {

@@ -1,0 +1,10 @@
+{
+  "_title": "MNQ futures 3m — MTK ZONE: zóny z 5m (min. 2 potvrdenia), limit na zónu, RR 1",
+  "_strategy": "mtkzone",
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "_comment": [
+    "Východiskový profil podľa Pine predlohy VP SD ZÓNY 50 (10. 11. 2026): graf 3m, zóny 5m, min. 2 potvrdenia,",
+    "max. 3 zóny na stranu, limit na bližšiu hranu zóny, SL za zónou, RR 1. Neladené. Nie je to obchodné odporúčanie."
+  ]
+}

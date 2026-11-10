@@ -536,7 +536,7 @@ const STRATEGIA_TRH_TYP = {
   tks: ["NASDAQ", "TRENDOVÉ"], nocpon: ["NASDAQ", "TRENDOVÉ"], nyvaes: ["S&P 500", "TRENDOVÉ"],
   nb: ["NASDAQ", "TRENDOVÉ"], demo_breakout: ["NASDAQ", "TRENDOVÉ"],   // ukážková Donchian Breakout (docs/STRATEGIE.md)
   // NASDAQ — skalpovacie: malý cieľ, obchod na minúty
-  ibs: ["NASDAQ", "SKALPOVACIE"], ibszones: ["NASDAQ", "SKALPOVACIE"], ibsentry: ["NASDAQ", "SKALPOVACIE"],
+  ibs: ["NASDAQ", "SKALPOVACIE"], ibszones: ["NASDAQ", "SKALPOVACIE"], ibsentry: ["NASDAQ", "SKALPOVACIE"], mtkzone: ["NASDAQ", "SKALPOVACIE"],
   ibsfvg: ["NASDAQ", "SKALPOVACIE"], scalp3ma: ["NASDAQ", "SKALPOVACIE"], fvgpolarity: ["NASDAQ", "SKALPOVACIE"],
   silverbullet: ["NASDAQ", "SKALPOVACIE"],
   // NASDAQ — rangeové: návrat do rozsahu, otočka po výbere likvidity, férová cena
