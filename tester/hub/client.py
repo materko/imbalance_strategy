@@ -25,12 +25,14 @@ import gzip
 import http.client
 import json
 import logging
+import random
 import select
 import ssl
 import threading
 import time
 import urllib.error
 import urllib.request
+import uuid
 from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import urlsplit
@@ -74,6 +76,20 @@ class HubError(Exception):
 def _transient(exc: HubError) -> bool:
     """Chyba, ktorá prejde sama: hub sa reštartuje alebo pred ním proxy hlási 502/503."""
     return exc.status >= 500 or exc.status in (0, 408, 429)
+
+
+#: Najdlhšia pauza medzi pokusmi počas výpadku hubu. Musí ostať pod `agent_timeout` hubu (45 s): po jeho návrate
+#: sa agent prihlási skôr, než by ho hub odpísal a výpočty pridelil inam.
+RETRY_MAX_SECONDS = 15.0
+
+
+def retry_delay(base: float, failures: int, *, cap: float = RETRY_MAX_SECONDS, rnd: Callable[[], float] = random.random) -> float:
+    """Pauza pred ďalším pokusom: `base` pri úspechu, pri výpadku rastie 2× za každý neúspech po `cap` a rozptýli
+    sa o ±20 % — po návrate hubu sa stroje neozvú všetky v tej istej sekunde (audit N-HUB-13)."""
+    if failures <= 0:
+        return float(base)
+    delay = min(max(float(cap), float(base)), float(base) * (2 ** min(failures - 1, 6)))
+    return delay * (0.8 + 0.4 * rnd())
 
 
 class NoCapacityError(HubError):
@@ -287,6 +303,10 @@ class HubHttp:
 
 
 class HubClient:
+    #: Koľkokrát sa zadanie výpočtu skúsi pri prechodnej chybe (sieť, 5xx) - s tým istým `request_id`.
+    submit_attempts = 3
+    sleep = staticmethod(time.sleep)
+
     def __init__(self, http: HubHttp, name: str) -> None:
         self.http = http
         self.name = name
@@ -327,12 +347,25 @@ class HubClient:
         """
         if kind not in P.KINDS:
             raise ValueError(f"neznámy druh výpočtu {kind!r}")
-        return self.http.post("/api/jobs", {
+        # `request_id`: timeout alebo reset spojenia po tom, čo hub zadanie prijal, a opakovaný pokus by inak dal
+        # ten istý výpočet dvakrát; hub podľa neho vráti ten, ktorý už má (audit M-HUB-5)
+        body = {
             "kind": kind, "payload": payload, "submitter": self.name, "cores": cores,
             "queue": bool(queue), "max_wait_seconds": max_wait_seconds,
             "estimate_seconds": estimate_seconds, "note": note, "version": version,
             "max_seconds": max_seconds, "plan_total": plan_total, "plan_done": plan_done,
-        })
+            "request_id": uuid.uuid4().hex,
+        }
+        for pokus in range(1, self.submit_attempts + 1):
+            try:
+                return self.http.post("/api/jobs", body)
+            except (HubError, OSError) as exc:
+                prechodna = _transient(exc) if isinstance(exc, HubError) else True
+                if not prechodna or pokus == self.submit_attempts:
+                    raise
+                log.warning("hub: zadanie výpočtu zlyhalo (%s) - skúšam znova (%d/%d)", exc, pokus + 1, self.submit_attempts)
+                self.sleep(retry_delay(1.0, pokus, cap=8.0))
+        raise AssertionError("nedosiahnuteľné")
 
     def events(self, limit: int = 100, job: str | None = None, agent: str | None = None,
                event: str | None = None) -> list[dict[str, Any]]:
@@ -400,7 +433,7 @@ class HubClient:
                 zlyhalo += 1
                 if on_outage:
                     on_outage(exc, zlyhalo)
-                sleep(poll)
+                sleep(retry_delay(poll, zlyhalo, cap=max(poll, 60.0)))
                 continue
             zlyhalo = 0
             if on_tick:

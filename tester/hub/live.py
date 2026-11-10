@@ -18,6 +18,7 @@ hub posiela v heartbeate, kým ho nepotvrdí; `DELETE` ho stiahne.
 from __future__ import annotations
 
 import json
+import time
 from typing import Any, Callable
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Response
@@ -27,6 +28,10 @@ from tradebot.live.deploy import DEFAULT_MODE, Conflict, DeployError, DeployStor
 from tradebot.live.store import LiveStore, liveness
 
 __all__ = ["add_live_routes", "add_deploy_routes", "LiveBatch", "LiveEventsRequest"]
+
+
+#: Ako často ide do logu udalostí hubu, že inštancia posiela udalosti, ktoré schéma hubu nepozná.
+REJECT_LOG_SECONDS = 600.0
 
 
 class LiveBatch(BaseModel):
@@ -45,23 +50,34 @@ def add_live_routes(app: FastAPI, state: Any, store: LiveStore, auth: Callable[.
     """Pripojí `/api/live/*`. `auth` a `own` sú tie isté závislosti ako pre ostatné cesty hubu:
     agent s vlastným tokenom posiela len pod svojím menom, správca pod hocijakým."""
     app.state.live = store
+    rejected_logged: dict[tuple[str, str], float] = {}
 
     @app.post("/api/live/events")
     def live_events(req: LiveEventsRequest, who: str = Depends(auth)):
         own(who, req.agent)
         if not req.agent.strip():
             raise HTTPException(422, "agent nesmie byť prázdny")
-        accepted = 0
+        accepted = rejected = 0
         for b in req.batches:
             if not b.instance or not b.session:
                 raise HTTPException(422, "dávka potrebuje instance aj session")
             nova = store.instance(b.instance) is None
-            n = store.ingest(req.agent, b.instance, b.session, b.events)
+            n, zle, dovod = store.ingest_counts(req.agent, b.instance, b.session, b.events)
             accepted += n
+            rejected += zle
+            if zle and hasattr(state, "log"):
+                # udalosti, ktoré hub nepozná (starší hub než platforma): do logu raz za čas na inštanciu a dôvod,
+                # nie pri každej dávke (audit M-HUB-4)
+                kluc = (b.instance, dovod)
+                teraz = time.monotonic()
+                if teraz - rejected_logged.get(kluc, -1e9) >= REJECT_LOG_SECONDS:
+                    rejected_logged[kluc] = teraz
+                    state.log("live_events_rejected", agent=req.agent, instance=b.instance, count=zle, reason=dovod)
             if nova and n and hasattr(state, "log"):
                 # prvýkrát videná inštancia — do logu udalostí hubu, nech je to v `events`
                 state.log("live_instance", agent=req.agent, instance=b.instance, session=b.session)
-        return {"accepted": accepted}
+        # `rejected` len keď je čo hlásiť — odpoveď bez odmietnutých ostáva v doterajšom tvare
+        return {"accepted": accepted, "rejected": rejected} if rejected else {"accepted": accepted}
 
     @app.get("/api/live/instances")
     def live_instances(who: str = Depends(auth)):

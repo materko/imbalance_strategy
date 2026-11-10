@@ -681,7 +681,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                queue: bool = False, max_wait_seconds: float | None = None,
                estimate_seconds: float | None = None, note: str = "",
                version: str | None = None, max_seconds: float | None = None,
-               plan_total: int | None = None, plan_done: int | None = None) -> dict[str, Any]:
+               plan_total: int | None = None, plan_done: int | None = None,
+               request_id: str | None = None) -> dict[str, Any]:
         if kind not in P.KINDS:
             raise ValueError(f"neznámy druh výpočtu {kind!r}; známe: {', '.join(P.KINDS)}")
         if not isinstance(payload, dict) or "params" not in payload or "settings" not in payload:
@@ -690,6 +691,12 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         if demand != P.ALL:
             demand = max(1, int(demand))
         with self._lock:
+            if request_id:
+                # to isté zadanie druhýkrát (klient po timeoute alebo resete spojenia skúša znova): vrátiť výpočet,
+                # ktorý už existuje, nie založiť duplicitný (audit M-HUB-5)
+                for stary in reversed(list(self.jobs.values())):
+                    if stary.get("request_id") == request_id and stary.get("submitter") == submitter:
+                        return self._job_public(stary)
             self._sweep()
             volny = self._pick_agent(demand, version)
             eta = self._eta_start(demand)
@@ -719,7 +726,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                 "finished_at": None, "agent": None, "progress": None, "eta_seconds": None,
                 "elapsed_seconds": None, "run_id": None, "run_ids": [], "error": None,
                 "attempts": 0, "missed": 0, "has_result": False, "collected": False,
-                "cancelled_by": None, "plan": False,
+                "cancelled_by": None, "plan": False, "request_id": str(request_id)[:64] if request_id else None,
             }
             if plan_total is not None or plan_done is not None:
                 self._set_plan(submitter, kind, plan_total, plan_done)

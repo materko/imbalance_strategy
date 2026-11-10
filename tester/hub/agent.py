@@ -94,7 +94,7 @@ from tradebot.core.paths import AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR
 from . import config as agent_config
 from . import delivered, gitcode
 from . import protocol as P
-from .client import HubError, HubHttp
+from .client import HubError, HubHttp, retry_delay
 from .config import AgentConfig, AgentState, load_state, save_state
 from .transfer import pack_runs, unpack_runs
 
@@ -300,14 +300,18 @@ class HubAgent:
         return self.hub_heartbeat or self.cfg.heartbeat_seconds
 
     def _loop(self) -> None:
+        zlyhalo = 0
         while not self._stop.is_set():
             try:
                 self.tick()
+                zlyhalo = 0
             except Exception as exc:  # noqa: BLE001 - výpadok hubu nesmie zhodiť agenta
                 self.registered = False
                 self.last_error = f"{type(exc).__name__}: {exc}"
-                log.warning("hub agent: %s", self.last_error)
-            self._stop.wait(self.heartbeat_seconds)
+                zlyhalo += 1
+                if zlyhalo == 1 or zlyhalo % 20 == 0:   # ten istý výpadok do logu nie každé 3 s
+                    log.warning("hub agent: %s%s", self.last_error, f" ({zlyhalo}. pokus)" if zlyhalo > 1 else "")
+            self._stop.wait(retry_delay(self.heartbeat_seconds, zlyhalo))
 
     def _spool_watch_loop(self) -> None:
         """Ľahký strážca spoolu: každú sekundu `stat` súborov; rast = zobudiť pomalé vlákno."""
@@ -575,7 +579,8 @@ class HubAgent:
                 st = self._live.status()
                 out["ship"] = {"pending_bytes": int((st.get("reader") or {}).get("pending_bytes") or 0),
                                "batch": st.get("batch"), "last_ok": st.get("last_ok"), "last_error": st.get("last_error"),
-                               **{k: st.get(k) for k in ("read_ms", "post_ms", "rate", "files")}}
+                               **{k: st.get(k) for k in ("read_ms", "post_ms", "rate", "files",
+                                                         "rejected_total", "poison_total")}}
             except Exception as exc:  # noqa: BLE001
                 log.debug("hub agent: stav odosielania spoolu: %s", exc)
         # fáza 2c: z akého commitu je kód platforiem a ako dopadla posledná aktualizácia

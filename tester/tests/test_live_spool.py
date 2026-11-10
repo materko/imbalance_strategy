@@ -408,3 +408,64 @@ def test_citanie_po_blokoch_nestrati_ani_nezdvoji_udalost(reader, monkeypatch):
             seqs += [e["seq"] for e in x.events]
             r.commit(x)
     assert seqs == list(range(1, 32))
+
+
+def test_shipper_otravenu_davku_rozpoli_a_jednu_udalost_odlozi(reader, tmp_path: Path):
+    """Audit M-HUB-6: dávku, ktorú hub odmieta natrvalo (400/413/422), agent posielal donekonečna a kurzor stál.
+    Delí ju na polovice až po jednu udalosť; tú odloží do `poison.jsonl` a zvyšok doručí."""
+    r, root = reader
+    hub_store = LiveStore(tmp_path / "hub.sqlite")
+
+    class Odmieta(FakeTransport):
+        def push_events(self, agent, batches):
+            if any(ev.get("seq") == 4 for b in batches for ev in b["events"]):
+                chyba = OSError("hub 422: neplatná udalosť")
+                chyba.status = 422
+                raise chyba
+            return super().push_events(agent, batches)
+
+    s = LiveShipper(r, Odmieta(hub_store), "nt-pc", batch_events=8, max_batches=10)
+    f = spool_file(root, INST, "a1b2c3d4")
+    f.write_bytes(line(hello(1, "a1b2c3d4")) + b"".join(line(bar(2 + i, i)) for i in range(6)))
+    for _ in range(12):
+        if s.pump()["sent"] == 0 and r.status()["pending_bytes"] == 0:
+            break
+    assert r.status()["pending_bytes"] == 0                              # kurzor prešiel až na koniec
+    assert [e["event"]["seq"] for e in hub_store.events(INST)] == [1, 2, 3, 5, 6, 7]
+    odlozene = [json.loads(x) for x in (tmp_path / "poison.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert [o["event"]["seq"] for o in odlozene] == [4] and "422" in odlozene[0]["error"]
+    assert s.status()["poison_total"] == 1
+
+    # chyba, ktorá prejde sama (sieť, 5xx), nič neodkladá — kurzor stojí a čaká sa
+    with open(f, "ab") as fh:
+        fh.write(line(bar(8, 6)))
+    t = Odmieta(hub_store)
+    t.down = True
+    s2 = LiveShipper(r, t, "nt-pc", batch_events=1)
+    for _ in range(5):
+        s2.pump()
+    assert s2.status()["poison_total"] == 0 and r.status()["pending_bytes"] > 0
+
+
+def test_shipper_vidi_udalosti_ktore_hub_neulozil(reader, tmp_path: Path):
+    """Audit M-HUB-4: hub starší než platforma udalosť s neznámym tvarom zahodil a nikto o tom nevedel.
+    Sklad ich počíta, odpoveď ich nesie a shipper ich ukáže v stave (karta Hub)."""
+    r, root = reader
+    hub_store = LiveStore(tmp_path / "hub.sqlite")
+
+    class Hlasi(FakeTransport):
+        def push_events(self, agent, batches):
+            prijate = zle = 0
+            for b in batches:
+                a, z, _dovod = self.store.ingest_counts(agent, b["instance"], b["session"], b["events"])
+                prijate, zle = prijate + a, zle + z
+            return {"accepted": prijate, "rejected": zle}
+
+    dobre = [hello(1, "a1b2c3d4"), bar(2, 0)]
+    assert hub_store.ingest_counts("nt-pc", INST, "a1b2c3d4", [*dobre, {"k": "bar", "seq": 3}]) [:2] == (2, 1)
+    assert hub_store.stats()["rejected_total"] == 1
+    assert hub_store.ingest("nt-pc", INST, "a1b2c3d4", dobre) == 0       # `ingest` vracia ďalej len počet nových
+
+    s = LiveShipper(r, Hlasi(hub_store), "nt-pc")
+    s._note_rejected(2)
+    assert s.status()["rejected_total"] == 2 and s.status()["poison_total"] == 0

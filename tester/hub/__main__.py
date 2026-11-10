@@ -240,6 +240,10 @@ def cmd_agent(args: argparse.Namespace) -> int:
                   f"  kod {st['version'] or '?'}", flush=True)
     except KeyboardInterrupt:
         agent.stop()
+        try:   # odhlásiť sa: hub nemusí čakať `agent_timeout`, kým zistí, že stroj skončil (audit N-HUB-13)
+            agent.bye()
+        except Exception:  # noqa: BLE001 - nedostupný hub nesmie zdržať koniec
+            pass
         return 0
 
 

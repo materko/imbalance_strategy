@@ -141,6 +141,8 @@ class LiveStore:
         self._readers_lock = threading.Lock()   # nie zámok zápisu — požičanie nesmie čakať na ingest
         #: (čas, udalostí, nových, čakanie na zámok s, zápis s) posledných dávok — `stats()`
         self.ingest_stats: collections.deque[tuple[float, int, int, float, float]] = collections.deque(maxlen=2000)
+        #: Koľko udalostí sklad od štartu odmietol (schéma) — `GET /api/live/stats`.
+        self.rejected_total = 0
         #: (čas, trvanie s, stránok WAL, prenesených) checkpointov na pozadí — `stats()`
         self.checkpoint_stats: collections.deque[tuple[float, float, int, int]] = collections.deque(maxlen=200)
         self._db.row_factory = sqlite3.Row
@@ -227,13 +229,21 @@ class LiveStore:
         """Uloží udalosti jednej session; vráti, koľko bolo **nových**. Rozbitý riadok (schéma)
         sa preskočí — jeden zlý riadok nesmie zastaviť celú dávku ani posun kurzora. Čakanie na zámok
         a trvanie zápisu idú do `ingest_stats` (diagnostika hubu, `GET /api/live/stats`)."""
+        return self.ingest_counts(agent, instance, session, events)[0]
+
+    def ingest_counts(self, agent: str, instance: str, session: str,
+                      events: Iterable[dict[str, Any]]) -> tuple[int, int, str]:
+        """Ako `ingest`, ale vráti `(nové, odmietnuté, dôvod prvého odmietnutia)`. Odmietnutá je udalosť, ktorá
+        neprešla schémou tohto skladu — typicky nový druh udalosti z platformy, ktorý starší hub nepozná. Dávku
+        to nezastaví, ale volajúci to musí vidieť: kedysi sa zahodila bez stopy (audit M-HUB-4)."""
         events = list(events)
         t0 = time.perf_counter()
         with self._lock:
             t1 = time.perf_counter()
-            accepted = self._ingest(agent, instance, session, events)
+            accepted, rejected, reason = self._ingest(agent, instance, session, events)
             self.ingest_stats.append((time.time(), len(events), accepted, t1 - t0, time.perf_counter() - t1))
-        return accepted
+            self.rejected_total += rejected
+        return accepted, rejected, reason
 
     def stats(self) -> dict[str, Any]:
         """Zápisy za poslednú minútu a 10 minút: počet dávok, udalostí (nových), čakanie na zámok a zápis (s)."""
@@ -247,22 +257,25 @@ class LiveStore:
                     "wait_s": round(sum(x[3] for x in r), 3), "write_s": round(sum(x[4] for x in r), 3),
                     "max_write_s": round(max((x[4] for x in r), default=0.0), 3)}
         kp = list(self.checkpoint_stats)
-        return {"last_60s": suhrn(60), "last_600s": suhrn(600),
+        return {"last_60s": suhrn(60), "last_600s": suhrn(600), "rejected_total": self.rejected_total,
                 "checkpoint": {"last_s": round(kp[-1][1], 3) if kp else None,
                                "max_600s": round(max((x[1] for x in kp if now - x[0] <= 600), default=0.0), 3),
                                "wal_pages": kp[-1][2] if kp else None, "moved_pages": kp[-1][3] if kp else None},
                 "recent": [{"t": round(x[0], 1), "events": x[1], "accepted": x[2], "wait_s": round(x[3], 3),
                             "write_s": round(x[4], 3)} for x in riadky[-20:]]}
 
-    def _ingest(self, agent: str, instance: str, session: str, events: list[dict[str, Any]]) -> int:
+    def _ingest(self, agent: str, instance: str, session: str, events: list[dict[str, Any]]) -> tuple[int, int, str]:
         now = self.clock()
-        accepted = 0
+        accepted = rejected = 0
+        reason = ""
         with self._lock, self._db:
             stav: dict[str, Any] | None = None   # riadok inštancie počas dávky — do DB raz na konci
             for ev in events:
                 try:
                     validate(ev)
-                except SchemaError:
+                except SchemaError as exc:
+                    rejected += 1
+                    reason = reason or str(exc)[:200]
                     continue
                 if ev["k"] == "hb":
                     if self._ping(agent, instance, session, ev):
@@ -284,7 +297,7 @@ class LiveStore:
                 sets = stav["sets"]
                 cols = ", ".join(f"{k} = ?" for k in sets)
                 self._db.execute(f"UPDATE instances SET {cols} WHERE id = ?", (*sets.values(), instance))
-        return accepted
+        return accepted, rejected, reason
 
     def _ping(self, agent: str, instance: str, session: str, ev: dict[str, Any]) -> bool:
         """Posledný ping behu: starší alebo ten istý (opakovaná dávka) nič nezmení; novší nahradí

@@ -139,6 +139,8 @@ class SubmitRequest(BaseModel):
     #: `plan_done` = koľko už má hotových (aj mimo hubu). Kto dáva pár behov, neposiela nič.
     plan_total: int | None = None
     plan_done: int | None = None
+    #: Jednoznačné id zadania od klienta: opakovaný POST s tým istým id vráti už založený výpočet (M-HUB-5).
+    request_id: str | None = None
 
 
 #: Najviac toľko bajtov smie mať rozbalené telo POST-u (dávka spoolu 2000 udalostí má ~1 MB) — proti zip bombe.
@@ -339,7 +341,8 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
                                 cores=req.cores, queue=req.queue, max_wait_seconds=req.max_wait_seconds,
                                 estimate_seconds=req.estimate_seconds, note=req.note,
                                 version=req.version, max_seconds=req.max_seconds,
-                                plan_total=req.plan_total, plan_done=req.plan_done)
+                                plan_total=req.plan_total, plan_done=req.plan_done,
+                                request_id=req.request_id)
         except NoCapacity as exc:
             raise HTTPException(409, exc.detail())
         except ValueError as exc:

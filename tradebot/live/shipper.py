@@ -9,6 +9,7 @@ a testom sa berie aj holý HTTP klient s `.post()` — zabalí ho `as_transport`
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any
@@ -30,6 +31,9 @@ BATCH_START = 500
 BATCH_MIN = 50
 BATCH_FAST = 3.0
 BATCH_SLOW = 10.0
+#: Stavy HTTP, pri ktorých tá istá dávka neprejde nikdy (telo priveľké, hub ho odmietol ako neplatné). Ostatné
+#: 4xx sú o agentovi (token, meno, starý hub bez cesty) a 5xx / sieť prejdú samy — tam sa len čaká.
+POISON_STATUS = (400, 413, 422)
 
 
 class LiveShipper:
@@ -49,6 +53,11 @@ class LiveShipper:
         self.last_error: str | None = None
         self.sent_total = 0
         self.accepted_total = 0
+        #: Udalosti, ktoré hub prijal, ale neuložil (jeho schéma ich nepozná) — hub je starší než platforma.
+        self.rejected_total = 0
+        #: Udalosti odložené do `poison.jsonl`, lebo ich hub trvalo odmieta aj po jednej.
+        self.poison_total = 0
+        self._rejected_warned = 0.0
         #: Diagnostika posledného kola: priemer čítania spoolu a POST-u na dávku (ms), udalostí/s.
         self.read_ms: float | None = None
         self.post_ms: float | None = None
@@ -83,7 +92,16 @@ class LiveShipper:
                 odpoved = self.transport.push_events(self.agent, self.batches_body(batches))
             except Exception as exc:  # noqa: BLE001 - hub mimo, sieť, 4xx/5xx — kurzor ostáva
                 error = f"{type(exc).__name__}: {exc}"
-                self.batch_now = max(min(BATCH_MIN, self.batch_events), self.batch_now // 2)
+                n = sum(len(b.events) for b in batches)
+                if getattr(exc, "status", None) in POISON_STATUS:
+                    # Dávka, ktorú hub odmieta natrvalo, by sa opakovala donekonečna a kurzor by stál (audit
+                    # M-HUB-6): deliť na polovice až po jednu udalosť; tá sa odloží bokom a ide sa ďalej.
+                    if n <= 1:
+                        self._quarantine(batches, error)
+                        continue
+                    self.batch_now = max(1, n // 2)
+                else:
+                    self.batch_now = max(min(BATCH_MIN, self.batch_events), self.batch_now // 2)
                 break
             trvanie = time.monotonic() - zaciatok
             posl += trvanie
@@ -97,6 +115,9 @@ class LiveShipper:
             sent += n
             prijate = odpoved.get("accepted") if isinstance(odpoved, dict) else None
             accepted += int(prijate) if isinstance(prijate, (int, float)) else n
+            zle = odpoved.get("rejected") if isinstance(odpoved, dict) else None
+            if isinstance(zle, (int, float)) and zle > 0:
+                self._note_rejected(int(zle))
             self.last_ok = self.clock()
             self.last_error = None
         if error is not None:
@@ -108,8 +129,37 @@ class LiveShipper:
         self.accepted_total += accepted
         return {"sent": sent, "accepted": accepted, "rounds": rounds, "error": error}
 
+    def _note_rejected(self, n: int) -> None:
+        """Hub udalosti prijal, ale neuložil (schéma). Kurzor ide ďalej — spool na disku ostáva, po aktualizácii
+        hubu sa dá poslať znova (zmazať kurzor) — ale musí to byť vidno (audit M-HUB-4)."""
+        self.rejected_total += n
+        if time.monotonic() - self._rejected_warned >= 600:
+            self._rejected_warned = time.monotonic()
+            log.warning("live shipper: hub neuložil %d udalostí (jeho schéma ich nepozná, spolu %d) - hub je starší "
+                        "než platforma; po jeho aktualizácii sa dajú poslať znova zo spoolu", n, self.rejected_total)
+
+    def _quarantine(self, batches: list[Batch], error: str) -> None:
+        """Udalosť, ktorú hub trvalo odmieta: zapíše sa do `poison.jsonl` vedľa kurzora a kurzor ju preskočí."""
+        cesta = self.reader.cursor_path.with_name("poison.jsonl")
+        for b in batches:
+            try:
+                cesta.parent.mkdir(parents=True, exist_ok=True)
+                with open(cesta, "a", encoding="utf-8", newline="\n") as fh:
+                    for ev in b.events:
+                        fh.write(json.dumps({"instance": b.instance, "session": b.session, "file": b.path.name,
+                                             "offset": b.start_offset, "error": error, "event": ev},
+                                            ensure_ascii=False, separators=(",", ":")) + "\n")
+            except OSError as exc:
+                log.error("live shipper: %s sa nedá zapísať (%s) - udalosť sa preskočí bez odloženia", cesta, exc)
+            self.poison_total += len(b.events)
+            log.error("live shipper: hub trvalo odmieta udalosť z %s @%d (%s) - odložená do %s, pokračujem",
+                      b.path.name, b.start_offset, error, cesta.name)
+            self.reader.commit(b)
+        self.batch_now = min(BATCH_MIN, self.batch_events)
+
     def status(self) -> dict[str, Any]:
         return {"agent": self.agent, "last_ok": self.last_ok, "last_error": self.last_error, "batch": self.batch_now,
+                "rejected_total": self.rejected_total, "poison_total": self.poison_total,
                 "read_ms": self.read_ms, "post_ms": self.post_ms, "rate": self.rate, "files": self.reader.files,
                 "sent_total": self.sent_total, "accepted_total": self.accepted_total,
                 "reader": self.reader.status()}

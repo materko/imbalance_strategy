@@ -3332,3 +3332,45 @@ def test_heartbeat_s_live_hlasenim_neprepise_stav_zakazdym(tmp_path: Path, monke
     assert zapisy == [False] + [True] * 9
     state.heartbeat("pc", {**telo, "accept": False})
     assert zapisy[-1] is False                              # zmena agenta = zápis hneď
+
+
+def test_opakovane_zadanie_s_tym_istym_request_id_neda_druhy_vypocet(hub):
+    """Audit M-HUB-5: timeout alebo reset spojenia po tom, čo hub zadanie prijal, a opakovaný pokus klienta dal
+    ten istý výpočet dvakrát. S `request_id` hub vráti výpočet, ktorý už má; klient ho posiela sám a prechodnú
+    chybu skúsi znova s tým istým id."""
+    from tester.hub.client import HubClient, HubError, retry_delay
+
+    state, _clock = hub
+    _reg(state)
+    prvy = state.submit(kind="backtest", payload=_payload(), submitter="srv", queue=True, request_id="abc")
+    druhy = state.submit(kind="backtest", payload=_payload(), submitter="srv", queue=True, request_id="abc")
+    assert druhy["id"] == prvy["id"] and len(state.jobs) == 1
+    assert state.submit(kind="backtest", payload=_payload(), submitter="srv", queue=True, request_id="iny")["id"] != prvy["id"]
+    assert state.submit(kind="backtest", payload=_payload(), submitter="srv", queue=True)["id"] not in (prvy["id"],)
+    assert len(state.jobs) == 3                                          # bez id ako doteraz: každé zadanie nové
+
+    class Http:
+        def __init__(self):
+            self.telo, self.padne = [], 2
+
+        def post(self, path, body=None):
+            self.telo.append(body)
+            if self.padne:
+                self.padne -= 1
+                raise HubError(503, "hub sa reštartuje")
+            return state.submit(**{k: v for k, v in body.items()})
+
+    http = Http()
+    klient = HubClient(http, "srv")
+    klient.sleep = lambda s: None
+    job = klient.submit("backtest", _payload(), queue=True)
+    assert len(http.telo) == 3 and len({t["request_id"] for t in http.telo}) == 1 and job["status"]
+    http.padne = 1
+    http.post = lambda path, body=None: (_ for _ in ()).throw(HubError(422, "zlé zadanie"))
+    with pytest.raises(HubError):                                        # trvalá chyba sa neopakuje
+        klient.submit("backtest", _payload(), queue=True)
+
+    # pauza pri výpadku rastie a má rozptyl, pri úspechu je to základ (N-HUB-13)
+    assert retry_delay(3, 0) == 3.0
+    assert [round(retry_delay(3, n, rnd=lambda: 0.5), 1) for n in (1, 2, 3, 4, 9)] == [3.0, 6.0, 12.0, 15.0, 15.0]
+    assert retry_delay(3, 3, rnd=lambda: 0.0) == pytest.approx(9.6) and retry_delay(3, 3, rnd=lambda: 1.0) == pytest.approx(14.4)

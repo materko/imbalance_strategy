@@ -313,6 +313,15 @@ berie každú výnimku ako dočasnú; dávka sa síce zmenšuje, ale kurzor sa n
 *Oprava:* pri 4xx (okrem 401/408/429) dávku rozpoliť až po otrávený riadok a ten dať do karantény;
 strážca nech hlási vek `ship.last_error`.
 
+> **Stav 10. 11. 2026: M-HUB-4, 5, 6 a časť N-HUB-13 sú opravené.** Hub odmietnuté udalosti počíta a hlási
+> (`rejected` v odpovedi, `live_events_rejected` v logu, `rejected_total` v štatistikách aj u agenta); kurzor
+> sa nedrží, lebo spool na disku ostáva a dá sa poslať znova. Trvalo odmietanú dávku (400/413/422) shipper
+> delí až po jednu udalosť a tú odloží do `poison.jsonl`. Zadanie výpočtu nesie `request_id`, hub podľa neho
+> vráti už založený výpočet a klient prechodnú chybu skúsi trikrát s tým istým id. Heartbeat agenta a čakanie
+> na výsledok majú pri výpadku rastúcu pauzu s rozptylom ±20 % (agent najviac 15 s, pod `agent_timeout` hubu);
+> headless agent sa pri Ctrl+C odhlási. **Ostáva:** SIGTERM headless agenta, upozornenie strážcu na vek
+> `ship.last_error`, čas platnosti nevyzdvihnutých výsledkov (N-HUB-11), M-HUB-7 až 11.
+
 **M-HUB-7 (P2, predpoklad) Telegram 409 vypne príkazy do reštartu.** `agent_plugins/telegram/service.py:1019–1022`
 nastaví `disabled` natrvalo; ak je 409 prechodná (po výpadku siete — neoverené), `/pause` a `/flatten`
 zmiznú len s riadkom v logu.

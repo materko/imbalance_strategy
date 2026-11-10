@@ -63,6 +63,13 @@ agenta a celý protokol výpočtov (`tester/hub/protocol.py`) sú **mimo** trans
 (subjecty `live.events.<agent>`, durable consumer pre export, dedup podľa `Nats-Msg-Id`), je
 v docstringu modulu — len náčrt, žiadna implementácia.
 
+**Čo sa nedoručí, musí byť vidno.** Udalosť, ktorú schéma hubu nepozná (hub starší než platforma), hub neuloží,
+ale spočíta: odpoveď nesie `rejected`, log udalostí hubu `live_events_rejected` (raz za 10 min na inštanciu
+a dôvod), `GET /api/live/stats` `rejected_total` a stav odosielania agenta `rejected_total` (karta Hub). Kurzor
+ide ďalej — spool na disku ostáva, po aktualizácii hubu sa dá poslať znova zmazaním kurzora. Dávku, ktorú hub
+odmieta natrvalo (HTTP 400, 413, 422), agent delí na polovice až po jednu udalosť; tú zapíše do `poison.jsonl`
+vedľa kurzora (`poison_total`) a pokračuje. Sieť, 5xx a chyby prihlásenia nič neodkladajú — kurzor stojí a čaká.
+
 ## Identita
 
 - **instance** = adresár spoolu: `<platform>_<account>_<symbol>_<tf>m_<strategy>`, znaky mimo
