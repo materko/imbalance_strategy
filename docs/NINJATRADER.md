@@ -161,6 +161,13 @@ DLL sa do procesu načíta z bajtov, takže ju bežiaci beh nezamkne. `setup.ps1
 pythonnet (`pip install -e .[csharp]`), `install-macos.sh` aj Mono.
 
 
+### Naživo: poruchy brokera
+
+Čo inštancia urobí, keď broker order odmietne, správa sa stratí, vstup sa vyplní po zrušení alebo spadne
+spojenie, sa neoveruje paritou, ale simulátorom: skutočný `LiveInstance` nad falošným brokerom a
+skriptovaným enginom, s testami v `tester/tests/test_ninjatrader_faults.py` —
+[SIMULATOR_PORUCH.md](SIMULATOR_PORUCH.md). Nový nález naživo = najprv scenár, potom oprava.
+
 ### Naživo: asynchrónne fily a oneskorené bary
 
 Engine ORB berie vstup, ktorý po jednom bare stále nemá pozíciu, ako nevyplnený: zruší ho a na

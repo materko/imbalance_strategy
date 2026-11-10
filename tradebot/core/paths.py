@@ -50,7 +50,7 @@ __all__ = [
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR", "NINJATRADER_DIR", "MT5_DIR",
     "STRATEGIES_DIR", "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST", "PLATFORM_CODE",
-    "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "STRATEGY_AUDIT", "TMP_PROFILES", "ANALYTICS_DIR",
+    "TESTER_DIR", "FAULTSIM_DIR", "FAULTSIM_EXE", "RUNS_DIR", "PROFILES_DIR", "STRATEGY_AUDIT", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE", "HUB_PULL_REQUEST", "HUB_PULL_RESULT", "HUB_DELIVERED",
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
@@ -134,6 +134,10 @@ PLATFORM_CODE = ("tradebot/core/ports/csharp", "tradebot/strategies/*/ports/csha
 # -- Tester (webapp) -------------------------------------------------------- #
 
 TESTER_DIR = REPO / "tester"
+#: Simulátor porúch adaptéra NinjaTradera: náhradné typy NT s falošným brokerom a hostiteľ scenárov
+#: (`tester.faultsim`); preklad ide k ostatným assembly, do NinjaTradera sa neinštaluje.
+FAULTSIM_DIR = TESTER_DIR / "faultsim"
+FAULTSIM_EXE = CSHARP_BIN / "TradeBot.FaultSim.exe"
 RUNS_DIR = TESTER_DIR / "runs"
 PROFILES_DIR = TESTER_DIR / "profiles"
 #: audit stratégií zo stránky výsledkov (trieda A / B / C, Sortino, C# jadro) — webapp ho ukazuje pri názve stratégie

@@ -29,6 +29,21 @@ using TB = TradeBot.Core;
 
 namespace NinjaTrader.NinjaScript.AddOns
 {
+    public static class LiveClock
+    {
+        /// <summary>Nahradne hodiny pre simulator poruch (`tester/faultsim`); v NinjaTraderi je vzdy null.</summary>
+        public static Func<DateTime> Source;
+
+        public static DateTime UtcNow
+        {
+            get
+            {
+                Func<DateTime> source = Source;
+                return source != null ? source() : DateTime.UtcNow;
+            }
+        }
+    }
+
     /// <summary>Jeden riadok `instances[]` z `TradeBot\deploy.json`.</summary>
     public sealed class LiveDeployment
     {
@@ -250,6 +265,9 @@ namespace NinjaTrader.NinjaScript.AddOns
             public TB.OrderIntent Intent;
             public DateTime Since;
             public int Tries;
+            /// <summary>Nie vstup, ale SL/TP pozicie, ktora sa uz zavrela inak (trhovy vystup po nepotvrdenom zruseni,
+            /// zavretie mimo strategie): kym stoji u brokera, moze sa vyplnit a otvorit opacnu poziciu.</summary>
+            public bool Exit;
         }
 
         private readonly List<Dying> _dying = new List<Dying>();
@@ -393,8 +411,8 @@ namespace NinjaTrader.NinjaScript.AddOns
         private void NoteThrottled(string key, string level, string text)
         {
             DateTime last;
-            if (_noteAt.TryGetValue(key, out last) && (DateTime.UtcNow - last).TotalSeconds < 60) { Log(level.ToUpperInvariant() + ": " + text); return; }
-            _noteAt[key] = DateTime.UtcNow;
+            if (_noteAt.TryGetValue(key, out last) && (LiveClock.UtcNow - last).TotalSeconds < 60) { Log(level.ToUpperInvariant() + ": " + text); return; }
+            _noteAt[key] = LiveClock.UtcNow;
             Note(level, text);
         }
 
@@ -474,40 +492,11 @@ namespace NinjaTrader.NinjaScript.AddOns
                     return;
                 }
                 Status = "running";
-                DateTime lastControl = DateTime.UtcNow;
+                _lastControl = LiveClock.UtcNow;
                 while (!_stopRequested)
                 {
                     _wake.WaitOne(Routed ? 250 : 1000);   // route: udalosti exekutora sa citaju v slucke
-                    Drain();
-                    if (_stopRequested) break;
-                    if (Routed) RouteTick();   // chyby si osetruje po castiach sam
-                    try { ProcessBars(); }
-                    catch (Exception e) { Note("error", "spracovanie barov zlyhalo - " + e); }
-                    PublishNet();
-                    try { if (_live && !Routed) ReconcileExternal(); }
-                    catch (Exception e) { Note("error", "kontrola pozicie uctu - " + e.Message); }
-                    try { if (!Routed) SweepDying(); }
-                    catch (Exception e) { Note("error", "rusene vstupy - " + e.Message); }
-                    try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
-                    catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
-                    try { if (_live && !Routed) GuardExits(); }   // route: SL strazi exekutor
-                    catch (Exception e) { Note("error", "strazca SL - " + e.Message); }
-                    try { if (_live) { EodByClock(); FeedWatch(); } }
-                    catch (Exception e) { Note("error", "strazca feedu / EOD - " + e.Message); }
-                    try { if (_live && !Routed) OldContractCheck(); }
-                    catch (Exception e) { Log("kontrola stareho kontraktu - " + e.Message); }
-                    SaveState();
-                    try { PublishView(); }
-                    catch (Exception e) { Log("ordery pre graf - " + e.Message); }
-                    try { if (_live) SpoolBroker(); }
-                    catch (Exception e) { Log("pozicia uctu do telemetrie - " + e.Message); }
-                    if ((DateTime.UtcNow - lastControl).TotalSeconds >= ControlPeriodSeconds)
-                    {
-                        lastControl = DateTime.UtcNow;
-                        try { ControlCheck(); } catch (Exception e) { Note("error", "control zlyhal - " + e.Message); }
-                        try { ProfileCheck(); } catch (Exception e) { Note("error", "kontrola profilu zlyhala - " + e.Message); }
-                        try { if (!Routed) CloseTimeouts(); } catch (Exception e) { Note("error", "close timeout - " + e.Message); }
-                    }
+                    Step();
                 }
                 Teardown(_stopReason);
             }
@@ -522,8 +511,46 @@ namespace NinjaTrader.NinjaScript.AddOns
                 UnpublishNet();
                 if (_view != null) LiveViews.Remove(_view);
                 Finished = true;
-                FinishedAt = DateTime.UtcNow;
+                FinishedAt = LiveClock.UtcNow;
                 if (Status != "failed") Status = "stopped";
+            }
+        }
+
+        private DateTime _lastControl;
+
+        /// <summary>Jeden obeh slucky instancie: udalosti z fronty, bary, strazcovia, stav. Simulator poruch
+        /// (`tester/faultsim`) ho vola priamo, bez vlakna a cakania.</summary>
+        private void Step()
+        {
+            Drain();
+            if (_stopRequested) return;
+            if (Routed) RouteTick();   // chyby si osetruje po castiach sam
+            try { ProcessBars(); }
+            catch (Exception e) { Note("error", "spracovanie barov zlyhalo - " + e); }
+            PublishNet();
+            try { if (_live && !Routed) ReconcileExternal(); }
+            catch (Exception e) { Note("error", "kontrola pozicie uctu - " + e.Message); }
+            try { if (!Routed) SweepDying(); }
+            catch (Exception e) { Note("error", "rusene vstupy - " + e.Message); }
+            try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
+            catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
+            try { if (_live && !Routed) GuardExits(); }   // route: SL strazi exekutor
+            catch (Exception e) { Note("error", "strazca SL - " + e.Message); }
+            try { if (_live) { EodByClock(); FeedWatch(); } }
+            catch (Exception e) { Note("error", "strazca feedu / EOD - " + e.Message); }
+            try { if (_live && !Routed) OldContractCheck(); }
+            catch (Exception e) { Log("kontrola stareho kontraktu - " + e.Message); }
+            SaveState();
+            try { PublishView(); }
+            catch (Exception e) { Log("ordery pre graf - " + e.Message); }
+            try { if (_live) SpoolBroker(); }
+            catch (Exception e) { Log("pozicia uctu do telemetrie - " + e.Message); }
+            if ((LiveClock.UtcNow - _lastControl).TotalSeconds >= ControlPeriodSeconds)
+            {
+                _lastControl = LiveClock.UtcNow;
+                try { ControlCheck(); } catch (Exception e) { Note("error", "control zlyhal - " + e.Message); }
+                try { ProfileCheck(); } catch (Exception e) { Note("error", "kontrola profilu zlyhala - " + e.Message); }
+                try { if (!Routed) CloseTimeouts(); } catch (Exception e) { Note("error", "close timeout - " + e.Message); }
             }
         }
 
@@ -989,7 +1016,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 d.Id = id;
                 d.Entry = o;
                 d.Intent = intent;
-                d.Since = DateTime.UtcNow;
+                d.Since = LiveClock.UtcNow;
                 _dying.Add(d);
             }
             CancelOrder(o);
@@ -1002,19 +1029,41 @@ namespace NinjaTrader.NinjaScript.AddOns
             return -1;
         }
 
-        /// <summary>Stary order s tymto id sa este rusi - novy vstup s tym istym id pocka (inak by mohli stat dva).</summary>
+        /// <summary>SL/TP obchodu, ktory sa prestava sledovat: zrusit a strazit, kym broker zrusenie nepotvrdi. Order,
+        /// ktory by u brokera ostal stat bez pozicie, by sa neskor vyplnil ako novy obchod, o ktorom nikto nevie.</summary>
+        private void RetireExit(string id, Order o, TB.OrderIntent intent)
+        {
+            if (!Alive(o)) return;
+            if (DyingIndex(o) < 0)
+            {
+                Dying d = new Dying();
+                d.Id = id;
+                d.Entry = o;
+                d.Intent = intent;
+                d.Since = LiveClock.UtcNow;
+                d.Exit = true;
+                _dying.Add(d);
+            }
+            CancelOrder(o);
+        }
+
+        /// <summary>Stary vstup s tymto id sa este rusi - novy vstup s tym istym id pocka (inak by mohli stat dva).</summary>
         private bool DyingFor(string id)
         {
             for (int i = 0; i < _dying.Count; i++)
-                if (_dying[i].Id == id) return true;
+                if (!_dying[i].Exit && _dying[i].Id == id) return true;
             return false;
         }
 
-        /// <summary>Vyhod sledovany obchod; nevyplneny zvysok jeho vstupu (ciastocny fill) u brokera zrus a strazi dalej.</summary>
+        /// <summary>Vyhod sledovany obchod; co z neho u brokera este stoji (nevyplneny zvysok vstupu, SL/TP), zrus
+        /// a strazi dalej.</summary>
         private void Drop(string key, Tracked t)
         {
             _orders.Remove(key);
-            if (!Routed) RetireOrder(key, t.Entry, t.Intent);
+            if (Routed) return;
+            RetireOrder(key, t.Entry, t.Intent);
+            RetireExit(key, t.Sl, t.Intent);
+            RetireExit(key, t.Tp, t.Intent);
         }
 
         /// <summary>
@@ -1023,7 +1072,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// </summary>
         private void SweepDying()
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = LiveClock.UtcNow;
             for (int i = _dying.Count - 1; i >= 0; i--)
             {
                 Dying d = _dying[i];
@@ -1034,7 +1083,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                     d.Since = now;
                     d.Tries++;
                     if (d.Tries == 1 || d.Tries % 12 == 0)
-                        Note("warn", "zrusenie vstupu " + d.Id + " broker nepotvrdil - rusim znova (pokus " + (d.Tries + 1) + ")");
+                        Note("warn", "zrusenie " + (d.Exit ? "vystupu " + d.Entry.Name : "vstupu " + d.Id)
+                             + " broker nepotvrdil - rusim znova (pokus " + (d.Tries + 1) + ")");
                     CancelOrder(d.Entry);
                     continue;
                 }
@@ -1059,17 +1109,32 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (qty <= 0) return;
             string key = d.Id;
             for (int n = 1; _orders.ContainsKey(key); n++) key = d.Id + "~late" + (n > 1 ? n.ToString(CultureInfo.InvariantCulture) : "");
+            TB.OrderIntent intent = d.Intent;
+            if (d.Exit)
+            {
+                // vyplnil sa SL/TP uz zavretej pozicie: otvoril poziciu PROTI povodnemu planu - plan sa zrkadli okolo
+                // ceny vyplnenia, aby strazca SL pri neuspesnom zatvoreni polozil stop na spravnu stranu
+                TB.TradePlan old = d.Intent.Plan;
+                TB.Direction dir = old.Direction == TB.Direction.Long ? TB.Direction.Short : TB.Direction.Long;
+                double risk = Math.Max(Math.Abs(old.Entry - old.StopLoss), _inst.MasterInstrument.TickSize);
+                double reward = Math.Max(Math.Abs(old.TakeProfit - old.Entry), _inst.MasterInstrument.TickSize);
+                intent = new TB.OrderIntent(TB.OrderAction.Entry, d.Id, d.Intent.SourceId, "osiroteny vystup");
+                intent.Direction = dir;
+                intent.OrderType = TB.OrderType.Market;
+                intent.Plan = new TB.TradePlan(dir, price, price - (int)dir * risk, price + (int)dir * reward, qty, risk, null);
+            }
             Tracked t = new Tracked();
-            t.Intent = d.Intent;
+            t.Intent = intent;
             t.Entry = d.Entry;
-            t.LastStop = d.Intent.Plan.StopLoss;
+            t.LastStop = intent.Plan.StopLoss;
             t.Filled = true;
-            t.FilledAt = DateTime.UtcNow;
+            t.FilledAt = LiveClock.UtcNow;
             t.FilledMs = execMs;
             t.OpenQty = qty;
             _orders[key] = t;
-            Note("error", "vstup " + d.Id + " sa vyplnil (x" + qty + " @" + price.ToString(CultureInfo.InvariantCulture)
-                 + ") az po zruseni - poziciu zatvaram trhom" + (key != d.Id ? " (sledovana ako " + key + ")" : ""));
+            Note("error", (d.Exit ? "vystup " + d.Entry.Name + " uz zavretej pozicie" : "vstup " + d.Id) + " sa vyplnil (x" + qty + " @"
+                 + price.ToString(CultureInfo.InvariantCulture) + ") az po zruseni - poziciu zatvaram trhom"
+                 + (key != d.Id ? " (sledovana ako " + key + ")" : ""));
             SpoolFill(execMs, key, true, "", price, qty, _live);
             ParkOthers(key);
             RequestClose(key, t, "tb_close");
@@ -1086,7 +1151,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             return false;
         }
 
-        private static long NowMs() { return (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds); }
+        private static long NowMs() { return (long)Math.Round((LiveClock.UtcNow - Epoch).TotalMilliseconds); }
 
         /// <summary>Pozicia uctu na instrumente (aj cudzia - napr. z predosleho behu alebo z grafu).</summary>
         private int AccountPosition()
@@ -1220,7 +1285,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 else if (intent.OrderType == TB.OrderType.Stop) order = Create(action, OrderType.StopMarket, qty, 0, Tick(plan.Entry), "", id);
                 else order = Create(action, OrderType.Limit, qty, Tick(plan.Entry), 0, "", id);
                 t.Entry = order;
-                t.SentMs = (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds);
+                t.SentMs = (long)Math.Round((LiveClock.UtcNow - Epoch).TotalMilliseconds);
                 _account.Submit(new Order[] { order });
                 Log("ENTRY " + id + " " + intent.OrderType + " @" + plan.Entry + " SL " + plan.StopLoss + " TP " + plan.TakeProfit + " qty " + qty);
             }
@@ -1275,7 +1340,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// </summary>
         private void GuardExits()
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = LiveClock.UtcNow;
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
             {
                 Tracked t = kv.Value;
@@ -1315,7 +1380,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         {
             if (t.Closing != null) return;
             t.Closing = signal;
-            t.ClosingSince = DateTime.UtcNow;
+            t.ClosingSince = LiveClock.UtcNow;
             if (Routed) { _route.Close(NowMs(), id, signal); t.CloseSent = true; Log("EXIT " + id + " -> MT5 (" + signal + ")"); return; }
             // nevyplneny zvysok vstupu (ciastocny fill) uz nechceme; co sa z neho este vyplni, pojde von s poziciou (M-LIVE-6)
             if (Alive(t.Entry)) CancelOrder(t.Entry);
@@ -1351,7 +1416,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             t.CloseSent = false;
             t.CloseFails++;
             int wait = Math.Min(60, 1 << Math.Min(6, t.CloseFails));
-            t.CloseRetryAt = DateTime.UtcNow.AddSeconds(wait);
+            t.CloseRetryAt = LiveClock.UtcNow.AddSeconds(wait);
             bool protect = t.CloseFails >= MaxCloseAttempts;
             if (protect && !t.Protect) { t.Protect = true; t.ExitFails = 0; t.NoStopSince = DateTime.MinValue; }
             Note("error", message + " (" + t.CloseFails + ". neuspech, dalsi pokus o " + wait + " s"
@@ -1362,7 +1427,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// trhovy vystup ide znova po odstupe (pri `Protect` najprv znova zrusit SL/TP).</summary>
         private void CloseTimeouts()
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = LiveClock.UtcNow;
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
             {
                 Tracked t = kv.Value;
@@ -1452,8 +1517,8 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// </summary>
         private void OldContractCheck()
         {
-            if ((DateTime.UtcNow - _oldContractAt).TotalSeconds < 30) return;
-            _oldContractAt = DateTime.UtcNow;
+            if ((LiveClock.UtcNow - _oldContractAt).TotalSeconds < 30) return;
+            _oldContractAt = LiveClock.UtcNow;
             string master = _inst.MasterInstrument.Name;
             List<string> stare = new List<string>();
             lock (_account.Positions)
@@ -1519,19 +1584,19 @@ namespace NinjaTrader.NinjaScript.AddOns
                 _extFlatSince = DateTime.MinValue;
                 return;
             }
-            if (_connectedSince == DateTime.MinValue) _connectedSince = DateTime.UtcNow;
-            if ((DateTime.UtcNow - _connectedSince).TotalSeconds < 30) { _extFlatSince = DateTime.MinValue; return; }
+            if (_connectedSince == DateTime.MinValue) _connectedSince = LiveClock.UtcNow;
+            if ((LiveClock.UtcNow - _connectedSince).TotalSeconds < 30) { _extFlatSince = DateTime.MinValue; return; }
             bool open = false;
             foreach (KeyValuePair<string, Tracked> kv in _orders)
-                if (kv.Value.Filled && kv.Value.OpenQty > 0 && (DateTime.UtcNow - kv.Value.FilledAt).TotalSeconds >= 10) open = true;
+                if (kv.Value.Filled && kv.Value.OpenQty > 0 && (LiveClock.UtcNow - kv.Value.FilledAt).TotalSeconds >= 10) open = true;
             // vlastna cast pozicie zmizla = ucet ma uz len to, co drzia ostatne instancie (bez nich 0 ako doteraz)
             if (!open || AccountPosition() != OthersNet()) { _extFlatSince = DateTime.MinValue; return; }
-            if (_extFlatSince == DateTime.MinValue) { _extFlatSince = DateTime.UtcNow; return; }
-            if ((DateTime.UtcNow - _extFlatSince).TotalSeconds < 3) return;
+            if (_extFlatSince == DateTime.MinValue) { _extFlatSince = LiveClock.UtcNow; return; }
+            if ((LiveClock.UtcNow - _extFlatSince).TotalSeconds < 3) return;
             _extFlatSince = DateTime.MinValue;
             bool known = _foreignMs > 0;
             double price = known ? _foreignPrice : _lastClose;
-            long ms = known ? _foreignMs : (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds);
+            long ms = known ? _foreignMs : (long)Math.Round((LiveClock.UtcNow - Epoch).TotalMilliseconds);
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
             {
                 Tracked t = kv.Value;
@@ -1539,9 +1604,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 Note("warn", "pozicia " + kv.Key + " (" + t.OpenQty + " ks) zavreta mimo strategie (napr. Chart Trader Close / Flatten) - "
                      + "zapisany vystup 'close' @" + price.ToString(CultureInfo.InvariantCulture) + (known ? "" : " (cena posledneho baru)"));
                 SpoolFill(ms, kv.Key, false, "close", price, t.OpenQty, _live);
-                if (Alive(t.Sl)) CancelOrder(t.Sl);
-                if (Alive(t.Tp)) CancelOrder(t.Tp);
-                Drop(kv.Key, t);
+                Drop(kv.Key, t);   // aj SL/TP: zrusi ich a strazi, kym to broker nepotvrdi
             }
             _foreignMs = 0;
         }
@@ -1554,13 +1617,13 @@ namespace NinjaTrader.NinjaScript.AddOns
         {
             TB.IClockFlatten clock = TB.ClockFlatten.Find(_engine);
             if (clock == null) return;
-            long nowMs = (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds);
+            long nowMs = (long)Math.Round((LiveClock.UtcNow - Epoch).TotalMilliseconds);
             if (!clock.FlattenDue(nowMs)) return;
             bool work = false;
             foreach (KeyValuePair<string, Tracked> kv in _orders)
                 if ((kv.Value.Filled && kv.Value.OpenQty > 0 && kv.Value.Closing == null) || (!kv.Value.Filled && EntryPending(kv.Value))) work = true;
             if (!work) return;
-            string day = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            string day = LiveClock.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             if (_eodClockDay != day)
             {
                 _eodClockDay = day;
@@ -1582,7 +1645,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         private void FeedWatch()
         {
             if (_chart == null || _lastBarMs <= 0) return;
-            long nowMs = (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds);
+            long nowMs = (long)Math.Round((LiveClock.UtcNow - Epoch).TotalMilliseconds);
             bool late = nowMs > _lastBarMs + 2 * _stepMs + 60000L;
             if (!late)
             {
@@ -1590,9 +1653,9 @@ namespace NinjaTrader.NinjaScript.AddOns
                 return;
             }
             if (!InSession(NinjaTrader.Core.Globals.Now)) return;
-            if (_feedStale && (DateTime.UtcNow - _feedNoted).TotalMinutes < 15) return;
+            if (_feedStale && (LiveClock.UtcNow - _feedNoted).TotalMinutes < 15) return;
             _feedStale = true;
-            _feedNoted = DateTime.UtcNow;
+            _feedNoted = LiveClock.UtcNow;
             Note("error", "pocas seansy neprisiel bar " + (int)((nowMs - _lastBarMs - _stepMs) / 60000L) + " min (posledny " + LastBarText()
                  + ") - feed alebo pripojenie (" + Deployment.Connection + "), trailing a zatvorenie na bare stoja");
         }
@@ -1694,8 +1757,9 @@ namespace NinjaTrader.NinjaScript.AddOns
             int dying = DyingIndex(o);
             if (dying >= 0)
             {
-                // ruseny vstup: potvrdene prec -> zabudnut; fill pride ako exekucia (HandleExecution / SweepDying)
-                if (state == OrderState.Cancelled || state == OrderState.Rejected)
+                // ruseny order: potvrdene prec -> zabudnut; fill pride ako exekucia (HandleExecution / SweepDying).
+                // Odmietnute ZRUSENIE nie je koniec orderu - ten stoji dalej a SweepDying ho rusi znova.
+                if ((state == OrderState.Cancelled || state == OrderState.Rejected) && !Alive(o))
                 {
                     _dying.RemoveAt(dying);
                     ReleaseParked();
@@ -1747,7 +1811,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             // znova, po MaxExitAttempts zavrie trhom
             if (t.Closing == null || t.Protect) return;
             // oba vystupy prec (zrusene, nie vyplnene) -> trhovy vystup; vyplneny vystup zavrie poziciu sam (HandleExecution)
-            if (!t.CloseSent && Gone(t.Sl) && Gone(t.Tp) && t.OpenQty > 0 && DateTime.UtcNow >= t.CloseRetryAt) SubmitCloseMarket(id, t);
+            if (!t.CloseSent && Gone(t.Sl) && Gone(t.Tp) && t.OpenQty > 0 && LiveClock.UtcNow >= t.CloseRetryAt) SubmitCloseMarket(id, t);
         }
 
         /// <summary>Order je prec bez fillu (zruseny / odmietnuty / nikdy neposlany).</summary>
@@ -1789,7 +1853,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (FindEntry(o, name, out key, out t))
             {
                 // vyplnenie vstupu
-                if (!t.Filled) { t.FilledAt = DateTime.UtcNow; t.FilledMs = execMs; }
+                if (!t.Filled) { t.FilledAt = LiveClock.UtcNow; t.FilledMs = execMs; }
                 t.Filled = true;
                 t.Parked = false;
                 t.OpenQty += qty;
@@ -1821,9 +1885,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (suffix != "sl" && suffix != "tp" && o.OrderState == OrderState.Filled) t.CloseSent = false;
                 return;
             }
-            // druhy z OCO dvojice zrusi NT sam; keby nie, stiahni ho
-            if (suffix == "sl" && Alive(t.Tp)) CancelOrder(t.Tp);
-            if (suffix == "tp" && Alive(t.Sl)) CancelOrder(t.Sl);
+            // druhy z OCO dvojice zrusi NT sam; keby nie (alebo pozicia odisla trhovym vystupom a zrusenie SL/TP sa
+            // nepotvrdilo), stiahne a strazi ho Drop
             Drop(id, t);
             ReleaseParked();
 
@@ -2281,7 +2344,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 t.Filled = true;
                 t.OpenQty = open;
                 t.FilledMs = inMs;
-                t.FilledAt = DateTime.UtcNow.AddMinutes(-1);   // ReconcileExternal smie hned (vyplneny davno)
+                t.FilledAt = LiveClock.UtcNow.AddMinutes(-1);   // ReconcileExternal smie hned (vyplneny davno)
                 object ex = TB.Json.Get(s, "extreme");
                 double? extreme = filled && ex != null ? TB.Json.ToDouble(ex) : (double?)null;
                 t.Extreme = CatchUpExtreme(plan, extreme, filled && savedBarMs > 0 ? savedBarMs : inMs);
@@ -2312,7 +2375,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         // cancelled ...) sa citaju v slucke instancie kazdych 250 ms. SL/TP stoja v orderi u brokera, strazca SL
         // a terminy `life` su vec exekutora; tu sa riesi, co vie len engine (trailing na baroch, close, koniec seansy).
 
-        private DateTime _routeSince = DateTime.UtcNow;
+        private DateTime _routeSince = LiveClock.UtcNow;
         private bool _routeNoted, _routeWasBad;
 
         /// <summary>Stabilne magic cislo route z id instancie (FNV-1a), ked ho deploy.json nedal.</summary>
@@ -2366,18 +2429,18 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// vlastny `try`: chyba zapisu heartbeatu nesmie zastavit citanie fillov a naopak.</summary>
         private void RouteTick()
         {
-            if ((DateTime.UtcNow - _routeChecked).TotalSeconds >= 1)
+            if ((LiveClock.UtcNow - _routeChecked).TotalSeconds >= 1)
             {
-                _routeChecked = DateTime.UtcNow;
+                _routeChecked = LiveClock.UtcNow;
                 try { _route.Heartbeat(NowMs(), _controlMode); }
                 catch (Exception e) { NoteThrottled("route-hb", "error", "heartbeat pre MT5 exekutor sa neda zapisat - " + e.Message); }
                 try { RouteStatusCheck(); }
                 catch (Exception e) { NoteThrottled("route-status", "error", "stav MT5 exekutora sa neda precitat - " + e.Message); }
             }
-            if ((DateTime.UtcNow - _routeRotated).TotalSeconds >= 60)
+            if ((LiveClock.UtcNow - _routeRotated).TotalSeconds >= 60)
             {
                 // cmd.jsonl do .1, ked je velky a exekutor ho cely potvrdil (evt.jsonl odklada exekutor)
-                _routeRotated = DateTime.UtcNow;
+                _routeRotated = LiveClock.UtcNow;
                 try { if (_route.RotateCommands(TB.Bridge.RotateBytes)) Log("cmd.jsonl route odlozeny do .1"); }
                 catch (Exception e) { Log("rotacia cmd.jsonl - " + e.Message); }
             }
@@ -2406,7 +2469,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (state != _routeState)
             {
                 _routeState = state;
-                _routeSince = DateTime.UtcNow;
+                _routeSince = LiveClock.UtcNow;
                 _routeNoted = false;
                 if (_spool != null) { _spool.Route(state); SpoolCheck(); }
                 if (ok)
@@ -2419,7 +2482,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
             _routeDetail = detail;
             // zly stav sa hlasi, az ked trva 5 s (exekutor novu route prevezme do 2 s)
-            if (!ok && !_routeNoted && (DateTime.UtcNow - _routeSince).TotalSeconds >= 5)
+            if (!ok && !_routeNoted && (LiveClock.UtcNow - _routeSince).TotalSeconds >= 5)
             {
                 _routeNoted = true;
                 _routeWasBad = true;
@@ -2560,7 +2623,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                         Log("MT5 FILL in " + id + " znova - uz je vyplneny x" + t.OpenQty + ", ignorujem");
                         return;
                     }
-                    t.FilledAt = DateTime.UtcNow;
+                    t.FilledAt = LiveClock.UtcNow;
                     t.FilledMs = ft;
                     t.Filled = true;
                     t.Parked = false;
@@ -2626,7 +2689,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 a.Filled = true;
                 a.OpenQty = (int)Math.Max(1, Math.Round(plan.Qty));
                 a.FilledMs = ft;
-                a.FilledAt = DateTime.UtcNow;
+                a.FilledAt = LiveClock.UtcNow;
                 _orders[id] = a;
                 Note("warn", "MT5 drzi poziciu " + id + " (" + (dir == TB.Direction.Long ? "long" : "short") + " x" + a.OpenQty
                      + "), ktoru stav instancie nepozna - prevzata bez trailingu (SL/TP u brokera)");
@@ -2695,7 +2758,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                             t.OpenQty = (int)Math.Round(TB.Json.GetDouble(s, "open_qty", 0));
                             t.FilledMs = (long)TB.Json.GetDouble(s, "filled_ms", 0);
                             t.SentMs = (long)TB.Json.GetDouble(s, "sent_ms", 0);
-                            t.FilledAt = DateTime.UtcNow.AddMinutes(-1);
+                            t.FilledAt = LiveClock.UtcNow.AddMinutes(-1);
                             t.RemoteLive = !t.Filled;
                             object ex = TB.Json.Get(s, "extreme");
                             double? extreme = t.Filled && ex != null ? TB.Json.ToDouble(ex) : (double?)null;

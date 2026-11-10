@@ -60,6 +60,15 @@ z kódu a znalosti platforiem, nie reprodukcia.
 
 Demo test exekútora z auditu routingu stále nie je urobený; kroky 1 a 2 ho nenahrádzajú.
 
+> **Stav 10. 11. 2026: krok 10 je hotový pre NinjaTrader.** `tester/faultsim` púšťa skutočný `LiveInstance` nad
+> náhradnými typmi NT s falošným brokerom a skriptovaným enginom, čas je simulovaný (`LiveClock`, `Step`);
+> 31 scenárov v `tester/tests/test_ninjatrader_faults.py` drží M-LIVE-1, 2, 6 a N-LIVE-1, 11, 12
+> ([docs/SIMULATOR_PORUCH.md](../SIMULATOR_PORUCH.md)). Simulátor hneď našiel dve nové chyby, obe opravené:
+> SL/TP ostávali u brokera po trhovom výstupe, keď sa ich zrušenie nepotvrdilo (stop bez pozície), a odmietnuté
+> zrušenie vstupu sa bralo ako koniec orderu. **MT5 (EA, exekútor) simulátor nepokrýva** — MQL5 mimo terminálu
+> nebeží; M-LIVE-3 a routing ostávajú na Strategy Testeri a deme. Model brokera je predpoklad, nie NT:
+> skúšku na Sim101 nenahrádza.
+
 ## 3. Stav nálezov z 25. 10. a 26. 10.
 
 ### 3.1 Jadro, backtest adaptéry, dáta

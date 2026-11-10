@@ -124,6 +124,7 @@ Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCH
 | NinjaTrader 8 a C# jadro | [docs/NINJATRADER.md](docs/NINJATRADER.md) |
 | MetaTrader 5 nad tým istým C# jadrom | [docs/MT5.md](docs/MT5.md) |
 | stratégia v NinjaTraderi, ordery v MT5 | [docs/ROUTING.md](docs/ROUTING.md) |
+| čo adaptér NinjaTradera urobí pri poruche brokera (simulátor) | [docs/SIMULATOR_PORUCH.md](docs/SIMULATOR_PORUCH.md) |
 | telemetria bežiacich stratégií (karta Live) | [docs/LIVE.md](docs/LIVE.md) |
 | zdieľať trhy medzi NT8 a MT5 (návrh) | [docs/FEED.md](docs/FEED.md) |
 | počítať na viac strojoch (hub, agenti, pluginy) | [docs/HUB.md](docs/HUB.md), [deploy/agent/](deploy/agent/README.md) |
@@ -157,7 +158,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-09)
+## Kde sme (2026-11-10)
 
 - **Výber stratégií** ide cez [smernicu testovania](docs/SMERNICA_TESTOVANIA.md) — séria
   skúšok, ktoré môžu stratégiu „zabiť" (päť okien, náhoda, Monte Carlo, náklady, …).
@@ -167,6 +168,9 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   kartu Live cez hub ([docs/LIVE.md](docs/LIVE.md)). Smerovanie „stratégia v NT, ordery v MT5"
   má hotovú fázu 1, exekútor a AddOn sú napísané, ale **na MT5 účte ešte neoverené**
   ([docs/ROUTING.md](docs/ROUTING.md), audit [2026-10-26](docs/audity/AUDIT_routing_2026-10-26.md)).
+  Exekúciu adaptéra NinjaTradera pri poruchách brokera (odmietnutý order, výplň po zrušení, výpadok, pád)
+  overuje simulátor nad skutočným kódom inštancie ([docs/SIMULATOR_PORUCH.md](docs/SIMULATOR_PORUCH.md));
+  MT5 ostáva na Strategy Testeri a deme.
 - **Pluginy** (4. 11.): Telegram je plugin agenta (`tester/hub/agent_plugins/telegram/`) vedľa pluginov hubu;
   nový kód len v plugine sa načíta za behu — obchodný stroj si ho stiahne sám, bez pauzy nasadení a reštartu,
   hub bez drainu ([docs/HUB.md](docs/HUB.md), „Pluginy agenta“).

@@ -288,6 +288,8 @@ tester/
 │                            telegram (messages from the spool, commands, trade journal, performance, reports)
 ├── compare/                 cross-platform checks: C# vs Python parity, native C# backtest, replay on Mono,
 │                            MultiCharts log vs simulator, zone and trade scans
+├── faultsim/                broker-fault simulator for the NinjaTrader adapter: stub NT types with a fake
+│                            broker, a scripted engine and the scenario host (docs/SIMULATOR_PORUCH.md)
 ├── dashboard/               static results dashboard + its live section
 ├── tests/                   Tester tests, golden tests against TradingView (golden/), C# parity, MT5 facade, index
 ├── scripts/                 the web app launcher (wrapped by webapp.* in the root)
