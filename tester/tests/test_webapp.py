@@ -875,7 +875,11 @@ def _stub_launcher(monkeypatch, chyba: list):
     import sys
     import types
 
-    monkeypatch.setitem(sys.modules, "uvicorn", types.SimpleNamespace(run=lambda *a, **k: None))
+    # spúšťač si drží `uvicorn.Server` (karta Live z neho číta `should_exit`, audit M-WEB-1)
+    server = types.SimpleNamespace(run=lambda: None, should_exit=False)
+    monkeypatch.setitem(sys.modules, "uvicorn", types.SimpleNamespace(
+        run=lambda *a, **k: None, Config=lambda *a, **k: types.SimpleNamespace(args=a, kwargs=k), Server=lambda cfg: server))
+    monkeypatch.setattr("atexit.register", lambda *a, **k: None)
     merges: list[list[str]] = []
     monkeypatch.setattr("tester.data_archive.missing", lambda: chyba)
     monkeypatch.setattr("tester.data_archive.main", lambda argv: merges.append(argv) or 0)
@@ -1691,6 +1695,28 @@ def test_vypnutie_webapp_zabije_beh_a_zapise_ho(tmp_path):
     assert proc.poll() is not None                                 # podproces je preč
     rec = store.get(job.id)
     assert rec["status"] == "failed" and "vypla" in rec["error"]
+
+
+def test_zatvorena_fronta_odmietne_novy_beh(tmp_path):
+    """Audit M-WEB-6: medzi kontrolou fronty a auto-reštartom beží odhlásenie z hubu; beh zadaný v tom okne
+    by zanikol bez stopy. Zatvorená fronta ho odmietne s textom (API z neho spraví 422), `reopen` to vráti
+    a po `shutdown` sa už neprijíma nič."""
+    import sys
+
+    from tester.webapp.runner import BacktestRunner, RunnerClosed
+
+    runner = BacktestRunner(RunStore(tmp_path), command_builder=lambda *a: [sys.executable, "-c", ""])
+    settings = {"pair": "BTC/USDT:USDT", "timerange": "20260801-20260802", "timeframe": "3m", "engine": "freqtrade"}
+    runner.close("webapp sa práve reštartuje po aktualizácii kódu")
+    with pytest.raises(RunnerClosed, match="reštartuje"):
+        runner.submit({}, settings)
+    assert runner.snapshot() == [] and isinstance(RunnerClosed("x"), ValueError)
+    runner.reopen()
+    job = runner.submit({}, settings)
+    assert job.id in runner.jobs
+    runner.shutdown()
+    with pytest.raises(RunnerClosed, match="vypla"):
+        runner.submit({}, settings)
 
 
 def test_worker_prezije_zlyhanie_zapisu(tmp_path, monkeypatch):

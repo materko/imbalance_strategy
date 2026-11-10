@@ -180,10 +180,15 @@ def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
     job = runner.submit(params, settings, note=note, user=user)
     if not quiet:
         print(f"webapp nebeží, spúšťam priamo: {job.id}")
-    while job.status in ("queued", "running"):
-        time.sleep(2)
-        if not quiet and job.log_lines:
-            print(f"  … {job.log_lines[-1][:100]}", flush=True)
+    try:
+        while job.status in ("queued", "running"):
+            time.sleep(2)
+            if not quiet and job.log_lines:
+                print(f"  … {job.log_lines[-1][:100]}", flush=True)
+    except KeyboardInterrupt:
+        # Ctrl+C ukončí CLI, ale Freqtrade by bežal ďalej ako sirota a beh by ostal bez `run.json` (audit M-WEB-2)
+        runner.shutdown("CLI prerušené (Ctrl+C)")
+        raise
     # Runner prepne stav na done/failed pred zápisom `run.json` — bez čakania by checkup
     # dostal záznam bez výsledku a okno by vypadlo z analytiky.
     # Bod mriežky/matice nie je v histórii, ale v `sweeps/` — `find` nájde oboje.

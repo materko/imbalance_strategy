@@ -532,7 +532,8 @@ def build(ctx: AppContext) -> APIRouter:
                 yield sse_event(msg)
             ticho = 0.0
             while True:
-                if await request.is_disconnected():
+                # pri vypínaní webapp stream končí sám — inak by uvicorn čakal na toto spojenie (audit M-WEB-1)
+                if await request.is_disconnected() or getattr(getattr(request.app.state, "server", None), "should_exit", False):
                     return
                 nova = await loop.run_in_executor(None, mirror.wait_for_change, verzia, SSE_WAIT)
                 if nova == verzia:

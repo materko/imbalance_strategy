@@ -342,6 +342,13 @@ kartou Live visí, druhé Ctrl+C preskočí `runner.shutdown` aj `_hub_bye` — 
 `run.json`, teda pôvodný N-WEB-1. Poradie v uvicorne je z čítania jeho zdroja, nespúšťané.
 *Oprava:* `timeout_graceful_shutdown=5`, príznak „closing" v SSE generátore, `atexit` ako záloha.
 
+> **Stav 10. 11. 2026: M-WEB-1, 2 a 6 sú opravené.** Spúšťač drží `uvicorn.Server` s
+> `timeout_graceful_shutdown=5`, SSE karty Live končí pri `server.should_exit` a `runner.shutdown` je aj v
+> `atexit`. Overené na skutočnom uvicorne s otvoreným streamom: s príznakom server skončil za 0,3 s, len
+> s časovým limitom za 5,3 s, shutdown hook zbehol v oboch prípadoch. Priamy beh z CLI pri Ctrl+C volá
+> `runner.shutdown`. Pred auto-reštartom sa fronta zavrie (`RunnerClosed`, API 422) a skontroluje znova.
+> Neoverené ručne: skutočné Ctrl+C v konzole a druhé Ctrl+C (vynútený koniec → `atexit`).
+
 **M-WEB-2 (P2) Priamy beh z CLI nemá shutdown.** `cli/run.py:176–186`: Ctrl+C ukončí CLI, Freqtrade
 beží ďalej.
 

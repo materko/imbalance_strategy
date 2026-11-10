@@ -71,6 +71,12 @@ Koreňové `webapp.*` sú len obaly nad `tester/scripts/webapp.*`.
 Voliteľné: `-Port 9000` / `TRADEBOT_WEB_PORT=9000`, `-NoBrowser` / `NO_BROWSER=1`.
 Server sa ukončí Ctrl+C. Aktualizácia kódu je `git pull` v koreni repozitára.
 
+Pri vypnutí (Ctrl+C, reštart po aktualizácii kódu) sa bežiace aj čakajúce behy zapíšu do histórie ako `failed`
+s dôvodom a ich Freqtrade podprocesy sa ukončia. Otvorená karta Live vypnutie nezdrží: jej stream sa ukončí sám
+a zvyšné spojenia server po 5 s zruší. Tesne pred auto-reštartom fronta nové behy odmieta („webapp sa práve
+reštartuje…", zadaj o chvíľu znova). To isté platí pre beh spustený priamo z CLI bez webapp — Ctrl+C ho zapíše
+ako `failed` a Freqtrade ukončí.
+
 Na macOS beží webapp pod `caffeinate -i`: inak ju systém v okne Terminálu na pozadí utlmí
 (App Nap) a pri nečinnosti uspí. Agent hubu vtedy pošle heartbeat len raz za 10–20 minút,
 hub ho vyhlási za offline a karta Live sa nesťahuje. Zatvorené veko Mac uspí aj tak.

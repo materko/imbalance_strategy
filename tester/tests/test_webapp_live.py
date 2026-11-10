@@ -987,3 +987,25 @@ def test_zrkadlo_prenesie_ping_a_karta_rozlisi_trh_zatvoreny(tmp_path: Path):
     chip = js[js.index("function liveStatusChip("):js.index("function renderLiveList(")]
     assert "trh zatvorený" in chip and "ticho" in chip
     assert 'live.state === "closed"' in js[js.index("function ldStatusChip("):]
+
+
+def test_stream_konci_pri_vypinani_webapp(live_app):
+    """Audit M-WEB-1: otvorená karta Live držala SSE spojenie a uvicorn kvôli nemu nespustil shutdown hooky
+    (Freqtrade sirota, beh bez `run.json`). Stream sa pri `server.should_exit` ukončí sám — `TestClient`
+    odpoveď dočíta celú, takže bez príznaku by sa toto volanie nevrátilo (preto vo vlákne s limitom)."""
+    import threading
+    from types import SimpleNamespace
+
+    c, _mirror = live_app
+    c.app.state.server = SimpleNamespace(should_exit=True)
+    vysledok: dict = {}
+
+    def citaj():
+        r = c.get("/api/live/stream")
+        vysledok.update(status=r.status_code, text=r.text)
+
+    vlakno = threading.Thread(target=citaj, daemon=True)
+    vlakno.start()
+    vlakno.join(timeout=20)
+    assert not vlakno.is_alive(), "stream sa pri vypínaní neukončil"
+    assert vysledok["status"] == 200 and "retry: 3000" in vysledok["text"]

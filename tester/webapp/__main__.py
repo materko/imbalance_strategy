@@ -80,7 +80,17 @@ def _watch_code(interval: float = 20.0) -> None:
                     continue
         except Exception:  # noqa: BLE001 — server ešte nebeží / neodpovedá: skús neskôr
             continue
+        # Medzi kontrolou fronty a `execv` beží odhlásenie z hubu (až 15 s): beh zadaný v tom okne by zanikol
+        # bez stopy. Fronta sa preto najprv zavrie a skontroluje ešte raz priamo (audit M-WEB-6).
+        from .app import app
+
+        runner = app.state.runner
+        runner.close("webapp sa práve reštartuje po aktualizácii kódu")
+        if runner.snapshot():
+            runner.reopen()
+            continue
         print("Kód v gite sa zmenil (pull) — reštartujem webapp, aby načítala nové stratégie ...", flush=True)
+        runner.shutdown("webapp sa reštartovala po aktualizácii kódu")
         _hub_bye()
         os.execv(sys.executable, [sys.executable, "-m", "tester.webapp"])
 
@@ -159,7 +169,17 @@ def main() -> int:
     # Ctrl+C aj SIGTERM (reštart): odhlásiť sa pri vypínaní aplikácie — uvicorn po ňom signál
     # zopakuje a proces skončí, takže kód za uvicorn.run() by sa už nevykonal.
     _app.router.on_shutdown.append(_hub_bye)
-    uvicorn.run("tester.webapp.app:app", host=host, port=port, log_level="info")
+    # Otvorená karta Live drží SSE spojenie donekonečna a uvicorn volá shutdown hooky až po zatvorení
+    # spojení: Ctrl+C by visel a druhé Ctrl+C by hooky preskočilo — Freqtrade sirota a beh bez `run.json`
+    # (audit M-WEB-1). Preto: SSE sa pri vypínaní ukončí samo (`app.state.server.should_exit`), po 5 s sa
+    # zvyšné spojenia zrušia, a keby hooky predsa nezbehli (vynútený koniec), behy uprace `atexit`.
+    import atexit
+
+    atexit.register(_app.state.runner.shutdown)
+    server = uvicorn.Server(uvicorn.Config("tester.webapp.app:app", host=host, port=port, log_level="info",
+                                           timeout_graceful_shutdown=5))
+    _app.state.server = server
+    server.run()
     return 0
 
 

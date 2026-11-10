@@ -123,6 +123,10 @@ def _code_version() -> str:
     return repo_version()
 
 
+class RunnerClosed(ValueError):
+    """Webapp sa vypína alebo reštartuje — nové behy sa neprijímajú (API z `ValueError` spraví 422 s textom)."""
+
+
 class BacktestRunner(HyperoptJobMixin):
     """Fronta jedného pracovného vlákna. `submit()` vráti Job, výsledok skončí v store."""
 
@@ -143,6 +147,10 @@ class BacktestRunner(HyperoptJobMixin):
         #: čakajú, kým dobehne hyperopt. Worker s takým behom v ruke tu stojí.
         self._slot = threading.Condition(self._lock)
         self._threads: list[threading.Thread] = []
+        #: Dôvod vypnutia (`shutdown`) — vlákno behu ho zapíše namiesto „zrušené používateľom".
+        self._closing: str | None = None
+        #: Nové behy sa neprijímajú (`close`): vypínanie alebo okno pred auto-reštartom (audit M-WEB-6).
+        self._refuse: str | None = None
         #: Emulátor MultiCharts v podprocese (`mc_worker`), nie v procese webapp — inak by
         #: behy držali GIL a webapp by pri viacerých workeroch neodpovedala. False = tu
         #: (testy s podvrhnutým emulátorom).
@@ -169,6 +177,8 @@ class BacktestRunner(HyperoptJobMixin):
     def submit(self, params: dict[str, Any], settings: dict[str, Any], note: str = "", user: str = "") -> Job:
         # config sa validuje HNEĎ, aby tester dostal chybu do formulára a nie do logu behu,
         # a beh si zapíše celý efektívny config — nie len to, čo poslal formulár
+        if self._refuse:
+            raise RunnerClosed(f"{self._refuse} — beh zadaj o chvíľu znova")
         params = effective_params(params, settings.get("strategy") or "ibs")
         check_market_rules(settings["pair"], params)
         settings = {**settings, "instrument": instrument_for_pair(settings["pair"])}
@@ -180,6 +190,8 @@ class BacktestRunner(HyperoptJobMixin):
             while ((run_id := make_run_id(params, settings, teraz, salt=n)) in self.jobs
                    or self.store.find(run_id) is not None):
                 n += 1
+            if self._refuse:   # `close` prišiel počas validácie — beh by po reštarte zanikol bez stopy
+                raise RunnerClosed(f"{self._refuse} — beh zadaj o chvíľu znova")
             job = Job(id=run_id, params=params, settings=settings, note=note, user=user)
             self.jobs[job.id] = job
             self.order.append(job.id)
@@ -211,12 +223,22 @@ class BacktestRunner(HyperoptJobMixin):
             if p is not None and p.poll() is None:
                 kill_tree(p.pid)
 
+    def close(self, reason: str) -> None:
+        """Od teraz sa nové behy odmietajú (`RunnerClosed`); bežiace a čakajúce ostávajú. `reopen` to vráti."""
+        with self._lock:
+            self._refuse = reason
+
+    def reopen(self) -> None:
+        with self._lock:
+            self._refuse = None
+
     def shutdown(self, reason: str = "webapp sa vypla počas behu") -> int:
         """Vypnutie webapp (Ctrl+C, reštart): bežiace behy zabiť aj s Freqtrade podprocesmi a zapísať ako
         `failed`, čakajúce tiež — inak by Freqtrade bežal ďalej ako sirota a beh by z histórie zmizol bez
         stopy (audit N-WEB-1). Vráti počet zapísaných behov."""
         self._closing = reason   # vlákno behu, ktoré po zabití podprocesu ešte zapíše, nech nepíše "zrušené používateľom"
         with self._lock:
+            self._refuse = self._refuse or reason
             jobs = [self.jobs[i] for i in self.order if self.jobs[i].status in ("queued", "running")]
         now = datetime.now(timezone.utc).isoformat(timespec="seconds")
         for job in jobs:
@@ -455,7 +477,7 @@ class BacktestRunner(HyperoptJobMixin):
 
     def _persist(self, job: Job, result, duration: float | None = None,
                  chart_path: Path | None = None) -> None:
-        closing = getattr(self, "_closing", None)
+        closing = getattr(self, "_closing", None)   # `_persist` volajú aj náhradné runnery testov bez `__init__`
         if closing and job.status == "failed":
             job.error = closing
         record = {
