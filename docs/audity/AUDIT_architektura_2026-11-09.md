@@ -226,6 +226,22 @@ celkový PF, verdikty `fee2`/`delay` aj DSR. *Oprava:* deduplikovať podľa `(op
 takže živá stratégia od januára tieto udalosti ticho prestane obchodovať. *Oprava:* doplniť dátumy a
 pridať varovanie + test, keď posledný dátum typu je bližšie než N dní.
 
+> **Stav 10. 11. 2026: čiastočne.** PCE a GDP sú doplnené na celý rok 2027 z BEA
+> (`apps.bea.gov/API/signup/release_dates.json`, prečítané priamo; koniec roka 2026 v ňom sedí s kalendárom)
+> a `SpravyCalendar.cs` je vygenerovaný znova. Pribudla kontrola `python -m tradebot.strategies.spravy.calendar
+> --check [dni]` a `tester/tests/test_spravy_calendar.py`: varuje 45 dní pred koncom pokrytia a padne, keď
+> niektorému typu kalendár už skončil. **Chýba JOLTS** (posledný 1. 12. 2026 — v rozvrhu BLS na 2027 nie je)
+> **a RETAIL** (posledný 16. 12. 2026 — stránku Census sa nepodarilo prečítať, blokuje automatický prístup;
+> termíny z vyhľadávača som do kalendára nedal, lebo nesprávny dátum znamená obchod bez správy). Engine sa
+> nemenil: koniec pokrytia naživo stále nehlási, stráži ho len kontrola a test.
+>
+> **Automatické dopĺňanie z ForexFactory** (plugin hubu `ff_calendar`, `sync.py`): týždenný export sa po každom
+> stiahnutí porovná s kalendárom a rozdiel ide do nasadení ako `newsAdd` / `newsSkip` (hneď) a raz za mesiac do
+> `calendar.json` v repozitári. Chýbajúce JOLTS a RETAIL sa tak doplnia samy v týždni, keď vyjdú. Na exporte
+> z 9.–13. 11. 2026 je rozdiel nulový (CPI, CLAIMS, PPI sedia). Názvy udalostí pre ostatné typy
+> (`calendar.FF_TITLES`) sú podľa zaužívaných názvov ForexFactory a overia sa až na živom feede — nesprávny názov
+> sa prejaví ako oznámenie „v kalendári je, vo feede nie", nie ako vynechaná správa. Postup: [docs/HUB.md](../HUB.md).
+
 **M-CORE-4 (P2) Manifest odvodených TF sa píše bez zámku a neatomicky.** `core/derived.py:71–83`
 z webapp (`ensure`) aj z podprocesu Freqtrade (`freqtrade/timeframes.py:69`); pokazený manifest sa číta
 ako prázdny (`:29–32`). Po stratenom zápise sa dopočítané súbory tvária ako stiahnuté — `split` ich

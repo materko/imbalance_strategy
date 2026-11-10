@@ -7,6 +7,9 @@ Sťahuje sa **raz denne** o `refresh` (predvolene 07:00 v `tz`). Navyše, keď e
 minulý týždeň (prehadzuje sa v nedeľu), skúša to každú hodinu — inak by vypadli pondelkové ranné
 ázijské správy. Neúspech = ide sa zo zásoby a skúsi sa znova o 15 min; dlhý výpadok či chýbajúci
 týždeň plugin hlási ako `problem` a strážca (`watchdog`) ho pošle do Telegramu.
+
+Po každom úspešnom stiahnutí sa export porovná s kalendárom stratégie SPRÁVY a rozdiel sa zapíše do jej
+nasadení (`newsAdd` / `newsSkip`) a raz za mesiac do repozitára — `sync.py`. Vypína sa `"strategy_sync": false`.
 """
 
 from __future__ import annotations
@@ -22,6 +25,7 @@ from ..base import HubPlugin, NotifyError, read_json, write_json
 from . import alerts
 from .alerts import CalendarConfig
 from .feed import FF_URL, NY, feed_week, fetch, ny_week, parse_feed
+from .sync import CalendarSync
 
 #: Po neúspešnom stiahnutí znova o toľko.
 RETRY_FAIL = 900.0
@@ -48,11 +52,13 @@ class FFCalendar(HubPlugin):
         self.last_error = ""
         self.sent: dict[str, list[float]] = {}
         self.cfg = CalendarConfig()
+        self.sync: CalendarSync | None = None
 
     # -- stav -----------------------------------------------------------------
     def setup(self, ctx) -> None:
         super().setup(ctx)
         self.started = ctx.clock()
+        self.sync = CalendarSync(ctx)
         st = read_json(ctx.path("state.json"), {}) or {}
         try:
             self.sent = {str(k): [float(x) for x in v] for k, v in (st.get("sent") or {}).items()}
@@ -115,7 +121,22 @@ class FFCalendar(HubPlugin):
             return False
         self.events, self.fetched_ok, self.last_error = events, now, ""
         write_json(self.ctx.path("cache.json"), {"fetched": now, "url": self.cfg.url or FF_URL, "feed": raw})
+        self.sync_strategy()
         return True
+
+    def sync_strategy(self, force_push: bool = False) -> dict[str, Any]:
+        """Export → kalendár stratégie SPRÁVY (nasadenia na hube, raz za mesiac repozitár). Chyba plugin nezhodí:
+        upozornenia na správy musia chodiť ďalej."""
+        raw = self.ctx.config()
+        if self.sync is None or raw.get("strategy_sync", True) is False:
+            return {}
+        try:
+            return self.sync.run(self.events, push=raw.get("push") if isinstance(raw.get("push"), dict) else None,
+                                 force_push=force_push)
+        except Exception as exc:  # noqa: BLE001
+            self.sync.last_error = f"{type(exc).__name__}: {exc}"
+            self.ctx.log.exception("calendar sync zlyhal: %s", self.sync.last_error)
+            return {"error": self.sync.last_error}
 
     # -- tick -----------------------------------------------------------------
     def tick(self) -> None:
@@ -161,6 +182,7 @@ class FFCalendar(HubPlugin):
                 "remind_min": self.cfg.remind_min, "tz": self.cfg.tz, "refresh": self.cfg.refresh,
                 "next": (f"{nxt[0]['country']} {nxt[0]['title']} "
                          f"{alerts.when(nxt[0]['ts'], now, self.cfg.zone())}") if nxt else "",
+                "sync": {**self.sync.last, "error": self.sync.last_error} if self.sync is not None else None,
                 "problem": self.problem(now)}
 
     def upcoming(self, now: float | None = None) -> list[dict[str, Any]]:
@@ -218,6 +240,8 @@ class FFCalendar(HubPlugin):
                                      description="červené správy tohto týždňa v čase hubu a kedy príde upozornenie")
         ap.add_argument("--fetch", action="store_true", help="stiahnuť export hneď (inak zo zásoby hubu)")
         ap.add_argument("--test", action="store_true", help="poslať najbližšiu udalosť do Telegramu na skúšku")
+        ap.add_argument("--sync", action="store_true", help="porovnať export s kalendárom stratégie SPRÁVY a zapísať rozdiel do nasadení")
+        ap.add_argument("--push", action="store_true", help="s --sync: čakajúce termíny pushnúť do repozitára hneď (nie až o mesiac)")
         args = ap.parse_args(argv)
         c = self.config()
         if (args.fetch or not self.events) and not self.refresh(force=True):
@@ -233,6 +257,14 @@ class FFCalendar(HubPlugin):
             print("tento týždeň už nič sledované")
         if p := self.problem(self.ctx.clock()):
             print(f"POZOR: {p}")
+        if args.sync or args.push:
+            s = self.sync_strategy(force_push=args.push)
+            if s.get("error"):
+                print(f"kalendár SPRÁVY: {s['error']}")
+            elif s:
+                print(f"kalendár SPRÁVY, týždeň od {s['week']}: pridať [{s['add']}] vynechať [{s['skip']}] "
+                      f"chýba vo feede [{s['missing']}] · zmenené nasadenia: {', '.join(s['deployments']) or 'žiadne'} · "
+                      f"do repozitára čaká {s['pending_repo']}" + (f" · commit {s['commit'][:10]}" if s.get("commit") else ""))
         if args.test:
             if not rows:
                 print("nie je čo poslať", file=sys.stderr)

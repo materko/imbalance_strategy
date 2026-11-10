@@ -700,6 +700,38 @@ v čase `tz`, s prognózou a ✓ pri tých, ku ktorým už upozornenie odišlo.
 `python -m tester.hub plugin ff_calendar` vypíše sledované udalosti týždňa v čase hubu a kedy k nim
 príde upozornenie; `--fetch` stiahne export hneď, `--test` pošle najbližšiu udalosť do Telegramu.
 
+**Kalendár stratégie SPRÁVY sa z exportu dopĺňa sám** (`sync.py`). Kalendár stratégie
+(`tradebot/strategies/spravy/calendar.json`) má termíny na rok dopredu len pre typy, ktoré úrady už zverejnili;
+typ, ktorému termíny dôjdu, by stratégia naživo ticho prestala obchodovať. Po každom stiahnutí sa preto export
+porovná s kalendárom (`calendar.week_diff`, názvy udalostí → typy v `calendar.FF_TITLES`, len USD):
+
+| rozdiel | čo sa stane |
+|---|---|
+| správa je vo feede, v kalendári nie | pridá sa do `newsAdd` nasadení a zapamätá na zápis do repozitára |
+| typ je tento týždeň v iný deň, než ho má kalendár (presun, sviatok) | starý deň do `newsSkip`, nový do `newsAdd` |
+| ten istý deň, iný čas | bežný čas do `newsSkip`, skutočný do `newsAdd` (do repozitára nejde — typ má jeden čas) |
+| kalendár správu má, feed typ tento týždeň nemá vôbec | **len oznámenie** — môže byť zrušená, ale aj názov, ktorý nepoznáme |
+
+Zmena ide do nasadení stratégií, ktoré majú polia `newsAdd` / `newsSkip` (SPRÁVY a jej C# porty), cez
+`DeployStore.update_deployment` — stroj si ju prevezme bežným zosúladením, bez novej DLL (profil sa na platforme
+mení, keď je stratégia bez pozície). Plugin spravuje len vlastné záznamy: čo do nasadenia napísal človek, ostáva;
+oprava vo feede počas týždňa sa prenesie a záznamy staršie než 30 dní sa odstránia. Viac než 12 pridaných správ
+za týždeň sa berie ako pokazený feed a nič sa nezmení. Každú zmenu plugin oznámi do Telegramu a do logu udalostí
+(`plugin_calendar_sync`).
+
+Termíny v bežnom čase svojho typu sa navyše **najviac raz za mesiac** dopíšu do `calendar.json` a do vygenerovaného
+`SpravyCalendar.cs` a pushnú z vlastného klonu pluginu (ako živé dáta, `livedata.gitpush`) — backtest a ďalšia DLL
+ich tak majú tiež. Bez `push` v configu sa len zbierajú:
+
+```json
+{"strategy_sync": true,
+ "push": {"remote": "git@github.com:<kto>/<repo>.git", "ssh_key": "../livedata/deploy_key", "branch": "main"}}
+```
+
+`python -m tester.hub plugin ff_calendar --sync` porovná a zapíše hneď, `--sync --push` aj pushne bez čakania na
+ďalší mesiac. `"strategy_sync": false` to celé vypne. Export má len aktuálny týždeň, takže dopĺňanie ide týždeň po
+týždni — kontrolu konca pokrytia (`python -m tradebot.strategies.spravy.calendar --check`) nenahrádza.
+
 Testy: `tester/tests/test_hub_plugins.py`, `tester/tests/test_plugin_reload.py`.
 
 ## Pluginy agenta

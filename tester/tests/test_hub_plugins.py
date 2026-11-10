@@ -46,7 +46,7 @@ def _host(tmp: Path, classes: dict, t: list[float], notifier=None, hub=None) -> 
     return PluginHost(tmp / "plugins", hub, notifier or Notifier(), classes=classes, clock=lambda: t[0])
 
 
-def _cal(tmp: Path, cfg: dict | None = None, t: list[float] | None = None, feed=None, notifier=None):
+def _cal(tmp: Path, cfg: dict | None = None, t: list[float] | None = None, feed=None, notifier=None, hub=None):
     t = t if t is not None else [CPI - 3600]
     calls: list[str] = []
 
@@ -60,10 +60,11 @@ def _cal(tmp: Path, cfg: dict | None = None, t: list[float] | None = None, feed=
         def __init__(self):
             super().__init__(fetcher)
 
-    if cfg is not None:
-        (tmp / "plugins" / "ff_calendar").mkdir(parents=True, exist_ok=True)
-        (tmp / "plugins" / "ff_calendar" / "config.json").write_text(json.dumps(cfg), encoding="utf-8")
-    host = _host(tmp, {"ff_calendar": P}, t, notifier)
+    # testy upozornení: porovnanie s kalendárom stratégie SPRÁVY (sync.py) je vypnuté, má vlastné testy nižšie
+    cfg = {"strategy_sync": False, **(cfg or {})}
+    (tmp / "plugins" / "ff_calendar").mkdir(parents=True, exist_ok=True)
+    (tmp / "plugins" / "ff_calendar" / "config.json").write_text(json.dumps(cfg), encoding="utf-8")
+    host = _host(tmp, {"ff_calendar": P}, t, notifier, hub)
     p = host.get("ff_calendar")
     p.calls = calls
     return host, p, t
@@ -348,3 +349,141 @@ def test_strazca_hlasi_padajuci_visiaci_a_problemovy_plugin(tmp_path: Path):
     host.slots["iny"].tick_started = t[0] - 120                   # tick visí dlhšie ako max_tick
     host.run_once("watchdog")
     assert n.sent[-1] == "[hub] ⚠️ plugin Iný: visí 2 min"
+
+
+# --------------------------------------------------------------------------- #
+# ff_calendar → kalendár stratégie SPRÁVY (sync.py)
+# --------------------------------------------------------------------------- #
+
+def _ff(title: str, when: str, country: str = "USD", impact: str = "High") -> dict:
+    return {"title": title, "country": country, "date": when, "impact": impact, "forecast": "", "previous": ""}
+
+
+def _deploy_hub(tmp: Path):
+    """Hub s `DeployStore` a jedným nasadením stratégie so správami (spravynet) a jedným bez nich (ibsnet)."""
+    from tradebot.live.deploy import DeployStore
+    from tradebot.live.vault import Vault
+
+    store = DeployStore(tmp / "live.sqlite", config_resolver=lambda s, p: {"_strategy": s, "newsAdd": "2026-01-05 09:00 CPI"}
+                        if s == "spravynet" else {"_strategy": s}, vault=Vault(key=b"k" * 32))
+    acc = store.upsert_account({"platform": "mt5", "label": "Demo", "login": "1", "server": "S"}, by="t")
+    spravy = store.create_deployment({"account": acc["id"], "agent": "pc", "strategy": "spravynet", "symbol": "XAUUSD",
+                                      "tf": 1, "profile": "profil_1"}, by="t")
+    ine = store.create_deployment({"account": acc["id"], "agent": "pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                   "tf": 3, "profile": "p"}, by="t")
+    udalosti: list[tuple] = []
+    hub = SimpleNamespace(deploy=store, log=lambda ev, **kw: udalosti.append((ev, kw)))
+    return hub, store, spravy["id"], ine["id"], udalosti
+
+
+def test_sync_doplni_chybajucu_a_presunutu_spravu_do_nasadeni(tmp_path: Path):
+    """Týždeň 29. 11. – 5. 12. 2026: JOLTS je v kalendári 1. 12., ISM služby 3. 12., NFP 4. 12. Feed má JOLTS o deň
+    neskôr (presun), ISM služby o 9:45 namiesto 10:00 (iný čas) a navyše maloobchod 3. 12., ktorý kalendár nemá.
+    Rozdiel ide do nasadenia stratégie so správami — ručný záznam ostáva — a NFP, ktoré vo feede chýba, sa len oznámi."""
+    from tradebot.strategies.spravy import calendar as cal
+
+    feed = [_ff("JOLTS Job Openings", "2026-12-02T10:00:00-05:00"),
+            _ff("ISM Services PMI", "2026-12-03T09:45:00-05:00"),
+            _ff("Core Retail Sales m/m", "2026-12-03T08:30:00-05:00", impact="Medium"),
+            _ff("Retail Sales m/m", "2026-12-03T08:30:00-05:00"),
+            _ff("ISM Manufacturing PMI", "2026-12-01T10:00:00-05:00"),
+            _ff("Unemployment Claims", "2026-12-03T08:30:00-05:00", impact="Medium"),
+            _ff("CPI m/m", "2026-12-02T03:00:00-05:00"),                      # mimo rozumných hodín — ignoruje sa
+            _ff("GDP m/m", "2026-12-03T02:00:00-05:00", country="GBP")]
+    week = feed_week(parse_feed(feed))
+    assert str(week) == "2026-11-29"
+    diff = cal.week_diff(parse_feed(feed), week)
+    assert cal.fmt_add(diff["add"]) == "2026-12-02 10:00 JOLTS; 2026-12-03 08:30 RETAIL; 2026-12-03 09:45 ISM_S"
+    assert cal.fmt_skip(diff["skip"]) == "2026-12-01 JOLTS; 2026-12-03 ISM_S"
+    assert cal.fmt_skip(diff["missing"]) == "2026-12-04 NFP"                  # vo feede nie je — len oznámiť
+    assert cal.fmt_skip(diff["record"]) == "2026-12-02 JOLTS; 2026-12-03 RETAIL"   # bežný čas typu → do repozitára
+    assert cal.fmt_skip(diff["unrecord"]) == "2026-12-01 JOLTS"
+
+    hub, store, spravy, ine, udalosti = _deploy_hub(tmp_path)
+    n = Notifier()
+    t = [datetime(2026, 11, 30, 6, 0, tzinfo=timezone.utc).timestamp()]
+    host, p, _ = _cal(tmp_path, {"strategy_sync": True}, t=t, feed=feed, notifier=n, hub=hub)
+    host.run_once("ff_calendar")
+    cfg = store.deployment(spravy)["config"]
+    assert cfg["newsAdd"] == "2026-01-05 09:00 CPI; 2026-12-02 10:00 JOLTS; 2026-12-03 08:30 RETAIL; 2026-12-03 09:45 ISM_S"
+    assert cfg["newsSkip"] == "2026-12-01 JOLTS; 2026-12-03 ISM_S"
+    assert "newsAdd" not in store.deployment(ine)["config"]                   # stratégia bez správ sa nemení
+    kal = [x for x in n.sent if "Kalendár SPRÁVY" in x]
+    assert len(kal) == 1 and "2026-12-04 NFP" in kal[0] and spravy in kal[0]
+    assert [e for e, _ in udalosti] == ["plugin_calendar_sync"]
+    stav = p.status()["sync"]
+    assert stav["deployments"] == [spravy] and stav["pending_repo"] == 3 and not stav["error"]
+
+    # ďalšie stiahnutie bez zmeny: nič sa nezapíše ani neoznámi znova
+    rev = store.identity()["rev"]
+    t[0] += 26 * 3600
+    host.run_once("ff_calendar")
+    assert store.identity()["rev"] == rev and len([x for x in n.sent if "Kalendár SPRÁVY" in x]) == 1
+
+    # feed sa v týždni opravil (JOLTS predsa 1. 12.): spravovaný záznam zmizne, ručný ostáva
+    feed[0] = _ff("JOLTS Job Openings", "2026-12-01T10:00:00-05:00")
+    t[0] += 26 * 3600
+    host.run_once("ff_calendar")
+    cfg = store.deployment(spravy)["config"]
+    assert cfg["newsAdd"] == "2026-01-05 09:00 CPI; 2026-12-03 08:30 RETAIL; 2026-12-03 09:45 ISM_S"
+    assert cfg["newsSkip"] == "2026-12-03 ISM_S"
+
+
+def test_sync_pokazeny_feed_nic_nezmeni_a_vypnuty_nic_nerobi(tmp_path: Path):
+    hub, store, spravy, _ine, _ud = _deploy_hub(tmp_path)
+    dni = [f"2026-12-{d:02d}" for d in (1, 2, 3, 4)]
+    feed = [_ff(nazov, f"{den}T{h:02d}:15:00-05:00") for den in dni
+            for h, nazov in ((9, "CPI m/m"), (10, "PPI m/m"), (11, "JOLTS Job Openings"), (12, "Retail Sales m/m"))]
+    t = [datetime(2026, 11, 30, 6, 0, tzinfo=timezone.utc).timestamp()]
+    host, p, _ = _cal(tmp_path, {"strategy_sync": True}, t=t, feed=feed, hub=hub)
+    host.run_once("ff_calendar")
+    assert "vyzerá pokazený" in p.status()["sync"]["error"]
+    assert store.deployment(spravy)["config"]["newsAdd"] == "2026-01-05 09:00 CPI"
+
+    hub2, store2, spravy2, _i, _u = _deploy_hub(tmp_path / "b")
+    host2, p2, _ = _cal(tmp_path / "b", None, t=t, feed=[_ff("JOLTS Job Openings", "2026-12-02T10:00:00-05:00")], hub=hub2)
+    host2.run_once("ff_calendar")                                             # `_cal` má sync predvolene vypnutý
+    assert store2.deployment(spravy2)["config"]["newsAdd"] == "2026-01-05 09:00 CPI" and p2.status()["sync"]["error"] == ""
+
+
+def test_sync_pushne_potvrdene_terminy_do_repozitara_raz_za_mesiac(tmp_path: Path, monkeypatch):
+    """Termíny v bežnom čase typu idú do `calendar.json` a `SpravyCalendar.cs` vo vlastnom klone — najviac raz za mesiac."""
+    import sys
+    import types
+
+    from tradebot.strategies.spravy import calendar as cal
+
+    pushe: list[dict] = []
+
+    def push_files(repo, remote, branch, src_root, rels, message, author, *, sub, log=None, ssh_key=None):
+        pushe.append({"remote": remote, "branch": branch, "sub": sub, "rels": rels, "message": message,
+                      "json": json.loads((Path(src_root) / rels[0]).read_text(encoding="utf-8")),
+                      "cs": (Path(src_root) / rels[1]).read_text(encoding="utf-8"), "ssh_key": ssh_key})
+        return "abc1234567890"
+
+    monkeypatch.setitem(sys.modules, "tester.hub.plugins.livedata", types.SimpleNamespace(gitpush=types.SimpleNamespace(push_files=push_files)))
+    hub, _store, _spravy, _ine, udalosti = _deploy_hub(tmp_path)
+    feed = [_ff("JOLTS Job Openings", "2026-12-02T10:00:00-05:00"), _ff("Retail Sales m/m", "2026-12-03T08:30:00-05:00"),
+            _ff("ISM Services PMI", "2026-12-03T09:45:00-05:00")]
+    t = [datetime(2026, 12, 1, 12, 0, tzinfo=timezone.utc).timestamp()]
+    cfg = {"strategy_sync": True, "push": {"remote": "git@example:x/y.git", "ssh_key": "kluc", "branch": "main"}}
+    host, p, _ = _cal(tmp_path, cfg, t=t, feed=feed, hub=hub)
+    host.run_once("ff_calendar")
+    assert len(pushe) == 1 and pushe[0]["sub"] == "tradebot/strategies/spravy"
+    assert pushe[0]["rels"] == ["calendar.json", "ports/csharp/SpravyCalendar.cs"] and pushe[0]["ssh_key"].name == "kluc"
+    novy = pushe[0]["json"]
+    assert "2026-12-02" in novy["events"]["JOLTS"]["dates"] and "2026-12-01" not in novy["events"]["JOLTS"]["dates"]
+    assert "2026-12-03" in novy["events"]["RETAIL"]["dates"]
+    assert novy["events"]["ISM_S"] == cal.load()["events"]["ISM_S"]            # iný čas ostáva len v newsAdd / newsSkip
+    assert novy["coverage"]["to"]["JOLTS"] == "2026-12-02" and novy["events"]["JOLTS"]["dates"] == sorted(novy["events"]["JOLTS"]["dates"])
+    assert pushe[0]["cs"] == cal.csharp_source(novy) and 'new Ev(2026, 12, 2, 10, 0, "JOLTS")' in pushe[0]["cs"]
+    assert "JOLTS 2026-12-02" in pushe[0]["message"] and ("plugin_calendar_push", {"plugin": "ff_calendar", "commit": "abc1234567", "changes": 3}) in udalosti
+    assert p.status()["sync"]["commit"] == "abc1234567890"
+
+    # ten istý mesiac znova: nepushuje sa (ani keby pribudlo), ďalší mesiac áno
+    t[0] += 26 * 3600
+    host.run_once("ff_calendar")
+    assert len(pushe) == 1
+    t[0] = datetime(2027, 1, 2, 12, 0, tzinfo=timezone.utc).timestamp()
+    host.run_once("ff_calendar")
+    assert len(pushe) == 2

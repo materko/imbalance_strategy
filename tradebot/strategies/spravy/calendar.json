@@ -3,7 +3,8 @@
   "Červené správy USA pre stratégiu SPRÁVY (čas New York). Zdroje pri každom type.",
   "Doplniť raz za rok, keď úrady zverejnia termíny na ďalší rok; presuny počas roka zachytí hub (ff_calendar).",
   "Zostavené 29. 10. 2026 (MacBook).",
-  "2027 doplnené 29. 10. 2026: FOMC (federalreserve.gov), CPI, NFP, PPI (bls.gov/schedule/2027), zápisnica FOMC +21 dní, ISM a CLAIMS pravidlom. JOLTS, PCE, GDP, RETAIL na 2027 ešte nezverejnené (BEA, Census, BLS JOLTS) — doplniť, keď vyjdú."
+  "2027 doplnené 29. 10. 2026: FOMC (federalreserve.gov), CPI, NFP, PPI (bls.gov/schedule/2027), zápisnica FOMC +21 dní, ISM a CLAIMS pravidlom. JOLTS a RETAIL na 2027 chýbajú — doplniť, keď vyjdú (BLS JOLTS v rozvrhu 2027 nie je; Census retail treba prečítať z census.gov/retail/release_schedule.html).",
+  "PCE a GDP 2027 doplnené 10. 11. 2026 z BEA (apps.bea.gov/API/signup/release_dates.json, jedno vydanie za mesiac, 8:30 NY). Koniec pokrytia stráži `python -m tradebot.strategies.spravy.calendar --check` a test_spravy_calendar.py."
  ],
  "coverage": {
   "from": "2021-01-01",
@@ -15,8 +16,8 @@
    "PPI": "2027-12-15",
    "JOLTS": "2026-12-01",
    "RETAIL": "2026-12-16",
-   "PCE": "2026-12-23",
-   "GDP": "2026-12-23",
+   "PCE": "2027-12-22",
+   "GDP": "2027-12-22",
    "ISM_M": "2027-12-01",
    "ISM_S": "2027-12-03",
    "CLAIMS": "2027-12-30"
@@ -651,7 +652,19 @@
     "2026-09-30",
     "2026-10-29",
     "2026-11-25",
-    "2026-12-23"
+    "2026-12-23",
+    "2027-01-28",
+    "2027-02-25",
+    "2027-03-31",
+    "2027-04-29",
+    "2027-05-27",
+    "2027-06-25",
+    "2027-07-29",
+    "2027-08-25",
+    "2027-09-30",
+    "2027-10-28",
+    "2027-11-24",
+    "2027-12-22"
    ]
   },
   "GDP": {
@@ -728,7 +741,19 @@
     "2026-09-30",
     "2026-10-29",
     "2026-11-25",
-    "2026-12-23"
+    "2026-12-23",
+    "2027-01-28",
+    "2027-02-25",
+    "2027-03-31",
+    "2027-04-29",
+    "2027-05-27",
+    "2027-06-25",
+    "2027-07-29",
+    "2027-08-25",
+    "2027-09-30",
+    "2027-10-28",
+    "2027-11-24",
+    "2027-12-22"
    ]
   },
   "ISM_M": {
