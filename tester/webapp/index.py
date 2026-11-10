@@ -154,6 +154,11 @@ class RunIndex:
         self._synced = 0.0
         self._deep = 0.0
         self._failed_at = 0.0
+        #: Zoznam adresárov behov a `PRAGMA data_version` pri poslednom úplnom porovnaní. Kým sa nezmení ani
+        #: jedno (a nik medzitým nevolal `forget`/`clear`), index s diskom sedí a porovnanie všetkých riadkov
+        #: netreba — jedna stránka pošle desiatky dopytov a každý ho robil pod zámkom (audit M-WEB-5).
+        self._seen: frozenset[str] | None = None
+        self._seen_version: int | None = None
 
     # -- spojenie ----------------------------------------------------------- #
 
@@ -163,6 +168,7 @@ class RunIndex:
         Volá sa pod `_lock`."""
         self.ok = False
         self._failed_at = time.monotonic()
+        self._seen = None
         if self._conn is not None:
             try:
                 self._conn.close()
@@ -203,6 +209,7 @@ class RunIndex:
                 except sqlite3.Error:
                     pass
                 self._conn = None
+            self._seen = None   # `data_version` je číslo spojenia - s novým spojením neplatí
 
     # -- zosúladenie s diskom ------------------------------------------------ #
 
@@ -219,6 +226,7 @@ class RunIndex:
                 self._fail()
                 return False
             self._deep = 0.0
+            self._seen = None
             return True
 
     def forget(self, run_id: str) -> None:
@@ -232,6 +240,7 @@ class RunIndex:
                 conn.commit()
             except sqlite3.Error:
                 self._fail()
+            self._seen = None   # adresár ostal, riadok nie - ďalší dopyt ho musí zo súboru prečítať
 
     def put(self, run_id: str) -> None:
         """Načítaj (alebo odstráň) jeden beh — volá sklad hneď po zápise behu."""
@@ -262,6 +271,12 @@ class RunIndex:
             except OSError:
                 return False
             try:
+                # Rýchla cesta: tie isté adresáre ako naposledy a do databázy nik iný nezapísal (`data_version`
+                # sa mení commitom z iného spojenia, napr. CLI) - index sedí, všetky riadky čítať netreba.
+                verzia = int(conn.execute("PRAGMA data_version").fetchone()[0])
+                if not hlboko and self._seen is not None and verzia == self._seen_version and na_disku == self._seen:
+                    self._synced = teraz
+                    return True
                 v_indexe = {r[0]: (r[1], r[2]) for r in conn.execute("SELECT id, mtime, size FROM runs")}
                 zmazat = [i for i in v_indexe if i not in na_disku]
                 nacitat = [i for i in na_disku if i not in v_indexe]
@@ -284,6 +299,8 @@ class RunIndex:
                     self._upsert(conn, nacitat)
                 if zmazat or nacitat:
                     conn.commit()
+                self._seen = frozenset(na_disku)
+                self._seen_version = int(conn.execute("PRAGMA data_version").fetchone()[0])
             except sqlite3.Error:
                 self._fail()
                 return False
@@ -360,6 +377,19 @@ class RunIndex:
     # Čítanie je pod zámkom ako zápis: uvicorn púšťa endpointy vo vláknach a jedno
     # sqlite spojenie neznesie dva kurzory naraz. Keď sa čítanie nepodarí, `ok` spadne
     # na False a volajúci (sklad) sa vráti k súborom.
+    def signature(self) -> tuple | None:
+        """Odtlačok celej histórie (počet, posledné id, súčet časov a veľkostí `run.json`) — zmení sa pri každom
+        novom, zmenenom aj zmazanom behu. Kľúč pre cache odvodených pohľadov (katalóg); `None` = index nefunguje."""
+        with self._lock:
+            conn = self._db()
+            if conn is None:
+                return None
+            try:
+                return tuple(conn.execute("SELECT COUNT(*), MAX(id), TOTAL(mtime), TOTAL(size) FROM runs").fetchone())
+            except sqlite3.Error:
+                self._fail()
+                return None
+
     def count(self, sql: str, hodnoty: list[Any]) -> int:
         with self._lock:
             conn = self._db()

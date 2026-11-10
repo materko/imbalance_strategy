@@ -229,3 +229,38 @@ def test_index_sa_po_chybe_skusi_znova(tmp_path: Path, monkeypatch):
     assert idx.sync(force=True) and idx.ok                     # po pauze index znova beží
     assert idx.clear() and idx.count("1", []) == 0
     assert idx.sync(force=True) and idx.count("1", []) == 3    # vyprázdnený sa postaví zo súborov
+
+
+def test_dopyt_bez_zmeny_necita_vsetky_riadky_a_cudzi_zapis_vidi(tmp_path: Path):
+    """Audit M-WEB-5: každý dopyt porovnával zoznam adresárov so všetkými riadkami indexu. Kým sa adresáre
+    nezmenili a do databázy nezapísal nik iný, porovnanie netreba — a presnosť ostáva: nový a zmazaný beh aj
+    zápis z iného procesu (CLI s vlastným spojením) sa uvidí hneď pri ďalšom dopyte."""
+    import shutil
+
+    from tester.webapp.index import RunIndex
+
+    store = _store(tmp_path)
+    store.all()
+    prikazy: list[str] = []
+    store.index._conn.set_trace_callback(prikazy.append)
+    for _ in range(5):
+        assert len(store.all()) == 9
+    assert not [p for p in prikazy if "SELECT id, mtime, size" in p]          # rýchla cesta
+    prikazy.clear()
+
+    # pribudnutý a zmazaný adresár behu (cudzí proces, git pull) — hneď
+    novy = _record(9)
+    novy["id"] = "20260910-120010-aaaa10"
+    (store.root / novy["id"]).mkdir()
+    (store.root / novy["id"] / "run.json").write_text(json.dumps(novy), encoding="utf-8")
+    assert len(store.all()) == 10
+    shutil.rmtree(store.root / novy["id"])
+    assert len(store.all()) == 9
+
+    # iný proces riadok z indexu vyhodil (`forget` cez vlastné spojenie) — adresár ostal, treba ho načítať znova
+    cudzi = RunIndex(store.root)
+    cudzi.forget(_record(3)["id"])
+    cudzi.close()
+    assert len(store.all()) == 9 and store.all() == store._scan()
+    store.index.forget(_record(4)["id"])                                       # to isté z vlastného procesu
+    assert len(store.all()) == 9

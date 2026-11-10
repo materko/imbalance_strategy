@@ -3313,3 +3313,22 @@ def test_sparse_migrate_legacy_rewrites_old_data_paths(monkeypatch):
                        {"filter_blobs": False, "repo": None})]
     monkeypatch.setattr(sparse, "show", lambda repo=None: {"rules": sparse.build_rules(["binance"])})
     assert sparse.migrate_legacy() is None
+
+
+def test_heartbeat_s_live_hlasenim_neprepise_stav_zakazdym(tmp_path: Path, monkeypatch):
+    """Audit M-HUB-1: `live` z heartbeatu nesie čas hlásenia, takže odtlačok stavu bol zakaždým iný a lenivý
+    zápis sa neuplatnil — `state.json` sa pod globálnym zámkom prepisoval pri každom heartbeate každého stroja.
+    Zmena, na ktorej záleží (agent prestal prijímať), ide na disk ďalej hneď."""
+    state = HubState(tmp_path)
+    state.register("pc", instance="i1", cores=4, slots=2, accept=True, send=True, version="v1")
+    zapisy: list[bool] = []
+    povodny = state._save
+    monkeypatch.setattr(state, "_save", lambda lazy=False: zapisy.append(lazy) or povodny(lazy))
+    telo = {"instance": "i1", "jobs": [], "live": {"drivers": ["mt5"], "instances": [{"id": "x", "pos": 0}], "applied": []}}
+    for i in range(10):
+        telo["live"]["instances"][0]["pos"] = i            # telemetria sa mení s každým heartbeatom
+        state.heartbeat("pc", telo)
+    # prvý prinesie drivery (zmena, zápis hneď); ďalšie menia len telemetriu — lenivo, najviac raz za LAZY_SAVE_SECONDS
+    assert zapisy == [False] + [True] * 9
+    state.heartbeat("pc", {**telo, "accept": False})
+    assert zapisy[-1] is False                              # zmena agenta = zápis hneď

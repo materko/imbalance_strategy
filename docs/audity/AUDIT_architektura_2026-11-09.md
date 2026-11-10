@@ -366,6 +366,16 @@ celého `runs/` a `SELECT` všetkých riadkov pod zámkom; `_synced` sa nastaví
 Detail hyperoptu ho volá trikrát. *Oprava:* preskočiť sync mladší než 1–2 s; stĺpce `batch_kind`,
 `batch_id` s indexom.
 
+> **Stav 10. 11. 2026: M-WEB-3, 4, 5 a M-HUB-1 sú opravené.** Katalóg sa skladá len pri zmene vstupov (odtlačok
+> z indexu histórie, výberu a `stat` profilov a dokumentov): na skutočnej histórii (3 889 behov) skladanie
+> 2,8 s, odpoveď z cache 32 ms. Okno hodnotenia číta `store.of_strategy` (52 ms namiesto 223 ms). `index.sync`
+> má rýchlu cestu, keď sa nezmenil zoznam adresárov ani `PRAGMA data_version` (9 ms, bez čítania všetkých
+> riadkov) — časový limit som zavrhol, lebo by porušil pravidlo „index odpovedá to isté čo súbory". Odtlačok
+> stavu hubu už neobsahuje premenlivú časť `live` (čas hlásenia, inštancie, odosielanie), takže heartbeat
+> zapisuje `state.json` najviac raz za 5 s; drivery a stav kódu z `live` idú na disk ďalej hneď. **Ostáva:**
+> stĺpce `batch_kind`/`batch_id` v indexe (N-WEB-8), zápis stavu hubu mimo zámku (zvyšok N-HUB-7), dokumenty
+> meraní čítané pri každom hodnotení.
+
 **M-WEB-6 (P3) Auto-reštart má okno bez ochrany.** `__main__.py:78–85`: medzi kontrolou fronty a
 `os.execv` beží `_hub_bye` až 15 s; beh zadaný v tom čase zanikne.
 

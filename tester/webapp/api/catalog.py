@@ -8,7 +8,9 @@ stratégie (`STRATEGIA_TRH_TYP`) aj zlúčenie C# portov s predlohou robí strá
 
 from __future__ import annotations
 
+import os
 import re
+import threading
 from pathlib import PurePath
 from typing import Any
 
@@ -217,21 +219,74 @@ def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[d
     return out
 
 
+def _stat(path) -> tuple[int, int]:
+    try:
+        st = os.stat(path)
+    except OSError:
+        return (0, 0)
+    return (st.st_mtime_ns, st.st_size)
+
+
+def inputs_key(store) -> tuple | None:
+    """Odtlačok všetkého, z čoho sa katalóg skladá: história behov (index), výber stratégií a profilov, súbory
+    profilov (repozitár aj vlastné), vysvetlivky a analytiky. Len `stat` a jeden dopyt do indexu — nič sa
+    nečíta. `None` = index nefunguje, katalóg sa necachuje."""
+    from tester.checkup import doc_path
+
+    if not store.index.sync():
+        return None
+    runs = store.index.signature()
+    if runs is None:
+        return None
+    files: list[tuple] = []
+    dirs = {str(user_profiles._dir())}
+    for key, spec in STRATEGIES.items():
+        dirs.add(str(spec.profile_dir))
+        files.append((key, _stat(spec.explainer_path), _stat(doc_path(key))))
+    for d in sorted(dirs):
+        try:
+            entries = sorted((e for e in os.scandir(d) if e.name.endswith(".json")), key=lambda e: e.name)
+        except OSError:
+            continue
+        for e in entries:
+            try:
+                st = e.stat()
+            except OSError:
+                continue
+            files.append((d, e.name, st.st_mtime_ns, st.st_size))
+    return (runs, vyber.version(), hash(tuple(files)))
+
+
 def build(ctx: AppContext) -> APIRouter:
     router = APIRouter()
     store = ctx.store
+    #: Posledný zložený katalóg a odtlačok vstupov, z ktorých vznikol. Karta Stratégie ho pýta pri každom
+    #: otvorení a skladanie znamenalo celú históriu z indexu, stovky JSON profilov a dokumenty 96 stratégií
+    #: (audit M-WEB-3) — teraz sa skladá len vtedy, keď sa niečo z toho zmenilo.
+    cache: dict[str, Any] = {"key": None, "value": None}
+    cache_lock = threading.Lock()
 
     @router.get("/api/catalog")
     def catalog_view():
         """Všetky stratégie s profilmi a najlepším behom — karta Stratégie."""
-        return {"strategies": catalog(store.all(), store.get, store.trades)}
+        key = inputs_key(store)
+        with cache_lock:
+            if key is not None and cache["key"] == key:
+                return cache["value"]
+        value = {"strategies": catalog(store.all(), store.get, store.trades)}
+        if key is not None:
+            with cache_lock:
+                cache["key"], cache["value"] = key, value
+        return value
 
     @router.get("/api/catalog/{key}/report")
     def report_view(key: str, profile: str = ""):
         """Hodnotenie stratégie s profilom — okno po kliknutí na kartu (výkon, analytika, posudok…)."""
         from . import catalog_report as cr
 
-        return cr.report(cr.resolve_key(key), profile, store.all(), store.get, store.trades)
+        # len behy tejto stratégie z indexu — celá história na každé otvorenie okna netreba (audit M-WEB-4)
+        k = cr.resolve_key(key)
+        return cr.report(k, profile, store.of_strategy(k), store.get, store.trades)
 
     @router.get("/api/catalog/{key}/doc")
     def doc_view(key: str, id: str):

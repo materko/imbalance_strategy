@@ -146,9 +146,15 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                 self._save()
 
     def _jobs_fingerprint(self, agent: dict[str, Any] | None = None) -> tuple:
-        """Čo heartbeat musí zapísať hneď: stav a agent výpočtov a údaje agenta okrem `last_seen` a záťaže
-        (live hlásenie, accept, verzia...)."""
-        pevne = {k: v for k, v in (agent or {}).items() if k not in ("last_seen", "load")}
+        """Čo heartbeat musí zapísať hneď: stav a agent výpočtov a údaje agenta (accept, verzia, cieľ kódu...).
+        Mimo ostáva, čo sa mení s každým heartbeatom a po reštarte hubu príde znova samo: `last_seen`, záťaž
+        a z `live` čas hlásenia, inštancie zo spoolu (časy posledných udalostí) a odosielanie — s nimi
+        v odtlačku sa lenivý zápis neuplatnil nikdy a `state.json` sa prepisoval pri každom heartbeate každého
+        stroja (audit M-HUB-1). Drivery, nainštalovaný kód a výsledok aktualizácie z `live` v odtlačku ostávajú."""
+        pevne = {k: v for k, v in (agent or {}).items() if k not in ("last_seen", "load", "live")}
+        zive = (agent or {}).get("live")
+        if isinstance(zive, dict):
+            pevne["live"] = {k: v for k, v in zive.items() if k not in ("reported", "instances", "ship")}
         return tuple((i, j.get("status"), j.get("agent")) for i, j in self.jobs.items()), repr(pevne)
 
     def _save(self, lazy: bool = False) -> None:

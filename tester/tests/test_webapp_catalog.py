@@ -213,3 +213,29 @@ def test_realized_r_kde_zatvara_v_nasobkoch_rizika():
     r = realized_r(t)
     assert r == {"r_win": 0.5, "r_loss": -1.0, "r_avg": -0.25, "r_n": 2}
     assert realized_r([]) == {}
+
+
+def test_katalog_sa_sklada_len_ked_sa_zmenia_vstupy(client, monkeypatch):
+    """Audit M-WEB-3: karta Stratégie skladala pri každom otvorení celú históriu, stovky profilov a dokumenty
+    všetkých stratégií. Druhé volanie bez zmeny ide z cache; nový beh ju zneplatní."""
+    from tester.webapp.api import catalog as mod
+
+    c, store = client
+    store.save(_run("20260905-120000-aaaaaa", "golden_binance_btcusdt_3m"))
+    volania: list[int] = []
+    povodny = mod.catalog
+    monkeypatch.setattr(mod, "catalog", lambda *a, **k: volania.append(1) or povodny(*a, **k))
+
+    prvy = c.get("/api/catalog").json()
+    druhy = c.get("/api/catalog").json()
+    assert druhy == prvy and len(volania) == 1
+    ibs = next(s for s in prvy["strategies"] if s["key"] == "ibs")
+    assert ibs["runs"] == 1
+
+    store.save(_run("20260906-120000-bbbbbb", "golden_binance_btcusdt_3m"))
+    treti = c.get("/api/catalog").json()
+    assert len(volania) == 2
+    assert next(s for s in treti["strategies"] if s["key"] == "ibs")["runs"] == 2
+    store.delete("20260906-120000-bbbbbb")
+    assert next(s for s in c.get("/api/catalog").json()["strategies"] if s["key"] == "ibs")["runs"] == 1
+    assert len(volania) == 3
