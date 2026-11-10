@@ -48,6 +48,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from tradebot.core.atomic import read_json, write_json_atomic
 from tradebot.core.env import getenv
 from tradebot.core.paths import AGENT_CONFIG, AGENT_STATE
 
@@ -141,10 +142,7 @@ def load(path: Path | None = None) -> AgentConfig | None:
 
 def save(cfg: AgentConfig, path: Path | None = None) -> Path:
     path = Path(path or AGENT_CONFIG)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        json.dump(asdict(cfg), fh, ensure_ascii=False, indent=2)
-        fh.write("\n")
+    write_json_atomic(path, asdict(cfg))   # prerušený zápis by nechal agenta bez mena a tokenu
     return path
 
 
@@ -177,11 +175,9 @@ class AgentState:
 
 def load_state(path: Path | None = None) -> AgentState:
     path = Path(path or AGENT_STATE)
-    if not path.exists():
-        return AgentState()
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    # pokazený stav sa odloží a zaloguje: agent zabudne, čo počítal a čo má doručiť — nech je aspoň vidno prečo
+    data = read_json(path, None, what="stav agenta")
+    if not isinstance(data, dict):
         return AgentState()
     return AgentState(sent=dict(data.get("sent") or {}), computing=dict(data.get("computing") or {}),
                       undelivered=dict(data.get("undelivered") or {}))

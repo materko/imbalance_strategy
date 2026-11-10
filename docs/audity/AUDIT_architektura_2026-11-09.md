@@ -231,6 +231,16 @@ z webapp (`ensure`) aj z podprocesu Freqtrade (`freqtrade/timeframes.py:69`); po
 ako prázdny (`:29–32`). Po stratenom zápise sa dopočítané súbory tvária ako stiahnuté — `split` ich
 dá do archívu a gitu, čo je presne to, čo pravidlo o TF zakazuje.
 
+> **Stav 10. 11. 2026: jednotný zápis je v `tradebot/core/atomic.py`** (`tester/atomic.py` ho len reexportuje):
+> atomický zápis s opakovaním pri zamknutom cieli na Windows, zámok medzi procesmi (`file_lock`) a `read_json`,
+> ktorý pokazený súbor odloží ako `.corrupt-<čas>` a zaloguje. Použité: manifest odvodených TF pod zámkom
+> (M-CORE-4), `state.json` hubu pri načítaní (N-HUB-9), zip výsledku (N-HUB-8, len zápis), `agent.json` a stav
+> agenta (N-HUB-13 časť, M-HUB-10 časť), kurzor spoolu, feather v `data_archive`, `rolls.json`, `plan.json`
+> (N-WEB-4 časť). Testy v `tradebot/tests/test_atomic.py`. **Ostáva:** zlúčenie `rolls.json` podľa dátumu
+> (M-CORE-6 — zápis je atomický, obsah stále len z posledného exportu), poradie „najprv zip, potom zmena
+> výpočtu" a blokujúci `async` handler v hube (zvyšok N-HUB-8), `log.txt` behu a obnova z archívu (zvyšok
+> N-WEB-4), dohľad nad vláknami agenta (zvyšok M-HUB-10).
+
 **M-CORE-5 (P2) `timeframes --force` prepíše aj stiahnuté TF.** `tester/timeframes.py:138–139, 154`
 a `remember(made)` ich označí ako odvodené; nápoveda (`:189`) sľubuje len odvodené.
 

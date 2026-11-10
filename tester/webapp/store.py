@@ -154,10 +154,7 @@ def read_chart_file(path: Path) -> dict[str, Any] | None:
 
 def write_plan(path: Path, objects: list[dict[str, Any]]) -> None:
     """`plan.json` kompaktne — riadok na obchod by bol v gite zbytočne dlhý."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        json.dump({"version": 1, "objects": objects}, fh, ensure_ascii=False, separators=(",", ":"))
-        fh.write("\n")
+    write_json_atomic(path, {"version": 1, "objects": objects}, indent=None, separators=(",", ":"))
 
 
 class RunStore:

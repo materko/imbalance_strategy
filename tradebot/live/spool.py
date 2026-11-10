@@ -19,6 +19,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from tradebot.core.atomic import read_json, write_json_atomic
+
 from .schema import SchemaError, parse_line
 
 __all__ = ["Batch", "SpoolReader", "default_roots", "latest_state", "ENV_ROOTS"]
@@ -105,10 +107,8 @@ class SpoolReader:
     # -- kurzor ------------------------------------------------------------- #
 
     def _load_cursor(self) -> dict[str, int]:
-        try:
-            data = json.loads(self.cursor_path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            return {}
+        # pokazený kurzor = celý spool sa pošle znova (hub je idempotentný); odloží sa a zaloguje, nech je vidno prečo
+        data = read_json(self.cursor_path, None, what="kurzor spoolu")
         if not isinstance(data, dict):
             return {}
         out: dict[str, int] = {}
@@ -120,10 +120,7 @@ class SpoolReader:
         return out
 
     def _save_cursor(self) -> None:
-        self.cursor_path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = self.cursor_path.with_name(self.cursor_path.name + ".tmp")
-        tmp.write_text(json.dumps(self.cursor, indent=1, sort_keys=True), encoding="utf-8")
-        os.replace(tmp, self.cursor_path)
+        write_json_atomic(self.cursor_path, self.cursor, indent=1, sort_keys=True, newline=False)
 
     def commit(self, batch: Batch) -> None:
         """Dávku hub prijal — kurzor súboru sa posunie na jej koniec a uloží."""

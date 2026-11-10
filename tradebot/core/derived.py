@@ -14,9 +14,9 @@ byť jedna. Cesty v ňom sú relatívne k adresáru, v ktorom leží.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
+from .atomic import file_lock, read_json, write_json_atomic
 from .paths import DERIVED_MANIFEST
 
 __all__ = ["MANIFEST", "derived", "forget", "remember"]
@@ -27,11 +27,12 @@ MANIFEST = DERIVED_MANIFEST
 def derived(manifest: Path | None = None) -> list[Path]:
     """Súbory zapísané ako odvodené. Chýbajúci alebo pokazený zoznam = žiadne."""
     path = Path(manifest or MANIFEST)
-    try:
-        rows = json.loads(path.read_text(encoding="utf-8"))["files"]
-    except (OSError, ValueError, KeyError, TypeError):
+    # pokazený zoznam sa odloží a zaloguje (`read_json`): bez neho sa dopočítané súbory tvária ako stiahnuté
+    data = read_json(path, None, what="zoznam odvodených timeframov")
+    rows = data.get("files") if isinstance(data, dict) else None
+    if not isinstance(rows, list):
         return []
-    return [path.parent / row for row in rows]
+    return [path.parent / str(row) for row in rows]
 
 
 def _under(root: Path, paths: list[Path]) -> set[str]:
@@ -64,6 +65,13 @@ def forget(restored: list[Path] | list[str], manifest: Path | None = None) -> No
 
 
 def _write(path: Path, add: list | None = None, drop: list | None = None) -> None:
+    # „prečítaj – uprav – zapíš" pod zámkom: webapp (`timeframes.ensure`) a podproces Freqtrade píšu ten istý
+    # zoznam a stratený zápis by dopočítané súbory pustil do archívu a gitu (audit M-CORE-4)
+    with file_lock(path):
+        _write_locked(path, add, drop)
+
+
+def _write_locked(path: Path, add: list | None, drop: list | None) -> None:
     root = path.parent
     known = _under(root, [p for p in derived(path) if p.exists()])
     known |= _under(root, list(add or []))
@@ -72,12 +80,8 @@ def _write(path: Path, add: list | None = None, drop: list | None = None) -> Non
         if path.exists():
             path.unlink()
         return
-    root.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps({
-            "_comment": "Sviecky dopocitane z 1m (tester.timeframes alebo Freqtrade adapter). "
-                        "Do gitu nejdu, `data_archive split` ich preskakuje.",
-            "files": sorted(known),
-        }, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    write_json_atomic(path, {
+        "_comment": "Sviecky dopocitane z 1m (tester.timeframes alebo Freqtrade adapter). "
+                    "Do gitu nejdu, `data_archive split` ich preskakuje.",
+        "files": sorted(known),
+    })

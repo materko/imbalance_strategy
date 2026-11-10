@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
+from tradebot.core.atomic import read_json, write_bytes_atomic
 from tradebot.core.paths import HUB_DIR
 from tradebot.live.deploy import code_state
 
@@ -124,11 +125,10 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
         return self.root / "state.json"
 
     def _load(self) -> None:
-        if not self.state_file.exists():
-            return
-        try:
-            data = json.loads(self.state_file.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
+        # pokazený stav sa odloží ako `state.json.corrupt-<čas>` a zaloguje — hub nabehne prázdny, ale nie potichu
+        # a súbor sa dá ručne obnoviť (audit N-HUB-9)
+        data = read_json(self.state_file, None, what="stav hubu")
+        if not isinstance(data, dict):
             return
         self.agents = dict(data.get("agents") or {})
         self.jobs = dict(data.get("jobs") or {})
@@ -886,7 +886,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                 self.log("job_late_result", job=job_id, agent=agent, was=job["status"])
             ma_zip = bool(data)
             if ma_zip:
-                self.result_path(job_id).write_bytes(data)
+                write_bytes_atomic(self.result_path(job_id), data)   # nikdy napoly zapísaný zip (N-HUB-8)
             if version:
                 job["agent_version"] = version
             if job["status"] == "cancelling" and status != "done":

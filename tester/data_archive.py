@@ -39,6 +39,7 @@ import re
 import sys
 from pathlib import Path
 
+from tradebot.core.atomic import atomic_path
 from tradebot.core.paths import ARCHIVE_ROOTS
 
 from . import timeframes
@@ -61,8 +62,8 @@ def _read(path: Path):
 
 
 def _write(df, path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.reset_index(drop=True).to_feather(path)
+    with atomic_path(path) as tmp:   # prerušený zápis nenechá napoly zapísaný feather
+        df.reset_index(drop=True).to_feather(tmp)
 
 
 #: Adresár zdroja, ktorý sa do archívu nekopíruje — dá sa vygenerovať (`tester.synthetic`).

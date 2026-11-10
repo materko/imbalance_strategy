@@ -44,6 +44,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TextIO
 
+from tradebot.core.atomic import write_json_atomic
 from tradebot.core.paths import TESTER_ARCHIVE
 from tradebot.core.types import INSTRUMENTS, InstrumentSpec
 
@@ -292,8 +293,7 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
     print("\narchiv (commitni ho):", file=err)
     files = store(df, inst, archive=args.archive, merge=not args.no_merge, replace=args.replace)
     rolls_path = files[0].with_name(f"{inst.data_stem}-1m.rolls.json")
-    rolls_path.write_text(json.dumps([{"date": d, "contract": s} for d, s in stats.rolls],
-                                     indent=1), encoding="utf-8")
+    write_json_atomic(rolls_path, [{"date": d, "contract": s} for d, s in stats.rolls], indent=1, newline=False)
     print(f"  {rolls_path.name}  {len(stats.rolls)} zaznamov (den, kontrakt)", file=err)
     if not args.no_merge:
         print("\npracovny subor pre Tester je zlozeny; vyssie TF dopocita `python -m tester.timeframes` "

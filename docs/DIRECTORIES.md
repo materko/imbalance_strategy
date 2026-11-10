@@ -175,6 +175,7 @@ core/
 ├── risk.py              stop loss, take profit, position size, trailing (Pine lines 1944–2016)
 ├── history.py           ring buffer of bars with Pine indexing semantics
 ├── clock.py             sessions and time windows (exact replica of the Pine code)
+├── atomic.py            atomic writes, cross-process file lock, JSON read that quarantines a corrupt file
 ├── candles.py           building higher timeframes from 1m — the one rule for every path
 ├── derived.py           registry of candles computed from 1m rather than downloaded
 ├── warmup.py            pre-history for the chart and for higher-TF indicators
@@ -305,7 +306,7 @@ tester/
 ├── portfolio.py, prop.py    portfolio of several runs, prop challenge simulation
 ├── paper.py, report.py, plot.py, fees.py   measurement document, Strategy-Tester-style report, plots, maker/taker
 ├── calendar.py, calendar_us.json   exchange holidays and macro events
-├── synthetic.py, recompute.py, atomic.py   synthetic market, recomputing money of stored runs, atomic writes
+├── synthetic.py, recompute.py, atomic.py   synthetic market, recomputing money of stored runs, atomic writes (re-export of `tradebot/core/atomic.py`)
 ├── timeframes.json          which timeframes the Tester keeps on disk
 ├── AI_TESTING.md            how to test from the command line (also for AI)
 │
