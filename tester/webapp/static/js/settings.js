@@ -549,7 +549,7 @@ const STRATEGIA_TRH_TYP = {
   ibsentryes: ["S&P 500", "SKALPOVACIE"],
   m2: ["S&P 500", "SKALPOVACIE"], m2mnq: ["NASDAQ", "SKALPOVACIE"], m2mgc: ["ZLATO", "SKALPOVACIE"], m2eur: ["EURUSD", "SKALPOVACIE"], ivb: ["NASDAQ", "TRENDOVÉ"],
   // roboquant šablóny (týždeň 31. 10. 2026): MNQ, ES, MGC
-  orb15: ["NASDAQ", "TRENDOVÉ"], orb15es: ["S&P 500", "TRENDOVÉ"], orb15mgc: ["ZLATO", "TRENDOVÉ"], flashorb: ["NASDAQ", "TRENDOVÉ"], flashorbes: ["S&P 500", "TRENDOVÉ"], flashorbmgc: ["ZLATO", "TRENDOVÉ"], sigma: ["NASDAQ", "TRENDOVÉ"], sigmaes: ["S&P 500", "TRENDOVÉ"], sigmamgc: ["ZLATO", "TRENDOVÉ"], nqprec: ["NASDAQ", "SKALPOVACIE"], nqpreces: ["S&P 500", "SKALPOVACIE"], nqprecmgc: ["ZLATO", "SKALPOVACIE"], lliq: ["NASDAQ", "RANGEOVÉ"], lliqes: ["S&P 500", "RANGEOVÉ"], lliqmgc: ["ZLATO", "RANGEOVÉ"], tmr: ["NASDAQ", "RANGEOVÉ"], tmres: ["S&P 500", "RANGEOVÉ"], tmrmgc: ["ZLATO", "RANGEOVÉ"], wpr: ["NASDAQ", "RANGEOVÉ"], wpres: ["S&P 500", "RANGEOVÉ"], wprmgc: ["ZLATO", "RANGEOVÉ"], ivbes: ["S&P 500", "TRENDOVÉ"], ivbmgc: ["ZLATO", "TRENDOVÉ"], noaes: ["S&P 500", "TRENDOVÉ"], noamgc: ["ZLATO", "TRENDOVÉ"],
+  orb15: ["NASDAQ", "TRENDOVÉ"], orb15es: ["S&P 500", "TRENDOVÉ"], orb15mgc: ["ZLATO", "TRENDOVÉ"], flashorb: ["NASDAQ", "TRENDOVÉ"], flashorbes: ["S&P 500", "TRENDOVÉ"], flashorbmgc: ["ZLATO", "TRENDOVÉ"], sigma: ["NASDAQ", "TRENDOVÉ"], sigmaes: ["S&P 500", "TRENDOVÉ"], sigmamgc: ["ZLATO", "TRENDOVÉ"], nqprec: ["NASDAQ", "SKALPOVACIE"], nqpreces: ["S&P 500", "SKALPOVACIE"], nqprecmgc: ["ZLATO", "SKALPOVACIE"], lliq: ["NASDAQ", "RANGEOVÉ"], lliqes: ["S&P 500", "RANGEOVÉ"], lliqmgc: ["ZLATO", "RANGEOVÉ"], tmr: ["NASDAQ", "RANGEOVÉ"], tmres: ["S&P 500", "RANGEOVÉ"], tmrmgc: ["ZLATO", "RANGEOVÉ"], wpr: ["NASDAQ", "RANGEOVÉ"], wpres: ["S&P 500", "RANGEOVÉ"], wprmgc: ["ZLATO", "RANGEOVÉ"], ivbes: ["S&P 500", "TRENDOVÉ"], ivbmgc: ["ZLATO", "TRENDOVÉ"], noaes: ["S&P 500", "TRENDOVÉ"], noamgc: ["ZLATO", "TRENDOVÉ"], mtkorb: ["ZLATO", "TRENDOVÉ"],
   fvgpolaritymgc: ["ZLATO", "SKALPOVACIE"],
   scalp3mamgc: ["ZLATO", "SKALPOVACIE"],
   fibomgc: ["ZLATO", "TRENDOVÉ"], spravy: ["ZLATO", "TRENDOVÉ"],
@@ -557,7 +557,7 @@ const STRATEGIA_TRH_TYP = {
   sdeur: ["EURUSD", "RANGEOVÉ"], asiasweep: ["EURUSD", "RANGEOVÉ"],
 };
 /** Práve pridané stratégie — štítok „nová“, kým žiadne ich nastavenie neprejde smernicou. */
-const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet", "nb", "m2", "m2mnq", "m2mgc", "m2eur", "spravy", "ivb", "orb15", "orb15es", "orb15mgc", "flashorb", "flashorbes", "flashorbmgc", "sigma", "sigmaes", "sigmamgc", "nqprec", "nqpreces", "nqprecmgc", "lliq", "lliqes", "lliqmgc", "tmr", "tmres", "tmrmgc", "wpr", "wpres", "wprmgc", "ivbes", "ivbmgc", "noaes", "noamgc"]);
+const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet", "nb", "m2", "m2mnq", "m2mgc", "m2eur", "spravy", "ivb", "orb15", "orb15es", "orb15mgc", "flashorb", "flashorbes", "flashorbmgc", "sigma", "sigmaes", "sigmamgc", "nqprec", "nqpreces", "nqprecmgc", "lliq", "lliqes", "lliqmgc", "tmr", "tmres", "tmrmgc", "wpr", "wpres", "wprmgc", "ivbes", "ivbmgc", "noaes", "noamgc", "mtkorb"]);
 /** Značky auditu pri názve stratégie (tester/audit.json): trieda A / B / C a Sortino (S zelené = prešiel, červené = nie).
  *  Kľúč C# portu (`ibsentrynet`) berie audit predlohy. */
 function auditOf(k) {

@@ -14,7 +14,9 @@ Engine je čistý: žiadne I/O, žiadny globálny stav.
 
 from __future__ import annotations
 
+from collections import deque
 from datetime import datetime, timedelta
+from statistics import median
 from zoneinfo import ZoneInfo
 
 from tradebot.core.drawing import DrawBox, DrawCommand, DrawKind, DrawLabel, DrawUpdate, LabelStyle, with_alpha
@@ -65,6 +67,14 @@ class Orb15Engine:
         self.prev_hl: tuple[float, float] | None = None
         self.boxes: list[str] = []
         self.was_in = False
+        # rozšírenia (gapFilter, maxOrWidthMult): zavretie seansy 9:30–16:00 NY a šírky hotových OR
+        self.rth_close: float | None = None
+        self.prev_rth_close: float | None = None
+        self.or_open: float | None = None
+        self.gap_dir = 0
+        self.widths: deque[float] = deque(maxlen=max(5, int(cfg.orWidthLookback)))
+        self.width_blocked = False                     # aj blok po prvom prieraze proti filtru
+        self.pending: tuple[str, bool] | None = None   # stop order na hranici OR (entryAtLevel), kým sa nevyplní
 
     # ------------------------------------------------------------------ #
 
@@ -73,9 +83,10 @@ class Orb15Engine:
         for order_id in ctx.open_order_ids:
             out.orders.append(OrderIntent(OrderAction.CLOSE, order_id, idx, reason=reason))
 
-    def _enter(self, out: EngineOutput, bar: Bar, idx: int, long: bool) -> None:
+    def _enter(self, out: EngineOutput, bar: Bar, idx: int, long: bool, entry: float | None = None,
+               order_type: OrderType = OrderType.MARKET) -> None:
         cfg, inst = self.cfg, self.inst
-        entry = bar.close
+        entry = bar.close if entry is None else entry
         stop = self.or_low if long else self.or_high
         risk = abs(entry - stop)
         if risk < inst.tick_size:
@@ -88,9 +99,10 @@ class Orb15Engine:
         plan = TradePlan(direction=Direction.LONG if long else Direction.SHORT, entry=entry, stop_loss=stop,
                          take_profit=take, qty=qty, sl_distance=risk)
         out.orders.append(OrderIntent(OrderAction.ENTRY, f"orb15:{idx}", idx, direction=plan.direction, plan=plan,
-                                      order_type=OrderType.MARKET,
+                                      order_type=order_type,
                                       reason=f"ORB 15/5 {'long' if long else 'short'}: OR {self.or_low:g}–{self.or_high:g}"))
         self.trades += 1
+        self.pending = (f"orb15:{idx}", long) if order_type is not OrderType.MARKET else None
         end = bar.time + self.step_ms
         self.boxes, self.was_in = [], False
         for kind, level, color in ((DrawKind.TP_BOX, take, _LONG), (DrawKind.SL_BOX, stop, _SHORT)):
@@ -138,6 +150,9 @@ class Orb15Engine:
         # ---- 1. nový deň ------------------------------------------------------ #
         if t.date() != self.day:
             self.day = t.date()
+            if self.rth_close is not None:               # nedeľa (len ETH) predošlú seansu neprepíše
+                self.prev_rth_close, self.rth_close = self.rth_close, None
+            self.or_open, self.gap_dir, self.width_blocked = None, 0, False
             self.or_high, self.or_low = float("-inf"), float("inf")
             self.or_ready = False
             self.trades = 0
@@ -146,11 +161,16 @@ class Orb15Engine:
 
         or_start = _hm(cfg.orStart)
         or_end = or_start + int(cfg.orMinutes)
+        if 570 <= mins < 960:
+            self.rth_close = bar.close
 
         # ---- 2. OR ---------------------------------------------------------------- #
         if not self.or_ready and or_start <= mins < or_end:
             if self.or_high == float("-inf"):
                 self.or_start_ms = bar.time
+                self.or_open = bar.open
+                if self.prev_rth_close is not None:
+                    self.gap_dir = (bar.open > self.prev_rth_close) - (bar.open < self.prev_rth_close)
             self.or_high = max(self.or_high, bar.high)
             self.or_low = min(self.or_low, bar.low)
             if cfg.drawRange:
@@ -158,11 +178,18 @@ class Orb15Engine:
                                             self.or_start_ms + int(cfg.orMinutes) * 60_000, self.or_low, _ZONE,
                                             fill_color=with_alpha(_ZONE, 38), obj_id=f"orb15.z.{self.or_start_ms}",
                                             text="OR"))
-            return out
+            if not (cfg.entryAtLevel and mins + self.chart_tf_minutes >= or_end):
+                return out
+            # entryAtLevel: posledný bar OR ho uzavrel — stop order ide hneď na jeho zavretí, nie o bar neskôr
 
         # ---- 3. OR hotový? ---------------------------------------------------------- #
-        if not self.or_ready and mins >= or_end and self.or_high != float("-inf"):
+        if not self.or_ready and (mins >= or_end or (cfg.entryAtLevel and mins + self.chart_tf_minutes >= or_end)) \
+                and self.or_high != float("-inf"):
             self.or_ready = True
+            width = self.or_high - self.or_low
+            if cfg.maxOrWidthMult > 0 and len(self.widths) >= 20:
+                self.width_blocked = width > cfg.maxOrWidthMult * median(self.widths)
+            self.widths.append(width)
         if not self.or_ready:
             return out
 
@@ -175,11 +202,44 @@ class Orb15Engine:
             self.shorts_blocked = bar.close > prev_hl[0]
 
         # ---- 5. koniec -------------------------------------------------------------- #
+        if self.pending is not None and (pos != 0.0 or self.pending[0] in ctx.open_order_ids):
+            self.pending = None                          # stop order sa vyplnil
         if t.hour * 100 + t.minute >= int(cfg.lastEntry):
+            if self.pending is not None:
+                out.orders.append(OrderIntent(OrderAction.CANCEL, self.pending[0], idx, reason="koniec vstupov"))
+                self.pending = None
             if cfg.closeAtEnd and pos != 0.0:
                 self._close(out, ctx, idx, f"koniec {int(cfg.lastEntry):04d} NY")
             return out
-        if pos != 0.0 or self.trades >= int(cfg.maxTradesPerDay):
+        if self.pending is None and (pos != 0.0 or self.trades >= int(cfg.maxTradesPerDay) or self.width_blocked):
+            return out
+
+        # ---- 6b. vstup stop orderom na hranici OR (rozšírenie entryAtLevel) ---------------- #
+        if cfg.entryAtLevel:
+            if self.pending is not None:
+                long = self.pending[1]
+                if (bar.low < self.or_low) if long else (bar.high > self.or_high):   # prierazila druhá strana
+                    out.orders.append(OrderIntent(OrderAction.CANCEL, self.pending[0], idx, reason="prieraz druhou stranou OR"))
+                    self.pending = None
+                    if cfg.firstBreakOnly:
+                        self.width_blocked = True
+                return out
+            if pos != 0.0 or (self.trades > 0 and cfg.firstBreakOnly):
+                return out
+            gf = int(cfg.gapFilter)
+            if gf:
+                if not self.gap_dir:
+                    return out
+                long = (self.gap_dir if gf == 1 else -self.gap_dir) > 0
+            else:
+                long = bar.close >= (self.or_high + self.or_low) / 2
+            if (long and (not cfg.allowLong or self.longs_blocked)) or (not long and (not cfg.allowShort or self.shorts_blocked)):
+                return out
+            if (bar.close < self.or_low) if long else (bar.close > self.or_high):    # druhá strana už prerazená
+                if cfg.firstBreakOnly:
+                    self.width_blocked = True
+                return out
+            self._enter(out, bar, idx, long, self.or_high if long else self.or_low, OrderType.STOP)
             return out
 
         # ---- 6. vstup ---------------------------------------------------------------- #
@@ -188,6 +248,20 @@ class Orb15Engine:
         lower_wick = min(bar.open, bar.close) - bar.low
         long_wick_bad = cfg.useWickFilter and rng > 0 and lower_wick / rng * 100.0 > cfg.maxWickPct
         short_wick_bad = cfg.useWickFilter and rng > 0 and upper_wick / rng * 100.0 > cfg.maxWickPct
+        gf = int(cfg.gapFilter)
+        if gf and self.gap_dir:
+            want = self.gap_dir if gf == 1 else -self.gap_dir
+            long_wick_bad = long_wick_bad or want < 0
+            short_wick_bad = short_wick_bad or want > 0
+        elif gf:
+            long_wick_bad = short_wick_bad = True      # bez gapu (alebo bez predošlej seansy) filter nepustí nič
+        if cfg.firstBreakOnly and self.trades == 0 and (bar.close > self.or_high or bar.close < self.or_low):
+            up = bar.close > self.or_high
+            ok = (cfg.allowLong and not long_wick_bad and not self.longs_blocked) if up else \
+                 (cfg.allowShort and not short_wick_bad and not self.shorts_blocked)
+            if not ok:
+                self.width_blocked = True               # prvý prieraz šiel nepovoleným smerom → v ten deň nič
+                return out
         if cfg.allowLong and bar.close > self.or_high and not long_wick_bad and not self.longs_blocked:
             self._enter(out, bar, idx, True)
         elif cfg.allowShort and bar.close < self.or_low and not short_wick_bad and not self.shorts_blocked:

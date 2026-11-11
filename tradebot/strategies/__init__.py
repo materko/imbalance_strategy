@@ -39,6 +39,7 @@ from .sigmanet import SPEC as SIGMANET_SPEC
 from .orb15 import SPEC as ORB15_SPEC
 from .orb15es import SPEC as ORB15ES_SPEC
 from .orb15mgc import SPEC as ORB15MGC_SPEC
+from .mtkorb import SPEC as MTKORB_SPEC
 from .tmr import SPEC as TMR_SPEC
 from .tmres import SPEC as TMRES_SPEC
 from .tmrmgc import SPEC as TMRMGC_SPEC
@@ -194,6 +195,7 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     ORB15_SPEC,
     ORB15ES_SPEC,
     ORB15MGC_SPEC,
+    MTKORB_SPEC,
     TMR_SPEC,
     TMRES_SPEC,
     TMRMGC_SPEC,

@@ -36,9 +36,11 @@ ENUM_FIELDS: dict[str, type] = {}
 CONSTRAINTS: dict[str, tuple[float, float]] = {
     "orStart": (0, 2359), "orMinutes": (5, 120), "lastEntry": (0, 2359), "targetMode": (0, 1), "rr": (0.25, 20.0),
     "targetPoints": (0.1, 5000.0), "maxTradesPerDay": (1, 5), "maxWickPct": (0.0, 99.9), "biasCheck": (0, 2359),
-    "riskDollar": (0, 100000), "leverage": (1, 125),
+    "riskDollar": (0, 100000), "leverage": (1, 125), "gapFilter": (0, 2), "maxOrWidthMult": (0.0, 10.0),
+    "orWidthLookback": (5, 250),
 }
-PORT_ONLY_FIELDS: frozenset[str] = frozenset({"leverage", "riskDollar"})
+PORT_ONLY_FIELDS: frozenset[str] = frozenset({"leverage", "riskDollar", "gapFilter", "maxOrWidthMult", "orWidthLookback",
+                                                "firstBreakOnly", "entryAtLevel"})
 
 
 @dataclass
@@ -64,6 +66,18 @@ class Orb15Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFil
     maxWickPct: float = 50.0
     useDailyBias: bool = True
     biasCheck: int = 915
+    #: Rozšírenie (11. 11. 2026, rozbor NY open na MGC): 0 = vypnuté (predloha), 1 = len prieraz v smere gapu,
+    #: 2 = len proti gapu. Gap = otvorenie prvého baru OR proti zavretiu seansy 9:30–16:00 NY predošlého dňa.
+    gapFilter: int = 0
+    #: Rozšírenie: deň bez vstupu, keď je OR širší než toľko × medián šírky OR za `orWidthLookback` dní. 0 = vypnuté.
+    maxOrWidthMult: float = 0.0
+    orWidthLookback: int = 60
+    #: Rozšírenie: obchoduje sa len prvý prieraz dňa — keď ho filtre (gap, knôt, bias, smer) nepustia, v ten deň nič.
+    #: Vypnuté = predloha (čaká sa aj na neskorší prieraz druhou stranou).
+    firstBreakOnly: bool = False
+    #: Rozšírenie: vstup stop orderom presne na hranici OR (long high, short low; strana podľa filtra gapu, bez neho
+    #: podľa polohy ceny) hneď po OR. Vypnuté = predloha (vstup trhom po zavretí za OR).
+    entryAtLevel: bool = False
     # ---- 🛡️ Cieľ a koniec --------------------------------------------------- #
     #: 0 = RR, 1 = pevné body
     targetMode: int = 0
