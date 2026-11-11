@@ -1,0 +1,35 @@
+$ emulator MultiCharts XAU 3m 20211001-20260904 (XAU_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 100 na 3m @3m 250/250
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 581796 barov 3m, 1744199 1m, 0 HTF
+  20000/581796 barov, 40 obchodov
+  40000/581796 barov, 74 obchodov
+  60000/581796 barov, 104 obchodov
+  80000/581796 barov, 133 obchodov
+  100000/581796 barov, 165 obchodov
+  120000/581796 barov, 194 obchodov
+  140000/581796 barov, 235 obchodov
+  160000/581796 barov, 265 obchodov
+  180000/581796 barov, 294 obchodov
+  200000/581796 barov, 326 obchodov
+  220000/581796 barov, 344 obchodov
+  240000/581796 barov, 379 obchodov
+  260000/581796 barov, 414 obchodov
+  280000/581796 barov, 437 obchodov
+  300000/581796 barov, 474 obchodov
+  320000/581796 barov, 502 obchodov
+  340000/581796 barov, 531 obchodov
+  360000/581796 barov, 556 obchodov
+  380000/581796 barov, 593 obchodov
+  400000/581796 barov, 622 obchodov
+  420000/581796 barov, 655 obchodov
+  440000/581796 barov, 682 obchodov
+  460000/581796 barov, 709 obchodov
+  480000/581796 barov, 738 obchodov
+  500000/581796 barov, 758 obchodov
+  520000/581796 barov, 775 obchodov
+  540000/581796 barov, 797 obchodov
+  560000/581796 barov, 817 obchodov
+  580000/581796 barov, 855 obchodov
+hotovo: 861 obchodov, nerozhodnutelnych minut 0
+kresby: {'sl_box': 862, 'wpr_entry': 862}
