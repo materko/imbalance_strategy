@@ -1408,6 +1408,15 @@ void ClosePosition(int idx)
       g_orders[idx].closeRetryAt = TimeLocal() + 10;
       return;
      }
+   if(g_hedging && g_trade.ResultRetcode() == TRADE_RETCODE_POSITION_CLOSED)
+     {
+      // suboj s SL/TP u brokera: pozicia sa zavrela medzi kontrolou v terminali a prichodom poziadavky na server.
+      // Nie je to neuspech - vystup pride ako deal (Reduce), inak ho po GoneGraceSec dohlada ReconcileBroker.
+      g_orders[idx].closeRetryAt = TimeLocal() + 10;
+      Report("warn", "TradeBot: market close " + g_orders[idx].id + " nema co zatvorit - pozicia u brokera uz je zavreta"
+             + ClosedBy(g_orders[idx].positionTicket));
+      return;
+     }
    if(why == "") why = IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription();
    g_orders[idx].closeFails++;
    int wait = (int)MathMin(60, 1 << (int)MathMin(6, g_orders[idx].closeFails));
@@ -1685,11 +1694,73 @@ void CountWinOf(const Tracked &t, double exitPrice, datetime dealTime)
    if(InpLogEvents) Print("VYHRA ", t.id, " @", exitPrice, " (", g_winsCount, ". dnes)");
   }
 
-/// Uzavretie casti/celeho vstupu; `win` = vystup na SL/TP (pocita sa do denneho limitu).
-void Reduce(int i, double volume, double price, datetime dealTime, bool win)
+/// Meno vystupu do fillu (export, spool, hub, Telegram) - SL a TP rovnako ako NinjaTrader; "close" = market
+/// zatvorenie enginom (signal, koniec seansy, flatten) alebo opacnym vstupom.
+string ExitNameOf(ENUM_DEAL_REASON reason)
   {
-   ExportFill(dealTime, g_orders[i].id, false, win ? "sltp" : "close", price, volume);
-   SpoolFill(dealTime, g_orders[i].id, false, win ? "sltp" : "close", price, volume, !g_replaying && !MQLInfoInteger(MQL_TESTER));
+   if(reason == DEAL_REASON_SL) return "Stop loss";
+   if(reason == DEAL_REASON_TP) return "Profit target";
+   if(reason == DEAL_REASON_SO) return "margin call";   // nie "stop out" - live dashboard by z "stop" urobil stop_loss
+   if(reason == DEAL_REASON_CLIENT || reason == DEAL_REASON_MOBILE || reason == DEAL_REASON_WEB) return "manual";
+   return "close";
+  }
+
+bool IsSlTp(string exitName) { return exitName == "Stop loss" || exitName == "Profit target"; }
+
+/// Hedging: ako skoncila zavreta pozicia podla historie - " (Stop loss @20012.5)", alebo "" ked tam deal este nie je.
+string ClosedBy(ulong positionId)
+  {
+   if(positionId == 0 || !HistorySelectByPosition(positionId)) return "";
+   string by = "";
+   for(int k = 0; k < HistoryDealsTotal(); k++)
+     {
+      ulong d = HistoryDealGetTicket(k);
+      ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY);
+      if(entry != DEAL_ENTRY_OUT && entry != DEAL_ENTRY_OUT_BY) continue;
+      by = " (" + ExitNameOf((ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON)) + " @"
+           + DoubleToString(HistoryDealGetDouble(d, DEAL_PRICE), _Digits) + ")";
+     }
+   return by;
+  }
+
+/// SL/TP do hlasenia vstupu: stoji u brokera, poslal sa a broker ho nema, alebo sa neposiela (plan ho nema -
+/// vystup riesi engine market orderom).
+string BrokerStop(string name, double price, bool wanted)
+  {
+   if(price > 0) return name + " " + DoubleToString(price, _Digits) + " u brokera";
+   return wanted ? name + " poslany, ale u brokera CHYBA" : name + " sa brokerovi neposiela (plan bez " + name + ")";
+  }
+
+/// Po vyplneni vstupu: aky order to bol (market / limit / stop na cene) a ci u brokera naozaj stoji SL a TP -
+/// hedging ich ma na pozicii (z orderu), netting ako samostatne ordery (PlaceExits). Chybajuci je warn.
+void ReportEntry(int idx, double price, double volume)
+  {
+   double sl = 0, tp = 0;
+   if(g_hedging)
+     {
+      if(g_orders[idx].positionTicket > 0 && PositionSelectByTicket(g_orders[idx].positionTicket))
+        { sl = PositionGetDouble(POSITION_SL); tp = PositionGetDouble(POSITION_TP); }
+     }
+   else
+     {
+      if(g_orders[idx].slTicket > 0) sl = OrderSelect(g_orders[idx].slTicket) ? OrderGetDouble(ORDER_PRICE_OPEN) : Tick(g_orders[idx].stopLoss);
+      if(g_orders[idx].tpTicket > 0) tp = OrderSelect(g_orders[idx].tpTicket) ? OrderGetDouble(ORDER_PRICE_OPEN) : Tick(g_orders[idx].takeProfit);
+     }
+   bool slWanted = g_orders[idx].stopLoss > 0, tpWanted = g_orders[idx].takeProfit > 0;
+   string kind = g_orders[idx].isMarket ? "market" : g_orders[idx].ot + " " + DoubleToString(Tick(g_orders[idx].entry), _Digits);
+   bool missing = (slWanted && sl <= 0) || (tpWanted && tp <= 0);
+   Report(missing ? "warn" : "info",
+          StringFormat("TradeBot: vstup %s %s %s vyplneny %s @%s - %s, %s", g_orders[idx].id,
+                       g_orders[idx].dir > 0 ? "LONG" : "SHORT", kind, DoubleToString(volume, 2), DoubleToString(price, _Digits),
+                       BrokerStop("SL", sl, slWanted), BrokerStop("TP", tp, tpWanted)));
+  }
+
+/// Uzavretie casti/celeho vstupu; SL/TP sa pocita do denneho limitu vyhier.
+void Reduce(int i, double volume, double price, datetime dealTime, string exitName)
+  {
+   bool win = IsSlTp(exitName);
+   ExportFill(dealTime, g_orders[i].id, false, exitName, price, volume);
+   SpoolFill(dealTime, g_orders[i].id, false, exitName, price, volume, !g_replaying && !MQLInfoInteger(MQL_TESTER));
    g_orders[i].openQty = MathMax(0.0, g_orders[i].openQty - volume);
    if(g_orders[i].openQty > 0) return;
    CancelExits(i);
@@ -1707,7 +1778,7 @@ double CloseOpposite(int dir, double volume, double price, datetime dealTime)
       if(!g_orders[i].filled || g_orders[i].openQty <= 0 || g_orders[i].dir == dir) continue;
       double part = MathMin(g_orders[i].openQty, volume - closed);
       closed += part;
-      Reduce(i, part, price, dealTime, false);   // zavretie opacnym vstupom nie je SL/TP
+      Reduce(i, part, price, dealTime, "close");   // zavretie opacnym vstupom nie je SL/TP
      }
    return closed;
   }
@@ -1763,7 +1834,13 @@ void HandleDeal(const MqlTradeTransaction &trans)
       g_orders[idx].positionTicket = positionId;
       ExportFill(dealTime, comment, true, "", price, volume - closed);
       SpoolFill(dealTime, comment, true, "", price, volume - closed, !g_replaying && !MQLInfoInteger(MQL_TESTER));
-      if(g_orders[idx].openQty > 0) { PlaceExits(idx); ParkOthers(idx); } else RemoveOrder(idx);
+      if(g_orders[idx].openQty > 0)
+        {
+         PlaceExits(idx);
+         if(!g_replaying && !MQLInfoInteger(MQL_TESTER)) ReportEntry(idx, price, volume - closed);
+         ParkOthers(idx);
+        }
+      else RemoveOrder(idx);
       return;
      }
 
@@ -1772,10 +1849,15 @@ void HandleDeal(const MqlTradeTransaction &trans)
      {
       for(int i = 0; i < ArraySize(g_orders); i++)
          if(g_orders[i].filled && g_orders[i].openQty > 0 && g_orders[i].positionTicket == positionId)
-           { Reduce(i, volume, price, dealTime, reason == DEAL_REASON_SL || reason == DEAL_REASON_TP); return; }
+           { Reduce(i, volume, price, dealTime, ExitNameOf(reason)); return; }
       return;
      }
-   if(idx >= 0) { Reduce(idx, volume, price, dealTime, !viaClose); return; }    // nas SL/TP order (komentar = id) / "close:<id>"
+   // nas SL/TP order (komentar = id) / "close:<id>"; netting SL/TP su EA ordery (reason EXPERT) - rozhodne ticket
+   if(idx >= 0)
+     {
+      Reduce(idx, volume, price, dealTime, viaClose ? "close" : (dealOrder > 0 && dealOrder == g_orders[idx].tpTicket ? "Profit target" : "Stop loss"));
+      return;
+     }
    if(StringFind(comment, "close:") == 0) return;
    // cudzie zavretie netto pozicie (rucne, stop-out): odpise sa z otvorenych vstupov v smere pozicie
    double left = volume;
@@ -1784,7 +1866,7 @@ void HandleDeal(const MqlTradeTransaction &trans)
       if(!g_orders[i].filled || g_orders[i].openQty <= 0 || g_orders[i].dir == dealDir) continue;
       double part = MathMin(g_orders[i].openQty, left);
       left -= part;
-      Reduce(i, part, price, dealTime, false);
+      Reduce(i, part, price, dealTime, ExitNameOf(reason));
      }
   }
 
@@ -1908,12 +1990,12 @@ int ReportClosedAway(const Tracked &t)
       ulong d = HistoryDealGetTicket(k);
       ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY);
       if(entry != DEAL_ENTRY_OUT && entry != DEAL_ENTRY_OUT_BY) continue;
-      ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON);
-      bool win = reason == DEAL_REASON_SL || reason == DEAL_REASON_TP;
+      string exitName = ExitNameOf((ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON));
+      bool win = IsSlTp(exitName);
       double price = HistoryDealGetDouble(d, DEAL_PRICE), volume = HistoryDealGetDouble(d, DEAL_VOLUME);
       datetime when = (datetime)HistoryDealGetInteger(d, DEAL_TIME);
-      ExportFill(when, t.id, false, win ? "sltp" : "close", price, volume);
-      SpoolFill(when, t.id, false, win ? "sltp" : "close", price, volume, true);
+      ExportFill(when, t.id, false, exitName, price, volume);
+      SpoolFill(when, t.id, false, exitName, price, volume, true);
       if(win) CountWinOf(t, price, when);
       n++;
      }

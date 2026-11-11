@@ -106,7 +106,12 @@ a text je v `LastError()`.
 - **export signálov** do `Common\Files\TradeBot\logs\*.csv` v tvare NinjaTrader exportu
   (`kind;bar_open_ms;id;a;b;entry;sl;tp;qty;ready;text`), takže porovnanie s Testerom je to isté
   `python -m tester.ninjatrader compare --csv <súbor>`. Riadky `fill` sú vyplnenia z dealov:
-  `in`/`out`, cena, objem a čas dealu v ms UTC; v `b` je pri výstupe `sltp` alebo `close`.
+  `in`/`out`, cena, objem a čas dealu v ms UTC; v `b` je pri výstupe `Stop loss`, `Profit target` (ako NinjaTrader), `close` (market zatvorenie enginom
+  alebo opačným vstupom), `manual` (ručne v termináli) alebo `margin call` (stop-out); behy pred 11. 11. 2026
+  majú SL aj TP spolu ako `sltp`. Po vyplnení vstupu EA pošle note, aký order to bol (market / limit / stop na
+  cene) a pri SL aj TP, či stojí u brokera, či sa poslal a broker ho nemá (`warn`), alebo sa brokerovi
+  neposiela, lebo ho plán nemá (výstup rieši engine market orderom) — inak `info`. Odpoveď 10036 na market zatvorenie
+  (pozíciu medzitým zavrel SL/TP u brokera) nie je neúspech — `warn` „nemá čo zatvoriť“ s výstupom z histórie.
 
 **Čas servera.** MT5 dáva časy barov v čase servera brokera, nie UTC, a v Strategy Testeri sa
 posun zistiť nedá (`TimeGMT()` tam kopíruje čas servera). Preto je vstup

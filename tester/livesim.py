@@ -169,10 +169,13 @@ def combined_minutes(official, live_m1, live_chart, boundary_ms: int, chart_tf: 
 
 
 def _exit_kind(t: dict[str, Any]) -> str:
-    """Druh výstupu na porovnanie: MT5 hlási SL aj TP ako `sltp` — rozhodne znamienko zisku; trailing je stop."""
+    """Druh výstupu na porovnanie: SL `Stop loss`, TP `Profit target` (NT aj MT5); staré MT5 behy hlásili oboje
+    ako `sltp` — rozhodne znamienko zisku; trailing je stop."""
     r = str(t.get("reason") or "").lower()
     if r == "sltp":
         return "take_profit" if (t.get("pts") or 0) > 0 else "stop_loss"
+    if r == "profit target":
+        return "take_profit"
     if "trailing" in r or "stop" in r:
         return "stop_loss"
     return r

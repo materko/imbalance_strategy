@@ -150,6 +150,23 @@ bool Sent() { return g_trade.ResultRetcode() == TRADE_RETCODE_DONE || g_trade.Re
 
 string TradeErr() { return IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription(); }
 
+/// Ako skoncila zavreta pozicia podla historie - " (Stop loss @20012.5)", alebo "" ked tam deal este nie je.
+string ClosedBy(ulong positionId)
+  {
+   if(positionId == 0 || !HistorySelectByPosition(positionId)) return "";
+   string by = "";
+   for(int k = 0; k < HistoryDealsTotal(); k++)
+     {
+      ulong d = HistoryDealGetTicket(k);
+      if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY) == DEAL_ENTRY_IN) continue;
+      ENUM_DEAL_REASON why = (ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON);
+      string name = why == DEAL_REASON_SL ? "Stop loss" : (why == DEAL_REASON_TP ? "Profit target" : "zvonka");
+      by = " (" + name + " @" + DoubleToString(HistoryDealGetDouble(d, DEAL_PRICE),
+                                               (int)SymbolInfoInteger(HistoryDealGetString(d, DEAL_SYMBOL), SYMBOL_DIGITS)) + ")";
+     }
+   return by;
+  }
+
 int FindRoute(string id)
   {
    for(int i = 0; i < ArraySize(g_routes); i++) if(g_routes[i].id == id) return i;
@@ -1072,6 +1089,14 @@ void ClosePosition(int i)
    if(r >= 0) g_trade.SetExpertMagicNumber((ulong)g_routes[r].magic);
    g_trade.SetDeviationInPoints(InpDeviationPts);
    if(g_trade.PositionClose(g_xo[i].ticket) && Sent()) { g_xo[i].closeRetryAt = TimeLocal() + 10; return; }
+   if(g_trade.ResultRetcode() == TRADE_RETCODE_POSITION_CLOSED)
+     {
+      // suboj s SL/TP u brokera: pozicia sa zavrela medzi kontrolou v terminali a prichodom poziadavky - nie je
+      // to neuspech, vystup pride ako deal (OnExitFill)
+      g_xo[i].closeRetryAt = TimeLocal() + 10;
+      Note(g_xo[i].route, "warn", "market close " + g_xo[i].id + " nema co zatvorit - pozicia u brokera uz je zavreta" + ClosedBy(g_xo[i].ticket));
+      return;
+     }
    g_xo[i].closeFails++;
    int wait = (int)MathMin(60, 1 << (int)MathMin(6, g_xo[i].closeFails));
    g_xo[i].closeRetryAt = TimeLocal() + wait;

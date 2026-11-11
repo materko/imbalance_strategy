@@ -47,6 +47,8 @@ from tradebot.live.store import liveness
 from tradebot.live.telegram import (MAX_TEXT, TelegramBot, TelegramConfig, TelegramConflict, TelegramError,
                                     load_config)
 
+from .perf import exit_label
+
 __all__ = ["TelegramConfig", "TelegramBot", "TelegramError", "TelegramConflict", "TelegramState",
            "LiveNotifier", "TelegramCommands", "ControlFiles", "TelegramService", "format_event", "load_config"]
 
@@ -212,6 +214,24 @@ def _side(d: Any) -> str:
     return "LONG" if d == 1 else "SHORT" if d == -1 else "?"
 
 
+def _stops(sl: Any, tp: Any, known: bool) -> str:
+    """`SL 29851.44 · TP 28802.33`; čo plán vstupu nemá, adaptér brokerovi neposiela — `bez TP`. Bez signálu
+    (`known` False, napr. po reštarte agenta) sa to nevie, preto `TP —`."""
+    def one(name: str, v: Any) -> str:
+        if isinstance(v, (int, float)) and v > 0:
+            return f"{name} {_num(v)}"
+        return f"bez {name}" if known else f"{name} —"
+    return f"{one('SL', sl)} · {one('TP', tp)}"
+
+
+def _order_kind(zamer: dict[str, Any]) -> str:
+    """Aký order vstup otvoril (zo signálu): `market ` alebo `Limit 20010.5 ` — prázdne, keď signál nebol."""
+    ot = str(zamer.get("ot") or "")
+    if not ot:
+        return ""
+    return "market " if ot.lower() == "market" else f"{_e(ot)} {_num(zamer.get('e'))} "
+
+
 #: Najviac toľko zámerov vstupu si inštancia pamätá (staršie, ktoré nikdy nedostali cancel ani fill, odpadnú).
 MAX_ENTRIES = 50
 
@@ -257,7 +277,7 @@ def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig,
                 zamery.pop(next(iter(zamery)))
             if cfg.signals and ev.get("ready"):
                 return (f"📍 <b>Signál {_side(ev.get('dir') or p.get('dir'))}</b> {_e(ev.get('ot') or '')} "
-                        f"@ {_num(p.get('e'))} × {_num(p.get('q'))}\n{lab} · SL {_num(p.get('sl'))} · TP {_num(p.get('tp'))}")
+                        f"@ {_num(p.get('e'))} × {_num(p.get('q'))}\n{lab} · {_stops(p.get('sl'), p.get('tp'), True)}")
         elif ev.get("a") in ("cancel", "close"):
             zamer = zamery.pop(oid, None)
             if record is not None and zamer and zamer.get("ready") and oid not in (ctx.get("open") or {}):
@@ -289,8 +309,8 @@ def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig,
             if record is not None:
                 record({"k": "in", "id": fid, "dir": pos.get("dir"), "price": price, "qty": qty,
                         "sl": pos.get("sl"), "tp": pos.get("tp"), "ft": ev.get("ft")})
-            return (f"🟢 <b>VSTUP {_side(pos.get('dir'))}</b> × {_num(qty)} @ {_num(price)}\n"
-                    f"{lab} · SL {_num(pos.get('sl'))} · TP {_num(pos.get('tp'))}")
+            return (f"🟢 <b>VSTUP {_side(pos.get('dir'))}</b> {_order_kind(zamer)}× {_num(qty)} @ {_num(price)}\n"
+                    f"{lab} · {_stops(pos.get('sl'), pos.get('tp'), pos.get('dir') in (1, -1))}")
         pos = otvorene.get(fid)
         vysledok, ikona = "", "⚪"
         zaznam: dict[str, Any] = {"k": "out", "id": fid, "dir": (pos or {}).get("dir"), "price": price, "qty": qty,
@@ -309,7 +329,7 @@ def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig,
         if record is not None:
             record(zaznam)
         smer = f" {_side(pos.get('dir'))}" if pos else ""
-        vystup = f" ({_e(ev.get('exit'))})" if ev.get("exit") else ""
+        vystup = f" ({_e(exit_label(ev.get('exit')))})" if ev.get("exit") else ""
         return f"{ikona} <b>VÝSTUP{smer}</b> × {_num(qty)} @ {_num(price)}{vysledok}\n{lab}{vystup}"
     return None
 

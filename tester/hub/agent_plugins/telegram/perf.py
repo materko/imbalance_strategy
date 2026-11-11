@@ -13,7 +13,17 @@ import io
 import unicodedata
 from typing import Any
 
-__all__ = ["trades", "orders", "summary", "equity_png", "capital_for"]
+__all__ = ["trades", "orders", "summary", "equity_png", "capital_for", "exit_label"]
+
+#: Meno výstupu z adaptéra → text do správy. SL/TP idú ako `Stop loss` / `Profit target` (NT aj MT5), market
+#: zatvorenie enginom ako MT5 `close` / NT `tb_*`; staré MT5 behy hlásili SL aj TP spolu ako `sltp`.
+EXIT_LABELS = {"close": "market close", "tb_close": "market close", "tb_session_end": "market close – koniec seansy",
+               "tb_flatten": "market close – flatten", "tb_life": "market close – životnosť", "sltp": "SL/TP",
+               "manual": "ručne"}
+
+
+def exit_label(name: Any) -> str:
+    return EXIT_LABELS.get(str(name or ""), str(name or ""))
 
 
 def trades(records: list[dict[str, Any]]) -> list[dict[str, Any]]:

@@ -93,10 +93,19 @@ def test_format_vstup_vystup_s_pnl_a_filtre():
     assert format_event(ctx, entry(2), CFG) is None                                     # signály vypnuté
     assert "📍 <b>Signál SHORT</b>" in format_event(dict(ctx), entry(2), TelegramConfig(token="t", signals=True))
     vstup = format_event(ctx, fill(3, "in", 29152.0), CFG)
-    assert vstup == "🟢 <b>VSTUP SHORT</b> × 0.14 @ 29152\n<b>US100</b> vwaporbnet · MT5 · A · SL 29851.44 · TP 28802.33"
+    assert vstup == "🟢 <b>VSTUP SHORT</b> market × 0.14 @ 29152\n<b>US100</b> vwaporbnet · MT5 · A · SL 29851.44 · TP 28802.33"
     vystup = format_event(ctx, fill(4, "out", 28802.0, exit_="sltp"), CFG)
-    assert vystup == "✅ <b>VÝSTUP SHORT</b> × 0.14 @ 28802 · <b>+49.00 $</b> (+350.00 b)\n<b>US100</b> vwaporbnet · MT5 · A (sltp)"
+    assert vystup == "✅ <b>VÝSTUP SHORT</b> × 0.14 @ 28802 · <b>+49.00 $</b> (+350.00 b)\n<b>US100</b> vwaporbnet · MT5 · A (SL/TP)"
     assert ctx["open"] == {} and "US100.cash" not in vystup        # z bodky by Telegram urobil odkaz
+    # limit vstup ukáže cenu orderu; SL / TP / market zatvorenie enginom čitateľne
+    limit = entry(5)
+    limit["ot"], limit["p"] = "Limit", dict(limit["p"], e=29160.5, tp=None)
+    format_event(ctx, limit, CFG)
+    vstup = format_event(ctx, fill(6, "in", 29160.5), CFG)
+    assert vstup.startswith("🟢 <b>VSTUP SHORT</b> Limit 29160.5 × 0.14 @ 29160.5\n")
+    assert vstup.endswith(" · SL 29851.44 · bez TP")                  # plán bez TP = brokerovi sa neposiela
+    assert format_event(ctx, fill(7, "out", 29200.0, qty=0.07, exit_="Stop loss"), CFG).endswith("(Stop loss)")
+    assert format_event(ctx, fill(8, "out", 29190.0, qty=0.07, exit_="close"), CFG).endswith("(market close)")
     # note podľa úrovne (escapovaná), štart/koniec/režim tu správu nedávajú (idú súhrnom)
     assert format_event(ctx, {"k": "note", "text": "x", "level": "info"}, CFG) is None
     assert format_event(ctx, {"k": "note", "text": "a<b", "level": "warn"}, CFG) == "⚠️ <b>US100</b> vwaporbnet · MT5 · A\na&lt;b"

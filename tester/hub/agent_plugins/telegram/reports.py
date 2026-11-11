@@ -137,7 +137,7 @@ def trades_view(records: list[dict[str, Any]], kluc: str, ikey: Any) -> tuple[st
             vysl = _money(usd) if usd is not None else f"{_num(o.get('pts'))} b"
             riadky.append(f"{ikona} {_when(o.get('t'))} {meno} {smer} × {_num(o.get('qty'))} "
                           f"{_num(o.get('price_in'))} → {_num(o.get('price_out'))} · <b>{_e(vysl)}</b>"
-                          + (f" ({_e(o.get('exit'))})" if o.get("exit") else ""))
+                          + (f" ({_e(perf.exit_label(o.get('exit')))})" if o.get("exit") else ""))
         elif o["state"] == "open":
             riadky.append(f"🟢 {_when(o.get('t'))} {meno} {smer} × {_num(o.get('qty'))} @ {_num(o.get('price_in'))} · otvorený")
         elif o["state"] == "cancelled":

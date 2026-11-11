@@ -1896,6 +1896,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (FindEntry(o, name, out key, out t))
             {
                 // vyplnenie vstupu
+                bool first = !t.Filled;
                 if (!t.Filled) { t.FilledAt = LiveClock.UtcNow; t.FilledMs = execMs; }
                 t.Filled = true;
                 t.Parked = false;
@@ -1905,6 +1906,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 ParkOthers(key);
                 // pocas zatvarania SL/TP uz nechceme: objem navyse pojde von trhovym vystupom (CloseTimeouts)
                 if (t.Closing == null || t.Protect) EnsureExits(key, t);
+                if (first && _live && t.Closing == null) ReportEntry(key, t, price, qty);
                 return;
             }
             if (_orders.ContainsKey(name)) return;   // order s tym istym menom, ktory nie je nas (ina instancia)
@@ -1928,12 +1930,42 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (suffix != "sl" && suffix != "tp" && o.OrderState == OrderState.Filled) t.CloseSent = false;
                 return;
             }
+            // engine chcel zavriet trhom, ale kym sa rusili SL/TP, jeden z nich sa vyplnil (to iste ako MT5 10036)
+            if (t.Closing != null && !t.CloseSent && (suffix == "sl" || suffix == "tp"))
+                Note("warn", "market close " + id + " (" + t.Closing + ") nema co zatvorit - poziciu medzitym zavrel " + exitName + " @" + Px(price));
             // druhy z OCO dvojice zrusi NT sam; keby nie (alebo pozicia odisla trhovym vystupom a zrusenie SL/TP sa
             // nepotvrdilo), stiahne a strazi ho Drop
             Drop(id, t);
             ReleaseParked();
 
             CountWin(t.Intent.Plan, suffix, price, execMs);
+        }
+
+        private static string Px(double v) { return v.ToString("0.#####", CultureInfo.InvariantCulture); }
+
+        /// <summary>Po prvom vyplneni vstupu: aky order to bol (market / limit / stop na cene) a ci sa SL a TP poslali
+        /// brokerovi (ako MT5 EA). Plan bez SL/TP ich neposiela - vystup riesi engine trhom; neodoslany je warn,
+        /// odmietnutie brokerom prisiel ako vlastna chyba (HandleOrder) a SL znova polozi GuardExits.</summary>
+        private void ReportEntry(string id, Tracked t, double price, int qty)
+        {
+            TB.TradePlan plan = t.Intent.Plan;
+            string kind = t.Intent.OrderType == TB.OrderType.Market ? "market" : t.Intent.OrderType + " " + Px(Tick(plan.Entry));
+            bool missing = false;
+            string stops;
+            if (Routed)
+                stops = "SL " + Px(Tick(plan.StopLoss)) + ", TP " + Px(Tick(plan.TakeProfit)) + " v orderi MT5 exekutora";
+            else
+                stops = SentStop("SL", t.Sl, Tick(t.LastStop), plan.StopLoss > 0, ref missing) + ", "
+                        + SentStop("TP", t.Tp, Tick(plan.TakeProfit), plan.TakeProfit > 0, ref missing);
+            Note(missing ? "warn" : "info", "vstup " + id + " " + (plan.Direction == TB.Direction.Long ? "LONG" : "SHORT") + " " + kind
+                 + " vyplneny x" + qty + " @" + Px(price) + " - " + stops);
+        }
+
+        private static string SentStop(string name, Order o, double price, bool wanted, ref bool missing)
+        {
+            if (!wanted) return name + " sa brokerovi neposiela (plan bez " + name + ")";
+            if (o == null || o.OrderState == OrderState.Rejected) { missing = true; return name + " sa NEPOSLAL"; }
+            return name + " " + Px(price) + " poslany brokerovi";
         }
 
         /// <summary>Pine `dailyWinsCount`: vyhra = uzavrety obchod so ziskom > 0; zavretie koncom seansy / close sa nepocita.</summary>
@@ -2711,6 +2743,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     Log("FILL in " + id + " @" + px + " x" + qty + " (MT5 " + mt5Price + ", lots " + lots + ")");
                     SpoolFill(ft, id, true, "", px, qty, _live);
                     ParkOthers(id);
+                    if (_live && t.Closing == null) ReportEntry(id, t, px, qty);
                     return;
                 }
                 if (!known) { Log("MT5 FILL out " + id + " - instancia ho nesleduje"); return; }

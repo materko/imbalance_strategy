@@ -248,6 +248,21 @@ def test_trhovy_vystup_po_nepotvrdenom_zruseni_nenecha_sl_tp_u_brokera():
     assert_flat(out["trace"][-1])
 
 
+def test_vstup_hlasi_typ_orderu_a_ci_sa_sl_tp_poslali_brokerovi():
+    out = play([ENTRY], [*OPEN, wait(1)])
+    assert logged(out, "vstup L1 LONG Limit 100 vyplneny x1 @100 - SL 95 poslany brokerovi, TP 110 poslany brokerovi")
+
+
+def test_sl_vyplneny_pocas_zatvarania_trhom_nema_co_zatvorit():
+    """Engine chce zavrieť trhom, kým sa rušia SL/TP, broker vyplní SL — trhový výstup sa neposiela a hlási sa
+    to ako „nemá čo zatvoriť“ (na MT5 to isté vracia broker ako 10036)."""
+    out = play([ENTRY, {"bar": 2, "action": "close", "id": "L1"}],
+               [rule("cancel", "L1:sl", "hold"), *OPEN, {"do": "bar"}, {"do": "fill", "order": "L1:sl"}, wait(5)])
+    assert logged(out, "market close L1 (tb_close) nema co zatvorit - poziciu medzitym zavrel Stop loss @95")
+    assert "submit L1:tb_close" not in " ".join(out["requests"])
+    assert_flat(out["trace"][-1])
+
+
 def test_vypln_osiroteneho_sl_sa_hned_zavrie():
     out = play([ENTRY, {"bar": 2, "action": "close", "id": "L1"}],
                [rule("cancel", "L1:*", "ignore", times=99), *OPEN, {"do": "bar"}, wait(15), {"do": "fill", "order": "L1:sl"}, wait(5)])

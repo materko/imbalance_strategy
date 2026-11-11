@@ -115,7 +115,7 @@ Freqtrade a graf webapp).
 | `order` (`a: "modify"`) | `bt`, `ready`, `a: "modify"`, `id` (id vstupu), `p{sl,tp}` (nová hodnota alebo `null` = nemenené), `r` (`trailing` / iný dôvod) | adaptér (nie engine) posunul SL/TP pracujúceho orderu — každý posun trailingu; SL/TP pri vstupe nesie už plán, ten sa nehlási |
 | `event` | `bt` + `StateEvent.WriteJson` (`ts,z,f,to,r`) | prechod stavu zóny |
 | `draw` | `bt`, `d`: pole `DrawCommand` (box/line/label/bg/update/delete), `final` (bool, len pre kresby posledného baru) | keď engine za bar niečo nakreslil |
-| `fill` | `ft` (čas exekúcie ms UTC), `id` (id vstupu), `side` `in`/`out`, `exit` (meno výstupu: NT `Stop loss`/`Profit target`/`tb_close`/`tb_session_end`, MT5 `sltp`/`close`; pri `in` prázdne), `price`, `qty`, `ready` | vyplnenie u brokera (adaptér, nie engine) |
+| `fill` | `ft` (čas exekúcie ms UTC), `id` (id vstupu), `side` `in`/`out`, `exit` (meno výstupu: NT `Stop loss`/`Profit target`/`tb_close`/`tb_session_end`, MT5 `Stop loss`/`Profit target`/`close`/`manual`/`margin call`, staršie MT5 `sltp`; pri `in` prázdne), `price`, `qty`, `ready` | vyplnenie u brokera (adaptér, nie engine) |
 | `stat` | `stats` (objekt: `Engine.Stats()` + `adapter_*` počítadlá) | pri ukončení |
 | `note` | `text`, `level` (`info`/`warn`/`error`) | varovania adaptéra (neskorý bar, chyba spoolu…) |
 | `hb` | `bars` (barov v session), `lb` (čas posledného baru, 0 = žiadny), `mode` (posledný `control`, keď bol), `pos` / `pos_px` / `pos_of` (pozícia u brokera — nižšie, keď ju adaptér hlási), `route` (stav MT5 exekútora pri smerovaní orderov — `ok`, `no_executor`, `stale` … [ROUTING.md](ROUTING.md)) | **ping** každých 60 s z časovača `LiveSpool` (mimo Strategy Testera/Analyzera), aj keď bary nechodia; **nečísluje `seq`** (nesie posledné pridelené) |
@@ -641,8 +641,8 @@ Telegram z `US100.cash` urobil odkaz; za platformou účet z `hello`, lebo tá i
 
 | udalosť | správa |
 |---|---|
-| `fill` `in` | `🟢 VSTUP SHORT × 0.14 @ 29152.03` / `US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo · SL … · TP …` — SL/TP zo zámeru vstupu |
-| `fill` `out` | `✅/❌ VÝSTUP SHORT × 0.14 @ 28802.33 · +48.96 $ (+349.70 b)` / `US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo (sltp)` — P&L z priemernej ceny vstupu a `instrument.point_value` z `hello` |
+| `fill` `in` | `🟢 VSTUP SHORT market × 0.14 @ 29152.03` (limit/stop: `Limit 29160.5 × …`) / `US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo · SL … · TP …` — SL/TP zo zámeru vstupu; čo plán nemá, brokerovi sa neposiela (`bez TP`), bez signálu `TP —` |
+| `fill` `out` | `✅/❌ VÝSTUP SHORT × 0.14 @ 28802.33 · +48.96 $ (+349.70 b)` / `US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo (Stop loss)` — výstup čitateľne (`Stop loss`, `Profit target`, `market close`, `market close – koniec seansy`, `ručne`, staré `SL/TP`); P&L z priemernej ceny vstupu a `instrument.point_value` z `hello` |
 | `order` `entry` (`ready`, len so `signals`) | `📍 Signál SHORT Market @ … × …` / `… · SL … · TP …` |
 | `note` od úrovne `notes` | `⚠️ US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo` / text (escapovaný) |
 | `hello`, `bye`, `control` (zmena režimu) | **súhrn**: `🔄 Reštart · MT5 · US100: ibsentrynet, vwapadxnet, vwaporbnet`, `▶️ Spustené …`, `⏹ Zastavené … (dôvod)`, `⏸ Pauza …`, `▶️ Obchoduje …`, `⛔ Flatten …` |
