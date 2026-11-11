@@ -59,5 +59,17 @@
     "half_spread_ticks": 1.0,
     "cost_note": "odhad: polovica spreadu 0,5 ticku (ES ma takmer vzdy spread 1 tick) + provizia ~2-2,5 $ na stranu (tick = 12,5 $) = ~0,2 ticku, spolu zaokruhlene 1 tick (0,25 bodu); spread z ohlcv dat nevidno",
     "note": "CME E-mini S&P 500 (50 $ x index), front-month z Databento GLBX.MDP3 (ES.FUT). Tick 0.25 = 12,5 $, bod 50 $; Micro MES ma ten isty cenovy rad s bodom 5 $. Ten isty podklad ako Dukascopy US500, ale futures cena nesie carry (dividendy, uroky), preto nie je 1:1 s CFD."
+  },
+  "mym_databento": {
+    "symbol": "MYM/USD",
+    "source": "databento",
+    "tick_size": 1.0,
+    "point_value": 0.5,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.5,
+    "cost_note": "odhad ako MNQ: polovica spreadu 0,5 ticku + provizia ~0,5 $ na stranu (tick = 0,5 $) = 1 tick, spolu 1,5 ticku (1,5 bodu); spread z ohlcv dat nevidno",
+    "note": "CBOT Micro E-mini Dow (0,5 $ x index), front-month z Databento GLBX.MDP3 (MYM.FUT), od 6/2019. Tick 1 bod = 0,5 $; E-mini YM ma ten isty cenovy rad s bodom 5 $. Riedsia likvidita nez MNQ: v noci (17-01 CT) chybaju minuty bez obchodu, RTH je plne."
   }
 }

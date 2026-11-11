@@ -34,7 +34,7 @@ vidno, čo súbor obsahuje, bez otvárania.
 | `binance` | futures aj spot, oficiálne TF burzy | `deploy/freqtrade/scripts/download-data.sh` |
 | `coinbase` | BTC/USD spot, referenčný | to isté |
 | `dukascopy` | CFD (NAS100, forex, komodity) — 1m, UTC, bid strana | `./dukas-import.sh` (§B) |
-| `databento` | CME futures (MNQ) — 1m, UTC, burzový objem, front-month z kontraktov | `./bento-import.sh` (§B3) |
+| `databento` | CME futures (MNQ, MGC, ES, 6E, MYM) — 1m, UTC, burzový objem, front-month z kontraktov | `./bento-import.sh` (§B3) |
 | `ibkr` | americké akcie (Mag7) — 1m TRADES len RTH, split-adjusted, burzový objem | `./ibkr-import.sh` (§B4) |
 
 Ten istý strom čítajú **oba enginy**: Freqtrade dostane koreň cez `--datadir data/<zdroj>`,
@@ -310,7 +310,13 @@ ts_event,rtype,publisher_id,instrument_id,open,high,low,close,volume,symbol
 ```
 
 Bary sú len tam, kde sa obchodovalo — žiadna vypchávka. Vedľa CSV býva `condition.json`
-(dostupnosť po dňoch, `degraded` sa vypíše, nič sa s tým nerobí).
+(dostupnosť po dňoch, `degraded` sa vypíše, nič sa s tým nerobí). Jeden export môže niesť
+viac koreňov naraz (`MNQ.FUT` + `MYM.FUT`); import sa pustí raz pre každý `--symbol`.
+
+Importér číta **CSV**. Export v binárnom formáte (`*.ohlcv-1m.dbn.zst`, voľba `encoding: dbn`
+v `metadata.json`) treba najprv prepísať knižnicou `databento` (nie je v `.venv`, stačí
+`pip install --target <dočasný adresár> databento`): `DBNStore.from_file(...).to_df(price_type="float",
+map_symbols=True)` a `to_csv` so stĺpcami ako vyššie (`ts_event` v tvare ISO UTC), `condition.json` vedľa.
 
 ```powershell
 .\bento-import.ps1 C:\bento\glbx-mdp3-20100606-20260910.ohlcv-1m.csv --symbol MNQ
@@ -339,6 +345,10 @@ tick 0,25, bod 2 $, náklad 1,5 ticku = pol spreadu a provízia). V Testeri je t
 `MNQ/USD` (v ponuke `MNQ`) na „burze" MultiCharts, beh ide emulátorom. Prahy v bodoch
 z NAS100 profilov sedia 1:1 (ten istý podklad), ale tick a hodnota bodu sú iné — sizing
 v dolároch preto nie je ten istý.
+
+V archíve sú `MNQ` (2019–), `MGC`, `ES`, `6E` (2010–) a `MYM` (Micro Dow, 6/2019–; tick 1 bod
+= 0,5 $). MYM je riedšie likvidný: v noci (17–01 CT) chýbajú minúty bez obchodu, seansa
+New York je plná.
 
 Prepínače: `--from` / `--to`, `--archive`, `--no-merge`.
 

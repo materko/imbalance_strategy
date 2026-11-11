@@ -99,7 +99,7 @@ timeframy zdrojov; vyššie TF si Tester dopočíta z 1m sám
 | zdroj | čo | importér |
 |---|---|---|
 | Binance, Coinbase | BTC, ETH — futures perpetuály aj spot | sťahuje Freqtrade |
-| Databento | CME futures `MNQ`, `MGC`, `ES`, `6E` — front-month podľa objemu | `./bento-import.sh` · `.\bento-import.ps1` |
+| Databento | CME futures `MNQ`, `MGC`, `ES`, `6E`, `MYM` — front-month podľa objemu | `./bento-import.sh` · `.\bento-import.ps1` |
 | Dukascopy | CFD: indexy (NAS100, US500, DJ30, DAX, JP225), forex, zlato, komodity | `./dukas-import.sh` · `.\dukas-import.ps1` |
 | IBKR | americké akcie Mag7, 1m RTH | `./ibkr-import.sh` · `.\ibkr-import.ps1` |
 
@@ -161,6 +161,8 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ## Kde sme (2026-11-11)
 
+- **MYM z Databento** (11. 11.): Micro Dow 1m 6/2019 – 9. 11. 2026 v archíve (`mym_databento`, tick 1 bod
+  = 0,5 $), MNQ doplnené do 9. 11. 2026; dáta čisté, MYM v noci riedke. Stratégie na MYM zatiaľ nie sú.
 - **MTK ORB** (`mtkorb`, 11. 11.): ORB 15 na zlate len prvý prieraz v smere gapu, OR nie širší než 1,25 × medián,
   vstup stop orderom na hranici OR — z rozboru NY open (MNQ / ES / MGC); nové voliteľné polia `orb15` (`gapFilter`,
   `maxOrWidthMult`, `firstBreakOnly`, `entryAtLevel`, predvolene vypnuté). Smernica ladí na všetkých dátach MGC 2010–2024.
