@@ -120,6 +120,10 @@ class VwapAdxEngine:
         close_local = datetime.fromtimestamp((bar.time + self.step_ms) / 1000, tz=self.zone)
         bar_min = local.hour * 60 + local.minute
         close_min = close_local.hour * 60 + close_local.minute
+        if close_local.date() != local.date():
+            # sviečka zatvára o polnoci (alebo za ňou) — čas zatvorenia sa nepreklápa na 0, inak by prešla podmienka
+            # „pred časovým exitom“ a stratégia vstúpila o 00:00 CT (krok 12, druhý model 10. 11. 2026: 31 z 842 obchodov)
+            close_min += 24 * 60
         day = local.date()
         new_day = self._prev_day is None or day != self._prev_day
         rth_start = bar_min >= self.or_s and (new_day or (self._prev_min is not None and self._prev_min < self.or_s))

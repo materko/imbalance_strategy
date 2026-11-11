@@ -106,6 +106,8 @@ namespace TradeBot.Strategies.NyVaNet
         private int _nUp, _nDn;
         private string _pendingId;
         private int _pendingAt;
+        private bool _pendingLong;
+        private double _pendingEntry;
         private bool _hasVwapDay;
         private DateTime _vwapDay;
         private double _pv, _vv;
@@ -228,7 +230,7 @@ namespace TradeBot.Strategies.NyVaNet
             intent.Plan = plan;
             intent.OrderType = limit ? OrderType.Limit : OrderType.Market;
             o.Orders.Add(intent);
-            if (limit) { _pendingId = oid; _pendingAt = idx; }
+            if (limit) { _pendingId = oid; _pendingAt = idx; _pendingLong = isLong; _pendingEntry = plan.Entry; }
             else _trades += 1;
             _boxes = new List<string>();
             _wasIn = false;
@@ -325,7 +327,10 @@ namespace TradeBot.Strategies.NyVaNet
             // ---- retest: vyplnenie / zrusenie limitky ------------------------
             if (_pendingId != null)
             {
-                if (pos != 0.0)
+                // vyplnenie aj podla ceny sviecky (pravidlo adapterov entry_fills): limitka vyplnena a zavreta
+                // na tej istej sviecke poziciu neukaze a obchod by sa do maxTradesPerDay nezaratal (krok 12, 10. 11. 2026)
+                bool touched = _pendingLong ? bar.Low <= _pendingEntry : bar.High >= _pendingEntry;
+                if (pos != 0.0 || touched)
                 {
                     _pendingId = null;
                     _trades += 1;

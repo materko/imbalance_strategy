@@ -147,6 +147,9 @@ namespace TradeBot.Strategies.VwapAdxNet
             DateTime closeLocal = TimeZoneInfo.ConvertTimeFromUtc(Epoch.AddMilliseconds(bar.Time + _stepMs), _zone);
             int barMin = local.Hour * 60 + local.Minute;
             int closeMin = closeLocal.Hour * 60 + closeLocal.Minute;
+            // sviecka zatvara o polnoci (alebo za nou) — cas zatvorenia sa nepreklapa na 0, inak by presla podmienka
+            // „pred casovym exitom“ a strategia vstupila o 00:00 CT (krok 12, druhy model 10. 11. 2026)
+            if (closeLocal.Date != local.Date) closeMin += 24 * 60;
             DateTime day = local.Date;
             bool newDay = !_prevDay.HasValue || day != _prevDay.Value;
             bool rthStart = barMin >= _orS && (newDay || (_prevMin.HasValue && _prevMin.Value < _orS));

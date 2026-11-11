@@ -183,7 +183,7 @@ class NyVaEngine:
         out.orders.append(OrderIntent(OrderAction.ENTRY, oid, idx, direction=plan.direction, plan=plan,
                                       order_type=OrderType.LIMIT if limit else OrderType.MARKET, reason=reason))
         if limit:
-            self.pending = (oid, idx)     # obchod sa započíta až pri vyplnení
+            self.pending = (oid, idx, long, plan.entry)     # obchod sa započíta až pri vyplnení
         else:
             self.trades += 1
         self.boxes, self.was_in = [], False
@@ -253,8 +253,12 @@ class NyVaEngine:
 
         # ---- retest: vyplnenie / zrušenie limitky -------------------------- #
         if self.pending is not None:
-            oid, at = self.pending
-            if pos != 0.0:
+            oid, at, p_long, p_entry = self.pending
+            # vyplnenie aj podľa ceny sviečky (pravidlo adaptérov `entry_fills`): limitka vyplnená a zavretá
+            # na tej istej sviečke pozíciu nikdy neukáže a obchod by sa do maxTradesPerDay nezarátal
+            # (krok 12, druhý model 10. 11. 2026: 86 z 676 dní NY VA ES malo 2–4 obchody pri limite 1)
+            touched = bar.low <= p_entry if p_long else bar.high >= p_entry
+            if pos != 0.0 or touched:
                 self.pending = None
                 self.trades += 1
             elif idx - at >= int(cfg.retestBars) or cur >= cfg.entry_end or out.close_session:

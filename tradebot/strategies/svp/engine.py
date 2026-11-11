@@ -336,8 +336,12 @@ class SvpEngine:
                 out.orders.append(OrderIntent(OrderAction.CANCEL, pe.order_id, pe.at, reason="nevyplnené"))
                 self._pending = None
 
+        # vstup (market aj limitka platná 1 bar) sa vyplní až na ĎALŠOM bare — aj ten musí začať pred koncom okna,
+        # inak signál z posledného baru okna vstúpil po 16:00 alebo po víkende v nedeľu 18:00
+        # (krok 12, druhý model 10. 11. 2026: 18 zo 767 vstupov mimo okna)
         in_window = (not cfg.weekdaysOnly or local.weekday() < 5) and (
-            not cfg.useTradeWindow or cfg.window_start_minutes <= minutes < cfg.window_end_minutes)
+            not cfg.useTradeWindow or (cfg.window_start_minutes <= minutes
+                                       and minutes + self.chart_tf_minutes < cfg.window_end_minutes))
         if cfg.useTradeWindow and cfg.closeAtWindowEnd and minutes >= cfg.window_end_minutes and ctx.position_size != 0.0:
             out.close_session = True
             for order_id in ctx.open_order_ids:
