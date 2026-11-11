@@ -24,7 +24,7 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **98 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **102 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
@@ -32,8 +32,8 @@ a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.j
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
 | **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` (päť z nich aj ako `…eod`) |
-| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` |
-| **S&P 500** (ES) | `nyvaes` `ivbes` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` |
+| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` |
+| **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` |
 | **EURUSD** (6E) | | `m2eur` | `sdeur` `asiasweep` | `sdeurnet` |
 
 Mimo trhov je len ukážková `demo_breakout`. Staré kľúče `ibsninja`, `orbninja` a
@@ -159,8 +159,10 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-10)
+## Kde sme (2026-11-11)
 
+- **NOA na ES a MGC** (`noaes`, `noamgc`, C# `noaesnet`, `noamgcnet`, 11. 11.): tá istá NOA 1.0 ako na Nasdaqu
+  s vlastnými profilmi; nastavenia z MNQ sa na ES a MGC neprenášajú (posledné roky slabé), preto beží smernica na hube.
 - **MTK ZONE** (`mtkzone`, 10. 11.): SD zóny z 5m / 15m len pri zhode aspoň dvoch potvrdení (SD vzor, vrchol
   volume profilu, nárast klasického objemu), vstupy limit na zónu / IBS / pin bar na grafe 2m–5m, filtre VWAP a seansa;
   prepis Pine predlohy VP SD ZÓNY 50; C# jadro `mtkzonenet` (parita bar po bare). Testuje sa podľa smernice len na Mac mini.

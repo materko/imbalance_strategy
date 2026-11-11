@@ -19,7 +19,7 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.NoaNet
 {
     [TradeBotEngine("noanet", "NOA 1.0 (C#)")]
-    public sealed class NoaEngine : IEngine, IConfigured
+    public class NoaEngine : IEngine, IConfigured
     {
         private const string Ny = "America/New_York";
         private const int OpenMin = 9 * 60 + 30;

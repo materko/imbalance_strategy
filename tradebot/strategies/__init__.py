@@ -93,6 +93,10 @@ from .mtkzonenet import SPEC as MTKZONENET_SPEC
 from .sweepfvg import SPEC as SWEEPFVG_SPEC
 from .silverbullet import SPEC as SILVERBULLET_SPEC
 from .noanet import SPEC as NOANET_SPEC
+from .noaes import SPEC as NOAES_SPEC
+from .noamgc import SPEC as NOAMGC_SPEC
+from .noaesnet import SPEC as NOAESNET_SPEC
+from .noamgcnet import SPEC as NOAMGCNET_SPEC
 from .noaneteod import SPEC as NOANETEOD_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
 from .varev import SPEC as VAREV_SPEC
@@ -219,6 +223,10 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     SWEEPENGULF_SPEC,
     MTKZONE_SPEC,
     MTKZONENET_SPEC,
+    NOAES_SPEC,
+    NOAMGC_SPEC,
+    NOAESNET_SPEC,
+    NOAMGCNET_SPEC,
     VAREV_SPEC,
 ))
 

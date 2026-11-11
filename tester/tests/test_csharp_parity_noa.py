@@ -83,3 +83,26 @@ def test_presle_profily_smernice_na_mnq(path, tmp_path):
         pytest.skip(f"dáta nie sú k dispozícii: {exc}")
     assert res["mismatches"] == [], res["mismatches"][:3]
     assert res["counts"]["entries"] > 50, res["counts"]
+
+
+#: NOA na ES a MGC (11. 11. 2026): vlastné kľúče C# (`noaesnet`, `noamgcnet`) nad tým istým `NoaEngine`.
+MARKETS = {"es": ("noaes", "noaesnet"), "mgc": ("noamgc", "noamgcnet")}
+
+
+@pytest.mark.parametrize("market", sorted(MARKETS))
+@pytest.mark.parametrize("path", [None, *_passed_profiles()[:1]], ids=lambda p: "zdroj" if p is None else p.stem)
+def test_es_mgc_posledny_rok(market, path, tmp_path):
+    """Varianty trhu: zdrojové nastavenie aj prvé prešlé nastavenie z MNQ dajú v C# na ES / MGC presne to isté."""
+    base, net = MARKETS[market]
+    data = json.loads(path.read_text(encoding="utf-8")) if path else {}
+    data = {k: v for k, v in data.items() if k not in ("_strategy", "_instrument", "_title")}
+    data["_instrument"] = f"{market}_databento"
+    profile = tmp_path / "p.json"
+    profile.write_text(json.dumps(data), encoding="utf-8")
+    tf = int(str(data.get("_timeframe", "5m")).rstrip("m"))
+    try:
+        res = csharp_parity.compare(base, net, str(profile), market, tf, "2025-09-04", "2026-09-04")
+    except (SystemExit, FileNotFoundError, KeyError) as exc:  # chýbajúce dáta
+        pytest.skip(f"dáta nie sú k dispozícii: {exc}")
+    assert res["mismatches"] == [], res["mismatches"][:3]
+    assert res["counts"]["entries"] > 50, res["counts"]
