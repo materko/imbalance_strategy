@@ -770,24 +770,52 @@ void EodByClock()
    Flatten("tb_session_end");
   }
 
-/// Cas servera (sekundy od polnoci, den v tyzdni) je v obchodnej seanse symbolu (SymbolInfoSessionTrade).
-bool InTradeSession(datetime server)
+/// Zaciatok useku obchodnej seansy symbolu (SymbolInfoSessionTrade), v ktorom je cas servera; 0 = mimo seansy.
+datetime SegmentStart(datetime server)
   {
    MqlDateTime dt;
    TimeToStruct(server, dt);
-   datetime sec = (datetime)(dt.hour * 3600 + dt.min * 60 + dt.sec), from, to;
+   int secs = dt.hour * 3600 + dt.min * 60 + dt.sec;
+   datetime sec = (datetime)secs, from, to;
    for(uint k = 0; SymbolInfoSessionTrade(_Symbol, (ENUM_DAY_OF_WEEK)dt.day_of_week, k, from, to); k++)
-      if(sec >= from && (sec < to || to == 0)) return true;
-   return false;
+      if(sec >= from && (sec < to || to == 0)) return server - secs + from;
+   return 0;
   }
 
-/// Pocas seansy musi kazdy TF prist bar; ked posledny spracovany je starsi nez 2 TF + 1 min, feed je mrtvy -
-/// `note error` (webapp, Telegram), znova kazdych 15 min, kym bary nezacnu chodit (audit N-LIVE-7).
+bool InTradeSession(datetime server) { return SegmentStart(server) > 0; }
+
+/// Kedy sa zacala suvisla seansa, v ktorej je cas servera (0 = mimo seansy). Useky, ktore na seba nadvazuju
+/// (aj cez polnoc), sa spajaju - 24h trh nezacina kazdu polnoc; po dennej prestavke (FTMO indexy 23:50-01:05)
+/// je to cas znovuotvorenia.
+datetime SessionStart(datetime server)
+  {
+   datetime start = 0, t = server;
+   for(int guard = 0; guard < 16; guard++)
+     {
+      datetime from = SegmentStart(t);
+      if(from == 0) break;
+      start = from;
+      t = from - 1;
+     }
+   return start;
+  }
+
+/// Odkedy sa na bar caka: koniec baru, alebo znovuotvorenie trhu, ak bar zavrel pred prestavkou - cas mimo
+/// seansy nie je oneskorenie feedu (bar pred prestavkou sa zatvori az prvym tikom po nej).
+datetime WaitingSince(datetime barEnd, datetime server)
+  {
+   datetime open = SessionStart(server);
+   return open > barEnd ? open : barEnd;
+  }
+
+/// Pocas seansy musi kazdy TF prist bar; ked posledny spracovany je starsi nez 2 TF + 1 min (cas mimo seansy
+/// sa nerata), feed je mrtvy - `note error` (webapp, Telegram), znova kazdych 15 min, kym bary nezacnu chodit
+/// (audit N-LIVE-7).
 void FeedWatch()
   {
    if(g_lastChart == 0) return;
    datetime server = TimeTradeServer();
-   bool late = server > g_lastChart + 2 * PeriodSeconds() + 60;
+   bool late = server > WaitingSince(g_lastChart + PeriodSeconds(), server) + PeriodSeconds() + 60;
    if(!late)
      {
       if(g_feedStale) { g_feedStale = false; Report("info", "TradeBot: bary znova chodia (posledny " + TimeToString(g_lastChart, TIME_DATE | TIME_MINUTES) + " server)"); }
@@ -798,7 +826,7 @@ void FeedWatch()
    g_feedStale = true;
    g_feedNoted = TimeLocal();
    Report("error", StringFormat("TradeBot: pocas seansy neprisiel bar %d min (posledny %s server) - feed alebo pripojenie, trailing a zatvorenie na bare stoja",
-                                (int)((server - g_lastChart - PeriodSeconds()) / 60), TimeToString(g_lastChart, TIME_DATE | TIME_MINUTES)));
+                                (int)((server - WaitingSince(g_lastChart + PeriodSeconds(), server)) / 60), TimeToString(g_lastChart, TIME_DATE | TIME_MINUTES)));
   }
 
 void TakeScreenshot()
@@ -1029,13 +1057,16 @@ void ProcessChartBar(const MqlRates &r)
    // Signal z baru bez celej predhistorie vstup neurobi (engine si ho odpise sam timeoutom).
    bool ready = !g_replaying && g_chartBars >= g_required;
    // Nazivo: bar, ktory prisiel s velkym oneskorenim (vypadok spojenia, davka barov naraz), sa neobchoduje.
-   if(ready && !MQLInfoInteger(MQL_TESTER) && TimeCurrent() - (r.time + PeriodSeconds()) > 2 * PeriodSeconds())
+   // Bar pred dennou prestavkou sa zatvori az prvym tikom po nej - cas mimo seansy sa do oneskorenia nerata
+   // (ako v backteste: vstup z neho ide na otvorenie po prestavke).
+   long waited = (long)TimeCurrent() - (long)WaitingSince(r.time + PeriodSeconds(), TimeCurrent());
+   if(ready && !MQLInfoInteger(MQL_TESTER) && waited > 2 * PeriodSeconds())
      {
       ready = false;
       if(g_staleLogged++ < 5)
         {
          string stale = "TradeBot: bar " + TimeToString(r.time, TIME_MINUTES) + " prisiel neskoro ("
-                      + IntegerToString((long)(TimeCurrent() - r.time - PeriodSeconds())) + " s) - bez vstupu";
+                      + IntegerToString((long)waited) + " s) - bez vstupu";
          Print(stale);
          if(g_spool) StaticHost::SpoolNote(g_engine, "warn", stale);
         }
