@@ -1083,6 +1083,8 @@ void CancelEntry(int i, string cid, string why)
 
 void ClosePosition(int i)
   {
+   // zatvorenie uz bezi a deal este neprisiel (close aj flatten v jednej davke) - druhy pokus by dostal 10036
+   if(g_xo[i].closing && TimeLocal() < g_xo[i].closeRetryAt) return;
    g_xo[i].closing = true;
    if(!PositionSelectByTicket(g_xo[i].ticket)) return;   // uz zavreta - deal pride v OnTradeTransaction
    int r = FindRoute(g_xo[i].route);

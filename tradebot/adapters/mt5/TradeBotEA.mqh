@@ -1379,6 +1379,10 @@ void CancelEntry(int idx)
 /// neuspechoch stoja medzi pokusmi SL/TP znova - pozicia cez noc bez stopu nesmie ostat (audit N-LIVE-3).
 void ClosePosition(int idx)
   {
+   // zatvorenie uz bezi a jeho deal este neprisiel (OnTradeTransaction ide az po tomto handleri): engine na tom
+   // istom bare posle CLOSE aj koniec seansy (NOA CloseAll) - druhy pokus by v hedgingu dostal 10036 a v nettingu
+   // by opacny market order z este nezmenenej pozicie otvoril opacnu poziciu. Opakovanie riadi `closeRetryAt`.
+   if(g_orders[idx].closing && TimeLocal() < g_orders[idx].closeRetryAt) return;
    g_orders[idx].closing = true;
    g_orders[idx].protect = false;
    bool ok;
