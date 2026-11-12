@@ -1,0 +1,6 @@
+$ emulator MultiCharts MYM 15m 20221001-20231001 (MYM_USD-1m.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 23563 barov 15m, 346350 1m, 0 HTF
+  20000/23563 barov, 639 obchodov
+hotovo: 757 obchodov, nerozhodnutelnych minut 0
+kresby: {'sl_box': 778, 'wpr_entry': 778}

@@ -1,0 +1,8 @@
+$ emulator MultiCharts MYM 5m 20240904-20250904 (MYM_USD-1m.feather)
+predhistoria grafu: 4608 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 70644 barov 5m, 344995 1m, 0 HTF
+  20000/70644 barov, 92 obchodov
+  40000/70644 barov, 166 obchodov
+  60000/70644 barov, 238 obchodov
+hotovo: 273 obchodov, nerozhodnutelnych minut 0
+kresby: {'noa_vwap': 20711, 'noa_level': 6298, 'sl_box': 311, 'noa_entry': 311, 'noa_stop': 920}

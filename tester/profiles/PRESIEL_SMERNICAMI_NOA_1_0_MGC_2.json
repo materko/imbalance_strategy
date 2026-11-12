@@ -1,6 +1,6 @@
 {
- "lookbackDays": 14,
- "volMult": 1.0,
+ "lookbackDays": 24,
+ "volMult": 1.142,
  "gapAdjust": false,
  "checkEvery": 15,
  "lastEntryMin": 360,
@@ -10,8 +10,8 @@
  "tradeDirection": "Both",
  "weekdaysOnly": true,
  "trendFilter": "with",
- "trendEmaLen": 50,
- "trendTF": 60,
+ "trendEmaLen": 45,
+ "trendTF": 36,
  "volFilter": "off",
  "entryOrderType": "limit",
  "limitOffsetPct": 75,
@@ -23,5 +23,5 @@
  "_strategy": "noamgc",
  "_instrument": "mgc_databento",
  "_timeframe": "5m",
- "_title": "NOA MGC 2 · PF 1,41 · WR 42 % · 86 obch/rok · MGC 5m · max DD 1 088 $ · posl. rok PF 1,35"
+ "_title": "NOA MGC 2 · PF 1,58 · WR 41 % · 80 obch/rok · MGC 5m · max DD 884 $ · posl. rok PF 1,60"
 }

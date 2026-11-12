@@ -1,0 +1,9 @@
+$ emulator MultiCharts MYM 5m 20211001-20221001 (MYM_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: SMA 100 denných zavretí (5m) @5m 31680/31680
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 71079 barov 5m, 353822 1m, 0 HTF
+  20000/71079 barov, 52 obchodov
+  40000/71079 barov, 64 obchodov
+  60000/71079 barov, 68 obchodov
+hotovo: 84 obchodov, nerozhodnutelnych minut 0
+kresby: {'np_sma': 260, 'tp_box': 84, 'sl_box': 84, 'np_entry': 84}
