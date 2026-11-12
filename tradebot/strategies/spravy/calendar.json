@@ -3,18 +3,19 @@
   "Červené správy USA pre stratégiu SPRÁVY (čas New York). Zdroje pri každom type.",
   "Doplniť raz za rok, keď úrady zverejnia termíny na ďalší rok; presuny počas roka zachytí hub (ff_calendar).",
   "Zostavené 29. 10. 2026 (MacBook).",
-  "2027 doplnené 29. 10. 2026: FOMC (federalreserve.gov), CPI, NFP, PPI (bls.gov/schedule/2027), zápisnica FOMC +21 dní, ISM a CLAIMS pravidlom. JOLTS a RETAIL na 2027 chýbajú — doplniť, keď vyjdú (BLS JOLTS v rozvrhu 2027 nie je; Census retail treba prečítať z census.gov/retail/release_schedule.html).",
-  "PCE a GDP 2027 doplnené 10. 11. 2026 z BEA (apps.bea.gov/API/signup/release_dates.json, jedno vydanie za mesiac, 8:30 NY). Koniec pokrytia stráži `python -m tradebot.strategies.spravy.calendar --check` a test_spravy_calendar.py."
+  "2027 doplnené 29. 10. 2026: FOMC (federalreserve.gov), CPI, NFP, PPI (bls.gov/schedule/2027), zápisnica FOMC +21 dní, ISM a CLAIMS pravidlom. RETAIL na 2027 chýba — Census rozvrh automatom nedá (403), doplniť ručne z census.gov/retail/release_schedule.html.",
+  "PCE a GDP 2027 doplnené 10. 11. 2026 z BEA (apps.bea.gov/API/signup/release_dates.json, jedno vydanie za mesiac, 8:30 NY). Koniec pokrytia stráži `python -m tradebot.strategies.spravy.calendar --check` a test_spravy_calendar.py.",
+  "12. 11. 2026: JOLTS 2027 z bls.gov/schedule/news_release/jolts.htm; FOMC 2027 podľa federalreserve.gov — posledné zasadnutie 16.–17. 11., nie 8. 12. (zápisnica 8. 12.). Ďalej to robí hub sám: plugin ff_calendar číta oficiálne rozvrhy (official.py) a predĺži aj opraví kalendár naživo aj tu."
  ],
  "coverage": {
   "from": "2021-01-01",
   "to": {
-   "FOMC": "2027-12-08",
-   "FOMC_MIN": "2027-12-29",
+   "FOMC": "2027-11-17",
+   "FOMC_MIN": "2027-12-08",
    "CPI": "2027-12-10",
    "NFP": "2027-12-03",
    "PPI": "2027-12-15",
-   "JOLTS": "2026-12-01",
+   "JOLTS": "2027-12-01",
    "RETAIL": "2026-12-16",
    "PCE": "2027-12-22",
    "GDP": "2027-12-22",
@@ -84,7 +85,7 @@
     "2027-07-28",
     "2027-09-15",
     "2027-10-27",
-    "2027-12-08"
+    "2027-11-17"
    ]
   },
   "FOMC_MIN": {
@@ -147,7 +148,7 @@
     "2027-08-18",
     "2027-10-06",
     "2027-11-17",
-    "2027-12-29"
+    "2027-12-08"
    ]
   },
   "CPI": {
@@ -495,7 +496,19 @@
     "2026-09-01",
     "2026-09-29",
     "2026-11-03",
-    "2026-12-01"
+    "2026-12-01",
+    "2027-01-05",
+    "2027-02-02",
+    "2027-03-09",
+    "2027-03-30",
+    "2027-05-04",
+    "2027-06-02",
+    "2027-06-29",
+    "2027-08-03",
+    "2027-08-31",
+    "2027-10-05",
+    "2027-11-02",
+    "2027-12-01"
    ]
   },
   "RETAIL": {

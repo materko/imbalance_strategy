@@ -750,8 +750,29 @@ ich tak majú tiež. Bez `push` v configu sa len zbierajú:
 ```
 
 `python -m tester.hub plugin ff_calendar --sync` porovná a zapíše hneď, `--sync --push` aj pushne bez čakania na
-ďalší mesiac. `"strategy_sync": false` to celé vypne. Export má len aktuálny týždeň, takže dopĺňanie ide týždeň po
-týždni — kontrolu konca pokrytia (`python -m tradebot.strategies.spravy.calendar --check`) nenahrádza.
+ďalší mesiac. `"strategy_sync": false` to celé vypne.
+
+**Koniec pokrytia predlžujú oficiálne rozvrhy úradov** (`official.py`). Export má len aktuálny týždeň, takže typ,
+ktorému v kalendári dôjdu termíny, by sám nepredĺžil — EA to pri štarte hlási („kalendár správ typu JOLTS končí …“).
+Plugin preto raz za týždeň (kým niektorému typu končí pokrytie do `official_days`, predvolene 75 dní, raz za deň)
+prečíta rozvrhy priamo od úradov:
+
+| typ | zdroj |
+|---|---|
+| CPI, NFP, PPI, JOLTS | rozvrh vydania BLS (`bls.gov/schedule/news_release/<vydanie>.htm`, ~13 mesiacov dopredu) |
+| GDP, PCE | BEA `apps.bea.gov/API/signup/release_dates.json` (GDP raz za mesiac — posledné vydanie mesiaca) |
+| FOMC, FOMC_MIN | `federalreserve.gov/monetarypolicy/fomccalendars.htm`, rozhodnutie = druhý deň zasadnutia; zápisnica +21 dní |
+| ISM_M, ISM_S, CLAIMS | pravidlo so sviatkami burzy (1. / 3. pracovný deň mesiaca, štvrtok) — sedí na celú históriu od 2021 |
+| RETAIL | **nemá** — Census automatizovaných klientov odmieta (403); len týždenne z ForexFactory |
+
+Termíny za koncom pokrytia idú tými istými cestami ako z exportu — do `newsAdd` nasadení hneď (stroj ich prevezme
+bez novej DLL, varovanie EA pri ďalšom štarte zmizne) a do `calendar.json` + `SpravyCalendar.cs` s pushom hneď,
+nie až o mesiac. U typov s úplným rozvrhom (BLS, FOMC) sa navyše **opravia budúce termíny**, ktoré sa s rozvrhom
+rozchádzajú (presunuté zasadnutie → starý deň do `newsSkip`, nový do `newsAdd`); viac než 3 rozdiely u jedného typu
+sa berú ako zmenená stránka a len sa oznámia. Termín z rozvrhu týždenný export neprepíše, kým ten typ v danom týždni
+sám nemá. Typ, ktorému pokrytie končí do 30 dní a nikto ho nepredĺžil (RETAIL), hlási plugin ako `problem` —
+strážca ho pošle do Telegramu; vtedy treba termíny doplniť ručne. `"official": false` čítanie rozvrhov vypne;
+`python -m tester.hub plugin ff_calendar --official` ho spustí hneď.
 
 Testy: `tester/tests/test_hub_plugins.py`, `tester/tests/test_plugin_reload.py`.
 

@@ -53,8 +53,11 @@ Jedna správa môže mať viac pravidiel; obchod je vždy len jeden naraz.
 - Staré profily a behy 1.0 (`trendEvents`, `fadeEvents`, `tpR`, …) sa načítajú, staré polia sa ignorujú — beží na nich 2.0.
 
 ## Kalendár
-- Je v balíku (`calendar.json`), termíny sú z federalreserve.gov, bls.gov a ALFRED. Raz za rok sa doplní ďalší rok
-  (test `test_kalendar_pokryva_buducnost` začne padať 21 dní pred posledným termínom niektorej správy).
+- Je v balíku (`calendar.json`), termíny sú z federalreserve.gov, bls.gov, BEA a ALFRED. Ďalší rok dopĺňa hub sám:
+  plugin `ff_calendar` číta oficiálne rozvrhy úradov a termíny za koncom kalendára pridá naživo (`newsAdd` nasadení)
+  aj do repozitára, presuny zachytí týždenný export ForexFactory ([docs/HUB.md](../../../../docs/HUB.md), „Kalendár
+  ForexFactory“). Ručne len RETAIL (Census rozvrh automatom nedá) — keď mu do konca ostáva 30 dní, hub to pošle do
+  Telegramu; EA pri štarte varuje 45 dní vopred, `python -m tradebot.strategies.spravy.calendar --check` povie to isté.
 - Kontrola 29. 10.: na 1m MGC je výbuch volatility presne v čase správy pri 100 % FOMC a NFP, 99 % CPI, žiadna správa nie je o hodinu posunutá.
 - Presunutú alebo zrušenú správu (napr. pri shutdowne) opravíš v profile bez zmeny kódu: `newsAdd` = „2026-11-26 08:30 PPI“,
   `newsSkip` = „2026-11-13 PPI“.

@@ -59,8 +59,9 @@ def _cal(tmp: Path, cfg: dict | None = None, t: list[float] | None = None, feed=
         def __init__(self):
             super().__init__(fetcher)
 
-    # testy upozornení: porovnanie s kalendárom stratégie SPRÁVY (sync.py) je vypnuté, má vlastné testy nižšie
-    cfg = {"strategy_sync": False, **(cfg or {})}
+    # testy upozornení: porovnanie s kalendárom stratégie SPRÁVY (sync.py) je vypnuté, má vlastné testy nižšie;
+    # oficiálne rozvrhy (official.py) by šli na sieť — zapína ich len test, ktorý im dá vlastný `official_fetcher`
+    cfg = {"strategy_sync": False, "official": False, **(cfg or {})}
     (tmp / "plugins" / "ff_calendar").mkdir(parents=True, exist_ok=True)
     (tmp / "plugins" / "ff_calendar" / "config.json").write_text(json.dumps(cfg), encoding="utf-8")
     host = _host(tmp, {"ff_calendar": P}, t, notifier, hub)
@@ -476,7 +477,8 @@ def test_sync_pushne_potvrdene_terminy_do_repozitara_raz_za_mesiac(tmp_path: Pat
     assert "2026-12-02" in novy["events"]["JOLTS"]["dates"] and "2026-12-01" not in novy["events"]["JOLTS"]["dates"]
     assert "2026-12-03" in novy["events"]["RETAIL"]["dates"]
     assert novy["events"]["ISM_S"] == cal.load()["events"]["ISM_S"]            # iný čas ostáva len v newsAdd / newsSkip
-    assert novy["coverage"]["to"]["JOLTS"] == "2026-12-02" and novy["events"]["JOLTS"]["dates"] == sorted(novy["events"]["JOLTS"]["dates"])
+    jolts = novy["events"]["JOLTS"]["dates"]
+    assert jolts == sorted(jolts) and novy["coverage"]["to"]["JOLTS"] == jolts[-1]
     assert pushe[0]["cs"] == cal.csharp_source(novy) and 'new Ev(2026, 12, 2, 10, 0, "JOLTS")' in pushe[0]["cs"]
     assert "JOLTS 2026-12-02" in pushe[0]["message"] and ("plugin_calendar_push", {"plugin": "ff_calendar", "commit": "abc1234567", "changes": 3}) in udalosti
     assert p.status()["sync"]["commit"] == "abc1234567890"
@@ -488,6 +490,175 @@ def test_sync_pushne_potvrdene_terminy_do_repozitara_raz_za_mesiac(tmp_path: Pat
     t[0] = datetime(2027, 1, 2, 12, 0, tzinfo=timezone.utc).timestamp()
     host.run_once("ff_calendar")
     assert len(pushe) == 2
+
+
+# --------------------------------------------------------------------------- #
+# ff_calendar → oficiálne rozvrhy úradov (official.py, CalendarSync.extend)
+# --------------------------------------------------------------------------- #
+
+def _bls_page(rows: list[tuple[str, str]]) -> str:
+    """Tabuľka rozvrhu BLS v tvare stránky `bls.gov/schedule/news_release/<x>.htm`."""
+    telo = "".join(f'<tr class="release-list-even-row">\n<td>Ref</td>\n<td>{d}</td>\n<td>{h}</td>\n</tr>\n' for d, h in rows)
+    return f'<table class="release-list"><tr><th>Reference Month</th></tr>\n{telo}</table>'
+
+
+def _fed_page(years: dict[int, list[tuple[str, str]]]) -> str:
+    out = []
+    for rok, rows in years.items():
+        out.append(f'<div class="panel-heading"><h4><a id="1">{rok} FOMC Meetings</a></h4></div>')
+        for mes, dni in rows:
+            out.append(f'<div class="row fomc-meeting">\n    <div class="fomc-meeting__month col-xs-5"><strong>{mes}</strong></div>\n'
+                       f'        \n    <div class="fomc-meeting__date col-xs-4 col-lg-1">{dni}</div>\n</div>')
+    return "\n".join(out)
+
+
+def test_rozbor_oficialnych_rozvrhov():
+    from datetime import date
+
+    from tester.hub.plugins.ff_calendar import official
+
+    page = _bls_page([("Dec. 01, 2026", "10:00 AM"), ("May 04, 2027", "10:00 AM"), ("Sept. 08, 2027", "08:30 AM"),
+                      ("Jun. 02, 2027", "12:30 PM")])
+    assert official.parse_bls(page) == [(date(2026, 12, 1), "10:00"), (date(2027, 5, 4), "10:00"),
+                                        (date(2027, 6, 2), "12:30"), (date(2027, 9, 8), "08:30")]
+    bea = json.dumps({"Gross Domestic Product": {"release_dates": ["2027-01-28T13:30:00+00:00", "2027-07-29T12:30:00+00:00"]},
+                      "file_last_updated": "x"})
+    assert official.parse_bea(bea, "Gross Domestic Product") == [(date(2027, 1, 28), "08:30"), (date(2027, 7, 29), "08:30")]
+    assert official.parse_bea(bea, "Nič") == []
+    fed = _fed_page({2027: [("January", "26-27"), ("Apr/May", "30-1*"), ("August", "22 (notation vote)"),
+                            ("November", "16-17")]})
+    assert official.parse_fomc(fed) == [(date(2027, 1, 27), "14:00"), (date(2027, 5, 1), "14:00"), (date(2027, 11, 17), "14:00")]
+
+
+def test_pravidla_ism_a_claims_sedia_s_celou_historiou_kalendara():
+    """Pravidlo so sviatkami burzy dáva presne termíny, ktoré kalendár má od 2021 (vrátane Veľkého piatku pri ISM
+    služieb a štvrtka Vďakyvzdania pri žiadostiach) — preto sa smie predlžovať samo."""
+    from tester.hub.plugins.ff_calendar import official
+    from tradebot.strategies.spravy import calendar as cal
+
+    for typ in ("ISM_M", "ISM_S", "CLAIMS"):
+        dates = cal.load()["events"][typ]["dates"]
+        roky = range(int(dates[0][:4]), int(dates[-1][:4]) + 1)
+        assert {d.isoformat() for r in roky for d in official.rule_dates(typ, r)} == set(dates), typ
+
+
+def _official_setup(tmp_path: Path, monkeypatch, pages: dict[str, str]):
+    """Kalendár, ktorému JOLTS končí 1. 12. 2026 a FOMC 2027 má ešte december; hub s nasadením spravynet."""
+    import copy
+    import sys
+    import types
+
+    from tester.hub.plugins.ff_calendar import official
+    from tradebot.strategies.spravy import calendar as cal
+
+    kal = copy.deepcopy(cal.load())
+    ev = kal["events"]
+    ev["JOLTS"]["dates"] = [d for d in ev["JOLTS"]["dates"] if d <= "2026-12-01"]
+    ev["FOMC"]["dates"] = sorted({d for d in ev["FOMC"]["dates"] if d < "2027-11-01"} | {"2027-12-08"})
+    ev["FOMC_MIN"]["dates"] = sorted({d for d in ev["FOMC_MIN"]["dates"] if d < "2027-11-20"} | {"2027-12-29"})
+    ev["RETAIL"]["dates"] = [d for d in ev["RETAIL"]["dates"] if d <= "2026-12-16"]
+    monkeypatch.setattr(cal, "load", lambda: kal)
+
+    pushe: list[dict] = []
+
+    def push_files(repo, remote, branch, src_root, rels, message, author, *, sub, log=None, ssh_key=None):
+        pushe.append({"message": message, "json": json.loads((Path(src_root) / rels[0]).read_text(encoding="utf-8"))})
+        return "def4567890"
+
+    monkeypatch.setitem(sys.modules, "tester.hub.plugins.livedata", types.SimpleNamespace(gitpush=types.SimpleNamespace(push_files=push_files)))
+    volane: list[str] = []
+
+    def fetch(url):
+        volane.append(url)
+        for kluc, text in pages.items():
+            if kluc in url:
+                return text
+        raise OSError(f"{url}: 503")
+
+    hub, store, spravy, _ine, udalosti = _deploy_hub(tmp_path)
+    t = [datetime(2026, 11, 12, 12, 0, tzinfo=timezone.utc).timestamp()]
+    n = Notifier()
+
+    class P(FFCalendar):
+        def __init__(self):
+            super().__init__(lambda url: [_ff("Unemployment Claims", "2026-11-12T08:30:00-05:00")], fetch)
+
+    (tmp_path / "plugins" / "ff_calendar").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "plugins" / "ff_calendar" / "config.json").write_text(json.dumps(
+        {"push": {"remote": "git@example:x/y.git"}}), encoding="utf-8")
+    host = _host(tmp_path, {"ff_calendar": P}, t, n, hub)
+    return SimpleNamespace(host=host, p=host.get("ff_calendar"), t=t, n=n, store=store, spravy=spravy, pushe=pushe,
+                           volane=volane, udalosti=udalosti, official=official)
+
+
+def test_oficialne_rozvrhy_predlzia_jolts_a_opravia_presunute_fomc(tmp_path: Path, monkeypatch):
+    jolts = [("Dec. 01, 2026", "10:00 AM"), ("Jan. 05, 2027", "10:00 AM"), ("Feb. 02, 2027", "10:00 AM"),
+             ("Dec. 01, 2027", "10:00 AM")]
+    fed = _fed_page({2027: [("January", "26-27"), ("March", "16-17"), ("April", "27-28"), ("June", "8-9"), ("July", "27-28"),
+                            ("September", "14-15"), ("October", "26-27"), ("November", "16-17")],
+                     2026: [("October", "27-28"), ("December", "8-9*")]})
+    s = _official_setup(tmp_path, monkeypatch, {"jolts.htm": _bls_page(jolts), "fomccalendars": fed})
+    s.host.run_once("ff_calendar")
+
+    cfg = s.store.deployment(s.spravy)["config"]
+    assert "2027-01-05 10:00 JOLTS" in cfg["newsAdd"] and "2027-12-01 10:00 JOLTS" in cfg["newsAdd"]
+    assert "2027-11-17 14:00 FOMC" in cfg["newsAdd"] and "2027-12-08 14:00 FOMC_MIN" in cfg["newsAdd"]
+    assert cfg["newsSkip"] == "2027-12-08 FOMC; 2027-12-29 FOMC_MIN"           # presunuté zasadnutie a jeho zápisnica
+    assert cfg["newsAdd"].startswith("2026-01-05 09:00 CPI")                     # ručný záznam ostáva
+
+    # do repozitára hneď (nie až o mesiac), aj s posunutým koncom pokrytia
+    assert len(s.pushe) == 1 and "oficiálnych rozvrhov" in s.pushe[0]["message"]
+    novy = s.pushe[0]["json"]
+    assert novy["coverage"]["to"]["JOLTS"] == "2027-12-01" and "2027-12-08" not in novy["events"]["FOMC"]["dates"]
+    assert "2027-11-17" in novy["events"]["FOMC"]["dates"] and novy["events"]["FOMC_MIN"]["dates"][-1] == "2027-12-08"
+
+    o = s.p.status()["official"]
+    assert "RETAIL" in o["errors"] and "CPI" in o["errors"]                      # bez zdroja / zdroj dole
+    assert o["short"] == {"RETAIL": "2026-12-16"} and o["commit"] == "def4567890"
+    # RETAIL sa nepredĺžil → problem (strážca ho pošle do Telegramu), JOLTS už nie
+    assert s.p.problem(s.t[0]) is None                                            # do konca RETAIL ešte 34 dní
+    problem = s.p.sync.coverage_problem(s.t[0] + 20 * 86400)
+    assert problem and "RETAIL 2026-12-16" in problem and "JOLTS" not in problem
+    kal = [x for x in s.n.sent if "oficiálnych rozvrhov" in x]
+    assert len(kal) == 1 and "JOLTS: +2027-01-05, 2027-02-02, 2027-12-01" in kal[0] and "RETAIL" in kal[0] and "CPI" not in kal[0]
+    assert "plugin_calendar_official" in [e for e, _ in s.udalosti]
+
+    # do druhého dňa sa nič nečíta; potom znova, ale bez zmeny nič nezapíše ani neoznámi
+    pocet = len(s.volane)
+    rev = s.store.identity()["rev"]
+    s.t[0] += 3600
+    s.host.run_once("ff_calendar")
+    assert len(s.volane) == pocet
+    s.t[0] += 86400
+    s.host.run_once("ff_calendar")
+    assert len(s.volane) > pocet and s.store.identity()["rev"] == rev and len(s.pushe) == 1
+    assert len([x for x in s.n.sent if "oficiálnych rozvrhov" in x]) == 1
+
+
+def test_oficialny_rozvrh_s_mnohymi_rozdielmi_nic_nemeni(tmp_path: Path, monkeypatch):
+    """Stránka, ktorá sa so všetkým rozchádza (zmenený tvar, iný rok), nesmie prepísať kalendár — len oznámiť."""
+    cpi = [(f"{m}. 0{d}, 2027", "08:30 AM") for m, d in (("Jan", 2), ("Feb", 3), ("Mar", 4), ("Apr", 5), ("May", 6))]
+    s = _official_setup(tmp_path, monkeypatch, {"cpi.htm": _bls_page(cpi)})
+    s.host.run_once("ff_calendar")
+    cfg = s.store.deployment(s.spravy)["config"]
+    assert "CPI" not in cfg.get("newsSkip", "") and "2027-01-02" not in cfg["newsAdd"]
+    assert "rozdielov" in s.p.status()["official"]["errors"]["CPI"]
+    assert any("rozdielov" in x for x in s.n.sent)
+
+
+def test_tyzdenny_export_nezahodi_termin_z_oficialneho_rozvrhu(tmp_path: Path):
+    """Termín z rozvrhu v týždni, keď ForexFactory ten typ nemá (iný názov), ostáva; keď ho má inde, platí feed."""
+    from tester.hub.plugins.ff_calendar.sync import CalendarSync
+
+    hub, store, spravy, _ine, _ud = _deploy_hub(tmp_path)
+    t = [datetime(2026, 12, 21, 12, 0, tzinfo=timezone.utc).timestamp()]
+    host, p, _ = _cal(tmp_path, {"strategy_sync": True}, t=t, feed=[_ff("Unemployment Claims", "2026-12-24T08:30:00-05:00")],
+                      hub=hub)
+    sync: CalendarSync = p.sync
+    sync.state["add"] = [["2026-12-23", "10:00", "JOLTS"], ["2026-12-22", "08:30", "CLAIMS"]]
+    host.run_once("ff_calendar")
+    assert ["2026-12-23", "10:00", "JOLTS"] in sync.state["add"]                  # feed JOLTS tento týždeň nemá
+    assert ["2026-12-22", "08:30", "CLAIMS"] not in sync.state["add"]             # feed má CLAIMS 24. 12.
 
 
 def test_strazca_hlasi_stroj_ktory_dlho_neposiela_telemetriu(tmp_path: Path):

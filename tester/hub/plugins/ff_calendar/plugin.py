@@ -10,6 +10,8 @@ týždeň plugin hlási ako `problem` a strážca (`watchdog`) ho pošle do Tele
 
 Po každom úspešnom stiahnutí sa export porovná s kalendárom stratégie SPRÁVY a rozdiel sa zapíše do jej
 nasadení (`newsAdd` / `newsSkip`) a raz za mesiac do repozitára — `sync.py`. Vypína sa `"strategy_sync": false`.
+Koniec pokrytia kalendára predlžujú oficiálne rozvrhy úradov (`official.py`, `CalendarSync.extend`) — vypína sa
+`"official": false`; čo ani tak nepokryje, hlási `problem`.
 """
 
 from __future__ import annotations
@@ -22,10 +24,10 @@ from datetime import datetime, timedelta
 from typing import Any, Callable
 
 from ..base import HubPlugin, NotifyError, read_json, write_json
-from . import alerts
+from . import alerts, official
 from .alerts import CalendarConfig
 from .feed import FF_URL, NY, feed_week, fetch, ny_week, parse_feed
-from .sync import CalendarSync
+from .sync import OFFICIAL_DAYS, CalendarSync
 
 #: Po neúspešnom stiahnutí znova o toľko.
 RETRY_FAIL = 900.0
@@ -44,8 +46,10 @@ class FFCalendar(HubPlugin):
     interval = 20.0
     max_tick = 300.0
 
-    def __init__(self, fetcher: Callable[[str], Any] = fetch) -> None:
+    def __init__(self, fetcher: Callable[[str], Any] = fetch,
+                 official_fetcher: Callable[[str], str] = official.fetch_text) -> None:
         self.fetcher = fetcher
+        self.official_fetcher = official_fetcher
         self.events: list[dict[str, Any]] = []
         self.fetched = 0.0      # posledný pokus
         self.fetched_ok = 0.0   # posledný úspech
@@ -138,10 +142,31 @@ class FFCalendar(HubPlugin):
             self.ctx.log.exception("calendar sync zlyhal: %s", self.sync.last_error)
             return {"error": self.sync.last_error}
 
+    def _official_on(self) -> bool:
+        raw = self.ctx.config()
+        return self.sync is not None and raw.get("strategy_sync", True) is not False and raw.get("official", True) is not False
+
+    def extend_official(self, force: bool = False) -> dict[str, Any]:
+        """Oficiálne rozvrhy úradov → koniec pokrytia kalendára SPRÁVY (`CalendarSync.extend`). Chyba plugin nezhodí."""
+        if not self._official_on():
+            return {}
+        raw = self.ctx.config()
+        try:
+            dni = int(raw.get("official_days") or OFFICIAL_DAYS)
+        except (TypeError, ValueError):
+            dni = OFFICIAL_DAYS
+        try:
+            return self.sync.extend(self.official_fetcher, push=raw.get("push") if isinstance(raw.get("push"), dict) else None,
+                                    horizon=dni, force=force)
+        except Exception as exc:  # noqa: BLE001
+            self.ctx.log.exception("oficiálne rozvrhy zlyhali: %s", exc)
+            return {"error": f"{type(exc).__name__}: {exc}"}
+
     # -- tick -----------------------------------------------------------------
     def tick(self) -> None:
         self.config()
         self.refresh()
+        self.extend_official()
         self.send_due()
 
     def send_due(self) -> list[str]:
@@ -172,6 +197,11 @@ class FFCalendar(HubPlugin):
         zaciatok = datetime.combine(ny_week(now), datetime.min.time(), tzinfo=NY).timestamp()
         if self.fetched and self.week_behind(now) and now - zaciatok > WEEK_LATE:
             return "ForexFactory ešte nemá tento týždeň — upozornenia nepôjdu, kým ho nedá"
+        if self._official_on():
+            try:
+                return self.sync.coverage_problem(now)
+            except Exception as exc:  # noqa: BLE001 - pokazený calendar.json
+                return f"kalendár SPRÁVY sa nedá prečítať: {exc}"
         return None
 
     def status(self) -> dict[str, Any]:
@@ -183,6 +213,7 @@ class FFCalendar(HubPlugin):
                 "next": (f"{nxt[0]['country']} {nxt[0]['title']} "
                          f"{alerts.when(nxt[0]['ts'], now, self.cfg.zone())}") if nxt else "",
                 "sync": {**self.sync.last, "error": self.sync.last_error} if self.sync is not None else None,
+                "official": self.sync.official if self.sync is not None else None,
                 "problem": self.problem(now)}
 
     def upcoming(self, now: float | None = None) -> list[dict[str, Any]]:
@@ -242,6 +273,8 @@ class FFCalendar(HubPlugin):
         ap.add_argument("--test", action="store_true", help="poslať najbližšiu udalosť do Telegramu na skúšku")
         ap.add_argument("--sync", action="store_true", help="porovnať export s kalendárom stratégie SPRÁVY a zapísať rozdiel do nasadení")
         ap.add_argument("--push", action="store_true", help="s --sync: čakajúce termíny pushnúť do repozitára hneď (nie až o mesiac)")
+        ap.add_argument("--official", action="store_true",
+                        help="prečítať oficiálne rozvrhy úradov hneď a predĺžiť / opraviť kalendár SPRÁVY")
         args = ap.parse_args(argv)
         c = self.config()
         if (args.fetch or not self.events) and not self.refresh(force=True):
@@ -265,6 +298,20 @@ class FFCalendar(HubPlugin):
                 print(f"kalendár SPRÁVY, týždeň od {s['week']}: pridať [{s['add']}] vynechať [{s['skip']}] "
                       f"chýba vo feede [{s['missing']}] · zmenené nasadenia: {', '.join(s['deployments']) or 'žiadne'} · "
                       f"do repozitára čaká {s['pending_repo']}" + (f" · commit {s['commit'][:10]}" if s.get("commit") else ""))
+        if args.official:
+            o = self.extend_official(force=True)
+            if not o:
+                print("oficiálne rozvrhy: vypnuté (strategy_sync / official v configu)")
+            elif o.get("error") and "checked" not in o:
+                print(f"oficiálne rozvrhy: {o['error']}")
+            else:
+                print(f"oficiálne rozvrhy ({', '.join(o['types'])}): pridané [{o['added']}] vynechané [{o['skipped']}] · "
+                      f"zmenené nasadenia: {', '.join(o['deployments']) or 'žiadne'}"
+                      + (f" · commit {o['commit'][:10]}" if o.get("commit") else ""))
+                for t, e in o["errors"].items():
+                    print(f"  {t}: {e}")
+                for t, d in o["short"].items():
+                    print(f"  POZOR: {t} končí {d}")
         if args.test:
             if not rows:
                 print("nie je čo poslať", file=sys.stderr)
