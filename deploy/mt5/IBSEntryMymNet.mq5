@@ -13,6 +13,6 @@
 //| Profil: vstup „InpProfile" = nazov JSON z Common\Files\TradeBot\profiles\ibsentrymymnet alebo cesta. |
 //+------------------------------------------------------------------+
 #define TRADEBOT_ENGINE_KEY      "ibsentrymymnet"
-#define TRADEBOT_DEFAULT_PROFILE "mym_databento_3m"   // futures ES / MES 3m
+#define TRADEBOT_DEFAULT_PROFILE "mym_databento_3m"   // futures MYM / YM 3m
 
 #include <TradeBot/TradeBotEA.mqh>

@@ -38,7 +38,7 @@ from PowerLanguage import *
 class IBSEntryMymNet:
     # None = profil z prostredia (TRADEBOT_PROFILE) alebo default stratégie
     PROFILE = None
-    # PROFILE = "mym_databento_3m"          # ES / MES futures, profil zo smernice
+    # PROFILE = "mym_databento_3m"          # MYM / YM futures, východiskový profil
     # Záloha za Data2 (beta odmieta BarsOfData(2)): 1m Dukascopy CSV, z ktorého sa 5m poskladá.
     HTF_CSV = None
     # HTF_CSV = r"C:/dukas/NAS100_M1_10Y.csv"
