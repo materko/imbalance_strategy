@@ -1,0 +1,23 @@
+$ emulator MultiCharts MGC 5m 20211001-20260904 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 45 na 40m @40m 113/113
+predhistoria grafu: 7488 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 349284 barov 5m, 1729985 1m, 0 HTF
+  20000/349284 barov, 22 obchodov
+  40000/349284 barov, 47 obchodov
+  60000/349284 barov, 66 obchodov
+  80000/349284 barov, 95 obchodov
+  100000/349284 barov, 112 obchodov
+  120000/349284 barov, 133 obchodov
+  140000/349284 barov, 161 obchodov
+  160000/349284 barov, 184 obchodov
+  180000/349284 barov, 202 obchodov
+  200000/349284 barov, 223 obchodov
+  220000/349284 barov, 249 obchodov
+  240000/349284 barov, 271 obchodov
+  260000/349284 barov, 293 obchodov
+  280000/349284 barov, 318 obchodov
+  300000/349284 barov, 341 obchodov
+  320000/349284 barov, 367 obchodov
+  340000/349284 barov, 381 obchodov
+hotovo: 391 obchodov, nerozhodnutelnych minut 0
+kresby: {'noa_vwap': 99084, 'noa_level': 63812, 'sl_box': 6039, 'noa_entry': 6039, 'noa_stop': 8237}
