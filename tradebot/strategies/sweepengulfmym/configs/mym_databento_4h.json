@@ -1,0 +1,8 @@
+{
+  "_title": "MYM 4h — SWEEPING ENGULF 1.0: predloha z MNQ, východisko pre ladenie na MYM",
+  "_strategy": "sweepengulfmym",
+  "_instrument": "mym_databento",
+  "_timeframe": "4h",
+  "trendFilter": "with",
+  "trendEmaLen": 200
+}

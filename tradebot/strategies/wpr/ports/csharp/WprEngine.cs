@@ -13,7 +13,7 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.WprNet
 {
     [TradeBotEngine("wprnet", "WILLIAMS %R LONG 1.0 (C# jadro)")]
-    public sealed class WprEngine : IEngine, IConfigured
+    public class WprEngine : IEngine, IConfigured
     {
         private const string LongColor = "#22c55e";
         private const string ShortColor = "#ef4444";
@@ -168,6 +168,16 @@ namespace TradeBot.Strategies.WprNet
             label.BgColor = LongColor;
             label.ObjId = "wpr.e." + bar.Time.ToString(CultureInfo.InvariantCulture);
             o.Drawings.Add(label);
+        }
+    }
+
+    /// <summary>Ten isty Williams %R na Micro Dow (MYM) - vlastny kluc kvoli profilom a nasadeniu (12. 11. 2026).</summary>
+    [TradeBotEngine("wprmymnet", "WILLIAMS %R LONG 1.0 MYM (C# jadro)")]
+    public sealed class WprMymEngine : WprEngine
+    {
+        public WprMymEngine(Dictionary<string, object> config, InstrumentSpec inst, int chartTfMinutes)
+            : base(config, inst, chartTfMinutes)
+        {
         }
     }
 }

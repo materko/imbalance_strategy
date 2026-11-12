@@ -247,4 +247,14 @@ namespace TradeBot.Strategies.SigmaNet
         {
         }
     }
+
+    /// <summary>Ta ista Sigma na Micro Dow (MYM) - vlastny kluc kvoli profilom a nasadeniu (12. 11. 2026).</summary>
+    [TradeBotEngine("sigmamymnet", "SIGMA BREAKOUT 1.0 MYM (C# jadro)")]
+    public sealed class SigmaMymEngine : SigmaEngine
+    {
+        public SigmaMymEngine(Dictionary<string, object> config, InstrumentSpec inst, int chartTfMinutes)
+            : base(config, inst, chartTfMinutes)
+        {
+        }
+    }
 }

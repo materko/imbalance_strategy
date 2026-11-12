@@ -1,0 +1,7 @@
+{
+  "_title": "NOA 1.0 (MYM) · 5m · predloha podľa článku (pásmo 14 dní × 1, kontrola 30 min, 16:00) · východisko pre ladenie na MYM",
+  "_strategy": "noamym",
+  "_instrument": "mym_databento",
+  "_timeframe": "5m",
+  "hardStopPct": 0.28
+}

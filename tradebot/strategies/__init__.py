@@ -40,6 +40,18 @@ from .orb15 import SPEC as ORB15_SPEC
 from .orb15es import SPEC as ORB15ES_SPEC
 from .orb15mgc import SPEC as ORB15MGC_SPEC
 from .mtkorb import SPEC as MTKORB_SPEC
+from .ibsentrymym import SPEC as IBSENTRYMYM_SPEC
+from .noamym import SPEC as NOAMYM_SPEC
+from .wprmym import SPEC as WPRMYM_SPEC
+from .sweepengulfmym import SPEC as SWEEPENGULFMYM_SPEC
+from .tmrmym import SPEC as TMRMYM_SPEC
+from .lliqmym import SPEC as LLIQMYM_SPEC
+from .sigmamym import SPEC as SIGMAMYM_SPEC
+from .nocponmym import SPEC as NOCPONMYM_SPEC
+from .ibsentrymymnet import SPEC as IBSENTRYMYMNET_SPEC
+from .noamymnet import SPEC as NOAMYMNET_SPEC
+from .wprmymnet import SPEC as WPRMYMNET_SPEC
+from .sigmamymnet import SPEC as SIGMAMYMNET_SPEC
 from .tmr import SPEC as TMR_SPEC
 from .tmres import SPEC as TMRES_SPEC
 from .tmrmgc import SPEC as TMRMGC_SPEC
@@ -196,6 +208,18 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     ORB15ES_SPEC,
     ORB15MGC_SPEC,
     MTKORB_SPEC,
+    IBSENTRYMYM_SPEC,
+    NOAMYM_SPEC,
+    WPRMYM_SPEC,
+    SWEEPENGULFMYM_SPEC,
+    TMRMYM_SPEC,
+    LLIQMYM_SPEC,
+    SIGMAMYM_SPEC,
+    NOCPONMYM_SPEC,
+    IBSENTRYMYMNET_SPEC,
+    NOAMYMNET_SPEC,
+    WPRMYMNET_SPEC,
+    SIGMAMYMNET_SPEC,
     TMR_SPEC,
     TMRES_SPEC,
     TMRMGC_SPEC,

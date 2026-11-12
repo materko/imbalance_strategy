@@ -50,6 +50,7 @@ _PAIRS = {
     "es": "es_databento",
     "mgc": "mgc_databento",
     "6e": "6e_databento",
+    "mym": "mym_databento",
 }
 
 

@@ -24,7 +24,7 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **103 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **115 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
@@ -34,6 +34,7 @@ a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.j
 | **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` (päť z nich aj ako `…eod`) |
 | **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` |
 | **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` |
+| **DOW** (MYM) | `noamym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` |
 | **EURUSD** (6E) | | `m2eur` | `sdeur` `asiasweep` | `sdeurnet` |
 
 Mimo trhov je len ukážková `demo_breakout`. Staré kľúče `ibsninja`, `orbninja` a
@@ -159,10 +160,14 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-11)
+## Kde sme (2026-11-12)
 
+- **Stratégie na MYM** (12. 11.): nový trh **DOW** vo webapp, osem kópií na Micro Dow — IBS EZ (`ibsentrymym`, len RTH),
+  NOA (`noamym`), WPR (`wprmym`), SWEEPING ENGULF (`sweepengulfmym`), TMR (`tmrmym`), LLIQ (`lliqmym`), SIGMA (`sigmamym`),
+  NOC + PONDELOK (`nocponmym`) — a C# kľúče `ibsentrymymnet`, `noamymnet`, `wprmymnet`, `sigmamymnet` (parita
+  `tester/tests/test_csharp_parity_mym.py`). Nastavenia z MNQ / ES sa na MYM neprenášajú, ladia sa odznova a idú cez smernicu.
 - **MYM z Databento** (11. 11.): Micro Dow 1m 6/2019 – 9. 11. 2026 v archíve (`mym_databento`, tick 1 bod
-  = 0,5 $), MNQ doplnené do 9. 11. 2026; dáta čisté, MYM v noci riedke. Stratégie na MYM zatiaľ nie sú.
+  = 0,5 $), MNQ doplnené do 9. 11. 2026; dáta čisté, MYM v noci riedke.
 - **MTK ORB** (`mtkorb`, 11. 11.): ORB 15 na zlate len prvý prieraz v smere gapu, OR nie širší než 1,25 × medián,
   vstup stop orderom na hranici OR — z rozboru NY open (MNQ / ES / MGC); nové voliteľné polia `orb15` (`gapFilter`,
   `maxOrWidthMult`, `firstBreakOnly`, `entryAtLevel`, predvolene vypnuté). Smernica ladí na všetkých dátach MGC 2010–2024.
