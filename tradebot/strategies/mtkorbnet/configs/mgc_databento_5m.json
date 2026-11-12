@@ -1,0 +1,14 @@
+{
+  "_title": "MTK ORB (MGC) · 5m · OR 9:30–9:45, stop order na hranici, len prvý prieraz v smere gapu, OR ≤ 1,25 × medián, RR 1, koniec 16:00",
+  "_strategy": "mtkorbnet",
+  "_instrument": "mgc_databento",
+  "_timeframe": "5m",
+  "gapFilter": 1,
+  "maxOrWidthMult": 1.25,
+  "orWidthLookback": 60,
+  "firstBreakOnly": true,
+  "entryAtLevel": true,
+  "useDailyBias": false,
+  "rr": 1.0,
+  "closeAtEnd": true
+}

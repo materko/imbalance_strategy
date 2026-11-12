@@ -24,7 +24,7 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **115 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **116 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
@@ -32,7 +32,7 @@ a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.j
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
 | **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` (päť z nich aj ako `…eod`) |
-| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` |
+| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` |
 | **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` |
 | **DOW** (MYM) | `noamym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` |
 | **EURUSD** (6E) | | `m2eur` | `sdeur` `asiasweep` | `sdeurnet` |
@@ -162,6 +162,10 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ## Kde sme (2026-11-12)
 
+- **NOA MGC a MTK ORB prešli smernicou** (12. 11.): NOA MGC 7 nastavení (odložený rok PF až 1,8, analytika 5 z 5 okien,
+  +2,4 sigma), MTK ORB 8 (ladenie 2010–2024, odložené 2 roky, 5 z 5 okien, +3,8 sigma). Obe vo webapp s C# jadrom —
+  MTK ORB dostala prepis ORB 15/5 do C# (`mtkorbnet`, `tradebot/strategies/orb15/ports/csharp`, parita
+  `tester/tests/test_csharp_parity_mtkorb.py`); NOA ES neprešla (odložený rok slabne).
 - **Stratégie na MYM** (12. 11.): nový trh **DOW** vo webapp, osem kópií na Micro Dow — IBS EZ (`ibsentrymym`, len RTH),
   NOA (`noamym`), WPR (`wprmym`), SWEEPING ENGULF (`sweepengulfmym`), TMR (`tmrmym`), LLIQ (`lliqmym`), SIGMA (`sigmamym`),
   NOC + PONDELOK (`nocponmym`) — a C# kľúče `ibsentrymymnet`, `noamymnet`, `wprmymnet`, `sigmamymnet` (parita

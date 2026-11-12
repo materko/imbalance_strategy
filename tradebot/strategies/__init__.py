@@ -40,6 +40,7 @@ from .orb15 import SPEC as ORB15_SPEC
 from .orb15es import SPEC as ORB15ES_SPEC
 from .orb15mgc import SPEC as ORB15MGC_SPEC
 from .mtkorb import SPEC as MTKORB_SPEC
+from .mtkorbnet import SPEC as MTKORBNET_SPEC
 from .ibsentrymym import SPEC as IBSENTRYMYM_SPEC
 from .noamym import SPEC as NOAMYM_SPEC
 from .wprmym import SPEC as WPRMYM_SPEC
@@ -208,6 +209,7 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     ORB15ES_SPEC,
     ORB15MGC_SPEC,
     MTKORB_SPEC,
+    MTKORBNET_SPEC,
     IBSENTRYMYM_SPEC,
     NOAMYM_SPEC,
     WPRMYM_SPEC,
