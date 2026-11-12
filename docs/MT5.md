@@ -120,6 +120,12 @@ pár hodín vedľa. **0 = naživo zistiť sám** (`TimeTradeServer() - TimeGMT()
 každých 5 s — zmenu letného času brokera chytí sám); nenulová hodnota platí napevno, v testeri treba zadať.
 Všetky `presets/*_live.set` majú 0 (20. 10. 2026: NOA a TKS nemali preset, nasadili sa s 0 bez zisťovania
 a mali časy barov o 3 h posunuté).
+Zistený posun platí pre dnešok; staršie bary (predhistória pri štarte, doplnenie 1m do telemetrie, obnova stavu,
+kresby) dostanú posun svojho dňa: pri `InpServerDstNy=true` (predvolené) EA predpokladá, že server mení letný čas
+s New Yorkom (FTMO GMT+2/+3, polnoc servera = 17:00 NY), a posun baru = dnešný posun + (posun NY v deň baru − posun NY
+dnes). Bez toho EA po zmene času prehral bary spred nej o hodinu vedľa (3. 11. 2026: NOA na FTMO merala pásmo šumu
+z 8:30–15:00 NY a reštart to neopravil). Broker, ktorý mení čas s Európou alebo vôbec, potrebuje `InpServerDstNy=false`
+(alebo pevný `InpServerGmtOffsetMin`) — staré bary potom idú dnešným posunom ako predtým.
 
 **Účet.** Hedging účet = každý vstup vlastná pozícia (ako NinjaTrader `UniqueEntries`). Netting
 = jedna pozícia na symbol, SL/TP sú spoločné a čiastočné zatváranie ide cez `PositionClosePartial`

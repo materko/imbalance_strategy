@@ -46,6 +46,7 @@
 //--- vstupy (rovnake ako parametre strategie v NinjaTraderi)
 input string InpProfile             = TRADEBOT_DEFAULT_PROFILE; // Profil: nazov JSON v Common\Files\TradeBot\profiles\<kluc>\ alebo cela cesta
 input int    InpServerGmtOffsetMin  = 0;      // Posun casu servera brokera voci UTC v minutach (GMT+3 = 180); 0 = naživo zistí sám zo servera (aj letný čas), v testeri 0
+input bool   InpServerDstNy         = true;   // Pri zistenom posune (0 vyssie): server meni letny cas s New Yorkom (FTMO GMT+2/+3) - stare bary sa prepocitaju posunom platnym v ich den
 input int    InpMagic               = 20260925; // Magic number
 input string InpSlot                = "";     // Slot nasadenia v id instancie (viac nasadeni tej istej strategie na symbole a TF); prazdny = bez neho
 input bool   InpExportSignals       = true;   // Exportovat signaly (CSV do Common\Files\TradeBot\logs, na porovnanie s Testerom)
@@ -173,7 +174,38 @@ string Num(double v) { return StringFormat("%.17g", v); }
 //| zisti zo servera (TimeTradeServer - TimeGMT, zaokruhlene na 15 min) a prepocita sa kazdych 5 s v OnTimer,  |
 //| takze zmenu letneho casu brokera (GMT+2 <-> GMT+3) EA chyti sam - deje sa cez vikend, ked trh nebezi.      |
 //| (20. 10. 2026: NOA a TKS na FTMO boli nasadene s 0 a mali cas sviecok o 3 h posunuty -> zla seansa NY.)   |
+//| Zisteny posun plati pre DNESOK. Bary spred zmeny letneho casu (predhistoria, doplnenie 1m do telemetrie,  |
+//| obnova stavu, kresby) maju posun svojho dna: pri InpServerDstNy = posun dnes + (posun NY v den baru -       |
+//| posun NY dnes). (3. 11. 2026: po prechode FTMO GMT+3 -> GMT+2 prehral EA bary spred 1. 11. o hodinu        |
+//| neskor, NOA pocitala pasmo 15 dni z 8:30-15:00 NY namiesto 9:30-16:00 NY.)                                 |
 int g_gmtOffsetSec = 0;
+int g_nyNowSec = 0;      // posun New Yorku voci UTC v case zistenia g_gmtOffsetSec (par sa meni spolu)
+
+/// Nta nedela mesiaca o `hourUtc` UTC (sekundy UTC).
+long NthSundayUtc(int year, int mon, int nth, int hourUtc)
+  {
+   MqlDateTime d; ZeroMemory(d);
+   d.year = year; d.mon = mon; d.day = 1;
+   datetime first = StructToTime(d);
+   TimeToStruct(first, d);                                   // day_of_week: 0 = nedela
+   int day = 1 + (7 - d.day_of_week) % 7 + 7 * (nth - 1);
+   return (long)first + (long)(day - 1) * 86400 + (long)hourUtc * 3600;
+  }
+/// Posun New Yorku voci UTC v sekundach: letny cas od 2. nedele marca do 1. nedele novembra, oboje o 2:00 miestneho.
+int NyOffsetSec(long utcSec)
+  {
+   MqlDateTime d; TimeToStruct((datetime)utcSec, d);
+   bool dst = utcSec >= NthSundayUtc(d.year, 3, 2, 7) && utcSec < NthSundayUtc(d.year, 11, 1, 6);
+   return dst ? -4 * 3600 : -5 * 3600;
+  }
+bool OffsetFollowsNy() { return InpServerDstNy && InpServerGmtOffsetMin == 0 && !MQLInfoInteger(MQL_TESTER); }
+/// Posun servera voci UTC v danom okamihu (UTC).
+int OffsetAtUtc(long utcSec)
+  {
+   if(!OffsetFollowsNy()) return g_gmtOffsetSec;
+   return g_gmtOffsetSec + NyOffsetSec(utcSec) - g_nyNowSec;
+  }
+
 int DetectGmtOffsetSec()
   {
    if(InpServerGmtOffsetMin != 0) return InpServerGmtOffsetMin * 60;
@@ -184,15 +216,23 @@ int DetectGmtOffsetSec()
 void RefreshGmtOffset()
   {
    int sec = DetectGmtOffsetSec();
+   // posun NY sa berie spolu s posunom servera: cez vikend zmeny (trh stoji) sa moze jeden zmenit skor
+   int ny = MQLInfoInteger(MQL_TESTER) ? 0 : NyOffsetSec((long)TimeGMT());
    if(sec != g_gmtOffsetSec)
-     {
       Print("TradeBot: posun casu servera voci UTC ", g_gmtOffsetSec / 60, " -> ", sec / 60, " min",
-            InpServerGmtOffsetMin != 0 ? " (vstup)" : " (zistene zo servera)");
-      g_gmtOffsetSec = sec;
-     }
+            InpServerGmtOffsetMin != 0 ? " (vstup)" : " (zistene zo servera)",
+            OffsetFollowsNy() ? StringFormat(", NY UTC%+d h, starsie bary podla letneho casu NY", ny / 3600) : "");
+   g_gmtOffsetSec = sec;
+   g_nyNowSec = ny;
   }
-long ToMs(datetime serverTime) { return ((long)serverTime - (long)g_gmtOffsetSec) * 1000; }
-datetime FromMs(long ms) { return (datetime)(ms / 1000 + (long)g_gmtOffsetSec); }
+/// Cas servera -> ms UTC. Prvy odhad UTC dnesnym posunom, potom posun platny v ten okamih (zmeny su cez vikend,
+/// takze odhad o hodinu vedla den zmeny neprekroci, kym trh bezi).
+long ToMs(datetime serverTime)
+  {
+   long t = (long)serverTime;
+   return (t - (long)OffsetAtUtc(t - (long)g_gmtOffsetSec)) * 1000;
+  }
+datetime FromMs(long ms) { long utc = ms / 1000; return (datetime)(utc + (long)OffsetAtUtc(utc)); }
 
 long UtcDay(long ms)
   {
