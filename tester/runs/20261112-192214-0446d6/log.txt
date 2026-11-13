@@ -1,0 +1,34 @@
+$ emulator MultiCharts NAS100 3m 20211001-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 100 na 60m @60m 250/250, filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 561097 barov 3m, 1682665 1m, 0 HTF
+  20000/561097 barov, 15 obchodov
+  40000/561097 barov, 26 obchodov
+  60000/561097 barov, 34 obchodov
+  80000/561097 barov, 48 obchodov
+  100000/561097 barov, 60 obchodov
+  120000/561097 barov, 68 obchodov
+  140000/561097 barov, 79 obchodov
+  160000/561097 barov, 93 obchodov
+  180000/561097 barov, 101 obchodov
+  200000/561097 barov, 114 obchodov
+  220000/561097 barov, 125 obchodov
+  240000/561097 barov, 140 obchodov
+  260000/561097 barov, 150 obchodov
+  280000/561097 barov, 160 obchodov
+  300000/561097 barov, 170 obchodov
+  320000/561097 barov, 180 obchodov
+  340000/561097 barov, 196 obchodov
+  360000/561097 barov, 203 obchodov
+  380000/561097 barov, 213 obchodov
+  400000/561097 barov, 227 obchodov
+  420000/561097 barov, 234 obchodov
+  440000/561097 barov, 246 obchodov
+  460000/561097 barov, 253 obchodov
+  480000/561097 barov, 269 obchodov
+  500000/561097 barov, 280 obchodov
+  520000/561097 barov, 290 obchodov
+  540000/561097 barov, 301 obchodov
+  560000/561097 barov, 311 obchodov
+hotovo: 311 obchodov, nerozhodnutelnych minut 0
+kresby: {'vo_vwap': 526766, 'orb_box': 1269, 'orb_high': 1269, 'orb_low': 1269, 'orb_entry': 750}

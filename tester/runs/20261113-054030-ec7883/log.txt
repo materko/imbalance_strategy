@@ -1,0 +1,34 @@
+$ emulator MultiCharts NAS100 3m 20211001-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 60m @60m 125/125, filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 8640 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 561097 barov 3m, 1682665 1m, 0 HTF
+  20000/561097 barov, 34 obchodov
+  40000/561097 barov, 62 obchodov
+  60000/561097 barov, 89 obchodov
+  80000/561097 barov, 119 obchodov
+  100000/561097 barov, 149 obchodov
+  120000/561097 barov, 189 obchodov
+  140000/561097 barov, 216 obchodov
+  160000/561097 barov, 247 obchodov
+  180000/561097 barov, 280 obchodov
+  200000/561097 barov, 310 obchodov
+  220000/561097 barov, 341 obchodov
+  240000/561097 barov, 370 obchodov
+  260000/561097 barov, 402 obchodov
+  280000/561097 barov, 431 obchodov
+  300000/561097 barov, 455 obchodov
+  320000/561097 barov, 488 obchodov
+  340000/561097 barov, 514 obchodov
+  360000/561097 barov, 545 obchodov
+  380000/561097 barov, 574 obchodov
+  400000/561097 barov, 607 obchodov
+  420000/561097 barov, 637 obchodov
+  440000/561097 barov, 669 obchodov
+  460000/561097 barov, 694 obchodov
+  480000/561097 barov, 726 obchodov
+  500000/561097 barov, 755 obchodov
+  520000/561097 barov, 783 obchodov
+  540000/561097 barov, 815 obchodov
+  560000/561097 barov, 839 obchodov
+hotovo: 840 obchodov, nerozhodnutelnych minut 0
+kresby: {'sigma_band': 490404, 'sl_box': 868, 'sigma_entry': 868}

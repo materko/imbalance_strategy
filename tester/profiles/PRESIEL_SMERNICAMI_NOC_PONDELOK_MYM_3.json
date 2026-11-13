@@ -1,0 +1,20 @@
+{
+ "monExitM": 0,
+ "nightEntryM": 30,
+ "trendFilter": "with",
+ "nightExitH": 6,
+ "smaLen": 75,
+ "closeRefM": 0,
+ "useTrend": true,
+ "stopPct": 0.0,
+ "rollFromDay": 9,
+ "skipRoll": false,
+ "entryOrderType": "limit",
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
+ "_strategy": "nocponmym",
+ "_instrument": "mym_databento",
+ "_timeframe": "5m",
+ "_title": "NOC + PONDELOK MYM 3 · PF 1,37 · WR 53 % · 81 obch/rok · MYM 5m · max DD 1 331 $ · posl. rok PF 1,32"
+}

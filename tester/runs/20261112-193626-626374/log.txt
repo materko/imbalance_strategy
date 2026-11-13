@@ -1,0 +1,10 @@
+$ emulator MultiCharts XAU 15m 20211001-20260904 (XAU_USD-1m.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 116369 barov 15m, 1744199 1m, 0 HTF
+  20000/116369 barov, 74 obchodov
+  40000/116369 barov, 151 obchodov
+  60000/116369 barov, 229 obchodov
+  80000/116369 barov, 304 obchodov
+  100000/116369 barov, 381 obchodov
+hotovo: 450 obchodov, nerozhodnutelnych minut 0
+kresby: {'lliq_session': 3819, 'lliq_mark': 1262, 'tp_box': 450, 'sl_box': 450, 'lliq_entry': 450}

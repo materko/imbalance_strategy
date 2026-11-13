@@ -1,0 +1,20 @@
+{
+ "trendFilter": "with",
+ "trendEmaLen": 50,
+ "tradeDirection": "Long only",
+ "engulfMode": "body",
+ "atrMult": 3.0,
+ "rrRatio": 3.0,
+ "slMethod": "atr",
+ "prevCandle": "opposite",
+ "confirmBars": 5,
+ "limitOffsetPct": 75,
+ "entryConfirm": "imbalance",
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
+ "_strategy": "sweepengulfmym",
+ "_instrument": "mym_databento",
+ "_timeframe": "15m",
+ "_title": "SWEEPING ENGULF MYM 3 · RR 3 · PF 1,45 · WR 29 % · 81 obch/rok · MYM 15m · max DD 2 130 $ · posl. rok PF 1,95"
+}

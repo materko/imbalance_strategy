@@ -1,0 +1,35 @@
+$ emulator MultiCharts MYM 3m 20211001-20260904 (MYM_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 14/5 @60m 75/75, filter volatility ATR 14 / 1000 barov @3m 1056/1056
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 580921 barov 3m, 1708078 1m, 349018 HTF
+  20000/580921 barov, 8 obchodov
+  40000/580921 barov, 25 obchodov
+  60000/580921 barov, 48 obchodov
+  80000/580921 barov, 91 obchodov
+  100000/580921 barov, 108 obchodov
+  120000/580921 barov, 123 obchodov
+  140000/580921 barov, 145 obchodov
+  160000/580921 barov, 154 obchodov
+  180000/580921 barov, 159 obchodov
+  200000/580921 barov, 168 obchodov
+  220000/580921 barov, 173 obchodov
+  240000/580921 barov, 186 obchodov
+  260000/580921 barov, 190 obchodov
+  280000/580921 barov, 198 obchodov
+  300000/580921 barov, 205 obchodov
+  320000/580921 barov, 207 obchodov
+  340000/580921 barov, 220 obchodov
+  360000/580921 barov, 231 obchodov
+  380000/580921 barov, 239 obchodov
+  400000/580921 barov, 247 obchodov
+  420000/580921 barov, 281 obchodov
+  440000/580921 barov, 295 obchodov
+  460000/580921 barov, 303 obchodov
+  480000/580921 barov, 310 obchodov
+  500000/580921 barov, 320 obchodov
+  520000/580921 barov, 331 obchodov
+  540000/580921 barov, 342 obchodov
+  560000/580921 barov, 346 obchodov
+  580000/580921 barov, 354 obchodov
+hotovo: 354 obchodov, nerozhodnutelnych minut 0
+kresby: {'session': 6830, 'imb_box': 21689, 'sd_zone_pre': 134256, 'sd_zone_post': 134256, 'swing': 71308, 'adx_state': 29097, 'structure': 54604, 'liq_sweep': 17492, 'tp_box': 425, 'sl_box': 425, 'expired': 84, 'skip': 3802, 'counter': 312, 'imb_zero': 38, 'sr_level': 12}

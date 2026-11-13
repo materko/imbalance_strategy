@@ -1,0 +1,34 @@
+$ emulator MultiCharts NAS100 3m 20211001-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: štruktúra 6m @6m 82/82, filter trendu EMA 200 na 3m @3m 500/500, filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 561097 barov 3m, 1682665 1m, 0 HTF
+  20000/561097 barov, 11 obchodov
+  40000/561097 barov, 28 obchodov
+  60000/561097 barov, 44 obchodov
+  80000/561097 barov, 59 obchodov
+  100000/561097 barov, 75 obchodov
+  120000/561097 barov, 90 obchodov
+  140000/561097 barov, 102 obchodov
+  160000/561097 barov, 116 obchodov
+  180000/561097 barov, 127 obchodov
+  200000/561097 barov, 144 obchodov
+  220000/561097 barov, 156 obchodov
+  240000/561097 barov, 169 obchodov
+  260000/561097 barov, 183 obchodov
+  280000/561097 barov, 194 obchodov
+  300000/561097 barov, 209 obchodov
+  320000/561097 barov, 226 obchodov
+  340000/561097 barov, 237 obchodov
+  360000/561097 barov, 248 obchodov
+  380000/561097 barov, 263 obchodov
+  400000/561097 barov, 286 obchodov
+  420000/561097 barov, 301 obchodov
+  440000/561097 barov, 312 obchodov
+  460000/561097 barov, 323 obchodov
+  480000/561097 barov, 338 obchodov
+  500000/561097 barov, 351 obchodov
+  520000/561097 barov, 367 obchodov
+  540000/561097 barov, 382 obchodov
+  560000/561097 barov, 397 obchodov
+hotovo: 397 obchodov, nerozhodnutelnych minut 2
+kresby: {'jss_choch': 13329, 'jss_bos': 13775, 'jss_zone': 18559, 'jss_fib': 111354, 'jss_entry': 397}

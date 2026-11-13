@@ -1,0 +1,34 @@
+$ emulator MultiCharts NAS100 3m 20211001-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 60m @60m 125/125
+predhistoria grafu: 10560 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 561097 barov 3m, 1682665 1m, 0 HTF
+  20000/561097 barov, 13 obchodov
+  40000/561097 barov, 24 obchodov
+  60000/561097 barov, 41 obchodov
+  80000/561097 barov, 48 obchodov
+  100000/561097 barov, 65 obchodov
+  120000/561097 barov, 75 obchodov
+  140000/561097 barov, 83 obchodov
+  160000/561097 barov, 100 obchodov
+  180000/561097 barov, 117 obchodov
+  200000/561097 barov, 130 obchodov
+  220000/561097 barov, 145 obchodov
+  240000/561097 barov, 163 obchodov
+  260000/561097 barov, 181 obchodov
+  280000/561097 barov, 197 obchodov
+  300000/561097 barov, 210 obchodov
+  320000/561097 barov, 230 obchodov
+  340000/561097 barov, 245 obchodov
+  360000/561097 barov, 260 obchodov
+  380000/561097 barov, 272 obchodov
+  400000/561097 barov, 283 obchodov
+  420000/561097 barov, 301 obchodov
+  440000/561097 barov, 321 obchodov
+  460000/561097 barov, 332 obchodov
+  480000/561097 barov, 346 obchodov
+  500000/561097 barov, 357 obchodov
+  520000/561097 barov, 370 obchodov
+  540000/561097 barov, 384 obchodov
+  560000/561097 barov, 393 obchodov
+hotovo: 394 obchodov, nerozhodnutelnych minut 0
+kresby: {'tp_box': 991, 'sl_box': 991, 'tks_entry': 991}

@@ -1,0 +1,21 @@
+{
+ "fixedQty": true,
+ "qty": 1.0,
+ "exitLevel": -20.0,
+ "wprLen": 9,
+ "stopPct": 1.0,
+ "exitMode": 1,
+ "entryLevel": -95.0,
+ "volFilter": "high",
+ "trendTF": 0,
+ "trendFilter": "against",
+ "entryConfirm": "any",
+ "limitOffsetPct": 50,
+ "confirmBars": 5,
+ "trendEmaLen": 200,
+ "skipOverRisk": false,
+ "_strategy": "wprmym",
+ "_instrument": "mym_databento",
+ "_timeframe": "15m",
+ "_title": "WILLIAMS %R MYM 2 · PF 1,69 · WR 70 % · 98 obch/rok · MYM 15m · max DD 833 $ · posl. rok PF 1,86"
+}

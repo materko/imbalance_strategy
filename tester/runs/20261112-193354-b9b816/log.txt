@@ -1,0 +1,11 @@
+$ emulator MultiCharts US500 15m 20211001-20260904 (US500_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 15m @15m 500/500, filter volatility ATR 14 / 100 barov @15m 156/156
+predhistoria grafu: 1728 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 111825 barov 15m, 1654600 1m, 0 HTF
+  20000/111825 barov, 29 obchodov
+  40000/111825 barov, 63 obchodov
+  60000/111825 barov, 104 obchodov
+  80000/111825 barov, 143 obchodov
+  100000/111825 barov, 187 obchodov
+hotovo: 213 obchodov, nerozhodnutelnych minut 0
+kresby: {'ivb_zone': 1281, 'tp_box': 214, 'sl_box': 214, 'ivb_entry': 214}
