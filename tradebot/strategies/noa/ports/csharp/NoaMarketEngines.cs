@@ -34,4 +34,14 @@ namespace TradeBot.Strategies.NoaNet
         {
         }
     }
+
+    /// <summary>NOA na BTCUSDT.P (Binance futures).</summary>
+    [TradeBotEngine("noabtcnet", "NOA 1.0 BTC (C# jadro)")]
+    public sealed class NoaBtcEngine : NoaEngine
+    {
+        public NoaBtcEngine(Dictionary<string, object> config, InstrumentSpec inst, int chartTfMinutes)
+            : base(config, inst, chartTfMinutes)
+        {
+        }
+    }
 }

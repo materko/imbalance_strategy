@@ -1,0 +1,15 @@
+{
+  "_title": "BTC 3m — Range Breakout: predloha z MNQ prepočítaná na volatilitu BTC, východisko pre ladenie na BTCUSDT.P",
+  "_strategy": "rangebtc",
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "3m",
+  "tickDollarValue": 0.1,
+  "maxTradesPerDay": 1,
+  "maxWidthAtr": {
+    "value": 2.5,
+    "unit": "atr"
+  },
+  "rrRatio": 2.5,
+  "requireSecondClose": true,
+  "minClosePosPct": 70
+}

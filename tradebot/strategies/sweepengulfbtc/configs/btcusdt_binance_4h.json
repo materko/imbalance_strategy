@@ -1,0 +1,8 @@
+{
+  "_title": "BTC 4h — SWEEPING ENGULF 1.0: predloha z MNQ prepočítaná na volatilitu BTC, východisko pre ladenie na BTCUSDT.P",
+  "_strategy": "sweepengulfbtc",
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "4h",
+  "trendFilter": "with",
+  "trendEmaLen": 200
+}

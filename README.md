@@ -24,7 +24,7 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **116 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **125 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
@@ -35,6 +35,7 @@ a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.j
 | **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` |
 | **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` |
 | **DOW** (MYM) | `noamym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` |
+| **BTC** (BTCUSDT.P) | `noabtc` `dailyopenbtc` `onbiasorbbtc` `flashorbbtc` `rangebtc` | `silverbulletbtc` | `tmrbtc` `sweepengulfbtc` | `noabtcnet` |
 | **EURUSD** (6E) | | `m2eur` | `sdeur` `asiasweep` | `sdeurnet` |
 
 Mimo trhov je len ukážková `demo_breakout`. Staré kľúče `ibsninja`, `orbninja` a
@@ -160,8 +161,13 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-12)
+## Kde sme (2026-11-13)
 
+- **Stratégie na BTC** (13. 11.): nový trh **BTC** vo webapp a na stránke výsledkov, osem kópií na BTCUSDT.P (Binance futures)
+  vybraných podľa štúdia grafu (najživšie otvorenie NY, krátke TF sa vracajú, poplatok chce väčší pohyb na obchod) — NOA
+  (`noabtc`), DAILY OPEN (`dailyopenbtc`), Overnight Bias ORB (`onbiasorbbtc`), FLASH ORB (`flashorbbtc`), Silver Bullet
+  (`silverbulletbtc`), Range Breakout (`rangebtc`), TMR (`tmrbtc`), SWEEPING ENGULF (`sweepengulfbtc`) — a C# `noabtcnet`
+  (parita `tester/tests/test_csharp_parity_btc.py`). Ladia sa odznova s poplatkom maker 0,02 %, ostatné do C# až keď prejdú smernicou.
 - **NOA MGC a MTK ORB prešli smernicou** (12. 11.): NOA MGC 7 nastavení (odložený rok PF až 1,8, analytika 5 z 5 okien,
   +2,4 sigma), MTK ORB 8 (ladenie 2010–2024, odložené 2 roky, 5 z 5 okien, +3,8 sigma). Obe vo webapp s C# jadrom —
   MTK ORB dostala prepis ORB 15/5 do C# (`mtkorbnet`, `tradebot/strategies/orb15/ports/csharp`, parita

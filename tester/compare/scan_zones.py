@@ -51,6 +51,7 @@ _PAIRS = {
     "mgc": "mgc_databento",
     "6e": "6e_databento",
     "mym": "mym_databento",
+    "btc": "btcusdt_binance",
 }
 
 

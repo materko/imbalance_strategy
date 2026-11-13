@@ -1,0 +1,6 @@
+{
+  "_title": "BTC 15m — Overnight Bias ORB: predloha z MNQ prepočítaná na volatilitu BTC, východisko pre ladenie na BTCUSDT.P",
+  "_strategy": "onbiasorbbtc",
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "15m"
+}

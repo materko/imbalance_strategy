@@ -1,0 +1,6 @@
+{
+  "_title": "BTC 15m — T-MEAN REVERSION 1.0: predloha z MNQ prepočítaná na volatilitu BTC, východisko pre ladenie na BTCUSDT.P",
+  "_strategy": "tmrbtc",
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "15m"
+}

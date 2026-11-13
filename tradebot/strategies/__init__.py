@@ -53,6 +53,15 @@ from .ibsentrymymnet import SPEC as IBSENTRYMYMNET_SPEC
 from .noamymnet import SPEC as NOAMYMNET_SPEC
 from .wprmymnet import SPEC as WPRMYMNET_SPEC
 from .sigmamymnet import SPEC as SIGMAMYMNET_SPEC
+from .noabtc import SPEC as NOABTC_SPEC
+from .dailyopenbtc import SPEC as DAILYOPENBTC_SPEC
+from .onbiasorbbtc import SPEC as ONBIASORBBTC_SPEC
+from .flashorbbtc import SPEC as FLASHORBBTC_SPEC
+from .silverbulletbtc import SPEC as SILVERBULLETBTC_SPEC
+from .rangebtc import SPEC as RANGEBTC_SPEC
+from .tmrbtc import SPEC as TMRBTC_SPEC
+from .sweepengulfbtc import SPEC as SWEEPENGULFBTC_SPEC
+from .noabtcnet import SPEC as NOABTCNET_SPEC
 from .tmr import SPEC as TMR_SPEC
 from .tmres import SPEC as TMRES_SPEC
 from .tmrmgc import SPEC as TMRMGC_SPEC
@@ -222,6 +231,15 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     NOAMYMNET_SPEC,
     WPRMYMNET_SPEC,
     SIGMAMYMNET_SPEC,
+    NOABTC_SPEC,
+    DAILYOPENBTC_SPEC,
+    ONBIASORBBTC_SPEC,
+    FLASHORBBTC_SPEC,
+    SILVERBULLETBTC_SPEC,
+    RANGEBTC_SPEC,
+    TMRBTC_SPEC,
+    SWEEPENGULFBTC_SPEC,
+    NOABTCNET_SPEC,
     TMR_SPEC,
     TMRES_SPEC,
     TMRMGC_SPEC,
