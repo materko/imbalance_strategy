@@ -1,0 +1,11 @@
+$ emulator MultiCharts MYM 3m 20221001-20231001 (MYM_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 14/5 @60m 75/75
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 117718 barov 3m, 346350 1m, 118018 HTF
+  20000/117718 barov, 2 obchodov
+  40000/117718 barov, 5 obchodov
+  60000/117718 barov, 8 obchodov
+  80000/117718 barov, 8 obchodov
+  100000/117718 barov, 8 obchodov
+hotovo: 9 obchodov, nerozhodnutelnych minut 0
+kresby: {'session': 1684, 'imb_box': 2819, 'sd_zone_pre': 11820, 'sd_zone_post': 11820, 'swing': 14601, 'adx_state': 5908, 'liq_sweep': 1292, 'structure': 11104, 'tp_box': 15, 'sl_box': 15, 'expired': 6, 'skip': 484, 'counter': 314, 'imb_zero': 36, 'sr_golden': 8, 'sr_level': 2}

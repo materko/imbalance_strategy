@@ -1,0 +1,9 @@
+$ emulator MultiCharts MYM 5m 20221001-20231001 (MYM_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 70 na 50m @50m 175/175
+predhistoria grafu: 4896 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 70681 barov 5m, 346350 1m, 0 HTF
+  20000/70681 barov, 34 obchodov
+  40000/70681 barov, 74 obchodov
+  60000/70681 barov, 109 obchodov
+hotovo: 137 obchodov, nerozhodnutelnych minut 0
+kresby: {'noa_vwap': 20857, 'noa_level': 15314, 'sl_box': 584, 'noa_entry': 584, 'noa_stop': 1225}

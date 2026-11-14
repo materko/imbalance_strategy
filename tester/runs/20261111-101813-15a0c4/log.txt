@@ -1,0 +1,41 @@
+$ emulator MultiCharts MNQ 3m 20200904-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 81 na 69m @69m 203/203, filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 707445 barov 3m, 2122311 1m, 0 HTF
+  20000/707445 barov, 14 obchodov
+  40000/707445 barov, 32 obchodov
+  60000/707445 barov, 47 obchodov
+  80000/707445 barov, 55 obchodov
+  100000/707445 barov, 72 obchodov
+  120000/707445 barov, 90 obchodov
+  140000/707445 barov, 99 obchodov
+  160000/707445 barov, 116 obchodov
+  180000/707445 barov, 131 obchodov
+  200000/707445 barov, 140 obchodov
+  220000/707445 barov, 148 obchodov
+  240000/707445 barov, 163 obchodov
+  260000/707445 barov, 177 obchodov
+  280000/707445 barov, 194 obchodov
+  300000/707445 barov, 208 obchodov
+  320000/707445 barov, 224 obchodov
+  340000/707445 barov, 237 obchodov
+  360000/707445 barov, 251 obchodov
+  380000/707445 barov, 265 obchodov
+  400000/707445 barov, 284 obchodov
+  420000/707445 barov, 309 obchodov
+  440000/707445 barov, 326 obchodov
+  460000/707445 barov, 338 obchodov
+  480000/707445 barov, 353 obchodov
+  500000/707445 barov, 365 obchodov
+  520000/707445 barov, 378 obchodov
+  540000/707445 barov, 388 obchodov
+  560000/707445 barov, 398 obchodov
+  580000/707445 barov, 414 obchodov
+  600000/707445 barov, 430 obchodov
+  620000/707445 barov, 441 obchodov
+  640000/707445 barov, 453 obchodov
+  660000/707445 barov, 463 obchodov
+  680000/707445 barov, 468 obchodov
+  700000/707445 barov, 475 obchodov
+hotovo: 479 obchodov, nerozhodnutelnych minut 4
+kresby: {'mz_zone': 1717, 'mz_ifvg': 533, 'mz_cb': 92, 'mz_retest': 75}
