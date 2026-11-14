@@ -1,0 +1,35 @@
+$ emulator MultiCharts MYM 3m 20211001-20260904 (MYM_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 580921 barov 3m, 1708078 1m, 0 HTF
+  20000/580921 barov, 11 obchodov
+  40000/580921 barov, 21 obchodov
+  60000/580921 barov, 35 obchodov
+  80000/580921 barov, 49 obchodov
+  100000/580921 barov, 68 obchodov
+  120000/580921 barov, 86 obchodov
+  140000/580921 barov, 103 obchodov
+  160000/580921 barov, 121 obchodov
+  180000/580921 barov, 134 obchodov
+  200000/580921 barov, 146 obchodov
+  220000/580921 barov, 165 obchodov
+  240000/580921 barov, 181 obchodov
+  260000/580921 barov, 203 obchodov
+  280000/580921 barov, 226 obchodov
+  300000/580921 barov, 244 obchodov
+  320000/580921 barov, 263 obchodov
+  340000/580921 barov, 278 obchodov
+  360000/580921 barov, 298 obchodov
+  380000/580921 barov, 319 obchodov
+  400000/580921 barov, 336 obchodov
+  420000/580921 barov, 356 obchodov
+  440000/580921 barov, 374 obchodov
+  460000/580921 barov, 391 obchodov
+  480000/580921 barov, 404 obchodov
+  500000/580921 barov, 416 obchodov
+  520000/580921 barov, 436 obchodov
+  540000/580921 barov, 458 obchodov
+  560000/580921 barov, 478 obchodov
+  580000/580921 barov, 493 obchodov
+hotovo: 494 obchodov, nerozhodnutelnych minut 1
+kresby: {'lliq_session': 3819, 'lliq_mark': 2229, 'tp_box': 494, 'sl_box': 494, 'lliq_entry': 494}

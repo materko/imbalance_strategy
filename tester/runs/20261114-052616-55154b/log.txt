@@ -1,0 +1,33 @@
+$ emulator MultiCharts US500 3m 20211001-20260904 (US500_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 3m @3m 125/125
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 558512 barov 3m, 1654600 1m, 0 HTF
+  20000/558512 barov, 16 obchodov
+  40000/558512 barov, 45 obchodov
+  60000/558512 barov, 78 obchodov
+  80000/558512 barov, 106 obchodov
+  100000/558512 barov, 130 obchodov
+  120000/558512 barov, 158 obchodov
+  140000/558512 barov, 188 obchodov
+  160000/558512 barov, 209 obchodov
+  180000/558512 barov, 227 obchodov
+  200000/558512 barov, 242 obchodov
+  220000/558512 barov, 252 obchodov
+  240000/558512 barov, 264 obchodov
+  260000/558512 barov, 271 obchodov
+  280000/558512 barov, 277 obchodov
+  300000/558512 barov, 292 obchodov
+  320000/558512 barov, 308 obchodov
+  340000/558512 barov, 331 obchodov
+  360000/558512 barov, 352 obchodov
+  380000/558512 barov, 375 obchodov
+  400000/558512 barov, 407 obchodov
+  420000/558512 barov, 435 obchodov
+  440000/558512 barov, 451 obchodov
+  460000/558512 barov, 468 obchodov
+  480000/558512 barov, 492 obchodov
+  500000/558512 barov, 520 obchodov
+  520000/558512 barov, 547 obchodov
+  540000/558512 barov, 578 obchodov
+hotovo: 600 obchodov, nerozhodnutelnych minut 1
+kresby: {'nv_range': 1263, 'nv_poc': 1263, 'nv_va': 2526, 'tp_box': 788, 'sl_box': 788, 'nv_entry': 788}

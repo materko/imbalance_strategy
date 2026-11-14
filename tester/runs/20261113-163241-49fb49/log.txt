@@ -1,0 +1,49 @@
+$ emulator MultiCharts BTCUSDT.P 3m 20211001-20260904 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria indikatorov z dat pred behom: 15m štruktúra a FVG (15m) @15m 218/218
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 863520 barov 3m, 2590560 1m, 0 HTF
+  20000/863520 barov, 2 obchodov
+  40000/863520 barov, 7 obchodov
+  60000/863520 barov, 13 obchodov
+  80000/863520 barov, 20 obchodov
+  100000/863520 barov, 22 obchodov
+  120000/863520 barov, 25 obchodov
+  140000/863520 barov, 34 obchodov
+  160000/863520 barov, 39 obchodov
+  180000/863520 barov, 51 obchodov
+  200000/863520 barov, 56 obchodov
+  220000/863520 barov, 63 obchodov
+  240000/863520 barov, 69 obchodov
+  260000/863520 barov, 74 obchodov
+  280000/863520 barov, 77 obchodov
+  300000/863520 barov, 81 obchodov
+  320000/863520 barov, 86 obchodov
+  340000/863520 barov, 91 obchodov
+  360000/863520 barov, 98 obchodov
+  380000/863520 barov, 102 obchodov
+  400000/863520 barov, 104 obchodov
+  420000/863520 barov, 108 obchodov
+  440000/863520 barov, 114 obchodov
+  460000/863520 barov, 118 obchodov
+  480000/863520 barov, 123 obchodov
+  500000/863520 barov, 128 obchodov
+  520000/863520 barov, 133 obchodov
+  540000/863520 barov, 143 obchodov
+  560000/863520 barov, 152 obchodov
+  580000/863520 barov, 157 obchodov
+  600000/863520 barov, 163 obchodov
+  620000/863520 barov, 169 obchodov
+  640000/863520 barov, 180 obchodov
+  660000/863520 barov, 184 obchodov
+  680000/863520 barov, 187 obchodov
+  700000/863520 barov, 191 obchodov
+  720000/863520 barov, 202 obchodov
+  740000/863520 barov, 207 obchodov
+  760000/863520 barov, 211 obchodov
+  780000/863520 barov, 215 obchodov
+  800000/863520 barov, 219 obchodov
+  820000/863520 barov, 226 obchodov
+  840000/863520 barov, 235 obchodov
+  860000/863520 barov, 238 obchodov
+hotovo: 239 obchodov, nerozhodnutelnych minut 0
+kresby: {'pc_choch': 8138, 'pc_htf_fvg': 33829, 'tp_box': 239, 'sl_box': 239, 'pc_fvg': 239, 'pc_entry': 239}

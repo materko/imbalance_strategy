@@ -1,0 +1,6 @@
+$ emulator MultiCharts BTCUSDT.P 4h 20231001-20241001 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 240m @240m 500/500
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 2196 barov 240m, 527040 1m, 0 HTF
+hotovo: 43 obchodov, nerozhodnutelnych minut 0
+kresby: {'se_signal': 92}

@@ -1,0 +1,48 @@
+$ emulator MultiCharts BTCUSDT.P 3m 20211001-20260904 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 863520 barov 3m, 2590560 1m, 518292 HTF
+  20000/863520 barov, 18 obchodov
+  40000/863520 barov, 31 obchodov
+  60000/863520 barov, 56 obchodov
+  80000/863520 barov, 81 obchodov
+  100000/863520 barov, 94 obchodov
+  120000/863520 barov, 113 obchodov
+  140000/863520 barov, 133 obchodov
+  160000/863520 barov, 154 obchodov
+  180000/863520 barov, 177 obchodov
+  200000/863520 barov, 194 obchodov
+  220000/863520 barov, 214 obchodov
+  240000/863520 barov, 232 obchodov
+  260000/863520 barov, 250 obchodov
+  280000/863520 barov, 281 obchodov
+  300000/863520 barov, 300 obchodov
+  320000/863520 barov, 326 obchodov
+  340000/863520 barov, 339 obchodov
+  360000/863520 barov, 352 obchodov
+  380000/863520 barov, 368 obchodov
+  400000/863520 barov, 389 obchodov
+  420000/863520 barov, 412 obchodov
+  440000/863520 barov, 432 obchodov
+  460000/863520 barov, 448 obchodov
+  480000/863520 barov, 469 obchodov
+  500000/863520 barov, 490 obchodov
+  520000/863520 barov, 512 obchodov
+  540000/863520 barov, 529 obchodov
+  560000/863520 barov, 550 obchodov
+  580000/863520 barov, 564 obchodov
+  600000/863520 barov, 581 obchodov
+  620000/863520 barov, 591 obchodov
+  640000/863520 barov, 613 obchodov
+  660000/863520 barov, 619 obchodov
+  680000/863520 barov, 643 obchodov
+  700000/863520 barov, 662 obchodov
+  720000/863520 barov, 676 obchodov
+  740000/863520 barov, 692 obchodov
+  760000/863520 barov, 708 obchodov
+  780000/863520 barov, 731 obchodov
+  800000/863520 barov, 748 obchodov
+  820000/863520 barov, 762 obchodov
+  840000/863520 barov, 777 obchodov
+  860000/863520 barov, 795 obchodov
+hotovo: 796 obchodov, nerozhodnutelnych minut 1
+kresby: {'session': 3858, 'imb_box': 196165, 'structure': 83276, 'swing': 108127, 'sd_zone_pre': 10017, 'sd_zone_post': 10017, 'tp_box': 949, 'sl_box': 949, 'expired': 138, 'skip': 981, 'liq_sweep': 18910, 'counter': 318, 'imb_zero': 32, 'sr_golden': 2, 'sr_level': 16}

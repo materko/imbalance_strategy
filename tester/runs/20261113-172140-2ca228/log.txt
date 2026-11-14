@@ -1,0 +1,11 @@
+$ emulator MultiCharts BTCUSDT.P 5m 20221001-20231001 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria indikatorov z dat pred behom: likvidita dňa a ATR @5m 328/328
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 105120 barov 5m, 525600 1m, 0 HTF
+  20000/105120 barov, 15 obchodov
+  40000/105120 barov, 20 obchodov
+  60000/105120 barov, 26 obchodov
+  80000/105120 barov, 34 obchodov
+  100000/105120 barov, 41 obchodov
+hotovo: 44 obchodov, nerozhodnutelnych minut 0
+kresby: {'sb_liq_sell': 1598, 'sb_window': 366, 'sb_liq_buy': 1612, 'sb_sweep': 528, 'sb_fvg': 143, 'tp_box': 44, 'sl_box': 44, 'sb_entry': 44}

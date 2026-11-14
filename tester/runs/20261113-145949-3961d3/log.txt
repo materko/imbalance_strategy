@@ -1,0 +1,47 @@
+$ emulator MultiCharts MGC 5m 20211001-20260904 (MGC_USD-1m.feather)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/martin/IBS/tester/webapp/mc_worker.py", line 40, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/martin/IBS/tester/webapp/mc_worker.py", line 29, in main
+    out = run_multicharts(task["params"], task["settings"], Path(task["profile"]),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tester/webapp/results.py", line 166, in run_multicharts
+    result, mc_runner = emulate(
+                        ^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/multicharts/emulator.py", line 288, in emulate
+    runner = MCRunner(cfg, inst, chart_tf, spec=spec)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/multicharts/runner.py", line 100, in __init__
+    engine = wrap_entry_filter(self.spec.engine_factory(cfg, inst, chart_tf_minutes), cfg, chart_tf_minutes)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/csharp/engine.py", line 243, in factory
+    return CSharpEngine(key, cfg, inst, chart_tf_minutes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/csharp/engine.py", line 141, in __init__
+    self._open()
+  File "/Users/martin/IBS/tradebot/adapters/csharp/engine.py", line 151, in _open
+    self._transport: Transport = open_transport(
+                                 ^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/csharp/bridge.py", line 350, in open_transport
+    return cls(key, config_json, instrument_json, chart_tf_minutes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/csharp/bridge.py", line 266, in __init__
+    self._proc = subprocess.Popen(_host_command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                  ^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/csharp/bridge.py", line 197, in _host_command
+    ensure_built()
+  File "/Users/martin/IBS/tradebot/adapters/csharp/build.py", line 181, in ensure_built
+    if force or is_stale():
+                ^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/csharp/build.py", line 100, in is_stale
+    if not marker.exists() or marker.read_text(encoding="utf-8").strip() != _stamp():
+                                                                            ^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/csharp/build.py", line 91, in _stamp
+    return f"{sys.platform}:{Path(find_compiler()[0]).name}"
+                                  ^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/adapters/csharp/build.py", line 54, in find_compiler
+    raise BuildError(
+tradebot.adapters.csharp.build.BuildError: nenašiel sa C# kompilátor: na Windows je `csc.exe` súčasťou .NET Frameworku 4.x, na macOS/Linuxe nainštaluj Mono (`brew install mono`); cestu sa dá vnútiť cez TRADEBOT_CSC

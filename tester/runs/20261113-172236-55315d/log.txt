@@ -1,0 +1,13 @@
+$ emulator MultiCharts BTCUSDT.P 3m 20240904-20250904 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 175200 barov 3m, 525600 1m, 0 HTF
+  20000/175200 barov, 30 obchodov
+  40000/175200 barov, 59 obchodov
+  60000/175200 barov, 89 obchodov
+  80000/175200 barov, 119 obchodov
+  100000/175200 barov, 148 obchodov
+  120000/175200 barov, 178 obchodov
+  140000/175200 barov, 208 obchodov
+  160000/175200 barov, 238 obchodov
+hotovo: 259 obchodov, nerozhodnutelnych minut 0
+kresby: {'range_box': 2757, 'range_high': 2757, 'range_low': 2757, 'range_break': 260, 'range_entry': 260}
