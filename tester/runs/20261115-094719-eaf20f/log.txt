@@ -1,0 +1,9 @@
+$ emulator MultiCharts 6E 5m 20240904-20250904 (6E_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: likvidita dňa a ATR @5m 328/328
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 71089 barov 5m, 350669 1m, 0 HTF
+  20000/71089 barov, 22 obchodov
+  40000/71089 barov, 39 obchodov
+  60000/71089 barov, 57 obchodov
+hotovo: 64 obchodov, nerozhodnutelnych minut 0
+kresby: {'sb_liq_sell': 1067, 'sb_window': 259, 'sb_liq_buy': 1065, 'sb_sweep': 411, 'sb_fvg': 121, 'tp_box': 64, 'sl_box': 64, 'sb_entry': 64}

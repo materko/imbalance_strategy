@@ -1,0 +1,23 @@
+$ emulator MultiCharts XAU 5m 20211001-20260904 (XAU_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 5m @5m 500/500
+predhistoria grafu: 9504 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 349091 barov 5m, 1744199 1m, 0 HTF
+  20000/349091 barov, 11 obchodov
+  40000/349091 barov, 17 obchodov
+  60000/349091 barov, 22 obchodov
+  80000/349091 barov, 30 obchodov
+  100000/349091 barov, 61 obchodov
+  120000/349091 barov, 104 obchodov
+  140000/349091 barov, 139 obchodov
+  160000/349091 barov, 168 obchodov
+  180000/349091 barov, 207 obchodov
+  200000/349091 barov, 220 obchodov
+  220000/349091 barov, 238 obchodov
+  240000/349091 barov, 263 obchodov
+  260000/349091 barov, 286 obchodov
+  280000/349091 barov, 315 obchodov
+  300000/349091 barov, 354 obchodov
+  320000/349091 barov, 373 obchodov
+  340000/349091 barov, 377 obchodov
+hotovo: 377 obchodov, nerozhodnutelnych minut 1
+kresby: {'ivb_zone': 1305, 'tp_box': 384, 'sl_box': 384, 'ivb_entry': 384}
