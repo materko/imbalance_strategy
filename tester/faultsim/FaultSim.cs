@@ -329,6 +329,7 @@ namespace TradeBot.FaultSim
             else if (what == "session")
             {
                 World.InSession = TB.Json.GetBool(step, "open", true);
+                if (World.InSession) World.SessionBegin = World.Now;   // otvorenie po prestavke
             }
             else if (what == "control")
             {

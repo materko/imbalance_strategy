@@ -483,7 +483,9 @@ o pozícii po predhistórii nevie a znova by ju nezavrel (audit M-LIVE-9).
 **Mŕtvy rad barov** (zvyšok auditu N-LIVE-7): keď je účet pripojený 60 s a bar počas seansy neprišiel 10 minút,
 `BarsRequest` po reconnecte ostal mŕtvy a sám sa neobnoví. Inštancia to ohlási (`note error`) a skončí s dôvodom
 `feed_dead`; AddOn ju do minúty spustí znova (nový `BarsRequest`, predhistória, pozície zo stavu ako vyššie). Najviac
-raz za 30 minút na inštanciu, nie počas zatvárania a nie 10 minút pred koncom dňa podľa hodín (EOD). Webapp na karte Live vstup bez zatvorenia, ktorý už nebeží (neskôr ďalší vstup, cena
+raz za 30 minút na inštanciu, nie počas zatvárania a nie 10 minút pred koncom dňa podľa hodín (EOD). Po prestávke
+a víkende sa čaká od začiatku bežiacej seansy (`SessionIterator.ActualSessionBegin`), nie od posledného baru pred
+zatvorením — inak by alarm aj reštart prišli v sekunde otvorenia. Webapp na karte Live vstup bez zatvorenia, ktorý už nebeží (neskôr ďalší vstup, cena
 prešla SL / TP), do pozície nepočíta — rovnako ako stránka výsledkov (`tester.dashboard.live.trades_of`).
 **Neoverené naživo**: preložené proti NinjaTrader 8, ale reštart s otvorenou pozíciou na Sim účte ešte nebežal.
 

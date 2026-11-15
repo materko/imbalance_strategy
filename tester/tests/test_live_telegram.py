@@ -223,6 +223,39 @@ def test_restart_s_dlhou_predhistoriou_je_jeden_suhrn(tmp_path: Path):
     assert [x[1] for x in bot.sent] == ["🔄 <b>Reštart</b> · MT5 · <b>US100</b>: vwaporbnet, vwaporbnet, vwaporbnet"]
 
 
+def test_opakovany_neuspesny_start_je_jedna_sprava(tmp_path: Path):
+    """Inštancia, ktorá nenabehne (`bye failed`), sa na platforme skúša každú minútu znova — každý pokus je nový
+    beh s `hello` a `bye`. Ohlási sa prvý; ďalšie až po tom, čo inštancia nabehla alebo skončila inak."""
+    root = tmp_path / "spool"
+    t = [1000.0]
+    bot = FakeBot()
+    n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), bot, CFG, TelegramState(tmp_path / "s.json"),
+                     clock=lambda: t[0])
+    write(root, [hello(session="a0")], session="a0")
+    n.pump()
+
+    def pokus(session: str, reason: str | None = "failed") -> None:
+        write(root, [hello(session=session), *([{"seq": 2, "t": 2, "k": "bye", "reason": reason}] if reason else [])],
+              session=session)
+        n.pump()
+        t[0] += 31
+        n.pump()
+        t[0] += 31
+
+    write(root, [{"seq": 2, "t": 2, "k": "bye", "reason": "feed_dead"}], session="a0")
+    pokus("b1")
+    stop = "⏹ <b>Zastavené</b> · MT5 · <b>US100</b>: vwaporbnet (failed)"
+    assert [x[1] for x in bot.sent] == [stop]
+    for k in range(2, 6):
+        pokus(f"b{k}")
+    assert len(bot.sent) == 1                               # štyri ďalšie pokusy bez správy
+    pokus("c1", reason=None)                                # nabehla
+    assert bot.sent[-1][1] == "▶️ <b>Spustené</b> · MT5 · <b>US100</b>: vwaporbnet" and len(bot.sent) == 2
+    write(root, [{"seq": 2, "t": 2, "k": "bye", "reason": "crashed"}], session="c1")
+    pokus("d1")
+    assert bot.sent[-1][1] == stop and len(bot.sent) == 3   # nový výpadok sa ohlási znova
+
+
 def test_restart_a_stop_nesu_kto_ich_urobil(tmp_path: Path):
     """Zmena nasadenia (`by`) alebo nový kód na stroj (`requested_by`) z hubu → súhrn štartu a stopu ukáže kto."""
     root = tmp_path / "spool"

@@ -645,7 +645,7 @@ Telegram z `US100.cash` urobil odkaz; za platformou účet z `hello`, lebo tá i
 | `fill` `out` | `✅/❌ VÝSTUP SHORT × 0.14 @ 28802.33 · +48.96 $ (+349.70 b)` / `US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo (Stop loss)` — výstup čitateľne (`Stop loss`, `Profit target`, `market close`, `market close – koniec seansy`, `ručne`, staré `SL/TP`); P&L z priemernej ceny vstupu a `instrument.point_value` z `hello` |
 | `order` `entry` (`ready`, len so `signals`) | `📍 Signál SHORT Market @ … × …` / `… · SL … · TP …` |
 | `note` od úrovne `notes` | `⚠️ US100 vwaporbnet · MT5 · 1514925336-FTMO-Demo` / text (escapovaný) |
-| `hello`, `bye`, `control` (zmena režimu) | **súhrn**: `🔄 Reštart · MT5 · US100: ibsentrynet, vwapadxnet, vwaporbnet`, `▶️ Spustené …`, `⏹ Zastavené … (dôvod)`, `⏸ Pauza …`, `▶️ Obchoduje …`, `⛔ Flatten …` |
+| `hello`, `bye`, `control` (zmena režimu) | **súhrn**: `🔄 Reštart · MT5 · US100: ibsentrynet, vwapadxnet, vwaporbnet`, `▶️ Spustené …`, `⏹ Zastavené … (dôvod)`, `⏸ Pauza …`, `▶️ Obchoduje …`, `⛔ Flatten …`. Neúspešný štart (`bye failed`), ktorý platforma skúša každú minútu, sa ohlási raz — znova až po tom, čo inštancia nabehla alebo skončila inak |
 | chyba nasadenia z reconcilera (`applied.error`, raz za 30 s) | `⚠️ Nenabehli: ibsentrynet MNQ NT8, vwapadxnet MNQ NT8, …` / *príčina* — zoskupené podľa príčiny; po náprave `✅ Znova v poriadku: …` |
 
 Obchody a varovania jedného kola idú v jednej správe (odsek na udalosť). Kolo číta spool po 2000 udalostí

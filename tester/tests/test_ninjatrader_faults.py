@@ -366,6 +366,17 @@ def test_mrtvy_rad_barov_pri_pripojenom_ucte_restartuje_instanciu():
     assert_clean(last)
 
 
+def test_otvorenie_seansy_po_prestavke_nie_je_mrtvy_rad_barov():
+    """Posledný bar je spred zatvorenia (prestávka, víkend): pri otvorení sa čaká od začiatku seansy — bez alarmu
+    a reštartu `feed_dead` v sekunde otvorenia. Až keď bary nechodia 10 minút po otvorení, reštart príde."""
+    prestavka = [{"do": "bar"}, {"do": "session", "open": False}, wait(7200), {"do": "session", "open": True}]
+    out = play([], [*prestavka, wait(60)])
+    assert not logged(out, "neprisiel bar") and not logged(out, "restartujem instanciu")
+    out = play([], [*prestavka, wait(1200)])
+    assert logged(out, "neprisiel bar") and logged(out, "restartujem instanciu")
+    assert logged(out, "bary nechodia 10 min")   # minúty sa rátajú od otvorenia, nie od baru pred prestávkou (130)
+
+
 def test_vstup_vyplneny_po_zastaveni_instancie_sa_po_starte_prevezme():
     """Zastavenie ruší čakajúce vstupy a na potvrdenie nečaká; výplň, ktorá zrušenie predbehne, prevezme až ďalší
     štart (do tej doby pozíciu nemá kto strážiť — preto AddOn inštanciu po páde spúšťa znova)."""

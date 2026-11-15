@@ -61,6 +61,7 @@ namespace NinjaTrader.Sim
         public static double LastPrice = 100.0;
         public static string Dir = "";
         public static bool InSession = true;
+        public static DateTime SessionBegin = DateTime.MinValue;   // otvorenie bezacej seansy; MinValue = nezname
 
         public static string Peek(string on, string name)
         {
@@ -483,6 +484,7 @@ namespace NinjaTrader.Data
     {
         public SessionIterator(TradingHours hours) { }
         public DateTime ActualSessionEnd { get { return NinjaTrader.Core.Globals.Now.Date.AddDays(1); } }
+        public DateTime ActualSessionBegin { get { return NinjaTrader.Sim.World.SessionBegin; } }
         public bool IsInSession(DateTime time, bool includesEndTimeStamp, bool isIntraDay) { return NinjaTrader.Sim.World.InSession; }
         public bool GetNextSession(DateTime time, bool includesEndTimeStamp) { return true; }
     }

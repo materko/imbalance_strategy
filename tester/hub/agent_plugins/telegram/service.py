@@ -383,6 +383,12 @@ LIFE_KINDS = {"restart": ("🔄", "Reštart"), "start": ("▶️", "Spustené"),
               "paused": ("⏸", "Pauza"), "enabled": ("▶️", "Obchoduje"), "flatten": ("⛔", "Flatten")}
 
 
+def _failed_stop(z: dict[str, Any]) -> bool:
+    """Zbierka inštancie končí neúspešným štartom (`bye failed`: platforma to skúša každú minútu znova). Prvý
+    sa ohlási, ďalšie nie, kým inštancia nenabehne alebo neskončí inak — dôvod nesie chyba nasadenia."""
+    return str(z.get("seq") or "").endswith("b") and z.get("reason") == "failed"
+
+
 def _issue_short(chyba: str) -> str:
     """Chyba nasadenia na čítanie: bez `nenabehla:`, bez detailu za „ — “ a bez „skúsim znova“."""
     t = _ISSUE_TIME.sub("", chyba or "")
@@ -522,12 +528,13 @@ class LiveNotifier:
         if not zb or not (force or self._life_due()):
             return None
         skupiny: dict[tuple[str, str, str], list[str]] = {}
-        for z in zb.values():
+        zlyhane = self.state.data.get("life_failed") or []
+        for inst, z in zb.items():
             if akey(z.get("platform"), z.get("account")) in muted:
                 continue
             seq = z.get("seq") or ""
             druhy = []
-            if seq:
+            if seq and not (_failed_stop(z) and inst in zlyhane):   # ďalší neúspešný pokus o štart už nie je správa
                 druhy.append("restart" if seq.endswith("h") and "b" in seq else "start" if seq.endswith("h") else "stop")
             if z.get("mode"):
                 druhy.append(str(z["mode"]))
@@ -603,6 +610,13 @@ class LiveNotifier:
                         self._send(chat, suhrn)
                 vsetko = self.life_summary(force=True)
                 sent += vsetko.count("\n") + 1 if vsetko else 0
+                zlyhane = set(self.state.data.get("life_failed") or [])
+                for inst, z in self.state["life"].items():
+                    if _failed_stop(z):
+                        zlyhane.add(inst)
+                    elif z.get("seq"):
+                        zlyhane.discard(inst)
+                self.state.data["life_failed"] = sorted(zlyhane)
                 self.state.data["life"] = {}
         except TelegramError as exc:
             self.last_error = str(exc)

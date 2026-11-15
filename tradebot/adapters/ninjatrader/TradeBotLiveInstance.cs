@@ -305,6 +305,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// <summary>Strazca feedu (FeedWatch): bary pocas seansy neprichadzaju; kedy sa to naposledy hlasilo.</summary>
         private bool _feedStale;
         private DateTime _feedNoted = DateTime.MinValue;
+        private long _feedRefMs;   // odkedy sa caka na bar: posledny bar, najskor vsak zaciatok bezacej seansy
         private NinjaTrader.Data.SessionIterator _sessions;
         /// <summary>Den (NY), v ktorom sa uz zatvaralo podla hodin (EodByClock) - hlasi sa raz.</summary>
         private string _eodClockDay;
@@ -1661,12 +1662,17 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (_feedStale) { _feedStale = false; Note("info", "bary znova chodia (posledny " + LastBarText() + ")"); }
                 return;
             }
-            if (!InSession(NinjaTrader.Core.Globals.Now)) return;
+            DateTime platformNow = NinjaTrader.Core.Globals.Now;
+            if (!InSession(platformNow)) return;
+            // prestavka a vikend nie su vypadok: po otvoreni sa caka od zaciatku seansy, nie od posledneho baru pred
+            // zatvorenim (inak alarm a restart `feed_dead` v sekunde otvorenia, kazdy den)
+            _feedRefMs = Math.Max(_lastBarMs, SessionBeginMs(platformNow, nowMs) - _stepMs);
+            if (nowMs <= _feedRefMs + 2 * _stepMs + 60000L) return;
             if (_feedStale && FeedRestartDue(nowMs)) return;
             if (_feedStale && (LiveClock.UtcNow - _feedNoted).TotalMinutes < 15) return;
             _feedStale = true;
             _feedNoted = LiveClock.UtcNow;
-            Note("error", "pocas seansy neprisiel bar " + (int)((nowMs - _lastBarMs - _stepMs) / 60000L) + " min (posledny " + LastBarText()
+            Note("error", "pocas seansy neprisiel bar " + (int)((nowMs - _feedRefMs - _stepMs) / 60000L) + " min (posledny " + LastBarText()
                  + ") - feed alebo pripojenie (" + Deployment.Connection + "), trailing a zatvorenie na bare stoja");
         }
 
@@ -1683,7 +1689,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         /// </summary>
         private bool FeedRestartDue(long nowMs)
         {
-            if (_stopRequested || nowMs < _lastBarMs + _stepMs + FeedRestartMinutes * 60000L) return false;
+            if (_stopRequested || nowMs < _feedRefMs + _stepMs + FeedRestartMinutes * 60000L) return false;
             if (_account == null || _account.ConnectionStatus != ConnectionStatus.Connected) return false;
             if (_connectedSince == DateTime.MinValue || (LiveClock.UtcNow - _connectedSince).TotalSeconds < 60) return false;
             foreach (KeyValuePair<string, Tracked> kv in _orders)
@@ -1696,7 +1702,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (FeedRestarts.TryGetValue(Deployment.Key, out last) && (LiveClock.UtcNow - last).TotalMinutes < FeedRestartEveryMinutes) return false;
                 FeedRestarts[Deployment.Key] = LiveClock.UtcNow;
             }
-            Note("error", "ucet je pripojeny, ale bary nechodia " + (int)((nowMs - _lastBarMs - _stepMs) / 60000L)
+            Note("error", "ucet je pripojeny, ale bary nechodia " + (int)((nowMs - _feedRefMs - _stepMs) / 60000L)
                  + " min - restartujem instanciu (novy BarsRequest); pozicie a SL/TP ostavaju na ucte a prevezmu sa zo stavu");
             SaveState();
             Stop("feed_dead");
@@ -1715,6 +1721,25 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 Log("seansa instrumentu sa neda zistit - " + e.Message);
                 return true;
+            }
+        }
+
+        /// <summary>Zaciatok bezacej seansy instrumentu v ms UTC; 0 = neda sa zistit (potom sa meria od posledneho baru).</summary>
+        private long SessionBeginMs(DateTime platformNow, long nowMs)
+        {
+            try
+            {
+                if (_sessions == null) return 0;
+                _sessions.GetNextSession(platformNow, true);
+                DateTime begin = _sessions.ActualSessionBegin;
+                if (begin.Year < 2000) return 0;
+                long ms = ToMs(begin);
+                return ms <= nowMs ? ms : 0;   // zaciatok v buducnosti = iterator dal dalsiu seansu, nie bezacu
+            }
+            catch (Exception e)
+            {
+                Log("zaciatok seansy sa neda zistit - " + e.Message);
+                return 0;
             }
         }
 
