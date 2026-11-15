@@ -1,0 +1,6 @@
+{
+  "_title": "LONDON LIQUIDITY IFVG 1.0 (6E) · 6E 5m · východisko pre ladenie na 6E (prahy v tickoch ×0,12 z MNQ)",
+  "_strategy": "lliqeur",
+  "_instrument": "6e_databento",
+  "_timeframe": "5m"
+}

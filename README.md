@@ -24,7 +24,7 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **125 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **132 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
@@ -36,7 +36,7 @@ a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.j
 | **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` |
 | **DOW** (MYM) | `noamym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` |
 | **BTC** (BTCUSDT.P) | `noabtc` `dailyopenbtc` `onbiasorbbtc` `flashorbbtc` `rangebtc` | `silverbulletbtc` | `tmrbtc` `sweepengulfbtc` | `noabtcnet` |
-| **EURUSD** (6E) | | `m2eur` | `sdeur` `asiasweep` | `sdeurnet` |
+| **EURUSD** (6E) | | `m2eur` `mtkzoneeur` `silverbulleteur` `ibsentryeur` | `sdeur` `asiasweep` `asiasweepeur` `lliqeur` `wpreur` `sweepengulfeur` | `sdeurnet` |
 
 Mimo trhov je len ukážková `demo_breakout`. Staré kľúče `ibsninja`, `orbninja` a
 `trendline` sú aliasy (`tradebot.strategies.ALIASES`), história sa neprepisuje.
@@ -161,8 +161,13 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-13)
+## Kde sme (2026-11-15)
 
+- **Stratégie na EUR** (15. 11.): sedem kópií na 6E podľa štúdia grafu (EUR sa vracia späť, živé okná London 2:00–5:00
+  a NY 8:00–11:00 NY, Ázia mŕtva) — ASIA SWEEP (`asiasweepeur`), MTK ZONE (`mtkzoneeur`, aj London), LONDON IFVG (`lliqeur`),
+  Silver Bullet (`silverbulleteur`), WILLIAMS %R (`wpreur`), IBS EZ (`ibsentryeur`), SWEEPING ENGULF (`sweepengulfeur`).
+  Dáta 6E sú čisté od 2016 (2010–2015 chybné ceny), preto ladenie 2016–2021/9 a päť referenčných okien ako čisté overenie;
+  smernica beží po BTC (od 22. 11.). C# až keď prejdú.
 - **Stratégie na BTC** (13. 11.): nový trh **BTC** vo webapp a na stránke výsledkov, osem kópií na BTCUSDT.P (Binance futures)
   vybraných podľa štúdia grafu (najživšie otvorenie NY, krátke TF sa vracajú, poplatok chce väčší pohyb na obchod) — NOA
   (`noabtc`), DAILY OPEN (`dailyopenbtc`), Overnight Bias ORB (`onbiasorbbtc`), FLASH ORB (`flashorbbtc`), Silver Bullet

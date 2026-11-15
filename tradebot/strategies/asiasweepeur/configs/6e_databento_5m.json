@@ -1,0 +1,9 @@
+{
+  "_title": "ASIA SWEEP 1.0 (6E) · 6E 5m · východisko pre ladenie na 6E (prahy v tickoch ×0,12 z MNQ)",
+  "_strategy": "asiasweepeur",
+  "_instrument": "6e_databento",
+  "_timeframe": "5m",
+  "useExitTime": false,
+  "fixedQty": true,
+  "qty": 1.0
+}
