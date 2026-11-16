@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import threading
 from collections import OrderedDict
+from contextvars import ContextVar
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -59,8 +60,50 @@ def asset_version() -> str:
     return format(int(stamp), "x")
 
 
+#: Používateľ, ktorého pri tejto požiadavke overila proxy pred webapp (Authelia); bez proxy prázdne.
+_PROXY_USER: ContextVar[str] = ContextVar("tradebot_proxy_user", default="")
+
+
+def auth_header() -> str:
+    """Hlavička, v ktorej proxy s prihlásením posiela meno (`TRADEBOT_WEB_AUTH_HEADER`, prázdne = vypnuté)."""
+    value = getenv("WEB_AUTH_HEADER")
+    return ("Remote-User" if value is None else value).strip().lower()
+
+
+def proxy_user() -> str:
+    return _PROXY_USER.get()
+
+
+class ProxyUserMiddleware:
+    """Meno z hlavičky Authelie (`Remote-User`) platí pre celú požiadavku.
+
+    Authelia (cez nginx `auth_request` / Traefik `forwardAuth`) hlavičku nastaví sama a tú od klienta
+    prepíše, takže za proxy sa meno nedá podvrhnúť z prehliadača. Bez hlavičky sa nič nemení: meno je
+    to z poľa na stránke. Čisté ASGI (nie `BaseHTTPMiddleware`), aby contextvar videl aj endpoint vo vlákne.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        name = auth_header()
+        if scope["type"] != "http" or not name:
+            return await self.app(scope, receive, send)
+        raw = next((v for k, v in scope.get("headers") or () if k.lower() == name.encode("latin-1")), b"")
+        try:
+            user = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            user = raw.decode("latin-1")
+        user = "".join(ch for ch in user if ch.isprintable()).strip()[:80]
+        token = _PROXY_USER.set(user)
+        try:
+            await self.app(scope, receive, send)
+        finally:
+            _PROXY_USER.reset(token)
+
+
 def current_user() -> str:
-    return getenv("USER") or gitsync.user_name() or os.environ.get("USERNAME", "") or "tester"
+    return proxy_user() or getenv("USER") or gitsync.user_name() or os.environ.get("USERNAME", "") or "tester"
 
 
 def plateau_note() -> str:
@@ -101,7 +144,8 @@ def fmt_value(value: Any) -> str:
 
 
 def clean_user(name: str | None) -> str:
-    name = (name or "").strip()
+    # prihlásený cez proxy má prednosť pred menom z poľa na stránke — to si môže každý prepísať
+    name = proxy_user() or (name or "").strip()
     return name[:80] if name else current_user()
 
 

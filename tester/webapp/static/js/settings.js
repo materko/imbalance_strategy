@@ -102,6 +102,12 @@ function fillSettings() {
   let saved = null;
   try { saved = localStorage.getItem("ibs.user"); } catch (_) { /* súkromný režim */ }
   who.value = saved || state.meta.user || "";
+  if (state.meta.user_locked) {
+    // za Autheliou: meno je prihlásený používateľ, server ho aj tak použije namiesto čohokoľvek z poľa
+    who.value = state.meta.user;
+    who.readOnly = true;
+    who.title = "Prihlásený používateľ (Authelia) – ukladá sa ku každému behu, akcii v Live a ako autor commitu.";
+  }
   who.onchange = () => { try { localStorage.setItem("ibs.user", who.value.trim()); } catch (_) { /* ignoruj */ } };
   $("#branch").textContent = state.meta.branch;
 }

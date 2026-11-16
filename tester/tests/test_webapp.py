@@ -345,6 +345,29 @@ def test_submit_uses_tester_name_from_request(client, monkeypatch):
     assert c.post("/api/runs", json={**base, "user": "x" * 81}).status_code == 422
 
 
+def test_proxy_user_from_authelia_header_wins(client, monkeypatch):
+    """Za Autheliou je meno prihlásený používateľ z `Remote-User`, nie pole na stránke; bez hlavičky ako doteraz."""
+    import tester.webapp.app as app_mod
+
+    monkeypatch.delenv("TRADEBOT_WEB_AUTH_HEADER", raising=False)
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    c, _ = client
+    base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901"}
+    prihlaseny = {"Remote-User": "rasto"}
+    assert c.post("/api/runs", json={**base, "user": "Jana"}, headers=prihlaseny).json()["user"] == "rasto"
+    m = c.get("/api/meta", headers=prihlaseny).json()
+    assert m["user"] == "rasto" and m["user_locked"] is True
+    # bez hlavičky sa nič nemení a meno z predošlej požiadavky nepretečie
+    assert c.post("/api/runs", json={**base, "user": "Jana"}).json()["user"] == "Jana"
+    assert c.get("/api/meta").json()["user_locked"] is False
+    # iná hlavička podľa proxy; prázdna hodnota čítanie vypne
+    monkeypatch.setenv("TRADEBOT_WEB_AUTH_HEADER", "X-Forwarded-User")
+    assert c.post("/api/runs", json={**base, "user": "Jana"}, headers=prihlaseny).json()["user"] == "Jana"
+    assert c.get("/api/meta", headers={"X-Forwarded-User": "eva"}).json()["user"] == "eva"
+    monkeypatch.setenv("TRADEBOT_WEB_AUTH_HEADER", "")
+    assert c.get("/api/meta", headers={"X-Forwarded-User": "eva", "Remote-User": "eva"}).json()["user_locked"] is False
+
+
 # --------------------------------------------------------------------------- #
 # Spot vs futures
 # --------------------------------------------------------------------------- #

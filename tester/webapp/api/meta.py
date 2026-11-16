@@ -15,7 +15,7 @@ from tradebot.strategies import STRATEGIES
 from .. import gitsync, profiles as user_profiles, vyber
 from ... import engines
 from ..runner import available_pairs
-from .common import STATIC, SECONDS_PER_YEAR, asset_version, current_user
+from .common import STATIC, SECONDS_PER_YEAR, asset_version, current_user, proxy_user
 from .context import AppContext
 
 
@@ -100,6 +100,7 @@ def build(ctx: AppContext) -> APIRouter:
             "sweep_seconds_per_year": SECONDS_PER_YEAR,
             "pairs": pairs,
             "user": current_user(),
+            "user_locked": bool(proxy_user()),   # meno dala proxy s prihlásením, v UI sa nemení
             "branch": gitsync.branch(),
             "queue": runner.snapshot(),
         }

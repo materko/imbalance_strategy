@@ -139,6 +139,14 @@ V hornej lište je pole s menom. Ukladá sa ku každému behu (stĺpec v histór
 hľadanie `user~jana`) a použije sa ako autor commitu pri Push. Drží sa v tomto
 prehliadači; predvolené je `TRADEBOT_USER` z prostredia, inak `git config user.name`.
 
+**Za proxy s prihlásením (Authelia).** Keď požiadavka príde s hlavičkou `Remote-User` (Authelia ju
+nastavuje cez nginx `auth_request` aj Traefik `forwardAuth`), meno je prihlásený používateľ: pole
+v lište je len na čítanie a server ho použije namiesto čohokoľvek, čo príde zo stránky — pri behoch,
+pri Push aj pri akciách v Live (reštart, pauza, nasadenie, účty), kde ide ako `by` do auditu hubu.
+Bez hlavičky sa nič nemení. Inú hlavičku nastaví `TRADEBOT_WEB_AUTH_HEADER` (napr. `X-Forwarded-User`),
+prázdna hodnota čítanie vypne. Proxy musí hlavičku od klienta prepísať (šablóny Authelie to robia) a
+webapp nemá byť dostupná mimo proxy — inak si meno môže ktokoľvek poslať sám.
+
 ## Stratégie
 
 **Výber, čo webapp ukazuje** (8. 11. 2026): keď existuje `tester/webapp_vyber.json` (`paths.WEBAPP_SELECTION`),

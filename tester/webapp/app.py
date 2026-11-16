@@ -7,6 +7,8 @@
 proxy s vlastnou autentifikáciou). Meno testera si tester nastaví v hlavičke
 stránky (drží sa v prehliadači) a posiela sa s každým behom aj s Push; predvolené
 je `TRADEBOT_USER`, inak `git config user.name`.
+Za proxy s prihlásením (Authelia) sa meno berie z hlavičky `Remote-User`
+(`TRADEBOT_WEB_AUTH_HEADER`) a pole na stránke je len na čítanie.
 """
 
 from __future__ import annotations
@@ -23,7 +25,7 @@ from .api import (
     native, profiles, prop_paper, runs, sweeps,
 )
 from .api.common import (  # noqa: F401 — verejné mená modulu z čias pred rozdelením
-    _MC_CACHE, STATIC, current_user, default_timerange, montecarlo_cached,
+    _MC_CACHE, STATIC, ProxyUserMiddleware, current_user, default_timerange, montecarlo_cached,
 )
 from .api.context import AppContext
 from .replay import ChartReplayer
@@ -65,6 +67,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     # vypnutie webapp počas behu: zabiť Freqtrade a zapísať beh ako failed (audit N-WEB-1)
     app.router.on_shutdown.append(runner.shutdown)
     app.state.replayer = replayer
+    # za Autheliou: kto je prihlásený, toho meno ide ku každej akcii (bez nej meno z poľa na stránke)
+    app.add_middleware(ProxyUserMiddleware)
     ctx = AppContext(app, store, runner, replayer, anstore)
     for module in ROUTERS:
         app.include_router(module.build(ctx))
