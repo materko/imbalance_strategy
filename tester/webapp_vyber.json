@@ -186,14 +186,10 @@
   ]
  },
  "dole": {
-  "ibs": [
-   "golden_coinbase_btcusd_3m"
-  ],
+  "ibs": [],
   "ibsnet": [],
   "ibszones": [
-   "NOCNE2_D_najstabilnejsi_zones",
-   "MNQ_R05_WR80_najlepsi_pomer_zones",
-   "multicharts_mnq_3m"
+   "NOCNE2_D_najstabilnejsi_zones"
   ],
   "ibsentry": [
    "PRESIEL_SMERNICAMI_IBS_Entry_Zone_1",
@@ -206,34 +202,23 @@
   "ibsentryes": [
    "PRESIEL_SMERNICAMI_IBS_EZ_ES_1"
   ],
-  "ibsfvg": [
-   "LEN_FVG_WR81_ibsfvg",
-   "multicharts_mnq_3m"
-  ],
+  "ibsfvg": [],
   "structure": [],
   "demo_breakout": [],
   "orb": [],
-  "orbnet": [
-   "NINJA_ORB_RRR1.0_15m",
-   "NINJA_ORB_3m_20obchodov"
-  ],
+  "orbnet": [],
   "gap": [],
   "range": [],
   "sdzone": [],
   "breakout": [],
   "divergence": [],
   "trendlines": [
-   "TL_5R_RR0_75_615obch_WR62",
-   "TL_5R_RR1_0_404obch_WR54",
-   "TL_5R_RR0_5_647obch_WR69"
+   "mnq_databento_5m"
   ],
   "liquidity": [
-   "LQB_1R_RR1_5_477obch_WR50",
    "mnq_databento_5m"
   ],
-  "vwapdrift": [
-   "mnq_databento_5m"
-  ],
+  "vwapdrift": [],
   "vwapadx": [
    "PRESIEL_SMERNICAMI_VWAP_ADX_Pullback_1",
    "PRESIEL_SMERNICAMI_VWAP_ADX_Pullback_2"
@@ -244,9 +229,7 @@
    "PRESIEL_SMERNICAMI_Volt_Break_3"
   ],
   "vwapop": [
-   "R1_vwapop_MGC_243obch_WR63",
-   "mnq_databento_5m",
-   "VWAP_OP_Pine_presne"
+   "mnq_databento_5m"
   ],
   "vwaporb": [
    "PRESIEL_SMERNICAMI_VWAP_ORB_1",
@@ -280,9 +263,7 @@
    "FPC_MNQ_1m_365obch_WR69_PF1_45",
    "mnq_databento_1m"
   ],
-  "asiasweep": [
-   "eurusd_dukascopy_5m"
-  ],
+  "asiasweep": [],
   "noa": [
    "PRESIEL_SMERNICAMI_NOA_1_0_1",
    "PRESIEL_SMERNICAMI_NOA_1_0_2",
@@ -323,28 +304,37 @@
    "PRESIEL_SMERNICAMI_MTK_ORB_MGC_3"
   ],
   "ibsentrymym": [
-   "mym_databento_3m"
+   "PRESIEL_SMERNICAMI_IBS_EZ_MYM_1",
+   "PRESIEL_SMERNICAMI_IBS_EZ_MYM_2",
+   "PRESIEL_SMERNICAMI_IBS_EZ_MYM_3"
   ],
   "noamym": [
    "mym_databento_5m"
   ],
   "wprmym": [
-   "mym_databento_15m"
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MYM_1",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MYM_2",
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MYM_3"
   ],
   "sweepengulfmym": [
-   "mym_databento_4h"
+   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_MYM_1",
+   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_MYM_2",
+   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_MYM_3"
   ],
   "tmrmym": [
    "mym_databento_15m"
   ],
   "lliqmym": [
-   "mym_databento_5m"
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MYM_1",
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MYM_2"
   ],
   "sigmamym": [
-   "mym_databento_5m"
+   "PRESIEL_SMERNICAMI_SIGMA_MYM_1"
   ],
   "nocponmym": [
-   "mym_databento_5m"
+   "PRESIEL_SMERNICAMI_NOC_PONDELOK_MYM_1",
+   "PRESIEL_SMERNICAMI_NOC_PONDELOK_MYM_2",
+   "PRESIEL_SMERNICAMI_NOC_PONDELOK_MYM_3"
   ],
   "ibsentrymymnet": [
    "mym_databento_3m"
@@ -358,6 +348,58 @@
   "sigmamymnet": [
    "mym_databento_5m"
   ],
+  "asiasweepeur": [
+   "6e_databento_5m"
+  ],
+  "mtkzoneeur": [
+   "6e_databento_3m"
+  ],
+  "lliqeur": [
+   "6e_databento_5m"
+  ],
+  "silverbulleteur": [
+   "6e_databento_5m"
+  ],
+  "wpreur": [
+   "6e_databento_15m"
+  ],
+  "ibsentryeur": [
+   "6e_databento_3m"
+  ],
+  "sweepengulfeur": [
+   "6e_databento_4h"
+  ],
+  "noabtc": [
+   "PRESIEL_SMERNICAMI_NOA_1_0_BTC_1",
+   "PRESIEL_SMERNICAMI_NOA_1_0_BTC_2",
+   "PRESIEL_SMERNICAMI_NOA_1_0_BTC_3"
+  ],
+  "dailyopenbtc": [
+   "btcusdt_binance_1h"
+  ],
+  "onbiasorbbtc": [
+   "PRESIEL_SMERNICAMI_OVERNIGHT_BIAS_ORB_BTC_1",
+   "PRESIEL_SMERNICAMI_OVERNIGHT_BIAS_ORB_BTC_2"
+  ],
+  "flashorbbtc": [
+   "btcusdt_binance_15m"
+  ],
+  "silverbulletbtc": [
+   "btcusdt_binance_5m"
+  ],
+  "rangebtc": [
+   "PRESIEL_SMERNICAMI_RANGE_BREAKOUT_BTC_1",
+   "PRESIEL_SMERNICAMI_RANGE_BREAKOUT_BTC_2",
+   "PRESIEL_SMERNICAMI_RANGE_BREAKOUT_BTC_3"
+  ],
+  "tmrbtc": [
+   "btcusdt_binance_15m"
+  ],
+  "sweepengulfbtc": [
+   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_BTC_1",
+   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_BTC_2"
+  ],
+  "noabtcnet": [],
   "tmr": [],
   "tmres": [],
   "tmrmgc": [],
@@ -399,9 +441,7 @@
   "silverbullet": [
    "mnq_databento_5m"
   ],
-  "mtkzonenet": [
-   "mnq_databento_3m"
-  ],
+  "mtkzonenet": [],
   "noaes": [],
   "noamgc": [
    "PRESIEL_SMERNICAMI_NOA_1_0_MGC_1",
