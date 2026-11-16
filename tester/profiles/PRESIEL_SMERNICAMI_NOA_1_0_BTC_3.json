@@ -1,0 +1,17 @@
+{
+ "trailVwap": false,
+ "checkEvery": 15,
+ "hardStopPct": 1.0,
+ "lastEntryMin": 270,
+ "weekdaysOnly": true,
+ "maxTradesPerDay": 10,
+ "tradeDirection": "Short only",
+ "entryConfirm": "imbalance",
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
+ "_strategy": "noabtc",
+ "_instrument": "btcusdt_binance",
+ "_timeframe": "5m",
+ "_title": "NOA 1.0 BTC 3 · PF 1,36 · WR 32 % · 91 obch/rok · BTC 5m · max DD 8 518 $ · posl. rok PF 1,43"
+}
