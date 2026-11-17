@@ -10,5 +10,13 @@ data
 deploy/freqtrade/user_data/backtest_results
 deploy/freqtrade/user_data/logs
 tester/runs
+# Výsledky z hubu a odložená história majú na agentoch desiatky GB; starý builder (bez BuildKitu,
+# napr. veritas1) by ich celé posielal démonu ako kontext buildu, hoci ich žiadny COPY nepotrebuje
+tester/hub_delivered
+tester/archive
+tester/analytics
+tester/sweeps
+data_archive
+data_live
 docs
 *.rtf
