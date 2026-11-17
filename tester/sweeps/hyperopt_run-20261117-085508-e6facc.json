@@ -1,0 +1,513 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261117-085508-e6facc",
+ "strategy": "tksmgcnet",
+ "created": "2026-11-17T08:55:46+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "trendFilter": "with",
+   "trendEmaLen": 200,
+   "trendTF": 15,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "fixedQty": true,
+   "qty": 1.0,
+   "skipOverRisk": false,
+   "lookbackDays": 20,
+   "sessOpenMin": 570,
+   "sessCloseMin": 960,
+   "loLevel": 35.0,
+   "hiLevel": 60.0,
+   "nConf": 2,
+   "rrRatio": 0.5,
+   "pivLen": 3,
+   "entryStartMin": 15,
+   "entryEndMin": 270,
+   "pauseFromMin": 150,
+   "pauseToMin": 210,
+   "slMode": "swing",
+   "slAtrMult": 2.0,
+   "slPoints": 40.0,
+   "atrLen": 14,
+   "maxSlPoints": 0.0,
+   "maxSlAtr": 0.0,
+   "maxTradesPerSession": 0,
+   "closeAtSessionEnd": false,
+   "tradeDirection": "Both",
+   "riskDollar": 100.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "tksmgcnet",
+   "exchange": null,
+   "pair": "MGC/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20211001-20221001",
+   "fee": 1.755e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 60000.0,
+   "timeframe_detail": "1m",
+   "profile": "tradebot/strategies/tksmgcnet/configs/mgc_databento_3m.json",
+   "instrument": "mgc_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261117-085546-ad51fb",
+   "status": "done",
+   "created": "2026-11-17T08:55:46+00:00",
+   "started": "2026-11-17T08:55:47+00:00",
+   "finished": "2026-11-17T08:55:47+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-085508-e6facc: loLevel=35.0, hiLevel=60.0, nConf=2, pivLen=3 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS MGC seansa NY 9:30: ladenie kolo 1 z profilu trhu (hranice Kompasu, potvrdenie, swing; RR 0,5, trend filter a okno z TKS 1), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 35.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 3
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 209,
+    "wins": 144,
+    "losses": 65,
+    "draws": 0,
+    "winrate": 68.9,
+    "pnl_abs": 188.77,
+    "pnl_pct": 0.315,
+    "profit_factor": 1.051,
+    "max_drawdown_abs": 405.89,
+    "max_drawdown_pct": 0.674,
+    "starting_balance": 60000.0,
+    "final_balance": 60188.77,
+    "gross_abs": 327.0,
+    "volume_abs": 7876151.0,
+    "break_even_pct": 0.0042,
+    "exits": {
+     "take_profit": {
+      "n": 144,
+      "pnl_abs": 3922.67
+     },
+     "stop_loss": {
+      "n": 65,
+      "pnl_abs": -3733.9
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 138,
+      "to_i": 148,
+      "start": "2023-05-24T14:06:00+00:00",
+      "end": "2023-06-07T15:39:00+00:00",
+      "pnl_abs": 291.39,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 168,
+      "to_i": 171,
+      "start": "2023-07-13T14:12:00+00:00",
+      "end": "2023-07-21T14:38:00+00:00",
+      "pnl_abs": -203.76,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 11.584,
+    "backtest_start": "2022-10-02T22:00:00+00:00",
+    "backtest_end": "2023-09-29T20:57:00+00:00",
+    "holding_avg": "2:51:00",
+    "bars": 117733,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.006450618386657943,
+    "hi": 0.014495103014998815,
+    "trades": 209,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-085546-e957fb",
+   "status": "done",
+   "created": "2026-11-17T08:55:46+00:00",
+   "started": "2026-11-17T08:55:47+00:00",
+   "finished": "2026-11-17T08:55:47+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-085508-e6facc: loLevel=35.0, hiLevel=60.0, nConf=2, pivLen=3 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS MGC seansa NY 9:30: ladenie kolo 1 z profilu trhu (hranice Kompasu, potvrdenie, swing; RR 0,5, trend filter a okno z TKS 1), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 35.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 3
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 232,
+    "wins": 161,
+    "losses": 71,
+    "draws": 0,
+    "winrate": 69.4,
+    "pnl_abs": 519.32,
+    "pnl_pct": 0.866,
+    "profit_factor": 1.111,
+    "max_drawdown_abs": 689.51,
+    "max_drawdown_pct": 1.143,
+    "starting_balance": 60000.0,
+    "final_balance": 60519.32,
+    "gross_abs": 702.0,
+    "volume_abs": 10409024.0,
+    "break_even_pct": 0.0067,
+    "exits": {
+     "take_profit": {
+      "n": 162,
+      "pnl_abs": 5181.39
+     },
+     "stop_loss": {
+      "n": 70,
+      "pnl_abs": -4662.06
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 174,
+      "to_i": 186,
+      "start": "2024-07-02T15:42:00+00:00",
+      "end": "2024-07-18T19:02:00+00:00",
+      "pnl_abs": 416.02,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 39,
+      "to_i": 42,
+      "start": "2023-11-29T15:30:00+00:00",
+      "end": "2023-11-30T15:35:00+00:00",
+      "pnl_abs": -81.9,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 42.581,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "2:47:00",
+    "bars": 118273,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.00699611270592058,
+    "hi": 0.02018637445852456,
+    "trades": 232,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-085546-ee7377",
+   "status": "done",
+   "created": "2026-11-17T08:55:46+00:00",
+   "started": "2026-11-17T08:55:46+00:00",
+   "finished": "2026-11-17T08:55:47+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-085508-e6facc: loLevel=35.0, hiLevel=60.0, nConf=2, pivLen=3 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS MGC seansa NY 9:30: ladenie kolo 1 z profilu trhu (hranice Kompasu, potvrdenie, swing; RR 0,5, trend filter a okno z TKS 1), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 35.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 3
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {},
+   "result": {
+    "trades": 209,
+    "wins": 147,
+    "losses": 62,
+    "draws": 0,
+    "winrate": 70.33,
+    "pnl_abs": 611.23,
+    "pnl_pct": 1.019,
+    "profit_factor": 1.169,
+    "max_drawdown_abs": 622.91,
+    "max_drawdown_pct": 1.028,
+    "starting_balance": 60000.0,
+    "final_balance": 60611.23,
+    "gross_abs": 745.0,
+    "volume_abs": 7622361.0,
+    "break_even_pct": 0.0098,
+    "exits": {
+     "stop_loss": {
+      "n": 62,
+      "pnl_abs": -3615.68
+     },
+     "take_profit": {
+      "n": 147,
+      "pnl_abs": 4226.91
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 27,
+      "to_i": 37,
+      "start": "2021-12-01T18:42:00+00:00",
+      "end": "2021-12-23T18:09:00+00:00",
+      "pnl_abs": 232.1,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 102,
+      "to_i": 106,
+      "start": "2022-04-04T14:00:00+00:00",
+      "end": "2022-04-14T16:53:00+00:00",
+      "pnl_abs": -497.42,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -4.841,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "4:29:00",
+    "bars": 118525,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.004654710648125696,
+    "hi": 0.022881849642989317,
+    "trades": 209,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-085546-f3fe16",
+   "status": "done",
+   "created": "2026-11-17T08:55:46+00:00",
+   "started": "2026-11-17T08:55:47+00:00",
+   "finished": "2026-11-17T08:55:48+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-085508-e6facc: loLevel=35.0, hiLevel=60.0, nConf=2, pivLen=3 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS MGC seansa NY 9:30: ladenie kolo 1 z profilu trhu (hranice Kompasu, potvrdenie, swing; RR 0,5, trend filter a okno z TKS 1), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 35.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 3
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 232,
+    "wins": 153,
+    "losses": 79,
+    "draws": 0,
+    "winrate": 65.95,
+    "pnl_abs": -1747.78,
+    "pnl_pct": -2.913,
+    "profit_factor": 0.903,
+    "max_drawdown_abs": 3478.19,
+    "max_drawdown_pct": 5.73,
+    "starting_balance": 60000.0,
+    "final_balance": 58252.22,
+    "gross_abs": -1387.0,
+    "volume_abs": 20557129.0,
+    "break_even_pct": -0.0067,
+    "exits": {
+     "take_profit": {
+      "n": 153,
+      "pnl_abs": 16180.43
+     },
+     "stop_loss": {
+      "n": 79,
+      "pnl_abs": -17928.21
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 13,
+      "to_i": 20,
+      "start": "2025-10-03T15:39:00+00:00",
+      "end": "2025-10-15T14:01:00+00:00",
+      "pnl_abs": 531.64,
+      "count": 3
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 2,
+      "to_i": 5,
+      "start": "2025-09-10T13:54:00+00:00",
+      "end": "2025-09-17T18:00:00+00:00",
+      "pnl_abs": -288.19,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.352,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "2:51:00",
+    "bars": 117963,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.02852620820515094,
+    "hi": 0.01358062298680547,
+    "trades": 232,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-085546-fbe41e",
+   "status": "done",
+   "created": "2026-11-17T08:55:46+00:00",
+   "started": "2026-11-17T08:55:47+00:00",
+   "finished": "2026-11-17T08:55:47+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-085508-e6facc: loLevel=35.0, hiLevel=60.0, nConf=2, pivLen=3 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS MGC seansa NY 9:30: ladenie kolo 1 z profilu trhu (hranice Kompasu, potvrdenie, swing; RR 0,5, trend filter a okno z TKS 1), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 35.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 3
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 213,
+    "wins": 155,
+    "losses": 58,
+    "draws": 0,
+    "winrate": 72.77,
+    "pnl_abs": 1200.96,
+    "pnl_pct": 2.002,
+    "profit_factor": 1.213,
+    "max_drawdown_abs": 975.58,
+    "max_drawdown_pct": 1.583,
+    "starting_balance": 60000.0,
+    "final_balance": 61200.96,
+    "gross_abs": 1425.0,
+    "volume_abs": 12765975.0,
+    "break_even_pct": 0.0112,
+    "exits": {
+     "take_profit": {
+      "n": 157,
+      "pnl_abs": 6825.22
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -5624.26
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 150,
+      "to_i": 162,
+      "start": "2025-05-02T15:42:00+00:00",
+      "end": "2025-05-27T13:56:00+00:00",
+      "pnl_abs": 826.08,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 175,
+      "to_i": 178,
+      "start": "2025-06-24T14:24:00+00:00",
+      "end": "2025-07-03T15:25:00+00:00",
+      "pnl_abs": -324.69,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 43.09,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:57:00+00:00",
+    "holding_avg": "2:24:00",
+    "bars": 118187,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.0045698528586037325,
+    "hi": 0.027219774306685103,
+    "trades": 213,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-11-17T08:55:48+00:00"
+}

@@ -1,0 +1,515 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261117-084521-e42087",
+ "strategy": "tksmymnet",
+ "created": "2026-11-17T08:45:53+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 0,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "fixedQty": true,
+   "qty": 1.0,
+   "skipOverRisk": false,
+   "lookbackDays": 14,
+   "loLevel": 10.0,
+   "hiLevel": 60.0,
+   "nConf": 2,
+   "rrRatio": 1.0,
+   "pivLen": 12,
+   "entryStartMin": 0,
+   "entryEndMin": 390,
+   "pauseFromMin": 0,
+   "pauseToMin": 0,
+   "slMode": "swing",
+   "slAtrMult": 2.0,
+   "slPoints": 40.0,
+   "atrLen": 14,
+   "maxSlPoints": 0.0,
+   "maxSlAtr": 0.0,
+   "maxTradesPerSession": 0,
+   "closeAtSessionEnd": false,
+   "tradeDirection": "Both",
+   "riskDollar": 100.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "tksmymnet",
+   "exchange": null,
+   "pair": "MYM/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20211001-20221001",
+   "fee": 1.755e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 60000.0,
+   "timeframe_detail": "1m",
+   "profile": null,
+   "instrument": "mym_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261117-084553-3d3b63",
+   "status": "done",
+   "created": "2026-11-17T08:45:53+00:00",
+   "started": "2026-11-17T08:45:54+00:00",
+   "finished": "2026-11-17T08:45:54+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-084521-e42087: loLevel=10.0, hiLevel=60.0, nConf=2, pivLen=12 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS na novom trhu: základné ladenie (Kompas hranice, potvrdenie, swing; RR 0,5), ladenie 2021-10 – 2025-09, víťaz overený na 5 oknách — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 10.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 12
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 232,
+    "wins": 114,
+    "losses": 118,
+    "draws": 0,
+    "winrate": 49.14,
+    "pnl_abs": -2771.65,
+    "pnl_pct": -4.619,
+    "profit_factor": 0.82,
+    "max_drawdown_abs": 4649.73,
+    "max_drawdown_pct": 7.557,
+    "starting_balance": 60000.0,
+    "final_balance": 57228.35,
+    "gross_abs": -2571.0,
+    "volume_abs": 11432752.0,
+    "break_even_pct": -0.0225,
+    "exits": {
+     "take_profit": {
+      "n": 113,
+      "pnl_abs": 12502.17
+     },
+     "stop_loss": {
+      "n": 118,
+      "pnl_abs": -15368.38
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 94.56
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 26,
+      "to_i": 33,
+      "start": "2025-10-07T15:51:00+00:00",
+      "end": "2025-10-22T15:23:00+00:00",
+      "pnl_abs": 1061.97,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 122,
+      "to_i": 130,
+      "start": "2026-03-12T13:36:00+00:00",
+      "end": "2026-03-24T13:36:00+00:00",
+      "pnl_abs": -1260.88,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 18.769,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "19:20:00",
+    "bars": 118090,
+    "ambiguous_minutes": 3,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.05540211672988473,
+    "hi": 0.010272274805170548,
+    "trades": 232,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-084553-5d7a55",
+   "status": "done",
+   "created": "2026-11-17T08:45:53+00:00",
+   "started": "2026-11-17T08:45:53+00:00",
+   "finished": "2026-11-17T08:45:53+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-084521-e42087: loLevel=10.0, hiLevel=60.0, nConf=2, pivLen=12 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS na novom trhu: základné ladenie (Kompas hranice, potvrdenie, swing; RR 0,5), ladenie 2021-10 – 2025-09, víťaz overený na 5 oknách — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 10.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 12
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {},
+   "result": {
+    "trades": 275,
+    "wins": 140,
+    "losses": 135,
+    "draws": 0,
+    "winrate": 50.91,
+    "pnl_abs": 1160.47,
+    "pnl_pct": 1.934,
+    "profit_factor": 1.093,
+    "max_drawdown_abs": 2755.6,
+    "max_drawdown_pct": 4.479,
+    "starting_balance": 60000.0,
+    "final_balance": 61160.47,
+    "gross_abs": 1323.0,
+    "volume_abs": 9261141.0,
+    "break_even_pct": 0.0143,
+    "exits": {
+     "stop_loss": {
+      "n": 135,
+      "pnl_abs": -12471.6
+     },
+     "take_profit": {
+      "n": 140,
+      "pnl_abs": 13632.06
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 61,
+      "to_i": 68,
+      "start": "2021-12-21T15:03:00+00:00",
+      "end": "2021-12-29T20:08:00+00:00",
+      "pnl_abs": 336.97,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 177,
+      "to_i": 184,
+      "start": "2022-05-30T13:36:00+00:00",
+      "end": "2022-06-06T15:12:00+00:00",
+      "pnl_abs": -592.64,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -14.615,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "12:06:00",
+    "bars": 118460,
+    "ambiguous_minutes": 5,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.021750424488085264,
+    "hi": 0.046476494708719535,
+    "trades": 275,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-084553-61ab57",
+   "status": "done",
+   "created": "2026-11-17T08:45:53+00:00",
+   "started": "2026-11-17T08:45:53+00:00",
+   "finished": "2026-11-17T08:45:53+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-084521-e42087: loLevel=10.0, hiLevel=60.0, nConf=2, pivLen=12 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS na novom trhu: základné ladenie (Kompas hranice, potvrdenie, swing; RR 0,5), ladenie 2021-10 – 2025-09, víťaz overený na 5 oknách — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 10.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 12
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 243,
+    "wins": 118,
+    "losses": 125,
+    "draws": 0,
+    "winrate": 48.56,
+    "pnl_abs": 272.85,
+    "pnl_pct": 0.455,
+    "profit_factor": 1.028,
+    "max_drawdown_abs": 1209.91,
+    "max_drawdown_pct": 1.971,
+    "starting_balance": 60000.0,
+    "final_balance": 60272.85,
+    "gross_abs": 416.0,
+    "volume_abs": 8156746.0,
+    "break_even_pct": 0.0051,
+    "exits": {
+     "take_profit": {
+      "n": 118,
+      "pnl_abs": 10125.08
+     },
+     "stop_loss": {
+      "n": 125,
+      "pnl_abs": -9852.23
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 154,
+      "to_i": 159,
+      "start": "2023-05-23T13:54:00+00:00",
+      "end": "2023-05-29T14:17:00+00:00",
+      "pnl_abs": 298.01,
+      "count": 1
+     },
+     "loss": {
+      "n": 12,
+      "from_i": 228,
+      "to_i": 239,
+      "start": "2023-09-15T13:36:00+00:00",
+      "end": "2023-09-26T14:05:00+00:00",
+      "pnl_abs": -583.27,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 17.225,
+    "backtest_start": "2022-10-02T22:00:00+00:00",
+    "backtest_end": "2023-09-29T20:57:00+00:00",
+    "holding_avg": "14:23:00",
+    "bars": 117718,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.02455913562060412,
+    "hi": 0.0320607008432364,
+    "trades": 243,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-084553-c7a534",
+   "status": "done",
+   "created": "2026-11-17T08:45:53+00:00",
+   "started": "2026-11-17T08:45:53+00:00",
+   "finished": "2026-11-17T08:45:54+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-084521-e42087: loLevel=10.0, hiLevel=60.0, nConf=2, pivLen=12 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS na novom trhu: základné ladenie (Kompas hranice, potvrdenie, swing; RR 0,5), ladenie 2021-10 – 2025-09, víťaz overený na 5 oknách — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 10.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 12
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 263,
+    "wins": 133,
+    "losses": 130,
+    "draws": 0,
+    "winrate": 50.57,
+    "pnl_abs": 1493.37,
+    "pnl_pct": 2.489,
+    "profit_factor": 1.162,
+    "max_drawdown_abs": 936.58,
+    "max_drawdown_pct": 1.534,
+    "starting_balance": 60000.0,
+    "final_balance": 61493.37,
+    "gross_abs": 1671.0,
+    "volume_abs": 10121112.0,
+    "break_even_pct": 0.0165,
+    "exits": {
+     "stop_loss": {
+      "n": 130,
+      "pnl_abs": -9228.47
+     },
+     "take_profit": {
+      "n": 133,
+      "pnl_abs": 10721.84
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 69,
+      "to_i": 76,
+      "start": "2024-01-16T14:45:00+00:00",
+      "end": "2024-01-22T19:04:00+00:00",
+      "pnl_abs": 370.21,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 93,
+      "to_i": 98,
+      "start": "2024-02-13T14:48:00+00:00",
+      "end": "2024-02-21T16:15:00+00:00",
+      "pnl_abs": -522.07,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.761,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "14:58:00",
+    "bars": 117725,
+    "ambiguous_minutes": 3,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.1
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.00767218912850713,
+    "hi": 0.042262156240873726,
+    "trades": 263,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-084553-c8ae27",
+   "status": "done",
+   "created": "2026-11-17T08:45:53+00:00",
+   "started": "2026-11-17T08:45:54+00:00",
+   "finished": "2026-11-17T08:45:54+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-084521-e42087: loLevel=10.0, hiLevel=60.0, nConf=2, pivLen=12 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS na novom trhu: základné ladenie (Kompas hranice, potvrdenie, swing; RR 0,5), ladenie 2021-10 – 2025-09, víťaz overený na 5 oknách — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 10.0,
+     "hiLevel": 60.0,
+     "nConf": 2,
+     "pivLen": 12
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "34924afbf",
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 268,
+    "wins": 130,
+    "losses": 138,
+    "draws": 0,
+    "winrate": 48.51,
+    "pnl_abs": 20.5,
+    "pnl_pct": 0.034,
+    "profit_factor": 1.001,
+    "max_drawdown_abs": 2424.12,
+    "max_drawdown_pct": 3.964,
+    "starting_balance": 60000.0,
+    "final_balance": 60020.5,
+    "gross_abs": 222.0,
+    "volume_abs": 11481361.0,
+    "break_even_pct": 0.0019,
+    "exits": {
+     "take_profit": {
+      "n": 130,
+      "pnl_abs": 13943.67
+     },
+     "stop_loss": {
+      "n": 138,
+      "pnl_abs": -13923.17
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2024-09-04T19:30:00+00:00",
+      "end": "2024-09-15T22:00:00+00:00",
+      "pnl_abs": 1126.99,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 195,
+      "to_i": 202,
+      "start": "2025-05-26T13:36:00+00:00",
+      "end": "2025-06-02T18:15:00+00:00",
+      "pnl_abs": -716.92,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 10.271,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:57:00+00:00",
+    "holding_avg": "13:03:00",
+    "bars": 117658,
+    "ambiguous_minutes": 4,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.028240681232205984,
+    "hi": 0.03462563746246624,
+    "trades": 268,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-11-17T08:45:54+00:00"
+}
