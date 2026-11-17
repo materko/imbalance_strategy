@@ -226,6 +226,7 @@ function catFiltered() {
       || catScore(b.best) - catScore(a.best),
     score: (a, b) => catScore(b.best) - catScore(a.best),
     pnl: (a, b) => val(b, "pnl_pct") - val(a, "pnl_pct"),
+    pf: (a, b) => val(b, "profit_factor") - val(a, "profit_factor") || catScore(b.best) - catScore(a.best),
     rr: (a, b) => val(b, "rr") - val(a, "rr"),
     live: (a, b) => b.running.length - a.running.length || b.deps.length - a.deps.length || (b.live - a.live) || catScore(b.best) - catScore(a.best),
     profiles: (a, b) => b.profiles.length - a.profiles.length,
