@@ -1,0 +1,8 @@
+$ emulator MultiCharts BTCUSDT.P 1h 20211001-20260904 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria indikatorov z dat pred behom: filter volatility ATR 14 / 100 barov @60m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 43176 barov 60m, 2590560 1m, 0 HTF
+  20000/43176 barov, 195 obchodov
+  40000/43176 barov, 416 obchodov
+hotovo: 449 obchodov, nerozhodnutelnych minut 0
+kresby: {'flashorb_zone': 1812, 'tp_box': 451, 'sl_box': 451, 'flashorb_entry': 451}

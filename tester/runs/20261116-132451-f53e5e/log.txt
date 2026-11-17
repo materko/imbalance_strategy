@@ -1,0 +1,22 @@
+$ emulator MultiCharts ES 1m 20250904-20260904 (ES_USD-1m.feather)
+predhistoria grafu: 2998 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 354385 barov 1m, 354385 1m, 0 HTF
+  20000/354385 barov, 477 obchodov
+  40000/354385 barov, 877 obchodov
+  60000/354385 barov, 1311 obchodov
+  80000/354385 barov, 1835 obchodov
+  100000/354385 barov, 2241 obchodov
+  120000/354385 barov, 2672 obchodov
+  140000/354385 barov, 3077 obchodov
+  160000/354385 barov, 3508 obchodov
+  180000/354385 barov, 3943 obchodov
+  200000/354385 barov, 4431 obchodov
+  220000/354385 barov, 4874 obchodov
+  240000/354385 barov, 5314 obchodov
+  260000/354385 barov, 5827 obchodov
+  280000/354385 barov, 6252 obchodov
+  300000/354385 barov, 6721 obchodov
+  320000/354385 barov, 7183 obchodov
+  340000/354385 barov, 7680 obchodov
+hotovo: 8011 obchodov, nerozhodnutelnych minut 35
+kresby: {'m2_zone': 11168, 'tp_box': 8011, 'sl_box': 8011, 'm2_entry': 8011}

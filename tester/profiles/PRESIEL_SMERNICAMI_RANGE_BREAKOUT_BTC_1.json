@@ -1,10 +1,7 @@
 {
  "tickDollarValue": 0.1,
  "maxTradesPerDay": 1,
- "maxWidthAtr": {
-  "value": 2.5,
-  "unit": "atr"
- },
+ "maxWidthAtr": 2.5,
  "rrRatio": 2.5,
  "requireSecondClose": true,
  "minClosePosPct": 70,
@@ -15,17 +12,23 @@
  "boundaryMode": "close",
  "entryMode": "close",
  "slMode": "opposite",
- "slBufferAtr": 0.25,
+ "slBufferAtr": 0.0,
  "tpMode": "rr",
  "trendFilter": "with",
  "trendEmaLen": 100,
  "trendTF": 15,
  "volFilter": "off",
+ "minWidthAtr": 1.0,
+ "maxRangeAgeBars": 40,
+ "cooldownBars": 6,
+ "tpAtrMult": 3.0,
+ "limitOffsetPct": 75,
+ "breakBufferAtr": 0.1,
  "fixedQty": true,
  "qty": 1.0,
  "skipOverRisk": false,
  "_strategy": "rangebtc",
  "_instrument": "btcusdt_binance",
  "_timeframe": "15m",
- "_title": "RANGE BREAKOUT BTC 1 · RR 2,5 · PF 1,48 · WR 37 % · 117 obch/rok · BTC 15m · max DD 23 163 $ · posl. rok PF 1,42"
+ "_title": "RANGE BREAKOUT BTC 1 · RR 2,5 · PF 1,52 · WR 36 % · 124 obch/rok · BTC 15m · max DD 25 146 $ · posl. rok PF 1,53"
 }

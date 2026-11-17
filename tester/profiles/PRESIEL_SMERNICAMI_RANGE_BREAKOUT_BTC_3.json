@@ -17,11 +17,15 @@
  "slMode": "opposite",
  "slBufferAtr": 0.25,
  "tpMode": "rr",
+ "trendFilter": "with",
+ "trendEmaLen": 100,
+ "trendTF": 15,
+ "volFilter": "off",
  "fixedQty": true,
  "qty": 1.0,
  "skipOverRisk": false,
  "_strategy": "rangebtc",
  "_instrument": "btcusdt_binance",
  "_timeframe": "15m",
- "_title": "RANGE BREAKOUT BTC 3 · RR 2,5 · PF 1,44 · WR 36 % · 132 obch/rok · BTC 15m · max DD 18 735 $ · posl. rok PF 1,37"
+ "_title": "RANGE BREAKOUT BTC 3 · RR 2,5 · PF 1,48 · WR 37 % · 117 obch/rok · BTC 15m · max DD 23 163 $ · posl. rok PF 1,42"
 }

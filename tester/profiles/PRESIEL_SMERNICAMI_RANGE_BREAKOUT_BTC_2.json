@@ -12,7 +12,7 @@
  "boundaryMode": "close",
  "entryMode": "close",
  "slMode": "opposite",
- "slBufferAtr": 0.0,
+ "slBufferAtr": 0.25,
  "tpMode": "rr",
  "trendFilter": "with",
  "trendEmaLen": 100,
@@ -23,12 +23,12 @@
  "cooldownBars": 6,
  "tpAtrMult": 3.0,
  "limitOffsetPct": 75,
- "breakBufferAtr": 0.0,
+ "breakBufferAtr": 0.1,
  "fixedQty": true,
  "qty": 1.0,
  "skipOverRisk": false,
  "_strategy": "rangebtc",
  "_instrument": "btcusdt_binance",
  "_timeframe": "15m",
- "_title": "RANGE BREAKOUT BTC 2 · RR 2,5 · PF 1,47 · WR 35 % · 128 obch/rok · BTC 15m · max DD 25 191 $ · posl. rok PF 1,38"
+ "_title": "RANGE BREAKOUT BTC 2 · RR 2,5 · PF 1,48 · WR 37 % · 117 obch/rok · BTC 15m · max DD 23 163 $ · posl. rok PF 1,42"
 }
