@@ -11,6 +11,14 @@ FROM freqtradeorg/freqtrade:stable
 
 USER root
 
+# Mono pre stratégie s C# jadrom (`*net`): `mcs` preloží tradebot/core/ports/csharp do DLL a
+# `mono` spúšťa TradeBot.Host.exe pod mostom (tradebot/adapters/csharp). Bez neho každý
+# `*net` výpočet na agentovi v Dockeri padne na „nenašiel sa C# kompilátor".
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends mono-mcs mono-runtime \
+    && rm -rf /var/lib/apt/lists/* \
+    && mono --version | head -1
+
 # Len zdrojaky jadra a metadata - ziadne user_data, ziadne stiahnute sviecky.
 COPY --chown=ftuser:ftuser tradebot/ /app/tradebot/
 COPY --chown=ftuser:ftuser pyproject.toml /app/pyproject.toml
@@ -24,6 +32,7 @@ ENV PYTHONPATH=/app \
 # nie az na serveri.
 RUN python -c "from tradebot.core import load_profile; from tradebot.strategies import STRATEGIES; \
     [load_profile(f'{k}/{s.default_profile}') for k, s in STRATEGIES.items()]; \
-    print('strategie:', sorted(STRATEGIES))"
+    print('strategie:', sorted(STRATEGIES))" \
+    && python -m tradebot.adapters.csharp.build --force
 
 WORKDIR /freqtrade

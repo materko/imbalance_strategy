@@ -127,7 +127,12 @@ MultiCharts, webapp, hyperopt aj analytika s ním pracujú bez zmeny. Dva transp
 jadro preložené `mcs`, 44 164 volaní enginu nahraných na Windows (BTC 3m, 2025-09-04 – 12-04, všetko
 zapnuté, cez jesenné prechody času v troch pásmach) dalo **tie isté odpovede na rovnosť** — cez `stdio`
 aj cez pythonnet nad Mono. macOS používa ten istý runtime (`brew install mono`), na Macu samotnom to ešte
-nikto nespustil; kontrola je jeden príkaz a stačí na ňu holý Python 3:
+nikto nespustil. **Docker** (agenti hubu a webapp na serveroch): Mono 6.12 z Debianu 13 je v
+`docker/Dockerfile.freqtrade` (`mono-mcs` + `mono-runtime`) a z neho vychádza aj `tradebot-agent`;
+bez neho by každý `*net` výpočet na serverovom agentovi padol. Overené 2026-11-17 v tom image (2 CPU):
+parita `ibs`/`ibsnet` bar po bare zhoda, rok BTC/USDT:USDT 3m na emulátore MultiCharts — `ibs` 10,0 s,
+`ibsnet` cez most `stdio` 13,1 s, natívny C# emulátor (bod celku) 3,5 s so štartom procesu / 2,2 s teplý,
+vždy 142 obchodov. Kontrola na novom stroji je jeden príkaz a stačí na ňu holý Python 3:
 
 ```bash
 PY -m tester.compare.csharp_replay record --from 2026-08-24 --to 2026-09-04 --out replay.jsonl   # na Windows
