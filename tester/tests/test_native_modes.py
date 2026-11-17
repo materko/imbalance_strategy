@@ -121,7 +121,11 @@ def test_queue_point_runs_natively_with_same_summary_as_python(runner, tmp_path,
                 "profile": "nas100_dukascopy_3m", "sweep": {"id": "test", "values": {}}}
     profile = write_profile("test-native", params, "nas100_dukascopy", "orbnet", directory=tmp_path)
     assert native.can_run(settings)
-    assert not native.can_run({k: v for k, v in settings.items() if k != "sweep"})     # beh s grafom ostáva Python
+    obyc = {k: v for k, v in settings.items() if k != "sweep"}
+    assert native.can_run(obyc)                     # aj obyčajný beh do histórie; graf dorobí replay
+    assert not native.can_run({**obyc, "ai": {"enabled": True}})                       # AI vrstva ide cez most
+    assert not native.can_run({**obyc, "engine": "freqtrade"})
+    assert not native.can_run({**obyc, "strategy": "orb"})                            # bez C# jadra
     monkeypatch.setenv("TRADEBOT_NATIVE_BATCH", "0")
     assert not native.can_run(settings)
     monkeypatch.delenv("TRADEBOT_NATIVE_BATCH")
@@ -129,6 +133,57 @@ def test_queue_point_runs_natively_with_same_summary_as_python(runner, tmp_path,
     s_p, rows_p, series_p, _ = results_mod.run_multicharts(params, settings, profile, log=_quiet)
     assert s_n.pop("native") is True
     assert s_n == s_p and rows_n == rows_p and series_n == series_p
+
+
+def test_plain_native_run_gets_chart_and_plan_from_replay(runner, tmp_path):
+    """Obyčajný beh C# stratégie ide natívne bez kresieb; prepočet grafu (Python emulátor cez most) dá tie
+    isté obchody a doplní `plan.json`, ktorý by inak beh dostal z kresieb pri behu."""
+    from tester import native
+    from tester.webapp import replay
+    from tester.webapp import runner as runner_mod
+    from tester.webapp.command import write_profile
+    from tester.webapp.store import PLAN_FILE, RunStore, plan_objects
+
+    params = runner_mod.default_params("nas100_dukascopy_3m", strategy="orbnet", engine="multicharts")[0]
+    settings = {"strategy": "orbnet", "pair": "NAS100/USD", "instrument": "nas100_dukascopy",
+                "engine": "multicharts", "timeframe": "3m", "timerange": W1, "fee": FEE, "wallet": 10000.0,
+                "timeframe_detail": "1m", "profile": "nas100_dukascopy_3m"}
+    assert native.can_run(settings)
+    summary, rows, series, chart = native.run_record(params, settings,
+                                                     write_profile("t", params, "nas100_dukascopy", "orbnet",
+                                                                   directory=tmp_path))
+    assert chart is None and rows
+    store = RunStore(tmp_path / "runs")
+    rid = "20261117-120000-abcdef"
+    store.save({"id": rid, "status": "done", "settings": settings, "params": params, "summary": summary,
+                "finished": "2026-11-17T12:00:00+00:00"}, rows, "log")
+    assert store.drawings(rid) is None and not (store.root / rid / PLAN_FILE).exists()
+    check = replay.compute(store, rid, log=_quiet)
+    assert check["match"] and check["replayed_trades"] == len(rows)
+    assert store.drawings(rid) is not None
+    assert (store.root / rid / PLAN_FILE).exists()      # ten istý výťah, aký by beh dostal z kresieb pri behu
+    assert store.plan(rid) == plan_objects(store.drawings(rid), rows, "orbnet", "multicharts")
+
+
+def test_queue_plain_run_of_net_strategy_is_native_without_chart(runner, tmp_path, monkeypatch):
+    """Beh z fronty webapp/CLI (`BacktestRunner._run`) C# stratégie: natívne, do histórie, graf až pri otvorení."""
+    from tester.webapp import runner as runner_mod
+    from tester.webapp.store import RunStore, make_run_id
+
+    monkeypatch.setattr("tester.webapp.command.TMP_PROFILES", tmp_path / "profiles")
+    monkeypatch.setattr("tester.webapp.runner.TMP_PROFILES", tmp_path / "profiles")
+    store = RunStore(tmp_path / "runs")
+    br = runner_mod.BacktestRunner(store)
+    params = runner_mod.default_params("nas100_dukascopy_3m", strategy="orbnet", engine="multicharts")[0]
+    settings = {"strategy": "orbnet", "pair": "NAS100/USD", "engine": "multicharts", "timeframe": "3m",
+                "timerange": W1, "fee": FEE, "wallet": 10000.0, "timeframe_detail": "1m",
+                "profile": "nas100_dukascopy_3m"}
+    job = runner_mod.Job(id=make_run_id(params, settings), params=params, settings=settings, note="t", user="t")
+    br._run(job)
+    assert job.status == "done", job.error
+    rec = store.get(job.id)
+    assert rec["result"]["native"] is True and rec["result"]["trades"] == len(store.trades(job.id)) > 0
+    assert not store.has_chart(job.id) and "dopočíta pri prvom otvorení" in store.log(job.id)
 
 
 def test_native_api_backtests_without_history(runner, tmp_path):

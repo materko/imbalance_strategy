@@ -449,11 +449,14 @@ class BacktestRunner(HyperoptJobMixin):
 
         out = None
         if native.can_run(job.settings):
-            # Bod celku (sweep, matica, okolie, overenie víťaza) C# stratégie: kresby netreba, tak ho spočíta
-            # pracovný proces C# - rádovo rýchlejšie, obchody aj súhrn sú tie isté (test_native_hyperopt.py)
+            # C# stratégia: spočíta ju pracovný proces C# - ~3x rýchlejšie, obchody aj súhrn sú tie isté
+            # (test_native_modes.py). Kresby natívny emulátor nerobí: bod celku ich nepotrebuje, obyčajnému
+            # behu ich dopočíta prepočet grafu (replay.py), keď ho niekto otvorí - ako behu z iného stroja.
             try:
                 out = native.run_record(job.params, job.settings, profile, log=lambda s: job.log_lines.append(s))
-            except Exception as exc:  # noqa: BLE001 - natívny beh nesmie zhodiť bod, Python emulátor ho dorobí
+                if out is not None and chart_out is not None:
+                    job.log_lines.append("graf (kresby) sa dopočíta pri prvom otvorení behu")
+            except Exception as exc:  # noqa: BLE001 - natívny beh nesmie zhodiť beh, Python emulátor ho dorobí
                 job.log_lines.append(f"POZOR: natívny beh zlyhal ({exc}), počítam Python emulátorom")
                 out = None
         if out is not None:

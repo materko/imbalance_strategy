@@ -10,7 +10,8 @@ Python emulátora:
 * `NativeRunner` — dávka configov jednej stratégie na jednom trhu a TF, na jednom alebo viacerých oknách.
 * `summary_of` / `record_of` — súhrn behu z obchodov C# tými istými funkciami ako Python emulátor
   (`rows_from_trades`, `summary_money`, `summarize`), takže čísla sa nemôžu rozísť s históriou.
-* `run_record` — beh vo fronte webapp (bod celku bez kresieb) natívne; `can_run` povie, kedy smie.
+* `run_record` — beh vo fronte webapp natívne (bod celku aj obyčajný beh do histórie — ten bez kresieb,
+  graf sa dopočíta pri prvom otvorení cez `tester.webapp.replay`); `can_run` povie, kedy smie.
 
 Zhodu obchodov s Python emulátorom stráži `tester/tests/test_csharp_backtest.py`, súhrnov
 `tester/tests/test_native_hyperopt.py`.
@@ -333,13 +334,13 @@ def emulation_of(result: dict[str, Any]) -> EmulationResult:
 
 
 def can_run(settings: dict[str, Any]) -> bool:
-    """Smie beh vo fronte ísť natívne? Emulátor MultiCharts, stratégia s C# jadrom, bod celku (bez kresieb)
-    a bez AI vrstvy. `TRADEBOT_NATIVE_BATCH=0` to vypne (pre porovnanie s Python emulátorom)."""
-    from .webapp.batches import batch_tag
-
+    """Smie beh vo fronte ísť natívne? Emulátor MultiCharts, stratégia s C# jadrom a bez AI vrstvy — bod celku
+    aj obyčajný beh do histórie. Natívny emulátor kresby nerobí; obyčajnému behu ich dopočíta prepočet grafu
+    (`tester.webapp.replay`), keď ho niekto otvorí. `TRADEBOT_NATIVE_BATCH=0` to vypne (pre porovnanie
+    s Python emulátorom alebo keď treba kresby hneď pri behu)."""
     if os.environ.get("TRADEBOT_NATIVE_BATCH", "1") in ("0", "false", "no"):
         return False
-    if settings.get("engine") != engines.MULTICHARTS or batch_tag(settings) is None:
+    if settings.get("engine") != engines.MULTICHARTS:
         return False
     if (settings.get("ai") or {}).get("enabled"):
         return False

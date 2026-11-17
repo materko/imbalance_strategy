@@ -29,6 +29,14 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance
    --timerange 20250904-20260904 --note "co tento beh testuje"
 ```
 
+- **Keď má stratégia .NET verziu, testuj tú.** Stratégia s C# jadrom má kľúč `…net` (`ibs` → `ibsnet`,
+  `tks` → `tksnet`, `noa` → `noanet`; prop kópie `…neteod`; zoznam `GET /api/native/status`). Na emulátore
+  MultiCharts (`--engine multicharts`) ju počíta natívny C# emulátor, **~3× rýchlejšie** ako Python predlohu:
+  rok BTC/USDT:USDT 3m `ibs` 10,0 s, `ibsnet` 2,2–3,5 s, vždy 142 tých istých obchodov (parita
+  bar po bare, `tester.compare.csharp_parity`). Platí pre obyčajný beh do histórie aj pre sweep, maticu,
+  okolie a hyperopt. Graf (kresby) natívny beh nerobí — dopočíta sa pri prvom otvorení behu vo webapp.
+  Cez most (pomalšie, ~13 s) ide `…net` len s AI vrstvou, na Freqtrade a s `TRADEBOT_NATIVE_BATCH=0`.
+  Python predlohu spúšťaj len vtedy, keď stratégia `…net` verziu nemá, alebo keď overuješ samotnú paritu.
 - **Vždy `--note`.** Bez poznámky je história na nič.
 - `--set kluc=hodnota` mení jeden parameter (opakovateľné). Veľkostné polia sú
   `hodnota@jednotka` (`abs`, `ticks`, `atr`, `pct`), napr. `--set minSlDistance=0.25@pct`.

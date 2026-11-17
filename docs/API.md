@@ -67,9 +67,13 @@ body celkov (nižšie) C# stratégií počíta natívne C#.
 | `POST /api/points/{id}/replay` | bod mriežky / matice / overenia prehrá ako obyčajný beh do histórie |
 | `POST /api/analytics/prepare` · `GET /api/analytics` | základná analytika (päť okien, test proti náhode, …) |
 
-**Body celkov C# stratégií na emulátore MultiCharts** (sweep, matica, okolie víťaza, overenie hyperoptu) počíta
-pracovný proces C# (`tester.native`) — súhrn, obchody aj séria sú tie isté ako z Python emulátora
-(`tester/tests/test_native_modes.py`), len rádovo rýchlejšie. `TRADEBOT_NATIVE_BATCH=0` to vypne.
+**C# stratégie (`…net`) na emulátore MultiCharts** počíta pracovný proces C# (`tester.native`) — body celkov
+(sweep, matica, okolie víťaza, overenie hyperoptu) aj obyčajný beh do histórie (`POST /api/runs`, `cli run`).
+Súhrn, obchody aj séria sú tie isté ako z Python emulátora (`tester/tests/test_native_modes.py`), len ~3×
+rýchlejšie (rok BTC 3m: `ibs` 10 s, `ibsnet` 2–3,5 s). Natívny beh nerobí kresby: graf obyčajného behu sa
+dopočíta pri prvom otvorení (`POST /api/runs/{id}/chart`, ako beh z iného stroja) a vtedy dostane aj
+`plan.json`. Cez most (Python runner + C# engine) ide len beh s AI vrstvou a beh na Freqtrade;
+`TRADEBOT_NATIVE_BATCH=0` vráti všetko na most. **Keď má stratégia `…net` verziu, testuj tú.**
 
 ## 4. Hyperopt
 

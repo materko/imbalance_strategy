@@ -146,6 +146,8 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    dáta), burza pre Freqtrade beh `--exchange tester|binance|…` (predvolená je fiktívna
    `tester`, ktorá pozná všetky naše timeframy). Signály sú v oboch rovnaké, fill model nie — závery pre MultiCharts patria
    emulátoru. Celý postup testovania: [tester/AI_TESTING.md](tester/AI_TESTING.md).
+   **Keď má stratégia .NET verziu (`…net`, napr. `ibsnet`, `tksnet`), testuj tú** na `--engine multicharts`:
+   počíta ju natívny C# emulátor ~3× rýchlejšie ako Python predlohu, s tými istými obchodmi.
 1. **Backtesty spúšťaj len cez `python -m tester.webapp.cli run …`** (alebo cez webapp
    v prehliadači). Holý `freqtrade backtesting` výsledok do histórie webapp **nezapíše**
    a tester ho neuvidí. Veľkú dávku na hube (`--remote`) zadávaj s `--plan-total N [--plan-done M]`

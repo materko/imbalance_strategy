@@ -190,6 +190,21 @@ def _freqtrade_rows(rec: dict[str, Any], profile: Path, out: Path, log: Callable
     return (runner.rows if runner is not None else {}), bt.strategy.ENTRY_TAG_PREFIX
 
 
+def _ensure_plan(store: Any, rec: dict[str, Any], trades: list[dict[str, Any]] | None, chart_path: Path,
+                 strategy: str, engine: str) -> None:
+    """Doplní `plan.json` (SL/TP boxy pre analytiku), keď ho beh nemá — natívny beh C# stratégie
+    kresby nerobí, tak ho dostane až s prvým prepočtom grafu. Existujúci plán sa neprepisuje."""
+    from .store import PLAN_FILE, plan_objects, read_chart_file, write_plan
+
+    root = getattr(store, "root", None)
+    if root is None or not trades:
+        return
+    cesta = Path(root) / rec["id"] / PLAN_FILE
+    if cesta.exists():
+        return
+    write_plan(cesta, plan_objects(read_chart_file(chart_path), trades, strategy, engine))
+
+
 def compute(store: Any, run_id: str, *, log: Callable[[str], None] = print,
             python: str | None = None) -> dict[str, Any]:
     """Prepočíta kresby behu do cache grafov a vráti výsledok kontroly (aj ho zapíše)."""
@@ -237,6 +252,7 @@ def compute(store: Any, run_id: str, *, log: Callable[[str], None] = print,
         check.update(source="replay", engine=engine, incomplete=incomplete, created=_now(),
                      duration_s=round(time.time() - t0, 1))
         check["warning"] = _warning(check)
+        _ensure_plan(store, rec, stored, chart_tmp, strategy, engine)
         store.put_chart(run_id, chart_tmp, check)
         log(f"hotovo za {check['duration_s']} s" + (f" — POZOR: {check['warning']}" if check["warning"] else ""))
         return check

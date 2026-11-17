@@ -131,8 +131,9 @@ nikto nespustil. **Docker** (agenti hubu a webapp na serveroch): Mono 6.12 z Deb
 `docker/Dockerfile.freqtrade` (`mono-mcs` + `mono-runtime`) a z neho vychádza aj `tradebot-agent`;
 bez neho by každý `*net` výpočet na serverovom agentovi padol. Overené 2026-11-17 v tom image (2 CPU):
 parita `ibs`/`ibsnet` bar po bare zhoda, rok BTC/USDT:USDT 3m na emulátore MultiCharts — `ibs` 10,0 s,
-`ibsnet` cez most `stdio` 13,1 s, natívny C# emulátor (bod celku) 3,5 s so štartom procesu / 2,2 s teplý,
-vždy 142 obchodov. Kontrola na novom stroji je jeden príkaz a stačí na ňu holý Python 3:
+`ibsnet` cez most `stdio` 13,1 s, natívny C# emulátor 3,5 s so štartom procesu / 2,2 s teplý,
+vždy 142 obchodov. Natívne ide každý beh `…net` na emulátore (aj obyčajný do histórie, graf sa dopočíta pri
+otvorení); most len s AI vrstvou a na Freqtrade ([API.md](API.md) §3). Kontrola na novom stroji je jeden príkaz a stačí na ňu holý Python 3:
 
 ```bash
 PY -m tester.compare.csharp_replay record --from 2026-08-24 --to 2026-09-04 --out replay.jsonl   # na Windows
