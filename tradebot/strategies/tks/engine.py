@@ -1,10 +1,11 @@
 """Engine TKS 1.0 — NQ Kompas (presne ako Pine `nq_kompas.pine`) a vstup po `nConf` sviečkach za hranicou.
 
-Kompas sa počíta na baroch grafu len v seanse NY 9:30–16:00 (minúta = čas **zavretia** baru od 9:30):
+Kompas sa počíta na baroch grafu len v seanse NY `sessOpenMin`–`sessCloseMin` (predvolene 9:30–16:00 ako Pine; minúta =
+čas **zavretia** baru od otvorenia seansy, ďalej „od 9:30“):
 
   * únik zo šumu: (close / open dňa − 1) / σ, σ = priemer |close / open − 1| v tej istej minúte za `lookbackDays`
     predošlých dní (aspoň polovica) → tanh(x / 2),
-  * noc: poloha close v nočnom range (prvý bar po 18:00 až 9:30) → (pos − 0,5) × 2, orezané ±1,5, / 1,5,
+  * noc: poloha close v nočnom range (prvý bar po 18:00 až otvorenie seansy) → (pos − 0,5) × 2, orezané ±1,5, / 1,5,
   * tlak: Σ (poloha zavretia v sviečke × objem) / Σ objem od 9:30, / `PRESS_SCALE`, orezané ±1,
   * VWAP: podiel barov od 9:30 so zavretím nad VWAP (od 9:30) → 2 × podiel − 1,
   * Kompas = 50 + 50 × priemer štyroch.
@@ -13,7 +14,8 @@ Signál: `nConf` barov po sebe s Kompasom pod `loLevel` (short) / nad `hiLevel` 
 nevstúpi) a znova je k dispozícii, až keď Kompas odíde od hranice. Vstup market na zavretí (plní sa na otvorení ďalšieho
 baru), SL = najbližší potvrdený swing high nad close (short) / swing low pod close (long) — alebo ATR / pevné body
 (`slMode`), so stropom vzdialenosti (`maxSlPoints`, `maxSlAtr`) —, TP = close ± RR × |close − SL|. Vstupy len v časovom
-okne `entryStartMin`–`entryEndMin` mimo prestávky `pauseFromMin`–`pauseToMin` (minúty po 9:30); filtre signál spotrebujú.
+okne `entryStartMin`–`entryEndMin` mimo prestávky `pauseFromMin`–`pauseToMin` (minúty po otvorení seansy); filtre signál
+spotrebujú. Iná seansa (17. 11. 2026: 6E Londýn, MGC od otvorenia COMEX) je rozšírenie portu, Kompas počíta to isté.
 """
 
 from __future__ import annotations
@@ -34,18 +36,20 @@ from .drawing import TKS_ENTRY
 
 __all__ = ["TksEngine", "Kompas"]
 
-_OPEN, _CLOSE = 570, 960            # 9:30, 16:00 New York
-_SLOTS = 391
+_OPEN, _CLOSE = 570, 960            # 9:30, 16:00 New York (predvolená seansa, ako Pine)
+_NIGHT = 1080                       # 18:00 New York — začiatok nočného range
 
 
 class Kompas:
     """NQ Kompas bar po bare. ``push(bar)`` vráti hodnotu 0–100 alebo ``None`` (mimo seansy / málo histórie)."""
 
-    def __init__(self, tf_minutes: int, lookback: int = 14) -> None:
+    def __init__(self, tf_minutes: int, lookback: int = 14, open_min: int = _OPEN, close_min: int = _CLOSE) -> None:
         self.tf = max(1, int(tf_minutes))
         self.lookback = int(lookback)
+        self.open_min, self.close_min = int(open_min), int(close_min)
+        self.slots = self.close_min - self.open_min + 1
         self.hist: deque[list[float | None]] = deque(maxlen=self.lookback)
-        self.today: list[float | None] = [None] * _SLOTS
+        self.today: list[float | None] = [None] * self.slots
         self.day = None
         self.open: float | None = None
         self.on_hi = self.on_lo = None          # bežiaci nočný range
@@ -60,8 +64,8 @@ class Kompas:
         t = ny(bar.time)
         m = t.hour * 60 + t.minute                      # minúta OTVORENIA baru
         wd = t.weekday()
-        rth = _OPEN <= m < _CLOSE and wd < 5
-        onseg = (m >= 1080 or m < _OPEN) and not rth
+        rth = self.open_min <= m < self.close_min and wd < 5
+        onseg = (m >= _NIGHT or m < self.open_min) and not rth
         self.rth = rth
         if onseg and not self.prev_on:
             self.on_hi, self.on_lo = bar.high, bar.low
@@ -74,14 +78,14 @@ class Kompas:
         if day != self.day:
             if self.day is not None and self.open is not None:
                 self.hist.append(self.today)
-            self.today = [None] * _SLOTS
+            self.today = [None] * self.slots
             self.day, self.open = day, bar.open
             self.day_on_hi, self.day_on_lo = self.on_hi, self.on_lo
             self.cpv = self.cv = self.pn = 0.0
             self.nb = self.na = 0
-        k = m + self.tf - _OPEN
+        k = m + self.tf - self.open_min
         self.k_close = k
-        if not 1 <= k < _SLOTS:
+        if not 1 <= k < self.slots:
             return None
         c = bar.close
         self.today[k] = abs(c / self.open - 1)
@@ -114,7 +118,7 @@ class TksEngine:
         self.cfg, self.inst = cfg, inst
         self.tf = max(1, int(chart_tf_minutes))
         self.step_ms = self.tf * 60_000
-        self.kompas = Kompas(self.tf, int(cfg.lookbackDays))
+        self.kompas = Kompas(self.tf, int(cfg.lookbackDays), int(cfg.sessOpenMin), int(cfg.sessCloseMin))
         self.value: float | None = None
         piv = int(cfg.pivLen)
         self.history = BarHistory(maxlen=2 * piv + 4, atr_len=int(cfg.atrLen))
@@ -154,8 +158,9 @@ class TksEngine:
         pos = ctx.position_size
         if self.kompas.rth and self.kompas.day != self.sess_day:
             self.sess_day, self.sess_trades = self.kompas.day, 0
-        if cfg.closeAtSessionEnd and pos != 0.0 and self.kompas.rth and self.kompas.k_close >= 390:
-            self.helper.close(out, ctx, idx, "koniec seansy 16:00")
+        end = int(cfg.sessCloseMin)
+        if cfg.closeAtSessionEnd and pos != 0.0 and self.kompas.rth and self.kompas.k_close >= end - int(cfg.sessOpenMin):
+            self.helper.close(out, ctx, idx, f"koniec seansy {end // 60}:{end % 60:02d}")
             return out
         if k is None:
             self.cnt_dn = self.cnt_up = 0
@@ -180,7 +185,7 @@ class TksEngine:
             return out
         if (side < 0 and not cfg.allow_short) or (side > 0 and not cfg.allow_long):
             return out
-        kc = self.kompas.k_close                       # minúta zavretia od 9:30
+        kc = self.kompas.k_close                       # minúta zavretia od otvorenia seansy
         if not (int(cfg.entryStartMin) <= kc <= int(cfg.entryEndMin)):
             return out
         if int(cfg.pauseFromMin) < int(cfg.pauseToMin) and int(cfg.pauseFromMin) <= kc < int(cfg.pauseToMin):

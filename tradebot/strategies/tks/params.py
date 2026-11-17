@@ -48,6 +48,11 @@ PARAMS: dict[str, dict[str, Any]] = {
     "qty": dict(group=_GR, title="Počet kontraktov", tooltip="Pri pevnom počte."),
     "riskDollar": dict(group=_GR, title="Riziko na obchod ($)", tooltip="Pri veľkosti z rizika."),
     "leverage": dict(group=_GX, title="Páka", tooltip="Páka pre Freqtrade futures."),
+    "sessOpenMin": dict(group=_GX, title="Seansa Kompasu od (min od polnoci NY)",
+                        tooltip="570 = 9:30 (Nasdaq, ES, MYM); 500 = 8:20 (zlato, COMEX); 180 = 3:00 (Londýn, euro). "
+                                "Noc pre Kompas je 18:00 až toto; minúty okna vstupov sa počítajú odtiaľto."),
+    "sessCloseMin": dict(group=_GX, title="Seansa Kompasu do (min od polnoci NY)",
+                         tooltip="960 = 16:00; 810 = 13:30 (zlato); 690 = 11:30 (euro po Londýne)."),
 }
 PARAMS.update(entry_order_params(_GE))
 PARAMS.update(entry_confirm_params(_GE))

@@ -15,6 +15,16 @@ from .noa import SPEC as NOA_SPEC
 from .tks import SPEC as TKS_SPEC
 from .tksnet import SPEC as TKSNET_SPEC
 from .tksneteod import SPEC as TKSNETEOD_SPEC
+from .tkses import SPEC as TKSES_SPEC
+from .tksmgc import SPEC as TKSMGC_SPEC
+from .tksmym import SPEC as TKSMYM_SPEC
+from .tksbtc import SPEC as TKSBTC_SPEC
+from .tkseur import SPEC as TKSEUR_SPEC
+from .tksesnet import SPEC as TKSESNET_SPEC
+from .tksmgcnet import SPEC as TKSMGCNET_SPEC
+from .tksmymnet import SPEC as TKSMYMNET_SPEC
+from .tksbtcnet import SPEC as TKSBTCNET_SPEC
+from .tkseurnet import SPEC as TKSEURNET_SPEC
 from .nocpon import SPEC as NOCPON_SPEC
 from .nyvaes import SPEC as NYVAES_SPEC
 from .nyvaesnet import SPEC as NYVAESNET_SPEC
@@ -287,6 +297,16 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     NOAMGC_SPEC,
     NOAESNET_SPEC,
     NOAMGCNET_SPEC,
+    TKSES_SPEC,
+    TKSMGC_SPEC,
+    TKSMYM_SPEC,
+    TKSBTC_SPEC,
+    TKSEUR_SPEC,
+    TKSESNET_SPEC,
+    TKSMGCNET_SPEC,
+    TKSMYMNET_SPEC,
+    TKSBTCNET_SPEC,
+    TKSEURNET_SPEC,
     VAREV_SPEC,
 ))
 

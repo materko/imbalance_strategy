@@ -1,10 +1,11 @@
 // `TksEngine` - TKS 1.0 (NQ Kompas) s jadrom v C#. Zrkadlo `tradebot/strategies/tks/engine.py`; s Python enginom sa
 // porovnava bar po bare, na rovnost (ordery, kresby, koniec seansy).
 //
-// NQ Kompas sa pocita na baroch grafu len v seanse NY 9:30-16:00 (minuta = cas ZAVRETIA baru od 9:30):
+// NQ Kompas sa pocita na baroch grafu len v seanse NY `sessOpenMin`-`sessCloseMin` (predvolene 9:30-16:00 ako Pine;
+// minuta = cas ZAVRETIA baru od otvorenia seansy, dalej "od 9:30"):
 //   * unik zo sumu: (close / open dna - 1) / sigma, sigma = priemer |close / open - 1| v tej istej minute za
 //     `lookbackDays` predoslych dni (aspon polovica) -> tanh(x / 2),
-//   * noc: poloha close v nocnom range (prvy bar po 18:00 az 9:30) -> (pos - 0,5) x 2, orezane +-1,5, / 1,5,
+//   * noc: poloha close v nocnom range (prvy bar po 18:00 az otvorenie seansy) -> (pos - 0,5) x 2, orezane +-1,5, / 1,5,
 //   * tlak: suma (poloha zavretia v sviecke x objem) / suma objem od 9:30, / PressScale, orezane +-1,
 //   * VWAP: podiel barov od 9:30 so zavretim nad VWAP (od 9:30) -> 2 x podiel - 1,
 //   * Kompas = 50 + 50 x priemer styroch.
@@ -24,16 +25,17 @@ namespace TradeBot.Strategies.TksNet
     {
         /// <summary>90. percentil |tlak| na MNQ 1m 2019-06 - 2025-09 (`PRESS_SCALE`)</summary>
         public const double PressScale = 0.1293;
-        private const int OpenMin = 570;     // 9:30 New York
-        private const int CloseMin = 960;    // 16:00
-        private const int Slots = 391;
+        private const int NightMin = 1080;   // 18:00 New York - zaciatok nocneho range
+        private readonly int _openMin;       // otvorenie seansy (570 = 9:30)
+        private readonly int _closeMin;      // koniec seansy (960 = 16:00)
+        private readonly int _slots;
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private readonly int _tf;
         private readonly int _lookback;
         private readonly TimeZoneInfo _zone;
         private readonly List<double?[]> _hist = new List<double?[]>();
-        private double?[] _today = new double?[Slots];
+        private double?[] _today;
         private bool _hasDay;
         public DateTime Day;
         private double? _open;
@@ -45,10 +47,18 @@ namespace TradeBot.Strategies.TksNet
         public bool Rth;
         public int KClose;
 
-        public Kompas(int tfMinutes, int lookback)
+        public Kompas(int tfMinutes, int lookback) : this(tfMinutes, lookback, 570, 960)
+        {
+        }
+
+        public Kompas(int tfMinutes, int lookback, int openMin, int closeMin)
         {
             _tf = Math.Max(1, tfMinutes);
             _lookback = lookback;
+            _openMin = openMin;
+            _closeMin = closeMin;
+            _slots = closeMin - openMin + 1;
+            _today = new double?[_slots];
             _zone = TimeZones.Get("America/New_York");
         }
 
@@ -60,8 +70,8 @@ namespace TradeBot.Strategies.TksNet
             DateTime t = TimeZoneInfo.ConvertTimeFromUtc(Epoch.AddMilliseconds(bar.Time), _zone);
             int m = t.Hour * 60 + t.Minute;                 // minuta OTVORENIA baru
             bool weekday = t.DayOfWeek != DayOfWeek.Saturday && t.DayOfWeek != DayOfWeek.Sunday;
-            bool rth = OpenMin <= m && m < CloseMin && weekday;
-            bool onseg = (m >= 1080 || m < OpenMin) && !rth;
+            bool rth = _openMin <= m && m < _closeMin && weekday;
+            bool onseg = (m >= NightMin || m < _openMin) && !rth;
             Rth = rth;
             if (onseg && !_prevOn)
             {
@@ -83,7 +93,7 @@ namespace TradeBot.Strategies.TksNet
                     _hist.Add(_today);
                     while (_hist.Count > _lookback) _hist.RemoveAt(0);
                 }
-                _today = new double?[Slots];
+                _today = new double?[_slots];
                 _hasDay = true;
                 Day = day;
                 _open = bar.Open;
@@ -92,9 +102,9 @@ namespace TradeBot.Strategies.TksNet
                 _cpv = _cv = _pn = 0.0;
                 _nb = _na = 0;
             }
-            int k = m + _tf - OpenMin;
+            int k = m + _tf - _openMin;
             KClose = k;
-            if (!(1 <= k && k < Slots)) return null;
+            if (!(1 <= k && k < _slots)) return null;
             double c = bar.Close;
             _today[k] = Math.Abs(c / _open.Value - 1);
             _cpv += (bar.High + bar.Low + c) / 3 * bar.Volume;
@@ -121,7 +131,7 @@ namespace TradeBot.Strategies.TksNet
     }
 
     [TradeBotEngine("tksnet", "TKS 1.0 (C#)")]
-    public sealed class TksEngine : IEngine, IConfigured
+    public class TksEngine : IEngine, IConfigured
     {
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
@@ -160,7 +170,7 @@ namespace TradeBot.Strategies.TksNet
             _inst = inst;
             _tf = Math.Max(1, chartTfMinutes);
             _stepMs = _tf * 60000L;
-            Kompas = new Kompas(_tf, cfg.lookbackDays);
+            Kompas = new Kompas(_tf, cfg.lookbackDays, cfg.sessOpenMin, cfg.sessCloseMin);
             History = new BarHistory(2 * cfg.pivLen + 4, cfg.atrLen);
             int days = cfg.lookbackDays + 2;
             _warmup = new Warmup(_tf).Add("NQ Kompas " + cfg.lookbackDays.ToString(CultureInfo.InvariantCulture) + " dní",
@@ -253,9 +263,11 @@ namespace TradeBot.Strategies.TksNet
                 _sessDay = Kompas.Day;
                 _sessTrades = 0;
             }
-            if (cfg.closeAtSessionEnd && pos != 0.0 && Kompas.Rth && Kompas.KClose >= 390)
+            int end = cfg.sessCloseMin;
+            if (cfg.closeAtSessionEnd && pos != 0.0 && Kompas.Rth && Kompas.KClose >= end - cfg.sessOpenMin)
             {
-                CloseAll(o, ctx, idx, "koniec seansy 16:00");
+                CloseAll(o, ctx, idx, "koniec seansy " + (end / 60).ToString(CultureInfo.InvariantCulture) + ":"
+                                      + (end % 60).ToString("00", CultureInfo.InvariantCulture));
                 return o;
             }
             if (!k.HasValue)
@@ -283,7 +295,7 @@ namespace TradeBot.Strategies.TksNet
             if (side == 0 || pos != 0.0) return o;
             if (cfg.maxTradesPerSession != 0 && _sessTrades >= cfg.maxTradesPerSession) return o;
             if ((side < 0 && !cfg.AllowShort) || (side > 0 && !cfg.AllowLong)) return o;
-            int kc = Kompas.KClose;                        // minuta zavretia od 9:30
+            int kc = Kompas.KClose;                        // minuta zavretia od otvorenia seansy
             if (!(cfg.entryStartMin <= kc && kc <= cfg.entryEndMin)) return o;
             if (cfg.pauseFromMin < cfg.pauseToMin && cfg.pauseFromMin <= kc && kc < cfg.pauseToMin) return o;
             double c = bar.Close;

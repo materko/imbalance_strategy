@@ -24,7 +24,7 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **132 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **142 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
@@ -32,11 +32,11 @@ a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.j
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
 | **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` (päť z nich aj ako `…eod`) |
-| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` |
-| **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` |
-| **DOW** (MYM) | `noamym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` |
-| **BTC** (BTCUSDT.P) | `noabtc` `dailyopenbtc` `onbiasorbbtc` `flashorbbtc` `rangebtc` | `silverbulletbtc` | `tmrbtc` `sweepengulfbtc` | `noabtcnet` |
-| **EURUSD** (6E) | | `m2eur` `mtkzoneeur` `silverbulleteur` `ibsentryeur` | `sdeur` `asiasweep` `asiasweepeur` `lliqeur` `wpreur` `sweepengulfeur` | `sdeurnet` |
+| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `tksmgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` `tksmgcnet` |
+| **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `tkses` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` `tksesnet` |
+| **DOW** (MYM) | `noamym` `tksmym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` `tksmymnet` |
+| **BTC** (BTCUSDT.P) | `noabtc` `tksbtc` `dailyopenbtc` `onbiasorbbtc` `flashorbbtc` `rangebtc` | `silverbulletbtc` | `tmrbtc` `sweepengulfbtc` | `noabtcnet` `tksbtcnet` |
+| **EURUSD** (6E) | `tkseur` | `m2eur` `mtkzoneeur` `silverbulleteur` `ibsentryeur` | `sdeur` `asiasweep` `asiasweepeur` `lliqeur` `wpreur` `sweepengulfeur` | `sdeurnet` `tkseurnet` |
 
 Mimo trhov je len ukážková `demo_breakout`. Staré kľúče `ibsninja`, `orbninja` a
 `trendline` sú aliasy (`tradebot.strategies.ALIASES`), história sa neprepisuje.
@@ -161,7 +161,13 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-15)
+## Kde sme (2026-11-17)
+
+- **TKS na ďalších trhoch** (17. 11.): TKS 1.0 (NQ Kompas) ako kópie na ES (`tkses`), MGC (`tksmgc`), MYM (`tksmym`),
+  BTC (`tksbtc`) a 6E (`tkseur`), každá aj s C# jadrom (`…net`, parita bar po bare). Kompas je pomerový a škála tlaku
+  vychádza na všetkých trhoch ako na MNQ. Nové je len nastavenie seansy Kompasu (`sessOpenMin` / `sessCloseMin`,
+  predvolene 9:30–16:00 NY — TKS na MNQ sa nemení): euro počíta Londýn 3:00–11:30, zlato od otvorenia COMEX 8:20.
+  Ladí sa odznova; kolo 1 (MacBook): ES, MYM a MGC 8:20 v pluse aj v odloženom roku, 6E a BTC nie.
 
 - **Stratégie na EUR** (15. 11.): sedem kópií na 6E podľa štúdia grafu (EUR sa vracia späť, živé okná London 2:00–5:00
   a NY 8:00–11:00 NY, Ázia mŕtva) — ASIA SWEEP (`asiasweepeur`), MTK ZONE (`mtkzoneeur`, aj London), LONDON IFVG (`lliqeur`),

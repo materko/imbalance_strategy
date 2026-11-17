@@ -40,6 +40,9 @@ VARIANTS = {
                               "riskDollar": 300.0, "tradeDirection": "Long only", "maxTradesPerSession": 2},
     "body_strop_koniec_seansy": {"slMode": "points", "slPoints": 30.0, "maxSlPoints": 60.0, "closeAtSessionEnd": True,
                                  "tradeDirection": "Short only", "nConf": 1},
+    "seansa_londyn_koniec": {"sessOpenMin": 180, "sessCloseMin": 690, "entryStartMin": 15, "entryEndMin": 480,
+                             "closeAtSessionEnd": True, "nConf": 2},
+    "seansa_comex_prestavka": {"sessOpenMin": 500, "sessCloseMin": 810, "pauseFromMin": 100, "pauseToMin": 140},
     "obaly_filter_potvrdenie_limitka": {"trendFilter": TrendFilter.WITH, "trendTF": 15, "trendEmaLen": 10,
                                         "volFilter": VolFilter.HIGH, "volLookback": 30,
                                         "entryConfirm": EntryConfirm.ANY, "confirmBars": 6,
@@ -79,6 +82,30 @@ def test_presle_profily_smernice_na_mnq(path, tmp_path):
     tf = int(str(data.get("_timeframe", "3m")).rstrip("m"))
     try:
         res = csharp_parity.compare("tks", "tksnet", str(profile), "mnq", tf, "2025-09-04", "2026-09-04")
+    except (SystemExit, FileNotFoundError, KeyError) as exc:  # chýbajúce dáta
+        pytest.skip(f"dáta nie sú k dispozícii: {exc}")
+    assert res["mismatches"] == [], res["mismatches"][:3]
+    assert res["counts"]["entries"] > 50, res["counts"]
+
+
+#: TKS na ďalších trhoch (17. 11. 2026): vlastné kľúče C# nad tým istým `TksEngine`; kód trhu pre sklad sviečok.
+MARKETS = {"es": ("tkses", "tksesnet"), "mgc": ("tksmgc", "tksmgcnet"), "mym": ("tksmym", "tksmymnet"),
+           "btc": ("tksbtc", "tksbtcnet"), "6e": ("tkseur", "tkseurnet")}
+
+
+@pytest.mark.parametrize("market", sorted(MARKETS))
+def test_trhy_posledny_rok(market, tmp_path):
+    """Východiskový profil každého trhu (TKS 1 z MNQ) dá v C# na svojom trhu presne to isté ako Python kópia."""
+    from tradebot.strategies import STRATEGIES
+
+    base, net = MARKETS[market]
+    spec = STRATEGIES[net]
+    data = json.loads((Path(spec.profile_dir) / f"{spec.default_profile}.json").read_text(encoding="utf-8"))
+    data.pop("_strategy", None)     # ten istý profil pre predlohu aj C# port
+    profile = tmp_path / "p.json"
+    profile.write_text(json.dumps(data), encoding="utf-8")
+    try:
+        res = csharp_parity.compare(base, net, str(profile), market, 3, "2025-09-04", "2026-09-04")
     except (SystemExit, FileNotFoundError, KeyError) as exc:  # chýbajúce dáta
         pytest.skip(f"dáta nie sú k dispozícii: {exc}")
     assert res["mismatches"] == [], res["mismatches"][:3]

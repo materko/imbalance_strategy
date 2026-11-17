@@ -147,3 +147,32 @@ def test_sl_body_atr_a_strop():
     e.kompas.k_close = 57
     oi = entries(feed(e, prices)[-1])[0]
     assert oi.plan.stop_loss > 95
+
+
+def test_seansa_kompasu_londyn():
+    """Iná seansa (6E Londýn 3:00–11:30 NY): Kompas počíta od 3:00, noc je 18:00–3:00, mimo seansy nič."""
+    k = Kompas(3, lookback=4, open_min=180, close_min=690)
+    d = datetime(2025, 8, 4, tzinfo=NY)
+    for _ in range(6):                                          # pracovné dni 4.–9. 8.
+        while d.weekday() >= 5:
+            d += timedelta(days=1)
+        for i in range(170):
+            ts = int((d.replace(hour=3, minute=0) + timedelta(minutes=3 * i)).timestamp() * 1000)
+            k.push(Bar(ts, 1.10, 1.1005, 1.0995, 1.10 * (1 + 0.0002 * (i % 5 + 1)), 100.0))
+        d += timedelta(days=1)
+    while d.weekday() >= 5:
+        d += timedelta(days=1)
+    assert k.push(bar(int(d.replace(hour=2, minute=57).timestamp() * 1000), 1.10)) is None   # Ázia = noc
+    assert not k.rth
+    v = k.push(Bar(int(d.replace(hour=3, minute=3).timestamp() * 1000), 1.10, 1.103, 1.0995, 1.103, 100.0))
+    assert k.rth and k.k_close == 6 and v is not None and v > 50
+    assert k.push(bar(int(d.replace(hour=11, minute=30).timestamp() * 1000), 1.10)) is None  # po 11:30 nič
+
+
+def test_koniec_seansy_podla_nastavenia():
+    """`closeAtSessionEnd` zavrie na konci nastavenej seansy, nie napevno o 16:00."""
+    e = TksEngine(TksConfig(closeAtSessionEnd=True, sessOpenMin=500, sessCloseMin=810), MNQ, 3)
+    e.kompas.push = lambda b: None                              # type: ignore[method-assign]
+    e.kompas.rth, e.kompas.day, e.kompas.k_close = True, (2025, 9, 3), 310
+    out = e.on_bar(bar(t(13, 27), 100.0), None, LONGPOS)
+    assert [o.reason for o in out.orders if o.action is OrderAction.CLOSE] == ["koniec seansy 13:30"]

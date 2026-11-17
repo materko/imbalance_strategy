@@ -49,11 +49,11 @@ ENUM_FIELDS: dict[str, type] = {"tradeDirection": TradeDirection, "slMode": SlMo
 CONSTRAINTS: dict[str, tuple[float, float]] = {
     "lookbackDays": (5, 30), "loLevel": (5, 50), "hiLevel": (50, 95), "nConf": (1, 20), "rrRatio": (0.5, 10.0),
     "pivLen": (1, 20), "maxTradesPerSession": (0, 50), "qty": (0.001, 1000), "riskDollar": (0, 100000),
-    "leverage": (1, 125), "entryStartMin": (0, 390), "entryEndMin": (0, 390), "pauseFromMin": (0, 390),
-    "pauseToMin": (0, 390), "slAtrMult": (0.2, 10.0), "slPoints": (1, 1000), "maxSlPoints": (0, 1000), "maxSlAtr": (0, 20),
+    "leverage": (1, 125), "entryStartMin": (0, 900), "entryEndMin": (0, 900), "pauseFromMin": (0, 900),
+    "pauseToMin": (0, 900), "sessOpenMin": (0, 1079), "sessCloseMin": (1, 1080), "slAtrMult": (0.2, 10.0), "slPoints": (1, 1000), "maxSlPoints": (0, 1000), "maxSlAtr": (0, 20),
     "atrLen": (2, 100),
 }
-PORT_ONLY_FIELDS: frozenset[str] = frozenset({"leverage"})
+PORT_ONLY_FIELDS: frozenset[str] = frozenset({"leverage", "sessOpenMin", "sessCloseMin"})
 
 
 @dataclass
@@ -70,6 +70,10 @@ class TksConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilte
     # ---- 🧭 NQ Kompas ------------------------------------------------------ #
     #: Pásmo šumu (zložka „únik zo šumu“) z toľkých predošlých dní.
     lookbackDays: int = 14
+    #: Seansa Kompasu v minútach od polnoci New York (570 / 960 = 9:30–16:00 ako Pine). Iný trh žije inde:
+    #: 6E Londýn 180 / 690 (3:00–11:30), MGC od otvorenia COMEX 500 (8:20). Noc = 18:00 až otvorenie seansy.
+    sessOpenMin: int = 570
+    sessCloseMin: int = 960
     # ---- 🎯 Pravidlá ------------------------------------------------------- #
     #: Short, keď Kompas zavrie pod touto hranicou `nConf` sviečok po sebe.
     loLevel: float = 35.0
@@ -80,7 +84,7 @@ class TksConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilte
     rrRatio: float = 1.0
     #: Swing high / low = vrchol / dno potvrdené toľkými sviečkami na každej strane.
     pivLen: int = 3
-    # ---- ⏱️ Časové okno (minúty po 9:30 NY, podľa zavretia signálnej sviečky) ---- #
+    # ---- ⏱️ Časové okno (minúty po otvorení seansy, 9:30 NY; podľa zavretia signálnej sviečky) ---- #
     #: Vstupy najskôr / najneskôr (0 / 390 = celá seansa; 60 = 10:30, 330 = 15:00).
     entryStartMin: int = 0
     entryEndMin: int = 390
@@ -121,3 +125,5 @@ class TksConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilte
             yield f"leverage={self.leverage} musí byť >= 1"
         if self.loLevel >= self.hiLevel:
             yield f"loLevel={self.loLevel} musí byť pod hiLevel={self.hiLevel}"
+        if self.sessOpenMin >= self.sessCloseMin:
+            yield f"sessOpenMin={self.sessOpenMin} musí byť pred sessCloseMin={self.sessCloseMin}"

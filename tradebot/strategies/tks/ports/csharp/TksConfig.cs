@@ -28,6 +28,9 @@ namespace TradeBot.Strategies.TksNet
         public bool limitKeepRR = true;
         // ---- NQ Kompas --------------------------------------------------------
         public int lookbackDays = 14;
+        /// <summary>Seansa Kompasu v minutach od polnoci New York (570 / 960 = 9:30-16:00 ako Pine; 6E Londyn 180 / 690, MGC 500).</summary>
+        public int sessOpenMin = 570;
+        public int sessCloseMin = 960;
         // ---- pravidla ---------------------------------------------------------
         public double loLevel = 35.0;
         public double hiLevel = 65.0;
@@ -81,6 +84,8 @@ namespace TradeBot.Strategies.TksNet
                 throw new ArgumentException("TKS: neznamy slMode '" + cfg.slMode + "' (swing / atr / points)");
             ConfigChoice.Check("tradeDirection", cfg.tradeDirection, "Both", "Long only", "Short only");
             ConfigChoice.Check("slMode", cfg.slMode, "swing", "atr", "points");
+            if (cfg.sessOpenMin >= cfg.sessCloseMin)
+                throw new ArgumentException("TKS: sessOpenMin musi byt pred sessCloseMin");
             return cfg;
         }
     }

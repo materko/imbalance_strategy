@@ -1,0 +1,30 @@
+{
+  "_title": "TKS 1.0 (MGC) · MGC 3m · východisko: nastavenie TKS 1 z MNQ bez zmeny (Kompas 15 / 70, 2 sviečky, RR 0,5, swing 8, okno 15.–270. min, prestávka 150.–210.)",
+  "_strategy": "tksmgc",
+  "_instrument": "mgc_databento",
+  "_timeframe": "3m",
+  "_comment": [
+    "Východisko pre ladenie na MGC (17. 11. 2026): PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_1 z MNQ; nič nie je v bodoch, Kompas je pomerový a tlak na MGC má škálu 0,129 ako MNQ.",
+    "seansa Kompasu od otvorenia COMEX 8:20–13:30 NY (14:20–19:30 SK), noc 18:00–8:20; vstupy 15.–270. min, bez prestávky"
+  ],
+  "loLevel": 15,
+  "hiLevel": 70,
+  "rrRatio": 0.5,
+  "pivLen": 8,
+  "closeAtSessionEnd": false,
+  "nConf": 2,
+  "lookbackDays": 20,
+  "entryStartMin": 15,
+  "entryEndMin": 270,
+  "pauseFromMin": 0,
+  "pauseToMin": 0,
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "trendTF": 15,
+  "volFilter": "off",
+  "fixedQty": true,
+  "qty": 1.0,
+  "skipOverRisk": false,
+  "sessOpenMin": 500,
+  "sessCloseMin": 810
+}
