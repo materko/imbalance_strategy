@@ -129,7 +129,9 @@ zapnuté, cez jesenné prechody času v troch pásmach) dalo **tie isté odpoved
 aj cez pythonnet nad Mono. macOS používa ten istý runtime (`brew install mono`), na Macu samotnom to ešte
 nikto nespustil. **Docker** (agenti hubu a webapp na serveroch): Mono 6.12 z Debianu 13 je v
 `docker/Dockerfile.freqtrade` (`mono-mcs` + `mono-runtime`) a z neho vychádza aj `tradebot-agent`;
-bez neho by každý `*net` výpočet na serverovom agentovi padol. Overené 2026-11-17 v tom image (2 CPU):
+bez neho by každý `*net` výpočet na serverovom agentovi padol. Agent má `tradebot/` pripojené len na
+čítanie, preto `Dockerfile.agent` nastaví `TRADEBOT_CSHARP_BIN=/tmp/tradebot-csharp-bin` — preklad (~1 s)
+ide do `/tmp` kontajnera (premenná platí všade, kde sa do `tradebot/core/ports/csharp/bin` nedá písať). Overené 2026-11-17 v tom image (2 CPU):
 parita `ibs`/`ibsnet` bar po bare zhoda, rok BTC/USDT:USDT 3m na emulátore MultiCharts — `ibs` 10,0 s,
 `ibsnet` cez most `stdio` 13,1 s, natívny C# emulátor 3,5 s so štartom procesu / 2,2 s teplý,
 vždy 142 obchodov. Natívne ide každý beh `…net` na emulátore (aj obyčajný do histórie, graf sa dopočíta pri
