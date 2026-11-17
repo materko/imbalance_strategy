@@ -211,3 +211,16 @@ def test_ema_s_nulovou_dlzkou_ma_alpha_z_orezanej(core):
 def test_tf_grafu_pod_minutu_je_chyba(core):
     with pytest.raises(bridge.BridgeError, match="TF grafu"):
         bridge.InprocTransport("noanet", "{}", '{"symbol": "MNQ/USD", "tick_size": 0.25, "point_value": 2.0}', 0)
+
+
+def test_vystup_prekladu_sa_da_presmerovat_mimo_repa(tmp_path):
+    """V Docker agentovi je `tradebot/` len na ÄŤĂ­tanie â€” `TRADEBOT_CSHARP_BIN` poĹˇle preklad inam."""
+    import os
+    import subprocess
+    import sys
+
+    out = tmp_path / "csbin"
+    kod = "from tradebot.core import paths; print(paths.CSHARP_BIN); print(paths.CSHARP_DLL); print(paths.CSHARP_HOST)"
+    r = subprocess.run([sys.executable, "-c", kod], capture_output=True, text=True, check=True,
+                       env={**os.environ, "TRADEBOT_CSHARP_BIN": str(out)})
+    assert r.stdout.split() == [str(out), str(out / "TradeBot.dll"), str(out / "TradeBot.Host.exe")]

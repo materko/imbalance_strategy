@@ -19,8 +19,11 @@ RUN apt-get update \
     && git config --system --add safe.directory /app
 USER ftuser
 
+# tradebot/ je mount len na čítanie (docker-compose.agent.yml) — C# jadro (*net stratégie) sa preto
+# prekladá do /tmp kontajnera (~1 s, po reštarte znova); webapp na tomto image to má rovnako
 ENV PYTHONPATH=/app \
-    TRADEBOT_HUB_PULL=off
+    TRADEBOT_HUB_PULL=off \
+    TRADEBOT_CSHARP_BIN=/tmp/tradebot-csharp-bin
 
 WORKDIR /app
 

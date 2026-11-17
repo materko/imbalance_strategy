@@ -122,7 +122,9 @@ STRATEGIES_DIR = REPO / "tradebot" / "strategies"
 #: beží v NinjaTraderi a MT5 natívne a pod Freqtrade cez most `tradebot/adapters/csharp`.
 CSHARP_DIR = REPO / "tradebot" / "core" / "ports" / "csharp"
 #: Preložené assembly — gitignored, most si ich zostaví sám (`tradebot.adapters.csharp.build`).
-CSHARP_BIN = CSHARP_DIR / "bin"
+#: `TRADEBOT_CSHARP_BIN` ich presmeruje tam, kam sa dá písať: v Docker image agenta je `tradebot/`
+#: pripojené len na čítanie (`docker/Dockerfile.agent`), preklad (~1 s) ide do `/tmp` kontajnera.
+CSHARP_BIN = Path(getenv("CSHARP_BIN") or CSHARP_DIR / "bin")
 CSHARP_DLL = CSHARP_BIN / "TradeBot.dll"
 CSHARP_HOST = CSHARP_BIN / "TradeBot.Host.exe"
 #: Čo z repozitára je nainštalované na platformách (NinjaTrader, MT5) — git pathspecy voči koreňu: C# runtime
