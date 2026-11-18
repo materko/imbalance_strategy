@@ -384,3 +384,29 @@ def test_vstup_vyplneny_po_zastaveni_instancie_sa_po_starte_prevezme():
                          {"do": "start"}, wait(5)])
     last = out["trace"][-1]
     assert last["position"] == 1 and working(last) == ["L1:sl", "L1:tp"] and not last["naked"] and not last["unknown"]
+
+
+# --------------------------------------------------------------------------- #
+# čiastočný TP a oneskorený vstup za SL (Tradeify 18. 11. 2026)
+# --------------------------------------------------------------------------- #
+
+
+def test_ciastocne_vyplneny_tp_zvysok_zavrie_trhom():
+    """TP sa vyplnil 2 z 3 a zvyšok neprišiel: engine má obchod za uzavretý, zvyšok nesmie ostať len so SL."""
+    out = play([dict(ENTRY, qty=3)], [*OPEN, {"do": "bar", "c": 108}, {"do": "fill", "order": "L1:tp", "qty": 2}, wait(1)])
+    assert out["trace"][-1]["position"] == 1   # v ochrannej lehote čaká na zvyšok fillu
+    out = play([dict(ENTRY, qty=3)], [*OPEN, {"do": "bar", "c": 108}, {"do": "fill", "order": "L1:tp", "qty": 2}, wait(6)])
+    assert logged(out, "sa vyplnil len ciastocne")
+    assert faultsim.naked_steps(out) == []
+    assert_flat(out["trace"][-1])
+
+
+def test_odlozeny_vstup_sa_neposle_ked_je_trh_za_jeho_sl():
+    """Vstup čakal za bežiacou pozíciou; keď sa uvoľní, trh je už pod jeho SL - limit nad trhom by sa vyplnil
+    hneď, bez platného stopu."""
+    out = play([ENTRY, dict(ENTRY, bar=2, id="L2", entry=100, sl=95, tp=110)],
+               [*OPEN, {"do": "bar"}, {"do": "bar", "c": 94}, {"do": "fill", "order": "L1:sl"}, wait(3)])
+    assert out["trace"][3]["tracked"][1]["parked"]
+    assert logged(out, "vstup L2 Limit @100 neposlany")
+    assert not any(r.startswith("submit L2") for r in out["requests"])
+    assert_flat(out["trace"][-1])
