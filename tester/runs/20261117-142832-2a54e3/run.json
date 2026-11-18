@@ -1,0 +1,453 @@
+{
+  "id": "20261117-142832-2a54e3",
+  "status": "done",
+  "created": "2026-11-17T14:28:32+00:00",
+  "started": "2026-11-17T14:28:32+00:00",
+  "finished": "2026-11-17T14:29:00+00:00",
+  "user": "IBS",
+  "note": "hyperopt trendEmaLen=50,100,200, trendTF=0,15,60, volFilter=off,low,high, tradeDirection=Both,Long only,Short only — TKS MGC 8:20: ladenie G4 filtre (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+  "settings": {
+    "strategy": "tksmgcnet",
+    "exchange": null,
+    "sweep": null,
+    "pair": "MGC/USD",
+    "engine": "multicharts",
+    "timeframe": "3m",
+    "timerange": "20211001-20250904",
+    "fee": 1.755e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 60000.0,
+    "timeframe_detail": "1m",
+    "profile": "tradebot/strategies/tksmgcnet/configs/mgc_databento_3m.json",
+    "hyperopt": {
+      "knobs": {
+        "trendEmaLen": "50,100,200",
+        "trendTF": "0,15,60",
+        "volFilter": "off,low,high",
+        "tradeDirection": "Both,Long only,Short only"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 150,
+      "epochs": 300,
+      "seed": null,
+      "verify": true,
+      "native": true,
+      "sampler": "tpe",
+      "windows": [
+        "20211001-20221001",
+        "20221001-20231001",
+        "20231001-20241001",
+        "20240904-20250904"
+      ],
+      "aggregate": "min",
+      "objectives": null,
+      "select": "plateau",
+      "mode": "search",
+      "anchored": false,
+      "continue_from": null,
+      "epochs_done": 300,
+      "distinct": 320,
+      "best": {
+        "epoch": 26,
+        "loss": -0.0065,
+        "params": {
+          "hp_trendEmaLen": 100,
+          "hp_trendTF": 0,
+          "hp_volFilter": "off",
+          "hp_tradeDirection": "Both"
+        },
+        "trades": 920,
+        "pnl_pct": 0.9922,
+        "winrate": 53.1775,
+        "max_drawdown_pct": 1.297,
+        "profit_factor": 1.1335,
+        "usable": true,
+        "is_best": true,
+        "windows": {
+          "20211001-20221001": {
+            "trades": 226,
+            "pnl_pct": 0.735,
+            "winrate": 53.98,
+            "max_drawdown_pct": 0.736,
+            "break_even_pct": 0.0071,
+            "loss": -0.0071
+          },
+          "20221001-20231001": {
+            "trades": 233,
+            "pnl_pct": 1.321,
+            "winrate": 53.65,
+            "max_drawdown_pct": 0.566,
+            "break_even_pct": 0.0107,
+            "loss": -0.0107
+          },
+          "20231001-20241001": {
+            "trades": 245,
+            "pnl_pct": 0.859,
+            "winrate": 51.84,
+            "max_drawdown_pct": 0.798,
+            "break_even_pct": 0.0065,
+            "loss": -0.0065
+          },
+          "20240904-20250904": {
+            "trades": 216,
+            "pnl_pct": 1.054,
+            "winrate": 53.24,
+            "max_drawdown_pct": 1.297,
+            "break_even_pct": 0.0067,
+            "loss": -0.0067
+          }
+        }
+      },
+      "overrides": {
+        "trendEmaLen": 100,
+        "trendTF": 0,
+        "volFilter": "off",
+        "tradeDirection": "Both"
+      },
+      "results_file": null,
+      "pareto": null,
+      "plateau_select": {
+        "candidates": [
+          {
+            "epoch": 58,
+            "loss": -0.0085,
+            "robust": 476.7744888888889,
+            "neighbours": 8,
+            "worst": 1126.0,
+            "points": [
+              {
+                "param": "trendEmaLen",
+                "value": 50,
+                "step": 1,
+                "loss": -0.0058
+              },
+              {
+                "param": "trendEmaLen",
+                "value": 100,
+                "step": 1,
+                "loss": -0.0043
+              },
+              {
+                "param": "trendTF",
+                "value": 0,
+                "step": 1,
+                "loss": -0.0062
+              },
+              {
+                "param": "trendTF",
+                "value": 60,
+                "step": 1,
+                "loss": 1024.0
+              },
+              {
+                "param": "volFilter",
+                "value": "low",
+                "step": 1,
+                "loss": 1126.0
+              },
+              {
+                "param": "volFilter",
+                "value": "high",
+                "step": 1,
+                "loss": -0.0048
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1094.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1047.0
+              }
+            ]
+          },
+          {
+            "epoch": 31,
+            "loss": -0.0081,
+            "robust": 476.8851222222222,
+            "neighbours": 8,
+            "worst": 1126.0,
+            "points": [
+              {
+                "param": "trendEmaLen",
+                "value": 100,
+                "step": 1,
+                "loss": -0.0076
+              },
+              {
+                "param": "trendEmaLen",
+                "value": 200,
+                "step": 1,
+                "loss": 1024.0
+              },
+              {
+                "param": "trendTF",
+                "value": 0,
+                "step": 1,
+                "loss": -0.006
+              },
+              {
+                "param": "trendTF",
+                "value": 15,
+                "step": 1,
+                "loss": -0.0058
+              },
+              {
+                "param": "volFilter",
+                "value": "low",
+                "step": 1,
+                "loss": 1126.0
+              },
+              {
+                "param": "volFilter",
+                "value": "high",
+                "step": 1,
+                "loss": -0.0064
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1094.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1048.0
+              }
+            ]
+          },
+          {
+            "epoch": 17,
+            "loss": -0.0076,
+            "robust": 591.7748333333334,
+            "neighbours": 8,
+            "worst": 1131.0,
+            "points": [
+              {
+                "param": "trendEmaLen",
+                "value": 50,
+                "step": 1,
+                "loss": -0.0081
+              },
+              {
+                "param": "trendEmaLen",
+                "value": 200,
+                "step": 1,
+                "loss": 1024.0
+              },
+              {
+                "param": "trendTF",
+                "value": 0,
+                "step": 1,
+                "loss": -0.0065
+              },
+              {
+                "param": "trendTF",
+                "value": 15,
+                "step": 1,
+                "loss": -0.0043
+              },
+              {
+                "param": "volFilter",
+                "value": "low",
+                "step": 1,
+                "loss": 1131.0
+              },
+              {
+                "param": "volFilter",
+                "value": "high",
+                "step": 1,
+                "loss": 1007.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1101.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1063.0
+              }
+            ]
+          },
+          {
+            "epoch": 26,
+            "loss": -0.0065,
+            "robust": 359.3295444444445,
+            "neighbours": 8,
+            "worst": 1123.0,
+            "points": [
+              {
+                "param": "trendEmaLen",
+                "value": 50,
+                "step": 1,
+                "loss": -0.006
+              },
+              {
+                "param": "trendEmaLen",
+                "value": 200,
+                "step": 1,
+                "loss": -0.0062
+              },
+              {
+                "param": "trendTF",
+                "value": 15,
+                "step": 1,
+                "loss": -0.0043
+              },
+              {
+                "param": "trendTF",
+                "value": 60,
+                "step": 1,
+                "loss": -0.0076
+              },
+              {
+                "param": "volFilter",
+                "value": "low",
+                "step": 1,
+                "loss": 1123.0
+              },
+              {
+                "param": "volFilter",
+                "value": "high",
+                "step": 1,
+                "loss": -0.0035
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1090.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1021.0
+              }
+            ]
+          },
+          {
+            "epoch": 2,
+            "loss": -0.0064,
+            "robust": 591.4420777777777,
+            "neighbours": 8,
+            "worst": 1126.0,
+            "points": [
+              {
+                "param": "trendEmaLen",
+                "value": 100,
+                "step": 1,
+                "loss": 1007.0
+              },
+              {
+                "param": "trendEmaLen",
+                "value": 200,
+                "step": 1,
+                "loss": 1033.0
+              },
+              {
+                "param": "trendTF",
+                "value": 0,
+                "step": 1,
+                "loss": -0.0028
+              },
+              {
+                "param": "trendTF",
+                "value": 15,
+                "step": 1,
+                "loss": -0.004
+              },
+              {
+                "param": "volFilter",
+                "value": "off",
+                "step": 1,
+                "loss": -0.0081
+              },
+              {
+                "param": "volFilter",
+                "value": "low",
+                "step": 1,
+                "loss": 1126.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1101.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1056.0
+              }
+            ]
+          }
+        ],
+        "chosen": 26,
+        "best_epoch": 58
+      }
+    },
+    "instrument": "mgc_databento"
+  },
+  "params": {
+    "trendFilter": "with",
+    "trendEmaLen": 200,
+    "trendTF": 15,
+    "volFilter": "off",
+    "volLookback": 100,
+    "entryConfirm": "none",
+    "confirmBars": 3,
+    "confirmImbMinAtr": 0.05,
+    "confirmPbWickPct": 60,
+    "confirmPbBodyPct": 30,
+    "entryOrderType": "market",
+    "limitOffsetPct": 50,
+    "limitValidBars": 3,
+    "limitKeepRR": true,
+    "fixedQty": true,
+    "qty": 1.0,
+    "skipOverRisk": false,
+    "lookbackDays": 15,
+    "sessOpenMin": 500,
+    "sessCloseMin": 810,
+    "loLevel": 25,
+    "hiLevel": 90,
+    "nConf": 1,
+    "rrRatio": 1,
+    "pivLen": 3,
+    "entryStartMin": 30,
+    "entryEndMin": 300,
+    "pauseFromMin": 210,
+    "pauseToMin": 240,
+    "slMode": "atr",
+    "slAtrMult": 2,
+    "slPoints": 40.0,
+    "atrLen": 14,
+    "maxSlPoints": 0.0,
+    "maxSlAtr": 5,
+    "maxTradesPerSession": 0,
+    "closeAtSessionEnd": false,
+    "tradeDirection": "Both",
+    "riskDollar": 100.0,
+    "leverage": 1.0
+  },
+  "repo_version": "25efdc480",
+  "error": null,
+  "result": {
+    "duration_s": 28.9
+  },
+  "series": null
+}

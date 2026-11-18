@@ -1,0 +1,351 @@
+{
+  "id": "20261117-141933-0fe2b9",
+  "status": "done",
+  "created": "2026-11-17T14:19:33+00:00",
+  "started": "2026-11-17T14:19:33+00:00",
+  "finished": "2026-11-17T14:20:26+00:00",
+  "user": "IBS",
+  "note": "hyperopt rrRatio=0.5:1.5:0.25, slMode=swing,atr, slAtrMult=1:3:0.5, maxSlAtr=0:6:1 — TKS ES: ladenie G3 riziko (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+  "settings": {
+    "strategy": "tksesnet",
+    "exchange": null,
+    "sweep": null,
+    "pair": "ES/USD",
+    "engine": "multicharts",
+    "timeframe": "3m",
+    "timerange": "20211001-20250904",
+    "fee": 1.755e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 60000.0,
+    "timeframe_detail": "1m",
+    "profile": "tradebot/strategies/tksesnet/configs/es_databento_3m.json",
+    "hyperopt": {
+      "knobs": {
+        "rrRatio": "0.5:1.5:0.25",
+        "slMode": "swing,atr",
+        "slAtrMult": "1:3:0.5",
+        "maxSlAtr": "0:6:1"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 150,
+      "epochs": 300,
+      "seed": null,
+      "verify": true,
+      "native": true,
+      "sampler": "tpe",
+      "windows": [
+        "20211001-20221001",
+        "20221001-20231001",
+        "20231001-20241001",
+        "20240904-20250904"
+      ],
+      "aggregate": "min",
+      "objectives": null,
+      "select": "plateau",
+      "mode": "search",
+      "anchored": false,
+      "continue_from": null,
+      "epochs_done": 300,
+      "distinct": 588,
+      "best": {
+        "epoch": 160,
+        "loss": -0.0201,
+        "params": {
+          "hp_rrRatio": 0.5,
+          "hp_slMode": "swing",
+          "hp_slAtrMult": 1.5,
+          "hp_maxSlAtr": 0.0
+        },
+        "trades": 717,
+        "pnl_pct": 30.2057,
+        "winrate": 70.6925,
+        "max_drawdown_pct": 19.255,
+        "profit_factor": 1.2603,
+        "usable": true,
+        "is_best": true,
+        "windows": {
+          "20211001-20221001": {
+            "trades": 197,
+            "pnl_pct": 25.921,
+            "winrate": 71.57,
+            "max_drawdown_pct": 19.255,
+            "break_even_pct": 0.0201,
+            "loss": -0.0201
+          },
+          "20221001-20231001": {
+            "trades": 168,
+            "pnl_pct": 27.224,
+            "winrate": 69.05,
+            "max_drawdown_pct": 11.329,
+            "break_even_pct": 0.0251,
+            "loss": -0.0251
+          },
+          "20231001-20241001": {
+            "trades": 189,
+            "pnl_pct": 29.409,
+            "winrate": 70.37,
+            "max_drawdown_pct": 16.389,
+            "break_even_pct": 0.0201,
+            "loss": -0.0201
+          },
+          "20240904-20250904": {
+            "trades": 163,
+            "pnl_pct": 38.269,
+            "winrate": 71.78,
+            "max_drawdown_pct": 16.109,
+            "break_even_pct": 0.0254,
+            "loss": -0.0254
+          }
+        }
+      },
+      "overrides": {
+        "rrRatio": 0.5,
+        "slMode": "swing",
+        "slAtrMult": 1.5,
+        "maxSlAtr": 0.0
+      },
+      "results_file": null,
+      "pareto": null,
+      "plateau_select": {
+        "candidates": [
+          {
+            "epoch": 142,
+            "loss": -0.0201,
+            "robust": 229.38971999999998,
+            "neighbours": 4,
+            "worst": 1147.0,
+            "points": [
+              {
+                "param": "rrRatio",
+                "value": 0.75,
+                "step": 1,
+                "loss": -0.0116
+              },
+              {
+                "param": "slMode",
+                "value": "atr",
+                "step": 1,
+                "loss": 0.0004
+              },
+              {
+                "param": "slAtrMult",
+                "value": 1.5,
+                "step": 1,
+                "loss": -0.0201
+              },
+              {
+                "param": "maxSlAtr",
+                "value": 1.0,
+                "step": 1,
+                "loss": 1147.0
+              }
+            ]
+          },
+          {
+            "epoch": 157,
+            "loss": -0.0201,
+            "robust": 191.15543333333335,
+            "neighbours": 5,
+            "worst": 1147.0,
+            "points": [
+              {
+                "param": "rrRatio",
+                "value": 0.75,
+                "step": 1,
+                "loss": -0.0116
+              },
+              {
+                "param": "slMode",
+                "value": "atr",
+                "step": 1,
+                "loss": 0.0045
+              },
+              {
+                "param": "slAtrMult",
+                "value": 1.5,
+                "step": -1,
+                "loss": -0.0201
+              },
+              {
+                "param": "slAtrMult",
+                "value": 2.5,
+                "step": 1,
+                "loss": -0.0201
+              },
+              {
+                "param": "maxSlAtr",
+                "value": 1.0,
+                "step": 1,
+                "loss": 1147.0
+              }
+            ]
+          },
+          {
+            "epoch": 160,
+            "loss": -0.0201,
+            "robust": 191.1545166666667,
+            "neighbours": 5,
+            "worst": 1147.0,
+            "points": [
+              {
+                "param": "rrRatio",
+                "value": 0.75,
+                "step": 1,
+                "loss": -0.0116
+              },
+              {
+                "param": "slMode",
+                "value": "atr",
+                "step": 1,
+                "loss": -0.001
+              },
+              {
+                "param": "slAtrMult",
+                "value": 1.0,
+                "step": -1,
+                "loss": -0.0201
+              },
+              {
+                "param": "slAtrMult",
+                "value": 2.0,
+                "step": 1,
+                "loss": -0.0201
+              },
+              {
+                "param": "maxSlAtr",
+                "value": 1.0,
+                "step": 1,
+                "loss": 1147.0
+              }
+            ]
+          },
+          {
+            "epoch": 193,
+            "loss": -0.0201,
+            "robust": 191.15538333333333,
+            "neighbours": 5,
+            "worst": 1147.0,
+            "points": [
+              {
+                "param": "rrRatio",
+                "value": 0.75,
+                "step": 1,
+                "loss": -0.0116
+              },
+              {
+                "param": "slMode",
+                "value": "atr",
+                "step": 1,
+                "loss": 0.0042
+              },
+              {
+                "param": "slAtrMult",
+                "value": 2.0,
+                "step": -1,
+                "loss": -0.0201
+              },
+              {
+                "param": "slAtrMult",
+                "value": 3.0,
+                "step": 1,
+                "loss": -0.0201
+              },
+              {
+                "param": "maxSlAtr",
+                "value": 1.0,
+                "step": 1,
+                "loss": 1147.0
+              }
+            ]
+          },
+          {
+            "epoch": 196,
+            "loss": -0.0201,
+            "robust": 229.38953999999998,
+            "neighbours": 4,
+            "worst": 1147.0,
+            "points": [
+              {
+                "param": "rrRatio",
+                "value": 0.75,
+                "step": 1,
+                "loss": -0.0116
+              },
+              {
+                "param": "slMode",
+                "value": "atr",
+                "step": 1,
+                "loss": -0.0005
+              },
+              {
+                "param": "slAtrMult",
+                "value": 2.5,
+                "step": -1,
+                "loss": -0.0201
+              },
+              {
+                "param": "maxSlAtr",
+                "value": 1.0,
+                "step": 1,
+                "loss": 1147.0
+              }
+            ]
+          }
+        ],
+        "chosen": 160,
+        "best_epoch": 142
+      }
+    },
+    "instrument": "es_databento"
+  },
+  "params": {
+    "trendFilter": "with",
+    "trendEmaLen": 200,
+    "trendTF": 15,
+    "volFilter": "off",
+    "volLookback": 100,
+    "entryConfirm": "none",
+    "confirmBars": 3,
+    "confirmImbMinAtr": 0.05,
+    "confirmPbWickPct": 60,
+    "confirmPbBodyPct": 30,
+    "entryOrderType": "market",
+    "limitOffsetPct": 50,
+    "limitValidBars": 3,
+    "limitKeepRR": true,
+    "fixedQty": true,
+    "qty": 1.0,
+    "skipOverRisk": false,
+    "lookbackDays": 20,
+    "sessOpenMin": 570,
+    "sessCloseMin": 960,
+    "loLevel": 20,
+    "hiLevel": 80,
+    "nConf": 1,
+    "rrRatio": 0.5,
+    "pivLen": 11,
+    "entryStartMin": 15,
+    "entryEndMin": 270,
+    "pauseFromMin": 150,
+    "pauseToMin": 120,
+    "slMode": "swing",
+    "slAtrMult": 2.0,
+    "slPoints": 40.0,
+    "atrLen": 14,
+    "maxSlPoints": 0.0,
+    "maxSlAtr": 0.0,
+    "maxTradesPerSession": 0,
+    "closeAtSessionEnd": false,
+    "tradeDirection": "Both",
+    "riskDollar": 100.0,
+    "leverage": 1.0
+  },
+  "repo_version": "25efdc480",
+  "error": null,
+  "result": {
+    "duration_s": 52.8
+  },
+  "series": null
+}

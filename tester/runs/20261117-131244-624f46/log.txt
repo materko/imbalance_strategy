@@ -1,0 +1,4 @@
+$ natívny hyperopt tksmymnet MYM/USD 3m 20211001-20250904: 3 epoch, sampler tpe (C# emulátor MultiCharts)
+  3/3 epoch (2 roznych backtestov), ubehlo 1 s, najlepsie skore -0.0020 (epocha 1)
+  vyber podla okolia: epocha 1 (najlepsia epocha 1)
+hotovo: 3 epoch (4 roznych backtestov) za 1.1 s

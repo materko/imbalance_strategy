@@ -1,0 +1,513 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261117-131611-6ef9bb",
+ "strategy": "tksesnet",
+ "created": "2026-11-17T13:16:54+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "trendFilter": "with",
+   "trendEmaLen": 200,
+   "trendTF": 15,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "fixedQty": true,
+   "qty": 1.0,
+   "skipOverRisk": false,
+   "lookbackDays": 20,
+   "sessOpenMin": 570,
+   "sessCloseMin": 960,
+   "loLevel": 25,
+   "hiLevel": 70,
+   "nConf": 4,
+   "rrRatio": 0.5,
+   "pivLen": 9,
+   "entryStartMin": 15,
+   "entryEndMin": 330,
+   "pauseFromMin": 150,
+   "pauseToMin": 210,
+   "slMode": "swing",
+   "slAtrMult": 2.0,
+   "slPoints": 40.0,
+   "atrLen": 14,
+   "maxSlPoints": 0.0,
+   "maxSlAtr": 0.0,
+   "maxTradesPerSession": 0,
+   "closeAtSessionEnd": false,
+   "tradeDirection": "Both",
+   "riskDollar": 100.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "tksesnet",
+   "exchange": null,
+   "pair": "ES/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20211001-20221001",
+   "fee": 1.755e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 60000.0,
+   "timeframe_detail": "1m",
+   "profile": "tradebot/strategies/tksesnet/configs/es_databento_3m.json",
+   "instrument": "es_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261117-131654-23ae3f",
+   "status": "done",
+   "created": "2026-11-17T13:16:54+00:00",
+   "started": "2026-11-17T13:16:54+00:00",
+   "finished": "2026-11-17T13:16:55+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-131611-6ef9bb: entryStartMin=15, entryEndMin=330, lookbackDays=20, trendFilter=with — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS ES: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 15,
+     "entryEndMin": 330,
+     "lookbackDays": 20,
+     "trendFilter": "with"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 172,
+    "wins": 120,
+    "losses": 52,
+    "draws": 0,
+    "winrate": 69.77,
+    "pnl_abs": 31027.42,
+    "pnl_pct": 51.712,
+    "profit_factor": 1.398,
+    "max_drawdown_abs": 11242.05,
+    "max_drawdown_pct": 14.868,
+    "starting_balance": 60000.0,
+    "final_balance": 91027.42,
+    "gross_abs": 32825.0,
+    "volume_abs": 102426025.0,
+    "break_even_pct": 0.032,
+    "exits": {
+     "stop_loss": {
+      "n": 52,
+      "pnl_abs": -77957.84
+     },
+     "take_profit": {
+      "n": 120,
+      "pnl_abs": 108985.26
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 137,
+      "to_i": 148,
+      "start": "2025-06-20T14:51:00+00:00",
+      "end": "2025-07-10T17:05:00+00:00",
+      "pnl_abs": 9407.08,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 7,
+      "to_i": 10,
+      "start": "2024-09-23T15:48:00+00:00",
+      "end": "2024-10-04T19:57:00+00:00",
+      "pnl_abs": -5053.04,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 16.625,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:57:00+00:00",
+    "holding_avg": "6:44:00",
+    "bars": 117745,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.0004421158568449305,
+    "hi": 0.06964332968349181,
+    "trades": 172,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-131654-3477ea",
+   "status": "done",
+   "created": "2026-11-17T13:16:54+00:00",
+   "started": "2026-11-17T13:16:55+00:00",
+   "finished": "2026-11-17T13:16:55+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-131611-6ef9bb: entryStartMin=15, entryEndMin=330, lookbackDays=20, trendFilter=with — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS ES: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 15,
+     "entryEndMin": 330,
+     "lookbackDays": 20,
+     "trendFilter": "with"
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 177,
+    "wins": 118,
+    "losses": 59,
+    "draws": 0,
+    "winrate": 66.67,
+    "pnl_abs": 512.08,
+    "pnl_pct": 0.853,
+    "profit_factor": 1.005,
+    "max_drawdown_abs": 19941.01,
+    "max_drawdown_pct": 25.042,
+    "starting_balance": 60000.0,
+    "final_balance": 60512.08,
+    "gross_abs": 2700.0,
+    "volume_abs": 124667825.0,
+    "break_even_pct": 0.0022,
+    "exits": {
+     "take_profit": {
+      "n": 118,
+      "pnl_abs": 100306.56
+     },
+     "stop_loss": {
+      "n": 59,
+      "pnl_abs": -99794.48
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 116,
+      "to_i": 124,
+      "start": "2026-04-21T15:33:00+00:00",
+      "end": "2026-05-14T14:37:00+00:00",
+      "pnl_abs": 5822.06,
+      "count": 1
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 157,
+      "to_i": 163,
+      "start": "2026-07-10T15:27:00+00:00",
+      "end": "2026-07-29T14:12:00+00:00",
+      "pnl_abs": -15392.12,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 20.039,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "6:43:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.024053069192115188,
+    "hi": 0.027925127451356984,
+    "trades": 177,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-131654-4603c6",
+   "status": "done",
+   "created": "2026-11-17T13:16:54+00:00",
+   "started": "2026-11-17T13:16:54+00:00",
+   "finished": "2026-11-17T13:16:54+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-131611-6ef9bb: entryStartMin=15, entryEndMin=330, lookbackDays=20, trendFilter=with — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS ES: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 15,
+     "entryEndMin": 330,
+     "lookbackDays": 20,
+     "trendFilter": "with"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {},
+   "result": {
+    "trades": 198,
+    "wins": 142,
+    "losses": 56,
+    "draws": 0,
+    "winrate": 71.72,
+    "pnl_abs": 18718.33,
+    "pnl_pct": 31.197,
+    "profit_factor": 1.202,
+    "max_drawdown_abs": 11596.3,
+    "max_drawdown_pct": 16.9,
+    "starting_balance": 60000.0,
+    "final_balance": 78718.33,
+    "gross_abs": 20200.0,
+    "volume_abs": 84425825.0,
+    "break_even_pct": 0.0239,
+    "exits": {
+     "take_profit": {
+      "n": 142,
+      "pnl_abs": 111313.48
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -92595.15
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 17,
+      "from_i": 2,
+      "to_i": 18,
+      "start": "2021-10-01T17:57:00+00:00",
+      "end": "2021-11-10T02:36:00+00:00",
+      "pnl_abs": 8003.97,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 36,
+      "to_i": 38,
+      "start": "2021-12-30T15:18:00+00:00",
+      "end": "2022-01-03T20:59:00+00:00",
+      "pnl_abs": -2312.67,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -16.253,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "4:33:00",
+    "bars": 118465,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.00704892409330248,
+    "hi": 0.05199919449969156,
+    "trades": 198,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-131654-ed150c",
+   "status": "done",
+   "created": "2026-11-17T13:16:54+00:00",
+   "started": "2026-11-17T13:16:54+00:00",
+   "finished": "2026-11-17T13:16:54+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-131611-6ef9bb: entryStartMin=15, entryEndMin=330, lookbackDays=20, trendFilter=with — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS ES: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 15,
+     "entryEndMin": 330,
+     "lookbackDays": 20,
+     "trendFilter": "with"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 208,
+    "wins": 140,
+    "losses": 68,
+    "draws": 0,
+    "winrate": 67.31,
+    "pnl_abs": 17062.75,
+    "pnl_pct": 28.438,
+    "profit_factor": 1.256,
+    "max_drawdown_abs": 13792.15,
+    "max_drawdown_pct": 17.842,
+    "starting_balance": 60000.0,
+    "final_balance": 77062.75,
+    "gross_abs": 18925.0,
+    "volume_abs": 106110850.0,
+    "break_even_pct": 0.0178,
+    "exits": {
+     "stop_loss": {
+      "n": 68,
+      "pnl_abs": -66708.38
+     },
+     "take_profit": {
+      "n": 140,
+      "pnl_abs": 83771.13
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 15,
+      "from_i": 172,
+      "to_i": 186,
+      "start": "2024-07-30T15:12:00+00:00",
+      "end": "2024-08-21T14:36:00+00:00",
+      "pnl_abs": 11143.21,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 149,
+      "to_i": 153,
+      "start": "2024-07-08T13:54:00+00:00",
+      "end": "2024-07-10T15:01:00+00:00",
+      "pnl_abs": -2599.46,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 33.584,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "5:16:00",
+    "bars": 118011,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.005026674303127723,
+    "hi": 0.0405374520778764,
+    "trades": 208,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-131654-fa1402",
+   "status": "done",
+   "created": "2026-11-17T13:16:54+00:00",
+   "started": "2026-11-17T13:16:54+00:00",
+   "finished": "2026-11-17T13:16:54+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-131611-6ef9bb: entryStartMin=15, entryEndMin=330, lookbackDays=20, trendFilter=with — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS ES: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 15,
+     "entryEndMin": 330,
+     "lookbackDays": 20,
+     "trendFilter": "with"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 179,
+    "wins": 127,
+    "losses": 52,
+    "draws": 0,
+    "winrate": 70.95,
+    "pnl_abs": 14579.06,
+    "pnl_pct": 24.298,
+    "profit_factor": 1.233,
+    "max_drawdown_abs": 5649.45,
+    "max_drawdown_pct": 8.526,
+    "starting_balance": 60000.0,
+    "final_balance": 74579.06,
+    "gross_abs": 15887.5,
+    "volume_abs": 74554862.5,
+    "break_even_pct": 0.0213,
+    "exits": {
+     "take_profit": {
+      "n": 127,
+      "pnl_abs": 77206.78
+     },
+     "stop_loss": {
+      "n": 52,
+      "pnl_abs": -62627.72
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 133,
+      "to_i": 142,
+      "start": "2023-06-29T18:54:00+00:00",
+      "end": "2023-07-19T17:44:00+00:00",
+      "pnl_abs": 2683.49,
+      "count": 1
+     },
+     "loss": {
+      "n": 2,
+      "from_i": 14,
+      "to_i": 15,
+      "start": "2022-11-03T14:00:00+00:00",
+      "end": "2022-11-04T18:28:00+00:00",
+      "pnl_abs": -2713.09,
+      "count": 7
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 20.424,
+    "backtest_start": "2022-10-02T22:00:00+00:00",
+    "backtest_end": "2023-09-29T20:57:00+00:00",
+    "holding_avg": "6:24:00",
+    "bars": 117815,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.0016185147036850572,
+    "hi": 0.0403676735603518,
+    "trades": 179,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-11-17T13:16:55+00:00"
+}

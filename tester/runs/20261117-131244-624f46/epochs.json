@@ -1,0 +1,47 @@
+[
+  {
+    "epoch": 1,
+    "loss": 0.002,
+    "params": {
+      "hp_entryStartMin": 0,
+      "hp_trendFilter": "with"
+    },
+    "trades": 262,
+    "pnl_pct": -0.699,
+    "winrate": 66.41,
+    "max_drawdown_pct": 2.026,
+    "profit_factor": 0.95,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 2,
+    "loss": 1063.0,
+    "params": {
+      "hp_entryStartMin": 60,
+      "hp_trendFilter": "with"
+    },
+    "trades": 87,
+    "pnl_pct": 0.709,
+    "winrate": 72.41,
+    "max_drawdown_pct": 1.083,
+    "profit_factor": 1.147,
+    "usable": false,
+    "is_best": false
+  },
+  {
+    "epoch": 3,
+    "loss": 1063.0,
+    "params": {
+      "hp_entryStartMin": 60,
+      "hp_trendFilter": "with"
+    },
+    "trades": 87,
+    "pnl_pct": 0.709,
+    "winrate": 72.41,
+    "max_drawdown_pct": 1.083,
+    "profit_factor": 1.147,
+    "usable": false,
+    "is_best": false
+  }
+]

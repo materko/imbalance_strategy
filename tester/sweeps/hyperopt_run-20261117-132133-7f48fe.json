@@ -1,0 +1,517 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261117-132133-7f48fe",
+ "strategy": "tkseurnet",
+ "created": "2026-11-17T13:22:42+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 15,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "fixedQty": true,
+   "qty": 1.0,
+   "skipOverRisk": false,
+   "lookbackDays": 15,
+   "sessOpenMin": 180,
+   "sessCloseMin": 690,
+   "loLevel": 20,
+   "hiLevel": 85,
+   "nConf": 4,
+   "rrRatio": 0.5,
+   "pivLen": 8,
+   "entryStartMin": 30,
+   "entryEndMin": 390,
+   "pauseFromMin": 0,
+   "pauseToMin": 0,
+   "slMode": "swing",
+   "slAtrMult": 2.0,
+   "slPoints": 40.0,
+   "atrLen": 14,
+   "maxSlPoints": 0.0,
+   "maxSlAtr": 0.0,
+   "maxTradesPerSession": 0,
+   "closeAtSessionEnd": false,
+   "tradeDirection": "Both",
+   "riskDollar": 100.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "tkseurnet",
+   "exchange": null,
+   "pair": "6E/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20211001-20221001",
+   "fee": 1.755e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 60000.0,
+   "timeframe_detail": "1m",
+   "profile": "tradebot/strategies/tkseurnet/configs/6e_databento_3m.json",
+   "instrument": "6e_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261117-132242-1ae350",
+   "status": "done",
+   "created": "2026-11-17T13:22:42+00:00",
+   "started": "2026-11-17T13:22:42+00:00",
+   "finished": "2026-11-17T13:22:43+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-132133-7f48fe: entryStartMin=30, entryEndMin=390, lookbackDays=15, trendFilter=off — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS 6E seansa Londýn 3:00–11:30: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 30,
+     "entryEndMin": 390,
+     "lookbackDays": 15,
+     "trendFilter": "off"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 197,
+    "wins": 133,
+    "losses": 64,
+    "draws": 0,
+    "winrate": 67.51,
+    "pnl_abs": 854.57,
+    "pnl_pct": 1.424,
+    "profit_factor": 1.039,
+    "max_drawdown_abs": 2619.15,
+    "max_drawdown_pct": 4.309,
+    "starting_balance": 60000.0,
+    "final_balance": 60854.57,
+    "gross_abs": 1806.25,
+    "volume_abs": 54226743.75,
+    "break_even_pct": 0.0033,
+    "exits": {
+     "stop_loss": {
+      "n": 64,
+      "pnl_abs": -22046.35
+     },
+     "take_profit": {
+      "n": 133,
+      "pnl_abs": 22900.92
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 8,
+      "to_i": 14,
+      "start": "2024-09-10T07:39:00+00:00",
+      "end": "2024-09-18T09:41:00+00:00",
+      "pnl_abs": 490.81,
+      "count": 5
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 17,
+      "to_i": 19,
+      "start": "2024-09-26T08:06:00+00:00",
+      "end": "2024-09-30T14:24:00+00:00",
+      "pnl_abs": -1314.74,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 5.555,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:57:00+00:00",
+    "holding_avg": "4:01:00",
+    "bars": 118438,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.007399421961134848,
+    "hi": 0.01411352710213169,
+    "trades": 197,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-132242-1dddf1",
+   "status": "done",
+   "created": "2026-11-17T13:22:42+00:00",
+   "started": "2026-11-17T13:22:43+00:00",
+   "finished": "2026-11-17T13:22:43+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-132133-7f48fe: entryStartMin=30, entryEndMin=390, lookbackDays=15, trendFilter=off — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS 6E seansa Londýn 3:00–11:30: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 30,
+     "entryEndMin": 390,
+     "lookbackDays": 15,
+     "trendFilter": "off"
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 202,
+    "wins": 141,
+    "losses": 61,
+    "draws": 0,
+    "winrate": 69.8,
+    "pnl_abs": 423.54,
+    "pnl_pct": 0.706,
+    "profit_factor": 1.029,
+    "max_drawdown_abs": 2701.64,
+    "max_drawdown_pct": 4.291,
+    "starting_balance": 60000.0,
+    "final_balance": 60423.54,
+    "gross_abs": 1456.25,
+    "volume_abs": 58843781.25,
+    "break_even_pct": 0.0025,
+    "exits": {
+     "take_profit": {
+      "n": 141,
+      "pnl_abs": 15260.09
+     },
+     "stop_loss": {
+      "n": 61,
+      "pnl_abs": -14836.55
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 123,
+      "to_i": 132,
+      "start": "2026-04-24T07:54:00+00:00",
+      "end": "2026-05-08T13:33:00+00:00",
+      "pnl_abs": 1267.19,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 149,
+      "to_i": 152,
+      "start": "2026-06-04T07:48:00+00:00",
+      "end": "2026-06-12T08:16:00+00:00",
+      "pnl_abs": -895.35,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -0.309,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "4:18:00",
+    "bars": 118417,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.4
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.004340828678677948,
+    "hi": 0.009164310903600098,
+    "trades": 202,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-132242-731649",
+   "status": "done",
+   "created": "2026-11-17T13:22:42+00:00",
+   "started": "2026-11-17T13:22:42+00:00",
+   "finished": "2026-11-17T13:22:42+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-132133-7f48fe: entryStartMin=30, entryEndMin=390, lookbackDays=15, trendFilter=off — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS 6E seansa Londýn 3:00–11:30: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 30,
+     "entryEndMin": 390,
+     "lookbackDays": 15,
+     "trendFilter": "off"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 220,
+    "wins": 155,
+    "losses": 65,
+    "draws": 0,
+    "winrate": 70.45,
+    "pnl_abs": 2188.52,
+    "pnl_pct": 3.648,
+    "profit_factor": 1.134,
+    "max_drawdown_abs": 3334.01,
+    "max_drawdown_pct": 5.275,
+    "starting_balance": 60000.0,
+    "final_balance": 62188.52,
+    "gross_abs": 3237.5,
+    "volume_abs": 59770887.5,
+    "break_even_pct": 0.0054,
+    "exits": {
+     "take_profit": {
+      "n": 155,
+      "pnl_abs": 18542.77
+     },
+     "stop_loss": {
+      "n": 65,
+      "pnl_abs": -16354.25
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 85,
+      "to_i": 95,
+      "start": "2024-03-11T13:09:00+00:00",
+      "end": "2024-03-22T17:14:00+00:00",
+      "pnl_abs": 1016.08,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 101,
+      "to_i": 104,
+      "start": "2024-04-05T08:42:00+00:00",
+      "end": "2024-04-10T11:37:00+00:00",
+      "pnl_abs": -1150.34,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 5.382,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "4:59:00",
+    "bars": 118519,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.0034417774659482796,
+    "hi": 0.014081978048319187,
+    "trades": 220,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-132242-dad1fc",
+   "status": "done",
+   "created": "2026-11-17T13:22:42+00:00",
+   "started": "2026-11-17T13:22:42+00:00",
+   "finished": "2026-11-17T13:22:42+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-132133-7f48fe: entryStartMin=30, entryEndMin=390, lookbackDays=15, trendFilter=off — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS 6E seansa Londýn 3:00–11:30: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 30,
+     "entryEndMin": 390,
+     "lookbackDays": 15,
+     "trendFilter": "off"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 200,
+    "wins": 136,
+    "losses": 64,
+    "draws": 0,
+    "winrate": 68.0,
+    "pnl_abs": 1434.19,
+    "pnl_pct": 2.39,
+    "profit_factor": 1.066,
+    "max_drawdown_abs": 3348.78,
+    "max_drawdown_pct": 5.492,
+    "starting_balance": 60000.0,
+    "final_balance": 61434.19,
+    "gross_abs": 2375.0,
+    "volume_abs": 53607162.5,
+    "break_even_pct": 0.0044,
+    "exits": {
+     "stop_loss": {
+      "n": 64,
+      "pnl_abs": -21637.38
+     },
+     "take_profit": {
+      "n": 136,
+      "pnl_abs": 23071.58
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 93,
+      "to_i": 104,
+      "start": "2023-04-03T08:00:00+00:00",
+      "end": "2023-04-21T12:32:00+00:00",
+      "pnl_abs": 2129.62,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 150,
+      "to_i": 153,
+      "start": "2023-06-19T10:03:00+00:00",
+      "end": "2023-06-26T11:40:00+00:00",
+      "pnl_abs": -1175.5,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 7.658,
+    "backtest_start": "2022-10-02T22:00:00+00:00",
+    "backtest_end": "2023-09-29T20:57:00+00:00",
+    "holding_avg": "3:17:00",
+    "bars": 118375,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.006318203448816703,
+    "hi": 0.01576458324842162,
+    "trades": 200,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-132242-f843d6",
+   "status": "done",
+   "created": "2026-11-17T13:22:42+00:00",
+   "started": "2026-11-17T13:22:42+00:00",
+   "finished": "2026-11-17T13:22:42+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-132133-7f48fe: entryStartMin=30, entryEndMin=390, lookbackDays=15, trendFilter=off — hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS 6E seansa Londýn 3:00–11:30: ladenie kolo 2 z víťaza kola 1 (okno vstupov, lookbackDays, trend filter), 2021-10 – 2025-09 — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "entryStartMin": 30,
+     "entryEndMin": 390,
+     "lookbackDays": 15,
+     "trendFilter": "off"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {},
+   "result": {
+    "trades": 191,
+    "wins": 129,
+    "losses": 62,
+    "draws": 0,
+    "winrate": 67.54,
+    "pnl_abs": 1336.37,
+    "pnl_pct": 2.227,
+    "profit_factor": 1.059,
+    "max_drawdown_abs": 3734.93,
+    "max_drawdown_pct": 5.879,
+    "starting_balance": 60000.0,
+    "final_balance": 61336.37,
+    "gross_abs": 2250.0,
+    "volume_abs": 52058600.0,
+    "break_even_pct": 0.0043,
+    "exits": {
+     "take_profit": {
+      "n": 129,
+      "pnl_abs": 23818.45
+     },
+     "stop_loss": {
+      "n": 61,
+      "pnl_abs": -21977.76
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -504.32
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 57,
+      "to_i": 69,
+      "start": "2022-01-07T08:54:00+00:00",
+      "end": "2022-02-02T12:15:00+00:00",
+      "pnl_abs": 1772.94,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 49,
+      "to_i": 51,
+      "start": "2021-12-28T11:27:00+00:00",
+      "end": "2021-12-30T11:23:00+00:00",
+      "pnl_abs": -608.66,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -14.896,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "4:25:00",
+    "bars": 118854,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.007514182533964848,
+    "hi": 0.016025922318254865,
+    "trades": 191,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-11-17T13:22:43+00:00"
+}

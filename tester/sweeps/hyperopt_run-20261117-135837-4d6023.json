@@ -1,0 +1,513 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261117-135837-4d6023",
+ "strategy": "tkseurnet",
+ "created": "2026-11-17T13:59:33+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 0,
+   "volFilter": "high",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "fixedQty": true,
+   "qty": 1.0,
+   "skipOverRisk": false,
+   "lookbackDays": 10,
+   "sessOpenMin": 180,
+   "sessCloseMin": 480,
+   "loLevel": 10,
+   "hiLevel": 70,
+   "nConf": 2,
+   "rrRatio": 0.75,
+   "pivLen": 3,
+   "entryStartMin": 0,
+   "entryEndMin": 270,
+   "pauseFromMin": 240,
+   "pauseToMin": 270,
+   "slMode": "swing",
+   "slAtrMult": 2,
+   "slPoints": 40.0,
+   "atrLen": 14,
+   "maxSlPoints": 0.0,
+   "maxSlAtr": 0,
+   "maxTradesPerSession": 0,
+   "closeAtSessionEnd": false,
+   "tradeDirection": "Both",
+   "riskDollar": 100.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "tkseurnet",
+   "exchange": null,
+   "pair": "6E/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20211001-20221001",
+   "fee": 1.755e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 60000.0,
+   "timeframe_detail": "1m",
+   "profile": "tradebot/strategies/tkseurnet/configs/6e_databento_3m.json",
+   "instrument": "6e_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261117-135933-00b266",
+   "status": "done",
+   "created": "2026-11-17T13:59:33+00:00",
+   "started": "2026-11-17T13:59:34+00:00",
+   "finished": "2026-11-17T13:59:34+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135837-4d6023: pauseFromMin=240, pauseToMin=270, entryStartMin=0, entryEndMin=270 — hyperopt pauseFromMin=0:240:30, pauseToMin=0:300:30, entryStartMin=0:60:15, entryEndMin=150:390:30 — TKS 6E len Londýn 3:00–8:00: ladenie G6 prestávka (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "pauseFromMin": 240,
+     "pauseToMin": 270,
+     "entryStartMin": 0,
+     "entryEndMin": 270
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 275,
+    "wins": 149,
+    "losses": 126,
+    "draws": 0,
+    "winrate": 54.18,
+    "pnl_abs": -4926.68,
+    "pnl_pct": -8.211,
+    "profit_factor": 0.723,
+    "max_drawdown_abs": 7077.95,
+    "max_drawdown_pct": 11.67,
+    "starting_balance": 60000.0,
+    "final_balance": 55073.32,
+    "gross_abs": -3518.75,
+    "volume_abs": 80223806.25,
+    "break_even_pct": -0.0044,
+    "exits": {
+     "take_profit": {
+      "n": 149,
+      "pnl_abs": 12874.68
+     },
+     "stop_loss": {
+      "n": 126,
+      "pnl_abs": -17801.36
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 255,
+      "to_i": 262,
+      "start": "2026-08-13T07:33:00+00:00",
+      "end": "2026-08-20T09:10:00+00:00",
+      "pnl_abs": 359.31,
+      "count": 1
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 200,
+      "to_i": 206,
+      "start": "2026-05-20T07:06:00+00:00",
+      "end": "2026-05-29T09:58:00+00:00",
+      "pnl_abs": -854.47,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -0.309,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "1:19:00",
+    "bars": 118417,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.010063888142946105,
+    "hi": 0.001078540902028607,
+    "trades": 275,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-135933-4d212d",
+   "status": "done",
+   "created": "2026-11-17T13:59:33+00:00",
+   "started": "2026-11-17T13:59:34+00:00",
+   "finished": "2026-11-17T13:59:34+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135837-4d6023: pauseFromMin=240, pauseToMin=270, entryStartMin=0, entryEndMin=270 — hyperopt pauseFromMin=0:240:30, pauseToMin=0:300:30, entryStartMin=0:60:15, entryEndMin=150:390:30 — TKS 6E len Londýn 3:00–8:00: ladenie G6 prestávka (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "pauseFromMin": 240,
+     "pauseToMin": 270,
+     "entryStartMin": 0,
+     "entryEndMin": 270
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 302,
+    "wins": 176,
+    "losses": 126,
+    "draws": 0,
+    "winrate": 58.28,
+    "pnl_abs": 1930.25,
+    "pnl_pct": 3.217,
+    "profit_factor": 1.121,
+    "max_drawdown_abs": 1737.32,
+    "max_drawdown_pct": 2.798,
+    "starting_balance": 60000.0,
+    "final_balance": 61930.25,
+    "gross_abs": 3368.75,
+    "volume_abs": 81965668.75,
+    "break_even_pct": 0.0041,
+    "exits": {
+     "take_profit": {
+      "n": 176,
+      "pnl_abs": 17906.0
+     },
+     "stop_loss": {
+      "n": 126,
+      "pnl_abs": -15975.75
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 29,
+      "to_i": 34,
+      "start": "2023-11-01T07:48:00+00:00",
+      "end": "2023-11-03T12:17:00+00:00",
+      "pnl_abs": 603.31,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 136,
+      "to_i": 140,
+      "start": "2024-03-13T07:15:00+00:00",
+      "end": "2024-03-14T10:41:00+00:00",
+      "pnl_abs": -423.99,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 5.382,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:32:00",
+    "bars": 118519,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -4.5912094262336005e-05,
+    "hi": 0.008282399893157067,
+    "trades": 302,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-135933-ce636f",
+   "status": "done",
+   "created": "2026-11-17T13:59:33+00:00",
+   "started": "2026-11-17T13:59:33+00:00",
+   "finished": "2026-11-17T13:59:34+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135837-4d6023: pauseFromMin=240, pauseToMin=270, entryStartMin=0, entryEndMin=270 — hyperopt pauseFromMin=0:240:30, pauseToMin=0:300:30, entryStartMin=0:60:15, entryEndMin=150:390:30 — TKS 6E len Londýn 3:00–8:00: ladenie G6 prestávka (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "pauseFromMin": 240,
+     "pauseToMin": 270,
+     "entryStartMin": 0,
+     "entryEndMin": 270
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 271,
+    "wins": 164,
+    "losses": 107,
+    "draws": 0,
+    "winrate": 60.52,
+    "pnl_abs": 1926.21,
+    "pnl_pct": 3.21,
+    "profit_factor": 1.09,
+    "max_drawdown_abs": 3654.42,
+    "max_drawdown_pct": 5.999,
+    "starting_balance": 60000.0,
+    "final_balance": 61926.21,
+    "gross_abs": 3200.0,
+    "volume_abs": 72580600.0,
+    "break_even_pct": 0.0044,
+    "exits": {
+     "take_profit": {
+      "n": 164,
+      "pnl_abs": 23340.57
+     },
+     "stop_loss": {
+      "n": 107,
+      "pnl_abs": -21414.36
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 6,
+      "to_i": 12,
+      "start": "2022-10-11T07:33:00+00:00",
+      "end": "2022-10-17T07:43:00+00:00",
+      "pnl_abs": 1038.73,
+      "count": 2
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 13,
+      "to_i": 17,
+      "start": "2022-10-17T10:09:00+00:00",
+      "end": "2022-10-24T07:37:00+00:00",
+      "pnl_abs": -1452.85,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 7.658,
+    "backtest_start": "2022-10-02T22:00:00+00:00",
+    "backtest_end": "2023-09-29T20:57:00+00:00",
+    "holding_avg": "1:26:00",
+    "bars": 118375,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.0025988901747353668,
+    "hi": 0.011213842018090135,
+    "trades": 271,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-135933-fbc895",
+   "status": "done",
+   "created": "2026-11-17T13:59:33+00:00",
+   "started": "2026-11-17T13:59:34+00:00",
+   "finished": "2026-11-17T13:59:34+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135837-4d6023: pauseFromMin=240, pauseToMin=270, entryStartMin=0, entryEndMin=270 — hyperopt pauseFromMin=0:240:30, pauseToMin=0:300:30, entryStartMin=0:60:15, entryEndMin=150:390:30 — TKS 6E len Londýn 3:00–8:00: ladenie G6 prestávka (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "pauseFromMin": 240,
+     "pauseToMin": 270,
+     "entryStartMin": 0,
+     "entryEndMin": 270
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 281,
+    "wins": 173,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 61.57,
+    "pnl_abs": 5224.04,
+    "pnl_pct": 8.707,
+    "profit_factor": 1.291,
+    "max_drawdown_abs": 1433.03,
+    "max_drawdown_pct": 2.203,
+    "starting_balance": 60000.0,
+    "final_balance": 65224.04,
+    "gross_abs": 6581.25,
+    "volume_abs": 77333881.25,
+    "break_even_pct": 0.0085,
+    "exits": {
+     "stop_loss": {
+      "n": 108,
+      "pnl_abs": -17927.05
+     },
+     "take_profit": {
+      "n": 173,
+      "pnl_abs": 23151.09
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 182,
+      "to_i": 191,
+      "start": "2025-04-10T07:36:00+00:00",
+      "end": "2025-04-25T14:41:00+00:00",
+      "pnl_abs": 2512.51,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 21,
+      "to_i": 24,
+      "start": "2024-10-02T08:21:00+00:00",
+      "end": "2024-10-08T11:34:00+00:00",
+      "pnl_abs": -581.86,
+      "count": 6
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 5.555,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:57:00+00:00",
+    "holding_avg": "1:30:00",
+    "bars": 118438,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.001999090341244645,
+    "hi": 0.015281791346752838,
+    "trades": 281,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-135933-fd9bea",
+   "status": "done",
+   "created": "2026-11-17T13:59:33+00:00",
+   "started": "2026-11-17T13:59:33+00:00",
+   "finished": "2026-11-17T13:59:33+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135837-4d6023: pauseFromMin=240, pauseToMin=270, entryStartMin=0, entryEndMin=270 — hyperopt pauseFromMin=0:240:30, pauseToMin=0:300:30, entryStartMin=0:60:15, entryEndMin=150:390:30 — TKS 6E len Londýn 3:00–8:00: ladenie G6 prestávka (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "pauseFromMin": 240,
+     "pauseToMin": 270,
+     "entryStartMin": 0,
+     "entryEndMin": 270
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {},
+   "result": {
+    "trades": 313,
+    "wins": 192,
+    "losses": 121,
+    "draws": 0,
+    "winrate": 61.34,
+    "pnl_abs": 4247.04,
+    "pnl_pct": 7.078,
+    "profit_factor": 1.163,
+    "max_drawdown_abs": 2451.23,
+    "max_drawdown_pct": 3.814,
+    "starting_balance": 60000.0,
+    "final_balance": 64247.04,
+    "gross_abs": 5737.5,
+    "volume_abs": 84926250.0,
+    "break_even_pct": 0.0068,
+    "exits": {
+     "stop_loss": {
+      "n": 121,
+      "pnl_abs": -26070.01
+     },
+     "take_profit": {
+      "n": 192,
+      "pnl_abs": 30317.05
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 41,
+      "to_i": 48,
+      "start": "2021-11-16T10:21:00+00:00",
+      "end": "2021-11-22T09:08:00+00:00",
+      "pnl_abs": 860.28,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 59,
+      "to_i": 62,
+      "start": "2021-12-08T08:06:00+00:00",
+      "end": "2021-12-13T13:43:00+00:00",
+      "pnl_abs": -526.1,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -14.896,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "2:22:00",
+    "bars": 118854,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.000426651289895672,
+    "hi": 0.01388023112515058,
+    "trades": 313,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-11-17T13:59:34+00:00"
+}

@@ -1,0 +1,435 @@
+{
+  "id": "20261117-132814-7ec05d",
+  "status": "done",
+  "created": "2026-11-17T13:28:14+00:00",
+  "started": "2026-11-17T13:28:14+00:00",
+  "finished": "2026-11-17T13:29:17+00:00",
+  "user": "IBS",
+  "note": "hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS MGC 8:20: ladenie G1 Kompas (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+  "settings": {
+    "strategy": "tksmgcnet",
+    "exchange": null,
+    "sweep": null,
+    "pair": "MGC/USD",
+    "engine": "multicharts",
+    "timeframe": "3m",
+    "timerange": "20211001-20250904",
+    "fee": 1.755e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 60000.0,
+    "timeframe_detail": "1m",
+    "profile": "tradebot/strategies/tksmgcnet/configs/mgc_databento_3m.json",
+    "hyperopt": {
+      "knobs": {
+        "loLevel": "10:40:5",
+        "hiLevel": "60:90:5",
+        "nConf": "1:4:1",
+        "pivLen": "3:12:1"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 150,
+      "epochs": 300,
+      "seed": null,
+      "verify": true,
+      "native": true,
+      "sampler": "tpe",
+      "windows": [
+        "20211001-20221001",
+        "20221001-20231001",
+        "20231001-20241001",
+        "20240904-20250904"
+      ],
+      "aggregate": "min",
+      "objectives": null,
+      "select": "plateau",
+      "mode": "search",
+      "anchored": false,
+      "continue_from": null,
+      "epochs_done": 300,
+      "distinct": 808,
+      "best": {
+        "epoch": 89,
+        "loss": -0.003,
+        "params": {
+          "hp_loLevel": 35.0,
+          "hp_hiLevel": 80.0,
+          "hp_nConf": 2,
+          "hp_pivLen": 5
+        },
+        "trades": 807,
+        "pnl_pct": 0.853,
+        "winrate": 70.375,
+        "max_drawdown_pct": 2.678,
+        "profit_factor": 1.0888,
+        "usable": true,
+        "is_best": true,
+        "windows": {
+          "20211001-20221001": {
+            "trades": 208,
+            "pnl_pct": 1.465,
+            "winrate": 71.15,
+            "max_drawdown_pct": 1.7,
+            "break_even_pct": 0.0134,
+            "loss": -0.0134
+          },
+          "20221001-20231001": {
+            "trades": 191,
+            "pnl_pct": 0.593,
+            "winrate": 70.16,
+            "max_drawdown_pct": 1.763,
+            "break_even_pct": 0.0067,
+            "loss": -0.0067
+          },
+          "20231001-20241001": {
+            "trades": 211,
+            "pnl_pct": 0.188,
+            "winrate": 70.14,
+            "max_drawdown_pct": 2.678,
+            "break_even_pct": 0.003,
+            "loss": -0.003
+          },
+          "20240904-20250904": {
+            "trades": 197,
+            "pnl_pct": 1.166,
+            "winrate": 70.05,
+            "max_drawdown_pct": 1.978,
+            "break_even_pct": 0.0077,
+            "loss": -0.0077
+          }
+        }
+      },
+      "overrides": {
+        "loLevel": 35.0,
+        "hiLevel": 80.0,
+        "nConf": 2,
+        "pivLen": 5
+      },
+      "results_file": null,
+      "pareto": null,
+      "plateau_select": {
+        "candidates": [
+          {
+            "epoch": 39,
+            "loss": -0.0056,
+            "robust": 0.0010625,
+            "neighbours": 7,
+            "worst": 0.0089,
+            "points": [
+              {
+                "param": "loLevel",
+                "value": 35.0,
+                "step": -1,
+                "loss": -0.003
+              },
+              {
+                "param": "hiLevel",
+                "value": 75.0,
+                "step": -1,
+                "loss": 0.0036
+              },
+              {
+                "param": "hiLevel",
+                "value": 85.0,
+                "step": 1,
+                "loss": -0.0029
+              },
+              {
+                "param": "nConf",
+                "value": 1,
+                "step": -1,
+                "loss": 0.0025
+              },
+              {
+                "param": "nConf",
+                "value": 3,
+                "step": 1,
+                "loss": 0.0089
+              },
+              {
+                "param": "pivLen",
+                "value": 4,
+                "step": -1,
+                "loss": 0.0032
+              },
+              {
+                "param": "pivLen",
+                "value": 6,
+                "step": 1,
+                "loss": 0.0018
+              }
+            ]
+          },
+          {
+            "epoch": 98,
+            "loss": -0.0037,
+            "robust": 0.0036555555555555556,
+            "neighbours": 8,
+            "worst": 0.014,
+            "points": [
+              {
+                "param": "loLevel",
+                "value": 30.0,
+                "step": -1,
+                "loss": 0.014
+              },
+              {
+                "param": "loLevel",
+                "value": 40.0,
+                "step": 1,
+                "loss": 0.0018
+              },
+              {
+                "param": "hiLevel",
+                "value": 75.0,
+                "step": -1,
+                "loss": 0.0043
+              },
+              {
+                "param": "hiLevel",
+                "value": 85.0,
+                "step": 1,
+                "loss": 0.0083
+              },
+              {
+                "param": "nConf",
+                "value": 1,
+                "step": -1,
+                "loss": 0.0055
+              },
+              {
+                "param": "nConf",
+                "value": 3,
+                "step": 1,
+                "loss": 0.0078
+              },
+              {
+                "param": "pivLen",
+                "value": 5,
+                "step": -1,
+                "loss": -0.003
+              },
+              {
+                "param": "pivLen",
+                "value": 7,
+                "step": 1,
+                "loss": -0.0021
+              }
+            ]
+          },
+          {
+            "epoch": 21,
+            "loss": -0.0036,
+            "robust": 0.0050625,
+            "neighbours": 7,
+            "worst": 0.0144,
+            "points": [
+              {
+                "param": "loLevel",
+                "value": 35.0,
+                "step": -1,
+                "loss": 0.0085
+              },
+              {
+                "param": "hiLevel",
+                "value": 80.0,
+                "step": -1,
+                "loss": 0.0017
+              },
+              {
+                "param": "hiLevel",
+                "value": 90.0,
+                "step": 1,
+                "loss": 0.0144
+              },
+              {
+                "param": "nConf",
+                "value": 1,
+                "step": -1,
+                "loss": 0.01
+              },
+              {
+                "param": "nConf",
+                "value": 3,
+                "step": 1,
+                "loss": 0.0106
+              },
+              {
+                "param": "pivLen",
+                "value": 6,
+                "step": -1,
+                "loss": -0.0022
+              },
+              {
+                "param": "pivLen",
+                "value": 8,
+                "step": 1,
+                "loss": 0.0011
+              }
+            ]
+          },
+          {
+            "epoch": 89,
+            "loss": -0.003,
+            "robust": 0.0005444444444444444,
+            "neighbours": 8,
+            "worst": 0.0068,
+            "points": [
+              {
+                "param": "loLevel",
+                "value": 30.0,
+                "step": -1,
+                "loss": 0.0064
+              },
+              {
+                "param": "loLevel",
+                "value": 40.0,
+                "step": 1,
+                "loss": -0.0056
+              },
+              {
+                "param": "hiLevel",
+                "value": 75.0,
+                "step": -1,
+                "loss": 0.0022
+              },
+              {
+                "param": "hiLevel",
+                "value": 85.0,
+                "step": 1,
+                "loss": 0.0068
+              },
+              {
+                "param": "nConf",
+                "value": 1,
+                "step": -1,
+                "loss": -0.0015
+              },
+              {
+                "param": "nConf",
+                "value": 3,
+                "step": 1,
+                "loss": 0.0037
+              },
+              {
+                "param": "pivLen",
+                "value": 4,
+                "step": -1,
+                "loss": -0.0004
+              },
+              {
+                "param": "pivLen",
+                "value": 6,
+                "step": 1,
+                "loss": -0.0037
+              }
+            ]
+          },
+          {
+            "epoch": 54,
+            "loss": -0.0029,
+            "robust": 0.0029625,
+            "neighbours": 7,
+            "worst": 0.0104,
+            "points": [
+              {
+                "param": "loLevel",
+                "value": 35.0,
+                "step": -1,
+                "loss": 0.0068
+              },
+              {
+                "param": "hiLevel",
+                "value": 80.0,
+                "step": -1,
+                "loss": -0.0056
+              },
+              {
+                "param": "hiLevel",
+                "value": 90.0,
+                "step": 1,
+                "loss": 0.0104
+              },
+              {
+                "param": "nConf",
+                "value": 1,
+                "step": -1,
+                "loss": 0.0084
+              },
+              {
+                "param": "nConf",
+                "value": 3,
+                "step": 1,
+                "loss": 0.0065
+              },
+              {
+                "param": "pivLen",
+                "value": 4,
+                "step": -1,
+                "loss": 0.0023
+              },
+              {
+                "param": "pivLen",
+                "value": 6,
+                "step": 1,
+                "loss": -0.0022
+              }
+            ]
+          }
+        ],
+        "chosen": 89,
+        "best_epoch": 39
+      }
+    },
+    "instrument": "mgc_databento"
+  },
+  "params": {
+    "trendFilter": "with",
+    "trendEmaLen": 200,
+    "trendTF": 15,
+    "volFilter": "off",
+    "volLookback": 100,
+    "entryConfirm": "none",
+    "confirmBars": 3,
+    "confirmImbMinAtr": 0.05,
+    "confirmPbWickPct": 60,
+    "confirmPbBodyPct": 30,
+    "entryOrderType": "market",
+    "limitOffsetPct": 50,
+    "limitValidBars": 3,
+    "limitKeepRR": true,
+    "fixedQty": true,
+    "qty": 1.0,
+    "skipOverRisk": false,
+    "lookbackDays": 15,
+    "sessOpenMin": 500,
+    "sessCloseMin": 810,
+    "loLevel": 15,
+    "hiLevel": 70,
+    "nConf": 2,
+    "rrRatio": 0.5,
+    "pivLen": 8,
+    "entryStartMin": 30,
+    "entryEndMin": 300,
+    "pauseFromMin": 0,
+    "pauseToMin": 0,
+    "slMode": "swing",
+    "slAtrMult": 2.0,
+    "slPoints": 40.0,
+    "atrLen": 14,
+    "maxSlPoints": 0.0,
+    "maxSlAtr": 0.0,
+    "maxTradesPerSession": 0,
+    "closeAtSessionEnd": false,
+    "tradeDirection": "Both",
+    "riskDollar": 100.0,
+    "leverage": 1.0
+  },
+  "repo_version": "25efdc480",
+  "error": null,
+  "result": {
+    "duration_s": 62.3
+  },
+  "series": null
+}

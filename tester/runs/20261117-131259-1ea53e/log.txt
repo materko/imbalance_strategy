@@ -1,0 +1,4 @@
+$ natívny hyperopt tksmymnet MYM/USD 3m 4 okien (min): 3 epoch, sampler tpe (C# emulátor MultiCharts)
+  3/3 epoch (12 roznych backtestov), ubehlo 1 s, najlepsie skore -0.0047 (epocha 2)
+  vyber podla okolia: epocha 2 (najlepsia epocha 2)
+hotovo: 3 epoch (32 roznych backtestov) za 2.7 s

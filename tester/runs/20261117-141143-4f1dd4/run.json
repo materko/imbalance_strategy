@@ -1,0 +1,417 @@
+{
+  "id": "20261117-141143-4f1dd4",
+  "status": "done",
+  "created": "2026-11-17T14:11:43+00:00",
+  "started": "2026-11-17T14:11:43+00:00",
+  "finished": "2026-11-17T14:12:42+00:00",
+  "user": "IBS",
+  "note": "hyperopt entryStartMin=0:60:15, entryEndMin=150:390:30, lookbackDays=10:30:5, trendFilter=with,off — TKS ES: ladenie G2 okno (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+  "settings": {
+    "strategy": "tksesnet",
+    "exchange": null,
+    "sweep": null,
+    "pair": "ES/USD",
+    "engine": "multicharts",
+    "timeframe": "3m",
+    "timerange": "20211001-20250904",
+    "fee": 1.755e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 60000.0,
+    "timeframe_detail": "1m",
+    "profile": "tradebot/strategies/tksesnet/configs/es_databento_3m.json",
+    "hyperopt": {
+      "knobs": {
+        "entryStartMin": "0:60:15",
+        "entryEndMin": "150:390:30",
+        "lookbackDays": "10:30:5",
+        "trendFilter": "with,off"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 150,
+      "epochs": 300,
+      "seed": null,
+      "verify": true,
+      "native": true,
+      "sampler": "tpe",
+      "windows": [
+        "20211001-20221001",
+        "20221001-20231001",
+        "20231001-20241001",
+        "20240904-20250904"
+      ],
+      "aggregate": "min",
+      "objectives": null,
+      "select": "plateau",
+      "mode": "search",
+      "anchored": false,
+      "continue_from": null,
+      "epochs_done": 300,
+      "distinct": 624,
+      "best": {
+        "epoch": 31,
+        "loss": -0.0198,
+        "params": {
+          "hp_entryStartMin": 15,
+          "hp_entryEndMin": 330,
+          "hp_lookbackDays": 25,
+          "hp_trendFilter": "with"
+        },
+        "trades": 778,
+        "pnl_pct": 32.9522,
+        "winrate": 71.025,
+        "max_drawdown_pct": 20.383,
+        "profit_factor": 1.2565,
+        "usable": true,
+        "is_best": true,
+        "windows": {
+          "20211001-20221001": {
+            "trades": 213,
+            "pnl_pct": 33.306,
+            "winrate": 72.3,
+            "max_drawdown_pct": 20.383,
+            "break_even_pct": 0.0236,
+            "loss": -0.0236
+          },
+          "20221001-20231001": {
+            "trades": 181,
+            "pnl_pct": 22.687,
+            "winrate": 69.61,
+            "max_drawdown_pct": 15.1,
+            "break_even_pct": 0.0198,
+            "loss": -0.0198
+          },
+          "20231001-20241001": {
+            "trades": 204,
+            "pnl_pct": 36.78,
+            "winrate": 71.08,
+            "max_drawdown_pct": 12.074,
+            "break_even_pct": 0.023,
+            "loss": -0.023
+          },
+          "20240904-20250904": {
+            "trades": 180,
+            "pnl_pct": 39.036,
+            "winrate": 71.11,
+            "max_drawdown_pct": 14.819,
+            "break_even_pct": 0.0236,
+            "loss": -0.0236
+          }
+        }
+      },
+      "overrides": {
+        "entryStartMin": 15,
+        "entryEndMin": 330,
+        "lookbackDays": 25,
+        "trendFilter": "with"
+      },
+      "results_file": null,
+      "pareto": null,
+      "plateau_select": {
+        "candidates": [
+          {
+            "epoch": 233,
+            "loss": -0.0203,
+            "robust": 289.1352857142857,
+            "neighbours": 6,
+            "worst": 1022.0,
+            "points": [
+              {
+                "param": "entryStartMin",
+                "value": 0,
+                "step": -1,
+                "loss": -0.0021
+              },
+              {
+                "param": "entryStartMin",
+                "value": 30,
+                "step": 1,
+                "loss": 1022.0
+              },
+              {
+                "param": "entryEndMin",
+                "value": 210,
+                "step": -1,
+                "loss": 1002.0
+              },
+              {
+                "param": "entryEndMin",
+                "value": 270,
+                "step": 1,
+                "loss": -0.0136
+              },
+              {
+                "param": "lookbackDays",
+                "value": 15,
+                "step": 1,
+                "loss": -0.0095
+              },
+              {
+                "param": "trendFilter",
+                "value": "off",
+                "step": 1,
+                "loss": -0.0075
+              }
+            ]
+          },
+          {
+            "epoch": 14,
+            "loss": -0.0201,
+            "robust": 126.6133375,
+            "neighbours": 7,
+            "worst": 1013.0,
+            "points": [
+              {
+                "param": "entryStartMin",
+                "value": 0,
+                "step": -1,
+                "loss": 0.0001
+              },
+              {
+                "param": "entryStartMin",
+                "value": 30,
+                "step": 1,
+                "loss": 1013.0
+              },
+              {
+                "param": "entryEndMin",
+                "value": 240,
+                "step": -1,
+                "loss": -0.0187
+              },
+              {
+                "param": "entryEndMin",
+                "value": 300,
+                "step": 1,
+                "loss": -0.015
+              },
+              {
+                "param": "lookbackDays",
+                "value": 15,
+                "step": -1,
+                "loss": -0.0142
+              },
+              {
+                "param": "lookbackDays",
+                "value": 25,
+                "step": 1,
+                "loss": -0.0169
+              },
+              {
+                "param": "trendFilter",
+                "value": "off",
+                "step": 1,
+                "loss": -0.0085
+              }
+            ]
+          },
+          {
+            "epoch": 31,
+            "loss": -0.0198,
+            "robust": -0.01385,
+            "neighbours": 7,
+            "worst": -0.0031,
+            "points": [
+              {
+                "param": "entryStartMin",
+                "value": 0,
+                "step": -1,
+                "loss": -0.0031
+              },
+              {
+                "param": "entryStartMin",
+                "value": 30,
+                "step": 1,
+                "loss": -0.0157
+              },
+              {
+                "param": "entryEndMin",
+                "value": 300,
+                "step": -1,
+                "loss": -0.0194
+              },
+              {
+                "param": "entryEndMin",
+                "value": 360,
+                "step": 1,
+                "loss": -0.0073
+              },
+              {
+                "param": "lookbackDays",
+                "value": 20,
+                "step": -1,
+                "loss": -0.0184
+              },
+              {
+                "param": "lookbackDays",
+                "value": 30,
+                "step": 1,
+                "loss": -0.0162
+              },
+              {
+                "param": "trendFilter",
+                "value": "off",
+                "step": 1,
+                "loss": -0.0109
+              }
+            ]
+          },
+          {
+            "epoch": 56,
+            "loss": -0.0194,
+            "robust": 125.8631125,
+            "neighbours": 7,
+            "worst": 1007.0,
+            "points": [
+              {
+                "param": "entryStartMin",
+                "value": 0,
+                "step": -1,
+                "loss": -0.0002
+              },
+              {
+                "param": "entryStartMin",
+                "value": 30,
+                "step": 1,
+                "loss": 1007.0
+              },
+              {
+                "param": "entryEndMin",
+                "value": 270,
+                "step": -1,
+                "loss": -0.0169
+              },
+              {
+                "param": "entryEndMin",
+                "value": 330,
+                "step": 1,
+                "loss": -0.0198
+              },
+              {
+                "param": "lookbackDays",
+                "value": 20,
+                "step": -1,
+                "loss": -0.015
+              },
+              {
+                "param": "lookbackDays",
+                "value": 30,
+                "step": 1,
+                "loss": -0.0165
+              },
+              {
+                "param": "trendFilter",
+                "value": "off",
+                "step": 1,
+                "loss": -0.0073
+              }
+            ]
+          },
+          {
+            "epoch": 17,
+            "loss": -0.019,
+            "robust": 253.1141375,
+            "neighbours": 7,
+            "worst": 1016.0,
+            "points": [
+              {
+                "param": "entryStartMin",
+                "value": 0,
+                "step": -1,
+                "loss": -0.0041
+              },
+              {
+                "param": "entryStartMin",
+                "value": 30,
+                "step": 1,
+                "loss": 1009.0
+              },
+              {
+                "param": "entryEndMin",
+                "value": 150,
+                "step": -1,
+                "loss": -0.0121
+              },
+              {
+                "param": "entryEndMin",
+                "value": 210,
+                "step": 1,
+                "loss": -0.0181
+              },
+              {
+                "param": "lookbackDays",
+                "value": 15,
+                "step": -1,
+                "loss": -0.0151
+              },
+              {
+                "param": "lookbackDays",
+                "value": 25,
+                "step": 1,
+                "loss": -0.0185
+              },
+              {
+                "param": "trendFilter",
+                "value": "with",
+                "step": 1,
+                "loss": 1016.0
+              }
+            ]
+          }
+        ],
+        "chosen": 31,
+        "best_epoch": 233
+      }
+    },
+    "instrument": "es_databento"
+  },
+  "params": {
+    "trendFilter": "with",
+    "trendEmaLen": 200,
+    "trendTF": 15,
+    "volFilter": "off",
+    "volLookback": 100,
+    "entryConfirm": "none",
+    "confirmBars": 3,
+    "confirmImbMinAtr": 0.05,
+    "confirmPbWickPct": 60,
+    "confirmPbBodyPct": 30,
+    "entryOrderType": "market",
+    "limitOffsetPct": 50,
+    "limitValidBars": 3,
+    "limitKeepRR": true,
+    "fixedQty": true,
+    "qty": 1.0,
+    "skipOverRisk": false,
+    "lookbackDays": 20,
+    "sessOpenMin": 570,
+    "sessCloseMin": 960,
+    "loLevel": 20,
+    "hiLevel": 80,
+    "nConf": 1,
+    "rrRatio": 0.5,
+    "pivLen": 11,
+    "entryStartMin": 15,
+    "entryEndMin": 270,
+    "pauseFromMin": 150,
+    "pauseToMin": 120,
+    "slMode": "swing",
+    "slAtrMult": 2.0,
+    "slPoints": 40.0,
+    "atrLen": 14,
+    "maxSlPoints": 0.0,
+    "maxSlAtr": 0.0,
+    "maxTradesPerSession": 0,
+    "closeAtSessionEnd": false,
+    "tradeDirection": "Both",
+    "riskDollar": 100.0,
+    "leverage": 1.0
+  },
+  "repo_version": "25efdc480",
+  "error": null,
+  "result": {
+    "duration_s": 59.5
+  },
+  "series": null
+}

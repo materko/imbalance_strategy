@@ -1,0 +1,513 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261117-135032-5d926c",
+ "strategy": "tksmgcnet",
+ "created": "2026-11-17T13:50:57+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "trendFilter": "with",
+   "trendEmaLen": 50,
+   "trendTF": 0,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "fixedQty": true,
+   "qty": 1.0,
+   "skipOverRisk": false,
+   "lookbackDays": 15,
+   "sessOpenMin": 500,
+   "sessCloseMin": 810,
+   "loLevel": 25,
+   "hiLevel": 90,
+   "nConf": 1,
+   "rrRatio": 1,
+   "pivLen": 3,
+   "entryStartMin": 30,
+   "entryEndMin": 300,
+   "pauseFromMin": 0,
+   "pauseToMin": 0,
+   "slMode": "atr",
+   "slAtrMult": 2,
+   "slPoints": 40.0,
+   "atrLen": 14,
+   "maxSlPoints": 0.0,
+   "maxSlAtr": 5,
+   "maxTradesPerSession": 0,
+   "closeAtSessionEnd": false,
+   "tradeDirection": "Both",
+   "riskDollar": 100.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "tksmgcnet",
+   "exchange": null,
+   "pair": "MGC/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20211001-20221001",
+   "fee": 1.755e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 60000.0,
+   "timeframe_detail": "1m",
+   "profile": "tradebot/strategies/tksmgcnet/configs/mgc_databento_3m.json",
+   "instrument": "mgc_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261117-135057-1fd381",
+   "status": "done",
+   "created": "2026-11-17T13:50:57+00:00",
+   "started": "2026-11-17T13:50:58+00:00",
+   "finished": "2026-11-17T13:50:58+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135032-5d926c: trendEmaLen=50, trendTF=0, volFilter=off, tradeDirection=Both — hyperopt trendEmaLen=50,100,200, trendTF=0,15,60, volFilter=off,low,high, tradeDirection=Both,Long only,Short only — TKS MGC 8:20: ladenie G4 filtre (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "trendEmaLen": 50,
+     "trendTF": 0,
+     "volFilter": "off",
+     "tradeDirection": "Both"
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 239,
+    "wins": 110,
+    "losses": 129,
+    "draws": 0,
+    "winrate": 46.03,
+    "pnl_abs": -789.38,
+    "pnl_pct": -1.316,
+    "profit_factor": 0.953,
+    "max_drawdown_abs": 2979.34,
+    "max_drawdown_pct": 4.817,
+    "starting_balance": 60000.0,
+    "final_balance": 59210.62,
+    "gross_abs": -417.0,
+    "volume_abs": 21218035.0,
+    "break_even_pct": -0.002,
+    "exits": {
+     "take_profit": {
+      "n": 110,
+      "pnl_abs": 16006.76
+     },
+     "stop_loss": {
+      "n": 129,
+      "pnl_abs": -16796.13
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 39,
+      "to_i": 44,
+      "start": "2025-11-06T15:03:00+00:00",
+      "end": "2025-11-13T14:42:00+00:00",
+      "pnl_abs": 568.34,
+      "count": 1
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 71,
+      "to_i": 79,
+      "start": "2025-12-26T14:30:00+00:00",
+      "end": "2026-01-20T14:30:00+00:00",
+      "pnl_abs": -1065.3,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.352,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:45:00",
+    "bars": 117963,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.01814965992816097,
+    "hi": 0.014801384038081442,
+    "trades": 239,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-135057-4a53e6",
+   "status": "done",
+   "created": "2026-11-17T13:50:57+00:00",
+   "started": "2026-11-17T13:50:58+00:00",
+   "finished": "2026-11-17T13:50:58+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135032-5d926c: trendEmaLen=50, trendTF=0, volFilter=off, tradeDirection=Both — hyperopt trendEmaLen=50,100,200, trendTF=0,15,60, volFilter=off,low,high, tradeDirection=Both,Long only,Short only — TKS MGC 8:20: ladenie G4 filtre (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "trendEmaLen": 50,
+     "trendTF": 0,
+     "volFilter": "off",
+     "tradeDirection": "Both"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 223,
+    "wins": 118,
+    "losses": 105,
+    "draws": 0,
+    "winrate": 52.91,
+    "pnl_abs": 675.01,
+    "pnl_pct": 1.125,
+    "profit_factor": 1.102,
+    "max_drawdown_abs": 722.21,
+    "max_drawdown_pct": 1.189,
+    "starting_balance": 60000.0,
+    "final_balance": 60675.01,
+    "gross_abs": 909.0,
+    "volume_abs": 13332595.0,
+    "break_even_pct": 0.0068,
+    "exits": {
+     "stop_loss": {
+      "n": 105,
+      "pnl_abs": -6612.95
+     },
+     "take_profit": {
+      "n": 118,
+      "pnl_abs": 7287.96
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 1,
+      "to_i": 5,
+      "start": "2024-09-06T15:51:00+00:00",
+      "end": "2024-09-13T16:06:00+00:00",
+      "pnl_abs": 250.49,
+      "count": 6
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 28,
+      "to_i": 32,
+      "start": "2024-10-15T13:12:00+00:00",
+      "end": "2024-10-24T13:40:00+00:00",
+      "pnl_abs": -224.76,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 43.09,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:57:00+00:00",
+    "holding_avg": "0:46:00",
+    "bars": 118187,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.004214685657511212,
+    "hi": 0.01681754633122203,
+    "trades": 223,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-135057-a75499",
+   "status": "done",
+   "created": "2026-11-17T13:50:57+00:00",
+   "started": "2026-11-17T13:50:57+00:00",
+   "finished": "2026-11-17T13:50:58+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135032-5d926c: trendEmaLen=50, trendTF=0, volFilter=off, tradeDirection=Both — hyperopt trendEmaLen=50,100,200, trendTF=0,15,60, volFilter=off,low,high, tradeDirection=Both,Long only,Short only — TKS MGC 8:20: ladenie G4 filtre (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "trendEmaLen": 50,
+     "trendTF": 0,
+     "volFilter": "off",
+     "tradeDirection": "Both"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 239,
+    "wins": 131,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 54.81,
+    "pnl_abs": 973.69,
+    "pnl_pct": 1.623,
+    "profit_factor": 1.278,
+    "max_drawdown_abs": 308.71,
+    "max_drawdown_pct": 0.505,
+    "starting_balance": 60000.0,
+    "final_balance": 60973.69,
+    "gross_abs": 1133.0,
+    "volume_abs": 9077401.0,
+    "break_even_pct": 0.0125,
+    "exits": {
+     "take_profit": {
+      "n": 131,
+      "pnl_abs": 4482.15
+     },
+     "stop_loss": {
+      "n": 108,
+      "pnl_abs": -3508.45
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 93,
+      "to_i": 99,
+      "start": "2023-03-07T13:54:00+00:00",
+      "end": "2023-03-20T14:11:00+00:00",
+      "pnl_abs": 307.3,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 216,
+      "to_i": 221,
+      "start": "2023-09-06T13:45:00+00:00",
+      "end": "2023-09-15T13:50:00+00:00",
+      "pnl_abs": -171.09,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 11.584,
+    "backtest_start": "2022-10-02T22:00:00+00:00",
+    "backtest_end": "2023-09-29T20:57:00+00:00",
+    "holding_avg": "0:41:00",
+    "bars": 117733,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.003309086154769342,
+    "hi": 0.02159529361185576,
+    "trades": 239,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-135057-bb6bce",
+   "status": "done",
+   "created": "2026-11-17T13:50:57+00:00",
+   "started": "2026-11-17T13:50:57+00:00",
+   "finished": "2026-11-17T13:50:57+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135032-5d926c: trendEmaLen=50, trendTF=0, volFilter=off, tradeDirection=Both — hyperopt trendEmaLen=50,100,200, trendTF=0,15,60, volFilter=off,low,high, tradeDirection=Both,Long only,Short only — TKS MGC 8:20: ladenie G4 filtre (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "trendEmaLen": 50,
+     "trendTF": 0,
+     "volFilter": "off",
+     "tradeDirection": "Both"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 125,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 53.65,
+    "pnl_abs": 403.36,
+    "pnl_pct": 0.672,
+    "profit_factor": 1.096,
+    "max_drawdown_abs": 479.92,
+    "max_drawdown_pct": 0.796,
+    "starting_balance": 60000.0,
+    "final_balance": 60403.36,
+    "gross_abs": 552.0,
+    "volume_abs": 8469412.0,
+    "break_even_pct": 0.0065,
+    "exits": {
+     "stop_loss": {
+      "n": 108,
+      "pnl_abs": -4217.2
+     },
+     "take_profit": {
+      "n": 125,
+      "pnl_abs": 4620.56
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 43,
+      "to_i": 48,
+      "start": "2021-12-17T14:42:00+00:00",
+      "end": "2021-12-23T14:39:00+00:00",
+      "pnl_abs": 150.21,
+      "count": 3
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 169,
+      "to_i": 174,
+      "start": "2022-06-28T13:54:00+00:00",
+      "end": "2022-07-01T16:53:00+00:00",
+      "pnl_abs": -262.83,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -4.841,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:57:00+00:00",
+    "holding_avg": "1:22:00",
+    "bars": 118525,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.004300804722954087,
+    "hi": 0.017201331697358945,
+    "trades": 233,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-135057-bf81ad",
+   "status": "done",
+   "created": "2026-11-17T13:50:57+00:00",
+   "started": "2026-11-17T13:50:58+00:00",
+   "finished": "2026-11-17T13:50:58+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-135032-5d926c: trendEmaLen=50, trendTF=0, volFilter=off, tradeDirection=Both — hyperopt trendEmaLen=50,100,200, trendTF=0,15,60, volFilter=off,low,high, tradeDirection=Both,Long only,Short only — TKS MGC 8:20: ladenie G4 filtre (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "trendEmaLen": 50,
+     "trendTF": 0,
+     "volFilter": "off",
+     "tradeDirection": "Both"
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 248,
+    "wins": 128,
+    "losses": 120,
+    "draws": 0,
+    "winrate": 51.61,
+    "pnl_abs": 589.67,
+    "pnl_pct": 0.983,
+    "profit_factor": 1.115,
+    "max_drawdown_abs": 553.73,
+    "max_drawdown_pct": 0.912,
+    "starting_balance": 60000.0,
+    "final_balance": 60589.67,
+    "gross_abs": 783.0,
+    "volume_abs": 11015987.0,
+    "break_even_pct": 0.0071,
+    "exits": {
+     "stop_loss": {
+      "n": 120,
+      "pnl_abs": -5136.7
+     },
+     "take_profit": {
+      "n": 128,
+      "pnl_abs": 5726.37
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 68,
+      "to_i": 72,
+      "start": "2024-01-03T14:06:00+00:00",
+      "end": "2024-01-04T14:46:00+00:00",
+      "pnl_abs": 194.41,
+      "count": 3
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 60,
+      "to_i": 63,
+      "start": "2023-12-19T16:33:00+00:00",
+      "end": "2023-12-26T14:56:00+00:00",
+      "pnl_abs": -115.9,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 42.581,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "1:02:00",
+    "bars": 118273,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.2
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.0015966499026484012,
+    "hi": 0.015614271671040554,
+    "trades": 248,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-11-17T13:50:58+00:00"
+}

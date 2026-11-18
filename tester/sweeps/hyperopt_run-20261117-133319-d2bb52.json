@@ -1,0 +1,513 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261117-133319-d2bb52",
+ "strategy": "tksbtcnet",
+ "created": "2026-11-17T13:34:35+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "trendFilter": "with",
+   "trendEmaLen": 200,
+   "trendTF": 15,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "fixedQty": true,
+   "qty": 1.0,
+   "skipOverRisk": false,
+   "lookbackDays": 20,
+   "sessOpenMin": 480,
+   "sessCloseMin": 960,
+   "loLevel": 30.0,
+   "hiLevel": 90.0,
+   "nConf": 3,
+   "rrRatio": 0.5,
+   "pivLen": 5,
+   "entryStartMin": 15,
+   "entryEndMin": 270,
+   "pauseFromMin": 150,
+   "pauseToMin": 210,
+   "slMode": "swing",
+   "slAtrMult": 2.0,
+   "slPoints": 40.0,
+   "atrLen": 14,
+   "maxSlPoints": 0.0,
+   "maxSlAtr": 0.0,
+   "maxTradesPerSession": 0,
+   "closeAtSessionEnd": false,
+   "tradeDirection": "Both",
+   "riskDollar": 100.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "tksbtcnet",
+   "exchange": null,
+   "pair": "BTC/USDT:USDT",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20211001-20221001",
+   "fee": 0.0002,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 60000.0,
+   "timeframe_detail": "1m",
+   "profile": "tradebot/strategies/tksbtcnet/configs/btcusdt_binance_3m.json",
+   "instrument": "btcusdt_binance"
+  }
+ },
+ "points": [
+  {
+   "run": "20261117-133435-0834d8",
+   "status": "done",
+   "created": "2026-11-17T13:34:35+00:00",
+   "started": "2026-11-17T13:34:36+00:00",
+   "finished": "2026-11-17T13:34:36+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-133319-d2bb52: loLevel=30.0, hiLevel=90.0, nConf=3, pivLen=5 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS BTC od 8:00: ladenie G1 Kompas (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 30.0,
+     "hiLevel": 90.0,
+     "nConf": 3,
+     "pivLen": 5
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 172,
+    "wins": 114,
+    "losses": 58,
+    "draws": 0,
+    "winrate": 66.28,
+    "pnl_abs": -14853.75,
+    "pnl_pct": -24.756,
+    "profit_factor": 0.713,
+    "max_drawdown_abs": 19632.19,
+    "max_drawdown_pct": 32.605,
+    "starting_balance": 60000.0,
+    "final_balance": 45146.25,
+    "gross_abs": -9170.6,
+    "volume_abs": 28415747.6,
+    "break_even_pct": -0.0323,
+    "exits": {
+     "take_profit": {
+      "n": 115,
+      "pnl_abs": 36850.87
+     },
+     "stop_loss": {
+      "n": 57,
+      "pnl_abs": -51704.62
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 16,
+      "from_i": 130,
+      "to_i": 145,
+      "start": "2026-05-29T12:42:00+00:00",
+      "end": "2026-06-25T13:40:00+00:00",
+      "pnl_abs": 3973.46,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 22,
+      "to_i": 24,
+      "start": "2025-10-21T12:15:00+00:00",
+      "end": "2025-10-25T04:18:00+00:00",
+      "pnl_abs": -7310.04,
+      "count": 4
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": -27.251,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "2:04:00",
+    "bars": 175200,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.08978969240753712,
+    "hi": 0.020606646105119666,
+    "trades": 172,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-133435-99a081",
+   "status": "done",
+   "created": "2026-11-17T13:34:35+00:00",
+   "started": "2026-11-17T13:34:35+00:00",
+   "finished": "2026-11-17T13:34:36+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-133319-d2bb52: loLevel=30.0, hiLevel=90.0, nConf=3, pivLen=5 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS BTC od 8:00: ladenie G1 Kompas (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 30.0,
+     "hiLevel": 90.0,
+     "nConf": 3,
+     "pivLen": 5
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 151,
+    "wins": 109,
+    "losses": 42,
+    "draws": 0,
+    "winrate": 72.19,
+    "pnl_abs": 9475.07,
+    "pnl_pct": 15.792,
+    "profit_factor": 1.421,
+    "max_drawdown_abs": 2660.24,
+    "max_drawdown_pct": 3.728,
+    "starting_balance": 60000.0,
+    "final_balance": 69475.07,
+    "gross_abs": 12726.0,
+    "volume_abs": 16254623.2,
+    "break_even_pct": 0.0783,
+    "exits": {
+     "take_profit": {
+      "n": 109,
+      "pnl_abs": 31966.63
+     },
+     "stop_loss": {
+      "n": 42,
+      "pnl_abs": -22491.56
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 11,
+      "from_i": 66,
+      "to_i": 76,
+      "start": "2024-03-08T14:51:00+00:00",
+      "end": "2024-04-10T12:27:00+00:00",
+      "pnl_abs": 5246.96,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 80,
+      "to_i": 82,
+      "start": "2024-04-16T12:21:00+00:00",
+      "end": "2024-04-17T13:39:00+00:00",
+      "pnl_abs": -2125.94,
+      "count": 2
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 134.982,
+    "backtest_start": "2023-10-01T00:00:00+00:00",
+    "backtest_end": "2024-09-30T23:57:00+00:00",
+    "holding_avg": "3:03:00",
+    "bars": 175680,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.016013668555864204,
+    "hi": 0.14450976568700247,
+    "trades": 151,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-133435-b556c4",
+   "status": "done",
+   "created": "2026-11-17T13:34:35+00:00",
+   "started": "2026-11-17T13:34:35+00:00",
+   "finished": "2026-11-17T13:34:35+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-133319-d2bb52: loLevel=30.0, hiLevel=90.0, nConf=3, pivLen=5 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS BTC od 8:00: ladenie G1 Kompas (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 30.0,
+     "hiLevel": 90.0,
+     "nConf": 3,
+     "pivLen": 5
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {},
+   "result": {
+    "trades": 143,
+    "wins": 97,
+    "losses": 46,
+    "draws": 0,
+    "winrate": 67.83,
+    "pnl_abs": 3635.04,
+    "pnl_pct": 6.058,
+    "profit_factor": 1.174,
+    "max_drawdown_abs": 3823.58,
+    "max_drawdown_pct": 5.746,
+    "starting_balance": 60000.0,
+    "final_balance": 63635.04,
+    "gross_abs": 5655.12,
+    "volume_abs": 10100398.04,
+    "break_even_pct": 0.056,
+    "exits": {
+     "take_profit": {
+      "n": 97,
+      "pnl_abs": 24519.86
+     },
+     "stop_loss": {
+      "n": 46,
+      "pnl_abs": -20884.82
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 10,
+      "from_i": 112,
+      "to_i": 121,
+      "start": "2022-08-04T12:21:00+00:00",
+      "end": "2022-08-22T13:35:00+00:00",
+      "pnl_abs": 1188.12,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 48,
+      "to_i": 51,
+      "start": "2022-03-07T14:30:00+00:00",
+      "end": "2022-03-10T14:57:00+00:00",
+      "pnl_abs": -1779.85,
+      "count": 2
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": -55.833,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T23:57:00+00:00",
+    "holding_avg": "1:59:00",
+    "bars": 175200,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.03583533467556473,
+    "hi": 0.14237556432510434,
+    "trades": 143,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-133435-e61a4f",
+   "status": "done",
+   "created": "2026-11-17T13:34:35+00:00",
+   "started": "2026-11-17T13:34:36+00:00",
+   "finished": "2026-11-17T13:34:36+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-133319-d2bb52: loLevel=30.0, hiLevel=90.0, nConf=3, pivLen=5 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS BTC od 8:00: ladenie G1 Kompas (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 30.0,
+     "hiLevel": 90.0,
+     "nConf": 3,
+     "pivLen": 5
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 146,
+    "wins": 101,
+    "losses": 45,
+    "draws": 0,
+    "winrate": 69.18,
+    "pnl_abs": 3659.97,
+    "pnl_pct": 6.1,
+    "profit_factor": 1.088,
+    "max_drawdown_abs": 7743.06,
+    "max_drawdown_pct": 12.012,
+    "starting_balance": 60000.0,
+    "final_balance": 63659.97,
+    "gross_abs": 9072.8,
+    "volume_abs": 27064166.0,
+    "break_even_pct": 0.0335,
+    "exits": {
+     "stop_loss": {
+      "n": 45,
+      "pnl_abs": -41827.05
+     },
+     "take_profit": {
+      "n": 101,
+      "pnl_abs": 45487.02
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 14,
+      "from_i": 12,
+      "to_i": 25,
+      "start": "2024-10-03T12:42:00+00:00",
+      "end": "2024-11-04T14:56:00+00:00",
+      "pnl_abs": 3112.39,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 5,
+      "to_i": 7,
+      "start": "2024-09-18T13:54:00+00:00",
+      "end": "2024-09-24T16:54:00+00:00",
+      "pnl_abs": -1265.67,
+      "count": 5
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 93.986,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:57:00+00:00",
+    "holding_avg": "2:16:00",
+    "bars": 175200,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.012896984832474333,
+    "hi": 0.08172172054313519,
+    "trades": 146,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261117-133435-eab758",
+   "status": "done",
+   "created": "2026-11-17T13:34:35+00:00",
+   "started": "2026-11-17T13:34:35+00:00",
+   "finished": "2026-11-17T13:34:35+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261117-133319-d2bb52: loLevel=30.0, hiLevel=90.0, nConf=3, pivLen=5 — hyperopt loLevel=10:40:5, hiLevel=60:90:5, nConf=1:4:1, pivLen=3:12:1 — TKS BTC od 8:00: ladenie G1 Kompas (pipeline do ne 22. 11., Mac mini) — 17. 11. 2026",
+   "tag": {
+    "values": {
+     "loLevel": 30.0,
+     "hiLevel": 90.0,
+     "nConf": 3,
+     "pivLen": 5
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "25efdc480",
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 126,
+    "wins": 86,
+    "losses": 40,
+    "draws": 0,
+    "winrate": 68.25,
+    "pnl_abs": 2076.55,
+    "pnl_pct": 3.461,
+    "profit_factor": 1.289,
+    "max_drawdown_abs": 1674.63,
+    "max_drawdown_pct": 2.748,
+    "starting_balance": 60000.0,
+    "final_balance": 62076.55,
+    "gross_abs": 3305.4,
+    "volume_abs": 6144267.8,
+    "break_even_pct": 0.0538,
+    "exits": {
+     "take_profit": {
+      "n": 87,
+      "pnl_abs": 9265.18
+     },
+     "stop_loss": {
+      "n": 39,
+      "pnl_abs": -7188.64
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 61,
+      "to_i": 69,
+      "start": "2023-03-31T13:42:00+00:00",
+      "end": "2023-04-17T13:24:00+00:00",
+      "pnl_abs": 1113.32,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 38,
+      "to_i": 40,
+      "start": "2023-02-13T16:39:00+00:00",
+      "end": "2023-02-21T14:33:00+00:00",
+      "pnl_abs": -482.8,
+      "count": 3
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 38.857,
+    "backtest_start": "2022-10-01T00:00:00+00:00",
+    "backtest_end": "2023-09-30T23:57:00+00:00",
+    "holding_avg": "2:05:00",
+    "bars": 175200,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.3
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.006064554460043568,
+    "hi": 0.10506874775848118,
+    "trades": 126,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-11-17T13:34:36+00:00"
+}
