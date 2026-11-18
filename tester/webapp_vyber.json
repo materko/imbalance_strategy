@@ -385,7 +385,7 @@
    "PRESIEL_SMERNICAMI_FLASH_ORB_BTC_1"
   ],
   "silverbulletbtc": [
-   "btcusdt_binance_5m"
+   "PRESIEL_SMERNICAMI_SILVER_BULLET_BTC_1"
   ],
   "rangebtc": [
    "PRESIEL_SMERNICAMI_RANGE_BREAKOUT_BTC_1",
@@ -449,6 +449,32 @@
    "PRESIEL_SMERNICAMI_NOA_1_0_MGC_3"
   ],
   "noaesnet": [],
+  "tkses": [
+   "es_databento_3m"
+  ],
+  "tksmgc": [
+   "mgc_databento_3m"
+  ],
+  "tksmym": [
+   "mym_databento_3m"
+  ],
+  "tksbtc": [],
+  "tkseur": [
+   "6e_databento_3m"
+  ],
+  "tksesnet": [
+   "es_databento_3m"
+  ],
+  "tksmgcnet": [
+   "mgc_databento_3m"
+  ],
+  "tksmymnet": [
+   "mym_databento_3m"
+  ],
+  "tksbtcnet": [],
+  "tkseurnet": [
+   "6e_databento_3m"
+  ],
   "varev": [
    "VARev_POC_15m_NY",
    "mnq_databento_15m"
