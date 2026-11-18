@@ -208,6 +208,9 @@ namespace NinjaTrader.NinjaScript.AddOns
             public bool Protect;
             /// <summary>Route do MT5: vstup odisiel exekutorovi a este nie je zruseny / odmietnuty (namiesto `Entry`).</summary>
             public bool RemoteLive;
+            /// <summary>Kedy sa TP vyplnil len ciastocne (MinValue = nie): engine ma obchod za uzavrety, zvysok ide von
+            /// trhom (PartialTpCheck) - 18. 11. 2026 ostal po TP 2 z 3 jeden kontrakt cely den len so SL.</summary>
+            public DateTime TpPartialAt;
         }
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -222,6 +225,8 @@ namespace NinjaTrader.NinjaScript.AddOns
         private const int MaxExitAttempts = 3;
         /// <summary>Po tolkych odmietnutych trhovych zatvoreniach sa SL/TP polozia spat, kym ide dalsi pokus.</summary>
         private const int MaxCloseAttempts = 3;
+        /// <summary>Ciastocne vyplneny TP: tolko sekund sa caka na zvysok fillu, potom zvysok pozicie ide von trhom.</summary>
+        private const int PartialTpGraceSeconds = 3;
 
         public readonly LiveDeployment Deployment;
         private readonly Queue<Action> _queue = new Queue<Action>();
@@ -537,6 +542,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
             try { if (_live && !Routed) GuardExits(); }   // route: SL strazi exekutor
             catch (Exception e) { Note("error", "strazca SL - " + e.Message); }
+            try { if (_live && !Routed) PartialTpCheck(); }
+            catch (Exception e) { Note("error", "ciastocny TP - " + e.Message); }
             try { if (_live) { EodByClock(); FeedWatch(); } }
             catch (Exception e) { Note("error", "strazca feedu / EOD - " + e.Message); }
             try { if (_live && !Routed) OldContractCheck(); }
@@ -1285,6 +1292,15 @@ namespace NinjaTrader.NinjaScript.AddOns
             if (Routed) { SubmitRemote(id, t); return; }
             TB.OrderIntent intent = t.Intent;
             TB.TradePlan plan = intent.Plan;
+            if (BeyondStop(intent))
+            {
+                // oneskoreny vstup (odlozeny za beziacou poziciou, uvolneny o minuty neskor): limit nad trhom by sa
+                // vyplnil hned za trh, pod vlastnym SL, a broker by SL odmietol (18. 11. 2026, LONG_131 na Tradeify)
+                Note("warn", "vstup " + id + " " + intent.OrderType + " @" + Px(plan.Entry) + " neposlany - trh " + Px(LastTick())
+                     + " je uz za jeho SL " + Px(plan.StopLoss));
+                _orders.Remove(id);
+                return;
+            }
             int qty = (int)Math.Max(1, Math.Round(plan.Qty));
             bool isLong = plan.Direction == TB.Direction.Long;
             OrderAction action = isLong ? OrderAction.Buy : OrderAction.SellShort;
@@ -1303,6 +1319,33 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 Note("error", "vstup " + id + " sa neposlal - " + e.Message);
                 _orders.Remove(id);
+            }
+        }
+
+        /// <summary>Limit / stop vstup, pri ktorom je posledny tick uz na alebo za SL planu (long: cena &lt;= SL,
+        /// short: cena &gt;= SL) - poslat ho nema zmysel, vyplnil by sa bez platneho stopu.</summary>
+        private bool BeyondStop(TB.OrderIntent intent)
+        {
+            TB.TradePlan plan = intent.Plan;
+            if (plan == null || intent.OrderType == TB.OrderType.Market || plan.StopLoss <= 0) return false;
+            double px = LastTick();
+            if (px <= 0) return false;
+            return plan.Direction == TB.Direction.Long ? px <= plan.StopLoss : px >= plan.StopLoss;
+        }
+
+        /// <summary>TP sa vyplnil len ciastocne a zvysok neprisiel do `PartialTpGraceSeconds`: engine obchod uz
+        /// uzavrel (cena TP dosiahla), takze zvysok nesmie ostat visiet len so SL - ide von trhom.</summary>
+        private void PartialTpCheck()
+        {
+            DateTime now = LiveClock.UtcNow;
+            foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
+            {
+                Tracked t = kv.Value;
+                if (t.TpPartialAt == DateTime.MinValue || !t.Filled || t.OpenQty <= 0 || t.Closing != null) continue;
+                if ((now - t.TpPartialAt).TotalSeconds < PartialTpGraceSeconds) continue;
+                t.TpPartialAt = DateTime.MinValue;
+                Note("warn", "TP " + kv.Key + " sa vyplnil len ciastocne - zvysok x" + t.OpenQty + " zatvaram trhom");
+                RequestClose(kv.Key, t, "tb_close");
             }
         }
 
@@ -1953,6 +1996,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 // trhovy vystup sa vyplnil cely, ale vstup medzitym pribral objem: zvysok posle CloseTimeouts znova
                 if (suffix != "sl" && suffix != "tp" && o.OrderState == OrderState.Filled) t.CloseSent = false;
+                if (suffix == "tp" && t.TpPartialAt == DateTime.MinValue) t.TpPartialAt = LiveClock.UtcNow;
                 return;
             }
             // engine chcel zavriet trhom, ale kym sa rusili SL/TP, jeden z nich sa vyplnil (to iste ako MT5 10036)
