@@ -37,6 +37,8 @@ function showView(name) {
   if (name === "diversify") loadDiversify();
   $("#view-livediv").hidden = name !== "livediv";
   if (name === "livediv") loadLiveDiv();
+  $("#view-ib").hidden = name !== "ib";
+  if (name === "ib") loadIb();
   $("#view-hub").hidden = name !== "hub";
   $("#view-live").hidden = name !== "live";
   if (name === "hub") loadHub(); else if (state.hubTimer) { clearTimeout(state.hubTimer); state.hubTimer = null; }

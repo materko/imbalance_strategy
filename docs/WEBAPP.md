@@ -120,7 +120,7 @@ Jediná podmienka behu sú 1m sviečky ([docs/FREQTRADE.md](FREQTRADE.md)).
 ## Vzhľad
 
 Karty sú v úzkej ľavej lište ako ikony s popiskou, v skupinách Výskum (Stratégie, Nový beh, História, Analytika,
-Diverzifikácia) a Prevádzka (Hub, Live, Live diverzifikácia); dole je prepínač témy (tmavá → svetlá → podľa systému). Na obrazovke do 1000 px je lišta pás hore. Predvolená je tmavá téma (takmer čierna, akcent `#19c8a2`), svetlá a „podľa systému"
+Diverzifikácia, IB) a Prevádzka (Hub, Live, Live diverzifikácia); dole je prepínač témy (tmavá → svetlá → podľa systému). Na obrazovke do 1000 px je lišta pás hore. Predvolená je tmavá téma (takmer čierna, akcent `#19c8a2`), svetlá a „podľa systému"
 ostávajú na prepnutie a voľba sa drží v prehliadači. Písmo je Inter, čísla v tabuľkách a kartách
 JetBrains Mono (Google Fonts; bez siete systémové písmo). Vzhľad je posledná vrstva `static/app.css`.
 
@@ -648,6 +648,17 @@ vedľa seba. Simulácia: ten istý engine, config a inštrument zo živého behu
 MultiCharts, rozbeh 10 dní pred hranicou, obchody otvorené od hranice. Do súhrnov a rozborov nad tým
 živé behy nevstupujú.
 
+## Karta Initial Balance
+
+Štatistika prvej hodiny seansy na CME futures z archívu (`data/archive/tester/databento/futures/`) — tie isté
+definície a výpočet ako IB Lab, popis v [INITIAL_BALANCE.md](INITIAL_BALANCE.md). Hore symbol, seansa
+(New York / Londýn), *Pred prierazom* / *Po prieraze* (býčí / medvedí) a filtre: deň v týždni, bias, prieraz
+s biasom, jeden / oba okraje, správy (FOMC / CPI / NFP z `tester/calendar.py`, len roky, ktoré pokrýva),
+obdobie, pásma IB % a IB close, čas prierazu. Pod tým karty (podiel dní, medián a 70. percentil), histogramy
+so zlatým stĺpcom mediánu a posledných 60 vybraných dní. Server spočíta dni symbolu a seansy raz
+(ES 2010–2026 ~8 s) a drží ich v pamäti, kým sa nezmenia súbory v archíve; filtre sú potom okamžité
+(`/api/ib/meta`, `/api/ib/summary`, `api/ib.py`). Výber filtrov si pamätá prehliadač.
+
 ## Karta Live diverzifikácia
 
 Stratégie nasadené naživo (NinjaTrader, MetaTrader 5) ako jedno portfólio — tie isté rozbory
@@ -809,7 +820,7 @@ HTTP API (všetko, čo robí stránka, s príkladmi): [API.md](API.md). `runner.
 `results.py` (spracovanie zipu, emulátor MultiCharts), `repo_profiles.py` (profily z repozitára), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI: `create_app` poskladá routery), `api/` (REST API po oblastiach — `runs`, `sweeps`,
-`hyperopt`, `analytics*`, `matrix`, `hub`, `chart`, `profiles`, `meta`, `catalog`, `git`, `prop_paper`; každý modul má
+`hyperopt`, `analytics*`, `matrix`, `hub`, `chart`, `profiles`, `meta`, `catalog`, `git`, `prop_paper`, `ib`; každý modul má
 `build(ctx)` a zdieľaný stav dostane cez `api/context.py::AppContext`; modely požiadaviek sú v `api/models.py`,
 overenie zadania behu v `api/settings.py`), `static/` (stránka bez frameworku, Plotly z CDN; skripty v `static/js/` sú klasické, nie
 moduly — zdieľajú globálny priestor a poradie načítania v `index.html` je poradie závislostí:

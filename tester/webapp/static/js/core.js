@@ -49,6 +49,7 @@ function redrawThemedCharts() {
   if (mc.lastBe) drawBeChart(mc.lastBe, mc.lastFeePct);
   if (mc.lastDd) drawDdChart(mc.lastDd);
   if (typeof dvCharts === "function") dvCharts();
+  if (typeof ibCharts === "function") ibCharts();
 }
 
 const state = {

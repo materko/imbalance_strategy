@@ -32,6 +32,7 @@
     <button data-view="history" title="História — všetky behy, hľadanie a detail"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg><span class="tab-label">História</span></button>
     <button data-view="analytics" title="Analytika — rozbor nastavenia stratégie z behov v histórii"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg><span class="tab-label">Analytika</span></button>
     <button data-view="diversify" title="Diverzifikácia — viac nastavení naraz na jednom účte, z behov v histórii"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg><span class="tab-label">Diverzifik.</span></button>
+    <button data-view="ib" title="Initial Balance — štatistika prvej hodiny seansy na CME futures (logika IB Lab)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18"/><path d="M3 15h18"/><path d="M7 3v18"/><path d="M15 9l2-4 2 6 2-9"/></svg><span class="tab-label">IB</span></button>
     <span class="tabs-sep"></span>
     <span class="tabs-group">Prevádzka</span>
     <button data-view="hub" id="tab-hub" title="Hub — výpočty na iných strojoch"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01"/><path d="M7 17h.01"/></svg><span class="tab-label">Hub</span><span id="hub-tab-dot" class="tab-dot" hidden></span><span id="hub-tab-chip" class="chip"></span></button>
@@ -514,6 +515,36 @@
   </div>
 </main>
 
+<main id="view-ib" class="view single" hidden>
+  <div id="ib-root">
+    <div class="card">
+      <div class="dv-head"><h2>Initial Balance <span id="ib-range" class="hint"></span></h2><span id="ib-status" class="hint"></span></div>
+      <p class="mode-hint">Čo robí rozpätie prvej hodiny seansy (New York 9:30–10:30 ET, Londýn 3:00–4:00 ET) — tie isté
+        definície a výpočet ako IB Lab, z 1m CME futures v archíve. Všetko je v násobkoch IB: 0 = prerazený okraj,
+        1 = opačný. Popis v docs/INITIAL_BALANCE.md.</p>
+      <div class="dv-filters">
+        <label>Symbol <select id="ib-symbol"></select></label>
+        <label>Seansa <select id="ib-session"><option value="ny">New York</option><option value="london">Londýn</option></select></label>
+        <span class="mode-switch dv-seg" id="ib-scope"><button type="button" data-v="pre">Pred prierazom</button><button type="button" data-v="post">Po prieraze</button></span>
+        <span class="mode-switch dv-seg ib-post" id="ib-dir"><button type="button" data-v="bull">Býčí</button><button type="button" data-v="bear">Medvedí</button></span>
+        <label>Deň <select id="ib-dow"><option value="">všetky</option><option value="1">pondelok</option><option value="2">utorok</option><option value="3">streda</option><option value="4">štvrtok</option><option value="5">piatok</option></select></label>
+        <label>Bias <select id="ib-bias"><option value="all">všetky</option><option value="lowFirst">lowFirst (najprv low)</option><option value="highFirst">highFirst (najprv high)</option></select></label>
+        <label class="ib-pre" id="ib-bb-wrap">Prieraz s biasom <select id="ib-bias-break"><option value="with">áno</option><option value="against">nie (proti)</option></select></label>
+        <label class="ib-post">Prieraz <select id="ib-brk"><option value="all">všetky</option><option value="single">len jeden okraj</option><option value="double">oba okraje</option></select></label>
+        <label>Správy <select id="ib-news"><option value="all">všetky dni</option><option value="fomc">FOMC</option><option value="cpi">CPI</option><option value="nfp">NFP</option><option value="holiday">sviatok / skrátený deň</option><option value="quiet">bez správ</option></select></label>
+        <label>Obdobie <select id="ib-period"><option value="all">celé</option><option value="10y">10 rokov</option><option value="covid">od 2020</option><option value="3y">3 roky</option><option value="1y">rok</option></select></label>
+        <label>Stĺpce času <select id="ib-gran"><option value="5">5 min</option><option value="15" selected>15 min</option><option value="30">30 min</option><option value="60">60 min</option></select></label>
+      </div>
+      <div class="ib-chips"><span class="hint">IB %</span><span id="ib-bands"></span></div>
+      <div class="ib-chips ib-pre"><span class="hint">IB close</span><span id="ib-close"></span></div>
+      <div class="ib-chips ib-post"><span class="hint">Čas prierazu</span>
+        <select id="ib-slot-step" class="small"><option value="15">po 15 min</option><option value="30" selected>po 30 min</option><option value="60">po 60 min</option></select>
+        <span id="ib-slots"></span></div>
+    </div>
+    <div id="ib-out"></div>
+  </div>
+</main>
+
 <main id="view-diversify" class="view single" hidden>
   <div id="dv-root">
     <div class="card">
@@ -945,6 +976,7 @@
 <script src="/static/js/prop.js"></script>
 <script src="/static/js/diversify.js"></script>
 <script src="/static/js/livediv.js"></script>
+<script src="/static/js/ib.js"></script>
 <script src="/static/js/catalog.js"></script>
 <script src="/static/js/strategy_report.js"></script>
 <div id="explainer" class="xp-overlay" hidden>

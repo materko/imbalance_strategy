@@ -266,7 +266,7 @@ tester/
 ├── webapp/                  the web app (FastAPI + Plotly)
 │   ├── app.py, __main__.py  application and server start (assembles data from the archive if missing)
 │   ├── api/                 REST routers: runs, chart, profiles, sweeps, hyperopt, matrix, analytics,
-│   │                        diversify, prop/paper, native C# runs, hub, live, git
+│   │                        diversify, prop/paper, native C# runs, Initial Balance, hub, live, git
 │   ├── cli/                 `python -m tester.webapp.cli` — run, sweep, hyperopt, matrix, analysis, history, remote
 │   ├── static/              the page: index.html, styles, js/
 │   ├── runner.py, command.py, results.py, mc_worker.py   queue, Freqtrade command, results, emulator worker
@@ -308,6 +308,7 @@ tester/
 ├── portfolio.py, prop.py    portfolio of several runs, prop challenge simulation
 ├── paper.py, report.py, plot.py, fees.py   measurement document, Strategy-Tester-style report, plots, maker/taker
 ├── calendar.py, calendar_us.json   exchange holidays and macro events
+├── initial_balance.py       Initial Balance statistics per day and dashboard (IB Lab logic, docs/INITIAL_BALANCE.md)
 ├── synthetic.py, recompute.py, atomic.py   synthetic market, recomputing money of stored runs, atomic writes (re-export of `tradebot/core/atomic.py`)
 ├── timeframes.json          which timeframes the Tester keeps on disk
 ├── AI_TESTING.md            how to test from the command line (also for AI)

@@ -132,6 +132,7 @@ Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCH
 | zdieľať trhy medzi NT8 a MT5 (návrh) | [docs/FEED.md](docs/FEED.md) |
 | počítať na viac strojoch (hub, agenti, pluginy) | [docs/HUB.md](docs/HUB.md), [deploy/agent/](deploy/agent/README.md) |
 | dáta: archív, importy, nový symbol | [docs/DATA.md](docs/DATA.md) |
+| štatistika Initial Balance (prvá hodina seansy) ako IB Lab | [docs/INITIAL_BALANCE.md](docs/INITIAL_BALANCE.md) |
 | prehľad architektúry a cesty dát | [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md), návrh portu [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) |
 | kde čo beží (venv, Docker, Windows) | [docs/RUNNING.md](docs/RUNNING.md) |
 | čo kam patrí v repozitári (adresáre) | [docs/DIRECTORIES.md](docs/DIRECTORIES.md) |
@@ -161,7 +162,12 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-17)
+## Kde sme (2026-11-20)
+
+- **Initial Balance štatistika** (20. 11.): `python -m tester.initial_balance` počíta prvú hodinu seansy (NY aj Londýn)
+  tou istou logikou ako platený IB Lab — prieraz, bias, max retracement / extension, HOS/LOS, before-break, IB close a karty
+  dashboardu s filtrami. Overené deň po dni proti ich ES dátam 2010–2026 (zhoda okrem 5 dní s inými dátami okolo rolovania);
+  vo webapp karta **IB** s filtrami, kartami a histogramami ([docs/INITIAL_BALANCE.md](docs/INITIAL_BALANCE.md)).
 
 - **TKS na ďalších trhoch** (17. 11.): TKS 1.0 (NQ Kompas) ako kópie na ES (`tkses`), MGC (`tksmgc`), MYM (`tksmym`),
   BTC (`tksbtc`) a 6E (`tkseur`), každá aj s C# jadrom (`…net`, parita bar po bare). Kompas je pomerový a škála tlaku
