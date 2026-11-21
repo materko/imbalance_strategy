@@ -1,0 +1,7 @@
+$ emulator MultiCharts MYM 15m 20211001-20221001 (MYM_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 60m @60m 125/125, filter volatility ATR 14 / 100 barov @15m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 23693 barov 15m, 353822 1m, 0 HTF
+  20000/23693 barov, 92 obchodov
+hotovo: 117 obchodov, nerozhodnutelnych minut 0
+kresby: {'sl_box': 118, 'wpr_entry': 118}

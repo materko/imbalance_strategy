@@ -1,0 +1,17 @@
+$ natívny hyperopt tkseurnet 6E/USD 3m 4 okien (min): 300 epoch, sampler tpe (C# emulátor MultiCharts)
+  3/300 epoch (12 roznych backtestov), ubehlo 6 s, zatial nic v mantineloch
+  6/300 epoch (24 roznych backtestov), 2.2 epoch/s, este ~2 min 13 s, ubehlo 7 s, zatial nic v mantineloch
+  9/300 epoch (32 roznych backtestov), 2.3 epoch/s, este ~2 min 6 s, ubehlo 9 s, zatial nic v mantineloch
+  12/300 epoch (40 roznych backtestov), 2.3 epoch/s, este ~2 min 4 s, ubehlo 10 s, zatial nic v mantineloch
+  15/300 epoch (48 roznych backtestov), 2.4 epoch/s, este ~2 min 1 s, ubehlo 11 s, zatial nic v mantineloch
+  18/300 epoch (56 roznych backtestov), 2.5 epoch/s, este ~1 min 54 s, ubehlo 12 s, zatial nic v mantineloch
+  21/300 epoch (68 roznych backtestov), 2.5 epoch/s, este ~1 min 52 s, ubehlo 13 s, zatial nic v mantineloch
+  24/300 epoch (76 roznych backtestov), 2.6 epoch/s, este ~1 min 46 s, ubehlo 14 s, zatial nic v mantineloch
+  27/300 epoch (84 roznych backtestov), 2.7 epoch/s, este ~1 min 41 s, ubehlo 15 s, zatial nic v mantineloch
+  30/300 epoch (92 roznych backtestov), 2.7 epoch/s, este ~1 min 39 s, ubehlo 16 s, zatial nic v mantineloch
+  33/300 epoch (104 roznych backtestov), 2.6 epoch/s, este ~1 min 43 s, ubehlo 17 s, zatial nic v mantineloch
+  36/300 epoch (112 roznych backtestov), 2.6 epoch/s, este ~1 min 40 s, ubehlo 18 s, zatial nic v mantineloch
+  39/300 epoch (120 roznych backtestov), 2.7 epoch/s, este ~1 min 36 s, ubehlo 19 s, zatial nic v mantineloch
+  42/300 epoch (128 roznych backtestov), 2.8 epoch/s, este ~1 min 33 s, ubehlo 20 s, zatial nic v mantineloch
+  45/300 epoch (136 roznych backtestov), 2.8 epoch/s, este ~1 min 31 s, ubehlo 21 s, zatial nic v mantineloch
+zrusene

@@ -1,0 +1,102 @@
+$ natívny hyperopt tksmgcnet MGC/USD 3m 4 okien (min): 300 epoch, sampler tpe (C# emulátor MultiCharts)
+  3/300 epoch (12 roznych backtestov), ubehlo 3 s, zatial nic v mantineloch
+  6/300 epoch (24 roznych backtestov), 3.1 epoch/s, este ~1 min 36 s, ubehlo 4 s, zatial nic v mantineloch
+  9/300 epoch (36 roznych backtestov), 3.2 epoch/s, este ~1 min 32 s, ubehlo 5 s, zatial nic v mantineloch
+  12/300 epoch (44 roznych backtestov), 3.5 epoch/s, este ~1 min 21 s, ubehlo 6 s, zatial nic v mantineloch
+  15/300 epoch (48 roznych backtestov), 4.1 epoch/s, este ~1 min 10 s, ubehlo 6 s, zatial nic v mantineloch
+  18/300 epoch (56 roznych backtestov), 4.2 epoch/s, este ~1 min 7 s, ubehlo 7 s, zatial nic v mantineloch
+  21/300 epoch (68 roznych backtestov), 4.1 epoch/s, este ~1 min 9 s, ubehlo 8 s, zatial nic v mantineloch
+  24/300 epoch (76 roznych backtestov), 4.1 epoch/s, este ~1 min 7 s, ubehlo 8 s, zatial nic v mantineloch
+  27/300 epoch (88 roznych backtestov), 4.0 epoch/s, este ~1 min 7 s, ubehlo 9 s, zatial nic v mantineloch
+  30/300 epoch (96 roznych backtestov), 4.1 epoch/s, este ~1 min 5 s, ubehlo 10 s, zatial nic v mantineloch
+  33/300 epoch (104 roznych backtestov), 4.2 epoch/s, este ~1 min 4 s, ubehlo 10 s, zatial nic v mantineloch
+  36/300 epoch (108 roznych backtestov), 4.4 epoch/s, este ~1 min 1 s, ubehlo 11 s, zatial nic v mantineloch
+  39/300 epoch (120 roznych backtestov), 4.2 epoch/s, este ~1 min 2 s, ubehlo 12 s, zatial nic v mantineloch
+  42/300 epoch (132 roznych backtestov), 4.2 epoch/s, este ~1 min 2 s, ubehlo 13 s, zatial nic v mantineloch
+  45/300 epoch (136 roznych backtestov), 4.3 epoch/s, este ~59 s, ubehlo 13 s, zatial nic v mantineloch
+  48/300 epoch (148 roznych backtestov), 4.2 epoch/s, este ~1 min, ubehlo 14 s, zatial nic v mantineloch
+  51/300 epoch (156 roznych backtestov), 4.3 epoch/s, este ~58 s, ubehlo 14 s, zatial nic v mantineloch
+  54/300 epoch (156 roznych backtestov), 4.5 epoch/s, este ~54 s, ubehlo 14 s, zatial nic v mantineloch
+  57/300 epoch (164 roznych backtestov), 4.5 epoch/s, este ~54 s, ubehlo 15 s, zatial nic v mantineloch
+  60/300 epoch (176 roznych backtestov), 4.4 epoch/s, este ~55 s, ubehlo 16 s, zatial nic v mantineloch
+  63/300 epoch (184 roznych backtestov), 4.3 epoch/s, este ~55 s, ubehlo 17 s, zatial nic v mantineloch
+  66/300 epoch (184 roznych backtestov), 4.5 epoch/s, este ~52 s, ubehlo 17 s, zatial nic v mantineloch
+  69/300 epoch (184 roznych backtestov), 4.8 epoch/s, este ~49 s, ubehlo 17 s, zatial nic v mantineloch
+  72/300 epoch (188 roznych backtestov), 4.8 epoch/s, este ~48 s, ubehlo 18 s, zatial nic v mantineloch
+  75/300 epoch (192 roznych backtestov), 4.8 epoch/s, este ~46 s, ubehlo 18 s, zatial nic v mantineloch
+  78/300 epoch (196 roznych backtestov), 4.9 epoch/s, este ~45 s, ubehlo 18 s, zatial nic v mantineloch
+  81/300 epoch (204 roznych backtestov), 4.9 epoch/s, este ~45 s, ubehlo 19 s, zatial nic v mantineloch
+  84/300 epoch (208 roznych backtestov), 4.9 epoch/s, este ~44 s, ubehlo 20 s, zatial nic v mantineloch
+  87/300 epoch (212 roznych backtestov), 5.0 epoch/s, este ~43 s, ubehlo 20 s, zatial nic v mantineloch
+  90/300 epoch (216 roznych backtestov), 5.0 epoch/s, este ~42 s, ubehlo 20 s, zatial nic v mantineloch
+  93/300 epoch (220 roznych backtestov), 5.1 epoch/s, este ~41 s, ubehlo 21 s, zatial nic v mantineloch
+  96/300 epoch (220 roznych backtestov), 5.3 epoch/s, este ~39 s, ubehlo 21 s, zatial nic v mantineloch
+  99/300 epoch (220 roznych backtestov), 5.4 epoch/s, este ~37 s, ubehlo 21 s, zatial nic v mantineloch
+  102/300 epoch (220 roznych backtestov), 5.6 epoch/s, este ~35 s, ubehlo 21 s, zatial nic v mantineloch
+  105/300 epoch (228 roznych backtestov), 5.6 epoch/s, este ~35 s, ubehlo 21 s, zatial nic v mantineloch
+  108/300 epoch (232 roznych backtestov), 5.6 epoch/s, este ~34 s, ubehlo 22 s, zatial nic v mantineloch
+  111/300 epoch (232 roznych backtestov), 5.8 epoch/s, este ~33 s, ubehlo 22 s, zatial nic v mantineloch
+  114/300 epoch (232 roznych backtestov), 5.9 epoch/s, este ~31 s, ubehlo 22 s, zatial nic v mantineloch
+  117/300 epoch (232 roznych backtestov), 6.1 epoch/s, este ~30 s, ubehlo 22 s, zatial nic v mantineloch
+  120/300 epoch (232 roznych backtestov), 6.2 epoch/s, este ~29 s, ubehlo 22 s, zatial nic v mantineloch
+  123/300 epoch (236 roznych backtestov), 6.3 epoch/s, este ~28 s, ubehlo 22 s, zatial nic v mantineloch
+  126/300 epoch (236 roznych backtestov), 6.4 epoch/s, este ~27 s, ubehlo 22 s, zatial nic v mantineloch
+  129/300 epoch (240 roznych backtestov), 6.4 epoch/s, este ~27 s, ubehlo 23 s, zatial nic v mantineloch
+  132/300 epoch (244 roznych backtestov), 6.4 epoch/s, este ~26 s, ubehlo 23 s, zatial nic v mantineloch
+  135/300 epoch (248 roznych backtestov), 6.4 epoch/s, este ~26 s, ubehlo 24 s, zatial nic v mantineloch
+  138/300 epoch (248 roznych backtestov), 6.6 epoch/s, este ~25 s, ubehlo 24 s, zatial nic v mantineloch
+  141/300 epoch (248 roznych backtestov), 6.7 epoch/s, este ~24 s, ubehlo 24 s, zatial nic v mantineloch
+  144/300 epoch (248 roznych backtestov), 6.9 epoch/s, este ~23 s, ubehlo 24 s, zatial nic v mantineloch
+  147/300 epoch (248 roznych backtestov), 7.0 epoch/s, este ~22 s, ubehlo 24 s, zatial nic v mantineloch
+  150/300 epoch (252 roznych backtestov), 7.0 epoch/s, este ~21 s, ubehlo 24 s, zatial nic v mantineloch
+  153/300 epoch (252 roznych backtestov), 7.2 epoch/s, este ~20 s, ubehlo 24 s, zatial nic v mantineloch
+  156/300 epoch (256 roznych backtestov), 7.2 epoch/s, este ~20 s, ubehlo 24 s, zatial nic v mantineloch
+  159/300 epoch (256 roznych backtestov), 7.3 epoch/s, este ~19 s, ubehlo 24 s, zatial nic v mantineloch
+  162/300 epoch (256 roznych backtestov), 7.5 epoch/s, este ~19 s, ubehlo 24 s, zatial nic v mantineloch
+  165/300 epoch (260 roznych backtestov), 7.4 epoch/s, este ~18 s, ubehlo 25 s, zatial nic v mantineloch
+  168/300 epoch (260 roznych backtestov), 7.6 epoch/s, este ~17 s, ubehlo 25 s, zatial nic v mantineloch
+  171/300 epoch (260 roznych backtestov), 7.7 epoch/s, este ~17 s, ubehlo 25 s, zatial nic v mantineloch
+  174/300 epoch (260 roznych backtestov), 7.9 epoch/s, este ~16 s, ubehlo 25 s, zatial nic v mantineloch
+  177/300 epoch (264 roznych backtestov), 7.8 epoch/s, este ~16 s, ubehlo 25 s, zatial nic v mantineloch
+  180/300 epoch (264 roznych backtestov), 8.0 epoch/s, este ~15 s, ubehlo 25 s, zatial nic v mantineloch
+  183/300 epoch (264 roznych backtestov), 8.1 epoch/s, este ~14 s, ubehlo 25 s, zatial nic v mantineloch
+  186/300 epoch (264 roznych backtestov), 8.3 epoch/s, este ~14 s, ubehlo 25 s, zatial nic v mantineloch
+  189/300 epoch (264 roznych backtestov), 8.4 epoch/s, este ~13 s, ubehlo 25 s, zatial nic v mantineloch
+  192/300 epoch (264 roznych backtestov), 8.5 epoch/s, este ~13 s, ubehlo 25 s, zatial nic v mantineloch
+  195/300 epoch (268 roznych backtestov), 8.5 epoch/s, este ~12 s, ubehlo 26 s, zatial nic v mantineloch
+  198/300 epoch (268 roznych backtestov), 8.6 epoch/s, este ~12 s, ubehlo 26 s, zatial nic v mantineloch
+  201/300 epoch (268 roznych backtestov), 8.7 epoch/s, este ~11 s, ubehlo 26 s, zatial nic v mantineloch
+  204/300 epoch (268 roznych backtestov), 8.9 epoch/s, este ~11 s, ubehlo 26 s, zatial nic v mantineloch
+  207/300 epoch (276 roznych backtestov), 8.7 epoch/s, este ~11 s, ubehlo 27 s, zatial nic v mantineloch
+  210/300 epoch (276 roznych backtestov), 8.9 epoch/s, este ~10 s, ubehlo 27 s, zatial nic v mantineloch
+  213/300 epoch (280 roznych backtestov), 8.8 epoch/s, este ~10 s, ubehlo 27 s, zatial nic v mantineloch
+  216/300 epoch (280 roznych backtestov), 8.9 epoch/s, este ~9 s, ubehlo 27 s, zatial nic v mantineloch
+  219/300 epoch (280 roznych backtestov), 9.1 epoch/s, este ~9 s, ubehlo 27 s, zatial nic v mantineloch
+  222/300 epoch (280 roznych backtestov), 9.2 epoch/s, este ~8 s, ubehlo 27 s, zatial nic v mantineloch
+  225/300 epoch (280 roznych backtestov), 9.3 epoch/s, este ~8 s, ubehlo 27 s, zatial nic v mantineloch
+  228/300 epoch (280 roznych backtestov), 9.4 epoch/s, este ~8 s, ubehlo 27 s, zatial nic v mantineloch
+  231/300 epoch (280 roznych backtestov), 9.6 epoch/s, este ~7 s, ubehlo 27 s, zatial nic v mantineloch
+  234/300 epoch (280 roznych backtestov), 9.7 epoch/s, este ~7 s, ubehlo 27 s, zatial nic v mantineloch
+  237/300 epoch (280 roznych backtestov), 9.8 epoch/s, este ~6 s, ubehlo 27 s, zatial nic v mantineloch
+  240/300 epoch (280 roznych backtestov), 9.9 epoch/s, este ~6 s, ubehlo 27 s, zatial nic v mantineloch
+  243/300 epoch (280 roznych backtestov), 10.1 epoch/s, este ~6 s, ubehlo 27 s, zatial nic v mantineloch
+  246/300 epoch (280 roznych backtestov), 10.2 epoch/s, este ~5 s, ubehlo 27 s, zatial nic v mantineloch
+  249/300 epoch (280 roznych backtestov), 10.3 epoch/s, este ~5 s, ubehlo 27 s, zatial nic v mantineloch
+  252/300 epoch (280 roznych backtestov), 10.4 epoch/s, este ~5 s, ubehlo 27 s, zatial nic v mantineloch
+  255/300 epoch (280 roznych backtestov), 10.6 epoch/s, este ~4 s, ubehlo 27 s, zatial nic v mantineloch
+  258/300 epoch (280 roznych backtestov), 10.7 epoch/s, este ~4 s, ubehlo 27 s, zatial nic v mantineloch
+  261/300 epoch (284 roznych backtestov), 10.6 epoch/s, este ~4 s, ubehlo 27 s, zatial nic v mantineloch
+  264/300 epoch (284 roznych backtestov), 10.7 epoch/s, este ~3 s, ubehlo 27 s, zatial nic v mantineloch
+  267/300 epoch (284 roznych backtestov), 10.9 epoch/s, este ~3 s, ubehlo 27 s, zatial nic v mantineloch
+  270/300 epoch (284 roznych backtestov), 11.0 epoch/s, este ~3 s, ubehlo 27 s, zatial nic v mantineloch
+  273/300 epoch (284 roznych backtestov), 11.1 epoch/s, este ~2 s, ubehlo 27 s, zatial nic v mantineloch
+  276/300 epoch (284 roznych backtestov), 11.2 epoch/s, este ~2 s, ubehlo 27 s, zatial nic v mantineloch
+  279/300 epoch (284 roznych backtestov), 11.3 epoch/s, este ~2 s, ubehlo 27 s, zatial nic v mantineloch
+  282/300 epoch (284 roznych backtestov), 11.5 epoch/s, este ~2 s, ubehlo 27 s, zatial nic v mantineloch
+  285/300 epoch (284 roznych backtestov), 11.6 epoch/s, este ~1 s, ubehlo 27 s, zatial nic v mantineloch
+  288/300 epoch (288 roznych backtestov), 11.5 epoch/s, este ~1 s, ubehlo 28 s, zatial nic v mantineloch
+  291/300 epoch (288 roznych backtestov), 11.6 epoch/s, este ~1 s, ubehlo 28 s, zatial nic v mantineloch
+  294/300 epoch (288 roznych backtestov), 11.8 epoch/s, este ~1 s, ubehlo 28 s, zatial nic v mantineloch
+  297/300 epoch (288 roznych backtestov), 11.9 epoch/s, este ~0 s, ubehlo 28 s, zatial nic v mantineloch
+  300/300 epoch (288 roznych backtestov), 12.0 epoch/s, este ~0 s, ubehlo 28 s, zatial nic v mantineloch
+hotovo: 300 epoch (288 roznych backtestov) za 27.9 s

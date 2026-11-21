@@ -1,0 +1,48 @@
+$ emulator MultiCharts NAS100 2m 20211001-20260904 (NAS100_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 100 na 2m @2m 250/250, filter volatility ATR 14 / 100 barov @2m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 842144 barov 2m, 1682665 1m, 0 HTF
+  20000/842144 barov, 23 obchodov
+  40000/842144 barov, 43 obchodov
+  60000/842144 barov, 67 obchodov
+  80000/842144 barov, 86 obchodov
+  100000/842144 barov, 109 obchodov
+  120000/842144 barov, 130 obchodov
+  140000/842144 barov, 147 obchodov
+  160000/842144 barov, 169 obchodov
+  180000/842144 barov, 189 obchodov
+  200000/842144 barov, 210 obchodov
+  220000/842144 barov, 231 obchodov
+  240000/842144 barov, 249 obchodov
+  260000/842144 barov, 272 obchodov
+  280000/842144 barov, 291 obchodov
+  300000/842144 barov, 310 obchodov
+  320000/842144 barov, 334 obchodov
+  340000/842144 barov, 356 obchodov
+  360000/842144 barov, 381 obchodov
+  380000/842144 barov, 407 obchodov
+  400000/842144 barov, 426 obchodov
+  420000/842144 barov, 445 obchodov
+  440000/842144 barov, 468 obchodov
+  460000/842144 barov, 488 obchodov
+  480000/842144 barov, 510 obchodov
+  500000/842144 barov, 529 obchodov
+  520000/842144 barov, 553 obchodov
+  540000/842144 barov, 572 obchodov
+  560000/842144 barov, 593 obchodov
+  580000/842144 barov, 616 obchodov
+  600000/842144 barov, 634 obchodov
+  620000/842144 barov, 649 obchodov
+  640000/842144 barov, 669 obchodov
+  660000/842144 barov, 695 obchodov
+  680000/842144 barov, 718 obchodov
+  700000/842144 barov, 743 obchodov
+  720000/842144 barov, 769 obchodov
+  740000/842144 barov, 791 obchodov
+  760000/842144 barov, 814 obchodov
+  780000/842144 barov, 834 obchodov
+  800000/842144 barov, 854 obchodov
+  820000/842144 barov, 874 obchodov
+  840000/842144 barov, 898 obchodov
+hotovo: 901 obchodov, nerozhodnutelnych minut 0
+kresby: {'nqprec_zone': 1269, 'tp_box': 902, 'sl_box': 902, 'nqprec_entry': 902}
