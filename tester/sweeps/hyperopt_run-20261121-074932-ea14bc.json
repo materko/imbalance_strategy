@@ -1,0 +1,537 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20261121-074932-ea14bc",
+ "strategy": "ibretnet",
+ "created": "2026-11-21T07:49:56+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "trendFilter": "off",
+   "trendEmaLen": 200,
+   "trendTF": 0,
+   "volFilter": "off",
+   "volLookback": 100,
+   "entryConfirm": "none",
+   "confirmBars": 3,
+   "confirmImbMinAtr": 0.05,
+   "confirmPbWickPct": 60,
+   "confirmPbBodyPct": 30,
+   "entryOrderType": "market",
+   "limitOffsetPct": 50,
+   "limitValidBars": 3,
+   "limitKeepRR": true,
+   "fixedQty": true,
+   "qty": 1,
+   "skipOverRisk": false,
+   "ibStart": 930,
+   "ibMinutes": 60,
+   "breakOn": "wick",
+   "breakFrom": 1030,
+   "breakTo": 1125,
+   "tradeMon": true,
+   "tradeTue": true,
+   "tradeWed": true,
+   "tradeThu": true,
+   "tradeFri": true,
+   "minIbPoints": 0.0,
+   "maxIbPoints": 0.0,
+   "tradeDirection": "Both",
+   "entryMode": "pullback",
+   "entryRetr": 0.1,
+   "slRetr": 1.1,
+   "slBufferTicks": 0,
+   "lastEntry": 1330,
+   "tpMode": "rr",
+   "tpExt": 0.5,
+   "rr": 2.0,
+   "minRR": 0.5,
+   "shortLevels": true,
+   "shortEntryRetr": 0.25,
+   "shortSlRetr": 0.9,
+   "shortTpExt": 0.5,
+   "shortRr": 1.25,
+   "closeAtEnd": true,
+   "exitTime": 1600,
+   "riskDollar": 250.0,
+   "drawRange": true,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "ibretnet",
+   "exchange": null,
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "5m",
+   "timerange": "20211001-20221001",
+   "fee": 1.755e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 60000.0,
+   "timeframe_detail": "1m",
+   "profile": "tradebot/strategies/ibretnet/configs/mnq_databento_5m.json",
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20261121-074956-155f10",
+   "status": "done",
+   "created": "2026-11-21T07:49:56+00:00",
+   "started": "2026-11-21T07:49:56+00:00",
+   "finished": "2026-11-21T07:49:57+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261121-074932-ea14bc: entryRetr=0.1, slRetr=1.1, rr=2.0 — hyperopt entryRetr=0.1:0.4:0.05, slRetr=0.6:1.1:0.05, rr=1:2:0.25 — IB RETRACE MNQ: ladenie G1 long okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+   "tag": {
+    "values": {
+     "entryRetr": 0.1,
+     "slRetr": 1.1,
+     "rr": 2.0
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "52d6c3ab3",
+   "settings": {
+    "timerange": "20221001-20231001"
+   },
+   "result": {
+    "trades": 146,
+    "wins": 83,
+    "losses": 63,
+    "draws": 0,
+    "winrate": 56.85,
+    "pnl_abs": 3807.22,
+    "pnl_pct": 6.345,
+    "profit_factor": 1.4,
+    "max_drawdown_abs": 1379.09,
+    "max_drawdown_pct": 2.22,
+    "starting_balance": 60000.0,
+    "final_balance": 63807.22,
+    "gross_abs": 3942.0,
+    "volume_abs": 7679580.0,
+    "break_even_pct": 0.0513,
+    "exits": {
+     "session_end": {
+      "n": 69,
+      "pnl_abs": 4463.75
+     },
+     "stop_loss": {
+      "n": 46,
+      "pnl_abs": -7415.25
+     },
+     "take_profit": {
+      "n": 31,
+      "pnl_abs": 6758.72
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 74,
+      "to_i": 80,
+      "start": "2023-04-10T16:02:00+00:00",
+      "end": "2023-04-19T19:55:00+00:00",
+      "pnl_abs": 1007.55,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 68,
+      "to_i": 73,
+      "start": "2023-03-21T14:40:00+00:00",
+      "end": "2023-03-30T17:40:00+00:00",
+      "pnl_abs": -762.92,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.434,
+    "backtest_start": "2022-10-02T22:00:00+00:00",
+    "backtest_end": "2023-09-29T20:55:00+00:00",
+    "holding_avg": "3:27:00",
+    "bars": 70689,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.1
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.009099161946759811,
+    "hi": 0.09353847324501229,
+    "trades": 146,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261121-074956-269f7f",
+   "status": "done",
+   "created": "2026-11-21T07:49:56+00:00",
+   "started": "2026-11-21T07:49:57+00:00",
+   "finished": "2026-11-21T07:49:57+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261121-074932-ea14bc: entryRetr=0.1, slRetr=1.1, rr=2.0 — hyperopt entryRetr=0.1:0.4:0.05, slRetr=0.6:1.1:0.05, rr=1:2:0.25 — IB RETRACE MNQ: ladenie G1 long okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+   "tag": {
+    "values": {
+     "entryRetr": 0.1,
+     "slRetr": 1.1,
+     "rr": 2.0
+    },
+    "tuned": false,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "52d6c3ab3",
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 150,
+    "wins": 80,
+    "losses": 70,
+    "draws": 0,
+    "winrate": 53.33,
+    "pnl_abs": 881.89,
+    "pnl_pct": 1.47,
+    "profit_factor": 1.058,
+    "max_drawdown_abs": 3014.99,
+    "max_drawdown_pct": 4.756,
+    "starting_balance": 60000.0,
+    "final_balance": 60881.89,
+    "gross_abs": 1163.0,
+    "volume_abs": 16017936.0,
+    "break_even_pct": 0.0073,
+    "exits": {
+     "session_end": {
+      "n": 92,
+      "pnl_abs": 6521.85
+     },
+     "stop_loss": {
+      "n": 40,
+      "pnl_abs": -11865.43
+     },
+     "take_profit": {
+      "n": 18,
+      "pnl_abs": 6225.46
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 88,
+      "to_i": 94,
+      "start": "2026-04-13T15:00:00+00:00",
+      "end": "2026-04-22T19:55:00+00:00",
+      "pnl_abs": 2054.54,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 60,
+      "to_i": 63,
+      "start": "2026-02-13T15:38:00+00:00",
+      "end": "2026-02-19T20:55:00+00:00",
+      "pnl_abs": -741.96,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.728,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:55:00+00:00",
+    "holding_avg": "4:24:00",
+    "bars": 70884,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.6
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.026158710578564347,
+    "hi": 0.04273901481763422,
+    "trades": 150,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261121-074956-4730ee",
+   "status": "done",
+   "created": "2026-11-21T07:49:56+00:00",
+   "started": "2026-11-21T07:49:57+00:00",
+   "finished": "2026-11-21T07:49:57+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261121-074932-ea14bc: entryRetr=0.1, slRetr=1.1, rr=2.0 — hyperopt entryRetr=0.1:0.4:0.05, slRetr=0.6:1.1:0.05, rr=1:2:0.25 — IB RETRACE MNQ: ladenie G1 long okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+   "tag": {
+    "values": {
+     "entryRetr": 0.1,
+     "slRetr": 1.1,
+     "rr": 2.0
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "52d6c3ab3",
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 140,
+    "wins": 69,
+    "losses": 71,
+    "draws": 0,
+    "winrate": 49.29,
+    "pnl_abs": -627.78,
+    "pnl_pct": -1.046,
+    "profit_factor": 0.953,
+    "max_drawdown_abs": 3162.81,
+    "max_drawdown_pct": 5.152,
+    "starting_balance": 60000.0,
+    "final_balance": 59372.22,
+    "gross_abs": -419.0,
+    "volume_abs": 11896429.0,
+    "break_even_pct": -0.0035,
+    "exits": {
+     "session_end": {
+      "n": 88,
+      "pnl_abs": 6115.09
+     },
+     "take_profit": {
+      "n": 15,
+      "pnl_abs": 2932.21
+     },
+     "stop_loss": {
+      "n": 37,
+      "pnl_abs": -9675.08
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 134,
+      "to_i": 138,
+      "start": "2025-08-26T14:35:00+00:00",
+      "end": "2025-09-01T22:00:00+00:00",
+      "pnl_abs": 274.72,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 100,
+      "to_i": 104,
+      "start": "2025-05-30T14:40:00+00:00",
+      "end": "2025-06-11T18:01:00+00:00",
+      "pnl_abs": -1074.13,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "4:50:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.1
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.0380598469730843,
+    "hi": 0.03107023598440847,
+    "trades": 140,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261121-074956-6404ee",
+   "status": "done",
+   "created": "2026-11-21T07:49:56+00:00",
+   "started": "2026-11-21T07:49:57+00:00",
+   "finished": "2026-11-21T07:49:57+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261121-074932-ea14bc: entryRetr=0.1, slRetr=1.1, rr=2.0 — hyperopt entryRetr=0.1:0.4:0.05, slRetr=0.6:1.1:0.05, rr=1:2:0.25 — IB RETRACE MNQ: ladenie G1 long okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+   "tag": {
+    "values": {
+     "entryRetr": 0.1,
+     "slRetr": 1.1,
+     "rr": 2.0
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "52d6c3ab3",
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 158,
+    "wins": 74,
+    "losses": 84,
+    "draws": 0,
+    "winrate": 46.84,
+    "pnl_abs": 657.56,
+    "pnl_pct": 1.096,
+    "profit_factor": 1.062,
+    "max_drawdown_abs": 1194.18,
+    "max_drawdown_pct": 1.963,
+    "starting_balance": 60000.0,
+    "final_balance": 60657.56,
+    "gross_abs": 855.0,
+    "volume_abs": 11249965.0,
+    "break_even_pct": 0.0076,
+    "exits": {
+     "session_end": {
+      "n": 83,
+      "pnl_abs": 3512.82
+     },
+     "stop_loss": {
+      "n": 49,
+      "pnl_abs": -8180.78
+     },
+     "take_profit": {
+      "n": 26,
+      "pnl_abs": 5325.52
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 16,
+      "to_i": 20,
+      "start": "2023-10-31T14:55:00+00:00",
+      "end": "2023-11-08T17:08:00+00:00",
+      "pnl_abs": 693.25,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 23,
+      "to_i": 28,
+      "start": "2023-11-14T15:56:00+00:00",
+      "end": "2023-11-23T23:00:00+00:00",
+      "pnl_abs": -384.21,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 35.395,
+    "backtest_start": "2023-10-01T22:00:00+00:00",
+    "backtest_end": "2024-09-30T23:55:00+00:00",
+    "holding_avg": "3:48:00",
+    "bars": 70806,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.1
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.016916003215652845,
+    "hi": 0.030560920492790244,
+    "trades": 158,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20261121-074956-f9e7a7",
+   "status": "done",
+   "created": "2026-11-21T07:49:56+00:00",
+   "started": "2026-11-21T07:49:56+00:00",
+   "finished": "2026-11-21T07:49:56+00:00",
+   "user": "IBS",
+   "note": "hyperopt 20261121-074932-ea14bc: entryRetr=0.1, slRetr=1.1, rr=2.0 — hyperopt entryRetr=0.1:0.4:0.05, slRetr=0.6:1.1:0.05, rr=1:2:0.25 — IB RETRACE MNQ: ladenie G1 long okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+   "tag": {
+    "values": {
+     "entryRetr": 0.1,
+     "slRetr": 1.1,
+     "rr": 2.0
+    },
+    "tuned": true,
+    "goal": "break_even"
+   },
+   "params": {},
+   "repo_version": "52d6c3ab3",
+   "settings": {},
+   "result": {
+    "trades": 137,
+    "wins": 72,
+    "losses": 65,
+    "draws": 0,
+    "winrate": 52.55,
+    "pnl_abs": 2159.54,
+    "pnl_pct": 3.599,
+    "profit_factor": 1.158,
+    "max_drawdown_abs": 2537.62,
+    "max_drawdown_pct": 4.184,
+    "starting_balance": 60000.0,
+    "final_balance": 62159.54,
+    "gross_abs": 2291.5,
+    "volume_abs": 7518866.5,
+    "break_even_pct": 0.0305,
+    "exits": {
+     "stop_loss": {
+      "n": 47,
+      "pnl_abs": -11586.08
+     },
+     "session_end": {
+      "n": 66,
+      "pnl_abs": 7217.24
+     },
+     "take_profit": {
+      "n": 24,
+      "pnl_abs": 6528.39
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 102,
+      "to_i": 108,
+      "start": "2022-07-05T15:00:00+00:00",
+      "end": "2022-07-27T19:55:00+00:00",
+      "pnl_abs": 1801.04,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 30,
+      "to_i": 34,
+      "start": "2022-01-06T16:02:00+00:00",
+      "end": "2022-01-26T17:30:00+00:00",
+      "pnl_abs": -1479.79,
+      "count": 4
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -24.888,
+    "backtest_start": "2021-10-01T00:00:00+00:00",
+    "backtest_end": "2022-09-30T20:55:00+00:00",
+    "holding_avg": "3:34:00",
+    "bars": 71079,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "native": true,
+    "duration_s": 0.1
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.03163832593661558,
+    "hi": 0.09256775794444733,
+    "trades": 137,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-11-21T07:49:57+00:00"
+}

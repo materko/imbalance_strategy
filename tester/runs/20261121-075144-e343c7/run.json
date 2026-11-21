@@ -1,0 +1,342 @@
+{
+  "id": "20261121-075144-e343c7",
+  "status": "done",
+  "created": "2026-11-21T07:51:44+00:00",
+  "started": "2026-11-21T07:51:44+00:00",
+  "finished": "2026-11-21T07:51:47+00:00",
+  "user": "IBS",
+  "note": "hyperopt tradeMon=true,false, tradeTue=true,false, tradeWed=true,false, tradeThu=true,false — IB RETRACE MGC: ladenie G4 dni okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+  "settings": {
+    "strategy": "ibretnet",
+    "exchange": null,
+    "sweep": null,
+    "pair": "MGC/USD",
+    "engine": "multicharts",
+    "timeframe": "5m",
+    "timerange": "20211001-20250904",
+    "fee": 1.755e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 60000.0,
+    "timeframe_detail": "1m",
+    "profile": "tradebot/strategies/ibretnet/configs/mgc_databento_5m.json",
+    "hyperopt": {
+      "knobs": {
+        "tradeMon": "true,false",
+        "tradeTue": "true,false",
+        "tradeWed": "true,false",
+        "tradeThu": "true,false"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 80,
+      "epochs": 300,
+      "seed": null,
+      "verify": true,
+      "native": true,
+      "sampler": "tpe",
+      "windows": [
+        "20211001-20221001",
+        "20221001-20231001",
+        "20231001-20241001",
+        "20240904-20250904"
+      ],
+      "aggregate": "min",
+      "objectives": null,
+      "select": "plateau",
+      "mode": "search",
+      "anchored": false,
+      "continue_from": null,
+      "epochs_done": 300,
+      "distinct": 64,
+      "best": {
+        "epoch": 15,
+        "loss": -0.0141,
+        "params": {
+          "hp_tradeMon": true,
+          "hp_tradeTue": true,
+          "hp_tradeWed": true,
+          "hp_tradeThu": true
+        },
+        "trades": 534,
+        "pnl_pct": 1.536,
+        "winrate": 51.7,
+        "max_drawdown_pct": 1.151,
+        "profit_factor": 1.2993,
+        "usable": true,
+        "is_best": true,
+        "windows": {
+          "20211001-20221001": {
+            "trades": 131,
+            "pnl_pct": 1.047,
+            "winrate": 51.91,
+            "max_drawdown_pct": 0.583,
+            "break_even_pct": 0.0149,
+            "loss": -0.0149
+          },
+          "20221001-20231001": {
+            "trades": 130,
+            "pnl_pct": 1.013,
+            "winrate": 52.31,
+            "max_drawdown_pct": 0.551,
+            "break_even_pct": 0.0141,
+            "loss": -0.0141
+          },
+          "20231001-20241001": {
+            "trades": 137,
+            "pnl_pct": 1.384,
+            "winrate": 49.64,
+            "max_drawdown_pct": 1.151,
+            "break_even_pct": 0.0153,
+            "loss": -0.0153
+          },
+          "20240904-20250904": {
+            "trades": 136,
+            "pnl_pct": 2.7,
+            "winrate": 52.94,
+            "max_drawdown_pct": 0.691,
+            "break_even_pct": 0.0219,
+            "loss": -0.0219
+          }
+        }
+      },
+      "overrides": {
+        "tradeMon": true,
+        "tradeTue": true,
+        "tradeWed": true,
+        "tradeThu": true
+      },
+      "results_file": null,
+      "pareto": null,
+      "plateau_select": {
+        "candidates": [
+          {
+            "epoch": 15,
+            "loss": -0.0141,
+            "robust": -0.01254,
+            "neighbours": 4,
+            "worst": -0.0108,
+            "points": [
+              {
+                "param": "tradeMon",
+                "value": false,
+                "step": 1,
+                "loss": -0.013
+              },
+              {
+                "param": "tradeTue",
+                "value": false,
+                "step": 1,
+                "loss": -0.0133
+              },
+              {
+                "param": "tradeWed",
+                "value": false,
+                "step": 1,
+                "loss": -0.0108
+              },
+              {
+                "param": "tradeThu",
+                "value": false,
+                "step": 1,
+                "loss": -0.0115
+              }
+            ]
+          },
+          {
+            "epoch": 7,
+            "loss": -0.0133,
+            "robust": 601.59452,
+            "neighbours": 4,
+            "worst": 1004.0,
+            "points": [
+              {
+                "param": "tradeMon",
+                "value": false,
+                "step": 1,
+                "loss": 1004.0
+              },
+              {
+                "param": "tradeTue",
+                "value": true,
+                "step": 1,
+                "loss": -0.0141
+              },
+              {
+                "param": "tradeWed",
+                "value": false,
+                "step": 1,
+                "loss": 1002.0
+              },
+              {
+                "param": "tradeThu",
+                "value": false,
+                "step": 1,
+                "loss": 1002.0
+              }
+            ]
+          },
+          {
+            "epoch": 17,
+            "loss": -0.013,
+            "robust": 603.79458,
+            "neighbours": 4,
+            "worst": 1010.0,
+            "points": [
+              {
+                "param": "tradeMon",
+                "value": true,
+                "step": 1,
+                "loss": -0.0141
+              },
+              {
+                "param": "tradeTue",
+                "value": false,
+                "step": 1,
+                "loss": 1004.0
+              },
+              {
+                "param": "tradeWed",
+                "value": false,
+                "step": 1,
+                "loss": 1010.0
+              },
+              {
+                "param": "tradeThu",
+                "value": false,
+                "step": 1,
+                "loss": 1005.0
+              }
+            ]
+          },
+          {
+            "epoch": 18,
+            "loss": -0.0115,
+            "robust": 602.79488,
+            "neighbours": 4,
+            "worst": 1007.0,
+            "points": [
+              {
+                "param": "tradeMon",
+                "value": false,
+                "step": 1,
+                "loss": 1005.0
+              },
+              {
+                "param": "tradeTue",
+                "value": false,
+                "step": 1,
+                "loss": 1002.0
+              },
+              {
+                "param": "tradeWed",
+                "value": false,
+                "step": 1,
+                "loss": 1007.0
+              },
+              {
+                "param": "tradeThu",
+                "value": true,
+                "step": 1,
+                "loss": -0.0141
+              }
+            ]
+          },
+          {
+            "epoch": 2,
+            "loss": -0.0108,
+            "robust": 603.79502,
+            "neighbours": 4,
+            "worst": 1010.0,
+            "points": [
+              {
+                "param": "tradeMon",
+                "value": false,
+                "step": 1,
+                "loss": 1010.0
+              },
+              {
+                "param": "tradeTue",
+                "value": false,
+                "step": 1,
+                "loss": 1002.0
+              },
+              {
+                "param": "tradeWed",
+                "value": true,
+                "step": 1,
+                "loss": -0.0141
+              },
+              {
+                "param": "tradeThu",
+                "value": false,
+                "step": 1,
+                "loss": 1007.0
+              }
+            ]
+          }
+        ],
+        "chosen": 15,
+        "best_epoch": 15
+      }
+    },
+    "instrument": "mgc_databento"
+  },
+  "params": {
+    "trendFilter": "off",
+    "trendEmaLen": 200,
+    "trendTF": 0,
+    "volFilter": "off",
+    "volLookback": 100,
+    "entryConfirm": "none",
+    "confirmBars": 3,
+    "confirmImbMinAtr": 0.05,
+    "confirmPbWickPct": 60,
+    "confirmPbBodyPct": 30,
+    "entryOrderType": "market",
+    "limitOffsetPct": 50,
+    "limitValidBars": 3,
+    "limitKeepRR": true,
+    "fixedQty": true,
+    "qty": 1,
+    "skipOverRisk": false,
+    "ibStart": 930,
+    "ibMinutes": 60,
+    "breakOn": "wick",
+    "breakFrom": 1030,
+    "breakTo": 1155,
+    "tradeMon": true,
+    "tradeTue": true,
+    "tradeWed": true,
+    "tradeThu": true,
+    "tradeFri": true,
+    "minIbPoints": 0.0,
+    "maxIbPoints": 0.0,
+    "tradeDirection": "Both",
+    "entryMode": "pullback",
+    "entryRetr": 0.2,
+    "slRetr": 0.7,
+    "slBufferTicks": 4,
+    "lastEntry": 1430,
+    "tpMode": "rr",
+    "tpExt": 0.5,
+    "rr": 1.25,
+    "minRR": 0.5,
+    "shortLevels": true,
+    "shortEntryRetr": 0.2,
+    "shortSlRetr": 0.85,
+    "shortTpExt": 0.5,
+    "shortRr": 1,
+    "closeAtEnd": true,
+    "exitTime": 1600,
+    "riskDollar": 250.0,
+    "drawRange": true,
+    "leverage": 1.0
+  },
+  "repo_version": "52d6c3ab3",
+  "error": null,
+  "result": {
+    "duration_s": 3.3
+  },
+  "series": null
+}

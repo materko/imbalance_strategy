@@ -1,0 +1,345 @@
+{
+  "id": "20261121-075035-704960",
+  "status": "done",
+  "created": "2026-11-21T07:50:35+00:00",
+  "started": "2026-11-21T07:50:35+00:00",
+  "finished": "2026-11-21T07:50:59+00:00",
+  "user": "IBS",
+  "note": "hyperopt shortEntryRetr=0.1:0.4:0.05, shortSlRetr=0.6:1.2:0.05, shortRr=1:2:0.25 — IB RETRACE MNQ: ladenie G2 short okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+  "settings": {
+    "strategy": "ibretnet",
+    "exchange": null,
+    "sweep": null,
+    "pair": "MNQ/USD",
+    "engine": "multicharts",
+    "timeframe": "5m",
+    "timerange": "20211001-20250904",
+    "fee": 1.755e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 60000.0,
+    "timeframe_detail": "1m",
+    "profile": "tradebot/strategies/ibretnet/configs/mnq_databento_5m.json",
+    "hyperopt": {
+      "knobs": {
+        "shortEntryRetr": "0.1:0.4:0.05",
+        "shortSlRetr": "0.6:1.2:0.05",
+        "shortRr": "1:2:0.25"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 80,
+      "epochs": 300,
+      "seed": null,
+      "verify": true,
+      "native": true,
+      "sampler": "tpe",
+      "windows": [
+        "20211001-20221001",
+        "20221001-20231001",
+        "20231001-20241001",
+        "20240904-20250904"
+      ],
+      "aggregate": "min",
+      "objectives": null,
+      "select": "plateau",
+      "mode": "search",
+      "anchored": false,
+      "continue_from": null,
+      "epochs_done": 300,
+      "distinct": 640,
+      "best": {
+        "epoch": 28,
+        "loss": -0.0154,
+        "params": {
+          "hp_shortEntryRetr": 0.4,
+          "hp_shortSlRetr": 0.6,
+          "hp_shortRr": 1.0
+        },
+        "trades": 371,
+        "pnl_pct": 2.6505,
+        "winrate": 54.7925,
+        "max_drawdown_pct": 4.107,
+        "profit_factor": 1.2548,
+        "usable": true,
+        "is_best": true,
+        "windows": {
+          "20211001-20221001": {
+            "trades": 84,
+            "pnl_pct": 1.991,
+            "winrate": 52.38,
+            "max_drawdown_pct": 3.699,
+            "break_even_pct": 0.0277,
+            "loss": -0.0277
+          },
+          "20221001-20231001": {
+            "trades": 82,
+            "pnl_pct": 4.714,
+            "winrate": 63.41,
+            "max_drawdown_pct": 1.843,
+            "break_even_pct": 0.0677,
+            "loss": -0.0677
+          },
+          "20231001-20241001": {
+            "trades": 101,
+            "pnl_pct": 1.887,
+            "winrate": 50.5,
+            "max_drawdown_pct": 1.23,
+            "break_even_pct": 0.0176,
+            "loss": -0.0176
+          },
+          "20240904-20250904": {
+            "trades": 104,
+            "pnl_pct": 2.01,
+            "winrate": 52.88,
+            "max_drawdown_pct": 4.107,
+            "break_even_pct": 0.0154,
+            "loss": -0.0154
+          }
+        }
+      },
+      "overrides": {
+        "shortEntryRetr": 0.4,
+        "shortSlRetr": 0.6,
+        "shortRr": 1.0
+      },
+      "results_file": null,
+      "pareto": null,
+      "plateau_select": {
+        "candidates": [
+          {
+            "epoch": 40,
+            "loss": -0.0158,
+            "robust": -0.01402,
+            "neighbours": 4,
+            "worst": -0.011,
+            "points": [
+              {
+                "param": "shortEntryRetr",
+                "value": 0.35,
+                "step": -1,
+                "loss": -0.011
+              },
+              {
+                "param": "shortSlRetr",
+                "value": 0.65,
+                "step": 1,
+                "loss": -0.0134
+              },
+              {
+                "param": "shortRr",
+                "value": 1.0,
+                "step": -1,
+                "loss": -0.0154
+              },
+              {
+                "param": "shortRr",
+                "value": 1.5,
+                "step": 1,
+                "loss": -0.0145
+              }
+            ]
+          },
+          {
+            "epoch": 28,
+            "loss": -0.0154,
+            "robust": -0.0148,
+            "neighbours": 3,
+            "worst": -0.013,
+            "points": [
+              {
+                "param": "shortEntryRetr",
+                "value": 0.35,
+                "step": -1,
+                "loss": -0.013
+              },
+              {
+                "param": "shortSlRetr",
+                "value": 0.65,
+                "step": 1,
+                "loss": -0.015
+              },
+              {
+                "param": "shortRr",
+                "value": 1.25,
+                "step": 1,
+                "loss": -0.0158
+              }
+            ]
+          },
+          {
+            "epoch": 14,
+            "loss": -0.015,
+            "robust": -0.01394,
+            "neighbours": 4,
+            "worst": -0.0125,
+            "points": [
+              {
+                "param": "shortEntryRetr",
+                "value": 0.35,
+                "step": -1,
+                "loss": -0.0125
+              },
+              {
+                "param": "shortSlRetr",
+                "value": 0.6,
+                "step": -1,
+                "loss": -0.0154
+              },
+              {
+                "param": "shortSlRetr",
+                "value": 0.7,
+                "step": 1,
+                "loss": -0.0134
+              },
+              {
+                "param": "shortRr",
+                "value": 1.25,
+                "step": 1,
+                "loss": -0.0134
+              }
+            ]
+          },
+          {
+            "epoch": 46,
+            "loss": -0.0145,
+            "robust": -0.013420000000000001,
+            "neighbours": 4,
+            "worst": -0.0113,
+            "points": [
+              {
+                "param": "shortEntryRetr",
+                "value": 0.35,
+                "step": -1,
+                "loss": -0.0117
+              },
+              {
+                "param": "shortSlRetr",
+                "value": 0.65,
+                "step": 1,
+                "loss": -0.0113
+              },
+              {
+                "param": "shortRr",
+                "value": 1.25,
+                "step": -1,
+                "loss": -0.0158
+              },
+              {
+                "param": "shortRr",
+                "value": 1.75,
+                "step": 1,
+                "loss": -0.0138
+              }
+            ]
+          },
+          {
+            "epoch": 2,
+            "loss": -0.0144,
+            "robust": -0.011857142857142858,
+            "neighbours": 6,
+            "worst": -0.0092,
+            "points": [
+              {
+                "param": "shortEntryRetr",
+                "value": 0.3,
+                "step": -1,
+                "loss": -0.0114
+              },
+              {
+                "param": "shortEntryRetr",
+                "value": 0.4,
+                "step": 1,
+                "loss": -0.0134
+              },
+              {
+                "param": "shortSlRetr",
+                "value": 0.6,
+                "step": -1,
+                "loss": -0.011
+              },
+              {
+                "param": "shortSlRetr",
+                "value": 0.7,
+                "step": 1,
+                "loss": -0.0092
+              },
+              {
+                "param": "shortRr",
+                "value": 1.0,
+                "step": -1,
+                "loss": -0.0125
+              },
+              {
+                "param": "shortRr",
+                "value": 1.5,
+                "step": 1,
+                "loss": -0.0111
+              }
+            ]
+          }
+        ],
+        "chosen": 28,
+        "best_epoch": 40
+      }
+    },
+    "instrument": "mnq_databento"
+  },
+  "params": {
+    "trendFilter": "off",
+    "trendEmaLen": 200,
+    "trendTF": 0,
+    "volFilter": "off",
+    "volLookback": 100,
+    "entryConfirm": "none",
+    "confirmBars": 3,
+    "confirmImbMinAtr": 0.05,
+    "confirmPbWickPct": 60,
+    "confirmPbBodyPct": 30,
+    "entryOrderType": "market",
+    "limitOffsetPct": 50,
+    "limitValidBars": 3,
+    "limitKeepRR": true,
+    "fixedQty": true,
+    "qty": 1,
+    "skipOverRisk": false,
+    "ibStart": 930,
+    "ibMinutes": 60,
+    "breakOn": "wick",
+    "breakFrom": 1030,
+    "breakTo": 1125,
+    "tradeMon": true,
+    "tradeTue": true,
+    "tradeWed": true,
+    "tradeThu": true,
+    "tradeFri": true,
+    "minIbPoints": 0.0,
+    "maxIbPoints": 0.0,
+    "tradeDirection": "Both",
+    "entryMode": "pullback",
+    "entryRetr": 0.1,
+    "slRetr": 1.1,
+    "slBufferTicks": 0,
+    "lastEntry": 1330,
+    "tpMode": "rr",
+    "tpExt": 0.5,
+    "rr": 2,
+    "minRR": 0.5,
+    "shortLevels": true,
+    "shortEntryRetr": 0.25,
+    "shortSlRetr": 0.8,
+    "shortTpExt": 0.5,
+    "shortRr": 1.0,
+    "closeAtEnd": true,
+    "exitTime": 1600,
+    "riskDollar": 250.0,
+    "drawRange": true,
+    "leverage": 1.0
+  },
+  "repo_version": "52d6c3ab3",
+  "error": null,
+  "result": {
+    "duration_s": 24.3
+  },
+  "series": null
+}

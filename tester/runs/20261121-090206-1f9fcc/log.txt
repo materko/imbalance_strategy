@@ -1,0 +1,5 @@
+$ natívny emulátor MultiCharts (C#) MNQ 3m 20240904-20250904
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 60m @60m 125/125, filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 8640 barov pred oknom (bez obchodov)
+hotovo: 141 obchodov, nerozhodnutelnych minut 0
+graf (kresby) sa dopočíta pri prvom otvorení behu

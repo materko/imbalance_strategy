@@ -1,0 +1,5 @@
+$ natívny emulátor MultiCharts (C#) MNQ 1h 20231001-20241001
+predhistoria indikatorov z dat pred behom: ATR 20 za 20 seáns @60m 5106/5106
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+hotovo: 162 obchodov, nerozhodnutelnych minut 0
+graf (kresby) sa dopočíta pri prvom otvorení behu

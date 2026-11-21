@@ -1,0 +1,3 @@
+$ natívny hyperopt ibretnet MGC/USD 5m 20211001-20250904: 2 epoch, sampler tpe (C# emulátor MultiCharts)
+  2/2 epoch (2 roznych backtestov), ubehlo 1 s, najlepsie skore -0.0035 (epocha 1)
+hotovo: 2 epoch (2 roznych backtestov) za 1.1 s

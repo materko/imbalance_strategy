@@ -1,0 +1,5 @@
+$ natívny emulátor MultiCharts (C#) MGC 30m 20231001-20241001
+predhistoria indikatorov z dat pred behom: filter trendu EMA 253 na 60m @60m 632/632
+predhistoria grafu: 1152 barov pred oknom (bez obchodov)
+hotovo: 186 obchodov, nerozhodnutelnych minut 0
+graf (kresby) sa dopočíta pri prvom otvorení behu

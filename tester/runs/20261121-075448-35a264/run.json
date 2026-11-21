@@ -1,0 +1,369 @@
+{
+  "id": "20261121-075448-35a264",
+  "status": "done",
+  "created": "2026-11-21T07:54:48+00:00",
+  "started": "2026-11-21T07:54:48+00:00",
+  "finished": "2026-11-21T07:54:51+00:00",
+  "user": "IBS",
+  "note": "hyperopt tradeFri=true,false, exitTime=1500,1545,1600, tradeDirection=Both,Long only,Short only — IB RETRACE MGC: ladenie G5 piatok okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+  "settings": {
+    "strategy": "ibretnet",
+    "exchange": null,
+    "sweep": null,
+    "pair": "MGC/USD",
+    "engine": "multicharts",
+    "timeframe": "5m",
+    "timerange": "20211001-20250904",
+    "fee": 1.755e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 60000.0,
+    "timeframe_detail": "1m",
+    "profile": "tradebot/strategies/ibretnet/configs/mgc_databento_5m.json",
+    "hyperopt": {
+      "knobs": {
+        "tradeFri": "true,false",
+        "exitTime": "1500,1545,1600",
+        "tradeDirection": "Both,Long only,Short only"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 80,
+      "epochs": 300,
+      "seed": null,
+      "verify": true,
+      "native": true,
+      "sampler": "tpe",
+      "windows": [
+        "20211001-20221001",
+        "20221001-20231001",
+        "20231001-20241001",
+        "20240904-20250904"
+      ],
+      "aggregate": "min",
+      "objectives": null,
+      "select": "plateau",
+      "mode": "search",
+      "anchored": false,
+      "continue_from": null,
+      "epochs_done": 300,
+      "distinct": 72,
+      "best": {
+        "epoch": 17,
+        "loss": -0.018,
+        "params": {
+          "hp_tradeFri": true,
+          "hp_exitTime": 1600,
+          "hp_tradeDirection": "Both"
+        },
+        "trades": 485,
+        "pnl_pct": 1.8955,
+        "winrate": 55.8825,
+        "max_drawdown_pct": 0.919,
+        "profit_factor": 1.4665,
+        "usable": true,
+        "is_best": true,
+        "windows": {
+          "20211001-20221001": {
+            "trades": 119,
+            "pnl_pct": 1.273,
+            "winrate": 55.46,
+            "max_drawdown_pct": 0.64,
+            "break_even_pct": 0.0193,
+            "loss": -0.0193
+          },
+          "20221001-20231001": {
+            "trades": 123,
+            "pnl_pct": 1.253,
+            "winrate": 58.54,
+            "max_drawdown_pct": 0.376,
+            "break_even_pct": 0.018,
+            "loss": -0.018
+          },
+          "20231001-20241001": {
+            "trades": 125,
+            "pnl_pct": 1.854,
+            "winrate": 53.6,
+            "max_drawdown_pct": 0.919,
+            "break_even_pct": 0.0218,
+            "loss": -0.0218
+          },
+          "20240904-20250904": {
+            "trades": 118,
+            "pnl_pct": 3.202,
+            "winrate": 55.93,
+            "max_drawdown_pct": 0.541,
+            "break_even_pct": 0.0292,
+            "loss": -0.0292
+          }
+        }
+      },
+      "overrides": {
+        "tradeFri": true,
+        "exitTime": 1600,
+        "tradeDirection": "Both"
+      },
+      "results_file": null,
+      "pareto": null,
+      "plateau_select": {
+        "candidates": [
+          {
+            "epoch": 17,
+            "loss": -0.018,
+            "robust": 341.15611666666666,
+            "neighbours": 5,
+            "worst": 1036.0,
+            "points": [
+              {
+                "param": "tradeFri",
+                "value": false,
+                "step": 1,
+                "loss": -0.0125
+              },
+              {
+                "param": "exitTime",
+                "value": 1500,
+                "step": 1,
+                "loss": -0.0172
+              },
+              {
+                "param": "exitTime",
+                "value": 1545,
+                "step": 1,
+                "loss": -0.0156
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1036.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1011.0
+              }
+            ]
+          },
+          {
+            "epoch": 5,
+            "loss": -0.0172,
+            "robust": 341.15613333333334,
+            "neighbours": 5,
+            "worst": 1036.0,
+            "points": [
+              {
+                "param": "tradeFri",
+                "value": false,
+                "step": 1,
+                "loss": -0.0124
+              },
+              {
+                "param": "exitTime",
+                "value": 1545,
+                "step": 1,
+                "loss": -0.0156
+              },
+              {
+                "param": "exitTime",
+                "value": 1600,
+                "step": 1,
+                "loss": -0.018
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1036.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1011.0
+              }
+            ]
+          },
+          {
+            "epoch": 21,
+            "loss": -0.0156,
+            "robust": 341.1562166666667,
+            "neighbours": 5,
+            "worst": 1036.0,
+            "points": [
+              {
+                "param": "tradeFri",
+                "value": false,
+                "step": 1,
+                "loss": -0.0119
+              },
+              {
+                "param": "exitTime",
+                "value": 1500,
+                "step": 1,
+                "loss": -0.0172
+              },
+              {
+                "param": "exitTime",
+                "value": 1600,
+                "step": 1,
+                "loss": -0.018
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1036.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1011.0
+              }
+            ]
+          },
+          {
+            "epoch": 4,
+            "loss": -0.0125,
+            "robust": 344.65753333333333,
+            "neighbours": 5,
+            "worst": 1044.0,
+            "points": [
+              {
+                "param": "tradeFri",
+                "value": true,
+                "step": 1,
+                "loss": -0.018
+              },
+              {
+                "param": "exitTime",
+                "value": 1500,
+                "step": 1,
+                "loss": -0.0124
+              },
+              {
+                "param": "exitTime",
+                "value": 1545,
+                "step": 1,
+                "loss": -0.0119
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1044.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1024.0
+              }
+            ]
+          },
+          {
+            "epoch": 29,
+            "loss": -0.0124,
+            "robust": 344.65766666666667,
+            "neighbours": 5,
+            "worst": 1044.0,
+            "points": [
+              {
+                "param": "tradeFri",
+                "value": true,
+                "step": 1,
+                "loss": -0.0172
+              },
+              {
+                "param": "exitTime",
+                "value": 1545,
+                "step": 1,
+                "loss": -0.0119
+              },
+              {
+                "param": "exitTime",
+                "value": 1600,
+                "step": 1,
+                "loss": -0.0125
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Long only",
+                "step": 1,
+                "loss": 1044.0
+              },
+              {
+                "param": "tradeDirection",
+                "value": "Short only",
+                "step": 1,
+                "loss": 1024.0
+              }
+            ]
+          }
+        ],
+        "chosen": 17,
+        "best_epoch": 17
+      }
+    },
+    "instrument": "mgc_databento"
+  },
+  "params": {
+    "trendFilter": "off",
+    "trendEmaLen": 200,
+    "trendTF": 0,
+    "volFilter": "off",
+    "volLookback": 100,
+    "entryConfirm": "none",
+    "confirmBars": 3,
+    "confirmImbMinAtr": 0.05,
+    "confirmPbWickPct": 60,
+    "confirmPbBodyPct": 30,
+    "entryOrderType": "market",
+    "limitOffsetPct": 50,
+    "limitValidBars": 3,
+    "limitKeepRR": true,
+    "fixedQty": true,
+    "qty": 1,
+    "skipOverRisk": false,
+    "ibStart": 930,
+    "ibMinutes": 60,
+    "breakOn": "wick",
+    "breakFrom": 1030,
+    "breakTo": 1225,
+    "tradeMon": true,
+    "tradeTue": true,
+    "tradeWed": true,
+    "tradeThu": true,
+    "tradeFri": true,
+    "minIbPoints": 0.0,
+    "maxIbPoints": 0.0,
+    "tradeDirection": "Both",
+    "entryMode": "pullback",
+    "entryRetr": 0.35,
+    "slRetr": 0.9,
+    "slBufferTicks": 8,
+    "lastEntry": 1530,
+    "tpMode": "rr",
+    "tpExt": 0.5,
+    "rr": 1,
+    "minRR": 0.5,
+    "shortLevels": true,
+    "shortEntryRetr": 0.15,
+    "shortSlRetr": 0.65,
+    "shortTpExt": 0.5,
+    "shortRr": 1,
+    "closeAtEnd": true,
+    "exitTime": 1600,
+    "riskDollar": 250.0,
+    "drawRange": true,
+    "leverage": 1.0
+  },
+  "repo_version": "52d6c3ab3",
+  "error": null,
+  "result": {
+    "duration_s": 3.1
+  },
+  "series": null
+}

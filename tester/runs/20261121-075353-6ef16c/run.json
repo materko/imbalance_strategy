@@ -1,0 +1,552 @@
+{
+  "id": "20261121-075353-6ef16c",
+  "status": "done",
+  "created": "2026-11-21T07:53:53+00:00",
+  "started": "2026-11-21T07:53:53+00:00",
+  "finished": "2026-11-21T07:54:11+00:00",
+  "user": "IBS",
+  "note": "hyperopt breakTo=1055,1125,1155,1225,1255, lastEntry=1130,1230,1330,1430,1530, breakOn=wick,close, slBufferTicks=0,4,8 — IB RETRACE MGC: ladenie G3 okno okolo štatistiky IB (Mac mini) — 21. 11. 2026",
+  "settings": {
+    "strategy": "ibretnet",
+    "exchange": null,
+    "sweep": null,
+    "pair": "MGC/USD",
+    "engine": "multicharts",
+    "timeframe": "5m",
+    "timerange": "20211001-20250904",
+    "fee": 1.755e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 60000.0,
+    "timeframe_detail": "1m",
+    "profile": "tradebot/strategies/ibretnet/configs/mgc_databento_5m.json",
+    "hyperopt": {
+      "knobs": {
+        "breakTo": "1055,1125,1155,1225,1255",
+        "lastEntry": "1130,1230,1330,1430,1530",
+        "breakOn": "wick,close",
+        "slBufferTicks": "0,4,8"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 80,
+      "epochs": 300,
+      "seed": null,
+      "verify": true,
+      "native": true,
+      "sampler": "tpe",
+      "windows": [
+        "20211001-20221001",
+        "20221001-20231001",
+        "20231001-20241001",
+        "20240904-20250904"
+      ],
+      "aggregate": "min",
+      "objectives": null,
+      "select": "plateau",
+      "mode": "search",
+      "anchored": false,
+      "continue_from": null,
+      "epochs_done": 300,
+      "distinct": 484,
+      "best": {
+        "epoch": 33,
+        "loss": -0.018,
+        "params": {
+          "hp_breakTo": 1225,
+          "hp_lastEntry": 1530,
+          "hp_breakOn": "wick",
+          "hp_slBufferTicks": 8
+        },
+        "trades": 485,
+        "pnl_pct": 1.8955,
+        "winrate": 55.8825,
+        "max_drawdown_pct": 0.919,
+        "profit_factor": 1.4665,
+        "usable": true,
+        "is_best": true,
+        "windows": {
+          "20211001-20221001": {
+            "trades": 119,
+            "pnl_pct": 1.273,
+            "winrate": 55.46,
+            "max_drawdown_pct": 0.64,
+            "break_even_pct": 0.0193,
+            "loss": -0.0193
+          },
+          "20221001-20231001": {
+            "trades": 123,
+            "pnl_pct": 1.253,
+            "winrate": 58.54,
+            "max_drawdown_pct": 0.376,
+            "break_even_pct": 0.018,
+            "loss": -0.018
+          },
+          "20231001-20241001": {
+            "trades": 125,
+            "pnl_pct": 1.854,
+            "winrate": 53.6,
+            "max_drawdown_pct": 0.919,
+            "break_even_pct": 0.0218,
+            "loss": -0.0218
+          },
+          "20240904-20250904": {
+            "trades": 118,
+            "pnl_pct": 3.202,
+            "winrate": 55.93,
+            "max_drawdown_pct": 0.541,
+            "break_even_pct": 0.0292,
+            "loss": -0.0292
+          }
+        }
+      },
+      "overrides": {
+        "breakTo": 1225,
+        "lastEntry": 1530,
+        "breakOn": "wick",
+        "slBufferTicks": 8
+      },
+      "results_file": null,
+      "pareto": null,
+      "plateau_select": {
+        "candidates": [
+          {
+            "epoch": 16,
+            "loss": -0.0193,
+            "robust": 84.65168333333334,
+            "neighbours": 11,
+            "worst": 1016.0,
+            "points": [
+              {
+                "param": "breakTo",
+                "value": 1055,
+                "step": 1,
+                "loss": -0.0084
+              },
+              {
+                "param": "breakTo",
+                "value": 1125,
+                "step": 1,
+                "loss": -0.0161
+              },
+              {
+                "param": "breakTo",
+                "value": 1225,
+                "step": 1,
+                "loss": -0.018
+              },
+              {
+                "param": "breakTo",
+                "value": 1255,
+                "step": 1,
+                "loss": -0.0176
+              },
+              {
+                "param": "lastEntry",
+                "value": 1130,
+                "step": 1,
+                "loss": -0.0151
+              },
+              {
+                "param": "lastEntry",
+                "value": 1230,
+                "step": 1,
+                "loss": -0.016
+              },
+              {
+                "param": "lastEntry",
+                "value": 1330,
+                "step": 1,
+                "loss": -0.0192
+              },
+              {
+                "param": "lastEntry",
+                "value": 1430,
+                "step": 1,
+                "loss": -0.0186
+              },
+              {
+                "param": "breakOn",
+                "value": "close",
+                "step": 1,
+                "loss": 1016.0
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 0,
+                "step": 1,
+                "loss": -0.0144
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 4,
+                "step": 1,
+                "loss": -0.0171
+              }
+            ]
+          },
+          {
+            "epoch": 2,
+            "loss": -0.0192,
+            "robust": 84.73515,
+            "neighbours": 11,
+            "worst": 1017.0,
+            "points": [
+              {
+                "param": "breakTo",
+                "value": 1055,
+                "step": 1,
+                "loss": -0.0072
+              },
+              {
+                "param": "breakTo",
+                "value": 1125,
+                "step": 1,
+                "loss": -0.0161
+              },
+              {
+                "param": "breakTo",
+                "value": 1225,
+                "step": 1,
+                "loss": -0.0175
+              },
+              {
+                "param": "breakTo",
+                "value": 1255,
+                "step": 1,
+                "loss": -0.0175
+              },
+              {
+                "param": "lastEntry",
+                "value": 1130,
+                "step": 1,
+                "loss": -0.0151
+              },
+              {
+                "param": "lastEntry",
+                "value": 1230,
+                "step": 1,
+                "loss": -0.016
+              },
+              {
+                "param": "lastEntry",
+                "value": 1430,
+                "step": 1,
+                "loss": -0.0186
+              },
+              {
+                "param": "lastEntry",
+                "value": 1530,
+                "step": 1,
+                "loss": -0.0193
+              },
+              {
+                "param": "breakOn",
+                "value": "close",
+                "step": 1,
+                "loss": 1017.0
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 0,
+                "step": 1,
+                "loss": -0.0145
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 4,
+                "step": 1,
+                "loss": -0.0172
+              }
+            ]
+          },
+          {
+            "epoch": 36,
+            "loss": -0.0186,
+            "robust": 84.65178333333334,
+            "neighbours": 11,
+            "worst": 1016.0,
+            "points": [
+              {
+                "param": "breakTo",
+                "value": 1055,
+                "step": 1,
+                "loss": -0.0072
+              },
+              {
+                "param": "breakTo",
+                "value": 1125,
+                "step": 1,
+                "loss": -0.0161
+              },
+              {
+                "param": "breakTo",
+                "value": 1225,
+                "step": 1,
+                "loss": -0.018
+              },
+              {
+                "param": "breakTo",
+                "value": 1255,
+                "step": 1,
+                "loss": -0.0176
+              },
+              {
+                "param": "lastEntry",
+                "value": 1130,
+                "step": 1,
+                "loss": -0.0151
+              },
+              {
+                "param": "lastEntry",
+                "value": 1230,
+                "step": 1,
+                "loss": -0.016
+              },
+              {
+                "param": "lastEntry",
+                "value": 1330,
+                "step": 1,
+                "loss": -0.0192
+              },
+              {
+                "param": "lastEntry",
+                "value": 1530,
+                "step": 1,
+                "loss": -0.0193
+              },
+              {
+                "param": "breakOn",
+                "value": "close",
+                "step": 1,
+                "loss": 1016.0
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 0,
+                "step": 1,
+                "loss": -0.0144
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 4,
+                "step": 1,
+                "loss": -0.0171
+              }
+            ]
+          },
+          {
+            "epoch": 33,
+            "loss": -0.018,
+            "robust": 83.98555833333333,
+            "neighbours": 11,
+            "worst": 1008.0,
+            "points": [
+              {
+                "param": "breakTo",
+                "value": 1055,
+                "step": 1,
+                "loss": -0.0084
+              },
+              {
+                "param": "breakTo",
+                "value": 1125,
+                "step": 1,
+                "loss": -0.0161
+              },
+              {
+                "param": "breakTo",
+                "value": 1155,
+                "step": 1,
+                "loss": -0.0193
+              },
+              {
+                "param": "breakTo",
+                "value": 1255,
+                "step": 1,
+                "loss": -0.0176
+              },
+              {
+                "param": "lastEntry",
+                "value": 1130,
+                "step": 1,
+                "loss": -0.0159
+              },
+              {
+                "param": "lastEntry",
+                "value": 1230,
+                "step": 1,
+                "loss": -0.016
+              },
+              {
+                "param": "lastEntry",
+                "value": 1330,
+                "step": 1,
+                "loss": -0.0175
+              },
+              {
+                "param": "lastEntry",
+                "value": 1430,
+                "step": 1,
+                "loss": -0.018
+              },
+              {
+                "param": "breakOn",
+                "value": "close",
+                "step": 1,
+                "loss": 1008.0
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 0,
+                "step": 1,
+                "loss": -0.012
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 4,
+                "step": 1,
+                "loss": -0.0145
+              }
+            ]
+          },
+          {
+            "epoch": 83,
+            "loss": -0.018,
+            "robust": 83.98571666666668,
+            "neighbours": 11,
+            "worst": 1008.0,
+            "points": [
+              {
+                "param": "breakTo",
+                "value": 1055,
+                "step": 1,
+                "loss": -0.0072
+              },
+              {
+                "param": "breakTo",
+                "value": 1125,
+                "step": 1,
+                "loss": -0.0161
+              },
+              {
+                "param": "breakTo",
+                "value": 1155,
+                "step": 1,
+                "loss": -0.0186
+              },
+              {
+                "param": "breakTo",
+                "value": 1255,
+                "step": 1,
+                "loss": -0.0176
+              },
+              {
+                "param": "lastEntry",
+                "value": 1130,
+                "step": 1,
+                "loss": -0.0159
+              },
+              {
+                "param": "lastEntry",
+                "value": 1230,
+                "step": 1,
+                "loss": -0.016
+              },
+              {
+                "param": "lastEntry",
+                "value": 1330,
+                "step": 1,
+                "loss": -0.0175
+              },
+              {
+                "param": "lastEntry",
+                "value": 1530,
+                "step": 1,
+                "loss": -0.018
+              },
+              {
+                "param": "breakOn",
+                "value": "close",
+                "step": 1,
+                "loss": 1008.0
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 0,
+                "step": 1,
+                "loss": -0.012
+              },
+              {
+                "param": "slBufferTicks",
+                "value": 4,
+                "step": 1,
+                "loss": -0.0145
+              }
+            ]
+          }
+        ],
+        "chosen": 33,
+        "best_epoch": 16
+      }
+    },
+    "instrument": "mgc_databento"
+  },
+  "params": {
+    "trendFilter": "off",
+    "trendEmaLen": 200,
+    "trendTF": 0,
+    "volFilter": "off",
+    "volLookback": 100,
+    "entryConfirm": "none",
+    "confirmBars": 3,
+    "confirmImbMinAtr": 0.05,
+    "confirmPbWickPct": 60,
+    "confirmPbBodyPct": 30,
+    "entryOrderType": "market",
+    "limitOffsetPct": 50,
+    "limitValidBars": 3,
+    "limitKeepRR": true,
+    "fixedQty": true,
+    "qty": 1,
+    "skipOverRisk": false,
+    "ibStart": 930,
+    "ibMinutes": 60,
+    "breakOn": "wick",
+    "breakFrom": 1030,
+    "breakTo": 1125,
+    "tradeMon": true,
+    "tradeTue": true,
+    "tradeWed": true,
+    "tradeThu": true,
+    "tradeFri": true,
+    "minIbPoints": 0.0,
+    "maxIbPoints": 0.0,
+    "tradeDirection": "Both",
+    "entryMode": "pullback",
+    "entryRetr": 0.35,
+    "slRetr": 0.9,
+    "slBufferTicks": 0,
+    "lastEntry": 1330,
+    "tpMode": "rr",
+    "tpExt": 0.5,
+    "rr": 1,
+    "minRR": 0.5,
+    "shortLevels": true,
+    "shortEntryRetr": 0.15,
+    "shortSlRetr": 0.65,
+    "shortTpExt": 0.5,
+    "shortRr": 1,
+    "closeAtEnd": true,
+    "exitTime": 1600,
+    "riskDollar": 250.0,
+    "drawRange": true,
+    "leverage": 1.0
+  },
+  "repo_version": "52d6c3ab3",
+  "error": null,
+  "result": {
+    "duration_s": 18.0
+  },
+  "series": null
+}
