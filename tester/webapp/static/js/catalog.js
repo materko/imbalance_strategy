@@ -187,7 +187,7 @@ function catCard(f) {
       <span class="spacer"></span>
       <button type="button" class="primary small" data-cat-open="${esc(f.key)}">Otestovať</button>
     </div>
-    ${f.ports.length || (auditOf(f.key) && auditOf(f.key).csharp) ? "" : '<div class="cat-nocs" title="stratégia nemá C# jadro — na NinjaTrader 8 / MetaTrader 5 (live) ju treba najprv prepísať do jadra (docs/STRATEGIE.md, „Stratégia s jadrom v C#“)">⚙ treba prepísať do jadra (C#)</div>'}
+    ${f.live || f.ports.length || (auditOf(f.key) && auditOf(f.key).csharp) ? "" : '<div class="cat-nocs" title="stratégia nemá C# jadro — na NinjaTrader 8 / MetaTrader 5 (live) ju treba najprv prepísať do jadra (docs/STRATEGIE.md, „Stratégia s jadrom v C#“)">⚙ treba prepísať do jadra (C#)</div>'}
   </article>`;
 }
 
