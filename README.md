@@ -24,14 +24,14 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **142 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **144 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
 
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
-| **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` (päť z nich aj ako `…eod`) |
+| **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `ibret` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` `ibretnet` (päť z nich aj ako `…eod`) |
 | **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `tksmgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` `tksmgcnet` |
 | **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `tkses` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` `tksesnet` |
 | **DOW** (MYM) | `noamym` `tksmym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` `tksmymnet` |
@@ -168,7 +168,10 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
   tou istou logikou ako platený IB Lab — prieraz, bias, max retracement / extension, HOS/LOS, before-break, IB close a karty
   dashboardu s filtrami. Overené deň po dni proti ich ES dátam 2010–2026 (zhoda okrem 5 dní s inými dátami okolo rolovania);
   vo webapp karta **IB** s filtrami, kartami a histogramami ([docs/INITIAL_BALANCE.md](docs/INITIAL_BALANCE.md)).
-
+- **IB RETRACE 1.0** (`ibret`, C# `ibretnet`, 20. 11.): podľa videa IB Lab „Max Retracement Price“ — po prvom zavretí
+  za Initial Balance (9:30–10:30 NY) limitka na návrate do IB, stop za úrovňou, hlbšie než ktorú sa cena po prieraze
+  v ~70 % dní nevracia, cieľ extenzia IB; úrovne sú zlomky šírky IB a zatiaľ dočasné z videa — presné čísla dodá
+  štatistika návratu ceny (karta **IB** / `tester.initial_balance`). Parita C# bar po bare; bez ladenia a analytiky.
 - **TKS na ďalších trhoch** (17. 11.): TKS 1.0 (NQ Kompas) ako kópie na ES (`tkses`), MGC (`tksmgc`), MYM (`tksmym`),
   BTC (`tksbtc`) a 6E (`tkseur`), každá aj s C# jadrom (`…net`, parita bar po bare). Kompas je pomerový a škála tlaku
   vychádza na všetkých trhoch ako na MNQ. Nové je len nastavenie seansy Kompasu (`sessOpenMin` / `sessCloseMin`,

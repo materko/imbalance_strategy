@@ -42,6 +42,8 @@ from .m2mnq import SPEC as M2MNQ_SPEC
 from .m2eur import SPEC as M2EUR_SPEC
 from .m2mgc import SPEC as M2MGC_SPEC
 from .ivb import SPEC as IVB_SPEC
+from .ibret import SPEC as IBRET_SPEC
+from .ibretnet import SPEC as IBRETNET_SPEC
 from .wprnet import SPEC as WPRNET_SPEC
 from .voltbreaknet import SPEC as VOLTBREAKNET_SPEC
 from .sigmamgcnet import SPEC as SIGMAMGCNET_SPEC
@@ -227,6 +229,8 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     M2EUR_SPEC,
     M2MGC_SPEC,
     IVB_SPEC,
+    IBRET_SPEC,
+    IBRETNET_SPEC,
     WPRNET_SPEC,
     VOLTBREAKNET_SPEC,
     SIGMAMGCNET_SPEC,
