@@ -29,6 +29,8 @@ namespace TradeBot.Strategies.IbRetNet
         // ---- Initial Balance a prieraz (New York, HHMM) -------------------------
         public int ibStart = 930;
         public int ibMinutes = 60;
+        /// <summary>Python `BreakOn`: "wick" (knot ostro za IB, IB Lab) / "close" (zavretie za IB) / "body" (cele telo za IB).</summary>
+        public string breakOn = "wick";
         public int breakFrom = 1030;
         public int breakTo = 1125;
         public bool tradeMon = true;
@@ -38,6 +40,13 @@ namespace TradeBot.Strategies.IbRetNet
         public bool tradeFri = true;
         public double minIbPoints = 0.0;
         public double maxIbPoints = 0.0;
+        public double minIbPct = 0.0;
+        public double maxIbPct = 0.0;
+        public int ibAvgDays = 20;
+        public double minIbRel = 0.0;
+        public double maxIbRel = 0.0;
+        /// <summary>Python `BiasFilter`: "off" / "with" / "against".</summary>
+        public string biasFilter = "off";
         /// <summary>Python `TradeDirection`: "Both" / "Long only" / "Short only".</summary>
         public string tradeDirection = "Both";
         // ---- vstup a urovne (zlomok sirky IB od prerazenej hrany) ----------------
@@ -53,6 +62,11 @@ namespace TradeBot.Strategies.IbRetNet
         public double tpExt = 0.5;
         public double rr = 1.0;
         public double minRR = 0.5;
+        public bool shortLevels = false;
+        public double shortEntryRetr = 0.25;
+        public double shortSlRetr = 0.8;
+        public double shortTpExt = 0.5;
+        public double shortRr = 1.0;
         public bool closeAtEnd = true;
         public int exitTime = 1600;
         // ---- velkost ----------------------------------------------------------
@@ -63,6 +77,13 @@ namespace TradeBot.Strategies.IbRetNet
         // ---- vizualizacia a rozsirenia portu -------------------------------------
         public bool drawRange = true;
         public double leverage = 1.0;
+
+        /// <summary>Urovne (entryRetr, slRetr, tpExt, rr) pre smer obchodu - Python `levels`.</summary>
+        public double[] Levels(bool isLong)
+        {
+            if (isLong || !shortLevels) return new double[] { entryRetr, slRetr, tpExt, rr };
+            return new double[] { shortEntryRetr, shortSlRetr, shortTpExt, shortRr };
+        }
 
         public bool AllowLong { get { return tradeDirection != "Short only"; } }
         public bool AllowShort { get { return tradeDirection != "Long only"; } }
@@ -83,10 +104,14 @@ namespace TradeBot.Strategies.IbRetNet
                 else f.SetValue(cfg, Convert.ToString(raw, CultureInfo.InvariantCulture));
             }
             ConfigChoice.Check("tradeDirection", cfg.tradeDirection, "Both", "Long only", "Short only");
+            ConfigChoice.Check("breakOn", cfg.breakOn, "wick", "close", "body");
+            ConfigChoice.Check("biasFilter", cfg.biasFilter, "off", "with", "against");
             ConfigChoice.Check("entryMode", cfg.entryMode, "pullback", "breakout");
             ConfigChoice.Check("tpMode", cfg.tpMode, "ext", "rr");
             if (cfg.slRetr <= cfg.entryRetr)
                 throw new ArgumentException("IB RETRACE: slRetr musi byt hlbsie nez entryRetr");
+            if (cfg.shortLevels && cfg.shortSlRetr <= cfg.shortEntryRetr)
+                throw new ArgumentException("IB RETRACE: shortSlRetr musi byt hlbsie nez shortEntryRetr");
             return cfg;
         }
     }

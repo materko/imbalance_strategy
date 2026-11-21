@@ -71,3 +71,16 @@ def test_pokazeny_kalendar_nezhodi_import_ale_pouzitie_ano(tmp_path, monkeypatch
             cal.load()
     finally:
         cal.load.cache_clear()
+
+
+def test_ecb_cas_new_york_pre_kazdy_den():
+    """ECB 14:15 Frankfurt: 29. 10. 2026 je Európa už v zimnom čase a USA ešte v letnom → 9:15 NY = 13:15 UTC;
+    do 9. 6. 2022 bolo rozhodnutie o 13:45 (zmena overená na 6E)."""
+    from datetime import date
+
+    from tradebot.strategies.spravy import calendar as C
+
+    ev = C.load()["events"]
+    assert C.time_of(ev["ECB"], "2026-10-29") == "09:15" and C.time_of(ev["ECB"], "2026-12-17") == "08:15"
+    assert C.time_of(ev["ECB"], "2022-06-09") == "07:45" and C.time_of(ev["ECB_TK"], "2026-12-17") == "08:45"
+    assert C.to_utc_ms(date(2026, 10, 29), C.time_of(ev["ECB"], "2026-10-29")) % 86_400_000 == (13 * 60 + 15) * 60_000

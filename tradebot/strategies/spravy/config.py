@@ -106,6 +106,9 @@ class SpravyConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFi
     useISM_M: bool = False
     useISM_S: bool = False
     useCLAIMS: bool = False
+    #: ECB (21. 11. 2026, SPRÁVY na EUR/USD) — zlato ich predvolene neobchoduje
+    useECB: bool = False
+    useECB_TK: bool = False
     # ---- 📰 Pravidlo 1 ---------------------------------------------------------- #
     r1Event: str = "FOMC"
     r1Mode: str = "fade"

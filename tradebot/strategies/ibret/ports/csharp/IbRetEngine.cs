@@ -8,7 +8,7 @@
 //   4. limitka sa vyplnila? - pozicia alebo id v otvorenych obchodoch,
 //   5. koniec - closeAtEnd a zavretie baru o exitTime a neskor: poziciu zavriet,
 //   6. cakajuca limitka - zrusit pri lastEntry, pri prieraze druhej strany IB a ked cena dosla do ciela bez navratu,
-//   7. prieraz - prve zavretie za IB rozhodne o dni: v okne breakFrom-breakTo a povolenom smere vstup.
+//   7. prieraz - prvy knot (breakOn wick, IB Lab) alebo prve zavretie za IB rozhodne o dni: v okne breakFrom-breakTo a povolenom smere vstup.
 // Uroven x (zlomok sirky IB) lezi pri longu na IB high - x * IB, pri shorte na IB low + x * IB.
 // Engine je CISTY: ziadne I/O, ziadny globalny stav.
 using System;
@@ -43,6 +43,9 @@ namespace TradeBot.Strategies.IbRetNet
         private double _ibHigh = double.NegativeInfinity;
         private double _ibLow = double.PositiveInfinity;
         private long _ibStartMs;
+        private long _ibHighMs;
+        private long _ibLowMs;
+        private readonly List<double> _ibHist = new List<double>();   // sirky IB predoslych dni (minIbRel / maxIbRel)
         private bool _ibReady;
         private int _state = Wait;
         private string _pendingId;      // id limitky, kym sa nevyplni
@@ -99,7 +102,8 @@ namespace TradeBot.Strategies.IbRetNet
             double rng = _ibHigh - _ibLow;
             double edge = isLong ? _ibHigh : _ibLow;
             int s = isLong ? 1 : -1;
-            double stop = _inst.RoundPrice(edge - s * cfg.slRetr * rng - s * cfg.slBufferTicks * _inst.TickSize);
+            double[] lv = cfg.Levels(isLong);
+            double stop = _inst.RoundPrice(edge - s * lv[1] * rng - s * cfg.slBufferTicks * _inst.TickSize);
             double entry;
             OrderType orderType;
             if (cfg.entryMode == "breakout")
@@ -109,14 +113,14 @@ namespace TradeBot.Strategies.IbRetNet
             }
             else
             {
-                entry = _inst.RoundPrice(edge - s * cfg.entryRetr * rng);
+                entry = _inst.RoundPrice(edge - s * lv[0] * rng);
                 orderType = OrderType.Limit;
             }
             double risk = Math.Abs(entry - stop);
             if (risk < _inst.TickSize * 2) return;
             double take = cfg.tpMode == "ext"
-                ? _inst.RoundPrice(edge + s * cfg.tpExt * rng)
-                : _inst.RoundPrice(entry + s * cfg.rr * risk);
+                ? _inst.RoundPrice(edge + s * lv[2] * rng)
+                : _inst.RoundPrice(entry + s * lv[3] * risk);
             double reward = s * (take - entry);
             if (reward <= 0 || reward < cfg.minRR * risk - 1e-9) return;
             double q = cfg.fixedQty ? cfg.qty : _inst.QtyForRisk(cfg.riskDollar, risk);
@@ -209,8 +213,8 @@ namespace TradeBot.Strategies.IbRetNet
             if (!_ibReady && ibStart <= mins && mins < ibEnd)
             {
                 if (double.IsNegativeInfinity(_ibHigh)) _ibStartMs = bar.Time;
-                _ibHigh = Math.Max(_ibHigh, bar.High);
-                _ibLow = Math.Min(_ibLow, bar.Low);
+                if (bar.High > _ibHigh) { _ibHigh = bar.High; _ibHighMs = bar.Time; }
+                if (bar.Low < _ibLow) { _ibLow = bar.Low; _ibLowMs = bar.Time; }
                 if (cfg.drawRange)
                 {
                     DrawBox zb = new DrawBox(IbRetKinds.Zone, _ibStartMs, _ibHigh, _ibStartMs + cfg.ibMinutes * 60000L, _ibLow, ZoneColor);
@@ -229,10 +233,26 @@ namespace TradeBot.Strategies.IbRetNet
                 double rng = _ibHigh - _ibLow;
                 int wd = ((int)t.DayOfWeek + 6) % 7;          // Python weekday(): pondelok 0
                 bool[] days = { cfg.tradeMon, cfg.tradeTue, cfg.tradeWed, cfg.tradeThu, cfg.tradeFri };
+                double pct = rng > 0 ? rng / ((_ibHigh + _ibLow) / 2.0) * 100.0 : 0.0;
+                int maxLen = Math.Max(1, cfg.ibAvgDays);
+                double sum = 0.0;
+                foreach (double h in _ibHist) sum += h;
+                bool hasRel = _ibHist.Count == maxLen && sum > 0;
+                double rel = hasRel ? rng / (sum / _ibHist.Count) : 0.0;
+                bool useRel = cfg.minIbRel > 0 || cfg.maxIbRel > 0;
                 if (rng <= 0 || wd > 4 || !days[wd]
                     || (cfg.minIbPoints > 0 && rng < cfg.minIbPoints)
-                    || (cfg.maxIbPoints > 0 && rng > cfg.maxIbPoints))
+                    || (cfg.maxIbPoints > 0 && rng > cfg.maxIbPoints)
+                    || (cfg.minIbPct > 0 && pct < cfg.minIbPct)
+                    || (cfg.maxIbPct > 0 && pct > cfg.maxIbPct)
+                    || (useRel && (!hasRel || (cfg.minIbRel > 0 && rel < cfg.minIbRel)
+                                   || (cfg.maxIbRel > 0 && rel > cfg.maxIbRel))))
                     _state = Done;
+                if (rng > 0)
+                {
+                    _ibHist.Add(rng);
+                    if (_ibHist.Count > maxLen) _ibHist.RemoveAt(0);
+                }
             }
             if (!_ibReady) return o;
 
@@ -266,13 +286,33 @@ namespace TradeBot.Strategies.IbRetNet
             if (_state != Wait) return o;
 
             // ---- 7. prieraz ---------------------------------------------------------------- //
-            bool up = bar.Close > _ibHigh;
-            bool down = bar.Close < _ibLow;
+            bool up, down;
+            if (cfg.breakOn == "wick")
+            {
+                down = bar.Low < _ibLow;                      // oba okraje v jednom bare = medvedi (IB Lab)
+                up = bar.High > _ibHigh && !down;
+            }
+            else if (cfg.breakOn == "body")
+            {
+                up = Math.Min(bar.Open, bar.Close) > _ibHigh;
+                down = Math.Max(bar.Open, bar.Close) < _ibLow;
+            }
+            else
+            {
+                up = bar.Close > _ibHigh;
+                down = bar.Close < _ibLow;
+            }
             if (!(up || down)) return o;
             _state = Done;                                    // o dni rozhoduje prvy prieraz
+            if (pos != 0.0) return o;                         // pozicia z predosleho dna (bez konca dna) - dnes bez vstupu
             int hhmm = t.Hour * 100 + t.Minute;
             if (!(cfg.breakFrom <= hhmm && hhmm <= cfg.breakTo)) return o;
             if ((up && !cfg.AllowLong) || (down && !cfg.AllowShort)) return o;
+            if (cfg.biasFilter != "off")
+            {
+                bool bull = _ibLowMs < _ibHighMs;            // lowFirst (IB Lab), inak highFirst
+                if ((up == bull) != (cfg.biasFilter == "with")) return o;
+            }
             Enter(o, bar, idx, up);
             return o;
         }

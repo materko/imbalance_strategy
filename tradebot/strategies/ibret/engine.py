@@ -8,7 +8,7 @@
   4. **limitka sa vyplnila?** — pozícia alebo id v otvorených obchodoch,
   5. **koniec** — `closeAtEnd` a zavretie baru o `exitTime` a neskôr: pozíciu zavrieť,
   6. **čakajúca limitka** — zrušiť pri `lastEntry`, pri prieraze druhej strany IB a keď cena došla do cieľa bez návratu,
-  7. **prieraz** — prvé zavretie za IB rozhodne o dni: v okne `breakFrom`–`breakTo` a povolenom smere vstup
+  7. **prieraz** — prvý knôt (`breakOn` wick, IB Lab) alebo prvé zavretie za IB rozhodne o dni: v okne `breakFrom`–`breakTo` a povolenom smere vstup
      (limitka na `entryRetr` alebo market), stop na `slRetr`, cieľ extenzia / RR; inak v ten deň nič.
 
 Úroveň x (zlomok šírky IB) leží pri longu na IB high − x × IB, pri shorte na IB low + x × IB.
@@ -17,6 +17,7 @@ Engine je čistý: žiadne I/O, žiadny globálny stav.
 
 from __future__ import annotations
 
+from collections import deque
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -28,7 +29,7 @@ from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.warmup import Warmup
 
-from .config import EntryMode, IbRetConfig, TpMode
+from .config import BiasFilter, BreakOn, EntryMode, IbRetConfig, TpMode
 from .drawing import IBRET_ENTRY, IBRET_ZONE
 
 __all__ = ["IbRetEngine"]
@@ -60,6 +61,10 @@ class IbRetEngine:
         self.ib_high = float("-inf")
         self.ib_low = float("inf")
         self.ib_start_ms = 0
+        self.ib_high_ms = 0
+        self.ib_low_ms = 0
+        #: šírky IB predošlých dní (filter minIbRel / maxIbRel)
+        self.ib_hist: deque[float] = deque(maxlen=max(1, int(cfg.ibAvgDays)))
         self.ib_ready = False
         self.state = _WAIT
         self.pending: str | None = None      # id limitky, kým sa nevyplní
@@ -80,18 +85,19 @@ class IbRetEngine:
         rng = self.ib_high - self.ib_low
         edge = self.ib_high if long else self.ib_low
         s = 1 if long else -1
-        stop = inst.round_price(edge - s * float(cfg.slRetr) * rng - s * int(cfg.slBufferTicks) * inst.tick_size)
+        entry_retr, sl_retr, tp_ext, rr = cfg.levels(long)
+        stop = inst.round_price(edge - s * sl_retr * rng - s * int(cfg.slBufferTicks) * inst.tick_size)
         if cfg.entryMode is EntryMode.BREAKOUT:
             entry, order_type = bar.close, OrderType.MARKET
         else:
-            entry, order_type = inst.round_price(edge - s * float(cfg.entryRetr) * rng), OrderType.LIMIT
+            entry, order_type = inst.round_price(edge - s * entry_retr * rng), OrderType.LIMIT
         risk = abs(entry - stop)
         if risk < inst.tick_size * 2:
             return
         if cfg.tpMode is TpMode.EXT:
-            take = inst.round_price(edge + s * float(cfg.tpExt) * rng)
+            take = inst.round_price(edge + s * tp_ext * rng)
         else:
-            take = inst.round_price(entry + s * float(cfg.rr) * risk)
+            take = inst.round_price(entry + s * rr * risk)
         reward = s * (take - entry)
         if reward <= 0 or reward < float(cfg.minRR) * risk - 1e-9:
             return
@@ -159,8 +165,10 @@ class IbRetEngine:
         if not self.ib_ready and ib_start <= mins < ib_end:
             if self.ib_high == float("-inf"):
                 self.ib_start_ms = bar.time
-            self.ib_high = max(self.ib_high, bar.high)
-            self.ib_low = min(self.ib_low, bar.low)
+            if bar.high > self.ib_high:
+                self.ib_high, self.ib_high_ms = bar.high, bar.time
+            if bar.low < self.ib_low:
+                self.ib_low, self.ib_low_ms = bar.low, bar.time
             if cfg.drawRange:
                 out.drawings.append(DrawBox(IBRET_ZONE, self.ib_start_ms, self.ib_high,
                                             self.ib_start_ms + int(cfg.ibMinutes) * 60_000, self.ib_low, _ZONE,
@@ -174,10 +182,20 @@ class IbRetEngine:
             rng = self.ib_high - self.ib_low
             wd = t.weekday()
             days = (cfg.tradeMon, cfg.tradeTue, cfg.tradeWed, cfg.tradeThu, cfg.tradeFri)
+            pct = rng / ((self.ib_high + self.ib_low) / 2.0) * 100.0 if rng > 0 else 0.0
+            hist = self.ib_hist
+            rel = rng / (sum(hist) / len(hist)) if len(hist) == hist.maxlen and sum(hist) > 0 else None
+            use_rel = float(cfg.minIbRel) > 0 or float(cfg.maxIbRel) > 0
             if rng <= 0 or wd > 4 or not days[wd] \
                     or (float(cfg.minIbPoints) > 0 and rng < float(cfg.minIbPoints)) \
-                    or (float(cfg.maxIbPoints) > 0 and rng > float(cfg.maxIbPoints)):
+                    or (float(cfg.maxIbPoints) > 0 and rng > float(cfg.maxIbPoints)) \
+                    or (float(cfg.minIbPct) > 0 and pct < float(cfg.minIbPct)) \
+                    or (float(cfg.maxIbPct) > 0 and pct > float(cfg.maxIbPct)) \
+                    or (use_rel and (rel is None or (float(cfg.minIbRel) > 0 and rel < float(cfg.minIbRel))
+                                     or (float(cfg.maxIbRel) > 0 and rel > float(cfg.maxIbRel)))):
                 self.state = _DONE
+            if rng > 0:
+                hist.append(rng)
         if not self.ib_ready:
             return out
 
@@ -209,16 +227,29 @@ class IbRetEngine:
             return out
 
         # ---- 7. prieraz ---------------------------------------------------------------- #
-        up = bar.close > self.ib_high
-        down = bar.close < self.ib_low
+        if cfg.breakOn is BreakOn.WICK:
+            down = bar.low < self.ib_low                  # oba okraje v jednom bare = medvedí (IB Lab)
+            up = bar.high > self.ib_high and not down
+        elif cfg.breakOn is BreakOn.BODY:
+            up = min(bar.open, bar.close) > self.ib_high
+            down = max(bar.open, bar.close) < self.ib_low
+        else:
+            up = bar.close > self.ib_high
+            down = bar.close < self.ib_low
         if not (up or down):
             return out
         self.state = _DONE                                # o dni rozhoduje prvý prieraz
+        if pos != 0.0:
+            return out                                    # pozícia z predošlého dňa (bez konca dňa) — dnes bez vstupu
         hhmm = t.hour * 100 + t.minute
         if not (int(cfg.breakFrom) <= hhmm <= int(cfg.breakTo)):
             return out
         if (up and not cfg.allow_long) or (down and not cfg.allow_short):
             return out
+        if cfg.biasFilter is not BiasFilter.OFF:
+            bull = self.ib_low_ms < self.ib_high_ms       # lowFirst (IB Lab), inak highFirst
+            if (up == bull) != (cfg.biasFilter is BiasFilter.WITH):
+                return out
         self._enter(out, bar, idx, up)
         return out
 

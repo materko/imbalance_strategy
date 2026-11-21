@@ -1,6 +1,6 @@
 # IB RETRACE 1.0 — Initial Balance Max Retracement — ako funguje
 
-> V jednej vete: keď cena po prvej hodine New Yorku zavrie za Initial Balance, stratégia počká na návrat späť do IB a vstúpi v smere prierazu so stopom za úrovňou, hlbšie než ktorú sa cena v ~70 % dní nevracia.
+> V jednej vete: keď cena po prvej hodine New Yorku prerazí Initial Balance, stratégia počká na návrat späť do IB a vstúpi v smere prierazu so stopom za úrovňou, hlbšie než ktorú sa cena v ~70 % dní nevracia.
 
 Podľa videa IB Lab „Max Retracement Price“ (používateľ 20. 11. 2026). Video dáva štatistiku, nie hotové pravidlá vstupu
 a výstupu — tie sú navrhnuté tu a všetky úrovne sú parametre. **Úrovne sú zatiaľ dočasné (z videa)**, presné čísla
@@ -15,11 +15,17 @@ prinesie štatistika návratu ceny a podľa nej sa nastavia.
   long (pondelok) najviac 0,60–0,69, short (utorok, single break) najviac 0,70–0,79.
 
 ## Prieraz
-- Prieraz = **prvé zavretie sviečky za IB** po 10:30. Rozhoduje vždy prvý prieraz dňa — keď nesedí s nastavením,
-  v ten deň sa neobchoduje.
+- Prieraz (`breakOn`) = **prvý knôt sviečky ostro za IB** po 10:30, presne ako IB Lab (`wick`, predvolené; keď
+  sviečka prerazí oba okraje, berie sa ako medvedí). Dá sa prepnúť na **zavretie** za IB (`close`) alebo **celé telo**
+  za IB (`body`). Rozhoduje vždy prvý prieraz dňa — keď nesedí s nastavením, v ten deň sa neobchoduje.
 - Sviečka prierazu sa musí otvoriť v okne **`breakFrom`–`breakTo`** (predvolene 10:30–11:25; IB Lab filtruje časy
   potvrdenia 10:30, 10:35, 10:40 …), v povolený **deň v týždni** a v povolenom smere.
-- Voliteľne šírka IB v bodoch (`minIbPoints`, `maxIbPoints`).
+- Voliteľne šírka IB: v bodoch (`minIbPoints`, `maxIbPoints`), v % ceny ako „IB %“ v IB Lab (`minIbPct`, `maxIbPct`)
+  alebo voči priemeru IB z `ibAvgDays` predošlých dní (`minIbRel`, `maxIbRel`; 1 = bežný deň).
+- Voliteľne **bias IB** (`biasFilter`): býčí, keď IB low vzniklo skôr ako IB high (IB Lab „lowFirst“). `with` = long
+  len pri býčom a short pri medvedom biase, `against` naopak.
+- Short môže mať vlastné úrovne (`shortLevels` + `shortEntryRetr`, `shortSlRetr`, `shortTpExt`, `shortRr`) — v štatistike
+  sa short vracia hlbšie než long.
 
 ## Vstup
 - **pullback** (predvolene): hneď po prieraze **limitka na úrovni `entryRetr`** (0,25 = štvrtina IB späť dovnútra).

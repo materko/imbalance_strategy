@@ -1,0 +1,6 @@
+{
+  "_title": "IB RETRACE 1.0 MYM (C# jadro) · MYM 5m · úrovne sa nastavujú podľa štatistiky IB",
+  "_strategy": "ibretmymnet",
+  "_instrument": "mym_databento",
+  "_timeframe": "5m"
+}

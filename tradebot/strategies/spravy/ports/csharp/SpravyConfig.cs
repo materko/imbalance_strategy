@@ -43,6 +43,8 @@ namespace TradeBot.Strategies.SpravyNet
         public bool useISM_M = false;
         public bool useISM_S = false;
         public bool useCLAIMS = false;
+        public bool useECB = false;
+        public bool useECB_TK = false;
         // ---- pravidlo 1 ----
         public string r1Event = "FOMC";
         public string r1Mode = "fade";
@@ -194,6 +196,8 @@ namespace TradeBot.Strategies.SpravyNet
                 case "ISM_M": return useISM_M;
                 case "ISM_S": return useISM_S;
                 case "CLAIMS": return useCLAIMS;
+                case "ECB": return useECB;
+                case "ECB_TK": return useECB_TK;
                 default: return false;
             }
         }

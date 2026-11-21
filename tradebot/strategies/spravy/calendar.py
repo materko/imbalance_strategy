@@ -17,7 +17,7 @@ from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-__all__ = ["CALENDAR_FILE", "TYPES", "NY", "CalendarError", "load", "events_utc", "parse_add", "parse_skip", "to_utc_ms",
+__all__ = ["CALENDAR_FILE", "TYPES", "NY", "CalendarError", "load", "events_utc", "parse_add", "parse_skip", "to_utc_ms", "time_of",
            "last_dates", "coverage_gaps"]
 
 CALENDAR_FILE = Path(__file__).resolve().parent / "calendar.json"
@@ -27,7 +27,7 @@ NY = ZoneInfo("America/New_York")
 #: Typy správ = polia `use<TYP>` v `SpravyConfig`; zhodu s `calendar.json` stráži `test_spravy_calendar.py`.
 #: Použijú sa len vtedy, keď sa kalendár pri importe nedá prečítať (viď `_types`).
 _KNOWN_TYPES: tuple[str, ...] = ("FOMC", "FOMC_MIN", "CPI", "NFP", "PPI", "JOLTS", "RETAIL", "PCE", "GDP",
-                                 "ISM_M", "ISM_S", "CLAIMS")
+                                 "ISM_M", "ISM_S", "CLAIMS", "ECB", "ECB_TK")
 
 
 class CalendarError(ValueError):
@@ -77,6 +77,12 @@ def coverage_gaps(today: date, days: int = 45) -> list[tuple[str, date]]:
     return sorted((typ, last) for typ, last in last_dates().items() if last.toordinal() < limit)
 
 
+def time_of(ev: dict, day: str) -> str:
+    """Čas vydania v New Yorku pre deň: `times[deň]`, inak `time_et` typu. Správy mimo USA (ECB 14:15 Frankfurt)
+    majú čas New York pre každý deň zvlášť, lebo Európa a USA menia letný čas v iné týždne."""
+    return (ev.get("times") or {}).get(day, ev["time_et"])
+
+
 def to_utc_ms(day: date, hhmm: str) -> int:
     """Miestny čas New York → UTC ms (letný / zimný čas podľa dňa)."""
     hh, mm = (int(x) for x in hhmm.split(":"))
@@ -116,7 +122,7 @@ def events_utc(types: set[str] | None = None, add: str = "", skip: str = "") -> 
             day = date.fromisoformat(d)
             if (day, typ) in skipped:
                 continue
-            out.append((to_utc_ms(day, ev["time_et"]), typ))
+            out.append((to_utc_ms(day, time_of(ev, d)), typ))
     for day, hhmm, typ in parse_add(add):
         if types is None or typ in types:
             out.append((to_utc_ms(day, hhmm), typ))
@@ -186,7 +192,7 @@ def week_diff(feed: list[dict], week_start: date, cal: dict | None = None) -> di
         planned = {d for d in (date.fromisoformat(x) for x in ev["dates"]) if d in days}
         real = seen.get(typ, {})
         for day, hhmm in sorted(real.items()):
-            if hhmm != ev["time_et"]:
+            if hhmm != time_of(ev, day.isoformat()):
                 out["add"].append((day, hhmm, typ))
                 if day in planned:
                     out["skip"].append((day, typ))      # ten istý deň, iný čas: bežný čas von, skutočný dnu
@@ -244,8 +250,8 @@ def csharp_source(cal: dict | None = None) -> str:
     cal = (cal or load())["events"]
     rows = []
     for typ, ev in cal.items():
-        hh, mm = (int(x) for x in ev["time_et"].split(":"))
         for d in ev["dates"]:
+            hh, mm = (int(x) for x in time_of(ev, d).split(":"))
             y, m, dd = (int(x) for x in d.split("-"))
             rows.append(f'            new Ev({y}, {m}, {dd}, {hh}, {mm}, "{typ}"),')
     body = "\n".join(rows)

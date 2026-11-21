@@ -44,6 +44,10 @@ from .m2mgc import SPEC as M2MGC_SPEC
 from .ivb import SPEC as IVB_SPEC
 from .ibret import SPEC as IBRET_SPEC
 from .ibretnet import SPEC as IBRETNET_SPEC
+from .ibretmgc import SPEC as IBRETMGC_SPEC
+from .ibretmym import SPEC as IBRETMYM_SPEC
+from .ibretmgcnet import SPEC as IBRETMGCNET_SPEC
+from .ibretmymnet import SPEC as IBRETMYMNET_SPEC
 from .wprnet import SPEC as WPRNET_SPEC
 from .voltbreaknet import SPEC as VOLTBREAKNET_SPEC
 from .sigmamgcnet import SPEC as SIGMAMGCNET_SPEC
@@ -103,6 +107,8 @@ from .ivbes import SPEC as IVBES_SPEC
 from .ivbmgc import SPEC as IVBMGC_SPEC
 from .spravy import SPEC as SPRAVY_SPEC
 from .spravynet import SPEC as SPRAVYNET_SPEC
+from .spravyeur import SPEC as SPRAVYEUR_SPEC
+from .spravyeurnet import SPEC as SPRAVYEURNET_SPEC
 from .sdeurnet import SPEC as SDEURNET_SPEC
 from .fpc import SPEC as FPC_SPEC
 from .gap import SPEC as GAP_SPEC
@@ -231,6 +237,10 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     IVB_SPEC,
     IBRET_SPEC,
     IBRETNET_SPEC,
+    IBRETMGC_SPEC,
+    IBRETMYM_SPEC,
+    IBRETMGCNET_SPEC,
+    IBRETMYMNET_SPEC,
     WPRNET_SPEC,
     VOLTBREAKNET_SPEC,
     SIGMAMGCNET_SPEC,
@@ -290,6 +300,8 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     IVBMGC_SPEC,
     SPRAVY_SPEC,
     SPRAVYNET_SPEC,
+    SPRAVYEUR_SPEC,
+    SPRAVYEURNET_SPEC,
     SWEEPFVG_SPEC,
     SILVERBULLET_SPEC,
     NOANET_SPEC,

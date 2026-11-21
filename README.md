@@ -24,7 +24,7 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **144 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **150 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
@@ -32,11 +32,11 @@ a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.j
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
 | **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `ibret` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` `ibretnet` (päť z nich aj ako `…eod`) |
-| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `tksmgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` `tksmgcnet` |
+| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `tksmgc` `ibretmgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` `tksmgcnet` `ibretmgcnet` |
 | **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `tkses` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` `tksesnet` |
-| **DOW** (MYM) | `noamym` `tksmym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` `tksmymnet` |
+| **DOW** (MYM) | `noamym` `tksmym` `ibretmym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` `tksmymnet` `ibretmymnet` |
 | **BTC** (BTCUSDT.P) | `noabtc` `tksbtc` `dailyopenbtc` `onbiasorbbtc` `flashorbbtc` `rangebtc` | `silverbulletbtc` | `tmrbtc` `sweepengulfbtc` | `noabtcnet` `tksbtcnet` |
-| **EURUSD** (6E) | `tkseur` | `m2eur` `mtkzoneeur` `silverbulleteur` `ibsentryeur` | `sdeur` `asiasweep` `asiasweepeur` `lliqeur` `wpreur` `sweepengulfeur` | `sdeurnet` `tkseurnet` |
+| **EURUSD** (6E) | `tkseur` `spravyeur` | `m2eur` `mtkzoneeur` `silverbulleteur` `ibsentryeur` | `sdeur` `asiasweep` `asiasweepeur` `lliqeur` `wpreur` `sweepengulfeur` | `sdeurnet` `tkseurnet` `spravyeurnet` |
 
 Mimo trhov je len ukážková `demo_breakout`. Staré kľúče `ibsninja`, `orbninja` a
 `trendline` sú aliasy (`tradebot.strategies.ALIASES`), história sa neprepisuje.
@@ -162,16 +162,23 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-20)
+## Kde sme (2026-11-21)
 
 - **Initial Balance štatistika** (20. 11.): `python -m tester.initial_balance` počíta prvú hodinu seansy (NY aj Londýn)
   tou istou logikou ako platený IB Lab — prieraz, bias, max retracement / extension, HOS/LOS, before-break, IB close a karty
   dashboardu s filtrami. Overené deň po dni proti ich ES dátam 2010–2026 (zhoda okrem 5 dní s inými dátami okolo rolovania);
   vo webapp karta **IB** s filtrami, kartami a histogramami ([docs/INITIAL_BALANCE.md](docs/INITIAL_BALANCE.md)).
-- **IB RETRACE 1.0** (`ibret`, C# `ibretnet`, 20. 11.): podľa videa IB Lab „Max Retracement Price“ — po prvom zavretí
-  za Initial Balance (9:30–10:30 NY) limitka na návrate do IB, stop za úrovňou, hlbšie než ktorú sa cena po prieraze
-  v ~70 % dní nevracia, cieľ extenzia IB; úrovne sú zlomky šírky IB a zatiaľ dočasné z videa — presné čísla dodá
-  štatistika návratu ceny (karta **IB** / `tester.initial_balance`). Parita C# bar po bare; bez ladenia a analytiky.
+- **SPRÁVY na EUR/USD** (`spravyeur`, C# `spravyeurnet`, 21. 11.): výskum 6E okolo správ ECB a USA — po správach USA
+  (JOLTS, PPI, CPI, ISM služby, PCE) sa EUR/USD vracia proti prvému pohybu, po FOMC a tlačovke ECB pokračuje v trende;
+  kópia SPRÁV s vlastnými pravidlami, riziko 500 $. Kalendár SPRÁV má nové typy **ECB** a **ECB_TK** 2016–2028 (čas New York
+  pre každý deň); zlato ich neobchoduje. Výskumy zlata aj EUR sú v `tradebot/strategies/spravy*/docs/vyskum/`.
+- **IB RETRACE 1.0** (`ibret`, C# `ibretnet`, 20.–21. 11.): podľa videa IB Lab „Max Retracement Price“ — po prvom
+  prieraze Initial Balance (9:30–10:30 NY; knôt ako IB Lab, voliteľne zavretie alebo telo) limitka na návrate do IB,
+  stop za úrovňou, hlbšie než ktorú sa cena po prieraze v ~70 % dní nevracia, cieľ RR alebo extenzia IB; úrovne sú
+  zlomky šírky IB, long a short môžu mať vlastné. Filtre: šírka IB (body, % ceny, × priemer), bias IB, dni, okno
+  prierazu a spoločné trend / objem / potvrdenie. Kópie na zlato (`ibretmgc`) a Micro Dow (`ibretmym`), každá aj
+  s C# jadrom; východisko zo štatistiky IB (karta **IB** / `tester.initial_balance`), ladenie podľa smernice do 29. 11.
+  Parita C# bar po bare; analytika a posudok po ladení.
 - **TKS na ďalších trhoch** (17. 11.): TKS 1.0 (NQ Kompas) ako kópie na ES (`tkses`), MGC (`tksmgc`), MYM (`tksmym`),
   BTC (`tksbtc`) a 6E (`tkseur`), každá aj s C# jadrom (`…net`, parita bar po bare). Kompas je pomerový a škála tlaku
   vychádza na všetkých trhoch ako na MNQ. Nové je len nastavenie seansy Kompasu (`sessOpenMin` / `sessCloseMin`,

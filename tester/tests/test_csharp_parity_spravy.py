@@ -42,6 +42,10 @@ VARIANTS = {
     "opravy_kalendara": {"newsAdd": "2026-10-27 10:00 JOLTS; 2026-10-30 08:30 PCE", "newsSkip": "2026-10-28 FOMC"},
     "len_short_kratke_drzanie": {"allowLong": False, "r1Hold": 20, "r5Hold": 45, "r5From": 5, "r5To": 30, "r5Enter": 35},
     "prepinace_vypnute": {"useFOMC": False, "useCPI": False},
+    # ECB 29. 10. 2026 — Európa už v zimnom čase, USA ešte v letnom (čas New York pre deň z `times`)
+    "ecb_rozhodnutie_tlacovka": {"useECB": True, "useECB_TK": True, "r7Event": "ECB", "r7Mode": "fade", "r7From": 0, "r7To": 15,
+                                 "r7Enter": 15, "r7Hold": 10, "r8Event": "ECB_TK", "r8Mode": "trend", "r8From": 0, "r8To": 10,
+                                 "r8Enter": 10, "r8Hold": 60},
     "pred_spravou_viac_pravidiel": {"r2Event": "FOMC", "r2Mode": "fade", "r2From": -30, "r2To": -5, "r2Enter": 0, "r2Hold": 15,
                                     "r1Event": "FOMC", "r1From": -60, "r1To": 0, "r1Enter": 20, "r1Hold": 30},
 }
@@ -101,3 +105,24 @@ def test_na_mgc(profile, tmp_path):
         pytest.skip(f"dáta nie sú k dispozícii: {exc}")
     assert res["mismatches"] == [], res["mismatches"][:3]
     assert res["counts"]["drawings"] > 50, res["counts"]
+
+
+def test_eur_posledny_rok(tmp_path):
+    """SPRÁVY na EUR/USD (21. 11. 2026): východiskový profil 6E dá v C# (`spravyeurnet`) presne to isté ako Python kópia,
+    aj so správami ECB (čas New York pre každý deň z kalendára)."""
+    from pathlib import Path
+
+    from tradebot.strategies import STRATEGIES
+
+    spec = STRATEGIES["spravyeurnet"]
+    data = json.loads((Path(spec.profile_dir) / f"{spec.default_profile}.json").read_text(encoding="utf-8"))
+    data.pop("_strategy", None)     # ten istý profil pre predlohu aj C# port
+    data.update({"useECB": True, "r8Event": "ECB", "r8Mode": "fade", "r8From": 0, "r8To": 30, "r8Enter": 30, "r8Hold": 120})
+    profile = tmp_path / "p.json"
+    profile.write_text(json.dumps(data), encoding="utf-8")
+    try:
+        res = csharp_parity.compare("spravyeur", "spravyeurnet", str(profile), "6e", 5, "2025-09-04", "2026-09-04")
+    except (SystemExit, FileNotFoundError, KeyError) as exc:  # chýbajúce dáta
+        pytest.skip(f"dáta nie sú k dispozícii: {exc}")
+    assert res["mismatches"] == [], res["mismatches"][:3]
+    assert res["counts"]["entries"] > 20, res["counts"]

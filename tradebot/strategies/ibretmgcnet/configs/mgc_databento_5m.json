@@ -1,0 +1,6 @@
+{
+  "_title": "IB RETRACE 1.0 MGC (C# jadro) · MGC 5m · úrovne sa nastavujú podľa štatistiky IB",
+  "_strategy": "ibretmgcnet",
+  "_instrument": "mgc_databento",
+  "_timeframe": "5m"
+}

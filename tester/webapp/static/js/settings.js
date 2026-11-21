@@ -566,14 +566,14 @@ const STRATEGIA_TRH_TYP = {
   // TKS 1.0 (NQ Kompas) na ďalších trhoch (17. 11. 2026: Kompas je pomerový, ladenie odznova + smernica)
   tkses: ["S&P 500", "TRENDOVÉ"], tksmgc: ["ZLATO", "TRENDOVÉ"], tksmym: ["DOW", "TRENDOVÉ"], tksbtc: ["BTC", "TRENDOVÉ"], tkseur: ["EURUSD", "TRENDOVÉ"],
   // IB RETRACE 1.0 (20. 11. 2026, video IB Lab „Max Retracement Price“: návrat do IB po prieraze)
-  ibret: ["NASDAQ", "TRENDOVÉ"],
+  ibret: ["NASDAQ", "TRENDOVÉ"], ibretmgc: ["ZLATO", "TRENDOVÉ"], ibretmym: ["DOW", "TRENDOVÉ"], spravyeur: ["EURUSD", "TRENDOVÉ"],
   // EURUSD (Euro FX futures 6E, CFD EURUSD)
   sdeur: ["EURUSD", "RANGEOVÉ"], asiasweep: ["EURUSD", "RANGEOVÉ"],
   // EURUSD (6E, 15. 11. 2026: ladenie 2016–2021/9 + smernica po BTC, päť referenčných okien ako čisté overenie)
   asiasweepeur: ["EURUSD", "RANGEOVÉ"], mtkzoneeur: ["EURUSD", "SKALPOVACIE"], lliqeur: ["EURUSD", "RANGEOVÉ"], silverbulleteur: ["EURUSD", "SKALPOVACIE"], wpreur: ["EURUSD", "RANGEOVÉ"], ibsentryeur: ["EURUSD", "SKALPOVACIE"], sweepengulfeur: ["EURUSD", "RANGEOVÉ"],
 };
 /** Práve pridané stratégie — štítok „nová“, kým žiadne ich nastavenie neprejde smernicou. */
-const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet", "nb", "m2", "m2mnq", "m2mgc", "m2eur", "spravy", "ivb", "orb15", "orb15es", "orb15mgc", "flashorb", "flashorbes", "flashorbmgc", "sigma", "sigmaes", "sigmamgc", "nqprec", "nqpreces", "nqprecmgc", "lliq", "lliqes", "lliqmgc", "tmr", "tmres", "tmrmgc", "wpr", "wpres", "wprmgc", "ivbes", "ivbmgc", "noaes", "noamgc", "mtkorb", "ibsentrymym", "noamym", "wprmym", "sweepengulfmym", "tmrmym", "lliqmym", "sigmamym", "nocponmym", "noabtc", "dailyopenbtc", "onbiasorbbtc", "flashorbbtc", "silverbulletbtc", "rangebtc", "tmrbtc", "sweepengulfbtc", "asiasweepeur", "mtkzoneeur", "lliqeur", "silverbulleteur", "wpreur", "ibsentryeur", "sweepengulfeur", "tkses", "tksmgc", "tksmym", "tksbtc", "tkseur", "ibret"]);
+const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "nyvaes", "ibsentrymgc", "ibsentryes", "sdeur", "sdeurnet", "nb", "m2", "m2mnq", "m2mgc", "m2eur", "spravy", "ivb", "orb15", "orb15es", "orb15mgc", "flashorb", "flashorbes", "flashorbmgc", "sigma", "sigmaes", "sigmamgc", "nqprec", "nqpreces", "nqprecmgc", "lliq", "lliqes", "lliqmgc", "tmr", "tmres", "tmrmgc", "wpr", "wpres", "wprmgc", "ivbes", "ivbmgc", "noaes", "noamgc", "mtkorb", "ibsentrymym", "noamym", "wprmym", "sweepengulfmym", "tmrmym", "lliqmym", "sigmamym", "nocponmym", "noabtc", "dailyopenbtc", "onbiasorbbtc", "flashorbbtc", "silverbulletbtc", "rangebtc", "tmrbtc", "sweepengulfbtc", "asiasweepeur", "mtkzoneeur", "lliqeur", "silverbulleteur", "wpreur", "ibsentryeur", "sweepengulfeur", "tkses", "tksmgc", "tksmym", "tksbtc", "tkseur", "ibret", "ibretmgc", "ibretmym", "spravyeur"]);
 /** Značky auditu pri názve stratégie (tester/audit.json): trieda A / B / C a Sortino (S zelené = prešiel, červené = nie).
  *  Kľúč C# portu (`ibsentrynet`) berie audit predlohy. */
 function auditOf(k) {

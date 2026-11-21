@@ -29,6 +29,14 @@ PROFILE = "mnq_databento_5m"
 
 VARIANTS = {
     "zdroj": {},
+    "zatvorenie": {"breakOn": "close"},
+    "short_vlastne_urovne": {"shortLevels": True, "shortEntryRetr": 0.1, "shortSlRetr": 0.7, "shortTpExt": 0.8,
+                             "shortRr": 2.0, "slRetr": 0.6},
+    "short_vlastne_rr": {"shortLevels": True, "tpMode": "rr", "rr": 2.0, "shortRr": 1.25, "shortSlRetr": 0.9,
+                         "breakOn": "close"},
+    "telo_bias_with_ib_pct": {"breakOn": "body", "biasFilter": "with", "minIbPct": 0.2, "maxIbPct": 3.0},
+    "bez_konca_dna": {"closeAtEnd": False, "tpMode": "rr", "rr": 2.0, "slRetr": 1.1},
+    "bias_against_ib_rel": {"biasFilter": "against", "ibAvgDays": 5, "minIbRel": 0.6, "maxIbRel": 1.6},
     "breakout_rr": {"entryMode": "breakout", "tpMode": "rr", "rr": 1.0, "minRR": 0.5},
     "short_rezerva_dni": {"tradeDirection": "Short only", "slBufferTicks": 8, "tradeMon": False, "tradeFri": False},
     "okno_sirka_bez_konca": {"breakFrom": 1035, "breakTo": 1300, "lastEntry": 1500, "closeAtEnd": False,
@@ -69,3 +77,29 @@ def test_mnq_posledny_rok(name, tmp_path):
         pytest.skip(f"dáta nie sú k dispozícii: {exc}")
     assert res["mismatches"] == [], res["mismatches"][:3]
     assert res["counts"]["entries"] > 10, res["counts"]
+
+
+#: IB RETRACE na MGC a MYM (21. 11. 2026): vlastné kľúče C# nad tým istým `IbRetEngine`; kód trhu pre sklad sviečok.
+MARKETS = {"mgc": ("ibretmgc", "ibretmgcnet"), "mym": ("ibretmym", "ibretmymnet")}
+
+
+@pytest.mark.parametrize("market", sorted(MARKETS))
+def test_trhy_posledny_rok(market, tmp_path):
+    """Východiskový profil trhu dá v C# na svojom trhu presne to isté ako Python kópia (aj s filtrami IB)."""
+    from pathlib import Path
+
+    from tradebot.strategies import STRATEGIES
+
+    base, net = MARKETS[market]
+    spec = STRATEGIES[net]
+    data = json.loads((Path(spec.profile_dir) / f"{spec.default_profile}.json").read_text(encoding="utf-8"))
+    data.pop("_strategy", None)     # ten istý profil pre predlohu aj C# port
+    data.update({"biasFilter": "with", "minIbRel": 0.5, "maxIbRel": 2.0, "closeAtEnd": False})
+    profile = tmp_path / "p.json"
+    profile.write_text(json.dumps(data), encoding="utf-8")
+    try:
+        res = csharp_parity.compare(base, net, str(profile), market, 5, "2025-09-04", "2026-09-04")
+    except (SystemExit, FileNotFoundError, KeyError) as exc:  # chýbajúce dáta
+        pytest.skip(f"dáta nie sú k dispozícii: {exc}")
+    assert res["mismatches"] == [], res["mismatches"][:3]
+    assert res["counts"]["entries"] > 20, res["counts"]

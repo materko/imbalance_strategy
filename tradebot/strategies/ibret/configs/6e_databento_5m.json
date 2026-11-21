@@ -1,0 +1,6 @@
+{
+  "_title": "IB RETRACE 1.0 · 6E 5m · úrovne sa nastavujú podľa štatistiky IB",
+  "_strategy": "ibret",
+  "_instrument": "6e_databento",
+  "_timeframe": "5m"
+}

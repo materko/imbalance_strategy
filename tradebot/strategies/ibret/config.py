@@ -6,7 +6,8 @@ nevráti hlbšie než istý zlomok IB (long pondelok −0,60 až −0,69, short 
 Čísla zo štatistiky ešte prídu — defaulty sú zatiaľ z videa a ladia sa podľa nich.
 
   * **IB** — high / low barov s otvorením `ibStart` ≤ t < `ibStart` + `ibMinutes` (New York),
-  * **prieraz** — prvé zavretie baru za IB po jeho konci; otvorenie baru v okne `breakFrom`–`breakTo`, inak deň bez
+  * **prieraz** — `breakOn` wick (IB Lab): prvý bar po IB, ktorého knôt je ostro za IB (oba okraje v jednom bare =
+    short); close: prvé zavretie baru za IB; otvorenie baru v okne `breakFrom`–`breakTo`, inak deň bez
     obchodu (rozhoduje vždy prvý prieraz dňa), deň v týždni podľa `tradeMon`…`tradeFri`,
   * **vstup** — `entryMode` pullback: limitka na úrovni `entryRetr` (návrat do IB), breakout: market na zavretí,
   * **stop** — úroveň `slRetr` (za max retracementom) − `slBufferTicks`; **cieľ** — extenzia `tpExt` × IB za
@@ -31,7 +32,7 @@ from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUM
                                        EntryOrderFields)
 from tradebot.core.types import SizeUnit
 
-__all__ = ["IbRetConfig", "EntryMode", "TpMode", "TradeDirection", "CONFIG_DIR"]
+__all__ = ["IbRetConfig", "BreakOn", "BiasFilter", "EntryMode", "TpMode", "TradeDirection", "CONFIG_DIR"]
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
@@ -39,6 +40,18 @@ CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 class EntryMode(str, Enum):
     PULLBACK = "pullback"    # limitka na úrovni entryRetr po prieraze
     BREAKOUT = "breakout"    # market na zavretí sviečky prierazu
+
+
+class BreakOn(str, Enum):
+    WICK = "wick"      # knôt ostro za IB (IB Lab, video); oba okraje v jednom bare = medvedí
+    CLOSE = "close"    # zavretie baru za IB
+    BODY = "body"      # celé telo baru za IB (otvorenie aj zavretie)
+
+
+class BiasFilter(str, Enum):
+    OFF = "off"
+    WITH = "with"         # long len pri biase lowFirst (IB low vzniklo skôr ako high), short pri highFirst
+    AGAINST = "against"   # naopak
 
 
 class TpMode(str, Enum):
@@ -53,12 +66,14 @@ class TradeDirection(str, Enum):
 
 
 SIZE_FIELDS: dict[str, SizeUnit] = {}
-ENUM_FIELDS: dict[str, type] = {"entryMode": EntryMode, "tpMode": TpMode, "tradeDirection": TradeDirection}
+ENUM_FIELDS: dict[str, type] = {"breakOn": BreakOn, "biasFilter": BiasFilter, "entryMode": EntryMode, "tpMode": TpMode, "tradeDirection": TradeDirection}
 CONSTRAINTS: dict[str, tuple[float, float]] = {
     "ibStart": (0, 2359), "ibMinutes": (5, 240), "breakFrom": (0, 2359), "breakTo": (0, 2359), "lastEntry": (0, 2359),
     "exitTime": (0, 2359), "entryRetr": (0.0, 0.95), "slRetr": (0.05, 1.5), "slBufferTicks": (0, 200),
-    "tpExt": (0.05, 5.0), "rr": (0.5, 10.0), "minRR": (0.0, 10.0), "minIbPoints": (0, 100000),
-    "maxIbPoints": (0, 100000), "qty": (0.001, 1000), "riskDollar": (0, 100000), "leverage": (1, 125),
+    "tpExt": (0.05, 5.0), "rr": (0.5, 10.0), "shortEntryRetr": (0.0, 0.95), "shortSlRetr": (0.05, 1.5),
+    "shortTpExt": (0.05, 5.0), "shortRr": (0.5, 10.0), "minRR": (0.0, 10.0), "minIbPoints": (0, 100000),
+    "maxIbPoints": (0, 100000), "minIbPct": (0.0, 20.0), "maxIbPct": (0.0, 20.0), "ibAvgDays": (1, 250),
+    "minIbRel": (0.0, 10.0), "maxIbRel": (0.0, 10.0), "qty": (0.001, 1000), "riskDollar": (0, 100000), "leverage": (1, 125),
 }
 PORT_ONLY_FIELDS: frozenset[str] = frozenset({"leverage"})
 
@@ -78,6 +93,8 @@ class IbRetConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFil
     ibStart: int = 930
     ibMinutes: int = 60
     #: Prieraz sa počíta, keď sa bar, ktorý zavrel za IB, otvoril v tomto okne (IB Lab: 10:30, 10:35, …).
+    #: Čo je prieraz: knôt za IB (IB Lab) alebo zavretie za IB.
+    breakOn: BreakOn = BreakOn.WICK
     breakFrom: int = 1030
     breakTo: int = 1125
     tradeMon: bool = True
@@ -88,6 +105,15 @@ class IbRetConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFil
     #: Šírka IB v bodoch (0 = bez hranice) — deň s užším / širším IB sa neobchoduje.
     minIbPoints: float = 0.0
     maxIbPoints: float = 0.0
+    #: Šírka IB v % ceny (IB Lab „IB %“: (high − low) / stred × 100), 0 = bez hranice.
+    minIbPct: float = 0.0
+    maxIbPct: float = 0.0
+    #: Šírka IB voči priemeru IB z `ibAvgDays` predošlých dní (1 = bežný deň), 0 = bez hranice.
+    ibAvgDays: int = 20
+    minIbRel: float = 0.0
+    maxIbRel: float = 0.0
+    #: Bias IB (IB Lab): lowFirst = IB low vzniklo skôr ako high (býčí). with = obchod len v smere biasu.
+    biasFilter: BiasFilter = BiasFilter.OFF
     tradeDirection: TradeDirection = TradeDirection.BOTH
     # ---- 🎯 Vstup a úrovne (zlomok šírky IB od prerazenej hrany) ------------ #
     entryMode: EntryMode = EntryMode.PULLBACK
@@ -105,6 +131,12 @@ class IbRetConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFil
     rr: float = 1.0
     #: Obchod s menším pomerom cieľ / stop sa vynechá (pravidlo testovania: nie pod 0,5).
     minRR: float = 0.5
+    #: Short má vlastné úrovne (štatistika IB Lab: long a short sa vracajú inak hlboko); vypnuté = ako long.
+    shortLevels: bool = False
+    shortEntryRetr: float = 0.25
+    shortSlRetr: float = 0.8
+    shortTpExt: float = 0.5
+    shortRr: float = 1.0
     closeAtEnd: bool = True
     exitTime: int = 1600
     # ---- 💰 Veľkosť ------------------------------------------------------------- #
@@ -115,6 +147,12 @@ class IbRetConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFil
     drawRange: bool = True
     # ---- rozšírenia portu --------------------------------------------------------- #
     leverage: float = 1.0
+
+    def levels(self, long: bool) -> tuple[float, float, float, float]:
+        """(entryRetr, slRetr, tpExt, rr) pre smer obchodu."""
+        if long or not self.shortLevels:
+            return float(self.entryRetr), float(self.slRetr), float(self.tpExt), float(self.rr)
+        return float(self.shortEntryRetr), float(self.shortSlRetr), float(self.shortTpExt), float(self.shortRr)
 
     @property
     def allow_long(self) -> bool:
@@ -131,5 +169,7 @@ class IbRetConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFil
                 yield f"{name}={v}: minúty musia byť 00–59 (HHMM)"
         if float(self.slRetr) <= float(self.entryRetr):
             yield f"slRetr={self.slRetr} musí byť hlbšie než entryRetr={self.entryRetr}"
+        if self.shortLevels and float(self.shortSlRetr) <= float(self.shortEntryRetr):
+            yield f"shortSlRetr={self.shortSlRetr} musí byť hlbšie než shortEntryRetr={self.shortEntryRetr}"
         if self.leverage < 1:
             yield f"leverage={self.leverage} musí byť >= 1"

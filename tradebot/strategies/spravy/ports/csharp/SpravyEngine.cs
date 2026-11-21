@@ -18,7 +18,7 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.SpravyNet
 {
     [TradeBotEngine("spravynet", "SPRÁVY 3.0 (C# jadro)")]
-    public sealed class SpravyEngine : IEngine, IConfigured, IPreflight
+    public class SpravyEngine : IEngine, IConfigured, IPreflight
     {
         /// <summary>Kolko dni pred koncom kalendara typu sa zivy start ozve (ako `calendar.coverage_gaps` v Pythone).</summary>
         private const int CoverageWarnDays = 45;

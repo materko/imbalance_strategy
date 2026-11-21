@@ -17,7 +17,8 @@ _GU = "✅ Obchodované správy"
 _GR = [f"📰 Pravidlo {n}" for n in range(1, RULES + 1)]
 _NAZVY = {"FOMC": "FOMC (rozhodnutie Fedu)", "FOMC_MIN": "Zápisnica FOMC", "CPI": "CPI (inflácia)", "NFP": "NFP (zamestnanosť)",
           "PPI": "PPI (ceny výrobcov)", "PCE": "PCE (inflácia Fedu)", "GDP": "HDP", "RETAIL": "Maloobchodné tržby",
-          "JOLTS": "JOLTS (voľné miesta)", "ISM_M": "ISM výroba", "ISM_S": "ISM služby", "CLAIMS": "Žiadosti o podporu (štvrtok)"}
+          "JOLTS": "JOLTS (voľné miesta)", "ISM_M": "ISM výroba", "ISM_S": "ISM služby", "CLAIMS": "Žiadosti o podporu (štvrtok)",
+          "ECB": "ECB (rozhodnutie o sadzbách)", "ECB_TK": "ECB (tlačová konferencia)"}
 _G3 = "🛡️ Stop a cieľ"
 _G7 = "📅 Kalendár (čas New York)"
 _G4 = "💰 Veľkosť"
@@ -27,7 +28,7 @@ _GE = "🧾 Typ vstupu (market / limit)"
 
 GROUPS: tuple[str, ...] = (_GU, *_GR, _G3, _G7, _G4, _G5, _G6, _GE)
 
-_TYPY = "FOMC, FOMC_MIN, CPI, NFP, PPI, PCE, GDP, RETAIL, JOLTS, ISM_M, ISM_S, CLAIMS"
+_TYPY = "FOMC, FOMC_MIN, CPI, NFP, PPI, PCE, GDP, RETAIL, JOLTS, ISM_M, ISM_S, CLAIMS, ECB, ECB_TK"
 
 PARAMS: dict[str, dict[str, Any]] = {
     "atrLen": dict(group=_G3, title="ATR grafu (dĺžka)", tooltip="Jednotka rezervy stopu a minimálnej nohy."),
