@@ -1,0 +1,4 @@
+$ natívny emulátor MultiCharts (C#) 6E 5m 20240904-20250904
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+hotovo: 56 obchodov, nerozhodnutelnych minut 0
+graf (kresby) sa dopočíta pri prvom otvorení behu
