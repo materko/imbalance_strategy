@@ -1013,6 +1013,11 @@ class HubState(TokensMixin, EventsMixin, StatsMixin, PlansMixin):
                     os.replace(cast, self.result_path(job_id))   # nikdy napoly zapísaný zip
                     cast = None
                 cudzi = bool(agent) and job.get("agent") not in (None, agent)
+                if cudzi and job["status"] in P.LIVE_STATES and job["agent"] not in job.setdefault("lost_agents", []):
+                    # Výpočet práve počíta (alebo má pridelený) iný agent a vyhrá ten neskorý: aj ten iný
+                    # ho potom odovzdá (dopočítal, alebo ho zastavíme ako zbytočný) — nesmie dostať 403
+                    # „počíta X, nie Y" a odložiť si ho ako nedoručený (srvnas 5.–22. 11. 2026: 39 takých).
+                    job["lost_agents"].append(job["agent"])
                 if job["status"] in P.FINAL_STATES:
                     job.update({"agent": agent or job.get("agent"), "collected": False, "late": True})
                     self.log("job_late_result", job=job_id, agent=agent, was=job["status"])

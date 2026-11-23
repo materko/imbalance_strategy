@@ -1709,6 +1709,38 @@ def test_second_agent_wins_and_late_one_is_told_to_stop(hub_api, tmp_path: Path)
     assert job["id"] not in srv.state.computing and not srv.state.undelivered
 
 
+@pytest.mark.parametrize("stihol", [True, False])
+def test_late_agent_wins_and_current_one_is_not_undelivered(hub_api, tmp_path: Path, stihol: bool):
+    """Opačné poradie: stratený agent sa vráti s výsledkom skôr, než výpočet dopočíta ten, komu ho hub
+    medzitým dal. Ten druhý ho potom odovzdá (dopočítaný, alebo zastavený ako zbytočný) — hub mu nesmie
+    povedať 403 „počíta X, nie Y", inak by si ho odložil do `undelivered` (srvnas 22. 11. 2026)."""
+    from tester.hub.client import HubClient
+
+    c, state, clock = hub_api
+    http = FakeHttp(c, "tajne")
+    _reg(state, name="srv1", instance="i1")
+    job = HubClient(http, "lap").submit("backtest", _payload(), queue=True)
+    state.heartbeat("srv1", {"jobs": [{"id": job["id"], "status": "running", "run_id": "beh-srv1"}]})
+    clock.t += state.agent_timeout + 1                # srv1 sa odmlčal, výpočet ide späť do fronty
+
+    srv2, runner, srv2_store = _agent("srv2", tmp_path, http)
+    srv2.tick()
+    srv2.tick()
+    assert state.job(job["id"])["agent"] == "srv2"
+    run_id = next(iter(runner.jobs))
+    runner.start_run(run_id)
+    srv2.tick()
+
+    state.result(job["id"], b"zip", status="done", agent="srv1", run_ids=["beh-srv1"])   # neskorý vyhrá
+    if stihol:
+        runner.finish(run_id, "done")                 # srv2 to medzitým dopočítal
+    srv2.tick()                                       # inak ho heartbeat zastaví (zbytočný)
+    srv2.tick()
+    j = state.job(job["id"])
+    assert j["status"] == "done" and j["agent"] == "srv1" and j["run_ids"] == ["beh-srv1"]
+    assert job["id"] not in srv2.state.computing and not srv2.state.undelivered
+
+
 def test_result_for_unknown_job_is_parked_not_lost(hub_api, tmp_path: Path):
     """Hub prišiel o stav: výsledok nemá kam ísť — agent ho neodhodí potichu."""
     from tester.hub.agent import DELIVER_404_TRIES

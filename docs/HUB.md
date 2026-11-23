@@ -226,7 +226,9 @@ odovzdanie výsledku.
    hotový výsledok aj tak prijme: prepíše ním zlyhanie a zadávateľ ho dostane v svojom
    heartbeate (`late: true` na výpočte, udalosť `job_late_result`). Platí **prvý hotový** —
    keď to medzitým dopočítal niekto iný, neskorý výsledok sa zahodí a agentovi hub povie,
-   nech beh zastaví.
+   nech beh zastaví. Aj naopak: keď neskorý výsledok príde skôr, agent, ktorý výpočet
+   medzitým dostal, ho zastaví (alebo dopočítaný odovzdá) a hub ho prijme ako zbytočný —
+   do `undelivered` nejde.
 4. Keď sa agent vráti skôr, než výpočet niekto prevezme, hub mu ho **vráti** (udalosť
    `job_readopted`) — nepočíta sa dvakrát.
 5. Jediný prípad, keď výsledok naozaj nemá kam ísť, je hub, ktorý o výpočte nevie vôbec
