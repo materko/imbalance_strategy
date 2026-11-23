@@ -52,7 +52,7 @@ __all__ = [
     "STRATEGIES_DIR", "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST", "PLATFORM_CODE",
     "TESTER_DIR", "FAULTSIM_DIR", "FAULTSIM_EXE", "RUNS_DIR", "PROFILES_DIR", "STRATEGY_AUDIT", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
-    "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE", "HUB_PULL_REQUEST", "HUB_PULL_RESULT", "HUB_DELIVERED",
+    "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE", "HUB_PULL_REQUEST", "HUB_PULL_RESULT", "HUB_PULL_CONFLICTS", "HUB_DELIVERED",
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
     "LIVE_SECRETS", "LIVE_APPLY_STATE", "LIVE_MT5_DIR", "LIVE_DATA_CURSOR", "LIVE_DATA_HUB",
     "TELEGRAM_CONFIG", "TELEGRAM_STATE", "TELEGRAM_CURSOR", "LIVE_JOURNAL", "LIVE_JOURNAL_STATE",
@@ -183,6 +183,9 @@ AGENT_STATE = TESTER_DIR / "agent_state.json"
 #: `HUB_PULL_RESULT`. Mená súborov má aj ten skript. Gitignored — patria stroju.
 HUB_PULL_REQUEST = TESTER_DIR / "hub_pull_request"
 HUB_PULL_RESULT = TESTER_DIR / "hub_pull_result"
+#: Netrackované súbory, ktoré by pull prepísal a líšia sa od origin/main: `docker/host-pull.sh`
+#: ich odloží sem do `<dátum>/<cesta>` (zhodné zmaže). Gitignored.
+HUB_PULL_CONFLICTS = TESTER_DIR / "hub_pull_conflicts"
 #: Behy, ktoré agent spočítal pre iného zadávateľa a už ich odovzdal: von z `runs/`, aby
 #: sa nebili s tými istými behmi, keď ich zadávateľ pushne (pull by spadol), a po pár
 #: dňoch preč (`tester.hub.delivered`). Gitignored — patria zadávateľovi, nie tomuto klonu.

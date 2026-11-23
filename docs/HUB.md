@@ -478,6 +478,19 @@ do `tester/hub_pull_result` (pokyn, návratový kód, výstup). Agent ho nahlás
 „pull zlyhal" s výstupom gitu); keď hostiteľ do 3 min neodpovie, nahlási, že path jednotka chýba.
 Bez nej nastav `off` — ⟳ potom len povie, že kód stiahne časovač.
 
+Skript nerobí `git pull`: na FUSE (JuiceFS na srvnas) časovač SIGALRM progress výpisu, ktorý
+fast-forward cez `merge` zapne aj s `-q`, preruší mkdir/open s EINTR a checkout tisícok behov
+spadne v polovici (20.–23. 11. 2026 tak pull padal tri dni). Robí `fetch` a potom
+`checkout --no-progress` na `origin/main` (pri lokálnych commitoch `rebase`); lokálne zmeny
+trackovaných súborov odloží do stashu a vráti — pri konflikte stash ostane (`git stash list`,
+správa „host-pull …") a strom je na HEAD. Netrackované súbory v ceste: zhodné s `origin/main`
+(behy, ktoré tento stroj už commitol) zmaže, odlišné presunie do
+`tester/hub_pull_conflicts/<dátum>/`. Zvyšky po páde (starý `*.lock`, osirelý `MERGE_AUTOSTASH`
+→ stash, `AUTO_MERGE`, rozbitý rebase) uprace sám; keď aktualizácia aj tak zlyhá a lokálne
+commity nie sú, obnoví klon `reset --hard origin/main`. Návratový kód je 0, len keď HEAD ==
+`origin/main` (3 = aktualizované, ale niečo treba pozrieť, napr. stash s konfliktom), takže
+systemd jednotka zlyhá aj pri nepushnutých lokálnych commitoch.
+
 ```ini
 # /etc/systemd/system/tradebot-agent-pull.service
 [Service]

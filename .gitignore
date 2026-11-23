@@ -62,6 +62,7 @@ tester/live/
 tester/agent_state.json
 tester/hub_pull_request*
 tester/hub_pull_result*
+tester/hub_pull_conflicts/
 tester/hub_delivered/
 .claude/
 

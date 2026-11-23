@@ -2213,7 +2213,7 @@ def test_host_script_uses_paths_from_paths_py():
     from tradebot.core import paths
 
     skript = (paths.REPO / "docker" / "host-pull.sh").read_text(encoding="utf-8")
-    for p in (paths.HUB_PULL_REQUEST, paths.HUB_PULL_RESULT):
+    for p in (paths.HUB_PULL_REQUEST, paths.HUB_PULL_RESULT, paths.HUB_PULL_CONFLICTS):
         assert f'"$repo/{p.relative_to(paths.REPO).as_posix()}"' in skript
 
 
