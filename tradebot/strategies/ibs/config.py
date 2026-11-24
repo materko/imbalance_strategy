@@ -30,6 +30,7 @@ from enum import Enum
 from typing import ClassVar, Iterable
 
 from tradebot.core.config import ConfigError, StrategyConfig, list_profiles, load_profile
+from tradebot.core.entry_filter import SPIKE_CONSTRAINTS, SPIKE_FIELD_NAMES
 
 from tradebot.core.types import (
     Direction,
@@ -92,7 +93,7 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset({
     "ruleStUp", "ruleStDown", "ruleAdxUp", "ruleAdxDown", "ruleAdxSide",
     "ruleStUpAdxUp", "ruleStUpAdxSide", "ruleStUpAdxDown",
     "ruleStDownAdxUp", "ruleStDownAdxSide", "ruleStDownAdxDown",
-})
+}) | SPIKE_FIELD_NAMES
 
 #: Zrušené polia (staré profily a behy ich nesú). `directionIndicator` bol pokusný výber
 #: jedného indikátora pred `indSupertrend`/`indAdx`; všetky uložené behy majú "Supertrend"
@@ -167,6 +168,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "adxDiLength": (1, 500),
     "adxSmoothing": (1, 500),
     "adxThreshold": (0.0, 100.0),
+    **SPIKE_CONSTRAINTS,
 }
 
 #: `zoneDetectionTF` — povolené hodnoty z Pine `options=[...]`.
@@ -479,6 +481,13 @@ class IBSConfig(StrategyConfig):
     #: notional v státisícoch USDT, takže pri páke 1 sa stake oreže a `maxLossDollar`
     #: sa vôbec neuplatní. Viď docs/audity/GOLDEN_binance_2026-08-24.md.
     leverage: float = 1.0
+
+    #: Filter špičky volatility (rozšírenie portu, 24. 11. 2026) — spoločný obal `tradebot/core/entry_filter.py`;
+    #: IBS nemá spoločný filter trendu, preto len tieto polia. Default vypnutý = parita s Pine.
+    spikeFilter: bool = False
+    spikeShortDays: int = 5
+    spikeLongDays: int = 60
+    spikeMax: float = 1.7
 
 
     def __setattr__(self, name: str, value: object) -> None:

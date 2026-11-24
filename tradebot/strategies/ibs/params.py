@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from tradebot.core.entry_filter import spike_filter_params
+
 __all__ = ["GROUPS", "PARAMS"]
 
 #: Poradie skupín vo formulári.
@@ -603,3 +605,6 @@ PARAMS: dict[str, dict[str, Any]] = {
                 "menšie než maxLossDollar).",
     ),
 }
+
+#: filter špičky volatility (rozšírenie portu, spoločný obal vstupov)
+PARAMS.update(spike_filter_params("⚙️ Základné nastavenia"))

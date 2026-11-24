@@ -34,6 +34,7 @@ LOOSE = {"lookbackDays": 5}
 
 VARIANTS = {
     "zdroj": {},
+    "spicka_volatility": {"spikeFilter": True, "spikeShortDays": 2, "spikeLongDays": 5, "spikeMax": 1.1},
     "wr_okno_prestavka": {"loLevel": 25.0, "hiLevel": 75.0, "nConf": 2, "rrRatio": 0.5, "pivLen": 5,
                           "entryStartMin": 15, "entryEndMin": 300, "pauseFromMin": 120, "pauseToMin": 180},
     "atr_strop_riziko_long": {"slMode": "atr", "slAtrMult": 1.5, "atrLen": 10, "maxSlAtr": 2.0, "fixedQty": False,

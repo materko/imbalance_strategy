@@ -153,6 +153,10 @@ namespace TradeBot.Strategies.OrbNet
         public int trendTF = 0;
         public OrbVolFilter volFilter = OrbVolFilter.Off;
         public int volLookback = 100;
+        public bool spikeFilter = false;        // filter spicky volatility - cita ho EntryFilterEngine v EntryLayers.cs
+        public int spikeShortDays = 5;
+        public int spikeLongDays = 60;
+        public double spikeMax = 1.7;
 
         // -------------------------------------------------------------------- //
 

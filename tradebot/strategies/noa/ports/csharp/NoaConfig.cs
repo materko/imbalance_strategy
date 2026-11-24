@@ -17,6 +17,10 @@ namespace TradeBot.Strategies.NoaNet
         public int trendTF = 0;
         public string volFilter = "off";
         public int volLookback = 100;
+        public bool spikeFilter = false;        // filter spicky volatility - cita ho EntryFilterEngine v EntryLayers.cs
+        public int spikeShortDays = 5;
+        public int spikeLongDays = 60;
+        public double spikeMax = 1.7;
         public string entryConfirm = "none";
         public int confirmBars = 3;
         public double confirmImbMinAtr = 0.05;

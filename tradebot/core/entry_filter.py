@@ -9,6 +9,13 @@ Stratégia (engine) rozhodne, **kedy** vstúpiť; keď má config `trendFilter` 
 Filter volatility (`volFilter`): ATR(14) grafu sa porovná s jeho priemerom za `volLookback` barov —
 ``low`` pustí vstup len v pokojnom trhu (ATR pod priemerom), ``high`` len v rozkývanom (nad priemerom).
 
+Filter špičky volatility (`spikeFilter`, 24. 11. 2026): špička = Ø denný rozsah posledných `spikeShortDays`
+uzavretých dní / Ø za `spikeLongDays` dní; deň = obchodný deň CME (18:00 → 17:00 New York), rozsah =
+(high − low) / posledné zavretie dňa v %, deň s menej než `_SPIKE_MIN_MINUTES` minútami barov (sviatok) sa nepočíta.
+Číslo sa určí na prvom bare dňa a cez deň sa nemení; pri špičke nad `spikeMax` sa v ten deň nový vstup nepustí
+(otvorená pozícia beží ďalej). Kým nie je `spikeLongDays` dní, vstupy púšťa. Pole majú aj stratégie s vlastným
+filtrom trendu (IBS a odnože: `SpikeFilterFields`) — obal sa vtedy nasadí len kvôli špičke.
+
 EMA má dĺžku `trendEmaLen` a počíta sa zo zavretí na `trendTF` minútach (0 = TF grafu); vyšší TF sa
 skladá z barov grafu a do EMA ide až uzavretý bar. Predhistóriu dostane seedom pred prvým barom
 (`Warmup.add_seeded`); kým nemá `trendEmaLen` barov, vstupy nepúšťa.
@@ -22,8 +29,10 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from .engine import EngineOutput
 from .orders import MarketContext, OrderAction
@@ -32,7 +41,8 @@ from .warmup import ema_bars
 from .entry_draw import trade_drawings, with_ids
 
 __all__ = ["TrendFilter", "VolFilter", "EntryFilterFields", "ENTRY_FILTER_ENUMS", "ENTRY_FILTER_CONSTRAINTS",
-           "ENTRY_FILTER_FIELD_NAMES", "entry_filter_params", "EntryFilterEngine", "wrap_entry_filter"]
+           "ENTRY_FILTER_FIELD_NAMES", "entry_filter_params", "EntryFilterEngine", "wrap_entry_filter",
+           "SpikeFilterFields", "SPIKE_FIELD_NAMES", "SPIKE_CONSTRAINTS", "spike_filter_params"]
 
 
 class TrendFilter(str, Enum):
@@ -48,10 +58,40 @@ class VolFilter(str, Enum):
 
 
 _ATR_LEN = 14
+_NY = ZoneInfo("America/New_York")
+#: deň CME s menej minútami barov sa do špičky nepočíta (sviatky, skrátené dni)
+_SPIKE_MIN_MINUTES = 300
 
 
 @dataclass
-class EntryFilterFields:
+class SpikeFilterFields:
+    """Mixin polí filtra špičky volatility — aj pre stratégie s vlastným filtrom trendu (IBS)."""
+
+    spikeFilter: bool = False
+    spikeShortDays: int = 5
+    spikeLongDays: int = 60
+    spikeMax: float = 1.7
+
+
+SPIKE_FIELD_NAMES: frozenset[str] = frozenset({"spikeFilter", "spikeShortDays", "spikeLongDays", "spikeMax"})
+SPIKE_CONSTRAINTS: dict[str, tuple[float, float]] = {"spikeShortDays": (1, 60), "spikeLongDays": (2, 500),
+                                                      "spikeMax": (0.5, 10.0)}
+
+
+def spike_filter_params(group: str) -> dict[str, dict[str, Any]]:
+    """Popisy polí filtra špičky pre formulár webapp."""
+    return {
+        "spikeFilter": dict(group=group, title="Filter špičky volatility",
+                            tooltip="Neotvárať obchod v deň, keď je Ø denný rozsah posledných dní nad spikeMax × bežný."),
+        "spikeShortDays": dict(group=group, title="Špička: posledné dni", inline="spike", tooltip="Krátky priemer denného rozsahu."),
+        "spikeLongDays": dict(group=group, title="Špička: bežný za (dni)", inline="spike", tooltip="Dlhý priemer = bežný stav."),
+        "spikeMax": dict(group=group, title="Špička: najviac (×)", step=0.05,
+                         tooltip="1,0 = bežný trh; 1,7 = posledné dni o 70 % divokejšie než bežne → v ten deň bez nového obchodu."),
+    }
+
+
+@dataclass
+class EntryFilterFields(SpikeFilterFields):
     """Mixin polí configu. Pridáva sa ako ďalší predok configu stratégie."""
 
     trendFilter: TrendFilter = TrendFilter.OFF
@@ -61,9 +101,10 @@ class EntryFilterFields:
     volLookback: int = 100
 
 
-ENTRY_FILTER_FIELD_NAMES: frozenset[str] = frozenset({"trendFilter", "trendEmaLen", "trendTF", "volFilter", "volLookback"})
+ENTRY_FILTER_FIELD_NAMES: frozenset[str] = frozenset({"trendFilter", "trendEmaLen", "trendTF", "volFilter",
+                                                      "volLookback"}) | SPIKE_FIELD_NAMES
 ENTRY_FILTER_ENUMS: dict[str, type] = {"trendFilter": TrendFilter, "volFilter": VolFilter}
-ENTRY_FILTER_CONSTRAINTS: dict[str, tuple[float, float]] = {"trendEmaLen": (2, 1000), "trendTF": (0, 1440),
+ENTRY_FILTER_CONSTRAINTS: dict[str, tuple[float, float]] = {**SPIKE_CONSTRAINTS, "trendEmaLen": (2, 1000), "trendTF": (0, 1440),
                                                             "volLookback": (10, 2000)}
 
 
@@ -78,6 +119,7 @@ def entry_filter_params(group: str) -> dict[str, dict[str, Any]]:
         "volFilter": dict(group=group, title="Filter volatility",
                           tooltip="off = bez filtra; low = len pokojny trh (ATR(14) pod svojim priemerom); high = len rozkyvany."),
         "volLookback": dict(group=group, title="Filter volatility: priemer za (bary)", tooltip="Z kolkych barov grafu sa ATR priemeruje."),
+        **spike_filter_params(group),
     }
 
 
@@ -87,17 +129,18 @@ class EntryFilterEngine:
     def __init__(self, engine: Any, cfg: Any, chart_tf_minutes: int) -> None:
         self.engine = engine
         self.cfg = cfg
-        self.mode = TrendFilter(getattr(cfg, "trendFilter", TrendFilter.OFF))
-        self.vol_mode = VolFilter(getattr(cfg, "volFilter", VolFilter.OFF))
+        common = hasattr(cfg, "trendTF")       # IBS a odnože majú len filter špičky
+        self.mode = TrendFilter(getattr(cfg, "trendFilter", TrendFilter.OFF)) if common else TrendFilter.OFF
+        self.vol_mode = VolFilter(getattr(cfg, "volFilter", VolFilter.OFF)) if common else VolFilter.OFF
         self.vol_n = int(getattr(cfg, "volLookback", 100))
         self.atr = 0.0
         self._tr: list[float] = []
         self._prev_close: float | None = None
         self._atrs: deque[float] = deque(maxlen=self.vol_n)
         self._atr_sum = 0.0
-        self.n = int(cfg.trendEmaLen)
+        self.n = int(getattr(cfg, "trendEmaLen", 200))
         chart = max(1, int(chart_tf_minutes))
-        tf = int(cfg.trendTF) or chart
+        tf = int(getattr(cfg, "trendTF", 0)) or chart
         if tf < chart or tf % chart:
             tf = -(-max(tf, chart) // chart) * chart
         self.tf = tf
@@ -109,6 +152,16 @@ class EntryFilterEngine:
         self._bucket: int | None = None
         self._last_close: float | None = None
         self._dropped: set[str] = set()
+        self.spike_on = bool(getattr(cfg, "spikeFilter", False))
+        self.spike_s = int(getattr(cfg, "spikeShortDays", 5))
+        self.spike_l = int(getattr(cfg, "spikeLongDays", 60))
+        self.spike_max = float(getattr(cfg, "spikeMax", 1.7))
+        self.spike: float | None = None       # špička dnešného dňa (z uzavretých dní)
+        self._ranges: deque[float] = deque(maxlen=self.spike_l)
+        self._chart_min = chart
+        self._day = None
+        self._dh = self._dl = self._dc = 0.0
+        self._dmin = 0
         warmup = getattr(engine, "warmup", None)
         if warmup is not None and hasattr(warmup, "add_seeded"):
             if self.mode is not TrendFilter.OFF:
@@ -116,6 +169,10 @@ class EntryFilterEngine:
             if self.vol_mode is not VolFilter.OFF:
                 warmup.add_seeded(f"filter volatility ATR {_ATR_LEN} / {self.vol_n} barov", self.vol_n + 4 * _ATR_LEN,
                                   chart, self._seed_vol)
+            if self.spike_on:
+                # spikeLongDays obchodných dní ≈ 1,5 × toľko kalendárnych (víkendy, sviatky) + rezerva
+                warmup.add_seeded(f"filter špičky volatility {self.spike_s} / {self.spike_l} dní",
+                                  (self.spike_l * 3 // 2 + 5) * 1440 // chart, chart, self._seed_spike)
 
     def __getattr__(self, name: str) -> Any:   # inst, required_history, warmup, final_drawings…
         if name == "engine" or name.startswith("__"):
@@ -161,6 +218,30 @@ class EntryFilterEngine:
         for b in bars:
             self._vol(b)
 
+    # ---- špička volatility --------------------------------------------- #
+
+    def _spike_push(self, bar: Bar) -> None:
+        day = (datetime.fromtimestamp(bar.time / 1000, tz=_NY) + timedelta(hours=6)).date()   # deň CME od 18:00
+        if day != self._day:
+            if self._day is not None and self._dmin >= _SPIKE_MIN_MINUTES and self._dc > 0:
+                self._ranges.append((self._dh - self._dl) / self._dc * 100.0)
+                if len(self._ranges) >= self.spike_l:
+                    short = list(self._ranges)[-self.spike_s:]
+                    self.spike = (sum(short) / len(short)) / (sum(self._ranges) / len(self._ranges))
+            self._day, self._dh, self._dl, self._dmin = day, bar.high, bar.low, 0
+        else:
+            self._dh = max(self._dh, bar.high)
+            self._dl = min(self._dl, bar.low)
+        self._dc = bar.close
+        self._dmin += self._chart_min
+
+    def _seed_spike(self, bars, partial: Bar | None) -> None:
+        for b in bars:
+            self._spike_push(b)
+
+    def spike_allows(self) -> bool:
+        return not self.spike_on or self.spike is None or self.spike <= self.spike_max
+
     def vol_allows(self) -> bool:
         if self.vol_mode is VolFilter.OFF:
             return True
@@ -181,6 +262,8 @@ class EntryFilterEngine:
             self._last_close = None
 
     def allows(self, direction: Direction, close: float) -> bool:
+        if not self.spike_allows():
+            return False
         if not self.vol_allows():
             return False
         if self.mode is TrendFilter.OFF:
@@ -196,6 +279,8 @@ class EntryFilterEngine:
             self._push(bar)
         if self.vol_mode is not VolFilter.OFF:
             self._vol(bar)
+        if self.spike_on:
+            self._spike_push(bar)
         out = self.engine.on_bar(bar, htf, with_ids(ctx, set(), self._dropped))
         self._dropped = set()
         kept = []
@@ -214,6 +299,8 @@ def wrap_entry_filter(engine: Any, cfg: Any, chart_tf_minutes: int) -> Any:
     """Engine obalený filtrom trendu, keď to config chce; inak ten istý engine."""
     if getattr(engine, "native_entry_layers", False):   # C# engine má obaly vstupov v sebe
         return engine
+    if getattr(cfg, "spikeFilter", False):
+        return EntryFilterEngine(engine, cfg, chart_tf_minutes)
     t = getattr(cfg, "trendFilter", None)
     if t is None or not hasattr(cfg, "trendTF"):
         return engine

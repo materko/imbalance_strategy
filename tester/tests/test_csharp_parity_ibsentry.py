@@ -31,6 +31,7 @@ PROFILE = "golden_binance_btcusdt_3m"
 LOOSE = {"weekdaysOnly": False, "zoneValidHours": 4}
 
 VARIANTS = {
+    "spicka_volatility": {"spikeFilter": True, "spikeShortDays": 2, "spikeLongDays": 5, "spikeMax": 1.1},
     "fvg_vsetky_tf": {"enableFvgTrading": True, "fvgMinSize": SizeSpec(10.0, "abs")},
     "ifvg_bez_fvg": {"enableFvgTrading": False, "enableIfvgTrading": True, "fvgMinSize": SizeSpec(8.0, "abs")},
     "fvg_a_ifvg_15_30": {"enableFvgTrading": True, "enableIfvgTrading": True, "fvgUse5m": False,

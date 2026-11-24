@@ -206,10 +206,23 @@ namespace TradeBot.Core
         }
     }
 
-    /// <summary>Filter trendu a volatility - zrkadlo `EntryFilterEngine` (`tradebot/core/entry_filter.py`).</summary>
+    /// <summary>Filter trendu, volatility a spicky volatility - zrkadlo `EntryFilterEngine` (`tradebot/core/entry_filter.py`).</summary>
     public sealed class EntryFilterEngine : EngineLayer
     {
         private const int AtrLen = 14;
+        private const int SpikeMinMinutes = 300;   // den CME s menej minutami barov sa do spicky nepocita
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private readonly bool _spikeOn;
+        private readonly int _spikeS, _spikeL, _chartMin;
+        private readonly double _spikeMax;
+        /// <summary>Spicka dnesneho dna (z uzavretych dni); null, kym nie je spikeLongDays dni.</summary>
+        public double? Spike;
+        private readonly List<double> _ranges = new List<double>();
+        private TimeZoneInfo _zone;
+        private bool _hasDay;
+        private DateTime _day;
+        private double _dh, _dl, _dc;
+        private int _dmin;
         private readonly string _mode;      // off / with / against
         private readonly string _volMode;   // off / low / high
         private readonly int _volN;
@@ -246,6 +259,12 @@ namespace TradeBot.Core
             Tf = tf;
             _tfMs = tf * 60000L;
             _chartMs = chart * 60000L;
+            _spikeOn = Flag(cfg, "spikeFilter", false);
+            _spikeS = (int)Num(cfg, "spikeShortDays", 5);
+            _spikeL = (int)Num(cfg, "spikeLongDays", 60);
+            _spikeMax = Num(cfg, "spikeMax", 1.7);
+            _chartMin = chart;
+            if (_spikeOn) _zone = TimeZones.Get("America/New_York");
             Warmup w = inner.Warmup;
             if (w != null)
             {
@@ -253,7 +272,52 @@ namespace TradeBot.Core
                     w.AddSeeded("filter trendu EMA " + _n + " na " + tf + "m", WarmupMath.EmaBars(_n), tf, Seed);
                 if (_volMode != "off")
                     w.AddSeeded("filter volatility ATR " + AtrLen + " / " + _volN + " barov", _volN + 4 * AtrLen, chart, SeedVol);
+                // spikeLongDays obchodnych dni ~ 1,5 x tolko kalendarnych (vikendy, sviatky) + rezerva
+                if (_spikeOn)
+                    w.AddSeeded("filter špičky volatility " + _spikeS + " / " + _spikeL + " dní",
+                                (_spikeL * 3 / 2 + 5) * 1440 / chart, chart, SeedSpike);
             }
+        }
+
+        private void SpikePush(Bar bar)
+        {
+            DateTime day = TimeZoneInfo.ConvertTimeFromUtc(Epoch.AddMilliseconds(bar.Time), _zone).AddHours(6).Date;   // den CME od 18:00
+            if (!_hasDay || day != _day)
+            {
+                if (_hasDay && _dmin >= SpikeMinMinutes && _dc > 0)
+                {
+                    _ranges.Add((_dh - _dl) / _dc * 100.0);
+                    if (_ranges.Count > _spikeL) _ranges.RemoveAt(0);
+                    if (_ranges.Count >= _spikeL)
+                    {
+                        int k = Math.Min(_spikeS, _ranges.Count);
+                        List<double> shortR = _ranges.GetRange(_ranges.Count - k, k);
+                        Spike = (PyMath.Sum(shortR) / shortR.Count) / (PyMath.Sum(_ranges) / _ranges.Count);
+                    }
+                }
+                _hasDay = true;
+                _day = day;
+                _dh = bar.High;
+                _dl = bar.Low;
+                _dmin = 0;
+            }
+            else
+            {
+                _dh = Math.Max(_dh, bar.High);
+                _dl = Math.Min(_dl, bar.Low);
+            }
+            _dc = bar.Close;
+            _dmin += _chartMin;
+        }
+
+        private void SeedSpike(IList<Bar> closed, Bar partial)
+        {
+            foreach (Bar b in closed) SpikePush(b);
+        }
+
+        public bool SpikeAllows()
+        {
+            return !_spikeOn || !Spike.HasValue || Spike.Value <= _spikeMax;
         }
 
         /// <summary>Uzavrety bar TF filtra. Start ako Pine `ta.ema`: priemer prvych `n` zavreti.</summary>
@@ -334,6 +398,7 @@ namespace TradeBot.Core
 
         public bool Allows(Direction direction, double close)
         {
+            if (!SpikeAllows()) return false;
             if (!VolAllows()) return false;
             if (_mode == "off") return true;
             if (!Ema.HasValue) return false;
@@ -346,6 +411,7 @@ namespace TradeBot.Core
         {
             if (_mode != "off") Push(bar);
             if (_volMode != "off") Vol(bar);
+            if (_spikeOn) SpikePush(bar);
             EngineOutput o = Inner.OnBar(bar, htf, EntryDraw.WithIds(ctx, new string[0], _dropped));
             _dropped = new HashSet<string>();
             List<OrderIntent> kept = new List<OrderIntent>();
@@ -722,7 +788,8 @@ namespace TradeBot.Core
             ConfigChoice.Check("volFilter", EngineLayer.Text(cfg, "volFilter", "off"), "off", "low", "high");
             ConfigChoice.Check("entryConfirm", EngineLayer.Text(cfg, "entryConfirm", "none"), "none", "imbalance", "pinbar", "any");
             ConfigChoice.Check("entryOrderType", EngineLayer.Text(cfg, "entryOrderType", "market"), "market", "limit");
-            if (EngineLayer.Text(cfg, "trendFilter", "off") != "off" || EngineLayer.Text(cfg, "volFilter", "off") != "off")
+            if (EngineLayer.Text(cfg, "trendFilter", "off") != "off" || EngineLayer.Text(cfg, "volFilter", "off") != "off"
+                || EngineLayer.Flag(cfg, "spikeFilter", false))
                 engine = new EntryFilterEngine(engine, cfg, chartTfMinutes);
             if (EngineLayer.Text(cfg, "entryConfirm", "none") != "none")
                 engine = new EntryConfirmEngine(engine, cfg);
@@ -736,6 +803,7 @@ namespace TradeBot.Core
         /// <summary>Kluce, ktore citaju obaly vstupov priamo z profilu (config strategie ich mat nemusi).</summary>
         public static readonly string[] LayerKeys = {
             "trendFilter", "trendEmaLen", "trendTF", "volFilter", "volLookback",
+            "spikeFilter", "spikeShortDays", "spikeLongDays", "spikeMax",
             "entryConfirm", "confirmBars", "confirmImbMinAtr", "confirmPbWickPct", "confirmPbBodyPct",
             "entryOrderType", "limitOffsetPct", "limitValidBars", "limitKeepRR",
             "fixedQty", "qty", "skipOverRisk", "legacyPineSizing", "riskDollar", "maxLossDollar" };

@@ -160,3 +160,47 @@ def test_obaly_vstupov_sa_daju_picklovat():
     w = EntryOrderEngine(EntryConfirmEngine(EntryFilterEngine(_Eng(), cfg, 5), cfg), cfg)
     w2 = pickle.loads(pickle.dumps(w))
     assert w2.inst is MNQ and isinstance(w2.engine.engine, EntryFilterEngine)
+
+
+@dataclass
+class _Spike:
+    """Len filter špičky — ako IBS (bez spoločného filtra trendu)."""
+    spikeFilter: bool = True
+    spikeShortDays: int = 2
+    spikeLongDays: int = 4
+    spikeMax: float = 1.5
+
+
+def _day_bars(day: int, rng: float):
+    """Deň CME (od 18:00 NY = 23:00 UTC v zime) — 6 h barov po 5 min s denným rozsahom `rng` okolo 100."""
+    start = (day * 24 + 23) * 3_600_000 + 1_700_000_000_000 - (1_700_000_000_000 % 86_400_000)
+    return [Bar(time=start + i * MIN5, open=100, high=100 + rng / 2, low=100 - rng / 2, close=100, volume=1) for i in range(72)]
+
+
+def test_spicka_volatility_blokuje_vstupy_v_divoky_den():
+    e = EntryFilterEngine(_Eng(), _Spike(), 5)
+    assert wrap_entry_filter(_Eng(), _Spike(), 5).__class__ is EntryFilterEngine
+    assert wrap_entry_filter(e.engine, _Spike(spikeFilter=False), 5) is e.engine   # IBS bez filtra = bez obalu
+    out = None
+    for day in range(4):                         # štyri pokojné dni po 1 bode → kým nie je 4 dní, vstupy púšťa
+        for b in _day_bars(day, 1.0):
+            out = e.on_bar(b, ctx=CTX)
+    assert e.spike is None and len(out.orders) == 2
+    for day in (4, 5):                           # dva divoké dni po 4 bodoch
+        for b in _day_bars(day, 4.0):
+            e.on_bar(b, ctx=CTX)
+    first = _day_bars(6, 1.0)
+    out = e.on_bar(first[0], ctx=CTX)            # deň po nich: Ø2 = 4, Ø4 = (1+1+4+4)/4 = 2,5 → špička 1,6 > 1,5
+    assert e.spike == pytest.approx(1.6) and out.orders == []
+    for b in first[1:]:
+        e.on_bar(b, ctx=CTX)
+    out = e.on_bar(_day_bars(7, 1.0)[0], ctx=CTX)   # Ø2 = (4+1)/2 = 2,5; Ø4 = 2,5 → 1,0 → znova obchoduje
+    assert e.spike == pytest.approx(1.0) and len(out.orders) == 2
+
+
+def test_kratky_den_sa_do_spicky_nepocita():
+    e = EntryFilterEngine(_Eng(), _Spike(spikeLongDays=2, spikeShortDays=1), 5)
+    for b in _day_bars(0, 1.0)[:10]:             # 50 min — sviatok
+        e.on_bar(b, ctx=CTX)
+    e.on_bar(_day_bars(1, 1.0)[0], ctx=CTX)
+    assert list(e._ranges) == []

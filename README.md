@@ -162,8 +162,13 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-21)
+## Kde sme (2026-11-24)
 
+- **Filter špičky volatility** (24. 11.): spoločný filter vstupov (`tradebot/core/entry_filter.py`, C# `EntryLayers.cs`)
+  vie neotvoriť obchod v deň, keď je Ø denný rozsah posledných `spikeShortDays` dní nad `spikeMax` × Ø za `spikeLongDays`
+  dní (deň CME od 18:00 NY, len uzavreté dni); predvolene vypnutý, majú ho všetky stratégie aj IBS a odnože. Na živom
+  profile IBS EZ pri 1,7: PF 1,52 → 1,61, najväčší pokles −1 080 → −764 $, 9–11/2026 −431 → +329 $; TKS bez prínosu.
+  Nasadenie (profily so zapnutým filtrom, ~3 mesiace histórie v NT / MT5) rozhoduje prevádzka.
 - **Initial Balance štatistika** (20. 11.): `python -m tester.initial_balance` počíta prvú hodinu seansy (NY aj Londýn)
   tou istou logikou ako platený IB Lab — prieraz, bias, max retracement / extension, HOS/LOS, before-break, IB close a karty
   dashboardu s filtrami. Overené deň po dni proti ich ES dátam 2010–2026 (zhoda okrem 5 dní s inými dátami okolo rolovania);

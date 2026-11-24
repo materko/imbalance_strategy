@@ -162,6 +162,11 @@ namespace TradeBot.Strategies.IbsNet
         public int atrLen = 14;
         public SizeSpec minSlDistance = new SizeSpec(0.0, "pct");
         public double leverage = 1.0;
+        // filter spicky volatility (rozsirenie portu) - cita ho EntryFilterEngine v EntryLayers.cs
+        public bool spikeFilter = false;        // filter spicky volatility - cita ho EntryFilterEngine v EntryLayers.cs
+        public int spikeShortDays = 5;
+        public int spikeLongDays = 60;
+        public double spikeMax = 1.7;
 
         // -------------------------------------------------------------------- //
 
