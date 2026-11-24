@@ -1,0 +1,6 @@
+$ emulator MultiCharts 6E 30m 20240904-20250904 (6E_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 30m @30m 125/125
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 11850 barov 30m, 350669 1m, 0 HTF
+hotovo: 93 obchodov, nerozhodnutelnych minut 0
+kresby: {'sl_box': 98, 'wpr_entry': 98}

@@ -1,0 +1,11 @@
+$ emulator MultiCharts MNQ 3m 20221001-20231001 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 81 na 69m @69m 203/203, filter volatility ATR 14 / 100 barov @3m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 117815 barov 3m, 353442 1m, 0 HTF
+  20000/117815 barov, 15 obchodov
+  40000/117815 barov, 29 obchodov
+  60000/117815 barov, 45 obchodov
+  80000/117815 barov, 62 obchodov
+  100000/117815 barov, 74 obchodov
+hotovo: 86 obchodov, nerozhodnutelnych minut 0
+kresby: {'mz_zone': 327, 'mz_ifvg': 99, 'mz_cb': 20, 'mz_retest': 13}
