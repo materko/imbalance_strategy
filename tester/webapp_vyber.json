@@ -4,14 +4,12 @@
   "ibsentrynet": [
    "SMERNICE_CS_IBS_Entry_Zone_1",
    "SMERNICE_CS_IBS_Entry_Zone_2",
-   "SMERNICE_CS_IBS_Entry_Zone_3",
-   "SMERNICE_CS_IBS_Entry_Zone_11"
+   "SMERNICE_CS_IBS_Entry_Zone_3"
   ],
   "ibsentryneteod": [
    "SMERNICE_CS_EOD_IBS_Entry_Zone_1",
    "SMERNICE_CS_EOD_IBS_Entry_Zone_2",
-   "SMERNICE_CS_EOD_IBS_Entry_Zone_3",
-   "SMERNICE_CS_EOD_IBS_Entry_Zone_11"
+   "SMERNICE_CS_EOD_IBS_Entry_Zone_3"
   ],
   "tksnet": [
    "SMERNICE_CS_TKS_1",
