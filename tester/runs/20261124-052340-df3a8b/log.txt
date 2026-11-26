@@ -1,9 +1,0 @@
-$ emulator MultiCharts MGC 5m 20231001-20241001 (MGC_USD-1m.feather)
-predhistoria indikatorov z dat pred behom: filter volatility ATR 14 / 100 barov @5m 156/156
-predhistoria grafu: 300 barov pred oknom (bez obchodov)
-emulacia MultiCharts: 70979 barov 5m, 352258 1m, 0 HTF
-  20000/70979 barov, 26 obchodov
-  40000/70979 barov, 51 obchodov
-  60000/70979 barov, 80 obchodov
-hotovo: 94 obchodov, nerozhodnutelnych minut 0
-kresby: {'ibret_zone': 259, 'tp_box': 167, 'sl_box': 167, 'ibret_entry': 167}

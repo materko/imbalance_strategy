@@ -100,8 +100,7 @@ def test_templates_magic_period_and_inputs():
                            "ibsentrymymnet": "IBSEntryMymNet", "noamymnet": "NoaMymNet", "wprmymnet": "WprMymNet", "sigmamymnet": "SigmaMymNet", "noabtcnet": "NoaBtcNet",
                            "mtkorbnet": "MtkOrbNet",
                            "tksesnet": "TksEsNet", "tksmgcnet": "TksMgcNet", "tksmymnet": "TksMymNet", "tksbtcnet": "TksBtcNet",
-                           "tkseurnet": "TksEurNet", "ibretnet": "IbRetNet",
-                           "ibretmgcnet": "IbRetMgcNet", "ibretmymnet": "IbRetMymNet",
+                           "tkseurnet": "TksEurNet",
                            "spravyeurnet": "SpravyEurNet",
                            "mtkemasnet": "MtkEmasNet", "mtkemasmgcnet": "MtkEmasMgcNet", "mtkemasesnet": "MtkEmasEsNet",
                            "mtkemasmymnet": "MtkEmasMymNet", "mtkemasbtcnet": "MtkEmasBtcNet"}

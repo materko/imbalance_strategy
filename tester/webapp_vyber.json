@@ -107,14 +107,6 @@
   "flashorb": [
    "PRESIEL_SMERNICAMI_FLASH_ORB_MNQ_1"
   ],
-  "ibret": [
-   "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_1"
-  ],
-  "ibretmgc": [
-   "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MGC_1",
-   "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MGC_2",
-   "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MGC_3"
-  ],
   "ivb": [
    "PRESIEL_SMERNICAMI_IVB_MNQ_1",
    "PRESIEL_SMERNICAMI_IVB_MNQ_2",
@@ -273,14 +265,6 @@
   "m2": [],
   "m2eur": [],
   "m2mgc": [],
-  "ibretnet": [],
-  "ibretmym": [
-   "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MYM_1",
-   "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MYM_2",
-   "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MYM_3"
-  ],
-  "ibretmgcnet": [],
-  "ibretmymnet": [],
   "mtkorb": [
    "PRESIEL_SMERNICAMI_MTK_ORB_MGC_1",
    "PRESIEL_SMERNICAMI_MTK_ORB_MGC_2",
