@@ -1,0 +1,9 @@
+$ emulator MultiCharts MYM 5m 20221001-20231001 (MYM_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter volatility ATR 14 / 100 barov @5m 156/156
+predhistoria grafu: 300 barov pred oknom (bez obchodov)
+emulacia MultiCharts: 70681 barov 5m, 346350 1m, 0 HTF
+  20000/70681 barov, 25 obchodov
+  40000/70681 barov, 53 obchodov
+  60000/70681 barov, 76 obchodov
+hotovo: 89 obchodov, nerozhodnutelnych minut 0
+kresby: {'ibret_zone': 258, 'tp_box': 118, 'sl_box': 118, 'ibret_entry': 118}
