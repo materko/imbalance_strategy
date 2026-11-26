@@ -1,0 +1,4 @@
+$ natívny emulátor MultiCharts (C#) BTCUSDT.P 1d 20250904-20260904
+predhistoria grafu: 396 barov pred oknom (bez obchodov)
+hotovo: 18 obchodov, nerozhodnutelnych minut 0
+graf (kresby) sa dopočíta pri prvom otvorení behu
