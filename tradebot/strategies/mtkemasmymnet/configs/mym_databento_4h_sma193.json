@@ -1,0 +1,17 @@
+{
+  "_title": "MTK EMAS 1.0 (C# jadro) · MYM 4h · cena × SMA 193 bez filtra EMA 200, stop 1 ATR, cieľ 5 R (štúdia: PF 1,83, najhorší rok 1,60)",
+  "_strategy": "mtkemasmymnet",
+  "_instrument": "mym_databento",
+  "_timeframe": "4h",
+  "tradeDirection": "Long only",
+  "trendFilter": "off",
+  "trendEmaLen": 200,
+  "trendTF": 0,
+  "maType": "sma",
+  "signalMode": "price",
+  "slowLen": 193,
+  "slAtr": 1.0,
+  "trailAtr": 0.0,
+  "rrTarget": 5.0,
+  "riskDollar": 2000.0
+}

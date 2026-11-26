@@ -46,6 +46,7 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 | **`noaneteod`** | `noanet` + EOD 15:59 NY | `tradebot/strategies/noa/ports/csharp/NoaEodEngine.cs` | `deploy/ninjatrader/NoaNetEod.cs` |
 | **`tksneteod`** | `tksnet` + EOD 15:59 NY | `tradebot/strategies/tks/ports/csharp/TksEodEngine.cs` | `deploy/ninjatrader/TksNetEod.cs` |
 | **`ibretnet`** | `ibret` (IB RETRACE 1.0) | `tradebot/strategies/ibret/ports/csharp` | `deploy/ninjatrader/IbRetNet.cs` |
+| **`mtkemasnet`** (+ `mtkemasmgcnet`, `mtkemasesnet`, `mtkemasmymnet`, `mtkemasbtcnet`) | `mtkemas` (MTK EMAS 1.0, kĺzavé priemery) | `tradebot/strategies/mtkemas/ports/csharp` | `deploy/ninjatrader/MtkEmas*Net.cs` |
 | **`ibsentryesnet`** | `ibsentryes` (IBS EZ ES, S&P 500) | `tradebot/strategies/ibsentry/ports/csharp/IbsEntryEsEngine.cs` | `deploy/ninjatrader/IBSEntryEsNet.cs` |
 | **`nyvaesnet`** | `nyvaes` (NY VA BREAKOUT ES) | `tradebot/strategies/nyva/ports/csharp` | `deploy/ninjatrader/NyVaEsNet.cs` |
 | **`fibomgcnet`** | `fibomgc` (Fibo 1.0 MGC) | `tradebot/strategies/fibo/ports/csharp` | `deploy/ninjatrader/FiboMgcNet.cs` |

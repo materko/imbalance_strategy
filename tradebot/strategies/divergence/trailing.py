@@ -26,9 +26,7 @@ __all__ = ["TwoStageTrailing"]
 
 @dataclass(frozen=True, slots=True)
 class TwoStageTrailing(TrailingPlan):
-    #: od akého zisku (v cene) sa stop presunie na zámok a kde zámok leží (nad vstupom)
-    lock_activation_distance: float = 0.0
-    lock_level_distance: float = 0.0
+    #: zámok (`lock_activation_distance`, `lock_level_distance`) má od 26. 11. 2026 aj základný `TrailingPlan`
 
     def stop_price(self, direction: Direction, entry: float, base_stop: float, extreme: float) -> float:
         if direction is Direction.LONG:

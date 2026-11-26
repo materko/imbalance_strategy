@@ -58,6 +58,10 @@ class TrailingPlan:
     offset_price_distance: float  # cenové body
     activation_ticks: float
     offset_ticks: float
+    #: Zámok (break-even): keď zisk dosiahne `lock_activation_distance` (0 = vypnuté), stop ide na vstup
+    #: + `lock_level_distance` a späť už nejde. Pozná ho C# (`TrailingPlan.Lock…`), NinjaTrader aj MT5 (`la` / `ll`).
+    lock_activation_distance: float = 0.0
+    lock_level_distance: float = 0.0
 
     def stop_price(
         self, direction: Direction, entry: float, base_stop: float, extreme: float
@@ -76,9 +80,13 @@ class TrailingPlan:
         vetva pri RR 1 (referenčný golden beh) vôbec nespustí a parita ostáva platná.
         """
         if direction is Direction.LONG:
+            if self.lock_activation_distance > 0 and extreme - entry >= self.lock_activation_distance:
+                base_stop = max(base_stop, entry + self.lock_level_distance)
             if extreme - entry < self.activation_price_distance:
                 return base_stop
             return max(base_stop, extreme - self.offset_price_distance)
+        if self.lock_activation_distance > 0 and entry - extreme >= self.lock_activation_distance:
+            base_stop = min(base_stop, entry - self.lock_level_distance)
         if entry - extreme < self.activation_price_distance:
             return base_stop
         return min(base_stop, extreme + self.offset_price_distance)
@@ -112,6 +120,8 @@ class TrailingPlan:
             offset_price_distance=self.offset_price_distance * factor,
             activation_ticks=self.activation_ticks * factor,
             offset_ticks=self.offset_ticks * factor,
+            lock_activation_distance=self.lock_activation_distance * factor,
+            lock_level_distance=self.lock_level_distance * factor,
         )
 
     @classmethod

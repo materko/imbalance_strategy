@@ -88,6 +88,7 @@ struct XOrder
    long   cancelAt, closeAt, holdMs;
    bool   hasTrail;
    double trailAct, trailOff;    // v cenach exekutora (x scale)
+   double lockAct, lockLvl;      // zamok (break-even) `la` / `ll`, v cenach exekutora (x scale)
    double extreme;
    double lastStop, lastTp;
    bool   closing;
@@ -299,7 +300,7 @@ string OrderJson(const XOrder &o)
           + ",\"fill\":" + Num(o.fill) + ",\"fill_ms\":" + IntegerToString(o.fillMs) + ",\"open\":" + Num(o.openLots)
           + ",\"cancel_at\":" + IntegerToString(o.cancelAt) + ",\"close_at\":" + IntegerToString(o.closeAt)
           + ",\"hold_ms\":" + IntegerToString(o.holdMs) + ",\"trail\":" + (o.hasTrail ? "true" : "false")
-          + ",\"ta\":" + Num(o.trailAct) + ",\"to\":" + Num(o.trailOff) + ",\"ext\":" + Num(o.extreme)
+          + ",\"ta\":" + Num(o.trailAct) + ",\"to\":" + Num(o.trailOff) + ",\"la\":" + Num(o.lockAct) + ",\"ll\":" + Num(o.lockLvl) + ",\"ext\":" + Num(o.extreme)
           + ",\"stop\":" + Num(o.lastStop) + ",\"tp\":" + Num(o.lastTp) + "}";
   }
 
@@ -344,6 +345,7 @@ void LoadState()
       o.filled = j.Bool("filled"); o.fill = j.Dbl("fill"); o.fillMs = (long)j.Dbl("fill_ms");
       o.openLots = j.Dbl("open"); o.cancelAt = (long)j.Dbl("cancel_at"); o.closeAt = (long)j.Dbl("close_at");
       o.holdMs = (long)j.Dbl("hold_ms"); o.hasTrail = j.Bool("trail"); o.trailAct = j.Dbl("ta"); o.trailOff = j.Dbl("to");
+      o.lockAct = j.Dbl("la"); o.lockLvl = j.Dbl("ll");
       o.extreme = j.Dbl("ext"); o.lastStop = j.Dbl("stop"); o.lastTp = j.Dbl("tp");
       int n = ArraySize(g_xo);
       ArrayResize(g_xo, n + 1);
@@ -842,7 +844,8 @@ void HandleEntry(int r, CJson *c)
    CJson *life = c.Find("life");
    if(life != NULL) { o.cancelAt = (long)life.Dbl("cancel_at"); o.closeAt = (long)life.Dbl("close_at"); o.holdMs = (long)life.Dbl("hold_ms"); }
    CJson *tr = p.Find("tr");
-   if(tr != NULL && tr.type == JSON_OBJECT) { o.hasTrail = true; o.trailAct = tr.Dbl("ap") * scale; o.trailOff = tr.Dbl("op") * scale; }
+   if(tr != NULL && tr.type == JSON_OBJECT) { o.hasTrail = true; o.trailAct = tr.Dbl("ap") * scale; o.trailOff = tr.Dbl("op") * scale;
+                                         o.lockAct = tr.Dbl("la") * scale; o.lockLvl = tr.Dbl("ll") * scale; }
 
    // Najprv broker, az potom terminy: zopakovany prikaz (pad pred `Done`) ma order mozno uz u brokera, a ten musi
    // mat zaznam, aj keby prikaz medzitym vyprsal - inak by bezal ako sirota bez life a bez strazcu
@@ -1315,7 +1318,8 @@ void TrailOnMinute()
          bool isLong = g_xo[i].dir > 0;
          g_xo[i].extreme = isLong ? MathMax(g_xo[i].extreme, bar[0].high) : MathMin(g_xo[i].extreme, bar[0].low);
          if(!g_routes[r].masterLost) continue;
-         double stop = StaticHost::BridgeTrailStop(g_xo[i].dir, g_xo[i].fill, g_xo[i].sl0, g_xo[i].extreme, g_xo[i].trailAct, g_xo[i].trailOff);
+         double stop = StaticHost::BridgeTrailStopLock(g_xo[i].dir, g_xo[i].fill, g_xo[i].sl0, g_xo[i].extreme, g_xo[i].trailAct, g_xo[i].trailOff,
+                                                         g_xo[i].lockAct, g_xo[i].lockLvl);
          stop = ClampStop(g_routes[r].symbol, isLong, RoundTick(g_routes[r].symbol, stop));
          bool better = isLong ? stop > g_xo[i].lastStop : stop < g_xo[i].lastStop;
          if(!better) continue;

@@ -1,0 +1,90 @@
+// Konfiguracia MTK EMAS 1.0 (C#) - zrkadlo `tradebot/strategies/mtkemas/config.py`.
+// Nazvy poli su zhodne s JSON profilmi. Polia obalov vstupov (trendFilter, entryConfirm, entryOrderType...) cita
+// `EntryLayers` v C# jadre priamo z configu - tu su ako text kvoli zhode configu s Pythonom.
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
+using TradeBot.Core;
+
+namespace TradeBot.Strategies.MtkEmasNet
+{
+    public sealed class MtkEmasConfig
+    {
+        // ---- obaly vstupov (C# `EntryLayers`) ---------------------------------
+        public string trendFilter = "off";
+        public int trendEmaLen = 200;
+        public int trendTF = 0;
+        public string volFilter = "off";
+        public int volLookback = 100;
+        public bool spikeFilter = false;        // filter spicky volatility - cita ho EntryFilterEngine v EntryLayers.cs
+        public int spikeShortDays = 5;
+        public int spikeLongDays = 60;
+        public double spikeMax = 1.7;
+        public string entryConfirm = "none";
+        public int confirmBars = 3;
+        public double confirmImbMinAtr = 0.05;
+        public int confirmPbWickPct = 60;
+        public int confirmPbBodyPct = 30;
+        public string entryOrderType = "market";
+        public int limitOffsetPct = 50;
+        public int limitValidBars = 3;
+        public bool limitKeepRR = true;
+        // ---- priemery a signal ------------------------------------------------
+        /// <summary>Python `MaType`: ema / sma / wma / hma / dema / tema / rma / vwma / kama.</summary>
+        public string maType = "ema";
+        /// <summary>Python `SignalMode`: "price" (zavretie x priemer) / "cross" (rychly x pomaly).</summary>
+        public string signalMode = "cross";
+        public int fastLen = 9;
+        public int slowLen = 21;
+        /// <summary>Python `TradeDirection`: "Both" / "Long only" / "Short only".</summary>
+        public string tradeDirection = "Long only";
+        // ---- stop a vystup ----------------------------------------------------
+        public int atrLen = 14;
+        public double slAtr = 1.5;
+        public double trailAtr = 3.0;
+        public double trailFromR = 0.0;
+        public double beAtR = 0.0;
+        public double rrTarget = 0.0;
+        public bool exitOnSignal = true;
+        // ---- velkost ----------------------------------------------------------
+        public bool fixedQty = false;
+        public double qty = 1.0;
+        public bool skipOverRisk = false;   // strop straty - cita ho EntrySizingEngine v EntryLayers.cs
+        public double riskDollar = 500.0;
+        // ---- rozsirenia portu -------------------------------------------------
+        public double leverage = 1.0;
+
+        public bool AllowLong { get { return tradeDirection != "Short only"; } }
+        public bool AllowShort { get { return tradeDirection != "Long only"; } }
+
+        /// <summary>Profil (len odchylky od defaultov) alebo cely config z `to_dict()`; kluce s podtrznikom su metadata.</summary>
+        public static MtkEmasConfig FromDict(Dictionary<string, object> data)
+        {
+            MtkEmasConfig cfg = new MtkEmasConfig();
+            foreach (KeyValuePair<string, object> kv in data)
+            {
+                if (kv.Key.StartsWith("_", StringComparison.Ordinal)) continue;
+                FieldInfo f = typeof(MtkEmasConfig).GetField(kv.Key, BindingFlags.Public | BindingFlags.Instance);
+                if (f == null) continue;
+                object raw = kv.Value;
+                if (f.FieldType == typeof(bool)) f.SetValue(cfg, (bool)raw);
+                else if (f.FieldType == typeof(int)) f.SetValue(cfg, Json.ToInt(raw));
+                else if (f.FieldType == typeof(double)) f.SetValue(cfg, Json.ToDouble(raw));
+                else f.SetValue(cfg, Convert.ToString(raw, CultureInfo.InvariantCulture));
+            }
+            ConfigChoice.Check("maType", cfg.maType, "ema", "sma", "wma", "hma", "dema", "tema", "rma", "vwma", "kama");
+            ConfigChoice.Check("signalMode", cfg.signalMode, "price", "cross");
+            ConfigChoice.Check("tradeDirection", cfg.tradeDirection, "Both", "Long only", "Short only");
+            if (cfg.signalMode == "cross" && cfg.fastLen >= cfg.slowLen)
+                throw new ArgumentException("MTK EMAS: fastLen musi byt kratsi nez slowLen");
+            return cfg;
+        }
+    }
+
+    /// <summary>Druhy kresieb MTK EMAS - retazce zhodne s `tradebot/strategies/mtkemas/drawing.py`.</summary>
+    public static class MtkEmasKinds
+    {
+        public const string Entry = "mtkemas_entry";
+    }
+}

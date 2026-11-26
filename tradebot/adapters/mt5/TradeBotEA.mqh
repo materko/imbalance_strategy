@@ -100,6 +100,7 @@ struct Tracked
    double   entry, stopLoss, takeProfit;
    bool     hasTrail;
    double   trailActivation, trailOffset;
+   double   lockAct, lockLvl;     // zamok (break-even) z planu: `la` / `ll`, 0 = bez zamku
    double   extreme;          // najlepsia cena od vstupu
    double   lastStop;
    string   ot;               // Limit / Stop / Market
@@ -1225,6 +1226,8 @@ void Apply(CJson *intent, bool ready)
       t.hasTrail = tr != NULL;
       t.trailActivation = tr != NULL ? tr.Dbl("ap") : 0;
       t.trailOffset = tr != NULL ? tr.Dbl("op") : 0;
+      t.lockAct = tr != NULL ? tr.Dbl("la") : 0;
+      t.lockLvl = tr != NULL ? tr.Dbl("ll") : 0;
       t.extreme = t.entry; t.lastStop = t.stopLoss;
 
       t.lots = Lots(p.Dbl("q"));
@@ -1727,13 +1730,16 @@ void UpdateTrailing(const MqlRates &r)
       bool isLong = g_orders[i].dir > 0;
       double best = isLong ? MathMax(g_orders[i].extreme, r.high) : MathMin(g_orders[i].extreme, r.low);
       g_orders[i].extreme = best;
-      double stop;
+      double stop, base = g_orders[i].stopLoss;
+      // zamok (break-even) - Python / C# `TrailingPlan.stop_price`: najprv zamok, potom trailing
+      if(g_orders[i].lockAct > 0 && (isLong ? best - g_orders[i].entry : g_orders[i].entry - best) >= g_orders[i].lockAct)
+         base = isLong ? MathMax(base, g_orders[i].entry + g_orders[i].lockLvl) : MathMin(base, g_orders[i].entry - g_orders[i].lockLvl);
       if(isLong)
-         stop = best - g_orders[i].entry < g_orders[i].trailActivation ? g_orders[i].stopLoss
-                : MathMax(g_orders[i].stopLoss, best - g_orders[i].trailOffset);
+         stop = best - g_orders[i].entry < g_orders[i].trailActivation ? base
+                : MathMax(base, best - g_orders[i].trailOffset);
       else
-         stop = g_orders[i].entry - best < g_orders[i].trailActivation ? g_orders[i].stopLoss
-                : MathMin(g_orders[i].stopLoss, best + g_orders[i].trailOffset);
+         stop = g_orders[i].entry - best < g_orders[i].trailActivation ? base
+                : MathMin(base, best + g_orders[i].trailOffset);
       bool better = isLong ? stop > g_orders[i].lastStop : stop < g_orders[i].lastStop;
       if(!better) continue;
       bool moved = false, target = false;
@@ -1975,7 +1981,7 @@ string TrackedJson(const Tracked &t)
           + ",\"parked\":" + JsonBool(t.parked) + ",\"lots\":" + Num(t.lots) + ",\"open_qty\":" + Num(t.openQty)
           + ",\"dir\":" + IntegerToString(t.dir) + ",\"entry\":" + Num(t.entry) + ",\"sl\":" + Num(t.stopLoss)
           + ",\"tp\":" + Num(t.takeProfit) + ",\"trail\":" + JsonBool(t.hasTrail) + ",\"trail_act\":" + Num(t.trailActivation)
-          + ",\"trail_off\":" + Num(t.trailOffset) + ",\"extreme\":" + Num(t.extreme) + ",\"last_stop\":" + Num(t.lastStop)
+          + ",\"trail_off\":" + Num(t.trailOffset) + ",\"lock_act\":" + Num(t.lockAct) + ",\"lock_lvl\":" + Num(t.lockLvl) + ",\"extreme\":" + Num(t.extreme) + ",\"last_stop\":" + Num(t.lastStop)
           + ",\"closing\":" + JsonBool(t.filled && t.closing) + "}";
   }
 
@@ -1986,6 +1992,7 @@ void TrackedFrom(CJson *o, Tracked &t)
    t.isMarket = o.Bool("market"); t.parked = o.Bool("parked"); t.lots = o.Dbl("lots"); t.openQty = o.Dbl("open_qty");
    t.dir = (int)o.Dbl("dir"); t.entry = o.Dbl("entry"); t.stopLoss = o.Dbl("sl"); t.takeProfit = o.Dbl("tp");
    t.hasTrail = o.Bool("trail"); t.trailActivation = o.Dbl("trail_act"); t.trailOffset = o.Dbl("trail_off");
+   t.lockAct = o.Dbl("lock_act"); t.lockLvl = o.Dbl("lock_lvl");
    t.extreme = o.Dbl("extreme"); t.lastStop = o.Dbl("last_stop");
    ResetGuard(t);
    t.resumeClose = o.Bool("closing");   // zatvaranie prerusene restartom - RestoreState ho dokonci
@@ -2050,7 +2057,7 @@ void PlanFromPosition(Tracked &t, ulong ticket)
    t.dir = PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY ? 1 : -1;
    t.entry = PositionGetDouble(POSITION_PRICE_OPEN);
    t.stopLoss = PositionGetDouble(POSITION_SL); t.takeProfit = PositionGetDouble(POSITION_TP);
-   t.hasTrail = false; t.trailActivation = 0; t.trailOffset = 0; t.extreme = t.entry; t.lastStop = t.stopLoss;
+   t.hasTrail = false; t.trailActivation = 0; t.trailOffset = 0; t.lockAct = 0; t.lockLvl = 0; t.extreme = t.entry; t.lastStop = t.stopLoss;
    t.lots = PositionGetDouble(POSITION_VOLUME);
   }
 

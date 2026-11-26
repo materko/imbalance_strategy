@@ -44,6 +44,16 @@ from .m2mgc import SPEC as M2MGC_SPEC
 from .ivb import SPEC as IVB_SPEC
 from .ibret import SPEC as IBRET_SPEC
 from .ibretnet import SPEC as IBRETNET_SPEC
+from .mtkemas import SPEC as MTKEMAS_SPEC
+from .mtkemasnet import SPEC as MTKEMASNET_SPEC
+from .mtkemasmgc import SPEC as MTKEMASMGC_SPEC
+from .mtkemasmgcnet import SPEC as MTKEMASMGCNET_SPEC
+from .mtkemases import SPEC as MTKEMASES_SPEC
+from .mtkemasesnet import SPEC as MTKEMASESNET_SPEC
+from .mtkemasmym import SPEC as MTKEMASMYM_SPEC
+from .mtkemasmymnet import SPEC as MTKEMASMYMNET_SPEC
+from .mtkemasbtc import SPEC as MTKEMASBTC_SPEC
+from .mtkemasbtcnet import SPEC as MTKEMASBTCNET_SPEC
 from .ibretmgc import SPEC as IBRETMGC_SPEC
 from .ibretmym import SPEC as IBRETMYM_SPEC
 from .ibretmgcnet import SPEC as IBRETMGCNET_SPEC
@@ -237,6 +247,16 @@ STRATEGIES: dict[str, StrategySpec] = _registry((
     IVB_SPEC,
     IBRET_SPEC,
     IBRETNET_SPEC,
+    MTKEMAS_SPEC,
+    MTKEMASNET_SPEC,
+    MTKEMASMGC_SPEC,
+    MTKEMASMGCNET_SPEC,
+    MTKEMASES_SPEC,
+    MTKEMASESNET_SPEC,
+    MTKEMASMYM_SPEC,
+    MTKEMASMYMNET_SPEC,
+    MTKEMASBTC_SPEC,
+    MTKEMASBTCNET_SPEC,
     IBRETMGC_SPEC,
     IBRETMYM_SPEC,
     IBRETMGCNET_SPEC,

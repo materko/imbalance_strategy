@@ -88,6 +88,7 @@ def intent_from_dict(d: dict[str, Any]) -> OrderIntent:
         trailing = None if tr is None else TrailingPlan(
             activation_price_distance=tr["ap"], offset_price_distance=tr["op"],
             activation_ticks=tr["at"], offset_ticks=tr["ot"],
+            lock_activation_distance=tr.get("la", 0.0), lock_level_distance=tr.get("ll", 0.0),
         )
         plan = TradePlan(direction=Direction(p["dir"]), entry=p["e"], stop_loss=p["sl"], take_profit=p["tp"],
                          qty=p["q"], sl_distance=p["sd"], trailing=trailing)

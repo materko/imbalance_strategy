@@ -20,14 +20,26 @@ namespace TradeBot.Core
         public readonly double OffsetPriceDistance;
         public readonly double ActivationTicks;
         public readonly double OffsetTicks;
+        /// <summary>Zamok (break-even): pri zisku aspon `LockActivationDistance` (0 = vypnute) ide stop na vstup
+        /// + `LockLevelDistance` - Python `lock_activation_distance` / `lock_level_distance`, v JSON `la` / `ll`.</summary>
+        public readonly double LockActivationDistance;
+        public readonly double LockLevelDistance;
 
         public TrailingPlan(double activationPriceDistance, double offsetPriceDistance,
                             double activationTicks, double offsetTicks)
+            : this(activationPriceDistance, offsetPriceDistance, activationTicks, offsetTicks, 0.0, 0.0)
+        {
+        }
+
+        public TrailingPlan(double activationPriceDistance, double offsetPriceDistance,
+                            double activationTicks, double offsetTicks, double lockActivationDistance, double lockLevelDistance)
         {
             ActivationPriceDistance = activationPriceDistance;
             OffsetPriceDistance = offsetPriceDistance;
             ActivationTicks = activationTicks;
             OffsetTicks = offsetTicks;
+            LockActivationDistance = lockActivationDistance;
+            LockLevelDistance = lockLevelDistance;
         }
 
         /// <summary>Efektivny stop po zohladneni trailingu - Pine `strategy.exit(trail_points=, trail_offset=)`.
@@ -36,9 +48,13 @@ namespace TradeBot.Core
         {
             if (direction == Direction.Long)
             {
+                if (LockActivationDistance > 0 && extreme - entry >= LockActivationDistance)
+                    baseStop = Math.Max(baseStop, entry + LockLevelDistance);
                 if (extreme - entry < ActivationPriceDistance) return baseStop;
                 return Math.Max(baseStop, extreme - OffsetPriceDistance);
             }
+            if (LockActivationDistance > 0 && entry - extreme >= LockActivationDistance)
+                baseStop = Math.Min(baseStop, entry - LockLevelDistance);
             if (entry - extreme < ActivationPriceDistance) return baseStop;
             return Math.Min(baseStop, extreme + OffsetPriceDistance);
         }
@@ -159,6 +175,8 @@ namespace TradeBot.Core
                     w.Key("tr").BeginObject();
                     w.Key("ap").Value(Plan.Trailing.ActivationPriceDistance).Key("op").Value(Plan.Trailing.OffsetPriceDistance);
                     w.Key("at").Value(Plan.Trailing.ActivationTicks).Key("ot").Value(Plan.Trailing.OffsetTicks);
+                    if (Plan.Trailing.LockActivationDistance > 0)
+                        w.Key("la").Value(Plan.Trailing.LockActivationDistance).Key("ll").Value(Plan.Trailing.LockLevelDistance);
                     w.EndObject();
                 }
                 w.EndObject();

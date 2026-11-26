@@ -24,18 +24,18 @@ TradingView / video / zadanie ──► tradebot/strategies/<key>  (Python predl
 
 ## Stratégie
 
-V registry je **150 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
+V registry je **160 stratégií** (vrátane C# prepisov a ich EOD kópií pre prop účty). Úplný
 zoznam s popisom a počtom parametrov: [docs/STRATEGIE.md](docs/STRATEGIE.md); ako sa
 pridáva ďalšia, kontrakt enginu a definícia hotového tamtiež. Webapp ich triedi podľa trhu
 a typu (`STRATEGIA_TRH_TYP` v [`settings.js`](tester/webapp/static/js/settings.js)):
 
 | trh | trendové | skalpovacie | rangeové | **LIVE** (C# jadro → NT8, MT5) |
 |---|---|---|---|---|
-| **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `ibret` `orb15` `flashorb` `sigma` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` `ibretnet` (päť z nich aj ako `…eod`) |
-| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `tksmgc` `ibretmgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` `tksmgcnet` `ibretmgcnet` |
-| **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `tkses` `orb15es` `flashorbes` `sigmaes` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` `tksesnet` |
-| **DOW** (MYM) | `noamym` `tksmym` `ibretmym` `sigmamym` `nocponmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` `tksmymnet` `ibretmymnet` |
-| **BTC** (BTCUSDT.P) | `noabtc` `tksbtc` `dailyopenbtc` `onbiasorbbtc` `flashorbbtc` `rangebtc` | `silverbulletbtc` | `tmrbtc` `sweepengulfbtc` | `noabtcnet` `tksbtcnet` |
+| **NASDAQ** (MNQ, NAS100) | `structure` `orb` `range` `breakout` `trendlines` `vwapadx` `voltbreak` `onbiasorb` `vwapop` `vwaporb` `jss` `fibo` `mag7` `dailyopen` `noa` `tks` `nocpon` `nb` `ivb` `ibret` `orb15` `flashorb` `sigma` `mtkemas` | `ibs` `ibszones` `ibsentry` `ibsfvg` `scalp3ma` `fvgpolarity` `silverbullet` `m2mnq` `nqprec` `mtkzone` | `gap` `sdzone` `divergence` `liquidity` `vwapdrift` `crt` `svp` `percoco` `fpc` `sweepfvg` `sweepengulf` `varev` `lliq` `tmr` `wpr` | `ibsnet` `orbnet` `ibsentrynet` `vwaporbnet` `vwapadxnet` `noanet` `tksnet` `sigmanet` `voltbreaknet` `wprnet` `mtkzonenet` `ibretnet` (päť z nich aj ako `…eod`) `mtkemasnet` |
+| **ZLATO** (MGC) | `fibomgc` `spravy` `ivbmgc` `noamgc` `tksmgc` `ibretmgc` `mtkorb` `orb15mgc` `flashorbmgc` `sigmamgc` `mtkemasmgc` | `ibsentrymgc` `fvgpolaritymgc` `scalp3mamgc` `m2mgc` `nqprecmgc` | `lliqmgc` `tmrmgc` `wprmgc` | `fibomgcnet` `spravynet` `sigmamgcnet` `noamgcnet` `mtkorbnet` `tksmgcnet` `ibretmgcnet` `mtkemasmgcnet` |
+| **S&P 500** (ES) | `nyvaes` `ivbes` `noaes` `tkses` `orb15es` `flashorbes` `sigmaes` `mtkemases` | `ibsentryes` `m2` `nqpreces` | `lliqes` `tmres` `wpres` | `ibsentryesnet` `nyvaesnet` `noaesnet` `tksesnet` `mtkemasesnet` |
+| **DOW** (MYM) | `noamym` `tksmym` `ibretmym` `sigmamym` `nocponmym` `mtkemasmym` | `ibsentrymym` | `wprmym` `sweepengulfmym` `tmrmym` `lliqmym` | `ibsentrymymnet` `noamymnet` `wprmymnet` `sigmamymnet` `tksmymnet` `ibretmymnet` `mtkemasmymnet` |
+| **BTC** (BTCUSDT.P) | `noabtc` `tksbtc` `dailyopenbtc` `onbiasorbbtc` `flashorbbtc` `rangebtc` `mtkemasbtc` | `silverbulletbtc` | `tmrbtc` `sweepengulfbtc` | `noabtcnet` `tksbtcnet` `mtkemasbtcnet` |
 | **EURUSD** (6E) | `tkseur` `spravyeur` | `m2eur` `mtkzoneeur` `silverbulleteur` `ibsentryeur` | `sdeur` `asiasweep` `asiasweepeur` `lliqeur` `wpreur` `sweepengulfeur` | `sdeurnet` `tkseurnet` `spravyeurnet` |
 
 Mimo trhov je len ukážková `demo_breakout`. Staré kľúče `ibsninja`, `orbninja` a
@@ -162,8 +162,13 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-24)
+## Kde sme (2026-11-26)
 
+- **MTK EMAS 1.0** (`mtkemas`, multitrhová, 26. 11.): kĺzavé priemery podľa štúdie Mac mini (iCloud KLZAKY-STUDIA,
+  ~500 000 nastavení na 5 trhoch) — cena × dlhý priemer alebo kríženie (9 typov priemerov), filter EMA 200, len longy,
+  stop a posúvaný stop v ATR, zámok na vstup pri +1R; kópie MGC, ES, MYM, BTC s profilmi zo štúdie (1h–4h), C# jadro pre
+  každý trh, parita bar po bare. Zámok (break-even) pribudol do jadra (`TrailingPlan.lock_*`, C#, NinjaTrader, MT5 EA
+  aj exekútor). Málo obchodov na trh (18–50 / rok) → testuje sa ako portfólio podľa iCloud SMERNICA_TREND_CFD.
 - **Filter špičky volatility** (24. 11.): spoločný filter vstupov (`tradebot/core/entry_filter.py`, C# `EntryLayers.cs`)
   vie neotvoriť obchod v deň, keď je Ø denný rozsah posledných `spikeShortDays` dní nad `spikeMax` × Ø za `spikeLongDays`
   dní (deň CME od 18:00 NY, len uzavreté dni); predvolene vypnutý, majú ho všetky stratégie aj IBS a odnože. Na živom

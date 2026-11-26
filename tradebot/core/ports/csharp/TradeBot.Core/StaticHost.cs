@@ -649,4 +649,12 @@ public static class StaticHost
         TrailingPlan p = new TrailingPlan(activation, offset, 0, 0);
         return p.StopPrice(direction > 0 ? Direction.Long : Direction.Short, entry, baseStop, extreme);
     }
+
+    /// <summary>To iste so zamkom (break-even, `la` / `ll` planu) - vzdialenosti v cenach exekutora.</summary>
+    public static double BridgeTrailStopLock(int direction, double entry, double baseStop, double extreme, double activation,
+                                             double offset, double lockActivation, double lockLevel)
+    {
+        TrailingPlan p = new TrailingPlan(activation, offset, 0, 0, lockActivation, lockLevel);
+        return p.StopPrice(direction > 0 ? Direction.Long : Direction.Short, entry, baseStop, extreme);
+    }
 }

@@ -102,7 +102,9 @@ def test_templates_magic_period_and_inputs():
                            "tksesnet": "TksEsNet", "tksmgcnet": "TksMgcNet", "tksmymnet": "TksMymNet", "tksbtcnet": "TksBtcNet",
                            "tkseurnet": "TksEurNet", "ibretnet": "IbRetNet",
                            "ibretmgcnet": "IbRetMgcNet", "ibretmymnet": "IbRetMymNet",
-                           "spravyeurnet": "SpravyEurNet"}
+                           "spravyeurnet": "SpravyEurNet",
+                           "mtkemasnet": "MtkEmasNet", "mtkemasmgcnet": "MtkEmasMgcNet", "mtkemasesnet": "MtkEmasEsNet",
+                           "mtkemasmymnet": "MtkEmasMymNet", "mtkemasbtcnet": "MtkEmasBtcNet"}
     m = magic_for("d1")
     assert m == magic_for("d1") and m != magic_for("d2") and 100_000 <= m < 2**31
     assert period_of(1) == (0, 1) and period_of(5) == (0, 5) and period_of(60) == (1, 1) and period_of(240) == (1, 4)

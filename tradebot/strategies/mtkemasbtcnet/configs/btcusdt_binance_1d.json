@@ -1,0 +1,17 @@
+{
+  "_title": "MTK EMAS 1.0 (C# jadro) · BTC 1d · cena × DEMA 124 bez filtra EMA 200, long aj short, stop 1,5 ATR, trailing 6 ATR + zámok pri 1R (štúdia: PF 2,71)",
+  "_strategy": "mtkemasbtcnet",
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "1d",
+  "tradeDirection": "Both",
+  "trendFilter": "off",
+  "trendEmaLen": 200,
+  "trendTF": 0,
+  "maType": "dema",
+  "signalMode": "price",
+  "slowLen": 124,
+  "slAtr": 1.5,
+  "trailAtr": 6.0,
+  "beAtR": 1.0,
+  "riskDollar": 2000.0
+}
