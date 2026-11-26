@@ -3,7 +3,7 @@
  "configs": {
   "SMERNICE_CS_NOA_1": {
    "_instrument": null,
-   "_source": "hub:6c6925cd0276",
+   "_source": "hub:33d640b8d71d",
    "_strategy": "noanet",
    "checkEvery": 13.0,
    "confirmBars": 5.0,
@@ -23,9 +23,10 @@
    "lookbackDays": 15.0,
    "maxTradesPerDay": 7.0,
    "qty": 1.0,
-   "riskDollar": 500.0,
+   "riskDollar": 100.0,
    "showLevels": true,
    "showVwap": true,
+   "skipOverRisk": false,
    "tradeDirection": "Both",
    "trailVwap": true,
    "trendEmaLen": 70.0,
@@ -133,12 +134,284 @@
    "start": "2026-11-03T11:19:59Z"
   },
   {
-   "end": "2026-11-03T15:55:22Z",
+   "end": "2026-11-04T21:23:29Z",
    "first_bar": "2026-09-14T18:45:00Z",
-   "last_bar": "2026-11-03T15:50:00Z",
+   "last_bar": "2026-11-04T21:15:00Z",
    "profile": "SMERNICE_CS_NOA_1",
    "session": "7a31f7d9",
    "start": "2026-11-03T15:51:22Z"
+  },
+  {
+   "end": "2026-11-04T22:13:26Z",
+   "first_bar": "2026-09-16T01:35:00Z",
+   "last_bar": "2026-11-04T21:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "b519d3be",
+   "start": "2026-11-04T21:25:57Z"
+  },
+  {
+   "end": "2026-11-04T22:15:53Z",
+   "first_bar": "2026-09-16T01:55:00Z",
+   "last_bar": "2026-11-04T21:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "9e3ceda2",
+   "start": "2026-11-04T22:15:45Z"
+  },
+  {
+   "end": "2026-11-05T03:50:39Z",
+   "first_bar": "2026-09-16T01:55:00Z",
+   "last_bar": "2026-11-05T03:45:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "e9928a11",
+   "start": "2026-11-04T22:18:08Z"
+  },
+  {
+   "end": "2026-11-05T03:53:02Z",
+   "first_bar": "2026-09-16T06:45:00Z",
+   "last_bar": "2026-09-22T16:50:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "1eeb7dd9",
+   "start": "2026-11-05T03:52:57Z"
+  },
+  {
+   "end": "2026-11-05T04:01:50Z",
+   "first_bar": "2026-09-16T06:50:00Z",
+   "last_bar": "2026-11-05T03:55:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "41cf1599",
+   "start": "2026-11-05T03:55:19Z"
+  },
+  {
+   "end": "2026-11-05T04:04:13Z",
+   "first_bar": "2026-09-16T06:55:00Z",
+   "last_bar": "2026-10-02T16:55:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "36042c9c",
+   "start": "2026-11-05T04:04:07Z"
+  },
+  {
+   "end": "2026-11-05T04:15:45Z",
+   "first_bar": "2026-09-16T07:00:00Z",
+   "last_bar": "2026-11-05T04:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "4a43857d",
+   "start": "2026-11-05T04:06:31Z"
+  },
+  {
+   "end": "2026-11-05T04:18:06Z",
+   "first_bar": "2026-09-16T07:10:00Z",
+   "last_bar": "2026-11-05T04:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "82d296f8",
+   "start": "2026-11-05T04:18:01Z"
+  },
+  {
+   "end": "2026-11-05T07:49:10Z",
+   "first_bar": "2026-09-16T07:15:00Z",
+   "last_bar": "2026-11-05T07:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "d2202416",
+   "start": "2026-11-05T04:20:29Z"
+  },
+  {
+   "end": "2026-11-05T07:50:13Z",
+   "first_bar": "2026-09-16T10:40:00Z",
+   "last_bar": "2026-11-05T07:45:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "a8e95bed",
+   "start": "2026-11-05T07:49:14Z"
+  },
+  {
+   "end": "2026-11-05T07:51:27Z",
+   "first_bar": "2026-09-16T10:45:00Z",
+   "last_bar": "2026-11-05T07:45:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "47a045ce",
+   "start": "2026-11-05T07:50:17Z"
+  },
+  {
+   "end": "2026-11-08T17:03:30Z",
+   "first_bar": "2026-09-16T10:45:00Z",
+   "last_bar": "2026-11-06T21:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "d2a6397d",
+   "start": "2026-11-05T07:51:31Z"
+  },
+  {
+   "end": "2026-11-08T17:13:54Z",
+   "first_bar": "2026-09-18T01:55:00Z",
+   "last_bar": "2026-11-06T21:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "79574108",
+   "start": "2026-11-08T17:05:27Z"
+  },
+  {
+   "end": "2026-11-08T17:14:06Z",
+   "first_bar": "2026-09-18T01:55:00Z",
+   "last_bar": "2026-11-06T21:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "e002310f",
+   "start": "2026-11-08T17:13:58Z"
+  },
+  {
+   "end": "2026-11-08T17:14:17Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "ae4bfbce",
+   "start": "2026-11-08T17:14:09Z"
+  },
+  {
+   "end": "2026-11-10T01:59:00Z",
+   "first_bar": "2026-09-18T01:55:00Z",
+   "last_bar": "2026-11-10T01:50:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "a6d34e22",
+   "start": "2026-11-08T19:02:21Z"
+  },
+  {
+   "end": "2026-11-10T02:00:36Z",
+   "first_bar": "2026-11-10T01:55:00Z",
+   "last_bar": "2026-11-10T01:55:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "d37c98bf",
+   "start": "2026-11-10T02:00:29Z"
+  },
+  {
+   "end": "2026-11-11T09:03:13Z",
+   "first_bar": "2026-11-10T02:00:00Z",
+   "last_bar": "2026-11-11T08:55:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "251b0e7b",
+   "start": "2026-11-10T02:02:10Z"
+  },
+  {
+   "end": "2026-11-11T09:05:11Z",
+   "first_bar": "2026-11-11T09:00:00Z",
+   "last_bar": "2026-11-11T09:00:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "c2bcfceb",
+   "start": "2026-11-11T09:04:57Z"
+  },
+  {
+   "end": "2026-11-11T22:47:25Z",
+   "first_bar": "2026-11-11T09:05:00Z",
+   "last_bar": "2026-11-11T21:40:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "8661b240",
+   "start": "2026-11-11T09:06:54Z"
+  },
+  {
+   "end": "2026-11-11T23:17:14Z",
+   "first_bar": "2026-11-11T21:45:00Z",
+   "last_bar": "2026-11-11T23:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "d742ae61",
+   "start": "2026-11-11T22:49:14Z"
+  },
+  {
+   "end": "2026-11-11T23:19:11Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "c473740f",
+   "start": "2026-11-11T23:19:07Z"
+  },
+  {
+   "end": "2026-11-12T17:26:40Z",
+   "first_bar": "2026-11-11T23:15:00Z",
+   "last_bar": "2026-11-12T17:20:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "8467d833",
+   "start": "2026-11-11T23:21:07Z"
+  },
+  {
+   "end": "2026-11-12T19:50:49Z",
+   "first_bar": "2026-11-12T17:25:00Z",
+   "last_bar": "2026-11-12T19:45:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "9323e05e",
+   "start": "2026-11-12T17:26:52Z"
+  },
+  {
+   "end": "2026-11-12T19:53:08Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "a73e2e7d",
+   "start": "2026-11-12T19:53:04Z"
+  },
+  {
+   "end": "2026-11-12T20:13:41Z",
+   "first_bar": "2026-11-12T19:50:00Z",
+   "last_bar": "2026-11-12T20:05:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "4f8ddc3e",
+   "start": "2026-11-12T19:55:28Z"
+  },
+  {
+   "end": "2026-11-12T20:16:01Z",
+   "first_bar": "2026-11-12T20:10:00Z",
+   "last_bar": "2026-11-12T20:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "d79ead1f",
+   "start": "2026-11-12T20:15:57Z"
+  },
+  {
+   "end": "2026-11-24T09:18:45Z",
+   "first_bar": "2026-11-12T20:15:00Z",
+   "last_bar": "2026-11-24T09:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "f24ac504",
+   "start": "2026-11-12T20:18:25Z"
+  },
+  {
+   "end": "2026-11-24T09:28:21Z",
+   "first_bar": "2026-11-24T09:15:00Z",
+   "last_bar": "2026-11-24T09:20:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "52928ed4",
+   "start": "2026-11-24T09:18:50Z"
+  },
+  {
+   "end": "2026-11-24T09:32:52Z",
+   "first_bar": "2026-11-24T09:25:00Z",
+   "last_bar": "2026-11-24T09:25:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "5307aa22",
+   "start": "2026-11-24T09:28:25Z"
+  },
+  {
+   "end": "2026-11-24T09:33:23Z",
+   "first_bar": null,
+   "last_bar": null,
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "b373d6ec",
+   "start": "2026-11-24T09:32:55Z"
+  },
+  {
+   "end": "2026-11-24T10:38:08Z",
+   "first_bar": "2026-11-24T09:30:00Z",
+   "last_bar": "2026-11-24T10:30:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "d7ab0496",
+   "start": "2026-11-24T09:33:27Z"
+  },
+  {
+   "end": "2026-11-26T14:00:41Z",
+   "first_bar": "2026-11-24T10:35:00Z",
+   "last_bar": "2026-11-26T13:55:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "85216a67",
+   "start": "2026-11-24T10:42:36Z"
+  },
+  {
+   "end": "2026-11-26T14:15:00Z",
+   "first_bar": "2026-10-07T16:05:00Z",
+   "last_bar": "2026-11-26T14:10:00Z",
+   "profile": "SMERNICE_CS_NOA_1",
+   "session": "4def42f2",
+   "start": "2026-11-26T14:10:27Z"
   }
  ],
  "setting": "noa-1",

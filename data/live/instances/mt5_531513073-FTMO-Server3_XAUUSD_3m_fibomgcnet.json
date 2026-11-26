@@ -164,12 +164,100 @@
    "start": "2026-11-03T11:19:59Z"
   },
   {
-   "end": "2026-11-03T15:55:22Z",
+   "end": "2026-11-04T21:23:29Z",
    "first_bar": "2026-11-03T07:06:00Z",
-   "last_bar": "2026-11-03T15:51:00Z",
+   "last_bar": "2026-11-04T21:18:00Z",
    "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
    "session": "2534f123",
    "start": "2026-11-03T15:51:22Z"
+  },
+  {
+   "end": "2026-11-04T22:13:26Z",
+   "first_bar": "2026-11-04T12:39:00Z",
+   "last_bar": "2026-11-04T21:45:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "249bd0b4",
+   "start": "2026-11-04T21:25:57Z"
+  },
+  {
+   "end": "2026-11-04T22:15:53Z",
+   "first_bar": "2026-11-04T13:03:00Z",
+   "last_bar": "2026-11-04T21:45:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "7cbd3b85",
+   "start": "2026-11-04T22:15:45Z"
+  },
+  {
+   "end": "2026-11-05T03:50:39Z",
+   "first_bar": "2026-11-04T13:03:00Z",
+   "last_bar": "2026-11-05T03:45:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "075fdbd6",
+   "start": "2026-11-04T22:18:08Z"
+  },
+  {
+   "end": "2026-11-05T03:52:57Z",
+   "first_bar": "2026-11-04T17:54:00Z",
+   "last_bar": "2026-11-05T03:48:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "f4ce4cbb",
+   "start": "2026-11-05T03:52:57Z"
+  },
+  {
+   "end": "2026-11-05T04:01:50Z",
+   "first_bar": "2026-11-04T17:57:00Z",
+   "last_bar": "2026-11-05T03:57:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "bf5e1027",
+   "start": "2026-11-05T03:55:19Z"
+  },
+  {
+   "end": "2026-11-05T04:04:08Z",
+   "first_bar": "2026-11-04T18:06:00Z",
+   "last_bar": "2026-11-05T04:00:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "e4c32630",
+   "start": "2026-11-05T04:04:07Z"
+  },
+  {
+   "end": "2026-11-05T04:15:45Z",
+   "first_bar": "2026-11-04T18:09:00Z",
+   "last_bar": "2026-11-05T04:12:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "2eb3d7f8",
+   "start": "2026-11-05T04:06:31Z"
+  },
+  {
+   "end": "2026-11-05T04:18:06Z",
+   "first_bar": "2026-11-04T18:21:00Z",
+   "last_bar": "2026-11-05T04:15:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "6fafbae3",
+   "start": "2026-11-05T04:18:01Z"
+  },
+  {
+   "end": "2026-11-05T07:49:10Z",
+   "first_bar": "2026-11-04T18:21:00Z",
+   "last_bar": "2026-11-05T07:45:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "b2116e3e",
+   "start": "2026-11-05T04:20:29Z"
+  },
+  {
+   "end": "2026-11-05T07:50:13Z",
+   "first_bar": "2026-11-04T23:03:00Z",
+   "last_bar": "2026-11-05T07:45:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "ab6cdd5e",
+   "start": "2026-11-05T07:49:14Z"
+  },
+  {
+   "end": "2026-11-05T07:51:27Z",
+   "first_bar": "2026-11-04T23:03:00Z",
+   "last_bar": "2026-11-05T07:48:00Z",
+   "profile": "SMERNICE_CS_Fibo_1_0_MGC_1",
+   "session": "eb7f62b1",
+   "start": "2026-11-05T07:50:17Z"
   }
  ],
  "setting": "fibomgc-1",

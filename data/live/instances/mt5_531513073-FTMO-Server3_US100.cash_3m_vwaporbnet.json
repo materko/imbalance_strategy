@@ -3,7 +3,7 @@
  "configs": {
   "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1": {
    "_instrument": null,
-   "_source": "hub:5296e8ff09f0",
+   "_source": "hub:6c146e8d50f4",
    "_strategy": "vwaporbnet",
    "atrLen": 14.0,
    "breakBufferAtr": 0.0,
@@ -181,12 +181,124 @@
    "start": "2026-11-03T11:19:59Z"
   },
   {
-   "end": "2026-11-03T15:55:22Z",
+   "end": "2026-11-04T21:23:29Z",
    "first_bar": "2026-10-19T15:18:00Z",
-   "last_bar": "2026-11-03T15:51:00Z",
+   "last_bar": "2026-11-04T21:18:00Z",
    "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
    "session": "7a902832",
    "start": "2026-11-03T15:51:22Z"
+  },
+  {
+   "end": "2026-11-04T22:13:26Z",
+   "first_bar": "2026-10-20T20:57:00Z",
+   "last_bar": "2026-11-04T21:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "2372cfd7",
+   "start": "2026-11-04T21:25:57Z"
+  },
+  {
+   "end": "2026-11-04T22:15:53Z",
+   "first_bar": "2026-10-20T21:21:00Z",
+   "last_bar": "2026-11-04T21:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "73df1e93",
+   "start": "2026-11-04T22:15:45Z"
+  },
+  {
+   "end": "2026-11-05T03:50:39Z",
+   "first_bar": "2026-10-20T21:21:00Z",
+   "last_bar": "2026-11-05T03:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "ddfc5cd5",
+   "start": "2026-11-04T22:18:08Z"
+  },
+  {
+   "end": "2026-11-05T03:53:02Z",
+   "first_bar": "2026-10-21T03:24:00Z",
+   "last_bar": "2026-10-22T09:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "8ffaacd1",
+   "start": "2026-11-05T03:52:57Z"
+  },
+  {
+   "end": "2026-11-05T04:01:50Z",
+   "first_bar": "2026-10-21T03:27:00Z",
+   "last_bar": "2026-11-05T03:57:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "edc1718e",
+   "start": "2026-11-05T03:55:19Z"
+  },
+  {
+   "end": "2026-11-05T04:04:10Z",
+   "first_bar": "2026-10-21T03:36:00Z",
+   "last_bar": "2026-11-05T04:00:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "3c10f0d7",
+   "start": "2026-11-05T04:04:07Z"
+  },
+  {
+   "end": "2026-11-05T04:15:45Z",
+   "first_bar": "2026-10-21T03:39:00Z",
+   "last_bar": "2026-11-05T04:12:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "e374246d",
+   "start": "2026-11-05T04:06:31Z"
+  },
+  {
+   "end": "2026-11-05T04:18:06Z",
+   "first_bar": "2026-10-21T03:51:00Z",
+   "last_bar": "2026-11-05T04:15:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "1c6ee9d5",
+   "start": "2026-11-05T04:18:01Z"
+  },
+  {
+   "end": "2026-11-05T07:49:10Z",
+   "first_bar": "2026-10-21T03:51:00Z",
+   "last_bar": "2026-11-05T07:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "8ac4769a",
+   "start": "2026-11-05T04:20:29Z"
+  },
+  {
+   "end": "2026-11-05T07:50:13Z",
+   "first_bar": "2026-10-21T07:21:00Z",
+   "last_bar": "2026-11-05T07:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "429219b3",
+   "start": "2026-11-05T07:49:14Z"
+  },
+  {
+   "end": "2026-11-05T07:51:27Z",
+   "first_bar": "2026-10-21T07:21:00Z",
+   "last_bar": "2026-11-05T07:48:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "0aa7b88f",
+   "start": "2026-11-05T07:50:17Z"
+  },
+  {
+   "end": "2026-11-08T17:03:30Z",
+   "first_bar": "2026-10-21T07:24:00Z",
+   "last_bar": "2026-11-06T21:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "2a198b7c",
+   "start": "2026-11-05T07:51:31Z"
+  },
+  {
+   "end": "2026-11-08T17:13:54Z",
+   "first_bar": "2026-10-22T21:21:00Z",
+   "last_bar": "2026-11-06T21:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "afedb700",
+   "start": "2026-11-08T17:05:27Z"
+  },
+  {
+   "end": "2026-11-08T17:14:06Z",
+   "first_bar": "2026-10-22T21:21:00Z",
+   "last_bar": "2026-11-06T21:45:00Z",
+   "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1",
+   "session": "ef7f7fbe",
+   "start": "2026-11-08T17:13:58Z"
   }
  ],
  "setting": "vwaporb-1",

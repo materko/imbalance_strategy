@@ -3,7 +3,7 @@
  "configs": {
   "SMERNICE_CS_NY_VA_BREAKOUT_ES_1": {
    "_instrument": null,
-   "_source": "hub:0900a7567926",
+   "_source": "hub:e79f2ca60e70",
    "_strategy": "nyvaesnet",
    "allowLong": true,
    "allowShort": true,
@@ -152,12 +152,100 @@
    "start": "2026-11-03T11:19:59Z"
   },
   {
-   "end": "2026-11-03T15:55:22Z",
+   "end": "2026-11-03T19:38:41Z",
    "first_bar": "2026-11-03T09:21:00Z",
-   "last_bar": "2026-11-03T15:51:00Z",
+   "last_bar": "2026-11-03T19:33:00Z",
    "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
    "session": "6786407b",
    "start": "2026-11-03T15:51:22Z"
+  },
+  {
+   "end": "2026-11-04T21:23:29Z",
+   "first_bar": "2026-11-03T13:06:00Z",
+   "last_bar": "2026-11-04T21:18:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "0fd33717",
+   "start": "2026-11-03T19:38:41Z"
+  },
+  {
+   "end": "2026-11-04T22:13:26Z",
+   "first_bar": "2026-11-04T14:54:00Z",
+   "last_bar": "2026-11-04T21:45:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "9c8e2180",
+   "start": "2026-11-04T21:25:57Z"
+  },
+  {
+   "end": "2026-11-04T22:15:53Z",
+   "first_bar": "2026-11-04T15:18:00Z",
+   "last_bar": "2026-11-04T21:45:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "0a959dd5",
+   "start": "2026-11-04T22:15:45Z"
+  },
+  {
+   "end": "2026-11-05T03:50:39Z",
+   "first_bar": "2026-11-04T15:18:00Z",
+   "last_bar": "2026-11-05T03:45:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "869e58ab",
+   "start": "2026-11-04T22:18:08Z"
+  },
+  {
+   "end": "2026-11-05T03:52:57Z",
+   "first_bar": "2026-11-04T20:09:00Z",
+   "last_bar": "2026-11-05T03:48:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "3be26a18",
+   "start": "2026-11-05T03:52:57Z"
+  },
+  {
+   "end": "2026-11-05T04:01:50Z",
+   "first_bar": "2026-11-04T20:12:00Z",
+   "last_bar": "2026-11-05T03:57:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "13a597db",
+   "start": "2026-11-05T03:55:19Z"
+  },
+  {
+   "end": "2026-11-05T04:04:08Z",
+   "first_bar": "2026-11-04T20:21:00Z",
+   "last_bar": "2026-11-05T04:00:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "fafa9c97",
+   "start": "2026-11-05T04:04:07Z"
+  },
+  {
+   "end": "2026-11-05T04:15:45Z",
+   "first_bar": "2026-11-04T20:24:00Z",
+   "last_bar": "2026-11-05T04:12:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "4fc7fc9b",
+   "start": "2026-11-05T04:06:31Z"
+  },
+  {
+   "end": "2026-11-05T04:18:06Z",
+   "first_bar": "2026-11-04T20:33:00Z",
+   "last_bar": "2026-11-05T04:15:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "b46e7805",
+   "start": "2026-11-05T04:18:01Z"
+  },
+  {
+   "end": "2026-11-05T07:49:10Z",
+   "first_bar": "2026-11-04T20:36:00Z",
+   "last_bar": "2026-11-05T07:45:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "b526760e",
+   "start": "2026-11-05T04:20:29Z"
+  },
+  {
+   "end": "2026-11-05T07:50:13Z",
+   "first_bar": "2026-11-05T01:18:00Z",
+   "last_bar": "2026-11-05T07:45:00Z",
+   "profile": "SMERNICE_CS_NY_VA_BREAKOUT_ES_1",
+   "session": "be5c1807",
+   "start": "2026-11-05T07:49:14Z"
   }
  ],
  "setting": "nyvaes-1",
