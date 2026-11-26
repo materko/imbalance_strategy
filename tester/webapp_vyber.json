@@ -107,6 +107,9 @@
   "flashorb": [
    "PRESIEL_SMERNICAMI_FLASH_ORB_MNQ_1"
   ],
+  "ibret": [
+   "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_1"
+  ],
   "ibretmgc": [
    "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MGC_1",
    "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MGC_2",
@@ -270,7 +273,6 @@
   "m2": [],
   "m2eur": [],
   "m2mgc": [],
-  "ibret": [],
   "ibretnet": [],
   "ibretmym": [
    "PRESIEL_SMERNICAMI_IB_RETRACE_1_0_MYM_1",
