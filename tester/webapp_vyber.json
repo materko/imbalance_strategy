@@ -1,102 +1,65 @@
 {
- "_popis": "navrchu webapp tieto stratégie a profily, dole ostatné len s profilmi z „dole“ — .nightsearch/glwebvyber.py",
+ "_popis": "navrchu webapp tieto stratégie a profily, dole ostatné len s profilmi z „dole“ — .nightsearch/glwebvyber.py | 27. 11. 2026 (SMERNICA V2, používateľ): pri každej stratégii len 1 najlepší profil (+ profil živého nasadenia), ostatné skryté; súbory profilov ostávajú, záloha .nightsearch/dash/archiv_pred_V2/",
  "strategies": {
   "ibsentrynet": [
-   "SMERNICE_CS_IBS_Entry_Zone_1",
-   "SMERNICE_CS_IBS_Entry_Zone_2",
-   "SMERNICE_CS_IBS_Entry_Zone_3"
+   "SMERNICE_CS_IBS_Entry_Zone_1"
   ],
   "ibsentryneteod": [
-   "SMERNICE_CS_EOD_IBS_Entry_Zone_1",
-   "SMERNICE_CS_EOD_IBS_Entry_Zone_2",
-   "SMERNICE_CS_EOD_IBS_Entry_Zone_3"
+   "SMERNICE_CS_EOD_IBS_Entry_Zone_1"
   ],
   "tksnet": [
-   "SMERNICE_CS_TKS_1",
-   "SMERNICE_CS_TKS_2",
-   "SMERNICE_CS_TKS_3"
+   "SMERNICE_CS_TKS_1"
   ],
   "tksneteod": [
-   "SMERNICE_CS_EOD_TKS_1",
-   "SMERNICE_CS_EOD_TKS_2",
-   "SMERNICE_CS_EOD_TKS_3"
+   "SMERNICE_CS_EOD_TKS_1"
   ],
   "noanet": [
-   "SMERNICE_CS_NOA_1",
-   "SMERNICE_CS_NOA_2",
-   "SMERNICE_CS_NOA_3"
+   "SMERNICE_CS_NOA_1"
   ],
   "noaneteod": [
-   "SMERNICE_CS_EOD_NOA_1",
-   "SMERNICE_CS_EOD_NOA_2",
-   "SMERNICE_CS_EOD_NOA_3"
+   "SMERNICE_CS_EOD_NOA_1"
   ],
   "vwaporbnet": [
-   "SMERNICE_CS_VWAP_ORB_1",
-   "SMERNICE_CS_VWAP_ORB_2",
-   "SMERNICE_CS_VWAP_ORB_3"
+   "SMERNICE_CS_VWAP_ORB_1"
   ],
   "vwaporbneteod": [
-   "SMERNICE_CS_EOD_VWAP_ORB_1",
-   "SMERNICE_CS_EOD_VWAP_ORB_2",
-   "SMERNICE_CS_EOD_VWAP_ORB_3"
+   "SMERNICE_CS_EOD_VWAP_ORB_1"
   ],
   "vwapadxnet": [
-   "SMERNICE_CS_VWAP_ADX_Pullback_1",
-   "SMERNICE_CS_VWAP_ADX_Pullback_2"
+   "SMERNICE_CS_VWAP_ADX_Pullback_1"
   ],
   "vwapadxneteod": [
-   "SMERNICE_CS_EOD_VWAP_ADX_Pullback_1",
-   "SMERNICE_CS_EOD_VWAP_ADX_Pullback_2"
+   "SMERNICE_CS_EOD_VWAP_ADX_Pullback_1"
   ],
   "ibsentryesnet": [
    "PRESIEL_SMERNICAMI_IBS_EZ_ES_1"
   ],
   "nyvaesnet": [
-   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_1",
-   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_2",
-   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_3"
+   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_1"
   ],
   "fibomgcnet": [
-   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1",
-   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_2",
-   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_3"
+   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1"
   ],
   "voltbreaknet": [
-   "PRESIEL_SMERNICAMI_Volt_Break_1",
-   "PRESIEL_SMERNICAMI_Volt_Break_2",
-   "PRESIEL_SMERNICAMI_Volt_Break_3"
+   "PRESIEL_SMERNICAMI_Volt_Break_1"
   ],
   "sigmamgcnet": [
-   "PRESIEL_SMERNICAMI_SIGMA_MGC_1",
-   "PRESIEL_SMERNICAMI_SIGMA_MGC_2",
-   "PRESIEL_SMERNICAMI_SIGMA_MGC_3"
+   "PRESIEL_SMERNICAMI_SIGMA_MGC_1"
   ],
   "sigmanet": [
-   "PRESIEL_SMERNICAMI_SIGMA_MNQ_1",
-   "PRESIEL_SMERNICAMI_SIGMA_MNQ_2",
-   "PRESIEL_SMERNICAMI_SIGMA_MNQ_3"
+   "PRESIEL_SMERNICAMI_SIGMA_MNQ_1"
   ],
   "spravynet": [
-   "profil_1",
-   "profil_2",
-   "profil_3",
-   "profil_4"
+   "profil_1"
   ],
   "spravyeurnet": [
-   "profil_1",
-   "profil_2",
-   "profil_3"
+   "profil_1"
   ],
   "noamgcnet": [
-   "PRESIEL_SMERNICAMI_NOA_1_0_MGC_1",
-   "PRESIEL_SMERNICAMI_NOA_1_0_MGC_2",
-   "PRESIEL_SMERNICAMI_NOA_1_0_MGC_3"
+   "PRESIEL_SMERNICAMI_NOA_1_0_MGC_1"
   ],
   "mtkorbnet": [
-   "PRESIEL_SMERNICAMI_MTK_ORB_MGC_1",
-   "PRESIEL_SMERNICAMI_MTK_ORB_MGC_2",
-   "PRESIEL_SMERNICAMI_MTK_ORB_MGC_3"
+   "PRESIEL_SMERNICAMI_MTK_ORB_MGC_1"
   ],
   "crt": [
    "PRESIEL_SMERNICAMI_CRT_TBS_1"
@@ -108,86 +71,58 @@
    "PRESIEL_SMERNICAMI_FLASH_ORB_MNQ_1"
   ],
   "ivb": [
-   "PRESIEL_SMERNICAMI_IVB_MNQ_1",
-   "PRESIEL_SMERNICAMI_IVB_MNQ_2",
-   "PRESIEL_SMERNICAMI_IVB_MNQ_3"
+   "PRESIEL_SMERNICAMI_IVB_MNQ_1"
   ],
   "ivbes": [
-   "PRESIEL_SMERNICAMI_IVB_ES_1",
-   "PRESIEL_SMERNICAMI_IVB_ES_2",
-   "PRESIEL_SMERNICAMI_IVB_ES_3"
+   "PRESIEL_SMERNICAMI_IVB_ES_1"
   ],
   "ivbmgc": [
-   "PRESIEL_SMERNICAMI_IVB_MGC_1",
-   "PRESIEL_SMERNICAMI_IVB_MGC_2"
+   "PRESIEL_SMERNICAMI_IVB_MGC_1"
   ],
   "jss": [
-   "PRESIEL_SMERNICAMI_JSS_1",
-   "PRESIEL_SMERNICAMI_JSS_2",
-   "PRESIEL_SMERNICAMI_JSS_3"
+   "PRESIEL_SMERNICAMI_JSS_1"
   ],
   "lliqmgc": [
-   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_1",
-   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_2",
-   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_3"
+   "PRESIEL_SMERNICAMI_LONDON_IFVG_MGC_1"
   ],
   "m2mnq": [
-   "PRESIEL_SMERNICAMI_M2_MNQ_1",
-   "PRESIEL_SMERNICAMI_M2_MNQ_2",
-   "PRESIEL_SMERNICAMI_M2_MNQ_3"
+   "PRESIEL_SMERNICAMI_M2_MNQ_1"
   ],
   "mag7": [
    "PRESIEL_SMERNICAMI_SPX_sila_1"
   ],
   "mtkzone": [
-   "PRESIEL_SMERNICAMI_MTK_ZONE_SD_z_ny_z_volume_1",
-   "PRESIEL_SMERNICAMI_MTK_ZONE_SD_z_ny_z_volume_2",
-   "PRESIEL_SMERNICAMI_MTK_ZONE_SD_z_ny_z_volume_3"
+   "PRESIEL_SMERNICAMI_MTK_ZONE_SD_z_ny_z_volume_1"
   ],
   "nocpon": [
-   "PRESIEL_SMERNICAMI_NOC_PONDELOK_1_0_1",
-   "PRESIEL_SMERNICAMI_NOC_PONDELOK_1_0_2",
-   "PRESIEL_SMERNICAMI_NOC_PONDELOK_1_0_3"
+   "PRESIEL_SMERNICAMI_NOC_PONDELOK_1_0_1"
   ],
   "nqprecmgc": [
    "PRESIEL_SMERNICAMI_NQ_PRECISION_MGC_1"
   ],
   "onbiasorb": [
-   "PRESIEL_SMERNICAMI_Overnight_Bias_ORB_1",
-   "PRESIEL_SMERNICAMI_Overnight_Bias_ORB_2"
+   "PRESIEL_SMERNICAMI_Overnight_Bias_ORB_1"
   ],
   "orb15": [
-   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_1",
-   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_2",
-   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_3"
+   "PRESIEL_SMERNICAMI_ORB_15_5_MNQ_1"
   ],
   "orb15es": [
-   "PRESIEL_SMERNICAMI_ORB_15_5_ES_1",
-   "PRESIEL_SMERNICAMI_ORB_15_5_ES_2"
+   "PRESIEL_SMERNICAMI_ORB_15_5_ES_1"
   ],
   "orb15mgc": [
-   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_1",
-   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_2",
-   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_3"
+   "PRESIEL_SMERNICAMI_ORB_15_5_MGC_1"
   ],
   "svp": [
-   "PRESIEL_SMERNICAMI_Volume_Profile_POC_1",
-   "PRESIEL_SMERNICAMI_Volume_Profile_POC_2",
-   "PRESIEL_SMERNICAMI_Volume_Profile_POC_3"
+   "PRESIEL_SMERNICAMI_Volume_Profile_POC_1"
   ],
   "sweepengulf": [
-   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_1",
-   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_2"
+   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_1"
   ],
   "wpres": [
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_1",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_2",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_3"
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_ES_1"
   ],
   "wprmgc": [
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_1",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_2",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_3"
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_MGC_1"
   ]
  },
  "dole": {
@@ -195,9 +130,7 @@
   "ibsnet": [],
   "ibszones": [],
   "ibsentry": [
-   "PRESIEL_SMERNICAMI_IBS_Entry_Zone_1",
-   "PRESIEL_SMERNICAMI_IBS_Entry_Zone_2",
-   "PRESIEL_SMERNICAMI_IBS_Entry_Zone_3"
+   "PRESIEL_SMERNICAMI_IBS_Entry_Zone_1"
   ],
   "ibsentrymgc": [],
   "ibsentryes": [
@@ -217,27 +150,20 @@
   "liquidity": [],
   "vwapdrift": [],
   "vwapadx": [
-   "PRESIEL_SMERNICAMI_VWAP_ADX_Pullback_1",
-   "PRESIEL_SMERNICAMI_VWAP_ADX_Pullback_2"
+   "PRESIEL_SMERNICAMI_VWAP_ADX_Pullback_1"
   ],
   "voltbreak": [
-   "PRESIEL_SMERNICAMI_Volt_Break_1",
-   "PRESIEL_SMERNICAMI_Volt_Break_2",
-   "PRESIEL_SMERNICAMI_Volt_Break_3"
+   "PRESIEL_SMERNICAMI_Volt_Break_1"
   ],
   "vwapop": [],
   "vwaporb": [
-   "PRESIEL_SMERNICAMI_VWAP_ORB_1",
-   "PRESIEL_SMERNICAMI_VWAP_ORB_2",
-   "PRESIEL_SMERNICAMI_VWAP_ORB_3"
+   "PRESIEL_SMERNICAMI_VWAP_ORB_1"
   ],
   "scalp3ma": [],
   "scalp3mamgc": [],
   "fibo": [],
   "fibomgc": [
-   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1",
-   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_2",
-   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_3"
+   "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1"
   ],
   "percoco": [],
   "fvgpolarity": [],
@@ -245,19 +171,13 @@
   "fpc": [],
   "asiasweep": [],
   "noa": [
-   "PRESIEL_SMERNICAMI_NOA_1_0_1",
-   "PRESIEL_SMERNICAMI_NOA_1_0_2",
-   "PRESIEL_SMERNICAMI_NOA_1_0_3"
+   "PRESIEL_SMERNICAMI_NOA_1_0_1"
   ],
   "tks": [
-   "PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_1",
-   "PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_2",
-   "PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_3"
+   "PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_1"
   ],
   "nyvaes": [
-   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_1",
-   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_2",
-   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_3"
+   "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_1"
   ],
   "sdeur": [],
   "sdeurnet": [],
@@ -266,14 +186,10 @@
   "m2eur": [],
   "m2mgc": [],
   "mtkorb": [
-   "PRESIEL_SMERNICAMI_MTK_ORB_MGC_1",
-   "PRESIEL_SMERNICAMI_MTK_ORB_MGC_2",
-   "PRESIEL_SMERNICAMI_MTK_ORB_MGC_3"
+   "PRESIEL_SMERNICAMI_MTK_ORB_MGC_1"
   ],
   "ibsentrymym": [
-   "PRESIEL_SMERNICAMI_IBS_EZ_MYM_1",
-   "PRESIEL_SMERNICAMI_IBS_EZ_MYM_2",
-   "PRESIEL_SMERNICAMI_IBS_EZ_MYM_3"
+   "PRESIEL_SMERNICAMI_IBS_EZ_MYM_1"
   ],
   "noamym": [],
   "wprmym": [],
@@ -284,9 +200,7 @@
    "PRESIEL_SMERNICAMI_SIGMA_MYM_1"
   ],
   "nocponmym": [
-   "PRESIEL_SMERNICAMI_NOC_PONDELOK_MYM_1",
-   "PRESIEL_SMERNICAMI_NOC_PONDELOK_MYM_2",
-   "PRESIEL_SMERNICAMI_NOC_PONDELOK_MYM_3"
+   "PRESIEL_SMERNICAMI_NOC_PONDELOK_MYM_1"
   ],
   "ibsentrymymnet": [],
   "noamymnet": [],
@@ -297,34 +211,25 @@
   "lliqeur": [],
   "silverbulleteur": [],
   "wpreur": [
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_LONG_1_0_6E_1",
-   "PRESIEL_SMERNICAMI_WILLIAMS_R_LONG_1_0_6E_2"
+   "PRESIEL_SMERNICAMI_WILLIAMS_R_LONG_1_0_6E_1"
   ],
   "ibsentryeur": [],
   "sweepengulfeur": [],
   "noabtc": [
-   "PRESIEL_SMERNICAMI_NOA_1_0_BTC_1",
-   "PRESIEL_SMERNICAMI_NOA_1_0_BTC_2",
-   "PRESIEL_SMERNICAMI_NOA_1_0_BTC_3"
+   "PRESIEL_SMERNICAMI_NOA_1_0_BTC_1"
   ],
   "dailyopenbtc": [],
   "onbiasorbbtc": [],
   "flashorbbtc": [
-   "PRESIEL_SMERNICAMI_FLASH_ORB_BTC_1",
-   "PRESIEL_SMERNICAMI_FLASH_ORB_BTC_2",
-   "PRESIEL_SMERNICAMI_FLASH_ORB_BTC_3"
+   "PRESIEL_SMERNICAMI_FLASH_ORB_BTC_1"
   ],
   "silverbulletbtc": [],
   "rangebtc": [
-   "PRESIEL_SMERNICAMI_RANGE_BREAKOUT_BTC_1",
-   "PRESIEL_SMERNICAMI_RANGE_BREAKOUT_BTC_2",
-   "PRESIEL_SMERNICAMI_RANGE_BREAKOUT_BTC_3"
+   "PRESIEL_SMERNICAMI_RANGE_BREAKOUT_BTC_1"
   ],
   "tmrbtc": [],
   "sweepengulfbtc": [
-   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_BTC_1",
-   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_BTC_2",
-   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_BTC_3"
+   "PRESIEL_SMERNICAMI_SWEEPING_ENGULF_BTC_1"
   ],
   "noabtcnet": [],
   "tmr": [],
@@ -334,39 +239,28 @@
   "flashorbes": [],
   "flashorbmgc": [],
   "sigma": [
-   "PRESIEL_SMERNICAMI_SIGMA_MNQ_1",
-   "PRESIEL_SMERNICAMI_SIGMA_MNQ_2",
-   "PRESIEL_SMERNICAMI_SIGMA_MNQ_3"
+   "PRESIEL_SMERNICAMI_SIGMA_MNQ_1"
   ],
   "sigmaes": [],
   "sigmamgc": [
-   "PRESIEL_SMERNICAMI_SIGMA_MGC_1",
-   "PRESIEL_SMERNICAMI_SIGMA_MGC_2",
-   "PRESIEL_SMERNICAMI_SIGMA_MGC_3"
+   "PRESIEL_SMERNICAMI_SIGMA_MGC_1"
   ],
   "nqprec": [],
   "nqpreces": [],
   "lliq": [],
   "lliqes": [],
   "spravy": [
-   "profil_1",
-   "profil_2",
-   "profil_3",
-   "profil_4"
+   "profil_1"
   ],
   "spravyeur": [
-   "profil_1",
-   "profil_2",
-   "profil_3"
+   "profil_1"
   ],
   "sweepfvg": [],
   "silverbullet": [],
   "mtkzonenet": [],
   "noaes": [],
   "noamgc": [
-   "PRESIEL_SMERNICAMI_NOA_1_0_MGC_1",
-   "PRESIEL_SMERNICAMI_NOA_1_0_MGC_2",
-   "PRESIEL_SMERNICAMI_NOA_1_0_MGC_3"
+   "PRESIEL_SMERNICAMI_NOA_1_0_MGC_1"
   ],
   "noaesnet": [],
   "tkses": [],
@@ -380,6 +274,36 @@
   "tksbtcnet": [],
   "tkseurnet": [],
   "varev": [],
-  "wprnet": []
+  "wprnet": [],
+  "mtkemas": [
+   "mnq_databento_4h"
+  ],
+  "mtkemasnet": [
+   "mnq_databento_4h"
+  ],
+  "mtkemasmgc": [
+   "mgc_databento_4h_ema79"
+  ],
+  "mtkemasmgcnet": [
+   "mgc_databento_4h_ema79"
+  ],
+  "mtkemases": [
+   "es_databento_1h"
+  ],
+  "mtkemasesnet": [
+   "es_databento_1h"
+  ],
+  "mtkemasmym": [
+   "mym_databento_2h"
+  ],
+  "mtkemasmymnet": [
+   "mym_databento_2h"
+  ],
+  "mtkemasbtc": [
+   "btcusdt_binance_4h"
+  ],
+  "mtkemasbtcnet": [
+   "btcusdt_binance_4h"
+  ]
  }
 }
