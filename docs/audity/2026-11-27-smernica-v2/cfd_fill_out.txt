@@ -1,0 +1,381 @@
+== sklz (kladne = horsie, v bodoch brokera 0.01; NT v tickoch) ==
+('mt5', 'US100.cash', 'SL_L', 'normal') n=16 med=65.0 p25=17.0 p75=190.0 p90=290.0 min=-230.0 max=920.0
+('mt5', 'US100.cash', 'SL_S', 'normal') n=18 med=122.0 p25=24.0 p75=187.0 p90=455.0 min=-53.0 max=5954.0
+('mt5', 'US100.cash', 'TP_L', 'normal') n=20 med=-75.0 p25=-115.0 p75=0.0 p90=221.0 min=-452.5 max=439.0
+('mt5', 'US100.cash', 'TP_L', 'nyopen') n=1 med=421.0 p25=421.0 p75=421.0 p90=421.0 min=421.0 max=421.0
+('mt5', 'US100.cash', 'TP_S', 'normal') n=22 med=-47.5 p25=-195.0 p75=45.0 p90=70.0 min=-475.0 max=185.0
+('mt5', 'US100.cash', 'limit_in_L', 'normal') n=27 med=-18.0 p25=-118.0 p75=30.0 p90=75.0 min=-1068.0 max=125.0
+('mt5', 'US100.cash', 'limit_in_S', 'normal') n=26 med=-58.5 p25=-189.0 p75=-4.0 p90=25.0 min=-478.0 max=59.0
+('mt5', 'US100.cash', 'market_in_L', 'normal') n=17 med=185.0 p25=95.0 p75=225.0 p90=365.0 min=5.0 max=445.0
+('mt5', 'US100.cash', 'market_in_L', 'nyopen') n=1 med=-135.0 p25=-135.0 p75=-135.0 p90=-135.0 min=-135.0 max=-135.0
+('mt5', 'US100.cash', 'market_in_S', 'normal') n=21 med=20.0 p25=-129.0 p75=150.0 p90=310.0 min=-460.0 max=460.0
+('mt5', 'US100.cash', 'market_in_vs_m1open', 'normal') n=34 med=117.5 p25=-50.0 p75=163.0 p90=285.0 min=-220.0 max=420.0
+('mt5', 'US500.cash', 'SL_L', 'normal') n=2 med=0.0 p25=0.0 p75=0.0 p90=0.0 min=0.0 max=0.0
+('mt5', 'US500.cash', 'SL_S', 'normal') n=2 med=31.5 p25=21.0 p75=42.0 p90=42.0 min=21.0 max=42.0
+('mt5', 'US500.cash', 'TP_L', 'normal') n=3 med=3.0 p25=3.0 p75=26.0 p90=26.0 min=3.0 max=26.0
+('mt5', 'US500.cash', 'TP_S', 'normal') n=1 med=5.0 p25=5.0 p75=5.0 p90=5.0 min=5.0 max=5.0
+('mt5', 'US500.cash', 'limit_in_L', 'normal') n=5 med=-1.0 p25=-42.0 p75=-1.0 p90=4.0 min=-42.0 max=4.0
+('mt5', 'US500.cash', 'limit_in_S', 'normal') n=3 med=-0.0 p25=-5.0 p75=10.0 p90=10.0 min=-5.0 max=10.0
+('mt5', 'XAUUSD', 'SL_L', 'normal') n=5 med=20.0 p25=9.0 p75=20.0 p90=48.0 min=9.0 max=48.0
+('mt5', 'XAUUSD', 'SL_S', 'normal') n=1 med=-2.0 p25=-2.0 p75=-2.0 p90=-2.0 min=-2.0 max=-2.0
+('mt5', 'XAUUSD', 'limit_in_L', 'normal') n=2 med=-3.0 p25=-3.0 p75=-3.0 p90=-3.0 min=-3.0 max=-3.0
+('mt5', 'XAUUSD', 'limit_in_L', 'nyopen') n=2 med=5.0 p25=5.0 p75=5.0 p90=5.0 min=5.0 max=5.0
+('mt5', 'XAUUSD', 'market_in_L', 'normal') n=2 med=38.0 p25=34.0 p75=42.0 p90=42.0 min=34.0 max=42.0
+('mt5', 'XAUUSD', 'market_in_S', 'normal') n=2 med=1.5 p25=-26.0 p75=29.0 p90=29.0 min=-26.0 max=29.0
+('mt5', 'XAUUSD', 'market_in_vs_m1open', 'normal') n=4 med=27.5 p25=21.0 p75=35.0 p90=35.0 min=9.0 max=35.0
+('ninjatrader', 'MES', 'SL_L', 'normal') n=1 med=0.0 p25=0.0 p75=0.0 p90=0.0 min=0.0 max=0.0
+('ninjatrader', 'MES', 'TP_L', 'normal') n=2 med=0.0 p25=0.0 p75=0.0 p90=0.0 min=0.0 max=0.0
+('ninjatrader', 'MES', 'limit_in_L', 'normal') n=6 med=0.0 p25=0.0 p75=0.0 p90=0.0 min=0.0 max=0.0
+('ninjatrader', 'MGC', 'SL_L', 'normal') n=2 med=16.0 p25=0.0 p75=32.0 p90=32.0 min=0.0 max=32.0
+('ninjatrader', 'MGC', 'TP_L', 'normal') n=1 med=0.0 p25=0.0 p75=0.0 p90=0.0 min=0.0 max=0.0
+('ninjatrader', 'MGC', 'limit_in_L', 'normal') n=3 med=0.0 p25=-0.0 p75=0.0 p90=0.0 min=-0.0 max=0.0
+('ninjatrader', 'MNQ', 'SL_L', 'normal') n=4 med=0.5 p25=0.0 p75=5.0 p90=5.0 min=0.0 max=5.0
+('ninjatrader', 'MNQ', 'SL_L', 'nyopen') n=2 med=0.5 p25=0.0 p75=1.0 p90=1.0 min=0.0 max=1.0
+('ninjatrader', 'MNQ', 'SL_S', 'normal') n=8 med=3.5 p25=1.0 p75=6.0 p90=7.0 min=-0.0 max=7.0
+('ninjatrader', 'MNQ', 'TP_L', 'normal') n=11 med=-0.5 p25=-0.5 p75=0.0 p90=0.0 min=-0.5 max=0.0
+('ninjatrader', 'MNQ', 'TP_S', 'normal') n=14 med=-0.0 p25=-0.0 p75=0.5 p90=0.5 min=-0.0 max=0.5
+('ninjatrader', 'MNQ', 'limit_in_L', 'normal') n=10 med=0.0 p25=0.0 p75=0.0 p90=0.0 min=0.0 max=0.0
+('ninjatrader', 'MNQ', 'limit_in_L', 'nyopen') n=2 med=-291.5 p25=-430.0 p75=-153.0 p90=-153.0 min=-430.0 max=-153.0
+('ninjatrader', 'MNQ', 'limit_in_S', 'normal') n=17 med=-0.0 p25=-0.0 p75=-0.0 p90=-0.0 min=-3.0 max=-0.0
+('ninjatrader', 'MNQ', 'market_in_L', 'normal') n=5 med=-1.0 p25=-5.0 p75=0.0 p90=3.0 min=-15.0 max=3.0
+('ninjatrader', 'MNQ', 'market_in_S', 'normal') n=8 med=-0.0 p25=-3.0 p75=7.0 p90=14.0 min=-10.0 max=14.0
+('ninjatrader', 'MNQ', 'market_in_vs_m1open', 'normal') n=9 med=1.0 p25=-3.0 p75=7.0 p90=13.0 min=-16.0 max=13.0
+== spread odhad: buy fill - m1 bid open (fill do 3 s od zaciatku minuty) ==
+('US100.cash', 'normal') n=25 med=145.0 p25=115.0 p75=245.0 p90=345.0 min=-155.0 max=623.0
+('US100.cash_SELLkontrola', 'normal') n=32 med=-11.0 p25=-100.0 p75=140.0 p90=200.0 min=-610.0 max=2341.0
+('XAUUSD', 'normal') n=2 med=34.5 p25=34.0 p75=35.0 p90=35.0 min=34.0 max=35.0
+('XAUUSD_SELLkontrola', 'normal') n=3 med=-9.0 p25=-21.0 p75=-2.0 p90=-2.0 min=-21.0 max=-2.0
+== konzistencia m1 = bid ==
+('US100.cash', 'buy_above_high') 3
+('US100.cash', 'buy_n') 84
+('US100.cash', 'sell_n') 84
+('US100.cash', 'sell_outside') 0
+('US500.cash', 'buy_above_high') 2
+('US500.cash', 'buy_n') 8
+('US500.cash', 'sell_n') 8
+('US500.cash', 'sell_outside') 0
+('XAUUSD', 'buy_above_high') 2
+('XAUUSD', 'buy_n') 8
+('XAUUSD', 'sell_n') 8
+('XAUUSD', 'sell_outside') 0
+== latencia ms ==
+('mt5', 'US100.cash', 'bar->order') n=39 med=107.0 p25=98.0 p75=160.0 p90=251.0 min=-10799920.0 max=405.0
+('mt5', 'US100.cash', 'order->fill') n=39 med=-107.0 p25=-160.0 p75=-98.0 p90=-86.0 min=-405.0 max=10799920.0
+('mt5', 'XAUUSD', 'bar->order') n=4 med=113.5 p25=100.0 p75=275.0 p90=275.0 min=91.0 max=275.0
+('mt5', 'XAUUSD', 'order->fill') n=4 med=-113.5 p25=-127.0 p75=-91.0 p90=-91.0 min=-275.0 max=-91.0
+('ninjatrader', 'MNQ', 'bar->order') n=13 med=203.0 p25=181.0 p75=222.0 p90=256.0 min=166.0 max=645.0
+('ninjatrader', 'MNQ', 'order->fill') n=13 med=8.0 p25=6.0 p75=32.0 p90=223.0 min=-6.0 max=356.0
+== limit vstup: max prienik bid sviecky za limit pocas zivota (body) ==
+('mt5', 'US100.cash', -1, False) n=9 med=-2597.0 p25=-4424.0 p75=-440.0 p90=-78.0 min=-13000.0 max=-78.0 dotkol sa (>=0): 0
+('mt5', 'US100.cash', -1, True) n=18 med=590.0 p25=235.0 p75=2005.0 p90=2180.0 min=31.0 max=2506.0 dotkol sa (>=0): 18
+('mt5', 'US100.cash', 1, False) n=16 med=-1064.5 p25=-2386.0 p75=-703.0 p90=-375.0 min=-6811.0 max=11450.0 dotkol sa (>=0): 1
+('mt5', 'US100.cash', 1, True) n=16 med=611.0 p25=328.0 p75=1875.0 p90=2150.0 min=240.0 max=2540.0 dotkol sa (>=0): 16
+('mt5', 'US500.cash', -1, False) n=4 med=-768.5 p25=-1207.0 p75=845.0 p90=845.0 min=-1207.0 max=845.0 dotkol sa (>=0): 1
+('mt5', 'US500.cash', -1, True) n=2 med=159.5 p25=60.0 p75=259.0 p90=259.0 min=60.0 max=259.0 dotkol sa (>=0): 2
+('mt5', 'US500.cash', 1, False) n=5 med=-50.0 p25=-300.0 p75=1301.0 p90=1306.0 min=-381.0 max=1306.0 dotkol sa (>=0): 2
+('mt5', 'US500.cash', 1, True) n=5 med=213.0 p25=213.0 p75=292.0 p90=292.0 min=120.0 max=292.0 dotkol sa (>=0): 5
+('mt5', 'XAUUSD', 1, False) n=2 med=-78.0 p25=-78.0 p75=-78.0 p90=-78.0 min=-78.0 max=-78.0 dotkol sa (>=0): 0
+('mt5', 'XAUUSD', 1, True) n=2 med=63.0 p25=63.0 p75=63.0 p90=63.0 min=63.0 max=63.0 dotkol sa (>=0): 2
+('ninjatrader', 'MES', -1, False) n=1 med=-48.0 p25=-48.0 p75=-48.0 p90=-48.0 min=-48.0 max=-48.0 dotkol sa (>=0): 0
+('ninjatrader', 'MES', 1, True) n=2 med=13.0 p25=11.0 p75=15.0 p90=15.0 min=11.0 max=15.0 dotkol sa (>=0): 2
+('ninjatrader', 'MGC', 1, True) n=1 med=7.0 p25=7.0 p75=7.0 p90=7.0 min=7.0 max=7.0 dotkol sa (>=0): 1
+('ninjatrader', 'MNQ', -1, False) n=2 med=71.0 p25=-16.0 p75=158.0 p90=158.0 min=-16.0 max=158.0 dotkol sa (>=0): 1
+('ninjatrader', 'MNQ', -1, True) n=5 med=5.0 p25=3.0 p75=8.0 p90=30.0 min=0.0 max=30.0 dotkol sa (>=0): 5
+('ninjatrader', 'MNQ', 1, False) n=3 med=-48.0 p25=-166.0 p75=-25.0 p90=-25.0 min=-166.0 max=-25.0 dotkol sa (>=0): 0
+('ninjatrader', 'MNQ', 1, True) n=3 med=89.0 p25=74.0 p75=545.0 p90=545.0 min=74.0 max=545.0 dotkol sa (>=0): 3
+== detail ==
+('_3m_vwapadxnet', 'va:300', 'market_in', 1, 'normal', 29980.0, 29979.75, None)
+('_3m_vwapadxnet', 'va:300', 'Profit target', 1, 'normal', 30031.5, 30031.5, None)
+('3m_ibsentrynet', 'LONG_48', 'limit_in', 1, 'normal', 29959.75, 29959.75, None)
+('3m_ibsentrynet', 'LONG_48', 'Profit target', 1, 'normal', 29985.5, 29985.5, None)
+('3m_ibsentrynet', 'LONG_48', 'Profit target', 1, 'normal', 29985.5, 29985.5, None)
+('3m_ibsentrynet', 'SHORT_64', 'limit_in', -1, 'normal', 29849.25, 29849.25, None)
+('3m_ibsentrynet', 'SHORT_64', 'Profit target', -1, 'normal', 29800.375, 29800.5, None)
+('_3m_vwaporbnet', 'orb:ny:5222', 'market_in', -1, 'normal', 29644.5, 29645.25, None)
+('_3m_vwaporbnet', 'orb:ny:5222', 'Profit target', -1, 'normal', 29440.5, 29440.5, None)
+('_3m_vwaporbnet', 'orb:ny:5234', 'market_in', -1, 'normal', 29445.5, 29445.5, None)
+('3m_ibsentrynet', 'LONG_250', 'market_in', 1, 'nyopen', 29586.73, 29585.38, None)
+('3m_ibsentrynet', 'LONG_250', 'Profit target', 1, 'nyopen', 29612.23, 29608.02, None)
+('_3m_vwaporbnet', 'orb:ny:5131', 'market_in', -1, 'normal', 29515.93, 29518.93, None)
+('_3m_vwaporbnet', 'orb:ny:5131', 'Stop loss', -1, 'normal', 29622.41, 29624.28, None)
+('_3m_vwapadxnet', 'va:339', 'market_in', 1, 'normal', 29575.93, 29577.88, None)
+('_3m_vwapadxnet', 'va:339', 'Profit target', 1, 'normal', 29668.33, 29669.43, None)
+('3m_ibsentrynet', 'LONG_253', 'limit_in', 1, 'normal', 29649.38, 29650.18, None)
+('_3m_vwapadxnet', 'va:346', 'market_in', 1, 'normal', 29632.13, 29633.68, None)
+('_3m_vwapadxnet', 'va:346', 'Profit target', 1, 'normal', 29669.43, 29670.23, None)
+('3m_ibsentrynet', 'LONG_253', 'Profit target', 1, 'normal', 29689.755, 29690.32, None)
+('_3m_vwapadxnet', 'va:315', 'market_in', 1, 'normal', 29955.75, 29955.75, None)
+('_3m_vwapadxnet', 'va:315', 'Stop loss', 1, 'normal', 29818.75, 29818.5, None)
+('3m_ibsentrynet', 'LONG_49', 'limit_in', 1, 'normal', 29527.5, 29527.5, None)
+('3m_ibsentrynet', 'LONG_49', 'Profit target', 1, 'normal', 29595.625, 29595.75, None)
+('cash_3m_tksnet', 'tks:21157', 'market_in', -1, 'normal', 29334.03, 29333.93, None)
+('cash_5m_noanet', 'noa:9822', 'limit_in', -1, 'normal', 29330.91, 29332.23, None)
+('3m_ibsentrynet', 'LONG_46', 'limit_in', 1, 'normal', 29750.0, 29750.0, None)
+('3m_ibsentrynet', 'LONG_240', 'limit_in', 1, 'normal', 29560.13, 29560.43, None)
+('3m_ibsentrynet', 'LONG_240', 'Profit target', 1, 'normal', 29590.08, 29590.23, None)
+('3m_ibsentrynet', 'LONG_46', 'Profit target', 1, 'normal', 29780.375, 29780.5, None)
+('cash_3m_tksnet', 'tks:21157', 'Profit target', -1, 'normal', 29272.98, 29273.28, None)
+('3m_ibsentrynet', 'LONG_312', 'limit_in', 1, 'normal', 29699.33, 29699.78, (29699.13, 29705.93, 29693.93, 29696.63))
+('3m_ibsentrynet', 'LONG_312', 'Profit target', 1, 'normal', 29747.68, 29751.33, (29733.63, 29756.63, 29727.33, 29754.13))
+('cash_3m_tksnet', 'tks:21593', 'market_in', 1, 'normal', 29860.13, 29861.08, (29859.73, 29860.73, 29853.13, 29859.73))
+('_3m_vwaporbnet', 'orb:ny:5572', 'market_in', 1, 'normal', 29849.58, 29850.53, (29849.38, 29852.48, 29840.58, 29844.88))
+('_3m_vwaporbnet', 'orb:ny:5572', 'Stop loss', 1, 'normal', 29632.5, 29632.33, (29638.63, 29638.83, 29627.03, 29635.03))
+('cash_3m_tksnet', 'tks:21593', 'Stop loss', 1, 'normal', 29601.23, 29599.33, (29606.23, 29607.73, 29599.13, 29599.33))
+('cash_3m_tksnet', 'tks:22024', 'market_in', -1, 'normal', 29112.43, 29114.23, (29113.33, 29128.33, 29104.93, 29106.13))
+('cash_5m_noanet', 'noa:10344', 'limit_in', -1, 'normal', 29119.23, 29119.18, (29098.58, 29121.18, 29095.48, 29113.58))
+('cash_3m_tksnet', 'tks:22024', 'Profit target', -1, 'normal', 28965.83, 28967.68, (28983.98, 28985.43, 28954.48, 28966.58))
+('_3m_vwaporbnet', 'orb:ny:5989', 'market_in', -1, 'normal', 29200.75, 29199.5, (29201.25, 29218.75, 29178.75, 29183.75))
+('3m_ibsentrynet', 'LONG_394', 'limit_in', 1, 'normal', 29020.08, 29020.08, (29019.33, 29022.73, 29010.73, 29015.23))
+('3m_ibsentrynet', 'LONG_394', 'Stop loss', 1, 'normal', 28910.98, 28909.98, (28921.48, 28923.48, 28905.38, 28916.98))
+('_3m_vwaporbnet', 'orb:ny:5989', 'Profit target', -1, 'normal', 29015.25, 29015.25, (29025.5, 29036.75, 29007.0, 29028.5))
+('_3m_fibomgcnet', 'fib:202', 'limit_in', 1, 'normal', 4028.8, 4028.8, (4028.9, 4029.3, 4028.7, 4028.9))
+('_3m_fibomgcnet', 'fib:202', 'Profit target', 1, 'normal', 4037.8, 4037.8, (4036.6, 4038.2, 4035.6, 4037.9))
+('S_3m_nyvaesnet', 'nv:229', 'limit_in', 1, 'normal', 7704.0, 7704.0, (7705.25, 7707.25, 7703.0, 7706.75))
+('S_3m_nyvaesnet', 'nv:229', 'Profit target', 1, 'normal', 7711.5, 7711.5, (7710.5, 7713.5, 7708.25, 7711.75))
+('cash_3m_tksnet', 'tks:21136', 'market_in', 1, 'normal', 29249.18, 29250.93, (29250.38, 29257.28, 29234.48, 29252.78))
+('cash_3m_tksnet', 'tks:21136', 'Profit target', 1, 'normal', 29369.0, 29369.03, (29361.23, 29370.03, 29357.73, 29361.93))
+('cash_5m_noanet', 'noa:9816', 'limit_in', 1, 'normal', 29316.52, 29315.98, (29331.23, 29332.03, 29311.13, 29314.73))
+('3m_ibsentrynet', 'SHORT_73', 'limit_in', -1, 'normal', 29501.0, 29501.0, (29498.5, 29509.0, 29493.5, 29499.75))
+('3m_ibsentrynet', 'SHORT_73', 'Profit target', -1, 'normal', 29473.75, 29473.75, (29489.0, 29489.25, 29471.25, 29475.75))
+('S_3m_nyvaesnet', 'nv:290', 'limit_in', 1, 'normal', 7734.25, 7734.25, (7736.25, 7736.5, 7730.5, 7730.75))
+('S_3m_nyvaesnet', 'nv:290', 'limit_in', 1, 'normal', 7734.25, 7734.25, (7736.25, 7736.5, 7730.5, 7730.75))
+('S_3m_nyvaesnet', 'nv:290', 'limit_in', 1, 'normal', 7734.25, 7734.25, (7736.25, 7736.5, 7730.5, 7730.75))
+('S_3m_nyvaesnet', 'nv:290', 'limit_in', 1, 'normal', 7734.25, 7734.25, (7736.25, 7736.5, 7730.5, 7730.75))
+('h_3m_nyvaesnet', 'nv:182', 'limit_in', 1, 'normal', 7698.07, 7698.06, (7700.35, 7700.85, 7695.15, 7695.65))
+('h_3m_nyvaesnet', 'nv:182', 'limit_in', 1, 'normal', 7698.07, 7698.06, (7700.35, 7700.85, 7695.15, 7695.65))
+('h_3m_nyvaesnet', 'nv:182', 'Profit target', 1, 'normal', 7704.28, 7704.25, (7702.45, 7704.65, 7702.35, 7703.6))
+('h_3m_nyvaesnet', 'nv:182', 'Profit target', 1, 'normal', 7704.28, 7704.25, (7702.45, 7704.65, 7702.35, 7703.6))
+('S_3m_nyvaesnet', 'nv:290', 'Profit target', 1, 'normal', 7741.5, 7741.5, (7740.0, 7742.0, 7739.75, 7740.5))
+('cash_3m_tksnet', 'tks:21186', 'market_in', 1, 'normal', 29595.88, 29597.73, (29596.28, 29598.88, 29592.38, 29594.48))
+('cash_3m_tksnet', 'tks:21186', 'market_in', 1, 'normal', 29595.88, 29597.73, (29596.28, 29598.88, 29592.38, 29594.48))
+('cash_5m_noanet', 'noa:9839', 'limit_in', 1, 'normal', 29675.23, 29675.28, (29680.83, 29682.33, 29672.33, 29672.33))
+('cash_5m_noanet', 'noa:9839', 'limit_in', 1, 'normal', 29675.23, 29675.28, (29680.83, 29682.33, 29672.33, 29672.33))
+('cash_3m_tksnet', 'tks:21186', 'Profit target', 1, 'normal', 29725.38, 29729.03, (29719.23, 29736.73, 29718.73, 29734.93))
+('cash_3m_tksnet', 'tks:21186', 'Profit target', 1, 'normal', 29725.38, 29729.03, (29719.23, 29736.73, 29718.73, 29734.93))
+('_3m_fibomgcnet', 'fib:374', 'limit_in', 1, 'nyopen', 4051.31, 4051.36, (4051.32, 4052.53, 4050.78, 4051.19))
+('_3m_fibomgcnet', 'fib:374', 'limit_in', 1, 'nyopen', 4051.31, 4051.36, (4051.32, 4052.53, 4050.78, 4051.19))
+('_3m_fibomgcnet', 'fib:374', 'Stop loss', 1, 'normal', 4044.19, 4043.99, (4044.99, 4045.44, 4043.51, 4043.76))
+('_3m_fibomgcnet', 'fib:374', 'Stop loss', 1, 'normal', 4044.19, 4043.99, (4044.99, 4045.44, 4043.51, 4043.76))
+('_3m_vwapadxnet', 'va:531', 'market_in', 1, 'normal', 29704.63, 29705.38, (29704.13, 29738.43, 29697.43, 29724.93))
+('_3m_vwapadxnet', 'va:534', 'market_in', 1, 'normal', 29904.25, 29900.5, (29904.5, 29913.0, 29885.5, 29902.5))
+('_3m_vwapadxnet', 'va:531', 'Profit target', 1, 'normal', 29810.63, 29810.63, (29796.33, 29814.63, 29774.13, 29788.13))
+('_3m_vwapadxnet', 'va:534', 'Profit target', 1, 'normal', 29967.0, 29967.0, (29952.25, 29971.0, 29929.0, 29943.25))
+('_3m_vwapadxnet', 'va:537', 'market_in', 1, 'normal', 29897.25, 29898.0, (29897.25, 29915.25, 29891.25, 29892.25))
+('_3m_vwapadxnet', 'va:537', 'Profit target', 1, 'normal', 29971.0, 29971.0, (29962.5, 29975.5, 29952.25, 29959.0))
+('_3m_vwapadxnet', 'va:558', 'market_in', 1, 'normal', 29718.440000000002, 29720.87, (29719.24, 29735.54, 29712.34, 29717.84))
+('_3m_vwapadxnet', 'va:558', 'Stop loss', 1, 'normal', 29678.93, 29677.93, (29688.74, 29692.74, 29674.84, 29675.94))
+('_3m_fibomgcnet', 'fib:515', 'limit_in', 1, 'normal', 4077.3, 4077.3, (4078.0, 4078.5, 4077.2, 4078.4))
+('_3m_fibomgcnet', 'fib:515', 'Stop loss', 1, 'normal', 4037.3, 4034.1, (4038.3, 4038.3, 4032.5, 4033.9))
+('S_3m_nyvaesnet', 'nv:808', 'limit_in', 1, 'normal', 7752.75, 7752.75, (7757.0, 7758.25, 7750.0, 7750.75))
+('h_3m_nyvaesnet', 'nv:806', 'limit_in', 1, 'normal', 7718.08, 7717.66, (7723.45, 7723.65, 7715.95, 7716.65))
+('h_3m_nyvaesnet', 'nv:806', 'limit_in', 1, 'normal', 7718.08, 7717.66, (7723.45, 7723.65, 7715.95, 7716.65))
+('h_3m_nyvaesnet', 'nv:806', 'Stop loss', 1, 'normal', 7706.35, 7706.35, (7708.15, 7709.95, 7706.15, 7707.45))
+('h_3m_nyvaesnet', 'nv:806', 'Stop loss', 1, 'normal', 7706.35, 7706.35, (7708.15, 7709.95, 7706.15, 7707.45))
+('S_3m_nyvaesnet', 'nv:808', 'Stop loss', 1, 'normal', 7740.0, 7740.0, (7741.75, 7741.75, 7736.75, 7738.5))
+('3m_ibsentrynet', 'LONG_133', 'limit_in', 1, 'normal', 29577.0, 29577.0, (29581.5, 29588.5, 29569.0, 29571.0))
+('3m_ibsentrynet', 'LONG_349', 'limit_in', 1, 'normal', 29425.23, 29425.78, (29429.63, 29436.43, 29417.43, 29420.13))
+('3m_ibsentrynet', 'LONG_349', 'limit_in', 1, 'normal', 29425.23, 29425.78, (29429.63, 29436.43, 29417.43, 29420.13))
+('3m_ibsentrynet', 'LONG_133', 'Profit target', 1, 'normal', 29641.375, 29641.5, (29615.5, 29655.25, 29611.25, 29655.0))
+('3m_ibsentrynet', 'LONG_349', 'Profit target', 1, 'normal', 29489.48, 29490.43, (29462.73, 29502.83, 29459.83, 29502.43))
+('3m_ibsentrynet', 'LONG_349', 'Profit target', 1, 'normal', 29489.48, 29490.43, (29462.73, 29502.83, 29459.83, 29502.43))
+('_3m_fibomgcnet', 'fib:994', 'limit_in', 1, 'normal', 4032.7000000000003, 4032.7, (4033.5, 4033.5, 4032.0, 4032.6))
+('_3m_fibomgcnet', 'fib:988', 'limit_in', 1, 'normal', 4021.0, 4020.97, (4021.81, 4021.81, 4020.37, 4020.93))
+('_3m_fibomgcnet', 'fib:988', 'limit_in', 1, 'normal', 4021.0, 4020.97, (4021.81, 4021.81, 4020.37, 4020.93))
+('_3m_fibomgcnet', 'fib:988', 'Stop loss', 1, 'normal', 4005.13, 4005.04, (4005.98, 4005.98, 4003.71, 4003.99))
+('_3m_fibomgcnet', 'fib:988', 'Stop loss', 1, 'normal', 4005.13, 4005.04, (4005.98, 4005.98, 4003.71, 4003.99))
+('_3m_fibomgcnet', 'fib:994', 'Stop loss', 1, 'normal', 4015.8, 4015.8, (4017.7, 4017.8, 4015.4, 4015.9))
+('h_3m_nyvaesnet', 'nv:201', 'limit_in', -1, 'normal', 7617.56, 7617.61, (7609.45, 7620.15, 7608.95, 7620.15))
+('h_3m_nyvaesnet', 'nv:201', 'Stop loss', -1, 'normal', 7626.57, 7626.99, (7620.95, 7626.65, 7620.95, 7624.05))
+('cash_5m_noanet', 'noa:9867', 'limit_in', -1, 'normal', 28331.82, 28331.23, (28319.23, 28334.23, 28319.23, 28325.43))
+('_ibsentryesnet', 'SHORT_252', 'limit_in', -1, 'normal', 7530.55, 7530.45, (7529.05, 7531.05, 7528.05, 7531.05))
+('_ibsentryesnet', 'SHORT_252', 'Stop loss', -1, 'normal', 7544.05, 7544.26, (7534.85, 7543.85, 7534.55, 7543.05))
+('cash_3m_tksnet', 'tks:21646', 'market_in', 1, 'normal', 28748.93, 28751.18, (28748.63, 28751.23, 28707.28, 28712.38))
+('h_3m_nyvaesnet', 'nv:657', 'limit_in', 1, 'normal', 7631.25, 7631.29, (7632.85, 7634.25, 7630.05, 7633.55))
+('h_3m_nyvaesnet', 'nv:657', 'Profit target', 1, 'normal', 7633.27, 7633.01, (7632.85, 7634.25, 7630.05, 7633.55))
+('cash_3m_tksnet', 'tks:21646', 'Stop loss', 1, 'normal', 28503.13, 28502.93, (28515.03, 28520.73, 28502.53, 28517.73))
+('h_3m_nyvaesnet', 'nv:696', 'limit_in', -1, 'normal', 7614.25, 7614.25, (7612.05, 7614.85, 7610.35, 7614.05))
+('h_3m_nyvaesnet', 'nv:696', 'Profit target', -1, 'normal', 7608.21, 7608.26, (7609.6, 7609.8, 7607.35, 7607.85))
+('cash_3m_tksnet', 'tks:21711', 'market_in', -1, 'normal', 28347.53, 28346.03, (28347.23, 28354.63, 28341.63, 28350.53))
+('cash_3m_tksnet', 'tks:21711', 'Profit target', -1, 'normal', 28286.83, 28287.28, (28301.03, 28303.13, 28280.33, 28282.13))
+('ibsentryneteod', 'SHORT_40', 'limit_in', -1, 'normal', 28382.25, 28382.25, (28370.5, 28383.5, 28364.0, 28380.25))
+('ibsentryneteod', 'SHORT_40', 'Stop loss', -1, 'normal', 28426.5, 28426.5, (28419.25, 28431.75, 28415.5, 28427.25))
+('3m_ibsentrynet', 'LONG_242', 'limit_in', 1, 'normal', 28224.43, 28220.98, (28231.68, 28234.18, 28205.68, 28213.18))
+('ibsentryneteod', 'LONG_42', 'limit_in', 1, 'normal', 28360.5, 28360.5, (28368.0, 28371.0, 28342.0, 28349.75))
+('3m_ibsentrynet', 'LONG_242', 'Stop loss', 1, 'normal', 28177.83, 28178.12, (28194.48, 28194.48, 28176.18, 28177.48))
+('ibsentryneteod', 'LONG_42', 'Stop loss', 1, 'normal', 28312.75, 28312.75, (28331.25, 28331.75, 28312.25, 28314.25))
+('3m_ibsentrynet', 'SHORT_252', 'limit_in', -1, 'normal', 28144.48, 28144.54, (28141.04, 28161.54, 28140.34, 28158.84))
+('3m_ibsentrynet', 'SHORT_252', 'Stop loss', -1, 'normal', 28218.18, 28218.37, (28174.04, 28216.54, 28138.14, 28216.54))
+('cash_5m_noanet', 'noa:10051', 'limit_in', 1, 'normal', 28592.49, 28592.38, (28609.03, 28634.53, 28587.23, 28618.73))
+('cash_5m_noanet', 'noa:10064', 'limit_in', 1, 'normal', 28457.86, 28456.68, (28510.93, 28523.73, 28451.03, 28455.03))
+('cash_5m_noanet', 'noa:10077', 'limit_in', 1, 'normal', 28607.06, 28596.38, (28613.73, 28620.93, 28585.93, 28596.03))
+('ibsentryneteod', 'SHORT_133', 'limit_in', -1, 'normal', 28700.5, 28700.5, (28692.0, 28702.0, 28680.0, 28700.75))
+('3m_ibsentrynet', 'SHORT_339', 'limit_in', -1, 'normal', 28572.23, 28573.03, (28571.03, 28578.03, 28540.13, 28547.53))
+('ibsentryneteod', 'SHORT_133', 'Profit target', -1, 'normal', 28654.875, 28655.0, (28699.5, 28706.75, 28653.75, 28654.5))
+('3m_ibsentrynet', 'SHORT_339', 'Profit target', -1, 'normal', 28526.58, 28526.38, (28526.03, 28533.53, 28520.23, 28530.73))
+('cash_5m_noanet', 'noa:10077', 'Stop loss', 1, 'normal', 28521.46, 28521.03, (28526.03, 28533.53, 28520.23, 28530.73))
+('cash_5m_noanet', 'noa:10082', 'limit_in', 1, 'normal', 28609.13, 28608.83, (28632.28, 28634.18, 28603.98, 28609.28))
+('ibsentryneteod', 'SHORT_148', 'limit_in', -1, 'normal', 28669.75, 28669.75, (28667.75, 28671.75, 28657.5, 28668.25))
+('ibsentryneteod', 'SHORT_148', 'Profit target', -1, 'normal', 28644.875, 28645.0, (28655.5, 28656.5, 28642.75, 28648.25))
+('3m_ibsentrynet', 'SHORT_354', 'limit_in', -1, 'normal', 28541.23, 28543.12, (28524.38, 28543.18, 28524.38, 28532.78))
+('3m_ibsentrynet', 'SHORT_354', 'Profit target', -1, 'normal', 28516.405, 28516.98, (28524.88, 28528.28, 28514.48, 28519.38))
+('ibsentryneteod', 'SHORT_153', 'limit_in', -1, 'normal', 28588.25, 28588.25, (28575.5, 28588.5, 28574.75, 28577.5))
+('ibsentryneteod', 'SHORT_153', 'Profit target', -1, 'normal', 28554.625, 28554.75, (28569.0, 28570.75, 28554.0, 28562.25))
+('3m_ibsentrynet', 'SHORT_359', 'limit_in', -1, 'normal', 28456.48, 28456.53, (28448.33, 28457.43, 28448.33, 28455.93))
+('3m_ibsentrynet', 'SHORT_359', 'Profit target', -1, 'normal', 28423.105, 28422.98, (28458.73, 28458.73, 28416.93, 28433.73))
+('cash_5m_noanet', 'noa:9879', 'limit_in', -1, 'normal', 27277.45, 27282.23, (27231.33, 27297.93, 27217.73, 27261.73))
+('3m_ibsentrynet', 'SHORT_319', 'market_in', -1, 'normal', 26967.93, 26969.43, (26967.73, 26977.93, 26951.43, 26971.23))
+('ibsentryneteod', 'SHORT_128', 'market_in', -1, 'normal', 27095.75, 27098.25, (27097.5, 27107.5, 27078.5, 27100.25))
+('3m_ibsentrynet', 'SHORT_319', 'Profit target', -1, 'normal', 26940.68, 26936.68, (26952.33, 26957.63, 26925.73, 26942.63))
+('ibsentryneteod', 'SHORT_128', 'Profit target', -1, 'normal', 27067.625, 27067.75, (27080.75, 27088.0, 27053.25, 27070.0))
+('ibsentryneteod', 'SHORT_130', 'limit_in', -1, 'normal', 26919.25, 26920.0, (26903.5, 26920.0, 26885.0, 26913.5))
+('3m_ibsentrynet', 'SHORT_321', 'limit_in', -1, 'normal', 26794.53, 26797.63, (26770.63, 26816.33, 26767.13, 26813.13))
+('3m_ibsentrynet', 'SHORT_321', 'Stop loss', -1, 'normal', 26957.63, 26959.08, (26933.93, 26977.93, 26924.53, 26966.53))
+('ibsentryneteod', 'SHORT_130', 'Stop loss', -1, 'normal', 27083.25, 27083.5, (27057.75, 27102.75, 27048.75, 27091.25))
+('3m_ibsentrynet', 'SHORT_335', 'market_in', -1, 'normal', 26786.93, 26788.22, (26786.33, 26822.03, 26786.33, 26816.33))
+('ibsentryneteod', 'SHORT_144', 'market_in', -1, 'normal', 26910.25, 26912.5, (26911.25, 26944.75, 26899.75, 26911.0))
+('ibsentryneteod', 'SHORT_144', 'Profit target', -1, 'normal', 26886.125, 26886.25, (26906.25, 26908.0, 26865.5, 26889.0))
+('3m_ibsentrynet', 'SHORT_335', 'Profit target', -1, 'normal', 26763.68, 26763.28, (26782.63, 26782.63, 26744.53, 26764.33))
+('ibsentryneteod', 'SHORT_152', 'limit_in', -1, 'normal', 26509.75, 26509.75, (26500.5, 26532.75, 26492.25, 26525.5))
+('ibsentryneteod', 'SHORT_152', 'Stop loss', -1, 'normal', 26639.75, 26640.75, (26623.75, 26673.0, 26621.0, 26636.75))
+('ibsentryneteod', 'LONG_203', 'limit_in', 1, 'nyopen', 27154.5, 27116.25, (27111.0, 27192.75, 27110.5, 27131.5))
+('ibsentryneteod', 'LONG_203', 'Stop loss', 1, 'nyopen', 27066.5, 27066.25, (27131.25, 27142.25, 27058.0, 27088.75))
+('ibsentryneteod', 'LONG_210', 'market_in', 1, 'normal', 27158.0, 27156.75, (27157.5, 27174.0, 27145.75, 27155.5))
+('ibsentryneteod', 'LONG_210', 'Stop loss', 1, 'normal', 27111.0, 27111.0, (27141.5, 27147.25, 27104.0, 27118.75))
+('3m_ibsentrynet', 'SHORT_410', 'market_in', -1, 'normal', 27084.03, 27083.82, (27083.83, 27096.03, 27079.53, 27092.43))
+('ibsentryneteod', 'SHORT_214', 'market_in', -1, 'normal', 27191.5, 27191.5, (27191.75, 27203.75, 27187.25, 27200.5))
+('ibsentryneteod', 'SHORT_214', 'Stop loss', -1, 'normal', 27236.0, 27236.0, (27224.0, 27244.0, 27219.25, 27222.5))
+('3m_ibsentrynet', 'SHORT_410', 'Stop loss', -1, 'normal', 27127.53, 27128.98, (27115.93, 27135.33, 27112.83, 27114.53))
+('ibsentryneteod', 'SHORT_214', 'Stop loss', -1, 'normal', 27236.0, 27237.0, (27224.0, 27244.0, 27219.25, 27222.5))
+('3m_ibsentrynet', 'SHORT_412', 'limit_in', -1, 'normal', 27066.58, 27068.53, (27054.43, 27068.93, 27047.63, 27057.63))
+('ibsentryneteod', 'SHORT_216', 'limit_in', -1, 'normal', 27175.75, 27175.75, (27161.75, 27177.75, 27155.5, 27165.5))
+('ibsentryneteod', 'SHORT_216', 'Profit target', -1, 'normal', 27135.25, 27135.25, (27138.75, 27154.25, 27134.75, 27141.0))
+('3m_ibsentrynet', 'SHORT_412', 'Profit target', -1, 'normal', 27025.730000000003, 27024.88, (27033.43, 27034.63, 27022.83, 27025.63))
+('3m_ibsentrynet', 'SHORT_320', 'market_in', -1, 'normal', 26874.73, 26874.03, (26874.93, 26923.73, 26869.73, 26917.93))
+('ibsentryneteod', 'SHORT_93', 'market_in', -1, 'normal', 26973.75, 26970.25, (26973.5, 27025.5, 26969.25, 27016.5))
+('3m_ibsentrynet', 'SHORT_320', 'Stop loss', -1, 'normal', 26931.43, 26935.98, (26918.03, 26947.93, 26898.33, 26942.93))
+('ibsentryneteod', 'SHORT_93', 'Stop loss', -1, 'normal', 27043.0, 27044.5, (27016.75, 27048.75, 26997.5, 27038.75))
+('cash_5m_noanet', 'noa:9996', 'limit_in', 1, 'normal', 27776.06, 27774.38, (27783.33, 27786.43, 27772.78, 27775.78))
+('cash_5m_noanet', 'noa:9996', 'Stop loss', 1, 'normal', 27730.8, 27730.82, (27733.33, 27760.83, 27729.33, 27755.63))
+('cash_3m_tksnet', 'tks:21379', 'market_in', 1, 'normal', 27913.23, 27913.28, (27910.43, 27964.93, 27902.33, 27963.03))
+('3m_ibsentrynet', 'SHORT_350', 'market_in', -1, 'normal', 27675.73, 27673.93, (27674.83, 27709.73, 27671.53, 27703.43))
+('3m_ibsentrynet', 'SHORT_350', 'Stop loss', -1, 'normal', 27727.93, 27727.98, (27713.33, 27752.73, 27713.33, 27734.93))
+('cash_3m_tksnet', 'tks:21379', 'Stop loss', 1, 'normal', 27537.53, 27539.83, (27562.73, 27562.83, 27531.73, 27532.43))
+('ibsentryneteod', 'SHORT_136', 'limit_in', -1, 'normal', 27608.25, 27608.25, (27604.25, 27613.0, 27593.0, 27604.5))
+('3m_ibsentrynet', 'SHORT_354', 'limit_in', -1, 'normal', 27510.43, 27512.02, (27504.73, 27512.43, 27493.73, 27504.23))
+('3m_ibsentrynet', 'SHORT_354', 'Profit target', -1, 'normal', 27487.78, 27488.48, (27495.93, 27502.33, 27484.33, 27492.43))
+('ibsentryneteod', 'SHORT_136', 'Profit target', -1, 'normal', 27584.0, 27584.0, (27595.75, 27602.5, 27584.0, 27592.75))
+('cash_3m_tksnet', 'tks:21250', 'market_in', 1, 'normal', 28298.08, 28302.53, (28299.08, 28307.08, 28287.48, 28293.98))
+('cash_3m_tksnet', 'tks:21250', 'Profit target', 1, 'normal', 28395.86, 28396.03, (28388.63, 28416.73, 28378.03, 28414.83))
+('cash_5m_noanet', 'noa:9880', 'limit_in', 1, 'normal', 28448.91, 28448.73, (28462.98, 28463.58, 28441.78, 28445.78))
+('cash_5m_noanet', 'noa:9893', 'limit_in', 1, 'normal', 28534.12, 28533.78, (28535.03, 28548.13, 28531.63, 28532.08))
+('ibsentryneteod', 'SHORT_56', 'limit_in', -1, 'normal', 28227.75, 28227.75, (28215.25, 28227.75, 28207.0, 28221.75))
+('ibsentryneteod', 'SHORT_56', 'Profit target', -1, 'normal', 28193.25, 28193.25, (28215.75, 28219.25, 28186.75, 28189.0))
+('cash_3m_tksnet', 'tks:21446', 'market_in', 1, 'normal', 28259.83, 28261.58, (28260.33, 28262.63, 28236.33, 28244.73))
+('cash_3m_tksnet', 'tks:21446', 'Profit target', 1, 'normal', 28335.98, 28337.13, (28334.13, 28355.13, 28330.33, 28352.63))
+('D_5m_spravynet', 'sp:317', 'market_in', -1, 'normal', 3894.77, 3895.03, (3895.12, 3895.37, 3891.28, 3891.9))
+('cash_3m_tksnet', 'tks:21467', 'market_in', -1, 'normal', 28051.53, 28052.93, (28050.73, 28103.73, 28050.73, 28088.83))
+('cash_3m_tksnet', 'tks:21467', 'Profit target', -1, 'normal', 27888.63, 27886.18, (27898.53, 27903.73, 27863.43, 27867.93))
+('cash_5m_noanet', 'noa:10011', 'limit_in', -1, 'normal', 27748.62, 27748.93, (27720.23, 27748.93, 27717.93, 27737.23))
+('cash_5m_noanet', 'noa:10011', 'Stop loss', -1, 'normal', 27842.22, 27843.28, (27824.23, 27844.43, 27813.73, 27835.23))
+('3m_ibsentrynet', 'LONG_330', 'limit_in', 1, 'normal', 27778.43, 27775.38, (27813.43, 27813.73, 27769.03, 27786.43))
+('ibsentryneteod', 'SHORT_107', 'limit_in', -1, 'normal', 27872.5, 27872.5, (27869.25, 27886.25, 27863.5, 27880.75))
+('3m_ibsentrynet', 'LONG_330', 'Profit target', 1, 'normal', 27829.43, 27829.43, (27803.03, 27834.83, 27796.93, 27829.43))
+('ibsentryneteod', 'SHORT_107', 'Stop loss', -1, 'normal', 27951.25, 27952.0, (27908.0, 27954.0, 27906.25, 27936.5))
+('ibsentryneteod', 'LONG_123', 'limit_in', 1, 'normal', 28015.25, 28015.25, (28031.75, 28033.0, 28007.0, 28012.0))
+('ibsentryneteod', 'LONG_123', 'Profit target', 1, 'normal', 28042.625, 28042.75, (28038.0, 28083.0, 28037.75, 28080.25))
+('cash_3m_tksnet', 'tks:21933', 'market_in', -1, 'normal', 27315.23, 27315.03, (27314.53, 27322.53, 27295.03, 27295.53))
+('cash_5m_noanet', 'noa:10279', 'limit_in', -1, 'normal', 27357.89, 27358.53, (27336.93, 27364.13, 27335.03, 27359.93))
+('cash_5m_noanet', 'noa:10279', 'Stop loss', -1, 'normal', 27408.53, 27409.68, (27394.53, 27414.73, 27388.03, 27410.53))
+('3m_ibsentrynet', 'SHORT_417', 'limit_in', -1, 'normal', 27410.63, 27411.53, (27387.63, 27425.73, 27387.63, 27418.53))
+('ibsentryneteod', 'SHORT_92', 'limit_in', -1, 'normal', 27496.75, 27496.75, (27473.25, 27512.25, 27473.25, 27503.75))
+('3m_ibsentrynet', 'SHORT_417', 'Stop loss', -1, 'normal', 27510.43, 27510.68, (27489.13, 27528.03, 27485.53, 27525.73))
+('ibsentryneteod', 'SHORT_92', 'Stop loss', -1, 'normal', 27597.0, 27598.75, (27573.75, 27614.5, 27571.0, 27611.5))
+('3m_ibsentrynet', 'SHORT_428', 'limit_in', -1, 'normal', 27423.18, 27422.98, (27405.78, 27429.18, 27403.68, 27425.88))
+('ibsentryneteod', 'SHORT_104', 'limit_in', -1, 'normal', 27508.5, 27508.5, (27491.25, 27516.0, 27489.25, 27511.75))
+('ibsentryneteod', 'SHORT_104', 'Profit target', -1, 'normal', 27474.25, 27474.25, (27488.5, 27493.0, 27467.0, 27472.25))
+('3m_ibsentrynet', 'SHORT_428', 'Profit target', -1, 'normal', 27389.905, 27390.58, (27402.53, 27407.43, 27382.43, 27385.63))
+('cash_3m_tksnet', 'tks:21933', 'Profit target', -1, 'normal', 27158.23, 27157.68, (27184.93, 27188.33, 27153.23, 27155.43))
+('cash_5m_noanet', 'noa:10318', 'limit_in', -1, 'normal', 27210.91, 27210.93, (27192.73, 27218.93, 27190.43, 27214.83))
+('cash_5m_noanet', 'noa:10318', 'Stop loss', -1, 'normal', 27295.47, 27297.68, (27268.93, 27297.73, 27259.73, 27290.73))
+('cash_5m_noanet', 'noa:10331', 'limit_in', -1, 'normal', 27204.71, 27204.33, (27196.33, 27207.13, 27193.33, 27199.83))
+('ibsentryneteod', 'LONG_113', 'limit_in', 1, 'normal', 27359.0, 27359.0, (27366.25, 27367.5, 27336.75, 27351.75))
+('3m_ibsentrynet', 'LONG_437', 'limit_in', 1, 'normal', 27271.43, 27269.88, (27278.73, 27279.63, 27249.93, 27263.83))
+('ibsentryneteod', 'LONG_113', 'Stop loss', 1, 'normal', 27250.0, 27248.75, (27261.5, 27267.0, 27248.75, 27251.0))
+('3m_ibsentrynet', 'LONG_437', 'Stop loss', 1, 'normal', 27163.13, 27162.13, (27173.93, 27178.73, 27161.63, 27163.43))
+('ibsentryneteod', 'SHORT_120', 'limit_in', -1, 'normal', 27252.0, 27252.0, (27240.5, 27258.25, 27236.75, 27249.25))
+('cash_3m_tksnet', 'tks:22395', 'market_in', -1, 'normal', 26799.83, 26800.33, (26801.33, 26814.03, 26776.23, 26779.73))
+('cash_5m_noanet', 'noa:10557', 'limit_in', -1, 'normal', 26741.48, 26741.52, (26657.83, 26743.53, 26654.93, 26736.23))
+('cash_5m_noanet', 'noa:10557', 'Stop loss', -1, 'normal', 26779.440000000002, 26779.68, (26736.93, 26791.43, 26722.33, 26791.43))
+('cash_5m_noanet', 'noa:10573', 'limit_in', -1, 'normal', 26904.0, 26904.53, (26900.03, 26924.03, 26892.23, 26918.43))
+('cash_5m_noanet', 'noa:10573', 'Stop loss', -1, 'normal', 26962.39, 26963.68, (26914.93, 26972.43, 26914.93, 26968.03))
+('3m_ibsentrynet', 'SHORT_511', 'limit_in', -1, 'normal', 26866.43, 26866.83, (26864.53, 26875.03, 26857.33, 26870.83))
+('ibsentryneteod', 'SHORT_135', 'limit_in', -1, 'normal', 26951.0, 26951.0, (26950.25, 26960.5, 26941.25, 26954.75))
+('ibsentryneteod', 'SHORT_135', 'Profit target', -1, 'normal', 26873.5, 26873.5, (26888.25, 26888.75, 26858.25, 26859.5))
+('3m_ibsentrynet', 'SHORT_511', 'Profit target', -1, 'normal', 26789.38, 26788.78, (26803.93, 26803.93, 26774.33, 26774.83))
+('cash_5m_noanet', 'noa:10609', 'limit_in', -1, 'normal', 26843.34, 26846.28, (26835.28, 26864.73, 26835.28, 26860.83))
+('3m_ibsentrynet', 'SHORT_526', 'limit_in', -1, 'normal', 26854.78, 26854.53, (26833.03, 26874.83, 26825.83, 26866.03))
+('ibsentryneteod', 'SHORT_152', 'limit_in', -1, 'normal', 26939.5, 26939.5, (26922.5, 26962.75, 26910.0, 26949.75))
+('3m_ibsentrynet', 'SHORT_526', 'Stop loss', -1, 'normal', 26948.28, 26948.38, (26938.43, 26951.93, 26932.83, 26946.73))
+('cash_3m_tksnet', 'tks:22395', 'Stop loss', -1, 'normal', 27318.93, 27378.47, (27372.24, 27393.84, 27362.34, 27366.64))
+('3m_ibsentrynet', 'LONG_572', 'limit_in', 1, 'normal', 27141.93, 27141.88, (27142.73, 27142.73, 27122.73, 27124.33))
+('ibsentryneteod', 'LONG_108', 'limit_in', 1, 'normal', 27224.75, 27224.75, (27228.5, 27231.5, 27221.0, 27227.75))
+('ibsentryneteod', 'LONG_108', 'limit_in', 1, 'normal', 27224.75, 27224.75, (27228.5, 27231.5, 27221.0, 27227.75))
+('ibsentryneteod', 'LONG_108', 'limit_in', 1, 'normal', 27224.75, 27224.75, (27228.5, 27231.5, 27221.0, 27227.75))
+('ibsentryneteod', 'LONG_108', 'Profit target', 1, 'normal', 27254.125, 27254.25, (27244.25, 27254.5, 27239.25, 27247.0))
+('ibsentryneteod', 'LONG_108', 'Profit target', 1, 'normal', 27254.125, 27254.25, (27244.25, 27254.5, 27239.25, 27247.0))
+('3m_ibsentrynet', 'LONG_572', 'Profit target', 1, 'normal', 27174.83, 27173.93, (27164.63, 27175.73, 27164.23, 27171.73))
+('ibsentryneteod', 'LONG_108', 'Stop loss', 1, 'nyopen', 27166.0, 27166.0, (27206.25, 27231.25, 27138.5, 27151.75))
+('ibsentryneteod', 'LONG_131', 'limit_in', 1, 'nyopen', 27274.75, 27167.25, (27206.25, 27231.25, 27138.5, 27151.75))
+('3m_ibsentrynet', 'LONG_600', 'limit_in', 1, 'normal', 27008.43, 27007.78, (27021.13, 27029.43, 27003.63, 27009.33))
+('3m_ibsentrynet', 'LONG_600', 'Profit target', 1, 'normal', 27049.105, 27053.63, (27010.83, 27074.13, 27010.83, 27070.63))
+('3m_ibsentrynet', 'SHORT_618', 'market_in', -1, 'normal', 27075.33, 27074.92, (27075.13, 27092.83, 27068.63, 27086.83))
+('ibsentryneteod', 'SHORT_102', 'market_in', -1, 'normal', 27158.0, 27156.25, (27158.25, 27175.25, 27149.5, 27169.5))
+('3m_ibsentrynet', 'SHORT_618', 'Stop loss', -1, 'normal', 27116.73, 27117.48, (27113.23, 27118.33, 27099.93, 27116.63))
+('D_5m_spravynet', 'sp:993', 'market_in', 1, 'normal', 3729.71, 3730.13, (3729.79, 3729.79, 3727.84, 3728.52))
+('cash_3m_tksnet', 'tks:23288', 'market_in', 1, 'normal', 27702.83, 27705.08, (27703.83, 27721.13, 27653.73, 27661.33))
+('cash_3m_tksnet', 'tks:23288', 'Stop loss', 1, 'normal', 27558.63, 27556.13, (27582.63, 27583.93, 27554.83, 27575.33))
+('cash_3m_tksnet', 'tks:23305', 'market_in', -1, 'normal', 27099.93, 27096.83, (27098.43, 27108.73, 27071.33, 27081.23))
+('cash_3m_tksnet', 'tks:23305', 'Profit target', -1, 'normal', 26772.83, 26769.78, (26837.13, 26837.93, 26759.43, 26759.43))
+('3m_ibsentrynet', 'SHORT_703', 'limit_in', -1, 'normal', 26908.43, 26910.13, (26885.83, 26913.93, 26871.63, 26878.13))
+('3m_ibsentrynet', 'SHORT_703', 'Profit target', -1, 'normal', 26841.73, 26841.78, (26905.23, 26908.43, 26835.33, 26850.43))
+('cash_3m_tksnet', 'tks:23353', 'market_in', -1, 'normal', 26785.73, 26781.13, (26785.33, 26785.33, 26740.33, 26751.33))
+('cash_3m_tksnet', 'tks:23353', 'Profit target', -1, 'normal', 26657.68, 26656.88, (26684.43, 26694.13, 26652.93, 26666.13))
+('cash_5m_noanet', 'noa:11139', 'limit_in', -1, 'normal', 26727.260000000002, 26731.33, (26708.83, 26732.73, 26691.93, 26699.93))
+('cash_5m_noanet', 'noa:11139', 'Stop loss', -1, 'normal', 26796.61, 26796.08, (26795.43, 26796.23, 26763.63, 26763.63))
+('3m_ibsentrynet', 'SHORT_713', 'market_in', -1, 'normal', 26753.73, 26750.52, (26753.23, 26769.93, 26731.83, 26752.33))
+('3m_ibsentrynet', 'SHORT_713', 'Profit target', -1, 'normal', 26732.48, 26733.28, (26750.13, 26750.13, 26699.83, 26727.33))
+('cash_5m_noanet', 'noa:11155', 'limit_in', -1, 'normal', 26599.170000000002, 26602.33, (26571.43, 26624.23, 26571.33, 26623.83))
+('3m_ibsentrynet', 'SHORT_730', 'limit_in', -1, 'normal', 26415.74, 26415.84, (26411.24, 26417.54, 26401.54, 26406.44))
+('3m_ibsentrynet', 'SHORT_730', 'Profit target', -1, 'normal', 26389.890000000003, 26388.47, (26406.54, 26413.74, 26373.94, 26377.84))
+('3m_ibsentrynet', 'LONG_731', 'limit_in', 1, 'normal', 26430.24, 26429.47, (26443.54, 26446.74, 26418.54, 26418.54))
+('3m_ibsentrynet', 'LONG_731', 'Profit target', 1, 'normal', 26478.640000000003, 26476.43, (26454.43, 26484.33, 26453.43, 26480.03))
+('cash_3m_tksnet', 'tks:23765', 'market_in', -1, 'normal', 25731.43, 25732.63, (25732.03, 25825.43, 25731.53, 25819.83))
+('3m_ibsentrynet', 'SHORT_798', 'market_in', -1, 'normal', 25502.83, 25502.63, (25503.13, 25527.13, 25489.13, 25518.63))
+('3m_ibsentrynet', 'SHORT_798', 'Profit target', -1, 'normal', 25477.030000000002, 25475.08, (25488.43, 25490.63, 25452.93, 25454.33))
+('3m_ibsentrynet', 'SHORT_800', 'market_in', -1, 'normal', 25484.83, 25485.93, (25485.43, 25501.83, 25474.83, 25483.93))
+('3m_ibsentrynet', 'SHORT_800', 'Stop loss', -1, 'normal', 25539.03, 25540.58, (25515.53, 25552.43, 25513.93, 25551.53))
+('3m_ibsentrynet', 'LONG_802', 'limit_in', 1, 'normal', 25526.53, 25526.08, (25549.53, 25549.83, 25501.13, 25505.43))
+('3m_ibsentrynet', 'LONG_802', 'Profit target', 1, 'normal', 25581.829999999998, 25582.53, (25558.93, 25600.93, 25547.63, 25595.43))
+('cash_3m_tksnet', 'tks:23765', 'Profit target', -1, 'normal', 25386.73, 25383.88, (25435.43, 25445.33, 25366.33, 25368.33))
+('3m_ibsentrynet', 'LONG_849', 'limit_in', 1, 'normal', 25837.73, 25838.48, (25841.13, 25849.53, 25835.73, 25845.03))
+('3m_ibsentrynet', 'LONG_849', 'Stop loss', 1, 'normal', 25762.23, 25762.13, (25783.93, 25789.63, 25757.73, 25759.23))
+('cash_3m_tksnet', 'tks:24212', 'market_in', 1, 'normal', 26936.43, 26940.08, (26936.63, 26969.53, 26929.73, 26945.63))
+('3m_ibsentrynet', 'LONG_901', 'limit_in', 1, 'normal', 26799.73, 26799.98, (26819.63, 26821.23, 26785.53, 26808.53))
+('3m_ibsentrynet', 'LONG_901', 'Stop loss', 1, 'normal', 26731.73, 26722.53, (26743.03, 26746.73, 26714.63, 26720.63))
+('3m_ibsentrynet', 'LONG_900', 'limit_in', 1, 'normal', 26721.93, 26723.18, (26734.73, 26735.73, 26719.53, 26725.23))
+('3m_ibsentrynet', 'LONG_900', 'Profit target', 1, 'normal', 26774.68, 26776.23, (26749.93, 26789.03, 26748.53, 26785.93))
+('3m_ibsentrynet', 'LONG_916', 'market_in', 1, 'normal', 26742.13, 26744.68, (26742.23, 26761.23, 26735.23, 26761.23))
+('3m_ibsentrynet', 'LONG_916', 'Profit target', 1, 'normal', 26771.230000000003, 26766.84, (26743.43, 26788.54, 26723.04, 26786.04))
+('3m_ibsentrynet', 'LONG_915', 'limit_in', 1, 'normal', 26749.84, 26747.17, (26756.44, 26757.14, 26716.64, 26739.94))
+('3m_ibsentrynet', 'LONG_915', 'Stop loss', 1, 'normal', 26691.84, 26691.14, (26699.24, 26701.94, 26684.24, 26691.94))
+('cash_3m_tksnet', 'tks:24212', 'Stop loss', 1, 'normal', 26381.43, 26380.83, (26396.03, 26396.03, 26372.23, 26372.23))
+('cash_3m_tksnet', 'tks:21227', 'market_in', -1, 'normal', 25946.63, 25944.63, (25944.13, 25958.03, 25924.53, 25940.63))
+('cash_3m_tksnet', 'tks:21227', 'Profit target', -1, 'normal', 25708.13, 25703.38, (25731.63, 25736.73, 25686.83, 25703.43))
+('D_5m_spravynet', 'sp:439', 'market_in', 1, 'normal', 3461.86, 3462.2, (3461.85, 3461.85, 3448.22, 3453.19))
+('D_5m_spravynet', 'sp:439', 'Stop loss', 1, 'normal', 3454.64, 3454.16, (3461.85, 3461.85, 3448.22, 3453.19))
+('cash_3m_tksnet', 'tks:21682', 'market_in', -1, 'normal', 25042.83, 25047.43, (25045.93, 25095.93, 25044.63, 25077.93))
+('D_5m_spravynet', 'sp:451', 'market_in', -1, 'normal', 3453.1, 3452.81, (3453.02, 3453.02, 3447.3, 3447.76))
+('cash_3m_tksnet', 'tks:21682', 'Stop loss', -1, 'normal', 25443.33, 25445.78, (25442.33, 25465.43, 25422.33, 25433.33))
+('D_5m_spravynet', 'sp:451', 'Stop loss', -1, 'normal', 3500.12, 3500.1, (3492.93, 3502.65, 3492.93, 3500.71))
+('cash_3m_tksnet', 'tks:21161', 'market_in', 1, 'normal', 26255.43, 26256.08, (26254.13, 26259.83, 26247.53, 26248.53))
+('cash_3m_tksnet', 'tks:21161', 'Stop loss', 1, 'normal', 26165.43, 26162.53, (26168.63, 26176.03, 26161.53, 26161.53))

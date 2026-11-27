@@ -34,7 +34,7 @@ tradebot = ["strategies/*/configs/*.json", "strategies/*/docs/sources/*.pine", "
 
 [tool.ruff]
 # Behy, archívy a dáta nie sú kód; worktrees v .claude/ sú kópie repozitára; skripty výskumu v docs/ stratégie sú archív
-extend-exclude = ["tester/runs", "tester/archive", "data", ".claude", "tradebot/strategies/*/docs"]   # docs: archív skriptov výskumu, nie kód
+extend-exclude = ["tester/runs", "tester/archive", "data", ".claude", "tradebot/strategies/*/docs", "docs/audity"]   # docs: archív skriptov výskumu a snímky na audit, nie kód
 
 [tool.ruff.lint]
 # Chyby (pyflakes + syntax), nie štýl: kontroluje to CI (.github/workflows/lint.yml)

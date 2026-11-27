@@ -119,6 +119,7 @@ Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCH
 | volať webapp zo skriptu alebo z AI | [docs/API.md](docs/API.md) |
 | pridať ďalšiu stratégiu, zoznam stratégií | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
 | vedieť, kedy stratégia prešla (smernica testovania V2, platí od 27. 11. 2026) | [docs/SMERNICA_TESTOVANIA.md](docs/SMERNICA_TESTOVANIA.md) |
+| naprogramovať V2 (zadanie pre vývojára, debata agentov, merania, snímka automatu) | [docs/audity/2026-11-27-smernica-v2/](docs/audity/2026-11-27-smernica-v2/PRECITAJ_MA.md) |
 | čo tá stratégia je, v čom je dobrá, kde má chyby | [docs/ANALYTIKA.md](docs/ANALYTIKA.md), [docs/TYPY_STRATEGII.md](docs/TYPY_STRATEGII.md) |
 | hľadať parametre (sweep, hyperopt, FreqAI) | [docs/HYPEROPT.md](docs/HYPEROPT.md) |
 | krypto: prostredie, backtest, Docker, server | [docs/FREQTRADE.md](docs/FREQTRADE.md) |
