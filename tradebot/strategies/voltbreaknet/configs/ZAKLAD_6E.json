@@ -6,6 +6,12 @@
   "_timerange": "20160103-20210930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
-  ]
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: kópia/prepis `voltbreak` — bodové defaulty zhodné s predlohou (0 polí), dedí: tradebot/strategies/voltbreak/config.py:84 „skript je písaný na NQ (20 $/bod) — tak sa TP 800 $ = 40 bodov aj na MNQ“; SKRYTÉ bodové prahy tpUsd/slUsd/usdPerPoint (40 / 75 bodov) mimo vzoru *Points a mimo SIZE_FIELDS).",
+    "Pomer ATR = medián denného ATR(14) 6e_databento 0.005643 / mnq_databento 169.321 v okne 2019-05-05 – 2021-09-30 (spoločné L (prienik L)) = 3.33263e-05; z rôznych období L by bol 3.19076e-05 (-4 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): tpUsd 800 $ = 40 b domov → 27 t = 0.00135 b na M = 1.35 $ pri usdPerPoint 1000; slUsd 1500 $ = 75 b domov → 50 t = 0.0025 b na M = 2.5 $ pri usdPerPoint 1000; usdPerPoint 20 → 1000 (pri 20 by $ vyšli pod rozsah Pine; pole je PORT_ONLY a slúži len na prevod $ → body, logiku nemení). Pozor: tieto „$“ nie sú skutočné doláre trhu M (napr. 6E má 125 000 $ za bod) — berte ich len ako prepočet bodov..",
+    "Default má zapnutý trailing / koniec seansy (useTimeExit=True): hlavička musí výslovne povoliť, inak vypnúť (§0)."
+  ],
+  "tpUsd": 1.35,
+  "slUsd": 2.5,
+  "usdPerPoint": 1000.0
 }

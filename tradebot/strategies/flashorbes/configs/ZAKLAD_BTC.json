@@ -6,9 +6,12 @@
   "_timerange": "20190908-20220930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → btcusdt_binance, v pevnej cene trhu: trailActivatePoints, trailBufferPoints.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota nízka (25_B: kópia/prepis `flashorb` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/flashorb/config.py:69-70 trailActivatePoints=50, trailBufferPoints=20 prevzaté z roboquant 07_Flash_Trigger_ORB.rs:62-66 (trh v šablóne neuvedený, sviečka 14:30 UTC = otvorenie NY); zaradenie NASDAQ; predvolene neaktívne (activateTrailing=False)).",
+    "Domov je ODVODENÝ, nie doložený — hypotéza smie ísť len ako „zo štúdie“ (krok 10), kým ho hlavička nepotvrdí dôkazom.",
+    "Pomer ATR = medián denného ATR(14) btcusdt_binance 1377.87 / mnq_databento 226.607 v okne 2019-09-08 – 2022-09-30 (spoločné L (prienik L)) = 6.08044; z rôznych období L by bol 6.70089 (+10 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): trailActivatePoints 50 → 304; trailBufferPoints 20 → 121.6.",
+    "Default má zapnutý trailing / koniec seansy (useEodClose=True): hlavička musí výslovne povoliť, inak vypnúť (§0)."
   ],
-  "trailActivatePoints": 336.3,
-  "trailBufferPoints": 134.5
+  "trailActivatePoints": 304.0,
+  "trailBufferPoints": 121.6
 }

@@ -6,8 +6,9 @@
   "_timerange": "20150101-20250903",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → es_databento, v pevnej cene trhu: slPoints (zaokrúhlené na 1 tick, o 270205 % viac).",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: 6e_databento, istota vysoká (25_B: tradebot/strategies/scalp3ma/config.py:13 „Video ukazuje EURUSD a hovorí o pipoch“; :130 slPoints=0.0005 abs = 5 pipov EURUSD (na MNQ by to bolo 0,0005 bodu); default slMode=ATR (:129), takže pole je predvolene neaktívne).",
+    "Pomer ATR = medián denného ATR(14) es_databento 27.625 / 6e_databento 0.006561 v okne 2016-01-03 – 2021-09-30 (spoločné L (prienik L)) = 4210.67; z rôznych období L by bol 5775.47 (+37 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): slPoints 0.0005 → 2."
   ],
-  "slPoints": 0.25
+  "slPoints": 2.0
 }

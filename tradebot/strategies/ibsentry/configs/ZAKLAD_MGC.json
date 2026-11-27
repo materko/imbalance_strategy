@@ -6,8 +6,10 @@
   "_timerange": "20230101-20250903",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → mgc_databento, v pevnej cene trhu: minImbSizePoints (v tickoch, mimo rozsahu Pine v bodoch), pbMinRangePoints, engMinRangePoints, srClusterPoints, liqSweepMinWick, ewMinWavePoints, imbMaxDistTicks, slBufferTicks, fvgMinSize.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ).",
+    "Pomer ATR = medián denného ATR(14) mgc_databento 28.3643 / mnq_databento 205.625 v okne mnq_databento 2019-05-05 – 2022-09-30, mgc_databento 2023-01-01 – 2025-09-03 (rôzne okná: každý trh na svojom L — spoločné L chýba (prienik kratší ako 1 rok) a celé dáta by obsahovali roky trezoru a rok A (§1)) = 0.137942; z rôznych období L by bol 0.137942 (+0 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): minImbSizePoints 2.5 → 3 tickov (mimo rozsahu Pine v bodoch); pbMinRangePoints 2 → 0.3; engMinRangePoints 2 → 0.3; srClusterPoints 15 → 2.1; liqSweepMinWick 5 → 0.7; ewMinWavePoints 20 → 2.8; imbMaxDistTicks 100 t → 34 t; state2ConfirmTicks 1 t → 1 t (zaokrúhlené na 1 tick, o 190 % viac); slBufferTicks 2 t → 1 t; fvgMinSize 5 → 0.7. Pole zhodné s defaultom sa do profilu nezapisuje (len poznámka).",
+    "Default má zapnutý trailing / koniec seansy (closeAtSessionEnd=True): hlavička musí výslovne povoliť, inak vypnúť (§0)."
   ],
   "minImbSizePoints": {
     "value": 3,
@@ -18,7 +20,7 @@
   "srClusterPoints": 2.1,
   "liqSweepMinWick": 0.7,
   "ewMinWavePoints": 2.8,
-  "imbMaxDistTicks": 35,
+  "imbMaxDistTicks": 34,
   "slBufferTicks": 1,
   "fvgMinSize": 0.7
 }

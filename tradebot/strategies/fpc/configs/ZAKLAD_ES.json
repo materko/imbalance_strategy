@@ -6,16 +6,18 @@
   "_timerange": "20150101-20250903",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → es_databento, v pevnej cene trhu: contTP, contSL, bigBar, revTP, revSL, minDist, trendPts, maxDist, testTol.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: tradebot/strategies/fpc/config.py:16 „Video hovorí v bodoch NQ; stop a cieľ sú preto v bodoch ceny“ (body NQ = body MNQ)).",
+    "Pomer ATR = medián denného ATR(14) es_databento 49.2679 / mnq_databento 205.625 v okne 2019-05-05 – 2022-09-30 (spoločné L (prienik L)) = 0.239601; z rôznych období L by bol 0.184281 (-23 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): contTP 38 → 9; contSL 25 → 6; bigBar 25 → 6; revTP 38 → 9; revSL 25 → 6; minDist 25 → 6; trendPts 20 → 4.75; maxDist 150 → 36; testTol 3 → 0.75.",
+    "Default má zapnutý trailing / koniec seansy (useCloseAfter=True): hlavička musí výslovne povoliť, inak vypnúť (§0)."
   ],
-  "contTP": 7.0,
-  "contSL": 4.5,
-  "bigBar": 4.5,
-  "revTP": 7.0,
-  "revSL": 4.5,
-  "minDist": 4.5,
-  "trendPts": 3.75,
-  "maxDist": 27.75,
-  "testTol": 0.5
+  "contTP": 9.0,
+  "contSL": 6.0,
+  "bigBar": 6.0,
+  "revTP": 9.0,
+  "revSL": 6.0,
+  "minDist": 6.0,
+  "trendPts": 4.75,
+  "maxDist": 36.0,
+  "testTol": 0.75
 }

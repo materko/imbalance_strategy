@@ -6,6 +6,8 @@
   "_timerange": "20190602-20220930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh: bez_bodov — stratégia nemá aktívne cenové prahy, nič sa neprepočítava (25_B: tradebot/strategies/vwaporbneteod/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)).",
+    "Default má zapnutý trailing / koniec seansy (closeAtSessionEnd=True): hlavička musí výslovne povoliť, inak vypnúť (§0).",
+    "Koniec seansy je v kóde bez prepínača (15:59 New York (EodCloseEngine pre prop účty: posledný bar zatvárajúci sa najneskôr 15:59, zrušia sa aj čakajúce ordery) — tradebot/core/ports/csharp/TradeBot.Core/EodClose.cs:54 (CloseMin), obal :48 — tradebot/strategies/vwaporb/ports/csharp/VwapOrbEodEngine.cs): hlavička ho prijme ako logiku hypotézy (§0)."
   ]
 }

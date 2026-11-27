@@ -1,0 +1,772 @@
+{
+ "ibs": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/ibs/config.py:596-599 „sú ladené na MNQ a na {inst.symbol} nemusia dávať zmysel“; commit 09e09431f (vznik configu) „absolute point sizes off MNQ“; Pine imbalance_strategy_FULL.pine:212 tickDollarValue=0.5 (hodnota MNQ)",
+  "istota": "vysoká"
+ },
+ "ibsnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibs` — bodové defaulty zhodné s predlohou (9 polí), dedí: tradebot/strategies/ibs/config.py:596-599 „sú ladené na MNQ a na {inst.symbol} nemusia dávať zmysel“; commit 09e09431f (vznik configu) „absolute point sizes off MNQ“; Pine imbalance_strategy_FULL.pine:212 tickDollarValue=0.5 (hodnota MNQ)",
+  "istota": "vysoká"
+ },
+ "ibszones": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibs` — bodové defaulty zhodné s predlohou (9 polí), dedí: tradebot/strategies/ibs/config.py:596-599 „sú ladené na MNQ a na {inst.symbol} nemusia dávať zmysel“; commit 09e09431f (vznik configu) „absolute point sizes off MNQ“; Pine imbalance_strategy_FULL.pine:212 tickDollarValue=0.5 (hodnota MNQ)",
+  "istota": "vysoká"
+ },
+ "ibsentry": {
+  "home": "mnq_databento",
+  "dokaz": "IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "ibsentrymgc": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "ibsentryes": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "ibsentryesnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "ibsentrynet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "ibsentryneteod": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "ibsfvg": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "structure": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/structure/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "demo_breakout": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/demo_breakout/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "orb": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/orb/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "orbnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/orbnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "gap": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/gap/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "range": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/range/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sdzone": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sdzone/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "breakout": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/breakout/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "divergence": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/divergence/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "trendlines": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/trendlines/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "liquidity": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/liquidity/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "vwapdrift": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/vwapdrift/config.py:243 „Stop a cieľ v bodoch ceny (video na NQ: long 80 na 40, short 80 na 50)“; default z commitu 4636a1312",
+  "istota": "vysoká"
+ },
+ "vwapadx": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/vwapadx/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "vwapadxnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/vwapadxnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "vwapadxneteod": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/vwapadxneteod/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "voltbreak": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/voltbreak/config.py:84 „skript je písaný na NQ (20 $/bod) — tak sa TP 800 $ = 40 bodov aj na MNQ“; SKRYTÉ bodové prahy tpUsd/slUsd/usdPerPoint (40 / 75 bodov) mimo vzoru *Points a mimo SIZE_FIELDS",
+  "istota": "vysoká"
+ },
+ "onbiasorb": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/onbiasorb/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "vwapop": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/vwapop/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "vwaporb": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/vwaporb/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "vwaporbnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/vwaporbnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "vwaporbneteod": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/vwaporbneteod/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "jss": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/jss/config.py:187 slBufferPoints=0 abs (vypnuté) — jediné bodové pole, prepočet ho nemení; prahy v ATR (docstring „Prahy sú v ATR“)",
+  "istota": "vysoká"
+ },
+ "crt": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/crt/config.py:150 slBufferPoints=0 abs (vypnuté) — jediné bodové pole; ostatné prahy v ATR",
+  "istota": "vysoká"
+ },
+ "scalp3ma": {
+  "home": "6e_databento",
+  "dokaz": "tradebot/strategies/scalp3ma/config.py:13 „Video ukazuje EURUSD a hovorí o pipoch“; :130 slPoints=0.0005 abs = 5 pipov EURUSD (na MNQ by to bolo 0,0005 bodu); default slMode=ATR (:129), takže pole je predvolene neaktívne",
+  "istota": "vysoká"
+ },
+ "scalp3mamgc": {
+  "home": "6e_databento",
+  "dokaz": "kópia/prepis `scalp3ma` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/scalp3ma/config.py:13 „Video ukazuje EURUSD a hovorí o pipoch“; :130 slPoints=0.0005 abs = 5 pipov EURUSD (na MNQ by to bolo 0,0005 bodu); default slMode=ATR (:129), takže pole je predvolene neaktívne",
+  "istota": "vysoká"
+ },
+ "fibo": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/fibo/config.py:159 slBufferPoints=0 abs (vypnuté) — jediné bodové pole; ostatné prahy v ATR",
+  "istota": "vysoká"
+ },
+ "fibomgc": {
+  "home": "bez_bodov",
+  "dokaz": "kópia/prepis `fibo` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/fibo/config.py:159 slBufferPoints=0 abs (vypnuté) — jediné bodové pole; ostatné prahy v ATR",
+  "istota": "vysoká"
+ },
+ "fibomgcnet": {
+  "home": "bez_bodov",
+  "dokaz": "kópia/prepis `fibo` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/fibo/config.py:159 slBufferPoints=0 abs (vypnuté) — jediné bodové pole; ostatné prahy v ATR",
+  "istota": "vysoká"
+ },
+ "svp": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/svp/config.py:143 „Výška riadku profilu v tickoch (MNQ: 4 ticky = 1 bod)“; slPoints=20 abs (:185, predvolene neaktívne, slMode=ATR)",
+  "istota": "vysoká"
+ },
+ "percoco": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/percoco/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "fvgpolarity": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/fvgpolarity/config.py:7-8 „v bodoch ceny … lebo tak ich zadal používateľ a obchoduje MNQ; na inom trhu treba body prepočítať“; commit 50ecbf615 „SL 20 bodov … Overené na MNQ 15m“",
+  "istota": "vysoká"
+ },
+ "fvgpolaritymgc": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `fvgpolarity` — bodové defaulty zhodné s predlohou (3 polí), dedí: tradebot/strategies/fvgpolarity/config.py:7-8 „v bodoch ceny … lebo tak ich zadal používateľ a obchoduje MNQ; na inom trhu treba body prepočítať“; commit 50ecbf615 „SL 20 bodov … Overené na MNQ 15m“",
+  "istota": "vysoká"
+ },
+ "fpc": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/fpc/config.py:16 „Video hovorí v bodoch NQ; stop a cieľ sú preto v bodoch ceny“ (body NQ = body MNQ)",
+  "istota": "vysoká"
+ },
+ "mag7": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/mag7/config.py:10 „cene Nasdaqu (symbol grafu)“, :113 vwapData=\"mnq_databento\"; slPts=20 (:116, predvolene neaktívne, slMode=OPEN) a slOpenBuf=2 (:117, body, mimo SIZE_FIELDS aj mimo vzoru *Pts)",
+  "istota": "vysoká"
+ },
+ "asiasweep": {
+  "home": "6e_databento",
+  "dokaz": "tradebot/strategies/asiasweep/config.py:157 „Výška riadku profilu v tickoch (EURUSD: 10 tickov = 1 pip)“ vpRowTicks=10; webapp STRATEGIA_TRH_TYP asiasweep: EURUSD; jediné tickové pole, ostatné prahy v ATR",
+  "istota": "stredná"
+ },
+ "dailyopen": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/dailyopen/config.py:11 „Video hovorí v bodoch NQ; prah a stop sú preto v bodoch ceny — na MNQ / NAS100 sedia 1 : 1“; :8 „stop 1 000 $ na NQ (= 50 bodov)“",
+  "istota": "vysoká"
+ },
+ "noa": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noa/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "tks": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksneteod": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "nocpon": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/nocpon/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "nyvaes": {
+  "home": "mnq_databento",
+  "dokaz": "defaulty dedí z nyva: tradebot/strategies/nyvaes/config.py:4 „stratégia na NQ (`nyva`) ostala bez zásahu“; nyva/config.py:108 slBufferTicks=4; Pine iCloud VOLUME-PROFILE/ny_va_breakout.pine:8 „Graf: NQ1! / MNQ1!“ (na ES sú 4 ticky tiež 1 bod)",
+  "istota": "vysoká"
+ },
+ "nyvaesnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `nyvaes` — bodové defaulty zhodné s predlohou (4 polí), dedí: defaulty dedí z nyva: tradebot/strategies/nyvaes/config.py:4 „stratégia na NQ (`nyva`) ostala bez zásahu“; nyva/config.py:108 slBufferTicks=4; Pine iCloud VOLUME-PROFILE/ny_va_breakout.pine:8 „Graf: NQ1! / MNQ1!“ (na ES sú 4 ticky tiež 1 bod)",
+  "istota": "vysoká"
+ },
+ "sdeur": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sdeur/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sdeurnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sdeurnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "nb": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/nb/config.py:85 entryOffsetTicks=1 (jediné tickové pole, 1 tick je skoro neutrálny); zaradenie NASDAQ › TRENDOVÉ (settings.js:543, commit 61d88a5dd „NB … v NASDAQ › TRENDOVÉ“); video Nikola hovorí o pipoch (:98), ale slBuffer je v ATR",
+  "istota": "stredná"
+ },
+ "m2": {
+  "home": "es_databento",
+  "dokaz": "tradebot/strategies/m2/config.py:12 „trend (advanced, ES 1m)“; commit 61d88a5dd „ako `m2` (S&P 500), `m2mnq` (NASDAQ) a `m2mgc` (ZLATO)“; slTicks=1 (jediné tickové pole)",
+  "istota": "vysoká"
+ },
+ "m2mnq": {
+  "home": "es_databento",
+  "dokaz": "kópia/prepis `m2` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/m2/config.py:12 „trend (advanced, ES 1m)“; commit 61d88a5dd „ako `m2` (S&P 500), `m2mnq` (NASDAQ) a `m2mgc` (ZLATO)“; slTicks=1 (jediné tickové pole)",
+  "istota": "vysoká"
+ },
+ "m2eur": {
+  "home": "es_databento",
+  "dokaz": "kópia/prepis `m2` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/m2/config.py:12 „trend (advanced, ES 1m)“; commit 61d88a5dd „ako `m2` (S&P 500), `m2mnq` (NASDAQ) a `m2mgc` (ZLATO)“; slTicks=1 (jediné tickové pole)",
+  "istota": "vysoká"
+ },
+ "m2mgc": {
+  "home": "es_databento",
+  "dokaz": "kópia/prepis `m2` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/m2/config.py:12 „trend (advanced, ES 1m)“; commit 61d88a5dd „ako `m2` (S&P 500), `m2mnq` (NASDAQ) a `m2mgc` (ZLATO)“; slTicks=1 (jediné tickové pole)",
+  "istota": "vysoká"
+ },
+ "ivb": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/ivb/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemas": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemas/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemasnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemasnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemasmgc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemasmgc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemasmgcnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemasmgcnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemases": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemases/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemasesnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemasesnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemasmym": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemasmym/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemasmymnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemasmymnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemasbtc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemasbtc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkemasbtcnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/mtkemasbtcnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "wprnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/wprnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "voltbreaknet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `voltbreak` — bodové defaulty zhodné s predlohou (0 polí), dedí: tradebot/strategies/voltbreak/config.py:84 „skript je písaný na NQ (20 $/bod) — tak sa TP 800 $ = 40 bodov aj na MNQ“; SKRYTÉ bodové prahy tpUsd/slUsd/usdPerPoint (40 / 75 bodov) mimo vzoru *Points a mimo SIZE_FIELDS",
+  "istota": "vysoká"
+ },
+ "sigmamgcnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sigmamgcnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sigmanet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sigmanet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "orb15": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/orb15/config.py:2 „Pravidlá a defaulty z predlohy“ (roboquant 06_ORB_15m_5m_Breakout.rs:20 target_points default 40, trh v šablóne neuvedený); 40 bodov sedí na NQ, zaradenie NASDAQ; predvolene neaktívne (targetMode=0 = RR)",
+  "istota": "nízka"
+ },
+ "orb15es": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `orb15` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/orb15/config.py:2 „Pravidlá a defaulty z predlohy“ (roboquant 06_ORB_15m_5m_Breakout.rs:20 target_points default 40, trh v šablóne neuvedený); 40 bodov sedí na NQ, zaradenie NASDAQ; predvolene neaktívne (targetMode=0 = RR)",
+  "istota": "nízka"
+ },
+ "orb15mgc": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `orb15` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/orb15/config.py:2 „Pravidlá a defaulty z predlohy“ (roboquant 06_ORB_15m_5m_Breakout.rs:20 target_points default 40, trh v šablóne neuvedený); 40 bodov sedí na NQ, zaradenie NASDAQ; predvolene neaktívne (targetMode=0 = RR)",
+  "istota": "nízka"
+ },
+ "mtkorb": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `orb15` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/orb15/config.py:2 „Pravidlá a defaulty z predlohy“ (roboquant 06_ORB_15m_5m_Breakout.rs:20 target_points default 40, trh v šablóne neuvedený); 40 bodov sedí na NQ, zaradenie NASDAQ; predvolene neaktívne (targetMode=0 = RR)",
+  "istota": "nízka"
+ },
+ "mtkorbnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `orb15` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/orb15/config.py:2 „Pravidlá a defaulty z predlohy“ (roboquant 06_ORB_15m_5m_Breakout.rs:20 target_points default 40, trh v šablóne neuvedený); 40 bodov sedí na NQ, zaradenie NASDAQ; predvolene neaktívne (targetMode=0 = RR)",
+  "istota": "nízka"
+ },
+ "ibsentrymym": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "noamym": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noamym/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "wprmym": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/wprmym/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sweepengulfmym": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sweepengulfmym/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "tmrmym": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/tmrmym/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "lliqmym": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/lliqmym/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sigmamym": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sigmamym/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "nocponmym": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/nocponmym/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "ibsentrymymnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "noamymnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noamymnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "wprmymnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/wprmymnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sigmamymnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sigmamymnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "asiasweepeur": {
+  "home": "6e_databento",
+  "dokaz": "kópia/prepis `asiasweep` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/asiasweep/config.py:157 „Výška riadku profilu v tickoch (EURUSD: 10 tickov = 1 pip)“ vpRowTicks=10; webapp STRATEGIA_TRH_TYP asiasweep: EURUSD; jediné tickové pole, ostatné prahy v ATR",
+  "istota": "stredná"
+ },
+ "mtkzoneeur": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `mtkzone` — bodové defaulty zhodné s predlohou (6 polí), dedí: tradebot/strategies/mtkzone/config.py:2 predloha Pine „VP SD ZÓNY 50“ (iCloud VOLUME-PROFILE/vp_sd_zony_50_strategia.pine:104 minImbSize=8 „(body)“, :117 pbMinRange=4); VP_SD_ZONY_POSTUP.md:37 „Výsledky (TradingView, MNQ1!)“",
+  "istota": "vysoká"
+ },
+ "lliqeur": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/lliqeur/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "silverbulleteur": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/silverbulleteur/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "wpreur": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/wpreur/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "ibsentryeur": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ",
+  "istota": "vysoká"
+ },
+ "sweepengulfeur": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sweepengulfeur/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "noabtc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noabtc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "dailyopenbtc": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `dailyopen` — bodové defaulty zhodné s predlohou (3 polí), dedí: tradebot/strategies/dailyopen/config.py:11 „Video hovorí v bodoch NQ; prah a stop sú preto v bodoch ceny — na MNQ / NAS100 sedia 1 : 1“; :8 „stop 1 000 $ na NQ (= 50 bodov)“",
+  "istota": "vysoká"
+ },
+ "onbiasorbbtc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/onbiasorbbtc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "flashorbbtc": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `flashorb` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/flashorb/config.py:69-70 trailActivatePoints=50, trailBufferPoints=20 prevzaté z roboquant 07_Flash_Trigger_ORB.rs:62-66 (trh v šablóne neuvedený, sviečka 14:30 UTC = otvorenie NY); zaradenie NASDAQ; predvolene neaktívne (activateTrailing=False)",
+  "istota": "nízka"
+ },
+ "silverbulletbtc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/silverbulletbtc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "rangebtc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/rangebtc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "tmrbtc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/tmrbtc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sweepengulfbtc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sweepengulfbtc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "noabtcnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noabtcnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "tmr": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/tmr/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "tmres": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/tmres/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "tmrmgc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/tmrmgc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "wpr": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/wpr/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "wpres": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/wpres/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "wprmgc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/wprmgc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "flashorb": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/flashorb/config.py:69-70 trailActivatePoints=50, trailBufferPoints=20 prevzaté z roboquant 07_Flash_Trigger_ORB.rs:62-66 (trh v šablóne neuvedený, sviečka 14:30 UTC = otvorenie NY); zaradenie NASDAQ; predvolene neaktívne (activateTrailing=False)",
+  "istota": "nízka"
+ },
+ "flashorbes": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `flashorb` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/flashorb/config.py:69-70 trailActivatePoints=50, trailBufferPoints=20 prevzaté z roboquant 07_Flash_Trigger_ORB.rs:62-66 (trh v šablóne neuvedený, sviečka 14:30 UTC = otvorenie NY); zaradenie NASDAQ; predvolene neaktívne (activateTrailing=False)",
+  "istota": "nízka"
+ },
+ "flashorbmgc": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `flashorb` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/flashorb/config.py:69-70 trailActivatePoints=50, trailBufferPoints=20 prevzaté z roboquant 07_Flash_Trigger_ORB.rs:62-66 (trh v šablóne neuvedený, sviečka 14:30 UTC = otvorenie NY); zaradenie NASDAQ; predvolene neaktívne (activateTrailing=False)",
+  "istota": "nízka"
+ },
+ "sigma": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sigma/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sigmaes": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sigmaes/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sigmamgc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sigmamgc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "nqprec": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/nqprec/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "nqpreces": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/nqpreces/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "nqprecmgc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/nqprecmgc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "lliq": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/lliq/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "lliqes": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/lliqes/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "lliqmgc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/lliqmgc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "ivbes": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/ivbes/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "ivbmgc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/ivbmgc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "spravy": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/spravy/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "spravynet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/spravynet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "spravyeur": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/spravyeur/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "spravyeurnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/spravyeurnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sweepfvg": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/sweepfvg/config.py:143 tpPoints=50 abs bez zmienky trhu (commit 12fe25028 „Parametre neladené“); zaradenie NASDAQ › RANGEOVÉ; predvolene neaktívne (tpMode=RR)",
+  "istota": "nízka"
+ },
+ "silverbullet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/silverbullet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "noanet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noanet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "noaneteod": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noaneteod/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "sweepengulf": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/sweepengulf/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "mtkzone": {
+  "home": "mnq_databento",
+  "dokaz": "tradebot/strategies/mtkzone/config.py:2 predloha Pine „VP SD ZÓNY 50“ (iCloud VOLUME-PROFILE/vp_sd_zony_50_strategia.pine:104 minImbSize=8 „(body)“, :117 pbMinRange=4); VP_SD_ZONY_POSTUP.md:37 „Výsledky (TradingView, MNQ1!)“",
+  "istota": "vysoká"
+ },
+ "mtkzonenet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `mtkzone` — bodové defaulty zhodné s predlohou (6 polí), dedí: tradebot/strategies/mtkzone/config.py:2 predloha Pine „VP SD ZÓNY 50“ (iCloud VOLUME-PROFILE/vp_sd_zony_50_strategia.pine:104 minImbSize=8 „(body)“, :117 pbMinRange=4); VP_SD_ZONY_POSTUP.md:37 „Výsledky (TradingView, MNQ1!)“",
+  "istota": "vysoká"
+ },
+ "noaes": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noaes/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "noamgc": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noamgc/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "noaesnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noaesnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "noamgcnet": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/noamgcnet/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ },
+ "tkses": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksmgc": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksmym": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksbtc": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tkseur": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksesnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksmgcnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksmymnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tksbtcnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "tkseurnet": {
+  "home": "mnq_databento",
+  "dokaz": "kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0",
+  "istota": "vysoká"
+ },
+ "varev": {
+  "home": "bez_bodov",
+  "dokaz": "tradebot/strategies/varev/config.py — žiadne pole *Points/*Pts/*Ticks ani SIZE_FIELDS s jednotkou abs/ticks (prahy v ATR / % / R)",
+  "istota": "vysoká"
+ }
+}

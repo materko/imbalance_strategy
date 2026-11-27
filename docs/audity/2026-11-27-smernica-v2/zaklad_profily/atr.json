@@ -1,22 +1,215 @@
 {
+ "_meta": {
+  "metoda": "medián kĺzavého ATR(14) z denných sviečok (resample 1D UTC z 1m archívu, celé dni bez dier), px_* = medián denného zavretia; okno páru = prienik L; pod 1 rok každý trh na svojom L (rôzne okná), nikdy nie celé dáta — tie obsahujú roky trezoru a rok A (§1)",
+  "obdobia": {
+   "mnq_databento": "2019-05-05 – 2022-09-30",
+   "es_databento": "2015-01-01 – 2025-09-03",
+   "mym_databento": "2019-06-02 – 2022-09-30",
+   "mgc_databento": "2023-01-01 – 2025-09-03",
+   "6e_databento": "2016-01-03 – 2021-09-30",
+   "btcusdt_binance": "2019-09-08 – 2022-09-30"
+  },
+  "cele_data": {
+   "mnq_databento": "2019-05-21 – 2026-11-09",
+   "es_databento": "2010-06-22 – 2026-10-19",
+   "mym_databento": "2019-06-18 – 2026-11-09",
+   "mgc_databento": "2010-10-20 – 2026-09-16",
+   "6e_databento": "2010-06-22 – 2026-09-28",
+   "btcusdt_binance": "2019-09-22 – 2026-09-04"
+  }
+ },
  "mnq_databento": 205.625,
- "px_mnq_databento": 12078.25,
- "es_databento": 38.035714,
- "px_es_databento": 3199.5,
+ "px_mnq_databento": 12123.5,
+ "es_databento": 37.892857,
+ "px_es_databento": 3201.375,
  "mym_databento": 391.5,
- "px_mym_databento": 30560.0,
- "mgc_databento": 28.507143,
- "px_mgc_databento": 2337.0,
- "6e_databento": 0.006539,
- "px_6e_databento": 1.138825,
- "btcusdt_binance": 1383.221429,
- "px_btcusdt_binance": 23144.5,
- "nas100_dukascopy": 257.852643,
- "px_nas100_dukascopy": 15828.569,
- "xau_dukascopy": 24.105536,
- "px_xau_dukascopy": 1982.565,
- "eurusd_dukascopy": 0.006663,
- "px_eurusd_dukascopy": 1.08379,
- "btcusdt_binance_spot": 1352.346429,
- "px_btcusdt_binance_spot": 23152.19
+ "px_mym_databento": 30716.0,
+ "mgc_databento": 28.364286,
+ "px_mgc_databento": 2337.1,
+ "6e_databento": 0.006561,
+ "px_6e_databento": 1.13885,
+ "btcusdt_binance": 1377.870357,
+ "px_btcusdt_binance": 23294.1,
+ "pairs": {
+  "mnq_databento->es_databento": {
+   "pomer": 0.23960052,
+   "atr_domov": 205.625,
+   "atr_m": 49.267857,
+   "okno": "2019-05-05 – 2022-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    1049,
+    1063
+   ],
+   "pomer_rozne_L": 0.18428137
+  },
+  "mnq_databento->mym_databento": {
+   "pomer": 1.8688944,
+   "atr_domov": 209.482143,
+   "atr_m": 391.5,
+   "okno": "2019-06-02 – 2022-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    1039,
+    1025
+   ],
+   "pomer_rozne_L": 1.9039514
+  },
+  "mnq_databento->mgc_databento": {
+   "pomer": 0.13794182,
+   "atr_domov": 205.625,
+   "atr_m": 28.364286,
+   "okno": "mnq_databento 2019-05-05 – 2022-09-30, mgc_databento 2023-01-01 – 2025-09-03",
+   "zdroj": "rôzne okná: každý trh na svojom L — spoločné L chýba (prienik kratší ako 1 rok) a celé dáta by obsahovali roky trezoru a rok A (§1)",
+   "dni": [
+    1049,
+    833
+   ],
+   "pomer_rozne_L": 0.13794182
+  },
+  "mnq_databento->6e_databento": {
+   "pomer": 3.3326302e-05,
+   "atr_domov": 169.321429,
+   "atr_m": 0.005643,
+   "okno": "2019-05-05 – 2021-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    739,
+    753
+   ],
+   "pomer_rozne_L": 3.1907599e-05
+  },
+  "mnq_databento->btcusdt_binance": {
+   "pomer": 6.0804366,
+   "atr_domov": 226.607143,
+   "atr_m": 1377.870357,
+   "okno": "2019-09-08 – 2022-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    955,
+    1106
+   ],
+   "pomer_rozne_L": 6.7008893
+  },
+  "es_databento->mnq_databento": {
+   "pomer": 4.1736136,
+   "atr_domov": 49.267857,
+   "atr_m": 205.625,
+   "okno": "2019-05-05 – 2022-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    1063,
+    1049
+   ],
+   "pomer_rozne_L": 5.4264845
+  },
+  "es_databento->mym_databento": {
+   "pomer": 7.7855114,
+   "atr_domov": 50.285714,
+   "atr_m": 391.5,
+   "okno": "2019-06-02 – 2022-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    1039,
+    1025
+   ],
+   "pomer_rozne_L": 10.331763
+  },
+  "es_databento->mgc_databento": {
+   "pomer": 0.55557887,
+   "atr_domov": 51.053571,
+   "atr_m": 28.364286,
+   "okno": "2023-01-01 – 2025-09-03",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    834,
+    833
+   ],
+   "pomer_rozne_L": 0.74853912
+  },
+  "es_databento->6e_databento": {
+   "pomer": 0.00023749192,
+   "atr_domov": 27.625,
+   "atr_m": 0.006561,
+   "okno": "2016-01-03 – 2021-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    1789,
+    1789
+   ],
+   "pomer_rozne_L": 0.00017314609
+  },
+  "es_databento->btcusdt_binance": {
+   "pomer": 26.37974,
+   "atr_domov": 52.232143,
+   "atr_m": 1377.870357,
+   "okno": "2019-09-08 – 2022-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    955,
+    1106
+   ],
+   "pomer_rozne_L": 36.362272
+  },
+  "6e_databento->mnq_databento": {
+   "pomer": 30006.329,
+   "atr_domov": 0.005643,
+   "atr_m": 169.321429,
+   "okno": "2019-05-05 – 2021-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    753,
+    739
+   ],
+   "pomer_rozne_L": 31340.497
+  },
+  "6e_databento->es_databento": {
+   "pomer": 4210.6696,
+   "atr_domov": 0.006561,
+   "atr_m": 27.625,
+   "okno": "2016-01-03 – 2021-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    1789,
+    1789
+   ],
+   "pomer_rozne_L": 5775.4697
+  },
+  "6e_databento->mym_databento": {
+   "pomer": 61348.315,
+   "atr_domov": 0.005721,
+   "atr_m": 351.0,
+   "okno": "2019-06-02 – 2021-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    729,
+    715
+   ],
+   "pomer_rozne_L": 59670.782
+  },
+  "6e_databento->mgc_databento": {
+   "pomer": 4323.3533,
+   "atr_domov": 0.006561,
+   "atr_m": 28.364286,
+   "okno": "6e_databento 2016-01-03 – 2021-09-30, mgc_databento 2023-01-01 – 2025-09-03",
+   "zdroj": "rôzne okná: každý trh na svojom L — spoločné L chýba (prienik kratší ako 1 rok) a celé dáta by obsahovali roky trezoru a rok A (§1)",
+   "dni": [
+    1789,
+    833
+   ],
+   "pomer_rozne_L": 4323.1651
+  },
+  "6e_databento->btcusdt_binance": {
+   "pomer": 104466.06,
+   "atr_domov": 0.005936,
+   "atr_m": 620.080714,
+   "okno": "2019-09-08 – 2021-09-30",
+   "zdroj": "spoločné L (prienik L)",
+   "dni": [
+    645,
+    741
+   ],
+   "pomer_rozne_L": 210009.2
+  }
+ }
 }

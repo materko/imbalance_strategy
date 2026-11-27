@@ -6,7 +6,10 @@
   "_timerange": "20160103-20210930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a).",
-    "NEPLATNÝ ZÁKLAD bez zmeny kódu: slPoints sa nedá prepočítať v rozsahu Pine — trh je pre hypotézu netestovateľný bez zmeny kódu."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0).",
+    "Pomer ATR = medián denného ATR(14) 6e_databento 0.005643 / mnq_databento 169.321 v okne 2019-05-05 – 2021-09-30 (spoločné L (prienik L)) = 3.33263e-05; z rôznych období L by bol 3.19076e-05 (-4 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): slPoints 40 → 0.00135. Pole zhodné s defaultom sa do profilu nezapisuje (len poznámka).",
+    "Koniec seansy je v kóde bez prepínača (15:59 New York (EodCloseEngine pre prop účty: posledný bar zatvárajúci sa najneskôr 15:59, zrušia sa aj čakajúce ordery) — tradebot/core/ports/csharp/TradeBot.Core/EodClose.cs:54 (CloseMin), obal :48 — tradebot/strategies/tks/ports/csharp/TksEodEngine.cs): hlavička ho prijme ako logiku hypotézy (§0).",
+    "NEPLATNÝ ZÁKLAD bez zmeny kódu: slPoints (0.00135 mimo rozsahu Pine 1–1000) — trh je pre hypotézu netestovateľný bez zmeny kódu (nie ❌)."
   ]
 }

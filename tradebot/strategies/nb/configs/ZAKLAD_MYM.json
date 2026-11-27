@@ -6,6 +6,8 @@
   "_timerange": "20190602-20220930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota stredná (25_B: tradebot/strategies/nb/config.py:85 entryOffsetTicks=1 (jediné tickové pole, 1 tick je skoro neutrálny); zaradenie NASDAQ › TRENDOVÉ (settings.js:543, commit 61d88a5dd „NB … v NASDAQ › TRENDOVÉ“); video Nikola hovorí o pipoch (:98), ale slBuffer je v ATR).",
+    "Pomer ATR = medián denného ATR(14) mym_databento 391.5 / mnq_databento 209.482 v okne 2019-06-02 – 2022-09-30 (spoločné L (prienik L)) = 1.86889; z rôznych období L by bol 1.90395 (+2 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): entryOffsetTicks 1 t → 1 t (zaokrúhlené na 1 tick, o 114 % viac). Pole zhodné s defaultom sa do profilu nezapisuje (len poznámka)."
   ]
 }

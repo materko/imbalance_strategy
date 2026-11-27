@@ -6,6 +6,8 @@
   "_timerange": "20190505-20220930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: kópia/prepis `ibs` — bodové defaulty zhodné s predlohou (9 polí), dedí: tradebot/strategies/ibs/config.py:596-599 „sú ladené na MNQ a na {inst.symbol} nemusia dávať zmysel“; commit 09e09431f (vznik configu) „absolute point sizes off MNQ“; Pine imbalance_strategy_FULL.pine:212 tickDollarValue=0.5 (hodnota MNQ)).",
+    "Trh = domovský trh, prahy ostávajú ako v kóde.",
+    "Default má zapnutý trailing / koniec seansy (closeAtSessionEnd=True): hlavička musí výslovne povoliť, inak vypnúť (§0)."
   ]
 }

@@ -6,6 +6,8 @@
   "_timerange": "20230101-20250903",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: es_databento, istota vysoká (25_B: kópia/prepis `m2` — bodové defaulty zhodné s predlohou (1 polí), dedí: tradebot/strategies/m2/config.py:12 „trend (advanced, ES 1m)“; commit 61d88a5dd „ako `m2` (S&P 500), `m2mnq` (NASDAQ) a `m2mgc` (ZLATO)“; slTicks=1 (jediné tickové pole)).",
+    "Pomer ATR = medián denného ATR(14) mgc_databento 28.3643 / es_databento 51.0536 v okne 2023-01-01 – 2025-09-03 (spoločné L (prienik L)) = 0.555579; z rôznych období L by bol 0.748539 (+35 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): slTicks 1 t → 1 t. Pole zhodné s defaultom sa do profilu nezapisuje (len poznámka)."
   ]
 }

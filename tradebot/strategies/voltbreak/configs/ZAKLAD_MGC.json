@@ -6,6 +6,11 @@
   "_timerange": "20230101-20250903",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
-  ]
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: tradebot/strategies/voltbreak/config.py:84 „skript je písaný na NQ (20 $/bod) — tak sa TP 800 $ = 40 bodov aj na MNQ“; SKRYTÉ bodové prahy tpUsd/slUsd/usdPerPoint (40 / 75 bodov) mimo vzoru *Points a mimo SIZE_FIELDS).",
+    "Pomer ATR = medián denného ATR(14) mgc_databento 28.3643 / mnq_databento 205.625 v okne mnq_databento 2019-05-05 – 2022-09-30, mgc_databento 2023-01-01 – 2025-09-03 (rôzne okná: každý trh na svojom L — spoločné L chýba (prienik kratší ako 1 rok) a celé dáta by obsahovali roky trezoru a rok A (§1)) = 0.137942; z rôznych období L by bol 0.137942 (+0 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): tpUsd 800 $ = 40 b domov → 55 t = 5.5 b na M = 110 $ pri usdPerPoint 20; slUsd 1500 $ = 75 b domov → 103 t = 10.3 b na M = 206 $ pri usdPerPoint 20.",
+    "Default má zapnutý trailing / koniec seansy (useTimeExit=True): hlavička musí výslovne povoliť, inak vypnúť (§0)."
+  ],
+  "tpUsd": 110.0,
+  "slUsd": 206.0
 }

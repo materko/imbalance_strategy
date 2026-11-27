@@ -6,11 +6,12 @@
   "_timerange": "20190602-20220930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → mym_databento, v pevnej cene trhu: minImbSize, pbMinRange, imbMaxDistTicks, st2ConfTicks.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: kópia/prepis `mtkzone` — bodové defaulty zhodné s predlohou (6 polí), dedí: tradebot/strategies/mtkzone/config.py:2 predloha Pine „VP SD ZÓNY 50“ (iCloud VOLUME-PROFILE/vp_sd_zony_50_strategia.pine:104 minImbSize=8 „(body)“, :117 pbMinRange=4); VP_SD_ZONY_POSTUP.md:37 „Výsledky (TradingView, MNQ1!)“).",
+    "Pomer ATR = medián denného ATR(14) mym_databento 391.5 / mnq_databento 209.482 v okne 2019-06-02 – 2022-09-30 (spoločné L (prienik L)) = 1.86889; z rôznych období L by bol 1.90395 (+2 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): minImbSize 8 → 15; imbMaxDistTicks 40 t → 19 t; st2ConfTicks 6 t → 3 t; pbMinRange 4 → 7."
   ],
   "minImbSize": 15,
-  "pbMinRange": 8,
   "imbMaxDistTicks": 19,
-  "st2ConfTicks": 3
+  "st2ConfTicks": 3,
+  "pbMinRange": 7
 }

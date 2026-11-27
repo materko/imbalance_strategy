@@ -6,8 +6,9 @@
   "_timerange": "20230101-20250903",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → mgc_databento, v pevnej cene trhu: slPoints.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: kópia/prepis `tks` — bodové defaulty zhodné s predlohou (2 polí), dedí: tradebot/strategies/tks/config.py:1-5 „NQ Kompas … Konštanty sú pevné (MNQ 2019-06 – 2025-09)“; slPoints=40 (:98, predvolene neaktívne, slMode=SWING), maxSlPoints=0).",
+    "Pomer ATR = medián denného ATR(14) mgc_databento 28.3643 / mnq_databento 205.625 v okne mnq_databento 2019-05-05 – 2022-09-30, mgc_databento 2023-01-01 – 2025-09-03 (rôzne okná: každý trh na svojom L — spoločné L chýba (prienik kratší ako 1 rok) a celé dáta by obsahovali roky trezoru a rok A (§1)) = 0.137942; z rôznych období L by bol 0.137942 (+0 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): slPoints 40 → 5.5."
   ],
   "slPoints": 5.5
 }

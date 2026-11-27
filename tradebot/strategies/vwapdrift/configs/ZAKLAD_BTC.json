@@ -6,11 +6,13 @@
   "_timerange": "20190908-20220930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → btcusdt_binance, v pevnej cene trhu: slPointsLong, tpPointsLong, slPointsShort, tpPointsShort.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: tradebot/strategies/vwapdrift/config.py:243 „Stop a cieľ v bodoch ceny (video na NQ: long 80 na 40, short 80 na 50)“; default z commitu 4636a1312).",
+    "Pomer ATR = medián denného ATR(14) btcusdt_binance 1377.87 / mnq_databento 226.607 v okne 2019-09-08 – 2022-09-30 (spoločné L (prienik L)) = 6.08044; z rôznych období L by bol 6.70089 (+10 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): slPointsLong 80 → 486.4; tpPointsLong 40 → 243.2; slPointsShort 80 → 486.4; tpPointsShort 50 → 304.",
+    "Default má zapnutý trailing / koniec seansy (closeAtSessionEnd=True): hlavička musí výslovne povoliť, inak vypnúť (§0)."
   ],
-  "slPointsLong": 538.2,
-  "tpPointsLong": 269.1,
-  "slPointsShort": 538.2,
-  "tpPointsShort": 336.3
+  "slPointsLong": 486.4,
+  "tpPointsLong": 243.2,
+  "slPointsShort": 486.4,
+  "tpPointsShort": 304.0
 }

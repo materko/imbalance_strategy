@@ -2,7 +2,7 @@
 
 *Verzia z 27. 11. 2026: debata Agent A (Prokurátor) a Agent B (Inžinier), finálna kontrola Agent C (Kontrolór, `16_C`),
 opravy Z1–Z10 zapracované. **Schválil a podpísal používateľ 27. 11. 2026 — platí od tohto dňa.** Nahrádza `SMERNICA_TESTOVANIA.md` (iCloud aj `docs/`), `SMERNICA_TREND_CFD.md` aj „krok 12
-starých rokov“. Podklady sú v `.nightsearch/kritika/01–21`. Otvorené otázky pre používateľa sú v §9.*
+starých rokov“. Podklady sú v `.nightsearch/kritika/01–25`. Otvorené otázky pre používateľa sú v §9.*
 
 ## ⛔ Čo nám chýba, aby smernica vôbec fungovala (stav 27. 11. 2026)
 | chýba | dôsledok | kto |
@@ -253,6 +253,26 @@ Commit podľa §2. Hlavička obsahuje aj **zoznam štúdií a výskumov**, z kto
 
 ### Krok 3 — Východisko a logika
 Východiskové nastavenie na L pri fill v2 a kontrola kresieb na 2–3 mesiacoch. PF < 0,95 pri ≥ 200 obchodoch → ❌.
+
+### Krok 3a — Východisko = ZAKLAD_<M> (B `22_B`, A `23_A`, C `24_C`; schválil používateľ 27. 11. 2026)
+1. Východisko hypotézy na trhu M je `tradebot/strategies/<kľúč>/configs/ZAKLAD_<M>.json` (predvolené hodnoty kódu,
+   `_timerange` = L trhu M). Hash commitu a hash `config.py` idú do hlavičky.
+2. Stred mriežky a Optuny = ZAKLAD_<M>. Rozsahy sú v hlavičke v jednotke poľa (abs alebo ticky trhu M). Plató sa meria
+   okolo nájdeného bodu.
+3. Ako východisko, stred, hranica ani inšpirácia sa **nesmie** použiť: `tester/archive/`, `docs/profily_archiv/`,
+   `tester/tests/fixtures/profiles/` (len parita), skryté profily, `.nightsearch/*/archiv_pred_V2` a história behov.
+   Porušenie = krok 10.
+4. Legacy profil ide len krokom 10 ako samostatný zápis s N z histórie; jeho výsledok je informácia, nikdy kandidát ani stred.
+5. Prepočet = hodnota × ATR_M / ATR_domov (medián denného ATR(14) na L) v **pevnej cene trhu M**: abs v rozsahu Pine ostáva
+   abs, inak `ticks` (zaokrúhlené, aspoň 1). `pct` a `atr` sú zakázané. Odchýlka zaokrúhlenia nad 50 % ide do `_comment`
+   aj hlavičky, aj keď sa výsledok rovná defaultu. Prepočítajú sa **všetky cenové polia zo zoznamu v hlavičke** — aj mimo
+   SIZE_FIELDS a aj polia v $ cez `usdPerPoint`. Čo sa bez zmeny kódu prepočítať nedá, je „netestovateľný bez zmeny kódu“
+   (nie ❌). Orezaný, neprepočítaný alebo neoznačený profil v bráne neplatí.
+6. Predvolené hodnoty nie sú nevinné: bez bonusu, k a N prísne z celej histórie rodiny. **Domovský trh** je v ručnom
+   zozname s dôkazom (Pine, zadanie, git), inak je hypotéza „zo štúdie“ a ide krokom 10. `_timeframe`, pomer ATR a jeho
+   obdobia idú do hlavičky. Trailing a koniec seansy z defaultu musí hlavička výslovne povoliť (§0), inak sa vypnú ako
+   zapísaná odchýlka.
+7. Zmena defaultu po prvom behu = nová hypotéza. ZAKLAD sa podľa výsledku neopravuje.
 
 ### Krok 4 — Hľadanie v rozpočte
 - Mriežka alebo Optuna v rozpočte. Cieľ je `break_even` alebo PF a najhorší rok, **nikdy WR**.

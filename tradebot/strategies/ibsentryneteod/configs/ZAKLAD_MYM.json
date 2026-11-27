@@ -6,16 +6,19 @@
   "_timerange": "20190602-20220930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → mym_databento, v pevnej cene trhu: minImbSizePoints, pbMinRangePoints, engMinRangePoints, srClusterPoints, liqSweepMinWick, ewMinWavePoints, imbMaxDistTicks, slBufferTicks, fvgMinSize.",
-    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
+    "Domovský trh predvolených hodnôt: mnq_databento, istota vysoká (25_B: kópia/prepis `ibsentry` — bodové defaulty zhodné s predlohou (10 polí), dedí: IBS polia dedí z ibs (ibs/config.py:596-599 „ladené na MNQ“); vlastné fvgMinSize=5 abs (ibsentry/config.py:54, commit 1f16b7330) bez zmienky trhu — pridané v čase, keď IBS bežala na MNQ).",
+    "Pomer ATR = medián denného ATR(14) mym_databento 391.5 / mnq_databento 209.482 v okne 2019-06-02 – 2022-09-30 (spoločné L (prienik L)) = 1.86889; z rôznych období L by bol 1.90395 (+2 %). Prepočet v pevnej cene trhu M (C6).",
+    "Cenové polia (PRICE_FIELDS): minImbSizePoints 2.5 → 5; pbMinRangePoints 2 → 4; engMinRangePoints 2 → 4; srClusterPoints 15 → 28; liqSweepMinWick 5 → 9; ewMinWavePoints 20 → 37; imbMaxDistTicks 100 t → 47 t; state2ConfirmTicks 1 t → 1 t (zaokrúhlené na 1 tick, o 114 % viac); slBufferTicks 2 t → 1 t; fvgMinSize 5 → 9. Pole zhodné s defaultom sa do profilu nezapisuje (len poznámka).",
+    "Default má zapnutý trailing / koniec seansy (closeAtSessionEnd=True): hlavička musí výslovne povoliť, inak vypnúť (§0).",
+    "Koniec seansy je v kóde bez prepínača (15:59 New York (EodCloseEngine pre prop účty: posledný bar zatvárajúci sa najneskôr 15:59, zrušia sa aj čakajúce ordery) — tradebot/core/ports/csharp/TradeBot.Core/EodClose.cs:54 (CloseMin), obal :48 — tradebot/strategies/ibsentry/ports/csharp/IbsEntryEodEngine.cs): hlavička ho prijme ako logiku hypotézy (§0)."
   ],
   "minImbSizePoints": 5,
   "pbMinRangePoints": 4,
   "engMinRangePoints": 4,
-  "srClusterPoints": 29,
-  "liqSweepMinWick": 10,
-  "ewMinWavePoints": 38,
-  "imbMaxDistTicks": 48,
+  "srClusterPoints": 28,
+  "liqSweepMinWick": 9,
+  "ewMinWavePoints": 37,
+  "imbMaxDistTicks": 47,
   "slBufferTicks": 1,
-  "fvgMinSize": 10
+  "fvgMinSize": 9
 }

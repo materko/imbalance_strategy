@@ -2334,3 +2334,300 @@ Doplnky: limit za trhom pri odoslaní sa neplní. Zlepšenie limitu a TP sa nepo
   - pridať, že `--fill v2` treba ešte naprogramovať (dnes neexistuje).
 - Krok 12 porovnáva medián s mediánom.
 - Stratégie na US500 s SL < 15 b nejdú na demo, kým PF po tomto modeli nebude ≥ 1,15.
+
+---
+
+# 22 · Inžinier B · Východisko ZAKLAD (27. 11. 2026)
+
+## Návrh znenia — do §4, nový krok 3a (§2 dostane odkaz „východisko podľa kroku 3a“)
+
+**Krok 3a — Východisko = ZAKLAD_<trh>.**
+1. Východisko každej hypotézy na trhu M je `tradebot/strategies/<kľúč>/configs/ZAKLAD_<M>.json` (predvolené hodnoty kódu,
+   `_timerange` = L trhu M). Hash jeho commitu a hash `config.py` ide do hlavičky pred prvým behom.
+2. Mriežka a Optuna (krok 4) majú stred v hodnotách ZAKLAD_<M>; rozsahy sa zapíšu v hlavičke ako násobky alebo kroky
+   od tohto stredu. Plató (krok 5) sa meria tiež okolo bodu, ktorý našlo hľadanie z tohto stredu.
+3. **Zakázané** ako východisko, stred, hranica rozsahu alebo „inšpirácia“ mriežky: hodnoty z `tester/archive/`,
+   `docs/profily_archiv/`, `tester/tests/fixtures/profiles/`, skrytých profilov (golden_*, multicharts_*, PRESIEL_*),
+   `.nightsearch/dash/archiv_pred_V2` a z histórie behov. Fixtúry slúžia len paritným testom. Porušenie = nová hypotéza
+   cestou kroku 10.
+4. Legacy profil (aj najlepší z webapp) sa nesmie vrátiť do hľadania. Smie ísť len cestou kroku 10 ako samostatný zápis
+   v registri s odhadom N z histórie; jeho výsledok je **informácia**, nikdy kandidát ani stred mriežky.
+5. **Orezané prahy** (komentár „orezané na rozsah Pine“): ZAKLAD_<M> s orezaním nie je platné východisko. Pred krokom 3
+   sa buď (a) rozšíri CONSTRAINTS v porte (pole do `PORT_ONLY_FIELDS`, default zhodný s Pine) a profil sa vyrobí
+   znova bez orezania, alebo (b) trh M sa pre hypotézu zapíše ako **„netestovateľný bez zmeny kódu“** (nie ❌).
+   Prah pod 1 tick trhu sa zaokrúhli na 1 tick a zapíše. Výsledok orezaného profilu sa v bráne nepoužije.
+6. **Predvolené hodnoty nie sú nevinné.** Logika a defaulty sa vyvíjali na tých istých dátach (MNQ 2019–2026, štúdie §1).
+   Preto: ZAKLAD nemá bonus „bez ladenia“; počiatočné k trezoru aj N pre DSR/haircut sa berú prísne z celej histórie
+   rodiny (§9 bod 7), nie od nuly. Ak `git log` ukáže, že default v `config.py` vznikol alebo sa zmenil po behu/štúdii
+   (napr. „profil zo štúdie“, kópie MTK EMAS), hypotéza je „zo štúdie“ (§2, Z5) a ide krokom 10.
+7. Zmena predvoleného kódu po prvom behu = nová hypotéza (zmrazenie §0); ZAKLAD sa nesmie „opraviť“ podľa výsledku.
+
+## Riziká prepočtu ATR (overené na build.py a 924 súboroch)
+- **Domovský trh nebol zistený, len predpokladaný:** všetkých 154/154 stratégií vyšlo MNQ (fallback, detekcia nezabrala
+  ani raz). Pri kópiách …es/…mgc/…eur/…btc som overil, že defaulty kódu = defaulty predlohy, takže MNQ sedí; ale ak má
+  niektorá stratégia defaulty pôvodne z iného trhu (napr. BTC alebo zlato), je prepočet zlý 5–150×. Treba ručný zoznam
+  domovov v hlavičke, nie heuristiku.
+- **Orezanie je fatálne na 6E:** 39 profilov v 13 stratégiách. Napr. `ibs/ZAKLAD_6E`: `minImbSizePoints`,
+  `srClusterPoints`, `ewMinWavePoints` = 1 pri dennom ATR 0,0065 (≈ 150× ATR) → filter mŕtvy alebo 0 obchodov.
+  Taký beh nesmie dať ❌ hypotéze (bod 5).
+- **Pod-tick hodnoty:** `ibs/ZAKLAD_6E` `state2ConfirmTicks` = 8e-06 (tick 5e-05) → potvrdenie fakticky vypnuté, mení logiku.
+- **Rôzne obdobia v pomere:** ATR MNQ z L 2019–2022, ES z L 2015–2025, MGC 2023–2025 — pomer mieša režimy volatility.
+  Pomer cien/ATR v rovnakom kalendári by bol presnejší; rozdiel treba aspoň zapísať.
+- **Denný ATR vs. seansa:** 6E, MGC, BTC (24/7, víkendy v dennom resample) majú iný pomer seansa/deň než MNQ;
+  intradenné prahy na NY seanse môžu byť posunuté.
+- Prepočítajú sa len `SIZE_FIELDS` s jednotkou abs/ticks; bodové polia mimo SIZE_FIELDS ostanú v bodoch MNQ — treba audit polí.
+- TF a ATR pochádzajú z L (povolené), ale `default_timeframe` mohol vzniknúť ladením — zaradiť pod bod 6.
+
+---
+
+# 23 · Prokurátor A · Východisko ZAKLAD (27. 11. 2026)
+
+## 1. Návrh B bod po bode
+- 1, 2, 3, 4, 7: **súhlas.** K bodu 2 doplniť, že rozsah mriežky pre prah v jednotke `ticks`/`pct` sa píše v tej istej jednotke.
+- 5: súhlas s (a)/(b), ale „1 tick“ nie je oprava, keď default bol viac než 1 tick (napr. `slBufferTicks` 2 → 1). Zapísať ako odchýlku.
+- 6: súhlas. `default_timeframe` a domovský trh patria sem.
+
+## 2. Oprava koordinátora (build.py, ZAKLAD_*.json) — chyby
+- **A1 `pct` mení logiku.** `resolve(price=bar.close)` dáva prah, ktorý sa hýbe s cenou. Predloha má prah pevný v cene. BTC v L 2019–2022 išiel ~4k→69k, takže prah sa pohne ~17×. ES 2015–2025 ~3×, 6E ±12 %. Vzniká iná stratégia, nie základ. Pevný ekvivalent existuje: `{"value": nv/tick, "unit": "ticks"}`. Jednotka je iná než Pine, takže `_generic_problems` rozsah Pine preskočí (rovnako ako pri `pct`) a cena ostane pevná. **`pct` zamietam, nahradiť `ticks`.**
+- **A2 Chyba vetvenia pre polia `ticks`.** Podmienka `unit == "abs" and lo<=nv<=hi` posiela **každé** pole s jednotkou `ticks` nad 1 tick do `pct`, aj keď je v rozsahu. Príklad: `imbMaxDistTicks` na ES, MGC, MYM aj BTC je `pct`, hoci ES vychádza ~18 tickov. Má to byť `round(nv/tick_inst)` v `ticks`.
+- **A3 Bodové polia mimo SIZE_FIELDS sa neprepočítali vôbec.** Overil som to na 154 configoch: `slPoints`/`maxSlPoints` (tks rodina ~13–15), `targetPoints` (orb15, mtkorb: 40 b.), `trailActivatePoints`/`trailBufferPoints` (flashorb: 50/20), `vaMin/MaxPoints`, `slBufferTicks` (nyvaes), `imbMaxDistTicks`/`st2ConfTicks`/`slBufTicks`/`maxRiskTicks`/`minGap`/`maxDist` (mtkzone), `slTicks` (m2), `rowTicks`/`vpRowTicks` (svp, asiasweep). `tks/ZAKLAD_6E` nemá žiadny prepočet, takže `slPoints` = 40 EUR. Dnes nič nerobí (default `slMode=swing`), ale v mriežke ožije. Na 6E/BTC je to fatálne, na ES ~5× mimo. Treba buď presunúť pole do SIZE_FIELDS (s paritou), alebo prepočítať podľa mena poľa so zoznamom v hlavičke, alebo zapísať „netestovateľné bez zmeny kódu“.
+- **A4 Domovský trh = MNQ pre 154/154 je fallback, nie zistenie.** Heuristika `copy` nikdy nezabrala. Treba ručný zoznam domovov s odkazom na Pine/zadanie (hlavne …btc, …mgc, …eur, ktorých defaulty mohli vzniknúť na inom trhu).
+- **A5 TF:** jeden `_timeframe` pre všetkých 6 trhov. Ak vznikol ladením na MNQ, je to ladený parameter (bod 6). Pri 24h trhoch (6E, BTC) sa limity `*MaxBars` v baroch na inej seanse správajú inak. Zapísať to, nemeniť.
+- **A6 ATR/cena z rôznych kalendárov** (MNQ 2019–22, ES 2015–25, MGC 2023–25): pomer mieša režimy. Zapísať pomer a obdobie do `_comment` každého profilu.
+- Drobnosť: `round(nv, 6)` a abs prahy pod 2 ticky (`pbMinRangePoints` 6E = 1,28 ticku) nie sú zarovnané na tick.
+
+## DOHODA (prijímam toto znenie kroku 3a)
+Body 1–4 a 7 podľa B. Bod 5 a 6 takto:
+**5′.** Prepočet ZAKLAD_<M> = hodnota × ATR_M/ATR_domov a zapisuje sa **v pevnej cene trhu M**: abs v rozsahu Pine ako abs, inak `ticks` (round, min 1). Polia `ticks` sa zapisujú v tickoch M. **`pct` ani `atr` nie sú povolené** (menia logiku). Ak sa hodnota zaokrúhli na 1 tick nad prepočet o viac než 50 %, je to odchýlka, ktorá ide do `_comment` a do hlavičky. Bodové a tickové polia mimo SIZE_FIELDS sa prepočítajú rovnako podľa zoznamu polí v hlavičke. Ak sa nedajú prepočítať bez zmeny kódu, trh M je pre hypotézu „netestovateľný bez zmeny kódu“ (nie ❌). Orezaný alebo neprepočítaný profil v bráne neplatí.
+**6′.** Podľa B, a k tomu: domovský trh každej stratégie je v ručnom zozname s dôkazom (Pine/zadanie/git). Fallback MNQ bez dôkazu = hypotéza „zo štúdie“. `_timeframe`, pomer ATR a obdobia ATR sa zapisujú do hlavičky.
+Kým sa nepregenerujú profily podľa 5′ (A1–A3), ZAKLAD_* okrem MNQ **nie sú platné východisko**.
+
+---
+
+# 24 · Kontrolór C · ZAKLAD po oprave (27. 11. 2026)
+
+## 1. DOHODA 5′ — čo sedí (strojovo, všetkých 924 profilov, vzorka ibs/tks/orb15/flashorb/mtkzone/nyvaes × ES/6E/BTC/MGC)
+- `pct`/`atr` nikde (78 dict polí: 65 `ticks`, 13 `abs`). Všetky profily sa načítajú, int pole nikde nedostalo float.
+- Každé zapísané pole = prepočet ±50 % alebo má poznámku „o X % viac“. Ticky sa počítajú v tickoch M (TICK v build.py = `tick_size` inštrumentu, BTC 0,1). C# `SizeSpec` pozná `abs`/`ticks`.
+- 23 × 6E „NEPLATNÝ ZÁKLAD“ súhlasí (slPoints/targetPoints/trail*/slPts pod dolnou hranicou Pine).
+
+## 2. Nové chyby (C1–C4 blokujú zápis profilov ako platných)
+- **C1 Stratené odchýlky (72 prípadov).** `prm.pop`, keď sa výsledok po zaokrúhlení rovná defaultu, zmaže pole aj poznámku. Default 1 tick
+  (`state2ConfirmTicks` 13 stratégií, `slTicks` m2×4, `entryOffsetTicks` nb) na ES/MYM/MGC/6E ostáva 1 tick, hoci prepočet je 0,05–0,5 ticku (+110 až +530 %).
+  Hodnota je správne (min 1 tick), ale 5′ žiada odchýlku v `_comment` a v hlavičke. Teraz tam nie je.
+- **C2 voltbreak, voltbreaknet: aktívny stop/cieľ sa neprepočítal (10 profilov).** `tpUsd`/`slUsd` ÷ `usdPerPoint` (20) = TP 40, SL 75 bodov na každom trhu.
+  ES 5× širšie, MGC 7×, BTC 7× užšie, 6E absurdné (75 bodov EUR). Regex mien to nechytil a profil nie je označený ako neplatný.
+- **C3 mag7: `slOpenBuf` = 2,0 bodu sa neprepočítal**, a pritom default `slMode=OPEN` ho používa. ES 5,4× (0,37), MGC 7×, BTC 0,15×, MYM 0,5×.
+  Profily ES/MYM/MGC/BTC sú neoznačené a zlé.
+- **C4 Výber polí podľa mena nestačí** (to isté, čo A3). Treba explicitný zoznam cenových polí na každú stratégiu v hlavičke alebo v kóde (`PRICE_FIELDS`),
+  nie regex. Ostatné nájdené mimo regexu sú násobky alebo bary (`r*Stop`, `minAnchorGap`): v poriadku.
+- **C5 Konflikt s §0.** ZAKLAD = defaulty, a tie majú `closeAtSessionEnd` (21 stratégií vrátane ibs), `trailVwap` (11 noa), `useEodClose` (flashorb×4), `enableTrailing` (divergence).
+  §0 povoľuje trailing a koniec seansy v hľadaní len keď to hypotéza výslovne povie. Hlavička to musí zapísať, inak to porušuje §0.
+- **C6 Dôsledok 6′.** Domov je MNQ pri 154/154 len predpoklad. Fallback = „zo štúdie“ = krok 10 = najviac 🟡 pre všetko. Ručný zoznam domovov je preto blokér, nie poznámka.
+  Pomer ATR a jeho obdobia nie sú v `_comment` ani v `atr.json` (obdobia sú len v `MK` v build.py).
+- Drobné: 6E `tks` je neplatný kvôli `slPoints`, ktorý pri `slMode=swing` nič nerobí. Je to prísne, ale v súlade s 5′ (v mriežke by ožil).
+
+## 3. Konzistencia so SMERNICOU V2
+- B 1–4, 7 + 5′/6′ sedia s §0 (zmrazenie), §2 (legacy → krok 10, Z5), §9 bod 7 (prísne k) a s krokom 3 („netestovateľný“ ≠ ❌). Chýba len C5 (§0) a jednotka rozsahov (A k bodu 2).
+
+## FINÁLNE ZNENIE kroku 3a
+**Krok 3a — Východisko = ZAKLAD_<M>.** (1) Východisko hypotézy na trhu M je `configs/ZAKLAD_<M>.json` (defaulty kódu, `_timerange` = L trhu M). Hash commitu a `config.py` ide do hlavičky.
+(2) Stred mriežky a Optuny = ZAKLAD_<M>. Rozsahy sú v hlavičke v jednotke poľa (abs/ticks M) a plató sa meria okolo nájdeného bodu.
+(3) Zakázané ako východisko, stred, hranica alebo inšpirácia: `tester/archive/`, `docs/profily_archiv/`, fixtúry (len parita), skryté profily, `archiv_pred_V2`, história behov. Porušenie = krok 10.
+(4) Legacy profil ide len krokom 10 ako samostatný zápis s N z histórie. Je to informácia, nikdy kandidát ani stred.
+(5) Prepočet = hodnota × ATR_M/ATR_domov v pevnej cene M: abs v rozsahu Pine ako abs, inak `ticks` (round, min 1). `pct`/`atr` sú zakázané.
+Odchýlka zaokrúhlenia > 50 % ide do `_comment` aj do hlavičky, **aj keď sa výsledok rovná defaultu**. Prepočítajú sa **všetky cenové polia zo zoznamu v hlavičke**
+(aj mimo SIZE_FIELDS, aj polia v $ cez `usdPerPoint`). Čo sa nedá bez zmeny kódu, je „netestovateľný bez zmeny kódu“ (nie ❌). Orezaný, neprepočítaný alebo neoznačený profil v bráne neplatí.
+(6) Defaulty nie sú nevinné: nedostanú bonus, k a N sú prísne z celej histórie rodiny. Domovský trh je v ručnom zozname s dôkazom (Pine/zadanie/git), inak hypotéza „zo štúdie“ (krok 10).
+`_timeframe`, pomer ATR a jeho obdobia idú do hlavičky. Trailing a koniec seansy z defaultu musí hlavička výslovne povoliť (§0), inak sa vypnú ako zapísaná odchýlka.
+(7) Zmena defaultu po prvom behu = nová hypotéza. ZAKLAD sa podľa výsledku neopravuje.
+
+## VERDIKT
+Znenie kroku 3a: **zapísať áno.** Profily ZAKLAD_* okrem MNQ: **ako platné východisko nie.** Najprv opraviť C1–C3, potom pregenerovať a overiť C4.
+
+---
+
+# 25 · Inžinier B · Domovský trh predvolených hodnôt (27. 11. 2026)
+
+Zdroj: `25_B_domovsky_trh.json` (154 kľúčov z registra). Bodové pole = `*Points`, `*Pts`, `*Ticks` alebo
+SIZE_FIELDS s jednotkou abs/ticks a s predvolenou hodnotou v tej jednotke. Všetky kópie (…es, …mgc, …mym, …eur,
+…btc, …net, …eod) majú bodové defaulty **zhodné s predlohou** (overené strojovo), takže trh dedia.
+
+## Súhrn
+
+| domovský trh | počet | z toho |
+|---|---|---|
+| `mnq_databento` | 52 | IBS rodina (13), TKS rodina (13), MTK ZONE (3), ORB 15 + MTK ORB (5), Flash ORB (4), VOLT BREAK (2), NY VA ES (2), vwapdrift, svp, fvgpolarity (2), fpc, mag7, dailyopen (2), nb, sweepfvg |
+| `es_databento` | 4 | m2, m2mnq, m2eur, m2mgc |
+| `6e_databento` | 4 | scalp3ma, scalp3mamgc, asiasweep, asiasweepeur |
+| `mgc_databento`, `mym_databento`, `btcusdt_binance` | 0 | — |
+| `bez_bodov` | 94 | 89 bez bodového poľa a 5 s jediným bodovým poľom na 0 = vypnuté (jss, crt, fibo, fibomgc, fibomgcnet) |
+
+(52 + 4 + 4 + 94 = 154. V MNQ sú započítané aj voltbreak a voltbreaknet, ktoré podľa formálnej definície nemajú
+žiadne bodové pole. Prahy majú ukryté v dolároch NQ, pozri nižšie.)
+
+## Kde domovský trh nie je MNQ
+- **ES:** `m2`, `m2mnq`, `m2eur`, `m2mgc`. Predloha je ES 1m (m2/config.py:12, commit 61d88a5dd: „`m2` (S&P 500)“).
+  Jediné pole je `slTicks=1`, takže prepočet ATR z MNQ by ho skreslil len málo. Napriek tomu je pre `m2mnq`
+  chybný predpoklad, že MNQ je domov.
+- **6E:** `scalp3ma` a `scalp3mamgc`. `slPoints=0.0005` = 5 pipov EURUSD (scalp3ma/config.py:13 a :130).
+  Pole je predvolene neaktívne (`slMode=ATR`). Žiadny ZAKLAD_<trh> ho neprepisuje, takže všade platí 0,0005,
+  aj na MNQ (0,0005 bodu, pri `slMode=points` by to bol nezmysel). Webapp ich pritom zaraďuje pod NASDAQ a ZLATO.
+- **6E:** `asiasweep` a `asiasweepeur`. `vpRowTicks=10` je podľa komentára „EURUSD: 10 tickov = 1 pip“
+  (asiasweep/config.py:157). Istota je stredná, lebo je to len komentár k jednému tickovému poľu. ZAKLAD prepočet
+  šiel opačným smerom: ZAKLAD_MNQ má 10 a ZAKLAD_6E má 2, hoci domov je 6E a správne by bolo 10.
+
+## Istota nízka (MNQ len odvodené)
+- `orb15`, `orb15es`, `orb15mgc`, `mtkorb`, `mtkorbnet`: `targetPoints=40` pochádza z roboquant šablóny, ktorá trh
+  neuvádza. Predvolene je pole neaktívne (`targetMode=0`). Pozor: `mtkorb` je stratégia na zlato a nesie 40 bodov.
+- `flashorb`, `flashorbes`, `flashorbmgc`, `flashorbbtc`: `trailActivatePoints=50` a `trailBufferPoints=20`
+  pochádzajú z roboquant šablóny bez uvedeného trhu. Trailing je predvolene vypnutý.
+- `sweepfvg`: `tpPoints=50` bez zmienky trhu („Parametre neladené“). Predvolene je neaktívne (`tpMode=RR`).
+
+Strednú istotu majú len `nb` (jeden tick, zaradenie NASDAQ), `asiasweep` a `asiasweepeur`.
+
+## Nálezy mimo definície (pre audit polí, riziko z 22_B)
+- **voltbreak a voltbreaknet majú skryté bodové prahy** `tpUsd=800`, `slUsd=1500` a `usdPerPoint=20`, čo je 40 a 75
+  bodov NQ (voltbreak/config.py:84). Nespĺňajú vzor `*Points` a nie sú ani v SIZE_FIELDS, takže ich prepočet
+  ZAKLAD nevidí.
+- `mag7.slOpenBuf=2` sú body MNQ mimo vzoru. Pole je aktívne pri predvolenom `slMode=OPEN`.
+- Kópie na iných trhoch nesú defaulty MNQ, napr. `ibsentryeur`, `mtkzoneeur`, `tkseur`, `dailyopenbtc`,
+  `tksbtc`, `flashorbbtc`, `orb15mgc` a `fvgpolaritymgc`. Prepočet je pri nich nutný a domov MNQ je správny.
+- Všetky ostatné domovy MNQ majú priamy dôkaz v `config.py` (NQ/MNQ v komentári) alebo v Pine (iCloud
+  VOLUME-PROFILE pre mtkzone a nyva).
+
+---
+
+# 26 · Inžinier B · Oprava generátora ZAKLAD (27. 11. 2026)
+
+Generátor je `docs/audity/2026-11-27-smernica-v2/zaklad_profily/build.py --apply`. Vymazal som 924 starých profilov a vyrobil 924 nových
+(154 stratégií × 6 trhov). pytest (test_config, test_webapp_vyber, test_webapp_catalog) prešiel 55/55, `ruff check .` je čistý. Nič som necommitoval.
+
+## Zmeny
+- **Domov (C6, bod 6′):** generátor berie domov z `domov.json`, čo je kópia `25_B_domovsky_trh.json` uložená vedľa skriptu, a heuristiku vyhodil.
+  Dôkaz a istota idú do `_comment`. Pri istote „nízka“ (60 profilov: orb15/mtkorb, flashorb, sweepfvg) je v `_comment` „Domov je ODVODENÝ … krok 10“.
+  Pri `bez_bodov` (94 stratégií, 564 profilov) sa nič neprepočítava.
+- **C4:** pribudol výslovný `PRICE_FIELDS` {kľúč: {pole: abs|ticks|usd}} pre 65 stratégií. Regex mien je preč.
+- **C2:** voltbreak a voltbreaknet majú `tpUsd`/`slUsd` ako „usd“. Body (= $/usdPerPoint) sa prepočítajú pomerom ATR a zaokrúhlia na tick M.
+  Nový **$** sa zapíše pri pevnom `usdPerPoint=20`. Dôvod: usdPerPoint ostáva tým, čo hovorí komentár v kóde (NQ $/bod, pre ktorý sú $ písané), a TP aj SL vychádzajú presne na ticky.
+  ~~Zmena usdPerPoint by na 6E aj tak padla na rozsahu (0,01–1000).~~ Toto tvrdenie bolo nesprávne (A 27/1), oprava je v kole 2.
+  Logiku nemení ani jedna cesta, lebo pole sa používa len v tp/sl_points.
+- **C3:** `mag7.slOpenBuf` (a `minMove`, slPts) je v zozname. Napr. na ES: 2 → 0,25 b.
+- **asiasweep:** domov je 6E, takže na 6E ostáva `vpRowTicks` 10 a na ostatné trhy sa prepočíta.
+- **C1:** odchýlka zaokrúhlenia nad 50 % ide do `_comment` aj vtedy, keď sa výsledok rovná defaultu. Takú poznámku má 59 profilov.
+  Pole sa vtedy nezapíše, lebo test only_overrides to nedovolí.
+- **C5:** zapnutý trailing alebo koniec seansy/dňa (closeAtSessionEnd, closeAtEnd, useCloseAtEnd, useEodClose, enableTrailing, trailVwap, useTimeExit, trailAtr>0)
+  dostane vetu „hlavička musí výslovne povoliť, inak vypnúť (§0)“. Má ju 396 profilov a hodnoty som nemenil.
+- **C6:** do `_comment` ide pomer ATR s hodnotami a obdobiami oboch trhov. `atr.json` má nový kľúč `_meta` (metóda a obdobia) a `atr.py` zapisuje vedľa seba.
+
+## Neplatné základy: 25, všetky na 6E
+Pole je mimo rozsahu Pine aj po prepočte a nemá jednotku ticks, preto je trh „netestovateľný bez zmeny kódu“, nie ❌:
+- tks ×13: slPoints 0,00125 < 1
+- orb15/mtkorb ×5: targetPoints < 0,1
+- flashorb ×4: trail* < 0,1
+- voltbreak ×2: slUsd 0,048 $ < 1
+- mag7: slPts < 0,1
+
+Väčšina týchto polí je pri defaulte neaktívna (slMode=swing/open, targetMode=0, trailing vypnutý). Prísne podľa 5′ ich však aj tak počítam ako neplatné.
+
+## Čo sa ešte nedá (stav po kole 3)
+- **23 profilov na 6E** (tks ×13, orb15/mtkorb ×5, flashorb ×4, mag7) potrebuje zmenu kódu: širšie CONSTRAINTS ako PORT_ONLY, alebo pole v SIZE_FIELDS s jednotkou ticks.
+- Domovy s istotou „nízka“ (roboquant šablóny, sweepfvg) by potvrdil len doklad. Dovtedy je to krok 10.
+- Pre MNQ↔MGC a 6E↔MGC chýba spoločné L, takže pomer ATR mieša rôzne režimy volatility. Je to zapísané, ale nedá sa to opraviť bez porušenia §1.
+  ATR je denné, nie seansové (6E/MGC/BTC majú iný pomer seansa/deň).
+- `scalp3ma` má domov 6E, ale webapp ju zaraďuje pod NASDAQ.
+
+## Kolo 2 (nálezy A 27)
+Znova som vyrobil 924 profilov a **neplatných je 23** (všetky na 6E). pytest prešiel 55/55 a ruff je čistý.
+1. **voltbreak a voltbreaknet, 6E sú platné.** Pri poli „usd“ `build.py` najprv skúsi pevné usdPerPoint. Keď $ vyjde mimo rozsahu, skúsi krajnú hodnotu usdPerPoint v rozsahu Pine (všeobecne, funkcia `scale_usd`).
+   Na 6E vyšlo usdPerPoint 1000, tpUsd 1,35 a slUsd 2,5 (27 a 50 tickov). Od A (1,25 / 2,4) sa to líši len novým pomerom ATR (bod 4).
+2. **EXIT_FLAGS** som rozšíril o `useCloseAfter`, `useExit`, `useExitTime`, `useTimeClose`, `useCloseTime` a `closeEOD`.
+   Veta §0 je teraz v 444 profiloch (pribudli fpc, dailyopen ×2, asiasweep ×2, nqprec ×3). Iný zapnutý časový spínač som v 154 configoch nenašiel.
+   tmr (exitDay/exitHour) a nocpon (nightExit/monExit) majú časový výstup ako jadro pravidla, nie ako koniec seansy, preto vetu nedostali.
+3. **Časové výstupy bez spínača: nález neplatí.**
+   - silverbullet ×3 a sweepfvg (`exitH`) majú spínač `useExitTime=False`.
+   - nyvaes ×2 (`closeH`) majú `useCloseTime=False`.
+   - vwapop (`flatTime`) má `closeEOD=False`.
+   - onbiasorb ×2 (`exitHHMM`) majú `useTimeExit=True` a ten už je v EXIT_FLAGS.
+
+   ~~`FIXED_EXITS` je preto prázdny.~~ Platí len pre vymenované stratégie, oprava je v kole 3 (N1).
+4. **Pomer ATR v spoločnom okne.** `atr.py` počíta 15 párov domov→M (domovy MNQ, ES a 6E), okno je prienik L. Pod 1 rok berie prienik celých dát; týka sa to MNQ↔MGC a 6E↔MGC (56 profilov).
+   - `atr.json` → `pairs` obsahuje pomer, obe ATR, okno, zdroj, počet dní a pre porovnanie pomer z rôznych L.
+   - `_comment` uvádza okno aj odchýlku proti starému pomeru.
+   - Nový pomer voči starému: ES +30 %, MGC −25 %, BTC −9 %, 6E +4 %, MYM −2 %.
+
+## Kolo 3 (nálezy C 28)
+Znova som vyrobil 924 profilov, neplatných je 23. pytest (4 súbory vrátane test_csharp_parity_voltbreak) prešiel 70/70 a ruff je čistý.
+- **N1:** `FIXED_EXITS` má 15 kľúčov, teda 90 profilov s vetou „koniec seansy je v kóde bez prepínača … (§0)“, s časom a súborom:riadok.
+  - noa ×10 zatvára o 16:00 (`noa/engine.py:126`, C# `NoaEngine.cs:228`).
+  - Päť *eod zatvára o 15:59 (`EodClose.cs:54`), noaneteod má oboje.
+  - Ostatné časové výstupy vo všetkých enginoch majú prepínač. tmr, nocpon a spravy majú čas ako jadro pravidla a maxHold* sú limity držania.
+- **N2:** pri pároch bez spoločného L (MNQ↔MGC, 6E↔MGC, 56 profilov) má každý trh ATR zo svojho L a celé dáta sa už nepoužívajú. Dôvod (§1 trezor, rok A) je v `_comment` aj v `atr.json` (`zdroj`, `okno`, `_meta.metoda`).
+  Pri pároch so spoločným L ostáva spoločné L. Výsledok MNQ→MGC je 0,1379, predtým 0,1033.
+- **N3:** pri voltbreak a voltbreaknet na 6E `_comment` uvádza, že „$“ pri usdPerPoint 1000 nie sú skutočné doláre (6E má 125 000 $/bod), ide len o prepočet bodov.
+
+---
+
+# 27 · Prokurátor A · Kontrola opravy ZAKLAD (27. 11. 2026)
+
+**Overené strojovo na všetkých 154 × 6.** `domov.json` sa zhoduje s `25_B` (60 s bodmi, 94 bez_bodov). PRICE_FIELDS má 65 kľúčov, všetky sú v registri a každá stratégia s domovom ≠ bez_bodov ho má.
+Všetky profily sa načítajú, jednotky SizeSpec sedia so SIZE_FIELDS a ticks polia sú int. Pri 1224 aktívnych cenových poliach je efektívna cena na M voči ATR prepočtu mimo ±50 % v 85 prípadoch. Všetkých 85 má poznámku, alebo je profil NEPLATNÝ.
+
+- **C1 vyriešené.** Poznámka ostáva aj vtedy, keď sa výsledok rovná defaultu (ibs ES/MYM/MGC/6E state2ConfirmTicks +110 až +529 %, m2 6E).
+- **C2 vyriešené.** voltbreak ES TP/SL 7,5/13,75 b, MGC 5,5/10,4, BTC 269/504. usdPerPoint sa naozaj používa len v tp/sl_points (py aj C#).
+  **Tvrdenie B je však nepravdivé:** „6E by aj tak padla na rozsahu“. Pri usdPerPoint=1000 (v rozsahu, PORT_ONLY) vyjde tpUsd 1,25 $ a slUsd 2,4 $ (≥ 1), čo je TP 25 t a SL 48 t. 6E je teda platná bez zmeny kódu a označenie NEPLATNÝ je zlé.
+- **C3 vyriešené.** mag7 slOpenBuf ES 0,25, MGC 0,3, BTC 13,5, 6E 1 t (+28 %).
+- **C4 vyriešené.** Prešiel som všetky číselné a SizeSpec polia so sprostredkom ≠ 0 vo všetkých 154 configoch. Žiadne cenové pole nechýba.
+  Zvyšok sú ATR/%/R násobky, časy, bary a sizing v $ (`maxLossDollar` je riziko, nie prah ceny). Polia s defaultom 0 sú pre ZAKLAD neaktívne.
+- **C5 neúplné.** Zoznam berie len vybrané mená. Vynechal tieto predvolene zapnuté časové výstupy so spínačom: `fpc.useCloseAfter` (zavretie 30 min po okne, rovnaký typ ako `useTimeExit`, ktoré v zozname je),
+  `dailyopen/dailyopenbtc.useExit` (16:00), `asiasweep/asiasweepeur.useExitTime` (12:00) a `nqprec/nqpreces/nqprecmgc.useTimeClose`. Je to 8 stratégií a 48 profilov bez vety §0.
+  **Odpoveď na otázku B:** `useCloseAfter` áno. `ivb.eodFlatten` nie: je to len čas, spínač je `flattenEod` a ten je predvolene False (ivb správne bez vety).
+  Pevné časové výstupy bez spínača sa vypnúť nedajú: silverbullet×3 exitH 15:55, sweepfvg, nyvaes×2 closeH 15:59, vwapop flatTime, onbiasorb exitHHMM.
+  Do `_comment` pre ne patrí veta „koniec seansy je v kóde bez prepínača, hlavička ho prijme ako logiku hypotézy“. Inak §0 visí.
+- **C6 čiastočne.** Domov, istota, pomer a obdobia sú v `_comment`. Pomer ATR je ale z **rôznych období** jednotlivých trhov, čo dáva systematickú chybu.
+  ES/MNQ teraz vychádza 0,185, v spoločnom období MNQ L (2019-05 až 2022-09) 0,241 (−23 %). MGC je o +31 %, 6E o +7 %.
+  Je to pod prahom 50 %, ale všetky prahy ES sú o štvrtinu užšie a prahy MGC o tretinu širšie. Text 3a(5) to dovoľuje, ale to je diera v smernici, nie alibi.
+
+## NÁLEZY pre B
+1. `voltbreak/configs/ZAKLAD_6E.json`, `voltbreaknet/configs/ZAKLAD_6E.json`: tpUsd, slUsd, usdPerPoint. Treba usdPerPoint=1000, tpUsd=1,25, slUsd=2,4 a zrušiť NEPLATNÝ (neplatných základov bude 23, nie 25). Opraviť aj vetu v 26_B.
+2. `build.py:EXIT_FLAGS`: pridať `useCloseAfter`, `useExit`, `useExitTime` a `useTimeClose`. Pregeneruje to fpc, dailyopen(btc), asiasweep(eur) a nqprec(es, mgc).
+3. `build.py`: veta o pevnom konci seansy bez prepínača pre silverbullet(eur, btc), sweepfvg, nyvaes(net), vwapop a onbiasorb(btc) (`exitH/closeH/flatTime/exitHHMM`).
+4. `atr.py` / `atr.json` + 3a(5): pomer ATR počítať v **spoločnom okne** domova a M (prienik dát), nie z L každého trhu. Kým sa to neopraví, zapísať do `_comment` aj odchýlku (ES −23 %, MGC +31 %).
+
+---
+
+# 28 · Kontrolór C · Finálna kontrola ZAKLAD (27. 11. 2026)
+
+**Strojovo, 924/924 profilov:** všetky sa načítajú, `_instrument`/`_timerange` = MK, tick inštrumentu = TICK v build.py (MNQ/ES 0,25, MYM 1, MGC 0,1, 6E 0,00005, BTC 0,1).
+Mimo PRICE_FIELDS (+ usdPerPoint) sa nezmenilo ani jedno pole voči defaultu, takže logika je nedotknutá. Ticky sú int. Každá odchýlka efektívnej ceny > 50 % od default × pomer má poznámku s % alebo je profil NEPLATNÝ.
+NEPLATNÝCH je 23, všetky na 6E (tks ×13, orb15/mtkorb ×5, flashorb ×4, mag7). pytest (4 súbory): **70 passed**.
+
+- **C1–C4, A1, A2: vyriešené.** Skenoval som číselné a SizeSpec polia ≠ 0 vo všetkých 154 configoch. Zvyšné kandidáty sú R násobky, bary a časy, cenové pole nechýba.
+- **A1 voltbreak 6E** 1,35/2,5 $ pri usdPerPoint 1000 (27/50 t) sedí. `usdPerPoint` sa číta len v `tp_points`/`sl_points` (py) a `TpPoints`/`SlPoints` (C#), inde v repe nie je. Logika sa preto nemení.
+  Kozmetika: webapp ukáže „USD za bod 1000“ a TP 1,35 $, čo pri 6E nie sú skutočné doláre (125 000 $/bod).
+- **A3 (B: „každý časový výstup má prepínač“): pre vymenované stratégie pravda.** silverbullet/sweepfvg `useExitTime`, nyva(es) `useCloseTime` (py aj C#), vwapop `closeEOD`, onbiasorb `useTimeExit`.
+  **Ako všeobecné tvrdenie je to nepravda (nový nález N1):** `noa/engine.py:126` a `NoaEngine.cs:229` zatvárajú o 16:00 napevno, bez spínača. To platí pre 11 kľúčov noa*.
+  Päť kópií `*eod` (ibsentryneteod, noaneteod, tksneteod, vwapadxneteod, vwaporbneteod) zatvára o 15:59 cez `EodCloseEngine`, tiež bez spínača.
+  `FIXED_EXITS` je prázdny, takže 15 kľúčov × 6 = 90 profilov nemá vetu o pevnom konci seansy. Napr. `tksneteod/ZAKLAD_ES` nemá žiadnu vetu §0, noa má len `trailVwap`.
+- **A4 pomer ATR: číslo je správne.** Môj prepočet na zarovnaných dňoch (jednoduchý / Wilder ATR, deň UTC aj CME +7 h):
+  MNQ→ES 0,236–0,239 (build 0,2396), MNQ→MGC 0,102–0,103 (build 0,1033). Medián denných pomerov dáva MGC 0,116–0,120 (+13 %), je to však pod prahom.
+- **Nový nález N2 (trezor v okne).** MNQ↔MGC a 6E↔MGC nemajú prienik L, preto atr.py berie prienik celých dát (2019–2026, resp. 2010–2026).
+  To sú aj trezorové roky (MGC 2020–22, MNQ 2022-10–2025-09, 6E 2021-10+) a spálený rok. Ide o 56 profilov, ktorých prahy sú odvodené aj z trezoru a spáleného roka. Je to slabá informácia (len volatilita), no §1 chce „trezor mimo období štúdií“.
+  Čisté spoločné okno pre MNQ–MGC neexistuje (MGC L 2023+ = MNQ trezor).
+
+## VERDIKT: commitnúť **nie** (zatiaľ). Obe opravy sú malé, potom áno bez ďalšieho kola.
+## NÁLEZY pre B
+1. `build.py:FIXED_EXITS`: pridať 11 noa* (`_CLOSE_MIN` 16:00) a 5 *eod (`EodCloseEngine` 15:59) a pregenerovať. Opraviť vetu v 26_B kolo 2/3 („FIXED_EXITS prázdny“).
+2. `atr.py`: pre páry bez prieniku L nepoužiť celé dáta. Buď vziať každý trh na vlastnom L s normalizáciou ATR/cena × cena_M na L_M, alebo `pomer_rozne_L`, a zapísať to do `_comment`.
+   Inak výnimku výslovne zapísať do 3a(5) so súhlasom používateľa.
+3. (nepovinné) `_comment` voltbreak 6E: pripísať, že „$“ pri usdPerPoint 1000 nie sú skutočné doláre 6E.
+
+## Kolo 3 (po 26_B kolo 3)
+- Strojová kontrola na 924 profiloch je bez chyby. Logika je nezmenená, ticky sú celé čísla a odchýlky nad 50 % majú poznámku. Neplatných je 23, všetky 6E. pytest: 70 passed.
+- **N1 vyriešené.** `FIXED_EXITS` má 15 kľúčov, takže 90 profilov má vetu o pevnom konci seansy. `EodCloseEngine` používa práve 5 enginov *eod a noa engine nededí nikto mimo noa*. Nič nechýba.
+- **N2 vyriešené.** MNQ↔MGC aj 6E↔MGC majú pomer z vlastného L každého trhu a trezor ani spálený rok do výpočtu nevstupujú. Ostatné páry ostávajú na spoločnom L.
+  Daň za to: MNQ→MGC je 0,1379, kým v spoločných dňoch vychádza 0,103. Prahy MGC sú tak asi o +33 % širšie, čo je pod prahom 50 %. Je to zapísané v `_comment`, preto to prijímam.
+- **N3 vyriešené.** voltbreak(net) 6E má vetu, že „$“ nie sú skutočné doláre 6E. Hodnoty 1,35/2,5/1000 sú nezmenené.
+- Nová chyba nevznikla.
+
+**VERDIKT kolo 3: commitnúť ÁNO.**
