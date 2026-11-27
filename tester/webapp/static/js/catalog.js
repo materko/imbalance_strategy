@@ -276,6 +276,8 @@ function renderCatalog() {
     || (rest.length ? "" : '<div class="muted">Filtru nezodpovedá žiadna stratégia.</div>');
   const restEl = $("#cat-rest");
   restEl.hidden = !rest.length;
+  // keď žiadna stratégia nemá dobrý beh (napr. po odložení histórie), zbalená skupina by bola celá stránka
+  if (!shown.length && rest.length) restEl.open = true;
   $("#cat-rest-count").textContent = rest.length;
   $("#cat-rest-grid").innerHTML = rest.map(catCard).join("");
 }
