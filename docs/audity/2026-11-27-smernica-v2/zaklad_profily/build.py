@@ -6,6 +6,7 @@ s dôkazom `domov.json` (= `.nightsearch/kritika/25_B_domovsky_trh.json`, audit 
 Spustenie z koreňa repozitára: `.venv/bin/python -I docs/audity/2026-11-27-smernica-v2/zaklad_profily/build.py --apply`.
 """
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -21,6 +22,23 @@ DOMOV = json.load(open(HERE / "domov.json"))
 MK = {"MNQ": ("mnq_databento", "20190505-20220930"), "ES": ("es_databento", "20150101-20250903"),
       "MYM": ("mym_databento", "20190602-20220930"), "MGC": ("mgc_databento", "20230101-20250903"),
       "6E": ("6e_databento", "20160103-20210930"), "BTC": ("btcusdt_binance", "20190908-20220930")}
+# kópia stratégie pre jeden trh (kľúč <predloha><trh>[net|eod|neteod]) dostane len ZAKLAD svojho trhu
+_SUFFIX = {"mnq": "MNQ", "es": "ES", "mym": "MYM", "mgc": "MGC", "btc": "BTC", "eur": "6E"}
+_NOT_COPY = {"ibszones", "trendlines"}   # končia na „es“, ale nie sú kópie trhu ES
+# stratégie pre jeden trh bez prípony v kľúči (title a STRATEGIA_TRH_TYP: zlato; 6E má vlastnú spravyeur)
+_ONE_MARKET = {"mtkorb": "MGC", "mtkorbnet": "MGC", "spravy": "MGC", "spravynet": "MGC"}
+
+
+def copy_market(key):
+    """Trh, pre ktorý je stratégia kópiou, alebo None (stratégia pre všetky trhy)."""
+    if key in _ONE_MARKET:
+        return _ONE_MARKET[key]
+    if key in _NOT_COPY:
+        return None
+    base = re.sub(r"(neteod|net|eod)$", "", key)
+    return next((m for s, m in _SUFFIX.items() if base.endswith(s) and len(base) > len(s)), None)
+
+
 TICK = {"mnq_databento": .25, "es_databento": .25, "mym_databento": 1, "mgc_databento": .1, "6e_databento": .00005,
         "btcusdt_binance": .1}
 
@@ -181,7 +199,10 @@ def main():
             v = getattr(cfg, f, None)
             if v is True or (f == "trailAtr" and isinstance(v, (int, float)) and v > 0):
                 exits.append(f"{f}={v}")
+        own = copy_market(key)
         for m, (inst, tr) in MK.items():
+            if own and m != own:
+                continue
             prm, notes, bad = {}, [], []
             pair = ATR["pairs"].get(f"{home}->{inst}")
             ratio = pair["pomer"] if pair else 1.0

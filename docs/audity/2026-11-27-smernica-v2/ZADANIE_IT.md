@@ -485,8 +485,9 @@ Zo smernice je tu všetko s presnými hranicami:
 
 ## U12. Základné profily: čo vyžaduje zmenu kódu (z kontroly A/B/C, `22`–`28`)
 
-1. **23 profilov `ZAKLAD_6E` je neplatných.** Polia `slPoints` (tks a 12 kópií), `targetPoints` (orb15, mtkorb a kópie),
-   `trailActivatePoints`/`trailBufferPoints` (flashorb ×4) a `slPts` (mag7) vychádzajú pod dolnú hranicu rozsahu Pine.
+1. **8 profilov `ZAKLAD_6E` je neplatných** (pôvodne 23; kópie pre iný trh 6E profil už nemajú, `29_C`). Polia `slPoints`
+   (tks, tksnet, tksneteod, tkseur, tkseurnet), `targetPoints` (orb15), `trailActivatePoints`/`trailBufferPoints`
+   (flashorb) a `slPts` (mag7) vychádzajú pod dolnú hranicu rozsahu Pine.
    Riešenie: pole presunúť do `SIZE_FIELDS` s jednotkou `ticks`, alebo rozšíriť CONSTRAINTS cez `PORT_ONLY_FIELDS`
    (default zhodný s Pine), v Pythone aj C# s paritou. Potom spustiť
    `docs/audity/2026-11-27-smernica-v2/zaklad_profily/build.py --apply` a overiť, že neplatných je 0.
@@ -494,6 +495,9 @@ Zo smernice je tu všetko s presnými hranicami:
    `tester/webapp/static/js/settings.js`). Opraviť zaradenie.
 3. **ATR pre pomer je denný, nie zo seansy.** Voliteľne prepočítať pomer z ATR seansy (RTH) a porovnať; ak sa líši o
    > 20 %, prejsť na seansový.
+
+4. **Trh stratégie pre jeden trh je dnes odvodený z prípony kľúča** (`copy_market` v `zaklad_profily/build.py`, výnimky
+   ručne). Pridať pole trhu (alebo `base_key` + trh) do `StrategySpec`, aby sa nová stratégia nezaradila potichu zle (C `29_C`, N7).
 
 **Akceptácia:** 0 neplatných profilov, parita na dotknutých stratégiách, `test_config` prejde.
 **Odhad:** 1–2 dni.

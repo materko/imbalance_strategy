@@ -82,28 +82,13 @@
    "ZAKLAD_BTC"
   ],
   "ibsentryesnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "nyvaesnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "fibomgcnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "voltbreaknet": [
    "ZAKLAD_MNQ",
@@ -114,12 +99,7 @@
    "ZAKLAD_BTC"
   ],
   "sigmamgcnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "sigmanet": [
    "ZAKLAD_MNQ",
@@ -130,36 +110,16 @@
    "ZAKLAD_BTC"
   ],
   "spravynet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "spravyeurnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "noamgcnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "mtkorbnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "crt": [
    "ZAKLAD_MNQ",
@@ -194,20 +154,10 @@
    "ZAKLAD_BTC"
   ],
   "ivbes": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "ivbmgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "jss": [
    "ZAKLAD_MNQ",
@@ -218,20 +168,10 @@
    "ZAKLAD_BTC"
   ],
   "lliqmgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "m2mnq": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MNQ"
   ],
   "mag7": [
    "ZAKLAD_MNQ",
@@ -258,12 +198,7 @@
    "ZAKLAD_BTC"
   ],
   "nqprecmgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "onbiasorb": [
    "ZAKLAD_MNQ",
@@ -282,20 +217,10 @@
    "ZAKLAD_BTC"
   ],
   "orb15es": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "orb15mgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "svp": [
    "ZAKLAD_MNQ",
@@ -314,20 +239,10 @@
    "ZAKLAD_BTC"
   ],
   "wpres": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "wprmgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ]
  },
  "dole": {
@@ -367,20 +282,10 @@
    "ZAKLAD_BTC"
   ],
   "ibsentrymgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "ibsentryes": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "ibsfvg": [
    "ZAKLAD_MNQ",
@@ -527,12 +432,7 @@
    "ZAKLAD_BTC"
   ],
   "scalp3mamgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "fibo": [
    "ZAKLAD_MNQ",
@@ -543,12 +443,7 @@
    "ZAKLAD_BTC"
   ],
   "fibomgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "percoco": [
    "ZAKLAD_MNQ",
@@ -567,12 +462,7 @@
    "ZAKLAD_BTC"
   ],
   "fvgpolaritymgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "fpc": [
    "ZAKLAD_MNQ",
@@ -607,28 +497,13 @@
    "ZAKLAD_BTC"
   ],
   "nyvaes": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "sdeur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "sdeurnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "nb": [
    "ZAKLAD_MNQ",
@@ -647,251 +522,96 @@
    "ZAKLAD_BTC"
   ],
   "m2eur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "m2mgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "mtkorb": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "ibsentrymym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "noamym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "wprmym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "sweepengulfmym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "tmrmym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "lliqmym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "sigmamym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "nocponmym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "ibsentrymymnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "noamymnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "wprmymnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "sigmamymnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "asiasweepeur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "mtkzoneeur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "lliqeur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "silverbulleteur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "wpreur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "ibsentryeur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "sweepengulfeur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "noabtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "dailyopenbtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "onbiasorbbtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "flashorbbtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "silverbulletbtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "rangebtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "tmrbtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "sweepengulfbtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "noabtcnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "tmr": [
@@ -903,20 +623,10 @@
    "ZAKLAD_BTC"
   ],
   "tmres": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "tmrmgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "wpr": [
    "ZAKLAD_MNQ",
@@ -927,20 +637,10 @@
    "ZAKLAD_BTC"
   ],
   "flashorbes": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "flashorbmgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "sigma": [
    "ZAKLAD_MNQ",
@@ -951,20 +651,10 @@
    "ZAKLAD_BTC"
   ],
   "sigmaes": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "sigmamgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "nqprec": [
    "ZAKLAD_MNQ",
@@ -975,12 +665,7 @@
    "ZAKLAD_BTC"
   ],
   "nqpreces": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "lliq": [
    "ZAKLAD_MNQ",
@@ -991,28 +676,13 @@
    "ZAKLAD_BTC"
   ],
   "lliqes": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "spravy": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "spravyeur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "sweepfvg": [
    "ZAKLAD_MNQ",
@@ -1039,108 +709,43 @@
    "ZAKLAD_BTC"
   ],
   "noaes": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "noamgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "noaesnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "tkses": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "tksmgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "tksmym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "tksbtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "tkseur": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "tksesnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "tksmgcnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "tksmymnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "tksbtcnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "tkseurnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_6E"
   ],
   "varev": [
    "ZAKLAD_MNQ",
@@ -1175,67 +780,27 @@
    "ZAKLAD_BTC"
   ],
   "mtkemasmgc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "mtkemasmgcnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MGC"
   ],
   "mtkemases": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "mtkemasesnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_ES"
   ],
   "mtkemasmym": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "mtkemasmymnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
-   "ZAKLAD_BTC"
+   "ZAKLAD_MYM"
   ],
   "mtkemasbtc": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ],
   "mtkemasbtcnet": [
-   "ZAKLAD_MNQ",
-   "ZAKLAD_ES",
-   "ZAKLAD_MYM",
-   "ZAKLAD_MGC",
-   "ZAKLAD_6E",
    "ZAKLAD_BTC"
   ]
  }

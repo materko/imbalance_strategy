@@ -16,5 +16,6 @@ Stav k 27. 11. 2026: vyladené profily, analytika a história behov sú v archí
 v `tester/tests/fixtures/profiles/` (`TEST_PROFILES_DIR`). Automat hľadania a ranné nahrávanie sú zastavené, kým nie je V2 v kóde.
 Otvorené po kontrole A (`23_A_zaklad.md`): domovský trh predvolených hodnôt je pri všetkých stratégiách predpoklad MNQ
 (treba ručný zoznam s dôkazom) a 23 profilov `ZAKLAD_6E` je neplatných bez zmeny kódu (polia ako `slPoints` mimo rozsahu Pine).
+Po kontrole C `29_C` (27. 11.): kópie stratégie pre jeden trh majú len ZAKLAD svojho trhu (489 profilov), neplatných je 8 (U12).
 Pred pushom: `pytest` (14 testov padá už pred zmenami V2 — kalendár SPRÁV, NT nástroje, live žurnál, šablóny MT5,
 vstupný model 4 stratégií, host pull), `ruff check .`, ESLint webapp, `python -m tradebot.adapters.csharp.build --force`.

@@ -273,6 +273,8 @@ Východiskové nastavenie na L pri fill v2 a kontrola kresieb na 2–3 mesiacoch
    obdobia idú do hlavičky. Trailing a koniec seansy z defaultu musí hlavička výslovne povoliť (§0), inak sa vypnú ako
    zapísaná odchýlka.
 7. Zmena defaultu po prvom behu = nová hypotéza. ZAKLAD sa podľa výsledku neopravuje.
+8. Stratégia pre jeden trh (kópia `<predloha><trh>[net|eod]`, `mtkorb*` a `spravy*` = MGC) má len `ZAKLAD` svojho trhu
+   a testuje sa len na ňom. Iný trh ide cez predlohu (`build.py`, `copy_market`; C `29_C`).
 
 ### Krok 4 — Hľadanie v rozpočte
 - Mriežka alebo Optuna v rozpočte. Cieľ je `break_even` alebo PF a najhorší rok, **nikdy WR**.
