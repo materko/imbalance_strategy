@@ -118,7 +118,7 @@ Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCH
 | testovať z CLI (aj pre AI) | [tester/AI_TESTING.md](tester/AI_TESTING.md) |
 | volať webapp zo skriptu alebo z AI | [docs/API.md](docs/API.md) |
 | pridať ďalšiu stratégiu, zoznam stratégií | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
-| vedieť, kedy stratégia prešla (smernica testovania) | [docs/SMERNICA_TESTOVANIA.md](docs/SMERNICA_TESTOVANIA.md) |
+| vedieť, kedy stratégia prešla (smernica testovania V2, platí od 27. 11. 2026) | [docs/SMERNICA_TESTOVANIA.md](docs/SMERNICA_TESTOVANIA.md) |
 | čo tá stratégia je, v čom je dobrá, kde má chyby | [docs/ANALYTIKA.md](docs/ANALYTIKA.md), [docs/TYPY_STRATEGII.md](docs/TYPY_STRATEGII.md) |
 | hľadať parametre (sweep, hyperopt, FreqAI) | [docs/HYPEROPT.md](docs/HYPEROPT.md) |
 | krypto: prostredie, backtest, Docker, server | [docs/FREQTRADE.md](docs/FREQTRADE.md) |
@@ -162,7 +162,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-26)
+## Kde sme (2026-11-27)
 
 - **IB RETRACE zrušená** (26. 11.): `ibret`, `ibretmgc`, `ibretmym` aj C# kópie sú z repa preč (úrovne mali byť vždy
   zo štatistiky IB, nie pevné v profile); behy sú v `tester/archive/`. Karta **IB** (`tester.initial_balance`) ostáva.
@@ -218,8 +218,10 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 - **MTK ZONE** (`mtkzone`, 10. 11.): SD zóny z 5m / 15m len pri zhode aspoň dvoch potvrdení (SD vzor, vrchol
   volume profilu, nárast klasického objemu), vstupy limit na zónu / IBS / pin bar na grafe 2m–5m, filtre VWAP a seansa;
   prepis Pine predlohy VP SD ZÓNY 50; C# jadro `mtkzonenet` (parita bar po bare). Testuje sa podľa smernice len na Mac mini.
-- **Výber stratégií** ide cez [smernicu testovania](docs/SMERNICA_TESTOVANIA.md) — séria
-  skúšok, ktoré môžu stratégiu „zabiť" (päť okien, náhoda, Monte Carlo, náklady, …).
+- **Výber stratégií** ide cez [smernicu testovania V2](docs/SMERNICA_TESTOVANIA.md) (schválená 27. 11. 2026): pevné
+  rozdelenie rokov na trh (ladenie / trezor / rok A len ako kontrola), register pokusov a rozpočet, walk-forward,
+  DSR / PBO / haircut, fill v2 s nákladmi v tickoch a CFD spreadom, denný stop účtu −4 %. Zavedenie v kóde ešte
+  prebieha — kým nie je hotové, automat hľadania stojí a profily `PRESIEL_SMERNICAMI_*` sú podľa starej smernice.
   Nastavenia, ktoré prešli, sú profily `PRESIEL_SMERNICAMI_*` a webapp ich označí
   „✓ smernica" (VWAP ORB, VWAP ADX, Volt Break, Volume Profile POC, Fibo MGC, NY VA ES, IBS EZ ES, …).
 - **Naživo**: stratégie s C# jadrom bežia v NinjaTraderi 8 a MetaTraderi 5 a hlásia sa na
