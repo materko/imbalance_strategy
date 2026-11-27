@@ -1,0 +1,19 @@
+{
+ "breakOn": "wick",
+ "tpMode": "rr",
+ "rr": 1.25,
+ "shortRr": 0.5,
+ "shortLevels": true,
+ "entryRetr": 0.3,
+ "slRetr": 0.8,
+ "shortEntryRetr": 0.1,
+ "shortSlRetr": 0.7,
+ "closeAtEnd": false,
+ "fixedQty": true,
+ "qty": 1.0,
+ "skipOverRisk": false,
+ "_strategy": "ibretmgc",
+ "_instrument": "mgc_databento",
+ "_timeframe": "5m",
+ "_title": "ibretmgc 2 · RR 1,25 · PF 1,46 · WR 61 % · 85 obch/rok · MGC 5m · max DD 1 429 $ · posl. rok PF 1,42"
+}
