@@ -483,6 +483,21 @@ Zo smernice je tu všetko s presnými hranicami:
 
 ---
 
+## U12. Základné profily: čo vyžaduje zmenu kódu (z kontroly A/B/C, `22`–`28`)
+
+1. **23 profilov `ZAKLAD_6E` je neplatných.** Polia `slPoints` (tks a 12 kópií), `targetPoints` (orb15, mtkorb a kópie),
+   `trailActivatePoints`/`trailBufferPoints` (flashorb ×4) a `slPts` (mag7) vychádzajú pod dolnú hranicu rozsahu Pine.
+   Riešenie: pole presunúť do `SIZE_FIELDS` s jednotkou `ticks`, alebo rozšíriť CONSTRAINTS cez `PORT_ONLY_FIELDS`
+   (default zhodný s Pine), v Pythone aj C# s paritou. Potom spustiť
+   `docs/audity/2026-11-27-smernica-v2/zaklad_profily/build.py --apply` a overiť, že neplatných je 0.
+2. **`scalp3ma` má domovský trh 6E**, ale webapp ju zaraďuje pod NASDAQ (`STRATEGIA_TRH_TYP` v
+   `tester/webapp/static/js/settings.js`). Opraviť zaradenie.
+3. **ATR pre pomer je denný, nie zo seansy.** Voliteľne prepočítať pomer z ATR seansy (RTH) a porovnať; ak sa líši o
+   > 20 %, prejsť na seansový.
+
+**Akceptácia:** 0 neplatných profilov, parita na dotknutých stratégiách, `test_config` prejde.
+**Odhad:** 1–2 dni.
+
 ## Poradie a odhad
 
 | poradie | úloha | odhad |
