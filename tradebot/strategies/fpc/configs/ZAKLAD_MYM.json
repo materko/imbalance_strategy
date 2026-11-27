@@ -6,15 +6,16 @@
   "_timerange": "20190602-20220930",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → mym_databento: contTP, contSL, bigBar, revTP, revSL, minDist, trendPts, maxDist, testTol."
+    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → mym_databento, v pevnej cene trhu: contTP, contSL, bigBar, revTP, revSL, minDist, trendPts, maxDist, testTol.",
+    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
   ],
-  "contTP": 72.350152,
-  "contSL": 47.598784,
-  "bigBar": 47.598784,
-  "revTP": 72.350152,
-  "revSL": 47.598784,
-  "minDist": 47.598784,
-  "trendPts": 38.079027,
-  "maxDist": 285.592705,
-  "testTol": 5.711854
+  "contTP": 72,
+  "contSL": 48,
+  "bigBar": 48,
+  "revTP": 72,
+  "revSL": 48,
+  "minDist": 48,
+  "trendPts": 38,
+  "maxDist": 286,
+  "testTol": 6
 }

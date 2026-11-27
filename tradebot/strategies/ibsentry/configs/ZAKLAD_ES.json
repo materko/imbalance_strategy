@@ -6,28 +6,20 @@
   "_timerange": "20150101-20250903",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → es_databento: minImbSizePoints (v % z ceny, mimo rozsahu Pine v bodoch), pbMinRangePoints, engMinRangePoints, srClusterPoints, liqSweepMinWick, ewMinWavePoints, imbMaxDistTicks (v % z ceny, mimo rozsahu Pine v bodoch), state2ConfirmTicks (pod 1 tick → 1 tick), slBufferTicks (pod 1 tick → 1 tick), fvgMinSize."
+    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → es_databento, v pevnej cene trhu: minImbSizePoints (v tickoch, mimo rozsahu Pine v bodoch), pbMinRangePoints, engMinRangePoints, srClusterPoints, liqSweepMinWick, ewMinWavePoints, imbMaxDistTicks, state2ConfirmTicks (zaokrúhlené na 1 tick, o 441 % viac), slBufferTicks (zaokrúhlené na 1 tick, o 170 % viac), fvgMinSize.",
+    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
   ],
   "minImbSizePoints": {
-    "value": 0.014454,
-    "unit": "pct"
-  },
-  "pbMinRangePoints": 0.369952,
-  "engMinRangePoints": 0.369952,
-  "srClusterPoints": 2.774642,
-  "liqSweepMinWick": 0.924881,
-  "ewMinWavePoints": 3.699522,
-  "imbMaxDistTicks": {
-    "value": 0.144535,
-    "unit": "pct"
-  },
-  "state2ConfirmTicks": {
-    "value": 1,
+    "value": 2,
     "unit": "ticks"
   },
-  "slBufferTicks": {
-    "value": 1,
-    "unit": "ticks"
-  },
-  "fvgMinSize": 0.924881
+  "pbMinRangePoints": 0.25,
+  "engMinRangePoints": 0.25,
+  "srClusterPoints": 2.75,
+  "liqSweepMinWick": 1.0,
+  "ewMinWavePoints": 3.75,
+  "imbMaxDistTicks": 18,
+  "state2ConfirmTicks": 1,
+  "slBufferTicks": 1,
+  "fvgMinSize": 1.0
 }

@@ -6,8 +6,11 @@
   "_timerange": "20230101-20250903",
   "_comment": [
     "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
-    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → mgc_databento: minImbSize, pbMinRange."
+    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → mgc_databento, v pevnej cene trhu: minImbSize, pbMinRange, imbMaxDistTicks, st2ConfTicks.",
+    "Domovský trh predvolených hodnôt je predpoklad (MNQ), nie overený zápis — pred prvým behom ho potvrď v hlavičke (SMERNICA V2, krok 3a)."
   ],
-  "minImbSize": 1.109092,
-  "pbMinRange": 0.554546
+  "minImbSize": 1.1,
+  "pbMinRange": 0.6,
+  "imbMaxDistTicks": 14,
+  "st2ConfTicks": 2
 }
