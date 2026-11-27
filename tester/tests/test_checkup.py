@@ -313,6 +313,7 @@ def test_odtlacok_sa_meni_s_cislami_nie_s_textom():
 # --------------------------------------------------------------------------- #
 
 
+@pytest.mark.skip(reason="SMERNICA V2 (27. 11. 2026): analytika vyladených profilov je odložená v archíve; nová sa vyrobí po zavedení `checkup --windows L` (ZADANIE_IT U7)")
 @pytest.mark.parametrize("key", sorted(STRATEGIES))
 def test_kazda_strategia_ma_analytiku_a_posudok(key):
     """Stratégia bez odpovede na otázku „čo to vlastne je" nie je hotová (docs/STRATEGIE.md).

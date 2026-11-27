@@ -1,0 +1,12 @@
+{
+  "_title": "MNQ futures 5m — VWAP Session 1.0 presne podla videa: trend z 15m, prva sviecka proti trendu, long 80/40, short 80/50 bodov",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil VWAP Session 1.0 (2026-10-02) presne podla videa Mattea Contiho (drift VWAP pullback):",
+    "VWAP od 9:30 NY z 15m sviecok; kazdych 15 min: cena nad VWAP, VWAP za 15 min stupa, cena za hodinu +0,1 % (short zrkadlovo);",
+    "spustac prva cervena (short zelena) 5m sviecka, market na otvoreni dalsej; long stop 80 / ciel 40 bodov, short 80 / 50;",
+    "prvu hodinu sa neobchoduje, najviac 4 obchody a 2 straty denne, ziadny novy obchod po 15:30, zatvorenie 15:55 NY."
+  ],
+  "tickDollarValue": 0.5
+}

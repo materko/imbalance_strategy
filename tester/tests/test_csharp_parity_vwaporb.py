@@ -23,13 +23,14 @@ from tester.compare import csharp_parity  # noqa: E402
 from tester.tests.test_csharp_parity import _random_walk, _with_ts  # noqa: E402
 from tradebot.core.config import ConfigError  # noqa: E402
 from tradebot.core.entry_filter import TrendFilter, VolFilter  # noqa: E402
-from tradebot.core.paths import PROFILES_DIR  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
+PROFILES_DIR = TEST_PROFILES_DIR / "_tester"
 from tradebot.core.types import SizeSpec  # noqa: E402
 from tradebot.strategies.orb.config import SlMode  # noqa: E402
 from tradebot.strategies.vwapdrift.config import VwapAnchor, VwapPeriod  # noqa: E402
 from tradebot.strategies.vwaporb.config import EntryTiming, ExitMode, VwapRule  # noqa: E402
 
-PROFILE = "mnq_databento_5m"
+PROFILE = str(TEST_PROFILES_DIR / "vwaporb" / "configs" / "mnq_databento_5m.json")
 
 #: Na náhodnej prechádzke sa má naozaj vstupovať: voľné filtre, viac obchodov denne, aj víkendy.
 LOOSE = {"weekdaysOnly": False, "maxTradesPerDay": 4, "minRangePct": 0.0, "maxRangePct": 10.0}

@@ -1,4 +1,0 @@
-$ natívny emulátor MultiCharts (C#) MYM 4h 20240904-20250904
-predhistoria grafu: 603 barov pred oknom (bez obchodov)
-hotovo: 14 obchodov, nerozhodnutelnych minut 0
-graf (kresby) sa dopočíta pri prvom otvorení behu

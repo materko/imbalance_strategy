@@ -1,0 +1,17 @@
+{
+  "_title": "MTK EMAS 1.0 (C# jadro) · MYM 2h · VWMA 7 × 200 + EMA 200, stop 1 ATR, trailing 5 ATR + zámok pri 1R (štúdia: PF 2,99, najhorší rok 2,38)",
+  "_instrument": "mym_databento",
+  "_timeframe": "2h",
+  "tradeDirection": "Long only",
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "trendTF": 0,
+  "maType": "vwma",
+  "signalMode": "cross",
+  "fastLen": 7,
+  "slowLen": 200,
+  "slAtr": 1.0,
+  "trailAtr": 5.0,
+  "beAtR": 1.0,
+  "riskDollar": 2000.0
+}

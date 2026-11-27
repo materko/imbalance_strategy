@@ -23,7 +23,8 @@ except csbuild.BuildError as exc:  # pragma: no cover - stroj bez C# kompilátor
 from tester.compare import csharp_parity  # noqa: E402
 from tester.tests.test_csharp_parity import _with_ts  # noqa: E402
 from tradebot.core.candles import resample_ohlcv  # noqa: E402
-from tradebot.strategies.fibomgcnet import CONFIG_DIR  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
+CONFIG_DIR = TEST_PROFILES_DIR / "fibomgcnet" / "configs"  # noqa: E402
 
 PROFILE_1 = CONFIG_DIR / "PRESIEL_SMERNICAMI_Fibo_1_0_MGC_1.json"
 

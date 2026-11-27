@@ -1,0 +1,17 @@
+{
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "slBufferAtr": 0.0,
+  "rrRatio": 0.5,
+  "slMethod": "atr",
+  "engulfMode": "body",
+  "entryConfirm": "imbalance",
+  "confirmBars": 3,
+  "atrMult": 2.0,
+  "fixedQty": true,
+  "qty": 1.0,
+  "skipOverRisk": false,
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "1h",
+  "_title": "SWEEPING ENGULF BTC 2 · RR 0,5 · PF 1,45 · WR 72 % · 80 obch/rok · BTC 1h · max DD 13 712 $ · posl. rok PF 1,94"
+}

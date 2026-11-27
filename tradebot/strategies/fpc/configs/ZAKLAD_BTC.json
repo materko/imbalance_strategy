@@ -1,0 +1,20 @@
+{
+  "_title": "ZÁKLAD · BTC 1m · predvolené hodnoty kódu, bez ladenia · L 2019–2022 (SMERNICA V2)",
+  "_strategy": "fpc",
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "1m",
+  "_timerange": "20190908-20220930",
+  "_comment": [
+    "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
+    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → btcusdt_binance: contTP, contSL, bigBar, revTP, revSL, minDist, trendPts, maxDist, testTol."
+  ],
+  "contTP": 255.622684,
+  "contSL": 168.172818,
+  "bigBar": 168.172818,
+  "revTP": 255.622684,
+  "revSL": 168.172818,
+  "minDist": 168.172818,
+  "trendPts": 134.538254,
+  "maxDist": 1009.036909,
+  "testTol": 20.180738
+}

@@ -20,6 +20,7 @@ from tradebot.core import load_profile
 from tradebot.core.candles import resample_ohlcv
 from tradebot.core.types import Bar
 from tradebot.strategies import get_spec
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
 
 
 class _Reflected:
@@ -98,7 +99,7 @@ def test_fasada_da_to_iste_co_most_do_freqtrade(static_host):
     except SystemExit as exc:
         pytest.skip(f"dáta nie sú k dispozícii: {exc}")
     spec = get_spec("ibsnet")
-    cfg, _ = load_profile("golden_binance_btcusdt_3m", strategy="ibsnet")
+    cfg, _ = load_profile(TEST_PROFILES_DIR / "ibsnet" / "configs" / "golden_binance_btcusdt_3m.json", strategy="ibsnet")
 
     def bars(tf_minutes: int) -> list[Bar]:
         df = base if tf_minutes == 1 else resample_ohlcv(base, tf_minutes)

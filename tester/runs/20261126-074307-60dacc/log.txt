@@ -1,5 +1,0 @@
-$ natívny emulátor MultiCharts (C#) ES 1h 20211001-20221001
-predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 60m @60m 500/500
-predhistoria grafu: 624 barov pred oknom (bez obchodov)
-hotovo: 49 obchodov, nerozhodnutelnych minut 0
-graf (kresby) sa dopočíta pri prvom otvorení behu

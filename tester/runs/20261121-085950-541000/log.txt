@@ -1,5 +1,0 @@
-$ natívny emulátor MultiCharts (C#) MNQ 1h 20211001-20221001
-predhistoria indikatorov z dat pred behom: ATR 7 za 15 seáns @60m 1932/1932
-predhistoria grafu: 300 barov pred oknom (bez obchodov)
-hotovo: 209 obchodov, nerozhodnutelnych minut 0
-graf (kresby) sa dopočíta pri prvom otvorení behu

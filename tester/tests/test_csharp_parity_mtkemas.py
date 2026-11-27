@@ -8,7 +8,6 @@ Bez C# kompilátora (csc / Mono) sa preskočí.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 
@@ -21,8 +20,9 @@ except csbuild.BuildError as exc:  # pragma: no cover - stroj bez C# kompilátor
 
 from tester.compare import csharp_parity  # noqa: E402
 from tester.tests.test_csharp_parity import _random_walk, _with_ts  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
 
-PROFILE = "mnq_databento_4h"
+PROFILE = str(TEST_PROFILES_DIR / "mtkemas" / "configs" / "mnq_databento_4h.json")
 
 VARIANTS = {
     "hma_cena_trailing_zamok": {"maType": "hma", "signalMode": "price", "slowLen": 30, "trailAtr": 4.0, "beAtR": 1.0},
@@ -68,11 +68,10 @@ _TF = {"30m": 30, "1h": 60, "2h": 120, "4h": 240, "1d": 1440}
 
 
 def _profiles():
-    from tradebot.strategies import STRATEGIES
 
     out = []
     for market, (base, net) in MARKETS.items():
-        for p in sorted(Path(STRATEGIES[net].profile_dir).glob("*.json")):
+        for p in sorted((TEST_PROFILES_DIR / net / "configs").glob("*.json")):
             out.append(pytest.param(market, base, net, p, id=f"{net}-{p.stem}"))
     return out
 

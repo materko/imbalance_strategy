@@ -26,8 +26,9 @@ except csbuild.BuildError as exc:  # pragma: no cover - stroj bez C# kompilátor
 from tester.compare import csharp_parity  # noqa: E402
 from tester.tests.test_csharp_parity import _with_ts  # noqa: E402
 from tradebot.core.candles import resample_ohlcv  # noqa: E402
-from tradebot.strategies.ibsentryesnet import CONFIG_DIR as IBS_DIR  # noqa: E402
-from tradebot.strategies.nyvaesnet import CONFIG_DIR as NYVA_DIR  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
+IBS_DIR = TEST_PROFILES_DIR / "ibsentryesnet" / "configs"  # noqa: E402
+NYVA_DIR = TEST_PROFILES_DIR / "nyvaesnet" / "configs"  # noqa: E402
 
 PROFILE_1 = NYVA_DIR / "PRESIEL_SMERNICAMI_NY_VA_BREAKOUT_ES_1.json"
 

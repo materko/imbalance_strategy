@@ -12,6 +12,7 @@ import pytest
 
 from tradebot.core import load_profile
 from tradebot.core.types import INSTRUMENTS
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
 from tester import engines
 from tester.hyperopt import build_plan, verdict
 from tester.native import NativeRunner, summary_of
@@ -80,7 +81,7 @@ def test_walk_forward_tests_on_unseen_window(runner):
     plan = _plan()
     wf = walk_forward(runner, plan, None, [W1, W2, W3], epochs=8, batch=4, seed=4, log=_quiet)
     assert [(f["train"], f["test"]) for f in wf.folds] == [([W1], W2), ([W2], W3)]
-    cfg, _ = load_profile("nas100_dukascopy_3m", strategy="orbnet", engine=engines.MULTICHARTS)
+    cfg, _ = load_profile(TEST_PROFILES_DIR / "orbnet" / "configs" / "nas100_dukascopy_3m.json", strategy="orbnet", engine=engines.MULTICHARTS)
     for f in wf.folds:
         res = runner.run([config_json(cfg.to_dict(), type(cfg), plan, f["hp"])], f["test"])[0]
         assert summary_of(res, INST, FEE, 10000) == f["result"]
@@ -202,7 +203,7 @@ def test_native_api_backtests_without_history(runner, tmp_path):
     assert r.status_code == 200, r.text
     out = r.json()
     assert out["runs"] == 4 and [(x["point"], x["window"]) for x in out["results"]] == [(0, W1), (0, W2), (1, W1), (1, W2)]
-    cfg, _ = load_profile("nas100_dukascopy_3m", strategy="orbnet", engine=engines.MULTICHARTS)
+    cfg, _ = load_profile(TEST_PROFILES_DIR / "orbnet" / "configs" / "nas100_dukascopy_3m.json", strategy="orbnet", engine=engines.MULTICHARTS)
     want = summary_of(runner.run([json.dumps(type(cfg).from_dict({**cfg.to_dict(), "rrRatio": 2.0}).to_dict())], W2)[0],
                       INST, FEE, 10000)
     got = out["results"][3]["summary"]

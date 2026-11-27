@@ -1,0 +1,16 @@
+{
+  "wprLen": 14,
+  "entryLevel": -98.0,
+  "exitMode": 1,
+  "trendEmaLen": 50,
+  "trendFilter": "against",
+  "entryOrderType": "limit",
+  "limitOffsetPct": 25,
+  "confirmBars": 3,
+  "fixedQty": true,
+  "qty": 1.0,
+  "skipOverRisk": false,
+  "_instrument": "6e_databento",
+  "_timeframe": "30m",
+  "_title": "wpreur 1 · PF 1,53 · WR 68 % · 78 obch/rok · 6E 30m · max DD 5 170 $ · posl. rok PF 1,50"
+}

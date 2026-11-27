@@ -142,6 +142,9 @@ FAULTSIM_DIR = TESTER_DIR / "faultsim"
 FAULTSIM_EXE = CSHARP_BIN / "TradeBot.FaultSim.exe"
 RUNS_DIR = TESTER_DIR / "runs"
 PROFILES_DIR = TESTER_DIR / "profiles"
+#: staré (vyladené) profily ako pevné vstupy testov parity — od SMERNICE V2 (27. 11. 2026) nie sú vo webapp;
+#: `<kľúč>/configs/*.json` z repozitára stratégií a `_tester/*.json` z tester/profiles
+TEST_PROFILES_DIR = TESTER_DIR / "tests" / "fixtures" / "profiles"
 #: audit stratégií zo stránky výsledkov (trieda A / B / C, Sortino, C# jadro) — webapp ho ukazuje pri názve stratégie
 STRATEGY_AUDIT = TESTER_DIR / "audit.json"
 #: výber stratégií a profilov, ktoré webapp ukazuje (C# jadro, top 3 zo stránky výsledkov); bez súboru ukáže všetko

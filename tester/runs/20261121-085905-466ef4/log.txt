@@ -1,5 +1,0 @@
-$ natívny emulátor MultiCharts (C#) MGC 3m 20221001-20231001
-predhistoria indikatorov z dat pred behom: swingy 6m @6m 84/84
-predhistoria grafu: 300 barov pred oknom (bez obchodov)
-hotovo: 157 obchodov, nerozhodnutelnych minut 0
-graf (kresby) sa dopočíta pri prvom otvorení behu

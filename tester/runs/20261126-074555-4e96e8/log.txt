@@ -1,4 +1,0 @@
-$ natívny emulátor MultiCharts (C#) MGC 2h 20211001-20221001
-predhistoria grafu: 624 barov pred oknom (bez obchodov)
-hotovo: 13 obchodov, nerozhodnutelnych minut 0
-graf (kresby) sa dopočíta pri prvom otvorení behu

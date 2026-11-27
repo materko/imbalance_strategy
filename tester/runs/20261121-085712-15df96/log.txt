@@ -1,5 +1,0 @@
-$ natívny emulátor MultiCharts (C#) ES 3m 20231001-20241001
-predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 3m @3m 125/125
-predhistoria grafu: 300 barov pred oknom (bez obchodov)
-hotovo: 83 obchodov, nerozhodnutelnych minut 0
-graf (kresby) sa dopočíta pri prvom otvorení behu

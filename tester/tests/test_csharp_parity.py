@@ -21,6 +21,7 @@ except csbuild.BuildError as exc:  # pragma: no cover - stroj bez C# kompilátor
 
 from tester.compare import csharp_parity  # noqa: E402
 from tradebot.core.candles import resample_ohlcv  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
 
 #: Všetko zapnuté a prahy povolené tak, aby sa na náhodnej prechádzke naozaj niečo dialo:
 #: zóny zo všetkých troch zdrojov, tri entry modely, trailing, smer podľa Supertrendu aj ADX.
@@ -117,7 +118,7 @@ def test_engine_prezije_pickle_pre_hyperopt():
     from tradebot.core import load_profile
     from tradebot.strategies import get_spec
 
-    cfg, inst = load_profile("golden_binance_btcusdt_3m", strategy="ibsnet")
+    cfg, inst = load_profile(TEST_PROFILES_DIR / "ibsnet" / "configs" / "golden_binance_btcusdt_3m.json", strategy="ibsnet")
     engine = get_spec("ibsnet").engine_factory(cfg, inst, 3)
     clone = pickle.loads(pickle.dumps(engine))
     assert clone.required_history == engine.required_history

@@ -15,10 +15,11 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from tester.compare import csharp_parity  # noqa: E402
-from tradebot.core.paths import PROFILES_DIR, STRATEGIES_DIR  # noqa: E402
+from tradebot.core.paths import STRATEGIES_DIR, TEST_PROFILES_DIR  # noqa: E402,F401
+PROFILES_DIR = TEST_PROFILES_DIR / "_tester"
 
 PROFILES = sorted(PROFILES_DIR.glob("PRESIEL_SMERNICAMI_MTK_ORB_MGC_*.json"))
-SRC = STRATEGIES_DIR / "mtkorb" / "configs" / "mgc_databento_5m.json"
+SRC = TEST_PROFILES_DIR / "mtkorb" / "configs" / "mgc_databento_5m.json"
 VARIANTS = {"predloha_orb15": {"gapFilter": 0, "maxOrWidthMult": 0.0, "firstBreakOnly": False, "entryAtLevel": False,
                                "useDailyBias": True, "maxTradesPerDay": 2, "useWickFilter": True},
             "trhom_v_smere_gapu": {"entryAtLevel": False}}

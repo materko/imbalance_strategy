@@ -1,8 +1,0 @@
-$ emulator MultiCharts MYM 30m 20211001-20260904 (MYM_USD-1m.feather)
-predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 60m @60m 500/500
-predhistoria grafu: 864 barov pred oknom (bez obchodov)
-emulacia MultiCharts: 58150 barov 30m, 1708078 1m, 0 HTF
-  20000/58150 barov, 118 obchodov
-  40000/58150 barov, 264 obchodov
-hotovo: 374 obchodov, nerozhodnutelnych minut 0
-kresby: {'sigma_band': 49101, 'sl_box': 381, 'sigma_entry': 381}

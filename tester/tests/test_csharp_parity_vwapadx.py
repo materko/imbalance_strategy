@@ -24,10 +24,11 @@ from tester.tests.test_csharp_parity import _random_walk, _with_ts  # noqa: E402
 from tradebot.core.entry_confirm import EntryConfirm  # noqa: E402
 from tradebot.core.entry_filter import TrendFilter, VolFilter  # noqa: E402
 from tradebot.core.entry_order import EntryOrderType  # noqa: E402
-from tradebot.core.paths import PROFILES_DIR  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
+PROFILES_DIR = TEST_PROFILES_DIR / "_tester"
 from tradebot.strategies.vwapadx.config import VwapAnchor  # noqa: E402
 
-PROFILE = "mnq_databento_1m"
+PROFILE = str(TEST_PROFILES_DIR / "vwapadx" / "configs" / "mnq_databento_1m.json")
 
 #: Na náhodnej prechádzke má ADX aj pullback k VWAP prísť často: nízky prah, viac obchodov denne.
 LOOSE = {"adxMin": 5.0, "maxTrades": 5}

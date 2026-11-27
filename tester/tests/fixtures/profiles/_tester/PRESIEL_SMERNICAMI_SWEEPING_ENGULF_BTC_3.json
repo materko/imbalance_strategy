@@ -1,0 +1,23 @@
+{
+  "trendFilter": "with",
+  "trendEmaLen": 50,
+  "engulfMode": "body",
+  "prevCandle": "opposite",
+  "tradeDirection": "Short only",
+  "trendTF": 60,
+  "volFilter": "high",
+  "entryOrderType": "market",
+  "limitOffsetPct": 50,
+  "entryConfirm": "imbalance",
+  "confirmBars": 3,
+  "slMethod": "atr",
+  "slBufferAtr": 0.5,
+  "atrMult": 1.5,
+  "rrRatio": 0.75,
+  "fixedQty": true,
+  "qty": 1.0,
+  "skipOverRisk": false,
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "15m",
+  "_title": "SWEEPING ENGULF BTC 3 · RR 0,75 · PF 1,36 · WR 62 % · 75 obch/rok · BTC 15m · max DD 5 255 $ · posl. rok PF 1,49"
+}

@@ -1,0 +1,16 @@
+{
+  "_title": "MTK EMAS 1.0 · BTC 4h · cena × SMA 165 + EMA 200, stop 3 ATR, trailing 5 ATR + zámok pri 1R (štúdia: PF 2,53, najhorší rok 2,54, posl. rok 2,67)",
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "4h",
+  "tradeDirection": "Long only",
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "trendTF": 0,
+  "maType": "sma",
+  "signalMode": "price",
+  "slowLen": 165,
+  "slAtr": 3.0,
+  "trailAtr": 5.0,
+  "beAtR": 1.0,
+  "riskDollar": 2000.0
+}

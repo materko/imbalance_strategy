@@ -1,5 +1,0 @@
-$ natívny emulátor MultiCharts (C#) MNQ 5m 20211001-20221001
-predhistoria indikatorov z dat pred behom: filter trendu EMA 70 na 50m @50m 175/175
-predhistoria grafu: 4896 barov pred oknom (bez obchodov)
-hotovo: 174 obchodov, nerozhodnutelnych minut 0
-graf (kresby) sa dopočíta pri prvom otvorení behu

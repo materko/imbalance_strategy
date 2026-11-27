@@ -34,7 +34,8 @@ from tradebot.core import load_profile  # noqa: E402
 from tradebot.core.entry_confirm import EntryConfirm  # noqa: E402
 from tradebot.core.entry_order import EntryOrderType  # noqa: E402
 from tradebot.core.orders import OrderAction  # noqa: E402
-from tradebot.core.paths import PROFILES_DIR  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
+PROFILES_DIR = TEST_PROFILES_DIR / "_tester"
 from tradebot.core.types import SizeSpec  # noqa: E402
 from tradebot.core.warmup import seed_engine  # noqa: E402
 from tradebot.strategies import get_spec  # noqa: E402
@@ -51,9 +52,9 @@ BASES = {
                      **{f"sess{n}{k}": v for n in (1, 2, 3) for k, v in (("On", n == 1), ("TZ", "America/New_York"))},
                      "sess1ZoneStartH": 0, "sess1ZoneStartM": 0, "sess1ZoneEndH": 23, "sess1ZoneEndM": 59,
                      "sess1TradeStartH": 14, "sess1TradeStartM": 0, "sess1TradeEndH": 19, "sess1TradeEndM": 45}),
-    "vwaporbnet": ("mnq_databento_5m", 3, {"weekdaysOnly": False, "maxTradesPerDay": 4, "minRangePct": 0.0,
+    "vwaporbnet": (str(TEST_PROFILES_DIR / "vwaporbnet" / "configs" / "mnq_databento_5m.json"), 3, {"weekdaysOnly": False, "maxTradesPerDay": 4, "minRangePct": 0.0,
                                            "maxRangePct": 10.0}),
-    "vwapadxnet": ("mnq_databento_1m", 3, {"adxMin": 5.0, "maxTrades": 5, "useTimeExit": False,
+    "vwapadxnet": (str(TEST_PROFILES_DIR / "vwapadxnet" / "configs" / "mnq_databento_1m.json"), 3, {"adxMin": 5.0, "maxTrades": 5, "useTimeExit": False,
                                            "tpBars": 200, "slBars": 200}),
     "noanet": ("mnq_databento_5m", 5, {"lookbackDays": 5, "checkEvery": 15, "maxTradesPerDay": 10,
                                        "weekdaysOnly": False}),
@@ -178,8 +179,7 @@ def test_profil_smernice_na_mnq(base_key):
     import json
 
     data = json.loads(path.read_text(encoding="utf-8"))
-    assert data["_strategy"] == base_key + "eod"
-    data.pop("_strategy")
+    data.pop("_strategy", None)   # vstupy testov v tester/tests/fixtures/profiles sú bez stratégie
     tf = int(str(data["_timeframe"]).rstrip("m"))
     try:
         chart = _load("mnq", f"{tf}m")

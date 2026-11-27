@@ -1,0 +1,29 @@
+{
+  "_title": "ZÁKLAD · BTC 3m · predvolené hodnoty kódu, bez ladenia · L 2019–2022 (SMERNICA V2)",
+  "_strategy": "ibsnet",
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "3m",
+  "_timerange": "20190908-20220930",
+  "_comment": [
+    "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
+    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → btcusdt_binance: minImbSizePoints, pbMinRangePoints, engMinRangePoints, srClusterPoints, liqSweepMinWick, ewMinWavePoints, imbMaxDistTicks, state2ConfirmTicks, slBufferTicks."
+  ],
+  "minImbSizePoints": 16.817282,
+  "pbMinRangePoints": 13.453825,
+  "engMinRangePoints": 13.453825,
+  "srClusterPoints": 100.903691,
+  "liqSweepMinWick": 33.634564,
+  "ewMinWavePoints": 134.538254,
+  "imbMaxDistTicks": {
+    "value": 168.172818,
+    "unit": "abs"
+  },
+  "state2ConfirmTicks": {
+    "value": 1.681728,
+    "unit": "abs"
+  },
+  "slBufferTicks": {
+    "value": 3.363456,
+    "unit": "abs"
+  }
+}

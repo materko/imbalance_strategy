@@ -1,6 +1,0 @@
-$ emulator MultiCharts ES 1h 20211001-20221001 (ES_USD-1m.feather)
-predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 60m @60m 500/500
-predhistoria grafu: 624 barov pred oknom (bez obchodov)
-emulacia MultiCharts: 5924 barov 60m, 355367 1m, 0 HTF
-hotovo: 49 obchodov, nerozhodnutelnych minut 0
-kresby: {'sl_box': 70, 'mtkemas_entry': 70}

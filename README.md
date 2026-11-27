@@ -221,7 +221,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 - **Výber stratégií** ide cez [smernicu testovania V2](docs/SMERNICA_TESTOVANIA.md) (schválená 27. 11. 2026): pevné
   rozdelenie rokov na trh (ladenie / trezor / rok A len ako kontrola), register pokusov a rozpočet, walk-forward,
   DSR / PBO / haircut, fill v2 s nákladmi v tickoch a CFD spreadom, denný stop účtu −4 %. Zavedenie v kóde ešte
-  prebieha — kým nie je hotové, automat hľadania stojí a profily `PRESIEL_SMERNICAMI_*` sú podľa starej smernice.
+  prebieha — kým nie je hotové, automat hľadania stojí. **Čistý základ (27. 11. 2026):** vyladené profily, analytika (`ANALYTIKA.md`) a história behov sú odložené (archív `tester/archive/`, staré profily ako vstupy testov parity v `tester/tests/fixtures/profiles/`); každá stratégia má vo webapp len základné profily `ZAKLAD_<trh>` (MNQ, ES, MYM, MGC, 6E, BTC) — predvolené hodnoty kódu, obdobie ladenia L podľa V2, prahy v bodoch prepočítané podľa ATR trhu.
   Nastavenia, ktoré prešli, sú profily `PRESIEL_SMERNICAMI_*` a webapp ich označí
   „✓ smernica" (VWAP ORB, VWAP ADX, Volt Break, Volume Profile POC, Fibo MGC, NY VA ES, IBS EZ ES, …).
 - **Naživo**: stratégie s C# jadrom bežia v NinjaTraderi 8 a MetaTraderi 5 a hlásia sa na

@@ -14,6 +14,7 @@ from tradebot.adapters.multicharts.emulator import emulate, rows_from_trades
 from tradebot.core import load_profile
 from tradebot.core.money import summary_money
 from tradebot.core.types import INSTRUMENTS
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
 from tester import engines
 from tester.hyperopt import build_plan, overrides
 from tester.native_hyperopt import UNUSABLE, NativeRunner, config_json, loss_of, run_search, summary_of, verify
@@ -42,7 +43,7 @@ def _plan():
 
 def test_batch_on_threads_matches_single_runs_and_python(runner):
     plan = _plan()
-    cfg, _ = load_profile("nas100_dukascopy_3m", strategy="orbnet", engine=engines.MULTICHARTS)
+    cfg, _ = load_profile(TEST_PROFILES_DIR / "orbnet" / "configs" / "nas100_dukascopy_3m.json", strategy="orbnet", engine=engines.MULTICHARTS)
     points = [{"hp_rrRatio": rr, "hp_tradeDirection": d} for rr in (0.5, 1.0, 2.5, 4.0) for d in ("Both", "Long only")]
     configs = [config_json(cfg.to_dict(), type(cfg), plan, p) for p in points]
     batch = runner.run(configs, WINDOW)
@@ -144,7 +145,7 @@ def test_hub_estimate_knows_native_epochs_are_fast():
 def test_worker_processes_match_in_process_threads(runner):
     """Pracovné procesy `TradeBot.Host.exe` (predvolené) = vlákna cez pythonnet, bit po bite."""
     plan = _plan()
-    cfg, _ = load_profile("nas100_dukascopy_3m", strategy="orbnet", engine=engines.MULTICHARTS)
+    cfg, _ = load_profile(TEST_PROFILES_DIR / "orbnet" / "configs" / "nas100_dukascopy_3m.json", strategy="orbnet", engine=engines.MULTICHARTS)
     configs = [config_json(cfg.to_dict(), type(cfg), plan, {"hp_rrRatio": rr, "hp_tradeDirection": "Both"})
                for rr in (0.75, 1.5, 3.0)]
     assert runner.mode == "processes"

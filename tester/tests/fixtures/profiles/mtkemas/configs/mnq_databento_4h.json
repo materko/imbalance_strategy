@@ -1,0 +1,16 @@
+{
+  "_title": "MTK EMAS 1.0 · MNQ 4h · cena × HMA 100 + EMA 200, stop 1,5 ATR, trailing 4 ATR + zámok pri 1R (štúdia: PF 1,71, najhorší rok 1,79, posl. rok 1,90)",
+  "_instrument": "mnq_databento",
+  "_timeframe": "4h",
+  "tradeDirection": "Long only",
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "trendTF": 0,
+  "maType": "hma",
+  "signalMode": "price",
+  "slowLen": 100,
+  "slAtr": 1.5,
+  "trailAtr": 4.0,
+  "beAtR": 1.0,
+  "riskDollar": 2000.0
+}

@@ -23,8 +23,9 @@ except csbuild.BuildError as exc:  # pragma: no cover - stroj bez C# kompilátor
 from tester.compare import csharp_parity  # noqa: E402
 from tester.tests.test_csharp_parity import _with_ts  # noqa: E402
 from tradebot.core.candles import resample_ohlcv  # noqa: E402
-from tradebot.strategies.sigmamgcnet import CONFIG_DIR as MGC_DIR  # noqa: E402
-from tradebot.strategies.sigmanet import CONFIG_DIR as MNQ_DIR  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
+MGC_DIR = TEST_PROFILES_DIR / "sigmamgcnet" / "configs"  # noqa: E402
+MNQ_DIR = TEST_PROFILES_DIR / "sigmanet" / "configs"  # noqa: E402
 
 VARIANTS = {
     "default": {},

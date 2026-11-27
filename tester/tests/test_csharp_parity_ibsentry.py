@@ -22,7 +22,8 @@ except csbuild.BuildError as exc:  # pragma: no cover - stroj bez C# kompilátor
 
 from tester.compare import csharp_parity  # noqa: E402
 from tester.tests.test_csharp_parity import _random_walk, _with_ts  # noqa: E402
-from tradebot.core.paths import PROFILES_DIR  # noqa: E402
+from tradebot.core.paths import TEST_PROFILES_DIR  # noqa: E402
+PROFILES_DIR = TEST_PROFILES_DIR / "_tester"
 from tradebot.core.types import SizeSpec  # noqa: E402
 
 PROFILE = "golden_binance_btcusdt_3m"

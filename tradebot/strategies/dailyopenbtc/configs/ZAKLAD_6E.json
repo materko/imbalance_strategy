@@ -1,0 +1,13 @@
+{
+  "_title": "ZÁKLAD · 6E 1h · predvolené hodnoty kódu, bez ladenia · L 2016–2021 (SMERNICA V2)",
+  "_strategy": "dailyopenbtc",
+  "_instrument": "6e_databento",
+  "_timeframe": "1h",
+  "_timerange": "20160103-20210930",
+  "_comment": [
+    "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
+    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → 6e_databento: breakPts, slPts."
+  ],
+  "breakPts": 0.000954,
+  "slPts": 0.00159
+}

@@ -1,0 +1,29 @@
+{
+  "_title": "TKS 1.0 (6E) · 6E 3m · východisko: nastavenie TKS 1 z MNQ bez zmeny (Kompas 15 / 70, 2 sviečky, RR 0,5, swing 8, okno 15.–270. min, prestávka 150.–210.)",
+  "_instrument": "6e_databento",
+  "_timeframe": "3m",
+  "_comment": [
+    "Východisko pre ladenie na 6E (17. 11. 2026): PRESIEL_SMERNICAMI_TKS_1_0_NQ_Kompas_1 z MNQ; nič nie je v bodoch, Kompas je pomerový a tlak na 6E má škálu 0,128 ako MNQ.",
+    "seansa Kompasu Londýn 3:00–11:30 NY (9:00–17:30 SK), noc = Ázia 18:00–3:00; vstupy 15.–480. min, bez prestávky"
+  ],
+  "loLevel": 15,
+  "hiLevel": 70,
+  "rrRatio": 0.5,
+  "pivLen": 8,
+  "closeAtSessionEnd": false,
+  "nConf": 2,
+  "lookbackDays": 20,
+  "entryStartMin": 15,
+  "entryEndMin": 480,
+  "pauseFromMin": 0,
+  "pauseToMin": 0,
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "trendTF": 15,
+  "volFilter": "off",
+  "fixedQty": true,
+  "qty": 1.0,
+  "skipOverRisk": false,
+  "sessOpenMin": 180,
+  "sessCloseMin": 690
+}

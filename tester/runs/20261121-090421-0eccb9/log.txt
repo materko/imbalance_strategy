@@ -1,5 +1,0 @@
-$ natívny emulátor MultiCharts (C#) MGC 1m 20211001-20221001
-predhistoria indikatorov z dat pred behom: filter trendu EMA 100 na 60m @60m 250/250, filter volatility ATR 14 / 100 barov @1m 156/156
-predhistoria grafu: 300 barov pred oknom (bez obchodov)
-hotovo: 69 obchodov, nerozhodnutelnych minut 0
-graf (kresby) sa dopočíta pri prvom otvorení behu

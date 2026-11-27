@@ -1,0 +1,21 @@
+{
+  "fixedQty": true,
+  "qty": 1.0,
+  "nSigmaDays": 10,
+  "bandMult": 1.5,
+  "useVwap": false,
+  "entryOrderType": "limit",
+  "limitOffsetPct": 50,
+  "entryConfirm": "any",
+  "confirmBars": 5,
+  "volFilter": "off",
+  "slPct": 0.25,
+  "useCloseAtEnd": true,
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "trendTF": 60,
+  "skipOverRisk": false,
+  "_instrument": "mym_databento",
+  "_timeframe": "30m",
+  "_title": "SIGMA MYM 1 · PF 1,54 · WR 37 % · 77 obch/rok · MYM 30m · max DD 393 $ · posl. rok PF 1,33"
+}

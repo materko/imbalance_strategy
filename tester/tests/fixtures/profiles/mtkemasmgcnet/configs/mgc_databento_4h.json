@@ -1,0 +1,15 @@
+{
+  "_title": "MTK EMAS 1.0 (C# jadro) · MGC 4h · cena × DEMA 183 + EMA 200, stop 1 ATR, trailing 6 ATR (štúdia: PF 2,46, najhorší rok 2,95, posl. rok 4,06)",
+  "_instrument": "mgc_databento",
+  "_timeframe": "4h",
+  "tradeDirection": "Long only",
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "trendTF": 0,
+  "maType": "dema",
+  "signalMode": "price",
+  "slowLen": 183,
+  "slAtr": 1.0,
+  "trailAtr": 6.0,
+  "riskDollar": 2000.0
+}

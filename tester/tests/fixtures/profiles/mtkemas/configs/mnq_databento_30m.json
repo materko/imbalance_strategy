@@ -1,0 +1,16 @@
+{
+  "_title": "MTK EMAS 1.0 · MNQ 30m · DEMA 90 × 200 + EMA 200, stop 2 ATR, trailing 2,5 ATR (štúdia: PF 1,68, najhorší rok 1,46, posl. rok 2,17)",
+  "_instrument": "mnq_databento",
+  "_timeframe": "30m",
+  "tradeDirection": "Long only",
+  "trendFilter": "with",
+  "trendEmaLen": 200,
+  "trendTF": 0,
+  "maType": "dema",
+  "signalMode": "cross",
+  "fastLen": 90,
+  "slowLen": 200,
+  "slAtr": 2.0,
+  "trailAtr": 2.5,
+  "riskDollar": 2000.0
+}

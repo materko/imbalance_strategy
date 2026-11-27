@@ -1,0 +1,30 @@
+{
+  "_title": "ZÁKLAD · 6E 3m · predvolené hodnoty kódu, bez ladenia · L 2016–2021 (SMERNICA V2)",
+  "_strategy": "ibsentryeur",
+  "_instrument": "6e_databento",
+  "_timeframe": "3m",
+  "_timerange": "20160103-20210930",
+  "_comment": [
+    "Základ pre nové testovanie podľa SMERNICE V2 (27. 11. 2026): hodnoty z kódu stratégie, žiadne ladenie. Obdobie = ladenie L trhu; trezor a rok A sa tu nepúšťajú.",
+    "Prahy v bodoch prepočítané pomerom mediánu denného ATR(14) mnq_databento → 6e_databento: minImbSizePoints (orezané na rozsah Pine), pbMinRangePoints, engMinRangePoints, srClusterPoints (orezané na rozsah Pine), liqSweepMinWick, ewMinWavePoints (orezané na rozsah Pine), imbMaxDistTicks, state2ConfirmTicks, slBufferTicks, fvgMinSize."
+  ],
+  "minImbSizePoints": 1,
+  "pbMinRangePoints": 6.4e-05,
+  "engMinRangePoints": 6.4e-05,
+  "srClusterPoints": 1,
+  "liqSweepMinWick": 0.000159,
+  "ewMinWavePoints": 1,
+  "imbMaxDistTicks": {
+    "value": 0.000795,
+    "unit": "abs"
+  },
+  "state2ConfirmTicks": {
+    "value": 8e-06,
+    "unit": "abs"
+  },
+  "slBufferTicks": {
+    "value": 1.6e-05,
+    "unit": "abs"
+  },
+  "fvgMinSize": 0.000159
+}
