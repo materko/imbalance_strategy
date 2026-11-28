@@ -163,10 +163,16 @@ def run_multicharts(params: dict[str, Any], settings: dict[str, Any], profile: P
     m1 = pd.read_feather(data_path)
     registry = DrawRegistry()
     fee = float(settings.get("fee") or 0.0)
+    from tradebot.core.fill import model_for
+
+    fill = model_for(instrument_for_pair(settings["pair"]), settings.get("fill") or "v1")
+    if fill is not None:
+        log(f"plnenie fill v2 ({fill.kind}, SMERNICA V2 §3) - náklad z tabuľky, poplatok behu sa nepoužije")
     result, mc_runner = emulate(
         cfg, inst, m1, tf_minutes(tf), from_ms=from_ms, to_ms=to_ms,
         log=log, should_stop=should_stop,
         registry=registry, fee=fee,  # zisk obchodu pre maxDailyWins
+        **({"fill": fill} if fill is not None else {}),
     )
     if should_stop():
         return None

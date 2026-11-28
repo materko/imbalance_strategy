@@ -31,6 +31,8 @@ namespace TradeBot.Backtest
         public string Reason = "";
         public double MaxPrice;
         public double MinPrice;
+        /// <summary>fill v2: naklad strany ako podiel nominalu (NaN = poplatok behu) a peniaze navyse (swap CFD).</summary>
+        public double FeeOpen = double.NaN, FeeClose = double.NaN, ExtraCost;
 
         public bool IsLong { get { return Direction == Direction.Long; } }
         public bool Closed { get { return !double.IsNaN(Exit); } }
@@ -43,6 +45,8 @@ namespace TradeBot.Backtest
         public long FirstMs, LastMs;
         public double FirstClose = double.NaN, LastClose = double.NaN;
         public int Ambiguous;
+        /// <summary>fill v2 CFD: limitky za trhom pri odoslani, ktore broker odmietol (10015).</summary>
+        public int Rejected;
         public string Log = "";
         /// <summary>Close posledneho baru kazdeho dna UTC (zaciatok dna v ms) - krivka trhu v suhrne behu.</summary>
         public SortedDictionary<long, double> Daily = new SortedDictionary<long, double>();
@@ -379,7 +383,10 @@ namespace TradeBot.Backtest
             double nOpen = t.Entry * t.Qty * pv;
             double nClose = t.Exit * t.Qty * pv;
             double gross = (t.Exit - t.Entry) * smer * t.Qty * pv;
-            return gross - (nOpen * fee + nClose * fee);
+            double fo = double.IsNaN(t.FeeOpen) ? fee : t.FeeOpen;
+            double fc = double.IsNaN(t.FeeClose) ? (double.IsNaN(t.FeeOpen) ? fee : fee) : t.FeeClose;
+            if (double.IsNaN(t.FeeOpen) && double.IsNaN(t.FeeClose)) return gross - (nOpen * fee + nClose * fee);
+            return gross - (nOpen * fo + nClose * fc) - t.ExtraCost;
         }
 
         /// <summary>(cena, dovod, nerozhodnutelne) alebo false. Pri SL aj TP v jednej minute berie SL.</summary>
@@ -465,11 +472,28 @@ namespace TradeBot.Backtest
         public static EmuResult Run(IEngine engine, Dictionary<string, object> config, Candles m1, int chartTf,
                                     long fromMs, long toMs, double fee)
         {
-            return Run(engine, config, EmuData.Prepare(m1, chartTf, fromMs, toMs), fee);
+            return Run(engine, config, EmuData.Prepare(m1, chartTf, fromMs, toMs), fee, null);
         }
 
-        /// <summary>Beh nad pripravenymi datami - hyperopt ich pripravi raz a zdiela medzi vlaknami (len citanie).</summary>
+        public static EmuResult Run(IEngine engine, Dictionary<string, object> config, Candles m1, int chartTf,
+                                    long fromMs, long toMs, double fee, FillV2 fill)
+        {
+            return Run(engine, config, EmuData.Prepare(m1, chartTf, fromMs, toMs), fee, fill);
+        }
+
         public static EmuResult Run(IEngine engine, Dictionary<string, object> config, EmuData data, double fee)
+        {
+            return Run(engine, config, data, fee, null);
+        }
+
+        private static void ApplySwap(EmuTrade t, FillV2 fill)
+        {
+            if (fill.Cfd && fill.Swap != 0) t.ExtraCost += fill.Swap * t.Qty * fill.Nights(t.OpenMs, t.CloseMs);
+        }
+
+        /// <summary>Beh nad pripravenymi datami - hyperopt ich pripravi raz a zdiela medzi vlaknami (len citanie).
+        /// `fill` = fill v2 (SMERNICA V2 §3, Python `tradebot.core.fill`); null = v1.</summary>
+        public static EmuResult Run(IEngine engine, Dictionary<string, object> config, EmuData data, double fee, FillV2 fill)
         {
             if (engine.ChartTfMinutes != data.ChartTf)
                 throw new ArgumentException("engine je na " + engine.ChartTfMinutes + "m, data na " + data.ChartTf + "m");
@@ -525,6 +549,8 @@ namespace TradeBot.Backtest
             List<LiveOrder> pending = new List<LiveOrder>();
             int reported = 0;
             Bar[] single = new Bar[1];
+            if (fill != null && fill.Cfd && fill.Swap == 0)
+                log.Add("fill v2 " + fill.Instrument + ": swap za noc nie je v konfiguracii (0) - obchody cez noc su bez neho");
 
             for (int bi = 0; bi < chart.Length; bi++)
             {
@@ -540,7 +566,55 @@ namespace TradeBot.Backtest
                 {
                     Bar sub = subs[subStart + k];
                     bool filledNow = false;
-                    if (open == null && pending.Count > 0)
+                    if (open == null && pending.Count > 0 && fill != null)
+                    {
+                        List<LiveOrder> rejectedNow = new List<LiveOrder>();
+                        foreach (LiveOrder live in pending)
+                        {
+                            string kind = live.Market ? "market" : (live.Stop ? "stop" : "limit");
+                            double epx; bool atOpen, rej;
+                            if (!fill.Entry(sub.Time, sub.Open, sub.High, sub.Low, live.Direction == Direction.Long, kind,
+                                            live.Plan.Entry, k == 0, out epx, out atOpen, out rej))
+                            {
+                                if (rej) rejectedNow.Add(live);
+                                continue;
+                            }
+                            open = new EmuTrade();
+                            open.OrderId = live.OrderId; open.Direction = live.Direction; open.Qty = live.Plan.Qty;
+                            open.Entry = epx; open.OpenMs = sub.Time; open.StopInitial = live.Plan.StopLoss;
+                            open.TakeProfit = live.Plan.TakeProfit; open.Market = live.Market;
+                            open.StopLast = live.Plan.StopLoss; open.MaxPrice = epx; open.MinPrice = epx;
+                            open.FeeOpen = fill.SideFee(epx, kind == "limit");
+                            activeStop = live.Plan.StopLoss;
+                            activeTp = live.Plan.TakeProfit;
+                            filledNow = atOpen;
+                            filledId = live.OrderId;
+                            pending = new List<LiveOrder>();
+                            if (!filledNow && kind == "limit")
+                            {
+                                double xpx; bool isSl0, amb0;
+                                if (fill.Exit(sub.Time, sub.Open, sub.High, sub.Low, open.IsLong, activeStop,
+                                              open.IsLong ? double.PositiveInfinity : double.NegativeInfinity, out xpx, out isSl0, out amb0) && isSl0)
+                                {
+                                    open.MaxPrice = Math.Max(open.MaxPrice, sub.High);
+                                    open.MinPrice = Math.Min(open.MinPrice, sub.Low);
+                                    open.Exit = xpx; open.CloseMs = sub.Time; open.Reason = "stop_loss";
+                                    open.FeeClose = fill.SideFee(xpx, false);
+                                    trades.Add(open);
+                                    open = null;
+                                }
+                            }
+                            break;
+                        }
+                        if (rejectedNow.Count > 0)
+                        {
+                            res.Rejected += rejectedNow.Count;
+                            List<LiveOrder> keep = new List<LiveOrder>();
+                            foreach (LiveOrder x in pending) if (!rejectedNow.Contains(x)) keep.Add(x);
+                            pending = keep;
+                        }
+                    }
+                    else if (open == null && pending.Count > 0)
                     {
                         foreach (LiveOrder live in pending)
                         {
@@ -576,6 +650,19 @@ namespace TradeBot.Backtest
                     open.MaxPrice = Math.Max(open.MaxPrice, sub.High);
                     open.MinPrice = Math.Min(open.MinPrice, sub.Low);
                     if (open.OpenMs == sub.Time && !filledNow) continue;
+                    if (fill != null)
+                    {
+                        double vpx; bool isSl, vamb;
+                        if (!fill.Exit(sub.Time, sub.Open, sub.High, sub.Low, open.IsLong, activeStop, activeTp, out vpx, out isSl, out vamb)) continue;
+                        open.FeeClose = fill.SideFee(vpx, !isSl);
+                        if (vamb) res.Ambiguous++;
+                        open.Exit = vpx; open.CloseMs = sub.Time; open.StopLast = activeStop;
+                        open.Reason = isSl ? (activeStop != open.StopInitial ? "trailing_stop" : "stop_loss") : "take_profit";
+                        ApplySwap(open, fill);
+                        trades.Add(open);
+                        open = null;
+                        continue;
+                    }
                     double xp; string reason; bool amb;
                     if (!ExitFill(sub, open, activeStop, activeTp, out xp, out reason, out amb)) continue;
                     if (amb) res.Ambiguous++;
@@ -600,6 +687,12 @@ namespace TradeBot.Backtest
                 if (o.CloseSession && open != null)
                 {
                     open.Exit = bar.Close; open.CloseMs = bar.Time; open.Reason = "session_end"; open.StopLast = activeStop;
+                    if (fill != null)
+                    {
+                        open.Exit = fill.Market(bar.Time + step, bar.Close, !open.IsLong);
+                        open.FeeClose = fill.SideFee(open.Exit, false);
+                        ApplySwap(open, fill);
+                    }
                     trades.Add(open);
                     open = null;
                 }
@@ -619,11 +712,19 @@ namespace TradeBot.Backtest
             {
                 open.Exit = res.LastClose; open.CloseMs = chart[chart.Length - 1].Time; open.Reason = "force_exit";
                 open.StopLast = activeStop;
+                if (fill != null)
+                {
+                    open.Exit = fill.Market(chart[chart.Length - 1].Time + step, res.LastClose, !open.IsLong);
+                    open.FeeClose = fill.SideFee(open.Exit, false);
+                    ApplySwap(open, fill);
+                }
                 trades.Add(open);
             }
             res.Bars = chart.Length;
             if (chart.Length > 0) { res.FirstMs = chart[0].Time; res.LastMs = chart[chart.Length - 1].Time; }
-            log.Add("hotovo: " + trades.Count + " obchodov, nerozhodnutelnych minut " + res.Ambiguous);
+            log.Add("hotovo: " + trades.Count + " obchodov, nerozhodnutelnych minut " + res.Ambiguous
+                    + (res.Rejected > 0 ? ", odmietnutych limitiek za trhom " + res.Rejected : "")
+                    + (fill != null ? " (fill v2 " + fill.Instrument + ")" : ""));
             res.Log = string.Join("\n", log.ToArray());
             return res;
         }

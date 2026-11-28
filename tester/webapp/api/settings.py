@@ -98,6 +98,18 @@ def run_settings(req: RunRequest) -> dict[str, Any]:
             f"{', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}"))
     znacky = {k: getattr(req, k) for k in ("hyperopt_run", "plateau", "checkup", "matrix")
               if getattr(req, k, None)}
+    if req.fill not in (None, "", "v1", "v2"):
+        raise HTTPException(422, f"fill {req.fill!r}: v1 alebo v2")
+    if req.fill == "v2":
+        if engine != engines.MULTICHARTS:
+            raise HTTPException(422, "fill v2 je len pre emulátor MultiCharts (Freqtrade sa nemení, SMERNICA V2 U4)")
+        from tradebot.core.fill import model_for
+
+        try:
+            model_for(instrument_for_pair(req.pair), "v2", news=())
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+        znacky["fill"] = "v2"
     return {
         **znacky,
         "strategy": req.strategy,

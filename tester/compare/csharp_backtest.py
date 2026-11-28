@@ -34,13 +34,11 @@ FIELDS = ("order_id", "dir", "qty", "entry", "open_ms", "stop_initial", "take_pr
           "stop_last", "exit", "close_ms", "reason", "max_price", "min_price")
 
 
-def instrument_json(inst: InstrumentSpec) -> str:
-    """Ten istý JSON inštrumentu, aký dostáva C# engine cez most (`CSharpEngine._open`)."""
-    return json.dumps({
-        "symbol": inst.symbol, "venue": inst.venue, "tick_size": inst.tick_size,
-        "point_value": inst.point_value, "qty_step": inst.qty_step, "min_qty": inst.min_qty,
-        "has_real_volume": inst.has_real_volume,
-    })
+def instrument_json(inst: InstrumentSpec, fill: Any = None) -> str:
+    """Ten istý JSON inštrumentu ako `tester.native.instrument_json` (s `fill` aj fill v2)."""
+    from ..native import instrument_json as native_json
+
+    return native_json(inst, fill)
 
 
 def _cfg(strategy: str, profile: str | None, sets: dict[str, Any]):
@@ -52,7 +50,7 @@ def _cfg(strategy: str, profile: str | None, sets: dict[str, Any]):
 
 
 def run_python(strategy: str, profile: str | None, inst: InstrumentSpec, tf: int, from_ms: int | None,
-               to_ms: int | None, fee: float, sets: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+               to_ms: int | None, fee: float, sets: dict[str, Any] | None = None, fill: Any = None) -> list[dict[str, Any]]:
     """Python emulátor (cesta webapp `run_multicharts`) — obchody v tvare C# JSON."""
     import pandas as pd
 
@@ -60,17 +58,19 @@ def run_python(strategy: str, profile: str | None, inst: InstrumentSpec, tf: int
 
     spec, cfg = _cfg(strategy, profile, sets or {})
     m1 = pd.read_feather(engines.one_minute_file(inst))
-    result, _runner = emulate(cfg, inst, m1, tf, from_ms=from_ms, to_ms=to_ms, fee=fee, spec=spec)
+    result, _runner = emulate(cfg, inst, m1, tf, from_ms=from_ms, to_ms=to_ms, fee=fee, spec=spec, fill=fill)
     return [{
         "order_id": t.order_id, "dir": 1 if t.direction is Direction.LONG else -1, "qty": t.qty,
         "entry": t.entry, "open_ms": t.open_ms, "stop_initial": t.stop_initial, "take_profit": t.take_profit,
         "market": t.market, "stop_last": t.stop_last, "exit": t.exit, "close_ms": t.close_ms,
         "reason": t.reason, "max_price": t.max_price, "min_price": t.min_price,
+        **({"fee_open": t.fee_open} if t.fee_open is not None else {}),
+        **({"fee_close": t.fee_close} if t.fee_close is not None else {}),
     } for t in result.trades]
 
 
 def run_csharp(strategy: str, profile: str | None, inst: InstrumentSpec, tf: int, from_ms: int | None,
-               to_ms: int | None, fee: float, sets: dict[str, Any] | None = None) -> dict[str, Any]:
+               to_ms: int | None, fee: float, sets: dict[str, Any] | None = None, fill: Any = None) -> dict[str, Any]:
     """Natívny C# backtest — `NativeBacktest.RunFileJson`."""
     from tradebot.adapters.csharp import bridge
 
@@ -81,7 +81,7 @@ def run_csharp(strategy: str, profile: str | None, inst: InstrumentSpec, tf: int
     key = getattr(spec.engine_factory, "csharp_key", None)
     if key is None:
         raise SystemExit(f"{strategy}: stratégia nemá C# jadro")
-    raw = NativeBacktest.RunFileJson(key, json.dumps(cfg.to_dict()), instrument_json(inst),
+    raw = NativeBacktest.RunFileJson(key, json.dumps(cfg.to_dict()), instrument_json(inst, fill),
                                      str(engines.one_minute_file(inst)), int(tf),
                                      -1 if from_ms is None else int(from_ms), -1 if to_ms is None else int(to_ms),
                                      float(fee))

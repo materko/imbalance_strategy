@@ -71,6 +71,9 @@ def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
                         "(krypto 0.0005, CFD polovica spreadu)")
     p.add_argument("--wallet", type=float, default=10000)
     p.add_argument("--no-detail", action="store_true", help="bez 1m detailu fillov (rýchlejšie, hrubšie)")
+    p.add_argument("--fill", choices=("v1", "v2"), default="v1",
+                   help="plnenie emulátora MultiCharts: v1 (dnešné, golden testy) alebo v2 (SMERNICA V2 §3: tick, "
+                        "náklad a sklz futures, bid + spread CFD)")
     p.add_argument("--note", help="poznámka do histórie — napíš, čo beh testuje")
     p.add_argument("--user", help="meno testera (default TRADEBOT_USER)")
     _remote_args(p)

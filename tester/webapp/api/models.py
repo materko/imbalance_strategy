@@ -19,6 +19,7 @@ class RunRequest(BaseModel):
                                                 "bez neho podľa trhu (krypto 0.0005, CFD polovica spreadu)")
     wallet: float = 10000
     timeframe_detail: str | None = "1m"
+    fill: str | None = Field(None, description="plnenie emulátora MultiCharts: v1 (dnešné, predvolené) | v2 (SMERNICA V2 §3)")
     engine: str | None = Field(None, description="freqtrade | multicharts (emulátor); None = podľa dát")
     exchange: str | None = Field(None, description="burza pre Freqtrade beh; None = fiktívna Tester")
     sweep: dict[str, Any] | None = Field(None, description="značka behu z mriežky: id, hodnoty, kritérium")

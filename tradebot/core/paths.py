@@ -59,7 +59,7 @@ __all__ = [
     "LIVE_JOURNAL_CURSOR", "HUB_TELEGRAM_CONFIG", "HUB_TELEGRAM_STATE",
     "HUB_PLUGINS_DIR",
     "DOCS_DIR", "MERANIA_DIR",
-    "ARCHIVE_ROOTS", "REGISTER_DIR", "VAULTS_FILE",
+    "ARCHIVE_ROOTS", "REGISTER_DIR", "VAULTS_FILE", "FILL_V2_FILE",
 ]
 
 #: Koreň repozitára — `tradebot/core/paths.py` → `tradebot/core` → `tradebot` → repo.
@@ -118,6 +118,8 @@ MT5_DIR = DEPLOY_DIR / "mt5"
 
 #: Balíky stratégií; C# implementácia stratégie je v `<kľúč>/ports/csharp/` vedľa Python predlohy.
 STRATEGIES_DIR = REPO / "tradebot" / "strategies"
+#: Parametre plnenia fill v2 (SMERNICA V2 §3, `tradebot.core.fill`) — tick, náklad a sklz futures, spread CFD.
+FILL_V2_FILE = REPO / "tradebot" / "core" / "fill_v2.json"
 #: C# runtime (`TradeBot.Core`, `TradeBot.Backtest`, `TradeBot.Host`) vedľa Python runtime v `tradebot/core` —
 #: beží v NinjaTraderi a MT5 natívne a pod Freqtrade cez most `tradebot/adapters/csharp`.
 CSHARP_DIR = REPO / "tradebot" / "core" / "ports" / "csharp"

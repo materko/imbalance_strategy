@@ -46,13 +46,17 @@ def csharp_key(strategy: str) -> str | None:
     return getattr(get_spec(strategy).engine_factory, "csharp_key", None)
 
 
-def instrument_json(inst: InstrumentSpec) -> str:
-    """Ten istý JSON inštrumentu, aký dostáva C# engine cez most (`CSharpEngine._open`)."""
-    return json.dumps({
+def instrument_json(inst: InstrumentSpec, fill: Any = None) -> str:
+    """Ten istý JSON inštrumentu, aký dostáva C# engine cez most (`CSharpEngine._open`); s `fill`
+    (`tradebot.core.fill.FillModel`) aj kľúč `fill` pre fill v2 natívneho emulátora."""
+    d = {
         "symbol": inst.symbol, "venue": inst.venue, "tick_size": inst.tick_size,
         "point_value": inst.point_value, "qty_step": inst.qty_step, "min_qty": inst.min_qty,
         "has_real_volume": inst.has_real_volume,
-    })
+    }
+    if fill is not None:
+        d["fill"] = fill.to_dict()
+    return json.dumps(d)
 
 
 def window_ms(timerange: str) -> tuple[int, int]:
@@ -214,7 +218,7 @@ class NativeRunner:
     """
 
     def __init__(self, strategy: str, inst: InstrumentSpec, timeframe: int, fee: float, threads: int = 0,
-                 mode: str = "processes", pool: WorkerPool | None = None) -> None:
+                 mode: str = "processes", pool: WorkerPool | None = None, fill: Any = None) -> None:
         self.spec = get_spec(strategy)
         self.key = csharp_key(strategy)
         if self.key is None:
@@ -234,7 +238,8 @@ class NativeRunner:
         self.m1_path = engines.one_minute_file(inst)
         if not self.m1_path.exists():
             raise FileNotFoundError(f"chýbajú 1m dáta {self.m1_path}")
-        self._inst_json = instrument_json(inst)
+        self.fill = fill
+        self._inst_json = instrument_json(inst, fill)
         self._native = None
         if mode == "threads":
             from tradebot.adapters.csharp import bridge
@@ -311,7 +316,8 @@ def _trades(result: dict[str, Any]) -> list[EmuTrade]:
     return [EmuTrade(order_id=t["order_id"], direction=Direction.LONG if t["dir"] == 1 else Direction.SHORT,
                      qty=t["qty"], entry=t["entry"], open_ms=t["open_ms"], stop_initial=t["stop_initial"],
                      take_profit=t["take_profit"], market=t["market"], stop_last=t["stop_last"], exit=t["exit"],
-                     close_ms=t["close_ms"], reason=t["reason"], max_price=t["max_price"], min_price=t["min_price"])
+                     close_ms=t["close_ms"], reason=t["reason"], max_price=t["max_price"], min_price=t["min_price"],
+                     fee_open=t.get("fee_open"), fee_close=t.get("fee_close"), extra_cost=float(t.get("extra_cost") or 0.0))
             for t in result["trades"]]
 
 
@@ -363,7 +369,10 @@ def run_record(params: dict[str, Any], settings: dict[str, Any], profile: Any, *
     cfg, _ = load_profile(profile, engine=engines.MULTICHARTS)
     tf = settings.get("timeframe") or "3m"
     fee = float(settings.get("fee") or 0.0)
-    runner = NativeRunner(settings.get("strategy") or "ibs", inst, timeframe_minutes(tf), fee, threads=1)
+    from tradebot.core.fill import model_for
+
+    fill = model_for(instrument_for_pair(settings["pair"]), settings.get("fill") or "v1")
+    runner = NativeRunner(settings.get("strategy") or "ibs", inst, timeframe_minutes(tf), fee, threads=1, fill=fill)
     log(f"$ natívny emulátor MultiCharts (C#) {inst.exchange_symbol} {tf} {settings['timerange']}")
     res = runner.run([json.dumps(cfg.to_dict())], settings["timerange"])[0]
     if "error" in res:

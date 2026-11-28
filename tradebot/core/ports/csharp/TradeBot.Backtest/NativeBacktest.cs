@@ -78,9 +78,11 @@ namespace TradeBot.Backtest
         {
             EmuData data = PrepareCached(m1Path, chartTf, fromMs, toMs);
             Dictionary<string, object> config = Json.ParseObject(configJson);
-            InstrumentSpec inst = InstrumentSpec.FromJson(Json.ParseObject(instrumentJson));
+            Dictionary<string, object> instDict = Json.ParseObject(instrumentJson);
+            InstrumentSpec inst = InstrumentSpec.FromJson(instDict);
+            FillV2 fill = FillV2.FromJson(Json.Get(instDict, "fill") as Dictionary<string, object>);
             IEngine engine = EngineRegistry.Create(key, config, inst, chartTf);
-            return ToJson(McEmulator.Run(engine, config, data, fee));
+            return ToJson(McEmulator.Run(engine, config, data, fee, fill));
         }
 
         /// <summary>`fromMs`/`toMs` &lt; 0 = bez hranice (ako prazdna strana timerange).</summary>
@@ -88,10 +90,12 @@ namespace TradeBot.Backtest
                                     long fromMs, long toMs, double fee)
         {
             Dictionary<string, object> config = Json.ParseObject(configJson);
-            InstrumentSpec inst = InstrumentSpec.FromJson(Json.ParseObject(instrumentJson));
+            Dictionary<string, object> instDict = Json.ParseObject(instrumentJson);
+            InstrumentSpec inst = InstrumentSpec.FromJson(instDict);
+            FillV2 fill = FillV2.FromJson(Json.Get(instDict, "fill") as Dictionary<string, object>);
             IEngine engine = EngineRegistry.Create(key, config, inst, chartTf);
             return McEmulator.Run(engine, config, m1, chartTf,
-                                  fromMs < 0 ? long.MinValue : fromMs, toMs < 0 ? long.MaxValue : toMs, fee);
+                                  fromMs < 0 ? long.MinValue : fromMs, toMs < 0 ? long.MaxValue : toMs, fee, fill);
         }
 
         /// <summary>Dávka behov tej istej strategie nad tymi istymi datami - kazdy config na jednom vlakne
@@ -101,7 +105,9 @@ namespace TradeBot.Backtest
                                             int chartTf, long fromMs, long toMs, double fee, int threads)
         {
             EmuData data = PrepareCached(m1Path, chartTf, fromMs, toMs);
-            InstrumentSpec inst = InstrumentSpec.FromJson(Json.ParseObject(instrumentJson));
+            Dictionary<string, object> instDict = Json.ParseObject(instrumentJson);
+            InstrumentSpec inst = InstrumentSpec.FromJson(instDict);
+            FillV2 fill = FillV2.FromJson(Json.Get(instDict, "fill") as Dictionary<string, object>);
             string[] results = new string[configJsons.Length];
             int next = -1;
             int workers = threads > 0 ? threads : Environment.ProcessorCount;
@@ -119,7 +125,7 @@ namespace TradeBot.Backtest
                         {
                             Dictionary<string, object> config = Json.ParseObject(configJsons[i]);
                             IEngine engine = EngineRegistry.Create(key, config, inst, chartTf);
-                            results[i] = ToJson(McEmulator.Run(engine, config, data, fee));
+                            results[i] = ToJson(McEmulator.Run(engine, config, data, fee, fill));
                         }
                         catch (Exception e)
                         {
@@ -146,7 +152,7 @@ namespace TradeBot.Backtest
         {
             JsonWriter w = new JsonWriter();
             w.BeginObject();
-            w.Key("bars").Value(r.Bars).Key("ambiguous").Value(r.Ambiguous);
+            w.Key("bars").Value(r.Bars).Key("ambiguous").Value(r.Ambiguous).Key("rejected").Value(r.Rejected);
             w.Key("first_ms").Value(r.FirstMs).Key("last_ms").Value(r.LastMs);
             w.Key("first_close").Value(double.IsNaN(r.FirstClose) ? (double?)null : r.FirstClose);
             w.Key("last_close").Value(double.IsNaN(r.LastClose) ? (double?)null : r.LastClose);
@@ -164,6 +170,9 @@ namespace TradeBot.Backtest
                 w.Key("market").Value(t.Market).Key("stop_last").Value(t.StopLast);
                 w.Key("exit").Value(t.Exit).Key("close_ms").Value(t.CloseMs).Key("reason").Value(t.Reason);
                 w.Key("max_price").Value(t.MaxPrice).Key("min_price").Value(t.MinPrice);
+                if (!double.IsNaN(t.FeeOpen)) w.Key("fee_open").Value(t.FeeOpen);
+                if (!double.IsNaN(t.FeeClose)) w.Key("fee_close").Value(t.FeeClose);
+                if (t.ExtraCost != 0) w.Key("extra_cost").Value(t.ExtraCost);
                 w.EndObject();
             }
             w.EndArray();

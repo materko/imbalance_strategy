@@ -292,6 +292,7 @@ sa s históriou, sweepom ani verdiktom nedajú porovnať.
 | 1–2 parametre, chceš vidieť tvar | sweep (§7) — body C# stratégie na emulátore počíta C# sám |
 | stratégia s C# jadrom (`…net`, `…neteod`), fill model NT8/MT5 | `cli hyperopt --engine multicharts --sampler tpe …` (natívne v C#) |
 | chceš parametre, ktoré držia vo viacerých rokoch | `… --engine multicharts --windows ref --aggregate min --select plateau` |
+| plnenie podľa SMERNICE V2 (tick, náklad a sklz futures, bid + spread CFD) | `python -m tester.webapp.cli run … --engine multicharts --fill v2` (predvolené v1); porovnanie `python -m tester.compare.fill_report --write` |
 | walk-forward SMERNICE V2 (krok 6, raz na hypotézu) | `python -m tester.walkforward --hypothesis <h> --strategy <kľúč> --instrument mnq_databento --param … --out wf.json` (učenie 18 / 24 mes., test 6, posun 6 v L; PF OOS ≥ 1,15, WFE ≥ 0,5, ≥ 75 % kúskov v pluse, stabilné parametre) |
 | pravdepodobnosť pretrénovania (PBO) | `python -m tester.overfit pbo <h>` (CSCV, 16 blokov mesačného PnL všetkých konfigurácií registra; ≤ 0,20) |
 | brány a stav SMERNICE V2 (DSR, PBO, haircut, WF, Sortino, odolnosť) | `python -m tester.robust --profile <cesta> --pair MNQ/USD --hypothesis <h> --hyperopt wf.json --save` (na L trhu; N, N_eff a PBO z registra; stav ✅ 🟡 ⏳ ⚠ ❌ do `_robust`) |

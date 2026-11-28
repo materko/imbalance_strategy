@@ -190,6 +190,18 @@ cena v tej istej minúte prešla aj stop, končí stopom hneď v nej (audit 25. 
 rovnaký tvar ako Freqtrade beh, história ich nerozlišuje; v `result.engine` je
 `multicharts-emulator`. Dáta pripraví [DATA.md §B](DATA.md).
 
+**Fill v2** (SMERNICA V2 §3, zadanie U4; `--fill v2`, predvolené ostáva v1 kvôli golden testom). Plnenie podľa tabuliek
+v `tradebot/core/fill_v2.json`:
+- **Futures:** limit a TP až pri prechode o `pass` tickov, SL a stop vstup `min/max(úroveň, open) ∓ sklz`, market
+  a výstup v čase `open ± sklz`; náklad `cost_ticks · tick · hodnota bodu` na stranu (BTC maker / taker %).
+- **CFD:** graf je bid, nákupná strana sa spúšťa na `bid + S`, S podľa okna v čase New York (seansa, otvorenie
+  9:30–9:40, ±5 min pri správach z `calendar_us.json`). Limitka za trhom pri odoslaní sa neplní (MT5 10015), swap
+  za noc podľa tabuľky.
+- **Obom:** SL aj TP v jednej minúte → SL, lepšia cena sa nepočíta.
+
+Python (`tradebot.core.fill.FillModel`) a C# (`TradeBot.Backtest.FillV2`) sú zrkadlo. Paritu na v2 stráži
+`tester/tests/test_fill_v2.py`, porovnanie v1 / v2 robí `python -m tester.compare.fill_report`. Freqtrade sa nemení.
+
 **Predhistória.** Pred `from_ms` emulátor prehrá `max(300, required_history)` barov grafu (a HTF)
 bez obchodovania — ako Freqtrade `startup_candle_count` a `ready:false` naživo; ordery z nich broker
 nedostane (`MCRunner.forget_orders`). Do 26. 10. 2026 začínal bez nej a prvé dni okna (ATR, zóny,

@@ -1,0 +1,34 @@
+{
+  "_comment": [
+    "Plnenie prikazov fill v2 (SMERNICA V2 §3, zadanie U4). Kluc = instrument z tradebot.core.types.INSTRUMENTS.",
+    "futures: tick v bodoch, cost_ticks = poplatok + 1/2 spreadu na stranu, slip_ticks = sklz SL / stop vstupu / marketu /",
+    "vystupu v case, pass_ticks = o kolko musi cena prejst pri limite a TP. BTC perp v % ceny (maker / taker).",
+    "cfd: graf je bid, ask = bid + S. spread = S hlavnej seansy 9:30-16:00 NY v cene; off_mult mimo seansy; open_* pri",
+    "otvoreni 9:30-9:40 NY; news_* +-5 min okolo udalosti calendar_us.json. pass_sell = prechod predajnej strany,",
+    "slip_sl = sklz SL a stop vstupu, slip_mkt = sklz marketu, commission = provizia v cene na stranu, swap = peniaze",
+    "na lot a noc (0 = nezname, beh vypise varovanie). Hodnoty z U3 (meranie spreadu) nahradia odhady - zmenu",
+    "tabulky schvaluje pouzivatel."
+  ],
+  "futures": {
+    "mnq_databento": {"tick": 0.25, "cost_ticks": 1.75, "slip_ticks": 2, "pass_ticks": 1},
+    "mnq": {"tick": 0.25, "cost_ticks": 1.75, "slip_ticks": 2, "pass_ticks": 1},
+    "mym_databento": {"tick": 1.0, "cost_ticks": 1.75, "slip_ticks": 2, "pass_ticks": 1},
+    "es_databento": {"tick": 0.25, "cost_ticks": 1, "slip_ticks": 1, "pass_ticks": 1},
+    "mgc_databento": {"tick": 0.1, "cost_ticks": 1.5, "slip_ticks": 1, "pass_ticks": 1},
+    "6e_databento": {"tick": 0.00005, "cost_ticks": 1, "slip_ticks": 0.5, "pass_ticks": 1},
+    "btcusdt_binance": {"tick": 0.1, "cost_pct_maker": 0.0002, "cost_pct_taker": 0.0005, "slip_pct": 0.0002, "pass_ticks": 1}
+  },
+  "cfd": {
+    "nas100_dukascopy": {"as": "US100.cash", "spread": 2.0, "off_mult": 2, "pass_sell": 0.25, "slip_sl": 1.0, "slip_mkt": 0.5,
+                         "open_mult": 2, "open_slip": 2.0, "news_mult": 4, "news_slip": 4.0, "commission": 0, "swap": 0},
+    "us500_dukascopy": {"as": "US500.cash", "spread": 0.8, "off_mult": 2, "pass_sell": 0.05, "slip_sl": 0.3, "slip_mkt": 0.3,
+                        "open_mult": 2, "open_slip": 1.0, "news_mult": 4, "news_slip": 2.0, "commission": 0, "swap": 0},
+    "xau_dukascopy": {"as": "XAUUSD", "spread": 0.40, "off_mult": 2, "pass_sell": 0.05, "slip_sl": 0.25, "slip_mkt": 0.15,
+                      "open_mult": 2, "open_slip": 0.5, "news_mult": 5, "news_slip": 1.5, "commission": 0, "swap": 0},
+    "dj30_dukascopy": {"as": "US30 (odhad)", "spread": 3.0, "off_mult": 2, "pass_sell": 0, "slip_sl": 2.0, "slip_mkt": 1.0,
+                       "open_mult": 2, "open_slip": 0, "news_mult": 4, "news_slip": 0, "commission": 0, "swap": 0},
+    "eurusd_dukascopy": {"as": "EURUSD (odhad)", "spread": 0.00003, "off_mult": 2, "pass_sell": 0, "slip_sl": 0.00002,
+                         "slip_mkt": 0.00001, "open_mult": 1.5, "open_slip": 0, "news_mult": 5, "news_slip": 0.0001,
+                         "commission": 0.000025, "swap": 0}
+  }
+}

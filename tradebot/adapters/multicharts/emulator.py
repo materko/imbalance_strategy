@@ -43,6 +43,7 @@ from ...core.money import summary_money, trade_money
 from ...core.types import Direction
 from ...core.candles import resample_ohlcv, timeframe_minutes
 from ...core.warmup import seed_engine
+from ...core.fill import REJECT, FillModel
 from .runner import LiveOrder, MCRunner
 
 __all__ = ["EmuTrade", "EmulationResult", "emulate", "bars_from_frame", "BarCache", "rows_from_trades", "summarize",
@@ -67,6 +68,10 @@ class EmuTrade:
     reason: str = ""
     max_price: float = 0.0
     min_price: float = 0.0
+    #: fill v2: náklad strany ako podiel nominálu (None = poplatok behu `fee`) a peniaze navyše (swap CFD)
+    fee_open: float | None = None
+    fee_close: float | None = None
+    extra_cost: float = 0.0
 
     @property
     def is_long(self) -> bool:
@@ -92,6 +97,8 @@ class EmulationResult:
     ambiguous: int
     chart_header: dict[str, Any] | None = None
     daily_closes: list[tuple[int, float]] = field(default_factory=list)
+    #: fill v2 CFD: limitky za trhom pri odoslaní, ktoré broker odmietol (10015)
+    rejected: int = 0
 
 
 # --------------------------------------------------------------------------- #
@@ -224,8 +231,9 @@ def _net_pnl(trade: EmuTrade, inst: InstrumentSpec, fee: float) -> float:
     """Zisk uzavretého obchodu po poplatku — to isté číslo ako `profit_abs` v `rows_from_trades`."""
     if trade.exit is None:
         return 0.0
-    return trade_money(trade.entry, trade.exit, trade.qty, is_short=not trade.is_long,
-                       point_value=inst.point_value, fee_open=fee).net
+    return trade_money(trade.entry, trade.exit, trade.qty, is_short=not trade.is_long, point_value=inst.point_value,
+                       fee_open=fee if trade.fee_open is None else trade.fee_open,
+                       fee_close=None if trade.fee_close is None else trade.fee_close).net - trade.extra_cost
 
 
 def _exit_fill(sub: Bar, trade: EmuTrade, stop: float, tp: float) -> tuple[float, str, bool] | None:
@@ -248,6 +256,12 @@ def _exit_fill(sub: Bar, trade: EmuTrade, stop: float, tp: float) -> tuple[float
     return float(tp_px), "take_profit", False
 
 
+def _swap(trade: EmuTrade, fill: FillModel) -> None:
+    """Swap CFD za každú noc (rollover 21:00 UTC) — peniaze navyše k nákladu obchodu."""
+    if fill.cfd and fill.swap and trade.close_ms is not None:
+        trade.extra_cost += fill.swap * trade.qty * fill.nights(trade.open_ms, trade.close_ms)
+
+
 def emulate(
     cfg: StrategyConfig,
     inst: InstrumentSpec,
@@ -264,6 +278,7 @@ def emulate(
     entry_delay: int = 0,
     observe: Callable[[Bar, Any], None] | None = None,
     bars: BarCache | None = None,
+    fill: FillModel | None = None,
 ) -> tuple[EmulationResult, MCRunner]:
     """Prehrá stratégiu cez `MCRunner` s emulovaným brokerom MultiCharts.
 
@@ -275,6 +290,7 @@ def emulate(
     `observe(bar, výstup)` sa zavolá po `on_bar` na každom bare okna (nie predhistórie) — len na čítanie,
     beh nemení (test utnutia dát `tester.lookahead`).
     `bars` je `BarCache` nad tým istým `m1` zdieľaná medzi behmi (len rýchlosť, výsledok je ten istý).
+    `fill` = plnenie fill v2 (`tradebot.core.fill.model_for`, SMERNICA V2 §3); None = v1 (dnešné, golden testy).
     """
     out_log = log or (lambda _s: None)
     src = bars if bars is not None and bars.m1 is m1 else BarCache(m1)
@@ -324,7 +340,10 @@ def emulate(
     #: order poslednej otvorenej pozície - runner podľa neho prevezme SL/TP (N-CORE-2)
     filled_id: str | None = None
     ambiguous = 0
+    rejected = 0
     first_close = last_close = None
+    if fill is not None and fill.cfd and not fill.swap:
+        out_log(f"fill v2 {fill.instrument}: swap za noc nie je v konfigurácii (0) - obchody cez noc sú bez neho")
     daily: dict[int, float] = {}
     out_log(f"emulacia MultiCharts: {len(chart)} barov {chart_tf}m, {len(detail)} 1m, {len(htf_bars)} HTF")
 
@@ -337,7 +356,44 @@ def emulate(
         # -- broker: vyplnenie orderov zadaných na predchádzajúcom bare -------------
         for k, sub in enumerate(subs):
             filled_now = False
-            if open_trade is None and pending_entries:
+            if open_trade is None and pending_entries and fill is not None:
+                odmietnute = []
+                for live in pending_entries:
+                    kind = "market" if live.market else "stop" if live.stop else "limit"
+                    got = fill.entry(sub.time, sub.open, sub.high, sub.low, is_long=live.is_long, kind=kind,
+                                     price=float(live.plan.entry), first_minute=(k == 0))
+                    if got is None:
+                        continue
+                    if got == REJECT:
+                        odmietnute.append(live)
+                        continue
+                    px, filled_now = got
+                    open_trade = EmuTrade(
+                        order_id=live.order_id, direction=live.direction, qty=float(live.plan.qty),
+                        entry=px, open_ms=sub.time, stop_initial=float(live.plan.stop_loss),
+                        take_profit=float(live.plan.take_profit), market=live.market,
+                        stop_last=float(live.plan.stop_loss), max_price=px, min_price=px,
+                        fee_open=fill.side_fee(px, maker=kind == "limit"),
+                    )
+                    active_stop, active_tp = float(live.plan.stop_loss), float(live.plan.take_profit)
+                    filled_id = live.order_id
+                    pending_entries = []
+                    if not filled_now and kind == "limit":
+                        # limitka vyplnená cestou ceny proti nej: SL za low/high minúty je zásah PO vyplnení (N-CORE-2)
+                        hit = fill.exit(sub.time, sub.open, sub.high, sub.low, is_long=open_trade.is_long,
+                                        stop=active_stop, tp=float("inf") if open_trade.is_long else float("-inf"))
+                        if hit is not None and hit[1]:
+                            open_trade.max_price = max(open_trade.max_price, sub.high)
+                            open_trade.min_price = min(open_trade.min_price, sub.low)
+                            open_trade.exit, open_trade.close_ms, open_trade.reason = hit[0], sub.time, "stop_loss"
+                            open_trade.fee_close = fill.side_fee(hit[0], maker=False)
+                            trades.append(open_trade)
+                            open_trade = None
+                    break
+                if odmietnute:
+                    rejected += len(odmietnute)
+                    pending_entries = [x for x in pending_entries if x not in odmietnute]
+            elif open_trade is None and pending_entries:
                 for live in pending_entries:
                     px = _entry_fill(sub, live, first_minute=(k == 0))
                     if px is None:
@@ -369,6 +425,21 @@ def emulate(
             open_trade.max_price = max(open_trade.max_price, sub.high)
             open_trade.min_price = min(open_trade.min_price, sub.low)
             if open_trade.open_ms == sub.time and not filled_now:
+                continue
+            if fill is not None:
+                h2 = fill.exit(sub.time, sub.open, sub.high, sub.low, is_long=open_trade.is_long, stop=active_stop,
+                               tp=active_tp)
+                if h2 is None:
+                    continue
+                px, is_sl, amb = h2
+                reason = ("trailing_stop" if active_stop != open_trade.stop_initial else "stop_loss") if is_sl else "take_profit"
+                open_trade.fee_close = fill.side_fee(px, maker=not is_sl)
+                ambiguous += int(amb)
+                open_trade.exit, open_trade.close_ms, open_trade.reason = px, sub.time, reason
+                open_trade.stop_last = active_stop
+                _swap(open_trade, fill)
+                trades.append(open_trade)
+                open_trade = None
                 continue
             hit = _exit_fill(sub, open_trade, active_stop, active_tp)
             if hit is None:
@@ -403,6 +474,10 @@ def emulate(
         if out.close_session and open_trade is not None:
             open_trade.exit, open_trade.close_ms, open_trade.reason = bar.close, bar.time, "session_end"
             open_trade.stop_last = active_stop
+            if fill is not None:   # výstup v čase: open nasledujúcej minúty (= close baru) so sklzom marketu
+                open_trade.exit = fill.market(bar.time + step, bar.close, buy=not open_trade.is_long)
+                open_trade.fee_close = fill.side_fee(open_trade.exit, maker=False)
+                _swap(open_trade, fill)
             trades.append(open_trade)
             open_trade = None
         if open_trade is not None and out.exit_plan is not None:
@@ -426,13 +501,19 @@ def emulate(
     if open_trade is not None:  # koniec dát s otvorenou pozíciou -> zavrieť na poslednom close
         open_trade.exit, open_trade.close_ms, open_trade.reason = last_close, chart[-1].time, "force_exit"
         open_trade.stop_last = active_stop
+        if fill is not None:
+            open_trade.exit = fill.market(chart[-1].time + step, last_close, buy=not open_trade.is_long)
+            open_trade.fee_close = fill.side_fee(open_trade.exit, maker=False)
+            _swap(open_trade, fill)
         trades.append(open_trade)
 
-    out_log(f"hotovo: {len(trades)} obchodov, nerozhodnutelnych minut {ambiguous}")
+    out_log(f"hotovo: {len(trades)} obchodov, nerozhodnutelnych minut {ambiguous}"
+            + (f", odmietnutych limitiek za trhom {rejected}" if rejected else "")
+            + (f" (fill v2 {fill.instrument})" if fill is not None else ""))
     result = EmulationResult(
         trades=trades, bars=len(chart), first_ms=chart[0].time if chart else None,
         last_ms=chart[-1].time if chart else None, first_close=first_close, last_close=last_close,
-        ambiguous=ambiguous, daily_closes=[(d * 86_400_000, c) for d, c in sorted(daily.items())],
+        ambiguous=ambiguous, daily_closes=[(d * 86_400_000, c) for d, c in sorted(daily.items())], rejected=rejected,
     )
     return result, runner
 
@@ -454,9 +535,11 @@ def rows_from_trades(trades: list[EmuTrade], inst: InstrumentSpec, fee: float, l
         if t.exit is None or t.close_ms is None:
             continue
         # peniaze obchodu: jedna definícia pre oba enginy (tradebot.core.money)
+        f_open = fee if t.fee_open is None else t.fee_open
+        f_close = f_open if t.fee_close is None and t.fee_open is None else (fee if t.fee_close is None else t.fee_close)
         m = trade_money(t.entry, t.exit, t.qty, is_short=not t.is_long,
-                        point_value=inst.point_value, fee_open=fee)
-        profit = m.net
+                        point_value=inst.point_value, fee_open=f_open, fee_close=f_close)
+        profit = m.net - t.extra_cost
         stake = m.notional_open / lev
         rows.append({
             "open_date": _iso(t.open_ms), "close_date": _iso(t.close_ms),
@@ -466,12 +549,12 @@ def rows_from_trades(trades: list[EmuTrade], inst: InstrumentSpec, fee: float, l
             "stake_amount": round(stake, 4), "leverage": lev,
             "profit_abs": round(profit, 4), "profit_ratio": round(profit / stake, 6) if stake else 0.0,
             "exit_reason": t.reason, "enter_tag": t.order_id, "is_short": not t.is_long,
-            "fee_open": fee, "fee_close": fee, "funding_fees": 0.0,
+            "fee_open": f_open, "fee_close": f_close, "funding_fees": 0.0,
             "trade_duration": int((t.close_ms - t.open_ms) / MIN_MS),
             "initial_stop_loss_abs": t.stop_initial, "stop_loss_abs": t.stop_last,
             "initial_take_profit_abs": t.take_profit,
             "max_rate": t.max_price, "min_rate": t.min_price,
-            "gross_abs": round(m.gross, 4), "fees_abs": round(m.fees, 4),
+            "gross_abs": round(m.gross, 4), "fees_abs": round(m.fees + t.extra_cost, 4),
             "order_type": "market" if t.market else "limit",
         })
     return rows

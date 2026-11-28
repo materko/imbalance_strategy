@@ -180,6 +180,13 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 - **Spread CFD z histórie brokera (V2 U3)** (28. 11.): skript MT5 `TradeBotSpreadExport` (CopyTicks, spread M1) a
   `python -m tester.spread history`. Výsledok je p50/p75/p95 po 30-min úsekoch New Yorku, v seanse, pri otvorení,
   pri správach a mimo seansy, s porovnaním proti tabuľke §3. Živý spread z telemetrie `m1` ide do `data/live/spread/`.
+- **Fill v2 v emulátore MultiCharts (V2 U4)** (28. 11.): `--fill v2` (Python `tradebot.core.fill` aj C# `FillV2`,
+  parita bar po bare pre všetky C# stratégie).
+  - **Futures:** tick, náklad a sklz z tabuľky `tradebot/core/fill_v2.json`; limit a TP sa plnia až pri prechode o
+    tick, SL a stop vstup so sklzom.
+  - **CFD:** bid + spread podľa okna NY (seansa, otvorenie, správy); limitka za trhom sa neplní, swap za noc.
+  - **Predvolené** ostáva v1 (golden testy), kým v2 neschváliš. Report v1 proti v2:
+    [docs/merania/2026-11-28-fill-v2.md](docs/merania/2026-11-28-fill-v2.md).
 - **Brány a stav SMERNICE V2 (U8–U10)** (28. 11.):
   - **Walk-forward:** `tester.walkforward` — 18/24 mes. učenie, 6 mes. test v L, zámok, PF OOS ≥ 1,15, WFE ≥ 0,5,
     ≥ 75 % kúskov v pluse, stabilita parametrov.

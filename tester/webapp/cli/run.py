@@ -71,6 +71,16 @@ def _prepare(args: argparse.Namespace, *, check_engine: bool = True) -> tuple[di
         "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m",
         "profile": args.profile,
     }
+    if getattr(args, "fill", "v1") == "v2":
+        if engine != engines.MULTICHARTS:
+            raise SystemExit("--fill v2 je len pre emulátor MultiCharts (--engine multicharts); Freqtrade sa nemení")
+        from tradebot.core.fill import model_for
+
+        try:
+            model_for(instrument_for_pair(pair), "v2", news=())
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+        settings["fill"] = "v2"
     return params, settings
 
 

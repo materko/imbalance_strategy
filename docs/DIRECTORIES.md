@@ -305,6 +305,7 @@ tester/
 ├── checkup.py, analytics.py, character.py   baseline analytics and verdict, trade group analysis, strategy character
 ├── nulltest.py, decay.py, montecarlo.py, plateau.py, regime.py   vs. random, fading edge, Monte Carlo, plateau, market regime
 ├── robust.py, overfit.py   SMERNICA V2 gates: 2× cost, late entry, ATR terciles, DSR at N/N_eff; PBO (CSCV 16), Harvey–Liu haircut, Sortino, status
+├── compare/fill_report.py   fill v1 vs v2 report (PF, trades, TP touches) for U4 acceptance
 ├── walkforward.py           SMERNICA V2 walk-forward: 18/24-month train, 6-month test within L, lock, gates
 ├── register.py              SMERNICA V2 register: hypothesis headers, attempts and budget, vaults with locks and initial k
 ├── trade_metrics.py, trade_features.py, trade_splits.py   basic numbers, trade features, splitting into groups

@@ -95,3 +95,25 @@ Testy:
 - `test_ninjatrader_faults.py`: AddOn v simulátore porúch.
 
 Preklad: MetaEditor (`IBSNet.mq5`, `TradeBotExecutor.mq5`) a NT adaptéry proti DLL NinjaTradera 8.
+
+## Akceptácia na deme — postup (robí používateľ)
+
+Na demo účte (nie Server3, nie `nas-win11`), napríklad FTMO-Demo. Cez víkend obchoduje len krypto (BTCUSD).
+
+1. `python -m tradebot.adapters.mt5 install` — nová `TradeBot.dll` (fasáda 7), EA a exekútor do terminálu.
+2. Na graf BTCUSD M3 daj EA stratégie (napr. `IBSNet`) a v inputoch nastav:
+   - `InpDailyStop=true`, `InpDailyStopPct=0.05` (malý prah, aby ho spustil už spread a pohyb);
+   - `InpDailyStopZone=Europe/Prague`, `InpDailyStopTime` = o ~15 min viac než teraz (test resetu);
+   - `InpMaxOpenRiskPct=1.5`.
+3. Ručne otvor malú pozíciu bez SL na inom symbole (napr. ETHUSD) a malú so SL na BTCUSD.
+   - Do ~7 s: pozícia bez SL sa nezatvorí (nie je TradeBotu), ale nový vstup EA sa odmietne s `risk`
+     („otvorená pozícia bez SL“) — v Experts logu a v telemetrii `account_guard risk`.
+4. Počkaj, kým equity klesne o 0,05 % (alebo ho dorovnaj stratovou pozíciou). V logu `ZASTAVENE`, `account_guard daily_stop`.
+   Do ~15 s sa zavrú **všetky** pozície účtu (aj ručná ETHUSD) a zrušia všetky čakajúce príkazy.
+5. Otvor ručne novú pozíciu: do ~15 s sa znova zavrie (účet je zastavený). Vstup EA sa neodošle (`account_guard blocked`).
+6. Zavri terminál a spusti ho znova: v logu hneď `ZASTAVENE` (stav zo súboru `Common\Files\TradeBot\state\dailystop_…json`).
+7. Po čase z kroku 2 (reset): log „nový obchodný deň“, nové vstupy prejdú.
+8. Vráť `InpDailyStopPct=4.0` a `InpDailyStopTime=00:00`.
+
+Výsledok zapíš do `docs/merania/<dátum>-denny-stop-demo.md` (čo prešlo, časy z logu). NinjaTrader to isté na Sim
+účte: chart stratégia, skupina **Denný stop**, `Denný stop (%)` 0,05.
