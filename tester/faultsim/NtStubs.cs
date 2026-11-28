@@ -77,11 +77,20 @@ namespace NinjaTrader.Sim
             return "";
         }
 
+        public static readonly List<NinjaTrader.Data.MarketData> MarketData = new List<NinjaTrader.Data.MarketData>();
+        /// <summary>Polovica spreadu okolo zavretia baru, ktoru simulator posiela ako bid/ask.</summary>
+        public static double HalfSpread = 0.25;
+
         public static void AddBar(DateTime close, double o, double h, double l, double c)
         {
             Bars.Add(new double[] { o, h, l, c, 100.0 });
             BarTimes.Add(close);
             LastPrice = c;
+            foreach (NinjaTrader.Data.MarketData m in MarketData.ToArray())
+            {
+                m.Raise(NinjaTrader.Data.MarketDataType.Bid, c - HalfSpread, DateTime.SpecifyKind(Now, DateTimeKind.Unspecified));
+                m.Raise(NinjaTrader.Data.MarketDataType.Ask, c + HalfSpread, DateTime.SpecifyKind(Now, DateTimeKind.Unspecified));
+            }
         }
 
         public static void RaiseBars(int index)
@@ -119,6 +128,7 @@ namespace NinjaTrader.Cbi
     public enum ConnectionStatus { Connected, Connecting, ConnectionLost, Disconnected, Disconnecting }
     public enum ErrorCode { NoError, OrderRejected, UnableToCancelOrder, UnableToChangeOrder, Panic }
     public enum Currency { UsDollar, Euro }
+    public enum AccountItem { CashValue, NetLiquidation, RealizedProfitLoss, UnrealizedProfitLoss }
 
     public sealed class MasterInstrument
     {
@@ -218,6 +228,20 @@ namespace NinjaTrader.Cbi
         public string Name = "";
         public ConnectionStatus ConnectionStatus = ConnectionStatus.Connected;
         public Connection Connection = new Connection();
+        public Currency Denomination = Currency.UsDollar;
+        /// <summary>Equity uctu (denny stop, docs/DAILY_STOP.md) - simulator ju nemeni.</summary>
+        public double NetLiquidation = 100000.0;
+        /// <summary>Balance uctu (zaklad denneho stopu max(balance, equity), SMERNICA V2 U1).</summary>
+        public double CashValue = 100000.0;
+        public double Get(AccountItem item, Currency currency)
+        {
+            return item == AccountItem.NetLiquidation ? NetLiquidation : (item == AccountItem.CashValue ? CashValue : 0.0);
+        }
+        /// <summary>Flatten uctu (denny stop zatvara vsetky instrumenty) - simulator ho len zapise.</summary>
+        public void Flatten(ICollection<Instrument> instruments)
+        {
+            foreach (Instrument i in instruments) Requests.Add("flatten " + i.FullName);
+        }
         public readonly Collection<Order> Orders = new Collection<Order>();
         public readonly Collection<Execution> Executions = new Collection<Execution>();
         private readonly Collection<Position> _positions = new Collection<Position>();
@@ -442,6 +466,28 @@ namespace NinjaTrader.Data
     }
 
     public sealed class Bars : BarsSeries { }
+
+    public enum MarketDataType { Ask, Bid, Last }
+
+    public sealed class MarketDataEventArgs : EventArgs
+    {
+        public MarketDataType MarketDataType;
+        public double Price;
+        public DateTime Time;
+    }
+
+    /// <summary>L1 kurz instrumentu: simulator posiela len posledny bid/ask z `World` (`Quote`).</summary>
+    public sealed class MarketData
+    {
+        public MarketData(NinjaTrader.Cbi.Instrument instrument) { NinjaTrader.Sim.World.MarketData.Add(this); }
+        public event EventHandler<MarketDataEventArgs> Update;
+
+        public void Raise(MarketDataType type, double price, DateTime time)
+        {
+            EventHandler<MarketDataEventArgs> h = Update;
+            if (h != null) h(this, new MarketDataEventArgs { MarketDataType = type, Price = price, Time = time });
+        }
+    }
 
     public sealed class BarsUpdateEventArgs : EventArgs
     {

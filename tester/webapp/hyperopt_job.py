@@ -276,7 +276,7 @@ class HyperoptJobMixin:
         zadanie = settings["hyperopt"]
         okna = list(zadanie.get("windows") or [])
         if len(okna) < 2:
-            okna = list(ho.REFERENCE_WINDOWS)
+            okna = ho.windows_for(settings.get("pair"))
         anchored = bool(zadanie.get("anchored"))
         spolu = int(zadanie.get("epochs") or ho.DEFAULT_EPOCHS)
         foldov = len(okna) - 1
@@ -357,7 +357,7 @@ class HyperoptJobMixin:
         okna = list(zadanie.get("windows") or []) or [settings["timerange"]]
         walk = zadanie.get("mode") == "walkforward"
         if walk and len(okna) < 2:
-            okna = list(ho.REFERENCE_WINDOWS)
+            okna = ho.windows_for(settings.get("pair"))
         celkom = spolu * (len(okna) - 1) if walk else spolu
         popis = (f"walk-forward {len(okna) - 1} foldov" if walk else
                  (f"{len(okna)} okien ({zadanie.get('aggregate') or 'min'})" if len(okna) > 1 else settings["timerange"]))
@@ -454,7 +454,7 @@ class HyperoptJobMixin:
         najdene = ho.overrides(plan, vitaz.params)
         # natívny hyperopt ladí aj na viacerých oknách naraz - všetky sú „ladené"
         ladene_okna = list((job.settings.get("hyperopt") or {}).get("windows") or []) or [job.settings["timerange"]]
-        okna = ladene_okna + [w for w in ho.REFERENCE_WINDOWS if w not in ladene_okna]
+        okna = ladene_okna + [w for w in ho.windows_for(job.settings.get("pair")) if w not in ladene_okna]
         popis = ", ".join(f"{k}={v}" for k, v in najdene.items())
         for okno in okna:
             settings = {k: v for k, v in job.settings.items() if k != "hyperopt"}

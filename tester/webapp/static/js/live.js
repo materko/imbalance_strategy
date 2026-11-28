@@ -1305,7 +1305,8 @@ function renderLiveAccounts(deps) {
   $("#ld-accounts tbody").innerHTML = list.map(a => {
     const bezi = ldActiveOn(a.id).length;
     const plat = LD_PLATFORMS[a.platform];
-    return `<tr class="plain" data-acc="${esc(a.id)}"><td>${esc(a.label)} <span class="muted small"><code>${esc(a.id)}</code></span></td>
+    const stop = a.daily_stop ? ` <span class="muted small" title="denný stop účtu: od ${esc(a.daily_stop.time)} ${esc(a.daily_stop.zone)}">· stop −${esc(String(a.daily_stop.pct))} %</span>` : "";
+    return `<tr class="plain" data-acc="${esc(a.id)}"><td>${esc(a.label)} <span class="muted small"><code>${esc(a.id)}</code></span>${stop}</td>
       <td>${esc(plat ? plat.title : a.platform)}</td><td>${esc(a.login)}</td><td>${esc(a.server || "—")}</td>
       <td>${ldSecretCell(a)}</td><td>${ldAccountUsage(a, deps)}</td>
       <td style="white-space:nowrap"><button class="small" data-edit="1" ${ld.admin ? "" : "disabled"}>upraviť</button>
@@ -1504,7 +1505,16 @@ function ldAccountForm() {
   return { platform, label: $("#ld-a-label").value.trim(), login: $(`#ld-a-login-${sfx}`).value.trim(),
            server: $(`#ld-a-server-${sfx}`).value.trim(),
            symbols: platform === "mt5" ? ldParseAliases($("#ld-a-symbols").value) : null,
+           daily_stop: ldDailyStopForm(),
            password: (LD_PLATFORMS[platform] || {}).password ? $("#ld-a-password").value : "" };
+}
+
+/** Denný stop účtu z formulára (docs/DAILY_STOP.md) — tvar ako `normalize_daily_stop` v hube; null = vypnutý. */
+function ldDailyStopForm() {
+  const pct = $("#ld-a-stop-pct").value.trim();
+  if (!pct) return null;
+  return { pct: Number(pct), zone: $("#ld-a-stop-zone").value.trim() || "America/New_York",
+           time: $("#ld-a-stop-time").value.trim() || "18:00" };
 }
 
 /** `NAS100=US100.cash, XAUUSD=XAUUSD.r` → {NAS100: "US100.cash", …} (aliasy symbolov MT5 účtu pre route). */
@@ -1520,7 +1530,8 @@ function ldAliasesText(map) { return Object.entries(map || {}).map(([k, v]) => `
 
 function ldResetAccountForm(status = "") {
   ld.editing = null;
-  for (const id of ["#ld-a-label", "#ld-a-id", "#ld-a-login-mt5", "#ld-a-server-mt5", "#ld-a-login-nt", "#ld-a-server-nt", "#ld-a-password", "#ld-a-symbols"]) $(id).value = "";
+  for (const id of ["#ld-a-label", "#ld-a-id", "#ld-a-login-mt5", "#ld-a-server-mt5", "#ld-a-login-nt", "#ld-a-server-nt", "#ld-a-password", "#ld-a-symbols",
+                    "#ld-a-stop-pct", "#ld-a-stop-zone", "#ld-a-stop-time"]) $(id).value = "";
   $("#ld-a-id").disabled = false; $("#ld-a-platform").disabled = false;
   $("#ld-a-title").textContent = "Pridať účet";
   $("#ld-a-submit").textContent = "Pridať účet";
@@ -1547,6 +1558,9 @@ function ldEditAccount(id) {
   $(`#ld-a-server-${sfx}`).value = a.server || "";
   $("#ld-a-password").placeholder = a.secret ? "uložené — nechať prázdne = nemeniť" : "";
   $("#ld-a-symbols").value = ldAliasesText(a.symbols);
+  $("#ld-a-stop-pct").value = a.daily_stop ? String(a.daily_stop.pct) : "";
+  $("#ld-a-stop-zone").value = a.daily_stop ? a.daily_stop.zone : "";
+  $("#ld-a-stop-time").value = a.daily_stop ? a.daily_stop.time : "";
   $("#ld-a-title").textContent = `Upraviť účet ${a.label}`;
   $("#ld-a-submit").textContent = "Uložiť zmeny";
   $("#ld-a-cancel").hidden = false;
@@ -1563,6 +1577,7 @@ async function ldSaveAccount() {
     if (!ld.editing) {
       btn.disabled = true; $("#ld-a-status").textContent = "posielam na hub…";
       const body = { ...f, id: $("#ld-a-id").value.trim() || null, password: f.password || null, user: ldUser() };
+      if (!body.daily_stop) delete body.daily_stop;
       const a = await api("/api/live/accounts", { method: "POST", body: JSON.stringify(body) });
       ldResetAccountForm(`účet ${a.id} pridaný${a.secret ? " — heslo je na hube, stroje ho dostanú s prvým nasadením" : ""}`);
       await loadLiveDeploy();
@@ -1574,10 +1589,17 @@ async function ldSaveAccount() {
     for (const k of ["platform", "label", "login", "server"]) if (f[k] !== (a[k] || "")) zmena[k] = f[k];
     if (f.password) zmena.password = f.password;
     if (f.symbols && JSON.stringify(f.symbols) !== JSON.stringify(a.symbols || {})) zmena.symbols = f.symbols;
+    // denný stop: hub vráti pct ako číslo, porovnáva sa po prevode
+    const stopText = s => s ? `${Number(s.pct)}|${s.zone}|${s.time}` : "";
+    if (stopText(f.daily_stop) !== stopText(a.daily_stop)) zmena.daily_stop = f.daily_stop || { on: false };
     if (!Object.keys(zmena).length) { ldResetAccountForm("bez zmeny"); return; }
     // nové prihlásenie (login, server, heslo) = stroje inštancie zastavia, prihlásia sa znova a spustia
     const prihlasenie = ["platform", "login", "server", "password"].some(k => k in zmena);
     const bezi = ldActiveOn(a.id);
+    if (!prihlasenie && "daily_stop" in zmena && bezi.length) {
+      if (!confirm(`Denný stop sa na platforme načíta pri štarte inštancie — ${ldPocet(bezi.length, "inštancia", "inštancie", "inštancií")} na účte „${a.label}“ `
+        + `sa v najbližšom heartbeate reštartuje (pozície u brokera ostávajú). Pokračovať?`)) return;
+    }
     if (prihlasenie && bezi.length) {
       const zoznam = bezi.map(d => `• ${d.strategy} ${d.symbol} ${d.tf}m na ${d.agent} (${LD_MODE_LABEL[d.mode] || d.mode})`).join("\n");
       if (!confirm(`Na účte „${a.label}“ beží ${ldPocet(bezi.length, "inštancia stratégie", "inštancie stratégií", "inštancií stratégií")}:\n${zoznam}\n\n`

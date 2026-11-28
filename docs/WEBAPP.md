@@ -172,6 +172,35 @@ zastavené (vo formulári Nový beh je LIVE ďalej skupina C# portov). Poradie:
 zisk na drawdown, výkon (zisk), RR, naživo nasadené najprv, profily zo smernice, počet profilov,
 posledný beh. Stratégie bez dobrého behu a bez profilu zo smernice sú v zbalenom bloku pod mriežkou.
 
+**Stav a stĺpce SMERNICE V2** (U10, 28. 11. 2026; [SMERNICA_TESTOVANIA.md](SMERNICA_TESTOVANIA.md) §5):
+
+- **Štítok na karte:** stav rodiny = najlepší stav jej profilov — **✅** schválená (brány, trezor a podpis
+  používateľa), **🟡** demo (brány prešli, bez trezoru, legacy alebo zo štúdie), **⏳** chýba meranie alebo PF po
+  haircute < 1,10, **⚠** legacy so zápornou správou, **❌** uzavretá; **— nezmerané**, kým stav nikto nespočítal.
+  ● BEŽÍ / ■ ZASTAVENÁ sú zvlášť (nasadenia).
+- **Filter Stav** má tie isté stavy s počtom. **Zoradiť → stav (V2)** (predvolené): najprv stav, potom PF po haircute
+  z L a WF — nikdy podľa roka A ani trezoru.
+- **Panel Profily** má stĺpce:
+  - Stav;
+  - PF v2 (náklady fill v2);
+  - PF po haircute (Harvey–Liu);
+  - DSR pri N_eff / N;
+  - PBO;
+  - N / N_eff;
+  - t / t_req a k trezoru;
+  - Sortino (WF OOS a trezory);
+  - obchody za rok;
+  - MC 95 % DD;
+  - iné trhy (príbuzný / iný typ);
+  - rok A — sivou, len kontrola.
+
+  Hodnota, ktorá nesplní bránu, je **červená**, nespočítaná **„—“** (nikdy 0). Pri legacy majú DSR, PBO a haircut značku
+  „info“.
+- **Odkiaľ sú čísla:** stav aj stĺpce počíta skript (`python -m tester.robust … --hypothesis <h> --hyperopt wf.json
+  --save` → `_robust` v profile so značkou `smernica: V2`). Webapp nič neodhaduje; staré `_robust` spred V2 sa neukazuje.
+- **Hyperopt len na L trhu:** ladenie aj walk-forward, ktoré siahajú na trezor B, rok A alebo C trhu zo SMERNICE V2 §1
+  (MNQ, MYM, ES, MGC, 6E, BTC), webapp odmietne s chybou ([REGISTER.md](REGISTER.md)). Overenie víťaza beží na L po rokoch.
+
 **Hodnotenie stratégie** — klik kamkoľvek na kartu (alebo tlačidlo „Hodnotenie") otvorí okno so všetkým,
 čo o stratégii s daným profilom vieme; profil (aj profily C# portov) sa prepína hore v okne, predvolený je
 profil **naj** z karty. Dáta dáva `/api/catalog/<kľúč>/report?profile=…` (`tester/webapp/api/catalog_report.py`),

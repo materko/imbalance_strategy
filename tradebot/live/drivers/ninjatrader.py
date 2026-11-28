@@ -217,6 +217,9 @@ class NinjaTraderDriver(Driver):
             entry = {"deployment": dep.id, "instance": self.instance_of(account, dep),
                      "connection": account.server, "account": account.login, "instrument": dep.symbol,
                      "tf": dep.tf, "strategy": dep.strategy, "profile": dep.profile}
+            stop = account.daily_stop
+            if stop is not None:
+                entry["daily_stop"] = stop   # docs/DAILY_STOP.md; pri route ho AddOn nepoužije (účet je v MT5)
             route = dep.route
             if route:
                 # ordery do MT5 exekútora (docs/ROUTING.md) — AddOn ich pošle cez bridge, NT dá len dáta

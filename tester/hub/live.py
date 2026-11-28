@@ -154,6 +154,9 @@ class AccountRequest(BaseModel):
     password: str | None = None
     #: MT5: aliasy symbolov brokera pre route nasadení NinjaTradera (`{"NAS100": "US100.cash"}`, docs/ROUTING.md).
     symbols: dict[str, str] | None = None
+    #: Denný stop účtu (docs/DAILY_STOP.md): `{"pct": 4, "zone": "America/New_York", "time": "18:00"}`;
+    #: vypnúť `{"on": false}` (None = nemeniť).
+    daily_stop: dict[str, Any] | None = None
 
     def fields(self) -> dict[str, Any]:
         return {k: v for k, v in self.model_dump().items()

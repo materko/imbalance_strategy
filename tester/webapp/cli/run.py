@@ -210,9 +210,55 @@ def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
 
 
 def cmd_run(args: argparse.Namespace) -> int:
+    from ... import register as rg
+
+    vault = getattr(args, "vault", None)
+    hyp = getattr(args, "hypothesis", None)
+    if vault and not hyp:
+        raise SystemExit("--vault potrebuje --hypothesis (trezor sa otvára raz na hypotézu)")
+    if vault:
+        # obdobie trezoru dosadí register; pár sa pozná až z profilu, preto najprv provizórne
+        args.timerange = "20220101-20220102"
     params, settings = _prepare(args)
-    rec = _execute(args, params, settings, args.note or "")
+    market = rg.market_of(settings.get("pair"))
+    if vault:
+        if market is None:
+            raise SystemExit(f"pár {settings.get('pair')} nemá v SMERNICI V2 §1 trezor")
+        keys = [x.strip() for x in (args.keys or args.strategy).split(",") if x.strip()]
+        try:
+            otvorene = rg.open_vault(hyp, market, vault, keys)
+        except rg.RegisterError as e:
+            raise SystemExit(str(e))
+        settings["timerange"] = rg.vault_timerange(market, vault)
+        print(f"trezor {market} {vault} otvorený pre {hyp}: {settings['timerange']}, k {otvorene['k']}, "
+              f"t_req {otvorene['t_req']:.2f}" + ("" if otvorene["regime_measured"] else
+                                                   " (iný režim nie je zmeraný -> najviac ⏳)"), flush=True)
+    elif hyp:
+        try:
+            rg.require_header(hyp)
+            rg.check_search(settings["timerange"], settings.get("pair"), "pokus")
+        except rg.RegisterError as e:
+            raise SystemExit(str(e))
+    elif not args.timerange:
+        raise SystemExit("--timerange je povinné (bez neho len s --vault)")
+    note = args.note or ""
+    if vault:
+        note = f"[{hyp}: trezor {market} {vault}, k {otvorene['k']}, t_req {otvorene['t_req']:.2f}] {note}".strip()
+    elif hyp:
+        note = f"[{hyp}] {note}".strip()
+    rec = _execute(args, params, settings, note)
     if rec.get("status") == "queued":
+        if hyp and not vault:
+            print("POZOR: beh vo fronte sa do registra nezapíše sám — po dobehnutí ho zapíš ručne", file=sys.stderr)
         return 0
     print(fmt_summary(rec))
+    if hyp and not vault and rec.get("status") == "done":
+        from ..store import RunStore
+
+        try:
+            rg.append(hyp, rg.attempt_of_run(rec, RunStore().trades(rec["id"]), args.source))
+            print(f"zapísané do registra {hyp}: {rg.status(hyp)['budget_used']}/{rg.BUDGET} konfigurácií")
+        except rg.RegisterError as e:
+            print(f"POZOR: do registra sa nezapísalo: {e}", file=sys.stderr)
+            return 1
     return 0 if rec.get("status") == "done" else 1

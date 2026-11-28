@@ -36,6 +36,11 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "fill": ("ft", "id", "side", "price", "qty", "ready"),
     "stat": ("stats",),
     "note": ("text",),
+    #: Ochrana účtu (SMERNICA V2 U1.6, `LiveSpool.Guard`): `what` daily_stop / blocked / risk / no_sl / duplicate /
+    #: off, `text`, voliteľne `v` a `lim` (equity a hranica, riziko a limit).
+    "account_guard": ("what",),
+    #: Odmietnutý príkaz (V2 U2.6, `LiveSpool.Reject`): `rt` čas v ms, `id`, `code` brokera, `price`, `text`, kurz.
+    "reject": ("id",),
     #: Adaptér potvrdzuje, v akom režime beží (fáza 2, control súbor): `mode` enabled/paused/flatten,
     #: `profile` názov práve načítaného profilu, `source` odkiaľ (control/default).
     "control": ("mode",),
@@ -46,6 +51,14 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "bye": (),
 }
 CONTROL_MODES = ("enabled", "paused", "flatten")
+
+#: Predvolený denný stop účtu (docs/DAILY_STOP.md) — tie isté hodnoty ako `DailyStopRule` v C# jadre;
+#: SMERNICA V2 U1: −4 % od 00:00 Europe/Prague (FTMO).
+DAILY_STOP_PCT = 4.0
+DAILY_STOP_ZONE = "Europe/Prague"
+DAILY_STOP_TIME = "00:00"
+#: Najviac súčasného rizika do SL všetkých pozícií účtu a nového obchodu, % equity (V2 U1.2).
+MAX_OPEN_RISK_PCT = 1.5
 ORDER_ACTIONS = ("entry", "cancel", "close", "modify")
 KINDS = tuple(REQUIRED)
 #: Druhy, ktoré nečíslujú `seq` (opakujú posledné) — sklad ich nedrží ako udalosti behu.

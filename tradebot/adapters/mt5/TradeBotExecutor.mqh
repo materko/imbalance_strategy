@@ -33,6 +33,13 @@
 input int    InpTimerMs        = 50;      // Ako casto citat prikazy (ms)
 input int    InpDeviationPts   = 50;      // Povoleny sklz market orderov v bodoch symbolu
 input bool   InpLog            = true;    // Logovat kazdy prikaz do Experts logu
+// InpDailyStop je predvolene vypnuty len v exekutore: graf exekutora nasadzuje hub bez inputov, keď účet stop nemá -
+// zmena predvoľby by po preinštalovaní potichu zapla stop na živom exekútore (docs/DAILY_STOP.md). EA stratégie ho má zapnutý.
+input bool   InpDailyStop      = false;   // Denny stop uctu (SMERNICA V2 U1): equity o InpDailyStopPct % pod max(balance, equity) zo zaciatku dna = zavriet vsetky pozicie a prikazy uctu, do noveho dna nic
+input double InpDailyStopPct   = 4.0;     // ...pokles v % od zaciatku obchodneho dna; 0 = vypnuty
+input string InpDailyStopZone  = "Europe/Prague"; // ...casove pasmo zaciatku dna (IANA; CME/Apex: America/New_York)
+input string InpDailyStopTime  = "00:00"; // ...zaciatok obchodneho dna HH:MM v tom pasme (CME: 18:00)
+input double InpMaxOpenRiskPct = 1.5;     // Sucasne riziko uctu: sucet rizik do SL vsetkych pozicii a noveho vstupu najviac % equity, inak reject `risk`; 0 = vypnute
 
 const string ExecVersion   = "1";
 const int    NoStopGraceSec  = 2;
@@ -98,6 +105,7 @@ struct XOrder
    string closeWhy;     // close / life_close / flatten
    int    slFails;
    datetime noStopSince;
+   datetime noStopFirst;          // od kedy pozicia nema SL bez prerusenia (V2 U1.3: po 5 s zavriet trhom)
    bool   cancelWanted;
    string cancelWhy;
    datetime goneSince;  // od kedy vyplnena pozicia u brokera chyba bez dealu (0 = je tam) - len v pamati
@@ -124,6 +132,8 @@ int      g_symbolsTotal = -1;
 bool     g_hedging = false;
 bool     g_reconciled = false;  // stav spred restartu zladeny s brokerom (az po pripojeni terminalu)
 datetime g_connectedSince = 0;  // od kedy je terminal pripojeny k brokerovi (cas PC; 0 = nie je)
+bool     g_dailyStopped = false; // denny stop uctu: dnes zastaveny - vstupy sa odmietaju, route sa zatvaraju
+string   g_dailyStopDay = "";    // den (UTC), v ktorom sa zastavenie uz hlasilo
 
 //+------------------------------------------------------------------+
 //| Pomocne                                                          |
@@ -867,6 +877,7 @@ void HandleEntry(int r, CJson *c)
 
    long exp = (long)c.Dbl("exp");
    if(exp > 0 && now > exp) { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", "expired: prikaz prisiel neskoro (" + IntegerToString((now - exp) / 1000) + " s po termine)"); return; }
+   if(g_dailyStopped) { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", "daily_stop: denny stop uctu - do noveho obchodneho dna ziadne vstupy"); return; }
    if(g_routes[r].state != "ok") { Emit(route, "reject", cid, id, "", 0, 0, 0, 0, 0, "", g_routes[r].state + ": " + g_routes[r].detail); return; }
    bool same = g_routes[r].price == "same";
    double refNt = c.Dbl("ref"), refExec = Mid(sym);
@@ -887,6 +898,14 @@ void HandleEntry(int r, CJson *c)
    if(o.lots <= 0)
      { Emit(route, "reject", cid, id, "", 0, 0, o.q, 0, 0, "", StringFormat("objem %.2f kontraktov je na %s pod minimom lotov", o.q, sym)); return; }
 
+   if(InpMaxOpenRiskPct > 0)
+     {
+      double px = o.ot == "Market" ? SymbolInfoDouble(sym, o.dir > 0 ? SYMBOL_ASK : SYMBOL_BID) : o.entry;
+      string risk = StaticHost::OpenRiskVerdict(OpenRisk(), StaticHost::PositionRisk(px, o.sl0, o.lots, ValuePerPoint(sym)),
+                                                AccountInfoDouble(ACCOUNT_EQUITY), InpMaxOpenRiskPct);
+      if(risk != "")
+        { Emit(route, "reject", cid, id, "", o.entry, o.ntEntry, o.q, o.lots, 0, "", "risk: " + risk + " (InpMaxOpenRiskPct, SMERNICA V2 U1.2)"); return; }
+     }
    g_trade.SetExpertMagicNumber((ulong)g_routes[r].magic);
    g_trade.SetTypeFillingBySymbol(sym);
    g_trade.SetDeviationInPoints(InpDeviationPts);
@@ -1082,6 +1101,121 @@ void CancelEntry(int i, string cid, string why)
    if(!g_xo[i].cancelWanted) Note(route, "error", "vstup " + id + " sa neda zrusit: " + TradeErr() + " - skusam znova");
    g_xo[i].cancelWanted = true;
    g_xo[i].cancelWhy = why;
+  }
+
+/// Stav denneho stopu je za ucet spolocny s EA strategii na tom istom ucte (docs/DAILY_STOP.md):
+/// ten isty kluc uctu a ten isty subor v Common\Files\TradeBot\state.
+string DailyStopDir() { return TerminalInfoString(TERMINAL_COMMONDATA_PATH) + "\\Files\\TradeBot\\state"; }
+string DailyStopAccount() { return "mt5-" + IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "-" + AccountInfoString(ACCOUNT_SERVER); }
+
+bool DailyStopOn() { return InpDailyStop && InpDailyStopPct > 0; }
+
+CTrade   g_sweep;
+
+/// Denny stop: zavriet vsetky pozicie a zrusit vsetky prikazy uctu okrem route (tie zatvara DailyStopCheck so
+/// zaznamom pre mastera) - aj EA strategii a rucne (SMERNICA V2 U1); najviac raz za 2 s.
+void FlattenAccount()
+  {
+   // raz za 5 s na ucet v celom terminali (vsetky EA aj exekutor) - inak by dva zatvaracie prikazy poziciu otocili
+   if(StaticHost::DailyStopSweepDue(DailyStopDir(), DailyStopAccount(), InpDailyStopPct, InpDailyStopZone, InpDailyStopTime, (long)TimeGMT() * 1000) != 1) return;
+   for(int p = PositionsTotal() - 1; p >= 0; p--)
+     {
+      ulong ticket = PositionGetTicket(p);
+      if(ticket == 0 || RouteOfMagic(PositionGetInteger(POSITION_MAGIC)) >= 0) continue;
+      string sym = PositionGetString(POSITION_SYMBOL);
+      g_sweep.SetTypeFillingBySymbol(sym);
+      g_sweep.SetDeviationInPoints(InpDeviationPts);
+      if(!g_sweep.PositionClose(ticket))
+         Print("TradeBot exekutor: denny stop - pozicia ", ticket, " ", sym, " sa nezavrela: ", g_sweep.ResultRetcode(), " ", g_sweep.ResultRetcodeDescription());
+     }
+   for(int o = OrdersTotal() - 1; o >= 0; o--)
+     {
+      ulong ticket = OrderGetTicket(o);
+      if(ticket == 0 || RouteOfMagic(OrderGetInteger(ORDER_MAGIC)) >= 0) continue;
+      if(!g_sweep.OrderDelete(ticket))
+         Print("TradeBot exekutor: denny stop - prikaz ", ticket, " sa nezrusil: ", g_sweep.ResultRetcode(), " ", g_sweep.ResultRetcodeDescription());
+     }
+  }
+
+int RouteOfMagic(long magic)
+  {
+   for(int r = 0; r < ArraySize(g_routes); r++)
+      if(g_routes[r].magic == magic) return r;
+   return -1;
+  }
+
+/// Denny stop uctu (InpDailyStop, InpDailyStopPct > 0) raz za sekundu: ked je ucet dnes zastaveny (aj EA strategie
+/// na tom istom ucte), zrusi cakajuce vstupy a zavrie pozicie vsetkych route aj vsetko ostatne na ucte; nove vstupy
+/// odmieta (HandleEntry) s dovodom `daily_stop`.
+void DailyStopCheck()
+  {
+   if(!DailyStopOn()) { g_dailyStopped = false; return; }
+   if(!TerminalInfoInteger(TERMINAL_CONNECTED) || AccountInfoInteger(ACCOUNT_LOGIN) == 0) return;   // equity bez spojenia nesedi
+   long nowMs = (long)TimeGMT() * 1000;
+   double equity = AccountInfoDouble(ACCOUNT_EQUITY), balance = AccountInfoDouble(ACCOUNT_BALANCE);
+   int res = StaticHost::DailyStopCheckBal(DailyStopDir(), DailyStopAccount(), InpDailyStopPct, InpDailyStopZone, InpDailyStopTime, nowMs, equity, balance);
+   if(res < 0) { Print("TradeBot exekutor: DailyStopCheck - ", StaticHost::LastError()); return; }
+   bool was = g_dailyStopped;
+   g_dailyStopped = res == 1;
+   if(!g_dailyStopped) return;
+   string day = TimeToString(TimeGMT(), TIME_DATE);
+   if(!was && g_dailyStopDay != day)
+     {
+      g_dailyStopDay = day;
+      string text = StaticHost::DailyStopText(DailyStopDir(), DailyStopAccount(), InpDailyStopPct, InpDailyStopZone, InpDailyStopTime);
+      Print("TradeBot exekutor: ", text, " - zatvaram a rusim vsetko na ucte");
+      for(int r = 0; r < ArraySize(g_routes); r++) Note(g_routes[r].id, "warn", "account_guard daily_stop: " + text + " - exekutor zatvara a rusi vsetko na ucte");
+     }
+   for(int i = ArraySize(g_xo) - 1; i >= 0; i--)
+     {
+      if(i >= ArraySize(g_xo)) continue;
+      if(!g_xo[i].filled) { if(!g_xo[i].cancelWanted) CancelEntry(i, "", "daily_stop"); }
+      else if(g_xo[i].openLots > 0 && !g_xo[i].closing) { g_xo[i].closeWhy = "daily_stop"; ClosePosition(i); }
+     }
+   FlattenAccount();
+  }
+
+//--- sucasne riziko uctu (SMERNICA V2 U1.2) - to iste ako EA strategie (AccountGuard v jadre)
+
+double ValuePerPoint(string sym)
+  {
+   double tv = SymbolInfoDouble(sym, SYMBOL_TRADE_TICK_VALUE_LOSS), ts = SymbolInfoDouble(sym, SYMBOL_TRADE_TICK_SIZE);
+   if(tv <= 0) tv = SymbolInfoDouble(sym, SYMBOL_TRADE_TICK_VALUE);
+   return ts > 0 ? tv / ts : 0;
+  }
+
+/// SL vybranej pozicie: POSITION_SL, inak najvzdialenejsi cakajuci stop opacnym smerom na symbole; 0 = bez SL.
+double SelectedPositionStop()
+  {
+   double sl = PositionGetDouble(POSITION_SL);
+   if(sl > 0) return sl;
+   string sym = PositionGetString(POSITION_SYMBOL);
+   bool isLong = PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY;
+   double open = PositionGetDouble(POSITION_PRICE_OPEN), best = 0;
+   for(int o = 0; o < OrdersTotal(); o++)
+     {
+      ulong ticket = OrderGetTicket(o);
+      if(ticket == 0 || OrderGetString(ORDER_SYMBOL) != sym) continue;
+      if((ENUM_ORDER_TYPE)OrderGetInteger(ORDER_TYPE) != (isLong ? ORDER_TYPE_SELL_STOP : ORDER_TYPE_BUY_STOP)) continue;
+      double p = OrderGetDouble(ORDER_PRICE_OPEN);
+      if(best == 0 || MathAbs(open - p) > MathAbs(open - best)) best = p;
+     }
+   return best;
+  }
+
+double OpenRisk()
+  {
+   double sum = 0;
+   for(int p = 0; p < PositionsTotal(); p++)
+     {
+      if(PositionGetTicket(p) == 0) continue;
+      string sym = PositionGetString(POSITION_SYMBOL);
+      double open = PositionGetDouble(POSITION_PRICE_OPEN), vol = PositionGetDouble(POSITION_VOLUME);
+      double r = StaticHost::PositionRisk(open, SelectedPositionStop(), vol, ValuePerPoint(sym));
+      if(r < 0) return -1;
+      sum += r;
+     }
+   return sum;
   }
 
 void ClosePosition(int i)
@@ -1285,7 +1419,16 @@ void GuardStop(int i, datetime now)
   {
    if(!PositionSelectByTicket(g_xo[i].ticket)) return;
    bool missing = PositionGetDouble(POSITION_SL) <= 0 && g_xo[i].lastStop > 0;
-   if(!missing) { g_xo[i].noStopSince = 0; g_xo[i].slFails = 0; return; }
+   if(!missing) { g_xo[i].noStopSince = 0; g_xo[i].slFails = 0; g_xo[i].noStopFirst = 0; return; }
+   if(g_xo[i].noStopFirst == 0) g_xo[i].noStopFirst = now;
+   if(StaticHost::StopOverdue((long)g_xo[i].noStopFirst * 1000, (long)now * 1000, false) == 1 && !g_xo[i].closing)
+     {
+      Note(g_xo[i].route, "error", "account_guard no_sl: pozicia " + g_xo[i].id + " je bez SL u brokera " + IntegerToString((int)(now - g_xo[i].noStopFirst))
+           + " s - zatvaram trhom (SMERNICA V2 U1.3)");
+      g_xo[i].closeWhy = "no_stop";
+      ClosePosition(i);
+      return;
+     }
    if(g_xo[i].noStopSince == 0) { g_xo[i].noStopSince = now; return; }
    if(now - g_xo[i].noStopSince < NoStopGraceSec) return;
    if(g_xo[i].slFails >= MaxExitAttempts)
@@ -1349,6 +1492,16 @@ int OnInit()
    g_root = TerminalInfoString(TERMINAL_COMMONDATA_PATH) + "\\Files\\TradeBot";
    g_x = StaticHost::BridgeExecOpen(g_root, g_id);
    if(g_x < 0) { Print("TradeBot exekutor: ", StaticHost::LastError()); return INIT_FAILED; }
+   // DailyStopCheckBal a kontrola rizika (AccountGuard) su vo fasade od verzie 7
+   if(StaticHost::Version() < 7) { Print("TradeBot exekutor: potrebuje TradeBot.dll verzie 7 (denny stop, riziko uctu) - preinstaluj: python -m tradebot.adapters.mt5 install"); return INIT_FAILED; }
+   if(!DailyStopOn()) Print("TradeBot exekutor: POZOR, denny stop uctu je vypnuty - routovane vstupy nemaju poistku -4 % v exekutore (SMERNICA V2 U1)");
+   if(DailyStopOn())
+     {
+      // zle nastavenie = exekutor nebezi (nikdy potichu bez poistky)
+      if(StaticHost::DailyStopText(DailyStopDir(), DailyStopAccount(), InpDailyStopPct, InpDailyStopZone, InpDailyStopTime) == "")
+        { Print("TradeBot exekutor: zly denny stop - ", StaticHost::LastError()); return INIT_PARAMETERS_INCORRECT; }
+      Print("TradeBot exekutor: denny stop uctu ", StaticHost::DailyStopText(DailyStopDir(), DailyStopAccount(), InpDailyStopPct, InpDailyStopZone, InpDailyStopTime));
+     }
    g_statePath = "TradeBot\\exec\\" + g_id + ".orders.json";
    if(!g_hedging) Print("TradeBot exekutor: ucet je NETTING - route budu odmietnute (podporovany je len hedging)");
    LoadState();
@@ -1388,6 +1541,7 @@ void OnTimer()
    if(now - g_lastStrays >= StraySweepSec) { AdoptStrays(); g_lastStrays = now; }
    if(now - g_lastMaintain >= MaintainSec) { Maintain(); g_lastMaintain = now; }
    WatchMasters();
+   DailyStopCheck();
    Guards();
    TrailOnMinute();
    WriteHeartbeat();

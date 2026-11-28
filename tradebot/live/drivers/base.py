@@ -17,7 +17,8 @@ from pathlib import Path
 from typing import Any
 
 from ..routes import EXECUTOR_KIND
-from ..schema import CONTROL_MODES, SLOT_RE, instance_id, instance_symbol
+from ..schema import (CONTROL_MODES, DAILY_STOP_PCT, DAILY_STOP_TIME, DAILY_STOP_ZONE, SLOT_RE, instance_id,
+                      instance_symbol)
 
 __all__ = ["Account", "Deployment", "Driver", "load_drivers", "DRIVER_MODULES"]
 
@@ -52,6 +53,17 @@ class Account:
                    server=str(d.get("server") or ""), terminal=str(d.get("terminal") or ""),
                    portable=bool(d.get("portable")), secret=(str(d["secret"]) if d.get("secret") else None),
                    rev=str(d.get("rev") or ""), raw=dict(d))
+
+    @property
+    def daily_stop(self) -> dict[str, Any] | None:
+        """Denný stop účtu (docs/DAILY_STOP.md): `{"pct": 4, "zone": "America/New_York", "time": "18:00"}` z hubu;
+        None = vypnutý (chýba, alebo `"on": false`). Hodnoty overí až jadro na platforme — zlé nastavenie EA aj
+        inštanciu NinjaTradera nespustí, nie ticho bez poistky."""
+        d = self.raw.get("daily_stop")
+        if not isinstance(d, dict) or not d.get("on", True):
+            return None
+        return {"pct": float(d.get("pct", DAILY_STOP_PCT)), "zone": str(d.get("zone") or DAILY_STOP_ZONE),
+                "time": str(d.get("time") or DAILY_STOP_TIME)}
 
 
 @dataclass

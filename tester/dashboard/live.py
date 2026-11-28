@@ -154,6 +154,9 @@ def trades_of(db: sqlite3.Connection, iid: str) -> dict[str, Any]:
                                    "plan_e": plan.get("e"), "sent_ms": order.get("t")}
             tr["in_qty"] += qty
             tr["in_val"] += qty * price
+            if "in_kind" not in tr:   # SMERNICA V2 U2: typ príkazu, požadovaná cena, kurz pri fille a pri odoslaní
+                tr.update(in_kind=ev.get("ok"), in_req=ev.get("req"), in_bid=ev.get("bid"), in_ask=ev.get("ask"),
+                          in_sb=ev.get("sb"), in_sa=ev.get("sa"))
             continue
         tr = open_.get(oid)
         if tr is None:
@@ -163,6 +166,7 @@ def trades_of(db: sqlite3.Connection, iid: str) -> dict[str, Any]:
         tr["out_val"] += qty * price
         tr["reason"] = str(ev.get("exit") or tr["reason"])
         tr["close_ms"] = ft
+        tr.update(out_kind=ev.get("ok"), out_req=ev.get("req"), out_bid=ev.get("bid"), out_ask=ev.get("ask"))
         if tr["out_qty"] >= tr["in_qty"] - 1e-9:
             del open_[oid]
             trades.append(tr)
@@ -211,14 +215,19 @@ def _instance(db: sqlite3.Connection, inst: dict[str, Any], now_ms: int) -> dict
                "entry": round(entry, 6) if entry is not None else None, "qty": round(tr["in_qty"], 6),
                "sl": tr["sl"], "tp": tr["tp"], "order_type": tr["order_type"],
                # na kvalitu plnenia: plánovaná cena vstupu, čas odoslania príkazu a vzdialenosť stopu (1 R v bodoch)
-               "plan": tr["plan_e"], "sent": _iso(tr["sent_ms"]), "sd": tr["sd"]}
+               "plan": tr["plan_e"], "sent": _iso(tr["sent_ms"]), "sd": tr["sd"],
+               # SMERNICA V2 U2: plnenie vstupu (typ, požadovaná cena, bid/ask pri fille a pri odoslaní)
+               "entry_kind": tr.get("in_kind"), "entry_req": tr.get("in_req"), "entry_bid": tr.get("in_bid"),
+               "entry_ask": tr.get("in_ask"), "entry_sbid": tr.get("in_sb"), "entry_sask": tr.get("in_sa")}
         if closed:
             exit_ = tr["out_val"] / tr["out_qty"]
             pts = (exit_ - entry) * tr["dir"] if tr["dir"] else None
             out.update(close=_iso(tr["close_ms"]), exit=round(exit_, 6), reason=_reason(tr["reason"]),
                        pts=round(pts, 6) if pts is not None else None,
                        pnl=round(pts * tr["in_qty"] * pv, 2) if pts is not None else None,
-                       r=round(pts / tr["sd"], 3) if pts is not None and tr["sd"] else None)
+                       r=round(pts / tr["sd"], 3) if pts is not None and tr["sd"] else None,
+                       exit_kind=tr.get("out_kind"), exit_req=tr.get("out_req"), exit_bid=tr.get("out_bid"),
+                       exit_ask=tr.get("out_ask"))
         return out
 
     # signály a ich osud

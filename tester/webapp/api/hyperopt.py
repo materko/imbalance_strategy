@@ -61,6 +61,8 @@ def build(ctx: AppContext) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(422, str(exc))
 
+        if (problem := ho.search_problem(req.timerange, req.windows, req.pair)):
+            raise HTTPException(422, problem)
         base = run_settings(req)
         zadanie = hyperopt_settings(req, base)
         # Dvesto epoch s peňaženkou, do ktorej sa nezmestí ani jeden kontrakt, je dvesto

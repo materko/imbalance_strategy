@@ -477,27 +477,33 @@ def walk_forward(runner: NativeRunner, plan: Plan, profile: str | None, windows:
                  wallet: float = 10000, aggregate_how: str = "min", select: str = "best",
                  batch: int | None = None, log: Callable[[str], None] = print,
                  should_stop: Callable[[], bool] | None = None,
-                 on_progress: Callable[[int, int], None] | None = None) -> WalkForward:
-    """Ladí na okne N (s `anchored` na všetkých do N), víťaza zmeria na N+1; toľko foldov, koľko okien mínus jedno.
+                 on_progress: Callable[[int, int], None] | None = None, train_windows: int = 1,
+                 keep_trades: bool = False) -> WalkForward:
+    """Ladí na `train_windows` oknách pred testom (s `anchored` na všetkých pred ním), víťaza zmeria na ďalšom
+    okne; foldov je toľko, koľko okien mínus `train_windows`. Smernica (krok 9, od 28. 11. 2026) chce
+    `train_windows=2`: ladiť na dvoch rokoch, testovať na nasledujúcom.
 
     Každé testovacie okno optimalizátor nevidel — skóre za sebou sú to najbližšie k „ako by to dopadlo
     naživo, keby sa parametre preladili raz za rok".
     """
     okna = list(dict.fromkeys(windows))
-    if len(okna) < 2:
-        raise ValueError("walk-forward potrebuje aspoň dve okná")
+    k = max(1, int(train_windows))
+    if len(okna) < k + 1:
+        raise ValueError(f"walk-forward s ladením na {k} oknách potrebuje aspoň {k + 1} okná")
     t0 = time.perf_counter()
     folds: list[dict[str, Any]] = []
     vsetky: list[Epoch] = []
-    spolu = epochs * (len(okna) - 1)
+    nfold = len(okna) - k
+    spolu = epochs * nfold
     spec = runner.spec
     cfg, _ = load_profile(profile or spec.default_profile, strategy=spec.key, engine=engines.MULTICHARTS)
-    for i in range(len(okna) - 1):
+    for i in range(nfold):
         if should_stop is not None and should_stop():
             break
-        train = tuple(okna[: i + 1]) if anchored else (okna[i],)
-        test = okna[i + 1]
-        log(f"fold {i + 1}/{len(okna) - 1}: ladenie {'+'.join(train)} -> test {test}")
+        j = i + k                      # index testovacieho okna
+        train = tuple(okna[:j]) if anchored else tuple(okna[j - k:j])
+        test = okna[j]
+        log(f"fold {i + 1}/{nfold}: ladenie {'+'.join(train)} -> test {test}")
         hotove = len(vsetky)
         s = run_search(runner, plan, profile, train[-1], epochs=epochs, sampler=sampler, batch=batch,
                        seed=None if seed is None else seed + i, wallet=wallet, windows=train,
@@ -513,6 +519,16 @@ def walk_forward(runner: NativeRunner, plan: Plan, profile: str | None, windows:
         cj = config_json(cfg.to_dict(), type(cfg), plan, s.best.params)
         res = runner.run([cj], test)[0]
         summ = summary_of(res, runner.inst, runner.fee, wallet)
+        if keep_trades:
+            # SMERNICA V2 U8: spojená OOS krivka (PF, denný PnL pre Sortino) a výkon v ladení (WFE)
+            from .native import _trades, rows_from_trades
+
+            fold["trades"] = [{"close": r.get("close_date"), "pnl": r.get("profit_abs"), "gross": r.get("gross_abs")}
+                              for r in (rows_from_trades(_trades(res), runner.inst, runner.fee) if "error" not in res else [])]
+            per = s.best.windows or {}
+            fold["is_pnl_pct"] = sum(float((per.get(w) or {}).get("pnl_pct") or 0.0) for w in train)
+            fold["is_days"] = sum(window_days(w) for w in train)
+            fold["oos_days"] = window_days(test)
         edge = edge_of({"result": summ or {}, "settings": {"fee": runner.fee}})
         fold.update(params=overrides(plan, s.best.params), hp=s.best.params, train_loss=s.best.loss,
                     train_score=-s.best.loss, result=summ, edge=edge, test_loss=loss_of(summ, plan, window_days(test)))
@@ -623,11 +639,11 @@ def _folds_table(folds: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _windows_arg(text: str | None) -> list[str] | None:
+def _windows_arg(text: str | None, ref: Sequence[str] = REFERENCE_WINDOWS) -> list[str] | None:
     if not text:
         return None
-    if text.strip() == "ref":
-        return list(REFERENCE_WINDOWS)
+    if text.strip() in ("ref", "L"):
+        return list(ref)
     return [w.strip() for w in text.split(",") if w.strip()]
 
 
@@ -637,7 +653,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--profile")
     ap.add_argument("--instrument", required=True, help="kľúč z tradebot.core.types.INSTRUMENTS")
     ap.add_argument("--timeframe", help="default = TF stratégie")
-    ap.add_argument("--timerange", default="20240904-20250904")
+    ap.add_argument("--timerange", help="obdobie ladenia (default L trhu podľa SMERNICE V2 §1, pre trh mimo §1 "
+                                        "20240904-20250904); mimo L sa hľadanie nespustí")
     ap.add_argument("--param", action="append", default=[], metavar="POLE=OD:DO:KROK|A,B,C")
     ap.add_argument("--suggested", action="store_true", help="priestor, ktorý odporúča stratégia")
     ap.add_argument("--goal", default="break_even", choices=("break_even", "profit", "winrate", "drawdown", "pf"))
@@ -645,7 +662,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--min-trades", type=int, help="obchodov za rok")
     ap.add_argument("--epochs", type=int, default=200, help="epoch (pri walk-forward na každý fold)")
     ap.add_argument("--sampler", default="tpe", choices=SAMPLERS)
-    ap.add_argument("--windows", help="okná kritéria oddelené čiarkou, alebo `ref` (päť referenčných); "
+    ap.add_argument("--windows", help="okná kritéria oddelené čiarkou, alebo `L` / `ref` (L trhu po rokoch, pre trh "
+                                      "mimo §1 päť referenčných); "
                                       "bez toho len --timerange")
     ap.add_argument("--aggregate", default="min", choices=AGGREGATES,
                     help="skóre z viacerých okien: min = najhoršie okno, median, mean")
@@ -653,6 +671,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--select", default="best", choices=SELECTS, help="víťaz: najlepšia epocha alebo najlepšie okolie")
     ap.add_argument("--walk-forward", action="store_true", help="ladiť na okne N, merať na N+1 (okná z --windows, inak ref)")
     ap.add_argument("--anchored", action="store_true", help="walk-forward: ladiť na všetkých oknách do N")
+    ap.add_argument("--train-windows", type=int, default=1,
+                    help="walk-forward: na koľkých oknách pred testom ladiť (smernica: 2 = dva roky, test na ďalšom)")
+    ap.add_argument("--pbo", type=int, metavar="BLOKOV",
+                    help="PBO (CSCV, tester.overfit): okná kritéria = toľko blokov --timerange (párne, napr. 8)")
+    ap.add_argument("--pbo-metric", default="pnl_pct", choices=("pnl_pct", "break_even_pct"),
+                    help="výsledok bloku pre PBO")
     ap.add_argument("--continue", dest="cont", help="JSON z predošlého --out: jeho epochy sa vložia a hľadá sa ďalej")
     ap.add_argument("--jobs", type=int, default=0, help="pracovné procesy C# (0 = všetky jadrá); dávka sampleru je rovnaká")
     ap.add_argument("--seed", type=int)
@@ -673,15 +697,26 @@ def main(argv: list[str] | None = None) -> int:
     tf = timeframe_minutes(a.timeframe or spec.default_timeframe)
     runner = NativeRunner(a.strategy, INSTRUMENTS[a.instrument], tf, a.fee, a.jobs)
     objectives = [o.strip() for o in (a.objectives or "").split(",") if o.strip()]
-    okna = _windows_arg(a.windows)
+    from .register import RegisterError, check_windows, default_windows, l_timerange, market_of_instrument
+
+    market = market_of_instrument(a.instrument)
+    ref = default_windows(market, REFERENCE_WINDOWS)      # L trhu po rokoch; trezor a rok A len `--vault`
+    if not a.timerange:
+        a.timerange = l_timerange(market) if market else "20240904-20250904"
+    okna = _windows_arg(a.windows, ref)
 
     if a.walk_forward:
-        wf_okna = okna or list(REFERENCE_WINDOWS)
-        print(f"walk-forward {a.strategy} {a.instrument} {tf}m: {len(wf_okna) - 1} foldov po {a.epochs} epoch, "
-              f"sampler {a.sampler}" + (", anchored" if a.anchored else ""))
+        wf_okna = okna or list(ref)
+        try:
+            check_windows(wf_okna, market, "walk-forward")
+        except RegisterError as e:
+            ap.error(str(e))
+        print(f"walk-forward {a.strategy} {a.instrument} {tf}m: {len(wf_okna) - max(1, a.train_windows)} foldov po "
+              f"{a.epochs} epoch, ladenie na {max(1, a.train_windows)} oknach, sampler {a.sampler}"
+              + (", anchored" if a.anchored else ""))
         wf = walk_forward(runner, plan, a.profile, wf_okna, epochs=a.epochs, anchored=a.anchored, sampler=a.sampler,
                           seed=a.seed, wallet=a.wallet, aggregate_how=a.aggregate, select=a.select,
-                          batch=a.jobs or None)
+                          batch=a.jobs or None, train_windows=a.train_windows)
         print(f"\n{len(wf.epochs)} epoch za {wf.seconds:.1f} s\n")
         print(_folds_table(wf.folds))
         print("\n" + wf.verdict)
@@ -690,13 +725,24 @@ def main(argv: list[str] | None = None) -> int:
         if a.out:
             Path(a.out).write_text(json.dumps({
                 "mode": "walkforward", "plan": plan.to_dict(), "instrument": a.instrument, "timeframe": tf,
-                "windows": wf_okna, "anchored": a.anchored, "sampler": a.sampler, "fee": a.fee,
+                "windows": wf_okna, "anchored": a.anchored, "train_windows": max(1, a.train_windows),
+                "sampler": a.sampler, "fee": a.fee,
                 "seconds": wf.seconds, "folds": wf.folds, "verdict": wf.verdict, "last": wf.last,
                 "epochs": [e.to_dict() for e in wf.epochs],
             }, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
             print(f"\nulozene: {a.out}")
         return 0
 
+    if a.pbo:
+        from .overfit import blocks
+
+        okna = blocks(a.timerange, a.pbo)
+        if a.pbo % 2:
+            ap.error("--pbo chce párny počet blokov (CSCV delí bloky na polovice)")
+    try:
+        check_windows(okna or [a.timerange], market, "hyperopt")
+    except RegisterError as e:
+        ap.error(str(e))
     warm = None
     if a.cont:
         warm = json.loads(Path(a.cont).read_text(encoding="utf-8")).get("epochs") or []
@@ -710,13 +756,29 @@ def main(argv: list[str] | None = None) -> int:
     print(table(search.epochs, plan))
     if search.pareto:
         print(f"\nPareto hranica ({len(search.pareto)} epoch): {', '.join(map(str, search.pareto[:30]))}")
+    pbo = None
+    if a.pbo:
+        from .overfit import GATES, pbo_of_epochs
+
+        pbo = pbo_of_epochs(search.epochs, list(search.windows), a.pbo_metric)
+        if pbo is None:
+            print("\nPBO: málo epoch s výsledkom vo všetkých blokoch")
+        else:
+            print(f"\nPBO {pbo['pbo']:.3f} ({pbo['trials']} skúšok × {pbo['blocks']} blokov, {pbo['splits']} delení, "
+                  f"{a.pbo_metric}) - {'PREŠIEL' if pbo['pbo'] <= GATES['pbo_max'] else 'NEPREŠIEL'} "
+                  f"(hranica {GATES['pbo_max']}); víťaz ladenia v teste na mediáne poradia {pbo['oos_median_rank']:.2f}, "
+                  f"sklon test/ladenie {pbo['degradation']:+.2f}")
     if search.best is None:
         print("\nziadna epocha nesplnila mantinely - overenie sa nerobi")
         return 1
     best = overrides(plan, search.best.params)
     print(f"\nvitaz: {json.dumps(best, ensure_ascii=False)}\n")
     tuned = list(search.windows)
-    records = verify(runner, plan, a.profile, search.best.params, tuned, a.wallet)
+    if a.pbo:
+        # bloky nie sú referenčné okná: referenčné okno, ktoré zasahuje do obdobia ladenia, optimalizátor videl
+        ta, tb = a.timerange.split("-")
+        tuned += [w for w in ref if w.split("-")[0] < tb and w.split("-")[1] > ta]
+    records = verify(runner, plan, a.profile, search.best.params, tuned, a.wallet, windows=tuple(ref))
     print(_verification_table(records))
     print("\n" + verdict(records, tuned))
     if a.out:
@@ -724,7 +786,7 @@ def main(argv: list[str] | None = None) -> int:
             "mode": "search", "plan": plan.to_dict(), "instrument": a.instrument, "timeframe": tf,
             "timerange": a.timerange, "windows": tuned, "aggregate": a.aggregate, "objectives": list(search.objectives),
             "select": a.select, "sampler": a.sampler, "fee": a.fee, "seconds": search.seconds, "best": best,
-            "pareto": search.pareto, "plateau": search.plateau,
+            "pareto": search.pareto, "plateau": search.plateau, "pbo": pbo,
             "epochs": [e.to_dict() for e in search.epochs], "verification": records,
         }, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
         print(f"\nulozene: {a.out}")

@@ -4,11 +4,30 @@
  * `strategyClass` zo settings.js — ten istý, ktorý triedi výber stratégie vo formulári. */
 "use strict";
 
-const cat = { data: null, deployments: [], market: "", type: "", sort: "kind", query: "", onlySmernica: false,
+const cat = { data: null, deployments: [], market: "", type: "", sort: "stav", query: "", onlySmernica: false,
   state: "", drawer: null, tab: "all" };
 
-/** Filter Stav: "" = všetky, run = len bežiace, stop = nasadené, ale zastavené. */
-const CAT_STATES = { run: f => f.running.length > 0, stop: f => f.deps.length > 0 && !f.running.length };
+/** Stav podľa SMERNICE V2 (U9/U10): počíta ho skript z registra (`tester.robust … --save` -> `_robust.status`),
+ *  webapp ho len ukazuje. Stav rodiny = najlepší stav jej profilov; nezmeraná rodina = „—“. */
+const CAT_STAV = {
+  "✅": ["✅ schválená", "on", "brány, trezor a podpis používateľa v registri"],
+  "🟡": ["🟡 demo", "new", "brány prešli (bez trezoru, legacy alebo zo štúdie) — demo, malá veľkosť"],
+  "⏳": ["⏳ čaká", "port", "chýba meranie alebo PF po haircute < 1,10"],
+  "⚠": ["⚠ legacy", "off", "legacy so zápornou správou"],
+  "❌": ["❌ uzavretá", "off", "neprešla bránou — hypotéza uzavretá, nič sa nemaže"],
+};
+const CAT_STAV_RANK = { "✅": 0, "🟡": 1, "⏳": 2, "⚠": 3, "❌": 4 };
+function catStage(f) {
+  const st = f.profiles.map(p => (p.v2 || {}).stav).filter(Boolean);
+  return st.length ? st.sort((a, b) => CAT_STAV_RANK[a] - CAT_STAV_RANK[b])[0] : "";
+}
+/** Najlepší PF po haircute rodiny (z L a WF) — druhý kľúč poradia podľa stavu; rok A ani trezor nie. */
+const catPfLive = f => Math.max(-1, ...f.profiles.map(p => (p.v2 || {}).pf_live ?? -1));
+
+/** Filter Stav: "" = všetky, run = len bežiace, stop = nasadené, ale zastavené; ďalej stavy SMERNICE V2 a nezmerané. */
+const CAT_STATES = { run: f => f.running.length > 0, stop: f => f.deps.length > 0 && !f.running.length,
+  "✅": f => catStage(f) === "✅", "🟡": f => catStage(f) === "🟡", "⏳": f => catStage(f) === "⏳",
+  "⚠": f => catStage(f) === "⚠", "❌": f => catStage(f) === "❌", none: f => !catStage(f) };
 
 const CAT_GROUPS = { smernica: "prešiel smernicou", repo: "repozitár", user: "vlastný" };
 const CAT_GROUP_ORDER = { smernica: 0, repo: 1, user: 2 };
@@ -106,6 +125,34 @@ function catProfileStats(p) {
   return null;
 }
 
+/** Stĺpce SMERNICE V2 profilu v paneli (U10): stav, PF v2, PF po haircute, DSR, PBO, N / N_eff, t / t_req a k,
+ *  Sortino, obchody za rok, MC 95 % DD, iné trhy a rok A (sivou, len kontrola). Hodnota, ktorá nesplní bránu, je
+ *  červená; nespočítaná „—" (nikdy 0); pri legacy majú DSR, PBO a haircut značku „info". Čísla píše
+ *  `tester.robust … --save` do `_robust` profilu. */
+function catV2Cells(p) {
+  const v = p.v2 || { fail: {}, info: [] }, f = v.fail || {};
+  const info = k => (v.info || []).includes(k) ? ' <small class="cat-badge port" title="legacy: len informácia">info</small>' : "";
+  const cell = (val, bad, tip, extra = "") => `<td class="num${bad ? " neg" : ""}${extra}" title="${esc(tip)}">${val}</td>`;
+  const n = (x, d = 2) => x == null ? "—" : catNum(x, d);
+  const st = v.stav ? CAT_STAV[v.stav] : null;
+  return [
+    `<td title="${esc(st ? `${st[2]}${v.stav_reason ? ` — ${v.stav_reason}` : ""}${v.date ? ` (${v.date})` : ""}` : "nezmerané — python -m tester.robust … --save")}">${st ? esc(v.stav) : "—"}</td>`,
+    cell(n(v.pf_v2), false, "PF po nákladoch fill v2 na L"),
+    cell(n(v.pf_live) + info("haircut"), f.pf_live && !(v.info || []).includes("haircut"), "PF po haircute Harvey–Liu (hranica ≥ 1,10)"),
+    cell(`${n(v.dsr_neff)} / ${n(v.dsr)}` + info("dsr"), f.dsr && !(v.info || []).includes("dsr"),
+      "DSR pri N_eff (≥ 0,95) / pri surovom N (≥ 0,50)"),
+    cell(n(v.pbo) + info("pbo"), f.pbo && !(v.info || []).includes("pbo"), "PBO — CSCV, 16 blokov mesačného PnL (≤ 0,20)"),
+    cell(`${v.n ?? "—"} / ${v.n_eff ?? "—"}`, false, "N konfigurácií v registri / N_eff (zhluky mesačného PnL)"),
+    cell(`${n(v.t)} / ${n(v.t_req)}${v.k != null ? ` <small>k ${v.k}</small>` : ""}`, f.t, "t na trezore / t_req = Φ⁻¹(1 − 0,025 / k)"),
+    cell(n(v.sortino), f.sortino, "Sortino z walk-forward OOS a trezorov (≥ 1,0)"),
+    cell(n(v.trades_year, 0), f.trades_year, "obchody za rok na L (≥ 75)"),
+    cell(v.mc_dd95 != null ? `${n(v.mc_dd95, 1)} %` : "—", false, "Monte Carlo: 95 % najväčší pokles dennej equity"),
+    cell(`${n(v.other_related)} / ${n(v.other_type)}`, f.other_related || f.other_type,
+      "iné trhy (krok 8c): príbuzný trh PF ≥ 0,95 / iný typ trhu PF ≥ 1,05"),
+    cell(n(v.year_a), false, "rok A 2025-09-04 – 2026-09-03 — len negatívna kontrola, do poradia ani súčtov nejde", " muted"),
+  ].join("");
+}
+
 function catSpark(eq) {
   if (!eq || eq.length < 2) return '<div class="cat-spark empty muted small">bez krivky</div>';
   const w = 240, h = 46, min = Math.min(0, ...eq), max = Math.max(0, ...eq), span = max - min || 1;
@@ -139,7 +186,10 @@ function catCard(f) {
   const seg = g => n ? (f.counts[g] / n * 100).toFixed(1) : 0;
   const top = [catTopProfile(f)].filter(Boolean);
   const kpi = (label, val, cls = "", tip = "") => `<div class="cat-kpi"${tip ? ` title="${esc(tip)}"` : ""}><span>${label}</span><b class="${cls}">${val}</b></div>`;
-  const badges = catLiveBadges(f) + (f.isNew ? '<span class="cat-badge new">nová</span>' : "");
+  const st = CAT_STAV[catStage(f)];
+  const badges = catLiveBadges(f) + (f.isNew ? '<span class="cat-badge new">nová</span>' : "")
+    + (st ? `<span class="cat-badge ${st[1]}" title="${esc(st[2])}">${esc(st[0])}</span>`
+      : '<span class="cat-badge port" title="stav SMERNICE V2 nie je spočítaný (python -m tester.robust … --save)">— nezmerané</span>');
   const ports = f.ports.length ? `<div class="cat-ports small muted">C# porty: ${f.ports.map(p =>
     `<button type="button" class="linkish" data-cat-open="${esc(p.key)}">${esc(p.key)}</button>`).join(", ")}</div>` : "";
   return `<article class="cat-card card" data-key="${esc(f.key)}" title="klik otvorí hodnotenie stratégie">
@@ -177,7 +227,9 @@ function catCard(f) {
         <button type="button" class="linkish cat-pname" data-cat-open="${esc(p.strategy)}" data-cat-profile="${esc(p.name)}" title="${esc(p.name)} — otvoriť v Novom behu">${esc(catProfileName(p))}</button>
         ${p.running ? '<span class="cat-badge on" title="tento profil beží naživo">beží</span>'
           : p.deployed ? '<span class="cat-badge off" title="tento profil je nasadený, ale nebeží">zastavený</span>' : ""}
-        <span class="small muted num">${s ? `PF ${catNum(s.pf, 2)} · WR ${catNum(s.wr, 0)} %` : "bez behu"}</span></li>`; }).join("") || '<li class="muted small">žiadny profil — len Pine defaulty</li>'}</ul>
+        <span class="small muted num">${s ? `PF ${catNum(s.pf, 2)} · WR ${catNum(s.wr, 0)} %` : "bez behu"}${p.haircut && p.haircut.pf_live != null
+          ? ` · <span title="PF po haircute Harvey–Liu (SMERNICA V2)">po haircute ${catNum(p.haircut.pf_live, 2)}</span>` : ""}${p.v2 && p.v2.stav
+          ? ` · <span title="${esc((CAT_STAV[p.v2.stav] || [])[2] || "")}">${esc(p.v2.stav)}</span>` : ""}</span></li>`; }).join("") || '<li class="muted small">žiadny profil — len Pine defaulty</li>'}</ul>
     </section>
     ${ports}
     <div class="cat-actions">
@@ -220,6 +272,7 @@ function catFiltered() {
       .some(s => String(s).toLowerCase().includes(q))));
   const val = (f, k) => f.best && f.best[k] != null ? f.best[k] : -Infinity;
   const by = {
+    stav: (a, b) => (CAT_STAV_RANK[catStage(a)] ?? 2.5) - (CAT_STAV_RANK[catStage(b)] ?? 2.5) || catPfLive(b) - catPfLive(a),
     kind: (a, b) => catKindRank(a) - catKindRank(b) || catAuditRank(a) - catAuditRank(b)
       || ((auditOf(b.key) || {}).sortino ?? -99) - ((auditOf(a.key) || {}).sortino ?? -99),
     audit: (a, b) => catAuditRank(a) - catAuditRank(b) || ((auditOf(b.key) || {}).sortino ?? -99) - ((auditOf(a.key) || {}).sortino ?? -99)
@@ -250,7 +303,8 @@ function renderCatalog() {
   const markets = [...TRHY, ...(all.some(f => f.market === "OSTATNÉ") ? ["OSTATNÉ"] : [])];
   catPills($("#cat-markets"), markets, cat.market, "cat-market");
   catPills($("#cat-types"), [...TYPY, "LIVE"], cat.type, "cat-type");
-  $("#cat-states").innerHTML = [["", "Všetky"], ["run", "● Bežiace"], ["stop", "■ Zastavené"]].map(([v, t]) =>
+  $("#cat-states").innerHTML = [["", "Všetky"], ["run", "● Bežiace"], ["stop", "■ Zastavené"], ["✅", "✅"], ["🟡", "🟡"],
+    ["⏳", "⏳"], ["⚠", "⚠"], ["❌", "❌"], ["none", "— nezmerané"]].map(([v, t]) =>
     `<button type="button" class="chip-btn${v === cat.state ? " active" : ""}" data-cat-state="${v}">${t}${v
       ? ` (${all.filter(CAT_STATES[v]).length})` : ""}</button>`).join("");
   const list = catFiltered();
@@ -298,9 +352,10 @@ function renderCatDrawer() {
       <td>${esc(p.pair)} ${esc(p.timeframe)}</td>
       <td class="num">${s ? catNum(s.pf, 2) : "—"}</td><td class="num">${s && s.wr != null ? `${catNum(s.wr, 0)} %` : "—"}</td>
       <td class="small muted">${s ? esc(s.extra) : "bez behu"}${s ? `<div title="odkiaľ sú čísla">${esc(s.src)}</div>` : ""}</td>
+      ${catV2Cells(p)}
       <td><button type="button" class="ghost small" data-cat-open="${esc(p.strategy)}" data-cat-profile="${esc(p.name)}">Otestovať</button></td>
     </tr>`;
-  }).join("") || '<tr><td colspan="7" class="muted">V tejto skupine nie je žiadny profil.</td></tr>';
+  }).join("") || '<tr><td colspan="19" class="muted">V tejto skupine nie je žiadny profil.</td></tr>';
   $("#cat-drawer").hidden = false;
 }
 

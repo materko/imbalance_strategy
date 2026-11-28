@@ -74,6 +74,9 @@ namespace TradeBot.Core
         private bool _brokerKnown;
         private double _brokerQty, _brokerPrice;
         private string _brokerScope = "";
+        // posledny kurz od adaptera (`Quote`) - ide do `order` (zamer pred odoslanim) a `fill` (bid/ask, cas v ms)
+        private double _quoteBid, _quoteAsk;
+        private long _quoteMs;
         private System.Threading.Timer _timer;
         private int _heartbeatMs = DefaultHeartbeatMs;
         /// <summary>Po chybe zapisu (`Break`) sa subor skusi otvorit znova najskor vtedy (audit N-LIVE-19: inak
@@ -449,6 +452,7 @@ namespace TradeBot.Core
                         w = Begin("order");
                         w.Key("bt").Value(bar.Time).Key("ready").Value(ready);
                         i.WriteFields(w);
+                        if (ready) WriteQuote(w);
                         End(w);
                     }
                     foreach (StateEvent e in output.Events)
@@ -475,6 +479,15 @@ namespace TradeBot.Core
         /// nepocita; po starte ide aj predhistoria `MinuteBackfill` minut (diery po vypadku sa tak doplnia).</summary>
         public void Minute(long barMs, double open, double high, double low, double close, double volume)
         {
+            Minute(barMs, open, high, low, close, volume, 0, 0, 0);
+        }
+
+        /// <summary>`m1` so spreadom v cene (nie v bodoch): `sp` zo sviecky brokera (MT5 `MqlRates.spread` x point),
+        /// `spa` / `spx` priemer a maximum ask - bid z tikov tej minuty (len nazivo). &lt;= 0 = nezname, pole chyba.
+        /// Z nich je sklad spreadu `data/live/spread` (docs/DATA.md §D, `tester.spread`).</summary>
+        public void Minute(long barMs, double open, double high, double low, double close, double volume,
+                           double spread, double spreadAvg, double spreadMax)
+        {
             try
             {
                 lock (_gate)
@@ -484,6 +497,9 @@ namespace TradeBot.Core
                     JsonWriter w = Begin("m1");
                     w.Key("bt").Value(barMs).Key("o").Value(open).Key("h").Value(high).Key("l").Value(low);
                     w.Key("c").Value(close).Key("v").Value(volume);
+                    if (spread > 0) w.Key("sp").Value(spread);
+                    if (spreadAvg > 0) w.Key("spa").Value(spreadAvg);
+                    if (spreadMax > 0) w.Key("spx").Value(spreadMax);
                     End(w);
                 }
             }
@@ -511,6 +527,15 @@ namespace TradeBot.Core
         /// <summary>Vyplnenie u brokera (adapter, nie engine): `in` = vstup, `out` = vystup s menom vystupu.</summary>
         public void Fill(long execMs, string id, bool entry, string exitName, double price, double qty, bool ready)
         {
+            Fill(execMs, id, entry, exitName, price, qty, ready, "", 0, 0, 0, 0);
+        }
+
+        /// <summary>Fill s typom prikazu `ok` (market / limit / stop / sl / tp), poziadanou cenou `req` (uroven
+        /// prikazu; 0 = neznama) a kurzom pri odoslani `sb`/`sa`/`st` (bid, ask, cas v ms; 0 = neznamy) - SMERNICA V2
+        /// U2: sklz = cena fillu - poziadana, spread pri odoslani aj pri fille (`spr` / `sspr`).</summary>
+        public void Fill(long execMs, string id, bool entry, string exitName, double price, double qty, bool ready,
+                         string orderKind, double reqPrice, double sendBid, double sendAsk, long sendMs)
+        {
             try
             {
                 lock (_gate)
@@ -519,10 +544,80 @@ namespace TradeBot.Core
                     JsonWriter w = Begin("fill");
                     w.Key("ft").Value(execMs).Key("id").Value(id ?? "").Key("side").Value(entry ? "in" : "out");
                     w.Key("exit").Value(entry ? "" : (exitName ?? "")).Key("price").Value(price).Key("qty").Value(qty).Key("ready").Value(ready);
+                    if (!string.IsNullOrEmpty(orderKind)) w.Key("ok").Value(orderKind);
+                    if (reqPrice > 0) w.Key("req").Value(reqPrice);
+                    if (sendBid > 0 && sendAsk > 0)
+                        w.Key("sb").Value(sendBid).Key("sa").Value(sendAsk).Key("st").Value(sendMs).Key("sspr").Value(sendAsk - sendBid);
+                    WriteQuote(w);
                     End(w);
                 }
             }
             catch (Exception e) { Break(e); }
+        }
+
+        /// <summary>Broker prikaz odmietol (MT5 retcode napr. 10015 invalid price, NT `Rejected`): riadok `reject`
+        /// s id, kodom, cenou prikazu, textom a poslednym kurzom (V2 U2.6).</summary>
+        public void Reject(long ms, string id, string code, double price, string text)
+        {
+            try
+            {
+                lock (_gate)
+                {
+                    if (Off()) return;
+                    JsonWriter w = Begin("reject");
+                    w.Key("rt").Value(ms).Key("id").Value(id ?? "").Key("code").Value(code ?? "").Key("price").Value(price);
+                    w.Key("text").Value(text ?? "");
+                    WriteQuote(w);
+                    End(w);
+                }
+            }
+            catch (Exception e) { Break(e); }
+        }
+
+        /// <summary>Ochrana uctu (V2 U1.6): `what` = `daily_stop` (spustenie), `blocked` (vstup odmietnuty pocas
+        /// zastavenia), `risk` (sucasne riziko nad hranicou), `no_sl` (pozicia bez SL zavreta), `duplicate` (start
+        /// odmietnuty), `off` (stop vypnuty); `v` a `lim` su cisla k tomu (equity a hranica, riziko a limit).</summary>
+        public void Guard(string what, string text, double value, double limit)
+        {
+            try
+            {
+                lock (_gate)
+                {
+                    if (Off()) return;
+                    JsonWriter w = Begin("account_guard");
+                    w.Key("what").Value(what ?? "").Key("text").Value(text ?? "");
+                    if (!double.IsNaN(value) && !double.IsInfinity(value)) w.Key("v").Value(value);
+                    if (!double.IsNaN(limit) && !double.IsInfinity(limit)) w.Key("lim").Value(limit);
+                    End(w);
+                }
+            }
+            catch (Exception e) { Break(e); }
+        }
+
+        /// <summary>Posledny kurz symbolu u brokera: bid, ask a cas kotacie v ms UTC (MT5 `MqlTick.time_msc`, NT cas
+        /// udalosti trhovych dat). Nepise riadok - spool ho prilozi k nasledujucim `order` (len `ready`) a `fill`
+        /// ako `bid`, `ask`, `qt`, takze sa da zmerat spread a sklz pri odoslani aj pri plneni (docs/LIVE.md).
+        /// Bid alebo ask &lt;= 0 (aj NaN, nekonecno) kurz zabudne - riadky su potom bez neho.</summary>
+        public void Quote(double bid, double ask, long quoteMs)
+        {
+            try
+            {
+                lock (_gate)
+                {
+                    bool ok = bid > 0 && ask > 0 && !double.IsInfinity(bid) && !double.IsInfinity(ask);
+                    _quoteBid = ok ? bid : 0;
+                    _quoteAsk = ok ? ask : 0;
+                    _quoteMs = ok ? quoteMs : 0;
+                }
+            }
+            catch (Exception e) { Break(e); }
+        }
+
+        /// <summary>`bid`, `ask`, `qt` posledneho kurzu, ked je znamy. Vola sa pod zamkom.</summary>
+        private void WriteQuote(JsonWriter w)
+        {
+            if (_quoteBid <= 0 || _quoteAsk <= 0) return;
+            w.Key("bid").Value(_quoteBid).Key("ask").Value(_quoteAsk).Key("qt").Value(_quoteMs).Key("spr").Value(_quoteAsk - _quoteBid);
         }
 
         /// <summary>Adapter posunul SL/TP pracujuceho orderu (trailing, rucny zasah...): riadok `order`

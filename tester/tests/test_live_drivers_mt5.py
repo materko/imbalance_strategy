@@ -109,7 +109,8 @@ def test_templates_magic_period_and_inputs():
     assert period_of(1) == (0, 1) and period_of(5) == (0, 5) and period_of(60) == (1, 1) and period_of(240) == (1, 4)
     assert period_of(1440) == (2, 1) and period_of(90) == (0, 90)
     names = [n for _t, n, _v in ea_inputs()]
-    assert names[:3] == ["InpProfile", "InpServerGmtOffsetMin", "InpMagic"] and "InpTelemetry" in names
+    assert names[:4] == ["InpProfile", "InpServerGmtOffsetMin", "InpServerDstNy", "InpMagic"] and "InpTelemetry" in names
+    assert {"InpDailyStop", "InpDailyStopPct", "InpDailyStopZone", "InpDailyStopTime"} <= set(names)
 
 
 def test_ini_text(drv):
@@ -190,6 +191,7 @@ expertmode=4
 <inputs>
 InpProfile=golden_binance_btcusdt_3m
 InpServerGmtOffsetMin=0
+InpServerDstNy=true
 InpMagic={magic}
 InpSlot=
 InpExportSignals=false
@@ -204,6 +206,12 @@ InpTelemetry=true
 InpTelemetryInTester=false
 InpRestoreState=true
 InpDeviationPts=50
+InpDailyStop=false
+InpDailyStopPct=4.0
+InpDailyStopZone=Europe/Prague
+InpDailyStopTime=00:00
+InpMaxOpenRiskPct=1.5
+InpAccountGroups=
 </inputs>
 </expert>
 
@@ -379,6 +387,27 @@ def test_graf_exekutora_nerestartuje_terminal_v_kazdom_kole(drv):
         d.ensure_instance(ACC, [dep("d1"), x])
     assert len(procs.started) == 1 and procs.closed == []
     assert d.status(ACC)["charts"][1]["expert"] == "TradeBotExecutor"
+
+
+def test_denny_stop_mt5_uctu_dostane_aj_exekutor(drv):
+    """Smerovanie NT -> MT5 (docs/DAILY_STOP.md): účet s peniazmi je v MT5, stop drží exekútor. Bez stopu má graf
+    exekútora inputy prázdne ako doteraz (terminál sa nereštartuje), so stopom ich dostane a zmena reštartuje."""
+    d, procs, clock, data, common = drv
+    x = Deployment.from_dict({"id": "exec-ftmo", "account": "ftmo", "strategy": "executor", "symbol": "US100.cash",
+                              "tf": 1, "profile": "executor", "config": {}, "config_hash": "", "mode": "enabled",
+                              "active": True, "kind": "executor"})
+    x.instance = "mt5exec_1514750898-FTMO-Demo"
+    assert d._charts(ACC, [x])[0]["inputs"] == {}
+    d.ensure_instance(ACC, [x])
+    assert len(procs.started) == 1
+    acc = Account.from_dict({**ACC.raw, "daily_stop": {"pct": 4.5, "zone": "Europe/Prague", "time": "00:00"}})
+    assert d._charts(acc, [x])[0]["inputs"] == {"InpDailyStop": "true", "InpDailyStopPct": "4.5",
+                                                "InpDailyStopZone": "Europe/Prague", "InpDailyStopTime": "00:00"}
+    d.ensure_instance(acc, [x])
+    assert len(procs.started) == 2
+    assert parse_chart(data / "MQL5" / "Profiles" / "Charts" / "tradebot" / "chart01.chr")["inputs"]["InpDailyStop"] == "true"
+    d.ensure_instance(acc, [x])
+    assert len(procs.started) == 2
 
 
 def test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu(drv):
@@ -693,6 +722,14 @@ def test_ninjatrader_driver_writes_deploy_json_control_and_profile(tmp_path: Pat
     d.ensure_instance(other, [b])
     deploy = json.loads((nt / "TradeBot" / "deploy.json").read_text(encoding="utf-8"))
     assert [e["deployment"] for e in deploy["instances"]] == ["n1", "n2"]
+
+    # denný stop účtu z hubu ide každej inštancii toho účtu do deploy.json (docs/DAILY_STOP.md)
+    stopped = Account.from_dict({**NT_ACC.raw, "daily_stop": {"pct": 4}})
+    d.ensure_instance(stopped, [a])
+    deploy = json.loads((nt / "TradeBot" / "deploy.json").read_text(encoding="utf-8"))
+    n1 = next(e for e in deploy["instances"] if e["deployment"] == "n1")
+    assert n1["daily_stop"] == {"pct": 4.0, "zone": "Europe/Prague", "time": "00:00"}   # SMERNICA V2 U1
+    assert "daily_stop" not in next(e for e in deploy["instances"] if e["deployment"] == "n2")
     d.ensure_instance(NT_ACC, [])
     deploy = json.loads((nt / "TradeBot" / "deploy.json").read_text(encoding="utf-8"))
     assert [e["deployment"] for e in deploy["instances"]] == ["n2"]
@@ -754,3 +791,24 @@ def test_mt5_install_code_zavrie_terminaly_nainstaluje_a_zapise_marker(drv, monk
     volania.clear()
     d.install_code("def5678", [])
     assert volania == [(data / "MQL5", common)] and d.installed_version() == "def5678"
+
+
+def test_denny_stop_uctu_ide_do_inputov_a_jeho_zmena_restartuje(drv):
+    d, procs, clock, data, common = drv
+    d1 = dep("d1")
+    d.ensure_instance(ACC, [d1])
+    assert len(procs.started) == 1
+    assert d._charts(ACC, [d1])[0]["inputs"]["InpDailyStop"] == "false"
+    # denný stop na účte v hube (docs/DAILY_STOP.md): EA ho číta len pri štarte - nové grafy, reštart terminálu
+    acc = Account.from_dict({**ACC.raw, "daily_stop": {"pct": 3.5, "zone": "Europe/Prague", "time": "00:00"}})
+    inputs = d._charts(acc, [d1])[0]["inputs"]
+    assert (inputs["InpDailyStop"], inputs["InpDailyStopPct"], inputs["InpDailyStopZone"],
+            inputs["InpDailyStopTime"]) == ("true", "3.5", "Europe/Prague", "00:00")
+    d.ensure_instance(acc, [d1])
+    assert len(procs.started) == 2
+    assert parse_chart(data / "MQL5" / "Profiles" / "Charts" / "tradebot" / "chart01.chr")["inputs"]["InpDailyStopPct"] == "3.5"
+    d.ensure_instance(acc, [d1])
+    assert len(procs.started) == 2
+    # vypnutý (`on: false`) = ako bez neho
+    off = Account.from_dict({**ACC.raw, "daily_stop": {"on": False, "pct": 3.5}})
+    assert off.daily_stop is None and d._charts(off, [d1])[0]["inputs"]["InpDailyStop"] == "false"

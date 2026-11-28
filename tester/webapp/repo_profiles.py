@@ -57,7 +57,7 @@ def profile_titles(strategy: str = DEFAULT_STRATEGY) -> dict[str, str]:
     return {name: title or name for name, title in _profile_key(strategy, "_title").items()}
 
 
-def profile_info(strategy: str = DEFAULT_STRATEGY) -> dict[str, dict[str, str]]:
+def profile_info(strategy: str = DEFAULT_STRATEGY) -> dict[str, dict[str, Any]]:
     """Ku každému profilu: kedy vznikol, pár, TF a popis — stránka z toho skladá názov
     „dátum · pár TF · popis". Vlastný profil bez `_created` (starší) dostane čas súboru;
     profil repozitára dátum nemá (čas súboru je čas checkoutu, nie vzniku)."""
@@ -74,5 +74,7 @@ def profile_info(strategy: str = DEFAULT_STRATEGY) -> dict[str, dict[str, str]]:
         inst = INSTRUMENTS.get(str(data.get("_instrument") or ""))
         out[name] = {"created": created, "pair": inst.symbol if inst else "",
                      "timeframe": str(data.get("_timeframe") or ""),
-                     "title": str(data.get("_title") or "")}
+                     "title": str(data.get("_title") or ""),
+                     # hranice prechodu smernicou z `tester.robust --save` (DSR, PBO, walk-forward, haircut)
+                     "robust": data.get("_robust") if isinstance(data.get("_robust"), dict) else None}
     return out

@@ -72,6 +72,55 @@ def profile_group(name: str, strategy: str) -> str:
 _LEAD = re.compile(r"^>\s*V jednej vete:\s*(.+)$", re.M)
 
 
+#: Poradie stavov SMERNICE V2 (U10: najprv stav, potom PF po haircute z L a WF; nikdy rok A ani trezor).
+STAV_RANK = {"✅": 0, "🟡": 1, "⏳": 2, "⚠": 3, "❌": 4}
+
+
+def profile_haircut(claimed: dict[str, Any], best_run: dict[str, Any] | None,
+                    robust: dict[str, Any] | None) -> dict[str, Any] | None:
+    """PF po haircute Harvey–Liu (`tester.robust … --save` -> `_robust.pf_live`); nezmerané = None („—“ vo webapp,
+    nikdy odhad z PF smernice ani z behu — SMERNICA V2 U10)."""
+    if robust and robust.get("smernica") == "V2" and robust.get("pf_live") is not None:
+        return {"pf": robust.get("pf"), "pf_live": robust["pf_live"], "src": "robust"}
+    return None
+
+
+def v2_view(robust: dict[str, Any] | None) -> dict[str, Any]:
+    """Stĺpce SMERNICE V2 profilu (U10) z `_robust`: hodnota, alebo None (= „—“, nikdy 0), a `fail` = hodnota
+    nesplnila bránu (červená). Pri legacy sú DSR, PBO a haircut len informácia (`info`)."""
+    from ...overfit import GATES
+
+    r = robust if robust and robust.get("smernica") == "V2" else {}
+    other = r.get("other_market") or {}
+    out: dict[str, Any] = {
+        "stav": r.get("status"), "stav_reason": r.get("status_reason") or ("nezmerané" if not r else ""),
+        "pf_v2": r.get("pf_v2"), "pf_live": r.get("pf_live"), "dsr_neff": r.get("dsr_neff"), "dsr": r.get("dsr"),
+        "pbo": r.get("pbo"), "n": r.get("trials"), "n_eff": r.get("n_eff"), "t": r.get("t"), "t_req": r.get("t_req"),
+        "k": r.get("k"), "sortino": r.get("sortino"), "trades_year": r.get("trades_per_year"),
+        "mc_dd95": r.get("mc_dd95"), "other_related": other.get("related_pf"), "other_type": other.get("type_pf"),
+        "year_a": r.get("year_a_pf"), "wfe": r.get("wfe"), "walk_forward": r.get("walk_forward"),
+        "legacy": bool(r.get("legacy")), "info": list(r.get("info") or []), "date": r.get("date"),
+    }
+    out["fail"] = {
+        "pf_live": out["pf_live"] is not None and out["pf_live"] < GATES["pf_haircut_min"],
+        "dsr": (out["dsr_neff"] is not None and out["dsr_neff"] < GATES["dsr_neff_min"])
+        or (out["dsr"] is not None and out["dsr"] < GATES["dsr_n_min"]),
+        "pbo": out["pbo"] is not None and out["pbo"] > GATES["pbo_max"],
+        "t": out["t"] is not None and out["t_req"] is not None and out["t"] < out["t_req"],
+        "sortino": out["sortino"] is not None and out["sortino"] < GATES["sortino_min"],
+        "walk_forward": out["walk_forward"] is False,
+        "other_related": out["other_related"] is not None and out["other_related"] < 0.95,
+        "other_type": out["other_type"] is not None and out["other_type"] < 1.05,
+        "trades_year": out["trades_year"] is not None and out["trades_year"] < 75,
+    }
+    return out
+
+
+def profile_order(view: dict[str, Any]) -> tuple:
+    """Zoraďovací kľúč profilu (menší = vyššie): stav, potom PF po haircute. Rok A ani trezor v ňom nie sú."""
+    return (STAV_RANK.get(view.get("stav") or "", 2.5), -(view.get("pf_live") or 0.0))
+
+
 def explainer_lead(markdown: str) -> str:
     """Veta „V jednej vete: …“ z vysvetlivky — popis stratégie na karte katalógu (prázdny, keď chýba)."""
     m = _LEAD.search(markdown or "")
@@ -195,12 +244,16 @@ def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[d
         for name, info in vyber.filter_map(key, profile_info(key)).items():
             group = profile_group(name, key)
             hit = best_of_profile.get(name.lower())
+            claimed = title_metrics(info.get("title") or "") if group == "smernica" else {}
+            best_run = _metrics(hit[1]) if hit else None
             profiles.append({
                 "name": name, "group": group, "title": info.get("title") or "",
                 "pair": info.get("pair") or "", "timeframe": info.get("timeframe") or "",
                 "created": info.get("created") or "",
-                "claimed": title_metrics(info.get("title") or "") if group == "smernica" else {},
-                "best_run": _metrics(hit[1]) if hit else None,
+                "claimed": claimed, "best_run": best_run,
+                "robust": info.get("robust"),
+                "haircut": profile_haircut(claimed, best_run, info.get("robust")),
+                "v2": v2_view(info.get("robust")),
             })
 
         best_out = None
@@ -208,7 +261,9 @@ def catalog(records: list[dict[str, Any]], load_run, load_trades=None) -> list[d
             best_out = {**_metrics(best), "profile": _profile_stem((best.get("settings") or {}).get("profile")),
                         "equity": equity_curve(load_run(best["id"])),
                         **(realized_r(load_trades(best["id"])) if load_trades else {})}
+        stavy = [p["v2"]["stav"] for p in profiles if p["v2"]["stav"]]
         out.append({
+            "stav": min(stavy, key=lambda s: STAV_RANK.get(s, 9)) if stavy else None,
             "key": key, "title": spec.title, "csharp": spec.csharp_dir is not None, "selected": vyber.selected(key),
             "default_timeframe": spec.default_timeframe, "has_explainer": spec.explainer_path.is_file(),
             "lead": explainer_lead(spec.explainer()),

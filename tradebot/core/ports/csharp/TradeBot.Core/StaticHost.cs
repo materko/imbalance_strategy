@@ -26,6 +26,16 @@
 //
 // Verzia 4: `SpoolMinute` - uzavrety 1m bar symbolu (`m1`) do telemetrie, z ktoreho sa sklada sklad zivych sviecok.
 //
+// Verzia 6: `DailyStopCheck`/`DailyStopText` - denny stop uctu (`DailyStop`, docs/DAILY_STOP.md); bez handle,
+// lebo stav patri uctu, nie enginu (zmena profilu engine postavi znova, stop dna ostava). `SpoolQuote` - posledny
+// bid/ask a cas kotacie v ms (`LiveSpool.Quote`), ktory spool prilozi k `order` a `fill` (docs/LIVE.md).
+// `SpoolMinuteSpread` - `m1` so spreadom sviecky a priemerom/maximom z tikov (sklad spreadu, `tester.spread`).
+//
+// Verzia 7 (SMERNICA V2 U1, U2): `DailyStopCheckBal` - zaklad dna max(balance, equity); `OpenRiskVerdict`,
+// `PositionRisk`, `StopOverdue` - kontrola sucasneho rizika uctu a pozicie bez SL (`AccountGuard`); `SpoolGuard`
+// (riadok `account_guard`), `SpoolReject` (odmietnuty prikaz s kurzom) a `SpoolFillEx` (typ prikazu, poziadana
+// cena, kurz pri odoslani), `DailyStopSweepDue` (zatvaranie celeho uctu raz za 5 s v terminali).
+//
 // `Bridge*` (bez zmeny verzie, ako `SpoolHeartbeat`): MT5 exekutor pre ordery strategie, ktora bezi v inej platforme
 // (docs/ROUTING.md); vstupy v `OnBar` mozu niest `life` (`OrderLife`), EA strategii ho ignoruje.
 using System;
@@ -64,7 +74,7 @@ public static class StaticHost
     }
 
     /// <summary>Verzia fasady - hostitel si ju overi, kym zacne (zmena kontraktu = ina verzia).</summary>
-    public static int Version() { return 5; }
+    public static int Version() { return 7; }
 
     /// <summary>Kontrola pred zivym startom (`IPreflight`): upozornenia enginu k `nowMs` (UTC), jedno na riadok;
     /// "" = ziadne (alebo engine bez kontroly). Chyba ide tiez ako upozornenie, nie ako vynimka.</summary>
@@ -84,6 +94,74 @@ public static class StaticHost
             return clock != null && clock.FlattenDue(nowMs) ? 1 : 0;
         }
         catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Denny stop uctu (`DailyStop`): 1 = ucet je dnes zastaveny (zavriet a zrusit vsetko, nove vstupy
+    /// neposielat), 0 = obchoduje sa, -1 = chyba (zle pasmo, cas, percento - text v `LastError`). `equity` je equity
+    /// uctu v jeho mene vratane otvorenych obchodov; &lt;= 0 stav nemeni (terminal este nie je pripojeny).</summary>
+    public static int DailyStopCheck(string stateDir, string account, double pct, string zone, string resetTime, long nowMs, double equity)
+    {
+        try
+        {
+            DailyStopRule rule = new DailyStopRule(pct, zone, resetTime);
+            return DailyStop.For(stateDir, account, rule).Check(rule, nowMs, equity) ? 1 : 0;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Ako `DailyStopCheck`, zaklad dna je max(balance, equity) (SMERNICA V2 U1).</summary>
+    public static int DailyStopCheckBal(string stateDir, string account, double pct, string zone, string resetTime, long nowMs,
+                                        double equity, double balance)
+    {
+        try
+        {
+            DailyStopRule rule = new DailyStopRule(pct, zone, resetTime);
+            return DailyStop.For(stateDir, account, rule).Check(rule, nowMs, equity, balance) ? 1 : 0;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>1 = ucet je zastaveny a tato instancia ma teraz zatvorit vsetky pozicie a prikazy uctu (najviac raz
+    /// za 5 s v terminali - `DailyStop.SweepDue`), 0 = nie, -1 = chyba.</summary>
+    public static int DailyStopSweepDue(string stateDir, string account, double pct, string zone, string resetTime, long nowMs)
+    {
+        try
+        {
+            DailyStopRule rule = new DailyStopRule(pct, zone, resetTime);
+            return DailyStop.For(stateDir, account, rule).SweepDue(nowMs) ? 1 : 0;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Riziko pozicie do SL v mene uctu (`AccountGuard.PositionRisk`); SL &lt;= 0 = -1 (bez SL).</summary>
+    public static double PositionRisk(double entry, double stop, double volume, double valuePerPoint)
+    {
+        double r = AccountGuard.PositionRisk(entry, stop, volume, valuePerPoint);
+        return double.IsNaN(r) ? -1 : r;
+    }
+
+    /// <summary>"" = vstup smie ist, inak dovod (`AccountGuard.RiskVerdict`). MQL nema NaN: `openRisk` &lt; 0 =
+    /// niektora otvorena pozicia nema SL, `newRisk` &lt; 0 = novy obchod bez SL.</summary>
+    public static string OpenRiskVerdict(double openRisk, double newRisk, double equity, double maxPct)
+    {
+        return AccountGuard.RiskVerdict(openRisk < 0 ? double.NaN : openRisk, newRisk < 0 ? double.NaN : newRisk, equity, maxPct);
+    }
+
+    /// <summary>1 = pozicia bez SL u brokera je po lehote od fillu (zavriet trhom), 0 nie.</summary>
+    public static int StopOverdue(long fillMs, long nowMs, bool hasStop)
+    {
+        return AccountGuard.StopOverdue(fillMs, nowMs, hasStop) ? 1 : 0;
+    }
+
+    /// <summary>Veta o stave denneho stopu uctu do logu (zaklad, hranica, equity, zastavenie); "" pri chybe.</summary>
+    public static string DailyStopText(string stateDir, string account, double pct, string zone, string resetTime)
+    {
+        try
+        {
+            DailyStopRule rule = new DailyStopRule(pct, zone, resetTime);
+            return DailyStop.For(stateDir, account, rule).Text(rule);
+        }
+        catch (Exception e) { Fail(e); return ""; }
     }
 
     /// <summary>Kluce C# strategii v tejto assembly, oddelene ciarkou.</summary>
@@ -289,6 +367,22 @@ public static class StaticHost
         catch (Exception e) { Fail(e); return -1; }
     }
 
+    /// <summary>`SpoolMinute` so spreadom v cene: `spread` zo sviecky (MqlRates.spread x _Point), `spreadAvg` /
+    /// `spreadMax` z tikov tej minuty; &lt;= 0 = nezname (verzia 6).</summary>
+    public static int SpoolMinuteSpread(int handle, long barMs, double open, double high, double low, double close, double volume,
+                                        double spread, double spreadAvg, double spreadMax)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Minute(barMs, open, high, low, close, volume, spread, spreadAvg, spreadMax);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
     /// <summary>Vyplnenie u brokera (cas exekucie v ms UTC; `entry` = vstup, inak vystup s menom `exitName`).</summary>
     public static int SpoolFill(int handle, long execMs, string id, bool entry, string exitName, double price, double qty, bool ready)
     {
@@ -297,6 +391,66 @@ public static class StaticHost
             Slot s = Get(handle);
             if (s.Spool == null) return 0;
             s.Spool.Fill(execMs, id, entry, exitName, price, qty, ready);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Fill s typom prikazu (`market`/`limit`/`stop`/`sl`/`tp`), poziadanou cenou a kurzom pri odoslani
+    /// (`LiveSpool.Fill` V2 U2); `reqPrice`/`sendBid`/`sendAsk` &lt;= 0 = nezname.</summary>
+    public static int SpoolFillEx(int handle, long execMs, string id, bool entry, string exitName, double price, double qty, bool ready,
+                                  string orderKind, double reqPrice, double sendBid, double sendAsk, long sendMs)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Fill(execMs, id, entry, exitName, price, qty, ready, orderKind, reqPrice, sendBid, sendAsk, sendMs);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Odmietnuty prikaz (`LiveSpool.Reject`): cas v ms UTC, id orderu enginu, kod brokera, cena, text.</summary>
+    public static int SpoolReject(int handle, long ms, string id, string code, double price, string text)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Reject(ms, id, code, price, text);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Ochrana uctu (`LiveSpool.Guard`): `what` daily_stop/blocked/risk/no_sl/duplicate/off. MQL nema NaN:
+    /// `value` / `limit` &lt; 0 = bez cisla.</summary>
+    public static int SpoolGuard(int handle, string what, string text, double value, double limit)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Guard(what, text, value < 0 ? double.NaN : value, limit < 0 ? double.NaN : limit);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Posledny kurz symbolu (`SymbolInfoTick`: bid, ask, `time_msc`) - spool ho prilozi k dalsim
+    /// `order` a `fill` riadkom. Bid alebo ask &lt;= 0 kurz zabudne.</summary>
+    public static int SpoolQuote(int handle, double bid, double ask, long timeMsc)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Quote(bid, ask, timeMsc);
             if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
             return 1;
         }

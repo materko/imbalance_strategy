@@ -110,7 +110,7 @@ class LiveData(HubPlugin):
         from tester import livedata
 
         out = []
-        for top in ("candles", "trades", "instances"):
+        for top in livedata.TOPS:
             for p in sorted((self.root / top).rglob("*")):
                 if not p.is_file() or p.name.endswith(".tmp"):
                     continue
@@ -155,7 +155,8 @@ class LiveData(HubPlugin):
         if not cfg["remote"]:
             raise gitpush.PushError("push nie je nastavený (config remote / TRADEBOT_LIVEDATA_REMOTE)")
         months = sorted({f["month"] for f in files if f["month"]})
-        kinds = sorted({"sviečky" if f["path"].startswith("candles/") else "obchody" for f in files if f["month"]})
+        kinds = sorted({"sviečky" if f["path"].startswith("candles/") else "spread" if f["path"].startswith("spread/")
+                        else "obchody" for f in files if f["month"]})
         n = len(files)
         word = "súbor" if n == 1 else "súbory" if n < 5 else "súborov"
         msg = (f"Pridaj živé dáta za {', '.join(months)} z hubu ({n} {word}: {', '.join(kinds)}), "

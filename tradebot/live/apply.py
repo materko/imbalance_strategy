@@ -200,6 +200,8 @@ class Reconciler:
             sig.update(slot=dep.slot, own_terminal=dep.own_terminal)
         if acc.rev:   # bez `rev` (starý hub) ostáva podpis ako doteraz — nič sa zbytočne neprepisuje
             sig["rev"] = acc.rev
+        if acc.daily_stop is not None:   # denný stop účtu: platforma ho číta pri štarte inštancie
+            sig["daily_stop"] = acc.daily_stop
         return config_hash(sig)
 
     def _warn_once(self, key: str, text: str) -> None:

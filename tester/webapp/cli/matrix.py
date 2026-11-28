@@ -34,6 +34,12 @@ def cmd_matrix(args: argparse.Namespace) -> int:
         if nezname:
             raise SystemExit(f"neznáme páry: {', '.join(nezname)}\nznáme: {', '.join(vsetky)}")
     tfs = [x.strip() for x in args.timeframes.split(",") if x.strip()]
+    from ... import hyperopt as ho
+
+    # iný trh (krok 8c) sa meria len na L toho trhu, nikdy na jeho trezore ani roku A
+    zle = [p for p in pary if ho.search_problem(settings["timerange"], None, p)]
+    if zle:
+        raise SystemExit("matica: " + "; ".join(ho.search_problem(settings["timerange"], None, p) or "" for p in zle))
 
     try:
         bunky = mx.expand(pary, tfs)
@@ -131,13 +137,19 @@ def cmd_checkup(args: argparse.Namespace) -> int:
     from ..store import RunStore
 
     okna = ([x.strip() for x in args.windows.split(",") if x.strip()]
-            if args.windows else list(ho.REFERENCE_WINDOWS))
-    if not okna:
+            if args.windows and args.windows.strip() not in ("L", "ref") else None)
+    if okna is not None and not okna:
         raise SystemExit("--windows nesmie byt prazdne")
     # `_prepare` chce jedno okno; ostatné sa dosadia pri behu. Musí to byť okno zo
     # zoznamu, nech kontrola dát (páry, engine) platí o tom, čo sa naozaj spustí.
-    args.timerange = okna[0]
+    # Bez --windows sú okná L trhu po rokoch (SMERNICA V2 §1) — trh sa pozná až z páru profilu.
+    args.timerange = (okna or list(ho.REFERENCE_WINDOWS))[0]
     params, settings = _prepare(args, check_engine=not args.runs)
+    if okna is None:
+        okna = ho.windows_for(settings["pair"])
+        args.timerange = settings["timerange"] = okna[0]
+    if not args.runs and (problem := ho.search_problem(None, okna, settings["pair"])):
+        raise SystemExit(problem.replace("hyperopt", "checkup", 1))
     store = RunStore()
 
     if args.runs:
@@ -270,7 +282,7 @@ def _checkup_command(args: argparse.Namespace, okna: list[str]) -> str:
         cmd.append(f"--fee {args.fee}")
     if float(args.wallet) != 10000.0:
         cmd.append(f"--wallet {args.wallet:g}")
-    if list(okna) != list(ho.REFERENCE_WINDOWS):
+    if list(okna) != ho.windows_for(args.pair):
         cmd.append("--windows " + ",".join(okna))
     return (" \\" + "\n   ").join(cmd)
 

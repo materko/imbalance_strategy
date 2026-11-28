@@ -101,6 +101,16 @@ def build_parser(description: str) -> argparse.ArgumentParser:
 
     p = sub.add_parser("run", help="spusti backtest (cez webapp, alebo priamo) a ulož do histórie")
     _run_args(p)
+    for akcia in p._actions:          # s --vault sa obdobie dosadí z registra
+        if akcia.dest == "timerange":
+            akcia.required = False
+    p.add_argument("--hypothesis", help="hypotéza registra (tester/register/<meno>.md): beh sa zapíše ako pokus "
+                                        "a musí byť na L trhu (SMERNICA V2 §2)")
+    p.add_argument("--vault", choices=("B", "C"), help="otvoriť trezor hypotézy (raz; obdobie sa dosadí samo, "
+                                                       "--timerange netreba) — python -m tester.register open")
+    p.add_argument("--keys", help="pri --vault: kľúče kópií rodiny, ktoré trezor uvidia (default --strategy)")
+    p.add_argument("--source", default="manual", choices=("grid", "hyperopt", "manual", "plateau", "study"),
+                   help="pri --hypothesis: zdroj pokusu do registra (default manual)")
     p.add_argument("--no-wait", action="store_true", help="len zaradiť do fronty webapp, nečakať")
     p.set_defaults(func=cmd_run)
 

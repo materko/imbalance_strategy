@@ -33,11 +33,14 @@ string`, ich poľami a `ref` — trieda v namespace (`TradeBot.Core.X`) nie je v
 | metóda | čo robí |
 |---|---|
 | `Version()`, `Strategies()` | verzia kontraktu (EA ju overí), kľúče C# stratégií v DLL |
+| `DailyStopCheckBal`, `DailyStopSweepDue`, `PositionRisk`, `OpenRiskVerdict`, `StopOverdue`, `SpoolGuard`, `SpoolReject`, `SpoolFillEx` | ochrana účtu a zápis plnenia (SMERNICA V2 U1/U2, [DAILY_STOP.md](DAILY_STOP.md)) |
+| skript `TradeBotSpreadExport` | spread z histórie tikov brokera (`CopyTicks`) do `Common\Files\TradeBot\spread` — `python -m tester.spread history` (V2 U3) |
 | `Create(key, configJson, instrumentJson, chartTfMinutes)` | engine → handle > 0; `-1` = chyba v `LastError()` |
 | `HtfTfMinutes(h)`, `RequiredHistory(h)`, `Info(h)`, `Stats(h)` | čo adaptér potrebuje vedieť o engine |
 | `FeedHtf(h, čas, o, h, l, c, v)` | jeden **uzavretý** bar informatívneho TF; okno si engine skladá sám (ako NinjaTrader) |
 | `OnBar(h, čas, o, h, l, c, v, positionSize, dailyWinLimit, openOrderIds)` | uzavretý bar grafu → JSON ako `EngineHost.OnBar` |
 | `Seed`, `FinalDrawings`, `Destroy` | ako v `EngineHost` |
+| `DailyStopCheck(adresár, účet, pct, pásmo, čas, nowMs, equity)`, `DailyStopText(...)` | denný stop účtu bez handle (stav patrí účtu): `1` = dnes zastavený, zavrieť všetko a neposielať vstupy; inputy `InpDailyStop*` ([DAILY_STOP.md](DAILY_STOP.md)) |
 
 Časy sú **ms UTC otvorenia baru**, čísla idú ako natívne `double` a JSON von ako `G17` — parita
 s Python predlohou sa robí na rovnosť. Výnimka sa cez hranicu nepúšťa: metóda vráti `-1`/`""`
@@ -94,11 +97,11 @@ a text je v `LastError()`.
   v ktorej vznikol). Vstupy `InpShowDrawings`, `InpShowSessionBg`, `InpReplayBars` (koľko barov
   predhistórie prehrať a nakresliť);
 - **live telemetria** (docs/LIVE.md): mimo Strategy Testera píše DLL (`StaticHost::SpoolOpen/SpoolBar/
-  SpoolFill/SpoolNote/SpoolClose`, priamo na disk, nie cez MQL sandbox) bary, zámery, prechody, kresby
-  a vyplnenia do JSONL spoolu `Common\Files\TradeBot\spool\mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>\`;
+  SpoolFill/SpoolQuote/SpoolNote/SpoolClose`, priamo na disk, nie cez MQL sandbox) bary, zámery, prechody, kresby
+  a vyplnenia (s bid/ask z `SymbolInfoTick` a časom dealu v ms z `DEAL_TIME_MSC`) do JSONL spoolu `Common\Files\TradeBot\spool\mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>\`;
   agent hubu ho posiela do webapp (karta **Live**). Vstupy `InpTelemetry` (predvolene zapnuté) a
   `InpTelemetryInTester` (predvolene vypnuté — tester spool nepíše, iba na overenie). Fasáda má od toho
-  `Version() == 2` (od slotu nasadenia `3`, `InstanceIdSlot`/`SpoolOpenSlot`, od `EodDue` `5`): staršiu `TradeBot.dll` EA odmietne pri štarte, stačí `install`. Chyba spoolu EA
+  `Version() == 2` (od slotu nasadenia `3`, `InstanceIdSlot`/`SpoolOpenSlot`, od `EodDue` `5`, od denného stopu `DailyStop*` a kurzu `SpoolQuote` `6`, od ochrany účtu SMERNICE V2 — `DailyStopCheckBal`, `OpenRiskVerdict`, `SpoolGuard`, `SpoolReject`, `SpoolFillEx` — `7`): staršiu `TradeBot.dll` EA odmietne pri štarte, stačí `install`. Chyba spoolu EA
   nezhodí — zaloguje sa a obchoduje sa ďalej; DLL po 30 s otvorí nový súbor tej istej session (`hello`
   + `note warn`), udalosti z výpadku chýbajú;
 - **ovládanie na diaľku** cez `Common\Files\TradeBot\control\<inštancia>.json` (pauza, flatten, zmena

@@ -65,6 +65,48 @@ def test_export_oddelene_m1_aj_bary_grafu_a_obchody(tmp_path: Path) -> None:
     assert stamps == {p: p.stat().st_mtime_ns for p in root.rglob("*") if p.is_file()}
 
 
+def test_spread_z_m1_ide_do_skladu_spreadu_a_reportu(tmp_path: Path) -> None:
+    """Bod 2 (docs/DATA.md §D): `m1` so `sp` (sviečka brokera) a `spa`/`spx` (tiky) → `spread/<platforma>/<symbol>/`;
+    minúta po reštarte bez tikov nezmaže, čo už sklad má, a chýbajúce doplní. `tester.spread` z neho spraví hodiny."""
+    from tester import spread
+
+    mirror, root, cursor = tmp_path / "mirror.sqlite", tmp_path / "data_live", tmp_path / "cur.json"
+    st = LiveStore(mirror)
+    st.ingest("nas", INST, "s1", [
+        hello(1, T0),
+        validate(dict(bar(2, T0, 100.0, "m1"), sp=0.5, spa=0.75, spx=1.5)),
+        validate(dict(bar(3, T0 + MIN, 100.5, "m1"), sp=0.5)),
+        bar(4, T0 + 2 * MIN, 100.7, "m1"),                       # starý adaptér: bez spreadu
+    ])
+    st.close()
+    livedata.export(mirror, root, cursor, now_ms=T0 + 30 * MIN)
+    month = pd.Timestamp(T0, unit="ms", tz="UTC").strftime("%Y-%m")
+    assert (root / "spread" / "ninjatrader" / "MNQ" / f"{month}.feather").exists()
+    sp = livedata.load_spread("ninjatrader", "MNQ", root)
+    assert list(sp.columns) == ["date", "spread", "spread_avg", "spread_max"] and len(sp) == 2
+    assert sp["spread_avg"].iloc[0] == 0.75 and pd.isna(sp["spread_avg"].iloc[1])
+
+    # druhé zrkadlo: tá istá minúta znova (len zo sviečky) + tiky k minúte, ktorá ich nemala
+    mirror.unlink()
+    st = LiveStore(mirror)
+    st.ingest("nas", INST, "s2", [hello(1, T0 + 40 * MIN, "s2"),
+                                   validate(dict(bar(2, T0, 100.0, "m1"), sp=0.25)),
+                                   validate(dict(bar(3, T0 + MIN, 100.5, "m1"), spa=1.0, spx=2.0))])
+    st.close()
+    livedata.export(mirror, root, cursor, now_ms=T0 + 50 * MIN)
+    sp = livedata.load_spread("ninjatrader", "MNQ", root)
+    assert sp["spread"].tolist() == [0.5, 0.5] and sp["spread_avg"].tolist() == [0.75, 1.0]
+
+    p = spread.profile("ninjatrader", "MNQ", root=root, zone="UTC")
+    hour = str(pd.Timestamp(T0, unit="ms", tz="UTC").hour)
+    assert p["minutes"] == 2 and p["hours"][hour]["n"] == 2 and p["hours"][hour]["median"] == 0.875
+    assert p["max_tick"]["max"] == 2.0 and p["ticks_share"] == 1.0
+    assert [r["symbol"] for r in spread.available(root)] == ["MNQ"]
+    assert spread.main(["report", "--platform", "ninjatrader", "--symbol", "MNQ", "--root", str(root),
+                        "--json", str(tmp_path / "sp.json")]) == 0
+    assert (tmp_path / "sp.json").exists()
+
+
 def test_export_nove_zrkadlo_neprepise_co_uz_je(tmp_path: Path) -> None:
     """Bar, ktorý už v súbore je, vyhráva (reštart zopakuje predhistóriu); obchody z vymeneného zrkadla ostanú."""
     mirror, root, cursor = tmp_path / "mirror.sqlite", tmp_path / "data_live", tmp_path / "cur.json"
@@ -338,3 +380,54 @@ def test_cache_pohladu_sleduje_len_subory_svojej_instancie(tmp_path: Path) -> No
     assert livesim._view_stamp([root], INST, inst) == pred
     (sym / "1m-2099-01.feather").write_bytes(b"x")                           # nový súbor vlastného symbolu
     assert livesim._view_stamp([root], INST, inst) != pred
+
+
+def test_obchody_nesu_plnenie_v2_a_stare_mesiace_ostanu(tmp_path):
+    """SMERNICA V2 U2.5: typ príkazu, požadovaná cena a bid/ask pri fille idú do `trades`; starý súbor bez nich
+    sa pri spojení nezmaže (migrácia)."""
+    import pandas as pd
+
+    from tester import livedata
+
+    old = {"id": "L-0", "open": "2026-11-02T14:00:00Z", "close": "2026-11-02T15:00:00Z", "dir": "long",
+           "qty": 1.0, "entry": 100.0, "exit": 101.0, "pnl": 2.0, "reason": "tp"}
+    livedata._export_trades(tmp_path, "mt5_1_X_3m_s", [old], [{"start": 0, "profile": "p"}])
+    path = tmp_path / "trades" / "mt5_1_X_3m_s" / "2026-11.feather"
+    stary = pd.read_feather(path).drop(columns=list(livedata.FILL_COLS))      # súbor spred V2
+    stary.to_feather(path)
+    new = {**old, "id": "L-1", "open": "2026-11-03T14:00:00Z", "close": "2026-11-03T15:00:00Z",
+           "entry_kind": "limit", "entry_req": 100.0, "entry_bid": 99.5, "entry_ask": 100.25, "entry_sbid": 99.75,
+           "entry_sask": 100.5, "exit_kind": "tp", "exit_req": 101.0, "exit_bid": 101.0, "exit_ask": 101.5}
+    livedata._export_trades(tmp_path, "mt5_1_X_3m_s", [new], [{"start": 0, "profile": "p"}])
+    df = pd.read_feather(path)
+    assert list(df["id"]) == ["L-0", "L-1"]
+    r = df.set_index("id").loc["L-1"]
+    assert (r["entry_kind"], r["entry_req"], r["entry_ask"], r["exit_kind"]) == ("limit", 100.0, 100.25, "tp")
+    assert pd.isna(df.set_index("id").loc["L-0", "entry_req"])
+
+
+def test_spread_z_historie_tikov_brokera_u3(tmp_path):
+    """ZADANIE U3: histogram spreadu po minútach z TradeBotSpreadExport -> p50/p75/p95 po oknách NY a návrh tabuľky."""
+    from tester import spread
+
+    # 2026-11-25 (streda): 14:35 UTC = 9:35 NY (otvorenie), 15:00 UTC = 10:00 NY (seansa), 02:00 UTC = mimo seansy
+    lines = ["#symbol=US100.cash;point=0.01;digits=2;offset_min=120;dst_ny=1",
+             "2026.11.25 14:35;10;300:8|500:2",        # 3,00 b x8, 5,00 b x2
+             "2026.11.25 15:00;10;140:9|200:1",
+             "2026.11.25 02:00;4;400:4",
+             "2026.11.25 13:30;5;900:5"]              # 8:30 NY = CPI? (nemusí byť v kalendári)
+    (tmp_path / "US100.cash_ticks.csv").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (tmp_path / "US100.cash_m1.csv").write_text("#symbol=US100.cash;point=0.01\n2026.11.25 15:00;150\n2026.11.25 02:00;420\n",
+                                                encoding="utf-8")
+    p = spread.history_profile(tmp_path / "US100.cash_ticks.csv", tmp_path / "US100.cash_m1.csv")
+    assert p["ticks"] == 29
+    assert p["open"]["ticks"] == 10 and p["open"]["p50"] == 3.0 and p["open"]["p95"] == 5.0
+    assert p["rth"]["ticks"] == 20 and p["rth"]["p50"] == 2.0 and p["rth"]["p75"] == 3.0 and p["rth"]["p95"] == 5.0
+    assert p["off"]["ticks"] == 9 and p["off"]["p75"] == 9.0
+    assert p["slots"]["09:30"]["ticks"] == 10 and p["slots"]["10:00"]["p75"] == pytest.approx(1.4)
+    assert p["m1"]["bars"] == 2 and p["m1"]["rth"]["p50"] == pytest.approx(1.5)
+    cmp = {r["window"]: r for r in p["compare"]}
+    assert cmp["hlavná seansa"]["table"] == 2.0 and cmp["hlavná seansa"]["propose"] is False    # 3,0 vs 2,0 = 0,5 S (nie viac)
+    assert cmp["mimo seansy"]["table"] == 4.0 and cmp["mimo seansy"]["propose"] is True        # 9,0 vs 4,0
+    md = spread.history_markdown([p])
+    assert "## US100.cash" in md and "| hlavná seansa 9:30–16:00 | 20 |" in md and "návrh novej hodnoty" in md

@@ -89,6 +89,11 @@ def test_walk_forward_tests_on_unseen_window(runner):
     assert {e.fold for e in wf.epochs} == {0, 1}
     ank = walk_forward(runner, plan, None, [W1, W2, W3], epochs=4, batch=4, seed=4, anchored=True, log=_quiet)
     assert ank.folds[1]["train"] == [W1, W2]
+    # smernica (krok 9): ladiť na dvoch oknách, testovať na nasledujúcom
+    dva = walk_forward(runner, plan, None, [W1, W2, W3], epochs=4, batch=4, seed=4, train_windows=2, log=_quiet)
+    assert [(f["train"], f["test"]) for f in dva.folds] == [([W1, W2], W3)]
+    with pytest.raises(ValueError, match="aspoň 3"):
+        walk_forward(runner, plan, None, [W1, W2], epochs=4, train_windows=2, log=_quiet)
 
 
 def test_continue_puts_old_epochs_into_study(runner):

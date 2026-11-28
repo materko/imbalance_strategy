@@ -595,15 +595,21 @@ class Mt5Driver(Driver):
 
     # -- grafy --------------------------------------------------------------- #
 
-    def chart_inputs(self, deployment: Deployment, expert: str) -> dict[str, str]:
+    def chart_inputs(self, deployment: Deployment, expert: str, account: Account | None = None) -> dict[str, str]:
         """Inputy EA pre graf: predvolené z `TradeBotEA.mqh`, cez ne `<Šablóna>_live.set` (posun servera…),
-        cez to profil, magic a telemetria od drivera."""
+        cez to profil, magic, telemetria a denný stop účtu od drivera."""
         if self._inputs is None:
             self._inputs = ea_inputs(self.ea_source)
         presets = Path(__file__).resolve().parents[2] / "adapters" / "mt5" / "presets"
         live = _set_values(presets / f"{expert}_live.set")
         forced: dict[str, Any] = {"InpProfile": deployment.profile, "InpMagic": magic_for(deployment.id),
                                   "InpSlot": deployment.slot, **FORCED_INPUTS}
+        # denný stop je vec účtu v hube, nie predvoľby šablóny (docs/DAILY_STOP.md)
+        stop = account.daily_stop if account is not None else None
+        forced["InpDailyStop"] = stop is not None
+        if stop is not None:
+            forced.update({"InpDailyStopPct": stop["pct"], "InpDailyStopZone": stop["zone"],
+                           "InpDailyStopTime": stop["time"]})
         out: dict[str, str] = {}
         for typ, name, default in self._inputs:
             if name in forced:
@@ -617,6 +623,16 @@ class Mt5Driver(Driver):
             out[name] = _fmt_input(typ, value)
         return out
 
+    @staticmethod
+    def executor_inputs(account: Account | None) -> dict[str, str]:
+        """Inputy grafu TradeBotExecutor: predvolené, len denný stop MT5 účtu z hubu (docs/DAILY_STOP.md). Bez
+        stopu prázdne ako doteraz - graf exekútora účtu bez stopu sa nezmení a terminál sa nereštartuje."""
+        stop = account.daily_stop if account is not None else None
+        if stop is None:
+            return {}
+        return {"InpDailyStop": "true", "InpDailyStopPct": _fmt_input("double", stop["pct"]),
+                "InpDailyStopZone": _fmt_input("string", stop["zone"]), "InpDailyStopTime": _fmt_input("string", stop["time"])}
+
     def _charts(self, account: Account, deployments: list[Deployment]) -> list[dict[str, Any]]:
         charts = []
         for dep in sorted(deployments, key=lambda d: d.id):
@@ -628,14 +644,14 @@ class Mt5Driver(Driver):
                 charts.append({"deployment": dep.id, "instance": instance, "symbol": dep.symbol, "tf": 1,
                                "strategy": dep.strategy, "profile": "", "config_hash": "",
                                "expert": EXECUTOR_EXPERT, "path": f"Experts\\TradeBot\\{EXECUTOR_EXPERT}.ex5",
-                               "magic": 0, "inputs": {},
+                               "magic": 0, "inputs": self.executor_inputs(account),
                                "expertmode": EXPERTMODE_TRADING if self.allow_live_trading else EXPERTMODE_NO_TRADING})
                 continue
             expert, path = self.template_for(dep.strategy)
             charts.append({"deployment": dep.id, "instance": instance, "symbol": dep.symbol, "tf": dep.tf,
                            "strategy": dep.strategy, "profile": dep.profile, "config_hash": dep.config_hash,
                            "expert": expert, "path": path, "magic": magic_for(dep.id),
-                           "inputs": self.chart_inputs(dep, expert),
+                           "inputs": self.chart_inputs(dep, expert, account),
                            "expertmode": EXPERTMODE_TRADING if self.allow_live_trading else EXPERTMODE_NO_TRADING})
         return charts
 
@@ -654,10 +670,18 @@ class Mt5Driver(Driver):
     @staticmethod
     def _charts_key(charts: list[dict[str, Any]], reload: bool = False) -> list[list[Any]]:
         """Čo musí terminál mať; s `reload` bez profilu a jeho configu — tie EA prepne za behu."""
+        # denný stop sa číta len pri štarte EA - jeho zmena na účte = nové grafy (reštart terminálu)
+        def stop(c: dict[str, Any]) -> str:
+            i = c.get("inputs") or {}
+            if i.get("InpDailyStop") != "true":
+                return ""
+            return "|".join(str(i.get(k, "")) for k in ("InpDailyStopPct", "InpDailyStopZone", "InpDailyStopTime"))
+
         if reload:
-            return sorted([c["symbol"], list(period_of(c["tf"])), c["path"].lower(), int(c["magic"])] for c in charts)
+            return sorted([c["symbol"], list(period_of(c["tf"])), c["path"].lower(), int(c["magic"])]
+                          + ([stop(c)] if stop(c) else []) for c in charts)
         return sorted([c["symbol"], list(period_of(c["tf"])), c["path"].lower(), c["profile"], int(c["magic"]),
-                       c.get("config_hash") or ""] for c in charts)
+                       c.get("config_hash") or ""] + ([stop(c)] if stop(c) else []) for c in charts)
 
     def profile_dir(self, data_dir: Path) -> Path:
         return data_dir / "MQL5" / "Profiles" / "Charts" / PROFILE_NAME

@@ -600,3 +600,27 @@ def test_sklad_ma_stalu_identitu_a_reviziu_ktora_len_rastie(tmp_path: Path, stor
     assert novy.raise_rev(3, "rasto")["rev"] == 500          # nikdy nadol
     with pytest.raises(DeployError):
         novy.adopt("", "rasto")
+
+
+def test_denny_stop_uctu_v_hube(store: DeployStore):
+    """docs/DAILY_STOP.md: denný stop je pri účte, overí sa hneď v hube, nemení `rev` a ide strojom v heartbeate."""
+    a = _acc(store)
+    assert a["daily_stop"] is None
+    b = store.upsert_account({"id": a["id"], "daily_stop": {"pct": "3.5", "zone": "Europe/Prague", "time": "00:00"}}, by="r")
+    assert b["daily_stop"] == {"pct": 3.5, "zone": "Europe/Prague", "time": "00:00"} and b["rev"] == a["rev"]
+    assert store.audit()[0]["new"] == {"daily_stop": {"pct": 3.5, "zone": "Europe/Prague", "time": "00:00"}}
+    # len percento = predvolené pásmo a začiatok dňa (CME)
+    c = store.upsert_account({"id": a["id"], "daily_stop": {"pct": 4}}, by="r")
+    assert c["daily_stop"] == {"pct": 4.0, "zone": "Europe/Prague", "time": "00:00"}   # predvolené SMERNICE V2 U1
+    store.create_deployment({"account": a["id"], "agent": "pc", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3,
+                             "profile": "p1"}, by="r")
+    assert store.desired_for_agent("pc")["accounts"][0]["daily_stop"] == c["daily_stop"]
+    for bad in ({"pct": 0}, {"pct": 100}, {"pct": "x"}, {"time": "18"}, {"time": "24:00"}, {"zone": "New York"}, 4):
+        with pytest.raises(DeployError, match="daily_stop"):
+            store.upsert_account({"id": a["id"], "daily_stop": bad}, by="r")
+    # vypnutie: null alebo on:false
+    assert store.upsert_account({"id": a["id"], "daily_stop": {"on": False, "pct": 4}}, by="r")["daily_stop"] is None
+    assert "daily_stop" not in store.desired_for_agent("pc")["accounts"][0]
+    # nový účet rovno so stopom
+    n = store.upsert_account({"platform": "ninjatrader", "login": "Sim101", "daily_stop": {"pct": 2}}, by="r")
+    assert n["daily_stop"]["pct"] == 2.0

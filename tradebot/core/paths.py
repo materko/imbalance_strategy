@@ -59,7 +59,7 @@ __all__ = [
     "LIVE_JOURNAL_CURSOR", "HUB_TELEGRAM_CONFIG", "HUB_TELEGRAM_STATE",
     "HUB_PLUGINS_DIR",
     "DOCS_DIR", "MERANIA_DIR",
-    "ARCHIVE_ROOTS",
+    "ARCHIVE_ROOTS", "REGISTER_DIR", "VAULTS_FILE",
 ]
 
 #: Koreň repozitára — `tradebot/core/paths.py` → `tradebot/core` → `tradebot` → repo.
@@ -164,6 +164,10 @@ SWEEPS_DIR = TESTER_DIR / "sweeps"
 #: pár súborov, ale nič sa nestratí: `cli archive --restore` beh vráti presne späť.
 #: Ide do gitu ako história behov.
 ARCHIVE_DIR = TESTER_DIR / "archive"
+#: Register pokusov podľa SMERNICE V2 (§2, U6/U7): hlavička hypotézy `<hypotéza>.md` (commit pred prvým behom),
+#: pokusy `<hypotéza>.jsonl` (len pridávanie) a trezory so zámkami a počiatočným k `vaults.json`. Ide do gitu.
+REGISTER_DIR = Path(getenv("TRADEBOT_REGISTER") or TESTER_DIR / "register")
+VAULTS_FILE = REGISTER_DIR / "vaults.json"
 #: Kresby enginu pre graf páru (`<run_id>.json.gz`) a výsledok kontroly prehrania.
 #: Megabajty na beh a z uloženého configu sa dajú kedykoľvek prepočítať, takže do gitu
 #: nejdú — každý klon si ich počíta sám, až keď graf niekto otvorí.

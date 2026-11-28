@@ -43,7 +43,7 @@ from typing import Any, Iterable
 from tradebot.core.env import getenv
 from tradebot.core.paths import LIVE_DATA, LIVE_DATA_CURSOR, LIVE_DATA_HUB, LIVE_MIRROR
 
-__all__ = ["export", "enabled", "load_candles", "candle_range", "instances", "instance", "trades",
+__all__ = ["export", "enabled", "load_candles", "load_spread", "candle_range", "spread_dir", "TOPS", "SPREAD", "instances", "instance", "trades",
            "file_index", "file_month", "sync_hub", "EXPORT_SECONDS", "OHLCV", "HUB_FILES"]
 
 #: Hub exportuje a webapp sa s hubom zosúlaďuje najviac raz za toľko sekúnd.
@@ -55,7 +55,11 @@ OHLCV = ("open", "high", "low", "close", "volume")
 _BATCH = 200_000
 _BAD = re.compile(r"[^A-Za-z0-9._-]")
 _MONTH = re.compile(r"(\d{4}-\d{2})\.feather$")
-_TOPS = ("candles", "trades", "instances")
+#: Adresáre stromu `data/live` (index súborov, push hubu, sync webapp).
+TOPS = ("candles", "spread", "trades", "instances")
+_TOPS = TOPS
+#: Stĺpce skladu spreadu (v cene, nie v bodoch): zo sviečky brokera, priemer a maximum z tikov minúty.
+SPREAD = ("spread", "spread_avg", "spread_max")
 
 
 def enabled() -> bool:
@@ -97,6 +101,10 @@ def _roots(root: Path | str | None) -> list[Path]:
 
 def symbol_dir(platform: str, symbol: str, root: Path | str) -> Path:
     return Path(root) / "candles" / _safe(platform) / _safe(symbol)
+
+
+def spread_dir(platform: str, symbol: str, root: Path | str) -> Path:
+    return Path(root) / "spread" / _safe(platform) / _safe(symbol)
 
 
 # --------------------------------------------------------------------------- #
@@ -160,6 +168,37 @@ def _merge_candles(path: Path, rows: list[tuple[int, float, float, float, float,
     return len(fresh)
 
 
+def _merge_spread(path: Path, rows: list[tuple[int, float, float, float]]) -> int:
+    """Spread minút do mesačného súboru: čo v ňom je, ostáva; chýbajúce stĺpce minúty (NaN) doplní nový
+    zápis (po reštarte má minúta spread zo sviečky, ale už nie z tikov). Vráti počet nových minút."""
+    import pandas as pd
+
+    new = pd.DataFrame(rows, columns=["ms", *SPREAD]).drop_duplicates("ms", keep="first")
+    new["date"] = pd.to_datetime(new.pop("ms"), unit="ms", utc=True)
+    new = new.set_index("date")[list(SPREAD)].astype("float64")
+    if path.exists():
+        old = pd.read_feather(path).set_index("date")
+        fresh = int((~new.index.isin(old.index)).sum())
+        df = old.combine_first(new)
+        if fresh == 0 and df[list(SPREAD)].isna().sum().sum() == old[list(SPREAD)].isna().sum().sum():
+            return 0
+    else:
+        fresh, df = len(new), new
+    df = df.sort_index(kind="stable").reset_index()
+    for col in SPREAD:
+        df[col] = df[col].astype("float64")
+    _write_frame(path, df[["date", *SPREAD]])
+    return fresh
+
+
+def _spread_value(ev: dict[str, Any], key: str) -> float:
+    try:
+        v = float(ev.get(key) or 0.0)
+    except (TypeError, ValueError):
+        return float("nan")
+    return v if v > 0 else float("nan")
+
+
 def _load_cursor(path: Path, mirror: Path) -> int:
     try:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -215,6 +254,7 @@ def _export_candles(db: sqlite3.Connection, root: Path, cursor: int,
         if not rows:
             break
         groups: dict[Path, list[tuple[int, float, float, float, float, float]]] = {}
+        spreads: dict[Path, list[tuple[int, float, float, float]]] = {}
         for rid, inst, ses, kind, body in rows:
             cursor = max(cursor, int(rid))
             meta = insts.get(inst)
@@ -228,14 +268,27 @@ def _export_candles(db: sqlite3.Connection, root: Path, cursor: int,
             path = symbol_dir(meta["platform"], meta["symbol"], root) / f"{_tf_name(tf)}-{_month(bt)}.feather"
             groups.setdefault(path, []).append((bt, float(ev["o"]), float(ev["h"]), float(ev["l"]), float(ev["c"]),
                                                 float(ev.get("v") or 0.0)))
+            if kind == "m1" and any(k in ev for k in ("sp", "spa", "spx")):
+                sp = spread_dir(meta["platform"], meta["symbol"], root) / f"{_month(bt)}.feather"
+                spreads.setdefault(sp, []).append((bt, _spread_value(ev, "sp"), _spread_value(ev, "spa"),
+                                                   _spread_value(ev, "spx")))
         for path, bars in groups.items():
             n = _merge_candles(path, bars)
             if n:
                 added += n
                 files.add(str(path))
+        for path, mins in spreads.items():
+            if _merge_spread(path, mins):
+                files.add(str(path))
         if len(rows) < _BATCH:
             break
     return cursor, added, files
+
+
+#: Plnenie z telemetrie (SMERNICA V2 U2): typ príkazu (market / limit / stop / sl / tp), požadovaná cena, bid/ask
+#: pri fille a pri odoslaní vstupu. Staré mesiace ich nemajú — pri spojení ostanú prázdne, nič sa nemaže.
+FILL_COLS = ("entry_kind", "entry_req", "entry_bid", "entry_ask", "entry_sbid", "entry_sask",
+             "exit_kind", "exit_req", "exit_bid", "exit_ask")
 
 
 def _trade_frame(trades: list[dict[str, Any]], sessions: list[dict[str, Any]]):
@@ -250,14 +303,15 @@ def _trade_frame(trades: list[dict[str, Any]], sessions: list[dict[str, Any]]):
         return best
 
     cols = ["id", "open", "close", "dir", "qty", "entry", "exit", "sl", "tp", "sd", "pts", "pnl", "r", "reason",
-            "signal", "sent", "plan", "order_type", "profile"]
+            "signal", "sent", "plan", "order_type", "profile", *FILL_COLS]
     rows = [{**{c: t.get(c) for c in cols}, "profile": profile_at(t["open"])} for t in trades]
     df = pd.DataFrame(rows, columns=cols)
     for c in ("open", "close", "signal", "sent"):
         df[c] = pd.to_datetime(df[c], utc=True)
-    for c in ("qty", "entry", "exit", "sl", "tp", "sd", "pts", "pnl", "r", "plan"):
+    for c in ("qty", "entry", "exit", "sl", "tp", "sd", "pts", "pnl", "r", "plan",
+              *(c for c in FILL_COLS if not c.endswith("_kind"))):
         df[c] = pd.to_numeric(df[c], errors="coerce").astype("float64")
-    for c in ("id", "dir", "reason", "order_type", "profile"):
+    for c in ("id", "dir", "reason", "order_type", "profile", "entry_kind", "exit_kind"):
         df[c] = df[c].fillna("").astype(str)
     return df
 
@@ -442,6 +496,19 @@ def load_candles(platform: str, symbol: str, tf: str = "1m", root: Path | str | 
     if end_ms is not None:
         df = df[df["date"] < pd.Timestamp(end_ms, unit="ms", tz="UTC")]
     return df.reset_index(drop=True)
+
+
+def load_spread(platform: str, symbol: str, root: Path | str | None = None):
+    """Spread minút symbolu (`date` UTC, `spread`, `spread_avg`, `spread_max` v cene; NaN = nezname) z gitu aj
+    z hubu; tá istá minúta z hubu vyhrá. Prázdny rámec, keď nie je."""
+    import pandas as pd
+
+    frames = [pd.read_feather(p) for r in _roots(root) for p in sorted(spread_dir(platform, symbol, r).glob("*.feather"))]
+    if not frames:
+        return pd.DataFrame({"date": pd.Series([], dtype="datetime64[ns, UTC]"),
+                             **{c: pd.Series([], dtype="float64") for c in SPREAD}})
+    return (pd.concat(frames, ignore_index=True).drop_duplicates("date", keep="last")
+            .sort_values("date").reset_index(drop=True))
 
 
 def candle_range(platform: str, symbol: str, tf: str = "1m", root: Path | str | None = None) -> tuple[str, str, int] | None:

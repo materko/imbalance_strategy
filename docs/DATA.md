@@ -452,9 +452,18 @@ do `data/` ani do `data/archive/` a stiahnuté sa tým nikdy neprepíše.
 ```
 data/live/candles/<platforma>/<symbol>/1m-<YYYY-MM>.feather    z `m1` (stĺpce ako Freqtrade: date UTC, OHLCV)
 data/live/candles/<platforma>/<symbol>/<tf>-<YYYY-MM>.feather  bary grafu z `bar` (aj staršie behy bez `m1`)
+data/live/spread/<platforma>/<symbol>/<YYYY-MM>.feather         spread minút z `m1` (date UTC, spread, spread_avg, spread_max v cene)
 data/live/trades/<inštancia>/<YYYY-MM>.feather                 obchody u brokera s profilom behu (mesiac zatvorenia)
 data/live/instances/<inštancia>.json                           platforma, účet, symbol, TF, behy, config profilov
 ```
+
+**Skutočný spread u brokera** (`spread/`): MT5 EA ho píše k `m1` zo sviečky brokera (`MqlRates.spread` × point,
+aj 3 dni predhistórie) a naživo z tikov (priemer a maximum ask − bid za minútu). NinjaTrader AddOn ho píše z L1
+kotácií. Minúta, ktorá v súbore už je, sa neprepíše, len sa doplnia chýbajúce stĺpce. Celú históriu tikov brokera
+(SMERNICA V2 U3) vyexportuje skript MT5 `TradeBotSpreadExport` a spracuje `python -m tester.spread history` (p50 / p75 / p95
+po oknách New Yorku, do `docs/merania/<dátum>-cfd-spread.md`). `python -m tester.spread
+report --platform mt5 --symbol US100.cash [--json …]` z neho spraví rozdelenie po hodinách dňa (New York) a pri
+správach z kalendára SPRÁV (±5 min). Výstup `--json` je vstup pre spread v emulátore.
 
 | kde | čo | kto píše |
 |---|---|---|

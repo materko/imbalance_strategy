@@ -26,6 +26,7 @@ v termináli (File > Open an Account), raz.
     TradeBotEA.mqh, TradeBotJson.mqh, TradeBotDraw.mqh, TradeBotExecutor.mqh -> <MQL5>/Include/TradeBot/
     deploy/mt5/<Meno>.mq5              -> <MQL5>/Experts/TradeBot/   (aj TradeBotExecutor, docs/ROUTING.md)
     TradeBotImport.mq5                 -> <MQL5>/Scripts/TradeBot/        (Custom symbol z CSV)
+    TradeBotSpreadExport.mq5           -> <MQL5>/Scripts/TradeBot/        (spread z histórie tikov, SMERNICA V2 U3)
     presets/*.set                      -> <MQL5>/Presets/ (skripty), <MQL5>/Profiles/Tester/ (EA v testeri)
     profily ako úplné configy          -> Common/Files/TradeBot/profiles/<kľúč>/   (FILE_COMMON: vidí ich aj agent Strategy Testera)
 
@@ -68,7 +69,7 @@ class InstallError(RuntimeError):
 
 ADAPTER_DIR = Path(__file__).resolve().parent
 INCLUDES = ("TradeBotEA.mqh", "TradeBotJson.mqh", "TradeBotDraw.mqh", "TradeBotExecutor.mqh")
-SCRIPTS = ("TradeBotImport.mq5",)
+SCRIPTS = ("TradeBotImport.mq5", "TradeBotSpreadExport.mq5")
 #: `.set` pre skripty idú do Presets, pre EA v Strategy Testeri do Profiles/Tester
 PRESETS = {"TradeBotImport.set": ("Presets",), "IBSNet_TB.set": ("Profiles", "Tester"),
            "IBSNet_chart.set": ("Presets",), "IBSNet_live.set": ("Presets",),

@@ -45,7 +45,7 @@ from tradebot.strategies import get_spec
 from . import sweep as sweep_mod
 
 __all__ = [
-    "REFERENCE_WINDOWS", "DEFAULT_EPOCHS", "LOSS_CLASS", "RESULTS_DIR", "Epoch",
+    "REFERENCE_WINDOWS", "windows_for", "search_problem", "DEFAULT_EPOCHS", "LOSS_CLASS", "RESULTS_DIR", "Epoch",
     "build_plan", "suggested", "plan_path", "latest_results", "command", "read_results",
     "best", "overrides", "table", "verdict", "knowledge_note", "warnings_for",
     "edge_of", "epochs_from_dicts", "detail", "verification_rows", "compare_seeds",
@@ -218,6 +218,24 @@ def eta(done: int, total: int, started: float, first_done_at: float | None,
 def knowledge_note(strategy: str = "ibs") -> str:
     """Veta stratégie o tom, čo o jej ladení vieme (`hyperopt_cls.NOTE`)."""
     return knowledge(get_spec(strategy)).NOTE
+
+
+def windows_for(pair: str | None) -> list[str]:
+    """Okná hľadania a overenia víťaza: L trhu po rokoch (SMERNICA V2 §1), pre trh mimo §1 päť referenčných."""
+    from .register import default_windows, market_of
+
+    return default_windows(market_of(pair), REFERENCE_WINDOWS)
+
+
+def search_problem(timerange: str | None, windows: Iterable[str] | None, pair: str | None) -> str | None:
+    """Prečo sa hľadanie nesmie spustiť (okno mimo L trhu: trezor, rok A, C), inak None. Platí aj pre walk-forward."""
+    from .register import RegisterError, check_windows, market_of
+
+    try:
+        check_windows(list(windows or ()) or ([timerange] if timerange else []), market_of(pair), "hyperopt")
+    except RegisterError as e:
+        return str(e)
+    return None
 
 
 def warnings_for(space: Iterable[str], strategy: str = "ibs") -> list[str]:

@@ -380,8 +380,9 @@
       <div class="cat-filter"><span class="small muted">Trh</span><div id="cat-markets" class="cat-pills"></div></div>
       <div class="cat-filter"><span class="small muted">Typ</span><div id="cat-types" class="cat-pills"></div></div>
       <label class="inline small"><input type="checkbox" id="cat-only-smernica"> len so smernicou</label>
-      <div class="cat-filter" title="nasadenia na účtoch (karta Live): bežiace = aktívne nasadenie a živá inštancia"><span class="small muted">Stav</span><div id="cat-states" class="cat-pills"></div></div>
+      <div class="cat-filter" title="nasadenia na účtoch (karta Live): bežiace = aktívne nasadenie a živá inštancia; stav SMERNICE V2: ✅ schválená, 🟡 demo, ⏳ chýba meranie, ⚠ legacy so zápornou správou, ❌ uzavretá; — nezmerané"><span class="small muted">Stav</span><div id="cat-states" class="cat-pills"></div></div>
       <label class="inline small">Zoradiť <select id="cat-sort">
+        <option value="stav" title="SMERNICA V2: najprv stav, potom PF po haircute z L a WF (nikdy rok A ani trezor)">stav (V2)</option>
         <option value="kind" title="trendové, skalpovacie, rangeové; v nich podľa hodnotenia a Sortino">typ (trend / skalp / range)</option>
         <option value="audit" title="trieda auditu a Sortino: AS, A, BS, B, C, bez hodnotenia">hodnotenie (AS → C)</option>
         <option value="score">najlepší zisk / DD</option>
@@ -408,7 +409,19 @@
       <h2 id="cat-drawer-title"></h2>
       <div id="cat-drawer-tabs" class="cat-pills"></div>
       <div class="scroll"><table class="runs cat-ptable"><thead><tr>
-        <th></th><th>Profil</th><th>Pár · TF</th><th class="num">PF</th><th class="num">WR</th><th>Ďalšie</th><th></th>
+        <th></th><th>Profil</th><th>Pár · TF</th><th class="num">PF</th><th class="num">WR</th><th>Ďalšie</th>
+        <th title="stav SMERNICE V2: ✅ 🟡 ⏳ ⚠ ❌ (počíta tester.robust z registra)">Stav</th>
+        <th class="num" title="PF po nákladoch fill v2 na L">PF v2</th>
+        <th class="num" title="PF po haircute Harvey–Liu, hranica ≥ 1,10">PF haircut</th>
+        <th class="num" title="Deflated Sharpe pri N_eff (≥ 0,95) / pri surovom N (≥ 0,50)">DSR</th>
+        <th class="num" title="PBO — CSCV, 16 blokov mesačného PnL, hranica ≤ 0,20">PBO</th>
+        <th class="num" title="N konfigurácií v registri / N_eff">N / N_eff</th>
+        <th class="num" title="t na trezore / t_req a k trezoru">t / t_req</th>
+        <th class="num" title="Sortino z walk-forward OOS a trezorov, hranica ≥ 1,0">Sortino</th>
+        <th class="num" title="obchody za rok na L (≥ 75)">obch/rok</th>
+        <th class="num" title="Monte Carlo: 95 % najväčší pokles dennej equity">MC DD95</th>
+        <th class="num" title="iné trhy: príbuzný (≥ 0,95) / iný typ (≥ 1,05)">iné trhy</th>
+        <th class="num muted" title="rok A — len negatívna kontrola, nikdy do poradia">rok A</th><th></th>
       </tr></thead><tbody id="cat-drawer-rows"></tbody></table></div>
       <p class="small muted">Profily zo smernice majú čísla z posudku smernice (v názve profilu), ostatné z najlepšieho
         behu s týmto profilom v histórii (aspoň 40 obchodov, PF &gt; 1, DD pod 35 %).</p>
@@ -684,6 +697,10 @@
           <label class="field" data-ld-only="ninjatrader">Účet v NinjaTraderi<span class="hint">meno účtu, napr. <code>Sim101</code></span><input id="ld-a-login-nt" placeholder="Sim101"></label>
           <label class="field" data-ld-only="ninjatrader">Pripojenie<span class="hint">meno pripojenia v NT (Connections); NT sa prihlasuje zapamätaným loginom, heslo tu netreba</span>
             <input id="ld-a-server-nt" placeholder="Continuum"></label>
+          <label class="field">Denný stop účtu <span class="muted small">(%)</span><span class="hint">equity účtu o toľko % pod začiatkom obchodného dňa = platforma zavrie všetko a do nového dňa neobchoduje; prázdne = vypnutý (docs/DAILY_STOP.md)</span>
+            <input id="ld-a-stop-pct" type="number" min="0.1" max="99" step="0.1" placeholder="vypnutý"></label>
+          <label class="field">Začiatok obchodného dňa<span class="hint">pásmo IANA a HH:MM — CME <code>America/New_York</code> <code>18:00</code>, FTMO <code>Europe/Prague</code> <code>00:00</code></span>
+            <span style="display:flex;gap:6px"><input id="ld-a-stop-zone" placeholder="America/New_York"><input id="ld-a-stop-time" placeholder="18:00" style="max-width:6em"></span></label>
           <div class="span2 profile-actions"><button id="ld-a-submit" class="primary">Pridať účet</button>
             <button id="ld-a-cancel" class="ghost" hidden>Zrušiť úpravu</button>
             <span id="ld-a-status" class="muted small"></span></div>

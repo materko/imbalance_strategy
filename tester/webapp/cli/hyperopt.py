@@ -92,11 +92,13 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     if args.jobs:
         zadanie["jobs"] = int(args.jobs)
     # Rozšírenia vedia oba enginy; na emulatore MultiCharts epochy pocita C# (tester.native_hyperopt)
-    from ...hyperopt import REFERENCE_WINDOWS
     from ...native_hyperopt import OBJECTIVES
 
-    okna = ([] if not args.windows else list(REFERENCE_WINDOWS) if args.windows.strip() == "ref"
+    okna = ([] if not args.windows else ho.windows_for(settings["pair"]) if args.windows.strip() in ("ref", "L")
             else [w.strip() for w in args.windows.split(",") if w.strip()])
+    # SMERNICA V2: hľadanie len na L trhu — trezor sa púšťa `register open` + `run --vault`, rok A je len kontrola
+    if (problem := ho.search_problem(settings["timerange"], okna, settings["pair"])):
+        raise SystemExit(problem)
     ciele = [o.strip() for o in (args.objectives or "").split(",") if o.strip() and o.strip() != args.goal]
     for o in ciele:
         if o not in OBJECTIVES:

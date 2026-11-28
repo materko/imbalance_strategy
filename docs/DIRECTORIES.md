@@ -301,8 +301,12 @@ tester/
 ├── dukas_import.py, bento_import.py, ibkr_import.py   importers: Dukascopy CFD, Databento CME futures, IBKR stocks
 ├── data_archive.py, timeframes.py, quotemanager.py   archive split/merge, deriving TFs from 1m, ASCII for QuoteManager
 ├── livedata.py, livesim.py  live candles and trades; joining them with downloaded data
+├── spread.py                real broker spread from live data (by hour, around news) for the emulator
 ├── checkup.py, analytics.py, character.py   baseline analytics and verdict, trade group analysis, strategy character
 ├── nulltest.py, decay.py, montecarlo.py, plateau.py, regime.py   vs. random, fading edge, Monte Carlo, plateau, market regime
+├── robust.py, overfit.py   SMERNICA V2 gates: 2× cost, late entry, ATR terciles, DSR at N/N_eff; PBO (CSCV 16), Harvey–Liu haircut, Sortino, status
+├── walkforward.py           SMERNICA V2 walk-forward: 18/24-month train, 6-month test within L, lock, gates
+├── register.py              SMERNICA V2 register: hypothesis headers, attempts and budget, vaults with locks and initial k
 ├── trade_metrics.py, trade_features.py, trade_splits.py   basic numbers, trade features, splitting into groups
 ├── sweep.py, hyperopt.py, matrix.py   parameter grids, hyperopt, markets × timeframes matrix
 ├── portfolio.py, prop.py    portfolio of several runs, prop challenge simulation
@@ -315,6 +319,7 @@ tester/
 │
 ├── runs/                    DATA: run history — never bulk-delete; old runs go via `cli archive`
 ├── archive/                 DATA: archived runs (reversible with `--restore`)
+├── register/                DATA: hypothesis headers `<h>.md`, attempts `<h>.jsonl` (append-only), `vaults.json` (in git)
 ├── sweeps/, analytics/      DATA: grid / hyperopt results and analytics
 └── profiles/                DATA: testers' own profiles (incl. PRESIEL_SMERNICAMI_*)
 ```

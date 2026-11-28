@@ -33,7 +33,8 @@ VARIANTS = {
     "pullback_rr_urovne": {"slMode": "pullback", "tpMode": "rr", "rrRatio": 1.2, "levelMode": "levels", "entryModel": "any",
                            "levelTolAtr": {"value": 1.0, "unit": "atr"}},
     "okno_drzanie_bez_vikendov": {"useTradeWindow": True, "tradeStartH": 8, "tradeEndH": 12, "maxHoldBars": 20,
-                                  "weekdaysOnly": True, "maxTradesPerDay": 1, "requireBreak": False},
+                                  "weekdaysOnly": True, "maxTradesPerDay": 1, "requireBreak": False,
+                                  "riskDollar": 500.0},   # profil má 100 $: pri stope nad 10 bodov 0 kontraktov a okno by ostalo bez vstupu
     "strop_straty_skipOverRisk": {"skipOverRisk": True, "riskDollar": 100.0},   # 2 z 9 vstupov, zvyšok strop vynechá
     "pevny_pocet": {"fixedQty": True, "qty": 2.0, "imbMinSizeAtr": {"value": 0.0, "unit": "atr"}},
 }

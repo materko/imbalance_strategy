@@ -38,7 +38,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .routes import EXECUTOR_KIND, MT5_IDENTITY, RouteError, executor_id, normalize_aliases, normalize_route
-from .schema import CONTROL_MODES, SLOT_RE, instance_id, instance_symbol
+from .schema import (CONTROL_MODES, DAILY_STOP_PCT, DAILY_STOP_TIME, DAILY_STOP_ZONE, SLOT_RE, instance_id,
+                     instance_symbol)
 from .vault import Vault, VaultError
 
 log = logging.getLogger(__name__)
@@ -155,7 +156,8 @@ _MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),
                ("accounts", "secret_rev", "TEXT NOT NULL DEFAULT ''"),
                ("deployments", "route", "TEXT NOT NULL DEFAULT ''"),
                ("accounts", "symbols", "TEXT NOT NULL DEFAULT ''"),
-               ("accounts", "exec_symbols", "TEXT NOT NULL DEFAULT ''"))
+               ("accounts", "exec_symbols", "TEXT NOT NULL DEFAULT ''"),
+               ("accounts", "daily_stop", "TEXT NOT NULL DEFAULT ''"))
 #: Ako často sa smie prepísať nezmenený zoznam symbolov exekútora (len čas hlásenia) — nie v každom heartbeate.
 EXEC_SYMBOLS_REFRESH = 300.0
 
@@ -376,6 +378,7 @@ class DeployStore:
         # symboly v Market Watch MT5 účtu z heartbeatu exekútora (hlási agent); None = ešte nikto nehlásil
         d["exec_symbols"] = ex["symbols"] if ex else None
         d["exec_symbols_at"] = ex["ts"] if ex else None
+        d["daily_stop"] = json.loads(r["daily_stop"]) if r["daily_stop"] else None
         d["secret"] = bool(r["secret_enc"])
         d["secret_waiting"] = self._secret_waiting(r) if r["secret_enc"] else []
         d["secret_pending"] = bool(d["secret_waiting"])
@@ -505,6 +508,8 @@ class DeployStore:
                             new={**{k: v for k, v in row.items() if k != "rev"}, "password": bool(heslo)})
                 if data.get("symbols"):
                     self._set_symbols(acc_id, data["symbols"], by)
+                if data.get("daily_stop"):
+                    self._set_daily_stop(acc_id, data["daily_stop"], by)
             else:
                 acc_id = existing["id"]
                 old = self._account_row(existing)
@@ -536,6 +541,8 @@ class DeployStore:
                         raise DeployError(str(exc)) from None
                     if aliases != old.get("symbols"):
                         self._set_symbols(acc_id, data["symbols"], by)
+                if "daily_stop" in data and normalize_daily_stop(data["daily_stop"]) != old.get("daily_stop"):
+                    self._set_daily_stop(acc_id, data["daily_stop"], by)
                 if not sets:
                     return self._account_row(self._account_or_404(acc_id))
                 if heslo or any(k in sets for k in _LOGIN_FIELDS):
@@ -566,6 +573,17 @@ class DeployStore:
                           by or "", acc_id))
         self._audit(by, "account_update", account=acc_id,
                     old={"symbols": json.loads(old["symbols"]) if old and old["symbols"] else {}}, new={"symbols": aliases})
+
+    def _set_daily_stop(self, acc_id: str, raw: Any, by: str) -> None:
+        """Denný stop účtu (docs/DAILY_STOP.md) — nie nové prihlásenie (bez `rev`); stroje ho dostanú v heartbeate
+        a platforma ho použije po reštarte inštancie (driver ho má v podpise nasadenia)."""
+        stop = normalize_daily_stop(raw)
+        old = self._db.execute("SELECT daily_stop FROM accounts WHERE id = ?", (acc_id,)).fetchone()
+        self._db.execute("UPDATE accounts SET daily_stop = ?, updated = ?, by = ? WHERE id = ?",
+                         (json.dumps(stop, sort_keys=True) if stop else "", self.clock(), by or "", acc_id))
+        self._audit(by, "account_update", account=acc_id,
+                    old={"daily_stop": json.loads(old["daily_stop"]) if old and old["daily_stop"] else None},
+                    new={"daily_stop": stop})
 
     def _free_id(self, base: str) -> str:
         cand, n = base, 1
@@ -867,6 +885,8 @@ class DeployStore:
                 if r is None:
                     continue
                 a: dict[str, Any] = {k: r[k] for k in ("id", "platform", "label", "login", "server", "rev")}
+                if r["daily_stop"]:
+                    a["daily_stop"] = json.loads(r["daily_stop"])
                 vlastne = [d for d in deps if d["account"] == acc_id]
                 # terminál účtu = spoločný terminál; nasadenia s vlastným terminálom ho neurčujú
                 spolocne = [d for d in vlastne if not d["own_terminal"]] or vlastne
@@ -1051,6 +1071,33 @@ def _route_of(dep_id: str, raw: str | None) -> dict[str, Any] | None:
         return {"error": f"route nasadenia je v hube poškodená ({exc}) — ordery by išli na účet NinjaTradera, "
                          "nasadenie sa nezapisuje; zmaž ho a sprav nové"}
     return route
+
+
+_HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+
+
+def normalize_daily_stop(raw: Any) -> dict[str, Any] | None:
+    """Denný stop účtu z API/webapp: `{"pct": 4, "zone": "America/New_York", "time": "18:00"}`; None, False alebo
+    `"on": false` = vypnutý. Zlé hodnoty sú chyba hneď v hube, nie až pri štarte EA na stroji."""
+    if raw is None or raw is False or raw == "":
+        return None
+    if not isinstance(raw, dict):
+        raise DeployError("daily_stop: očakáva sa objekt {pct, zone, time} alebo null")
+    if not raw.get("on", True):
+        return None
+    try:
+        pct = float(raw.get("pct", DAILY_STOP_PCT))
+    except (TypeError, ValueError):
+        raise DeployError("daily_stop.pct musí byť číslo") from None
+    if not 0 < pct < 100:
+        raise DeployError("daily_stop.pct musí byť medzi 0 a 100")
+    zone = str(raw.get("zone") or DAILY_STOP_ZONE).strip()
+    if not re.fullmatch(r"[A-Za-z_]+(/[A-Za-z0-9_+\-]+)*", zone):
+        raise DeployError(f"daily_stop.zone {zone!r} nie je časové pásmo IANA (napr. America/New_York)")
+    time_ = str(raw.get("time") or DAILY_STOP_TIME).strip()
+    if not _HHMM.match(time_):
+        raise DeployError(f"daily_stop.time {time_!r} má byť HH:MM")
+    return {"pct": pct, "zone": zone, "time": time_}
 
 
 def _exec_symbols_of(r: sqlite3.Row) -> dict[str, Any] | None:

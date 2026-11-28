@@ -707,3 +707,45 @@ def test_kontext_pluginu_da_kopiu_agentov_bez_zamku_hubu(tmp_path: Path):
     kopia.pop("nas")
     assert state.agents["nas"]["online"] is True and "nas" in ctx.agents()
     assert PluginContext("x", tmp_path / "plugins", SimpleNamespace(), None).agents() == {}   # hub bez snímky
+
+
+def test_strazca_hlasi_mlciacu_instanciu_pocas_seansy(tmp_path: Path):
+    """SMERNICA V2 U1.5: inštancia bez heartbeatu > 30 min počas seansy -> Telegram; návrat tiež; víkend nie."""
+    import sqlite3
+
+    db = tmp_path / "live.sqlite"
+    con = sqlite3.connect(db)
+    con.execute("CREATE TABLE instances (id TEXT PRIMARY KEY, last_t INTEGER, last_hb INTEGER)")
+    t = [datetime(2026, 11, 25, 15, 0, tzinfo=timezone.utc).timestamp()]   # streda
+    con.execute("INSERT INTO instances VALUES ('mt5_1_US100_3m_x', ?, ?)", (int(t[0] * 1000), int(t[0] * 1000)))
+    con.commit()
+    con.close()
+    agents = {"nas": {"last_seen": t[0]}}
+    deps = [{"instance": "mt5_1_US100_3m_x", "agent": "nas", "active": True, "mode": "enabled"},
+            {"instance": "mt5_1_US100_3m_y", "agent": "nas", "active": False}]
+    hub = SimpleNamespace(deploy=SimpleNamespace(active_agents=lambda: ["nas"], deployments=lambda: deps), agent_timeout=45.0,
+                          agents=agents, agents_snapshot=lambda: {n: dict(a) for n, a in agents.items()})
+    (tmp_path / "plugins" / "watchdog").mkdir(parents=True)
+    (tmp_path / "plugins" / "watchdog" / "config.json").write_text(json.dumps({"live_db": str(db)}), encoding="utf-8")
+    n = Notifier()
+    host = _host(tmp_path, {"watchdog": Watchdog}, t, n, hub)
+    t[0] += 29 * 60
+    agents["nas"]["last_seen"] = t[0]
+    host.run_once("watchdog")
+    assert n.sent == []
+    t[0] += 2 * 60
+    agents["nas"]["last_seen"] = t[0]
+    host.run_once("watchdog")
+    assert len(n.sent) == 1 and "🔴 inštancia mt5_1_US100_3m_x" in n.sent[0] and "31 min" in n.sent[0]
+    host.run_once("watchdog")
+    assert len(n.sent) == 1                                                    # neopakuje
+    con = sqlite3.connect(db)
+    con.execute("UPDATE instances SET last_hb = ?", (int(t[0] * 1000),))
+    con.commit()
+    con.close()
+    host.run_once("watchdog")
+    assert n.sent[-1] == "[hub] 🟢 inštancia mt5_1_US100_3m_x sa znova hlási"
+    assert not Watchdog.in_session(datetime(2026, 11, 28, 12, tzinfo=timezone.utc).timestamp())   # sobota
+    assert not Watchdog.in_session(datetime(2026, 11, 29, 22, tzinfo=timezone.utc).timestamp())   # nedeľa pred 23:00
+    assert Watchdog.in_session(datetime(2026, 11, 29, 23, tzinfo=timezone.utc).timestamp())
+    assert not Watchdog.in_session(datetime(2026, 11, 27, 21, tzinfo=timezone.utc).timestamp())   # piatok 21:00

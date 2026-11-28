@@ -292,7 +292,11 @@ sa s históriou, sweepom ani verdiktom nedajú porovnať.
 | 1–2 parametre, chceš vidieť tvar | sweep (§7) — body C# stratégie na emulátore počíta C# sám |
 | stratégia s C# jadrom (`…net`, `…neteod`), fill model NT8/MT5 | `cli hyperopt --engine multicharts --sampler tpe …` (natívne v C#) |
 | chceš parametre, ktoré držia vo viacerých rokoch | `… --engine multicharts --windows ref --aggregate min --select plateau` |
-| chceš vedieť, ako by dopadlo pravidelné preladenie | `… --engine multicharts --walk-forward` (verdikt `WALK-FORWARD DRZI/NEJASNE/NEDRZI`) |
+| walk-forward SMERNICE V2 (krok 6, raz na hypotézu) | `python -m tester.walkforward --hypothesis <h> --strategy <kľúč> --instrument mnq_databento --param … --out wf.json` (učenie 18 / 24 mes., test 6, posun 6 v L; PF OOS ≥ 1,15, WFE ≥ 0,5, ≥ 75 % kúskov v pluse, stabilné parametre) |
+| pravdepodobnosť pretrénovania (PBO) | `python -m tester.overfit pbo <h>` (CSCV, 16 blokov mesačného PnL všetkých konfigurácií registra; ≤ 0,20) |
+| brány a stav SMERNICE V2 (DSR, PBO, haircut, WF, Sortino, odolnosť) | `python -m tester.robust --profile <cesta> --pair MNQ/USD --hypothesis <h> --hyperopt wf.json --save` (na L trhu; N, N_eff a PBO z registra; stav ✅ 🟡 ⏳ ⚠ ❌ do `_robust`) |
+| skutočný spread CFD z histórie brokera (V2 U3) | skript `TradeBotSpreadExport` v MT5 (Navigator → Scripts → TradeBot), potom `python -m tester.spread history --dir <Common\Files\TradeBot\spread> --write` |
+| zapĂ­saĹĄ pokus hypotĂ©zy / otvoriĹĄ trezor (SMERNICA V2) | `python -m tester.webapp.cli run --hypothesis <h> â€¦` (pokus, len na L); `â€¦ --hypothesis <h> --vault B --keys k1,k2` (trezor raz); `python -m tester.register status <h>` ([docs/REGISTER.md](../docs/REGISTER.md)) |
 | zisk vs drawdown vs počet obchodov naraz | `… --engine multicharts --objectives drawdown,trades --sampler nsga2` |
 | krypto fill model / stratégia bez C# jadra | `cli hyperopt …` (Freqtrade) — tie isté `--windows`, `--select`, `--walk-forward`, `--objectives`, `--continue`, `--sampler`; počítaj s časom (walk-forward = hyperopt na každý fold, odhad ukáže karta Hub) |
 | veľa behov hneď, bez zápisu do histórie (overenie hypotézy) | `POST /api/native/backtests` (body × okná, súhrn ako v histórii) alebo `PY -m tester.native_hyperopt … --out x.json` |

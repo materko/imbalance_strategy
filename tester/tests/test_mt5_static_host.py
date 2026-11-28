@@ -78,7 +78,9 @@ def _instrument_json(inst) -> str:
 
 
 def test_verzia_strategie_a_chyba_bez_vynimky(static_host):
-    assert static_host.Version() == 5      # docs/LIVE.md: Spool* (2), slot v id inštancie (3), SpoolMinute (4), EodDue (5); EA kontroluje 5
+    # docs/LIVE.md: Spool* (2), slot v id inštancie (3), SpoolMinute (4), EodDue (5), DailyStop* (6),
+    # ochrana účtu V2 U1/U2 (7); EA kontroluje 7
+    assert static_host.Version() == 7
     assert {"ibsnet", "orbnet"} <= set(static_host.Strategies().split(","))
     # chyba nesmie letieť cez hranicu .NET -> MQL5 ako výnimka: -1 a text v LastError
     inst = '{"symbol":"X","venue":"mt5","tick_size":0.25,"point_value":2.0,"qty_step":1,"min_qty":1}'
@@ -187,7 +189,10 @@ def test_spool_zapise_platne_udalosti(static_host, tmp_path):
         _feed_bars(static_host, h, 3, False)
         assert static_host.SpoolRealtime(h, True) == 1
         _feed_bars(static_host, h, 2, True)
+        # bid/ask a čas kotácie v ms ide k ďalšiemu fillu; bid/ask <= 0 kurz zabudne
+        assert static_host.SpoolQuote(h, 20000.75, 20001.25, 1_790_000_600_480) == 1, static_host.LastError()
         assert static_host.SpoolFill(h, 1_790_000_600_500, "L-1", True, "", 20001.25, 1.0, True) == 1, static_host.LastError()
+        assert static_host.SpoolQuote(h, 0.0, 20011.5, 1_790_000_700_400) == 1
         # trailing posunul SL: order/modify, tp=0 -> null (MQL nemá nullable)
         assert static_host.SpoolModify(h, 1_790_000_720_000, "L-1", 20005.5, 0.0, "trailing", True) == 1, static_host.LastError()
         assert static_host.SpoolFill(h, 1_790_000_700_500, "L-1", False, "sltp", 20011.25, 1.0, True) == 1
@@ -219,6 +224,8 @@ def test_spool_zapise_platne_udalosti(static_host, tmp_path):
     assert bars[0]["bt"] == 1_790_000_000_000 and bars[0]["o"] == 20000.0 and "mb" in bars[0]
     fills = [e for e in events if e["k"] == "fill"]
     assert [(f["side"], f["exit"], f["id"]) for f in fills] == [("in", "", "L-1"), ("out", "sltp", "L-1")]
+    assert (fills[0]["bid"], fills[0]["ask"], fills[0]["qt"], fills[0]["ft"]) == (20000.75, 20001.25, 1_790_000_600_480, 1_790_000_600_500)
+    assert "bid" not in fills[1] and "ask" not in fills[1] and "qt" not in fills[1]
     mods = [e for e in events if e["k"] == "order" and e["a"] == "modify"]
     assert len(mods) == 1
     mod = mods[0]
@@ -248,6 +255,9 @@ def test_spool_minute_m1(static_host, tmp_path):
         for i in range(3):
             assert static_host.SpoolMinute(h, 1_790_000_000_000 + i * 60_000, 20000.0 + i, 20002.0 + i, 19999.0 + i,
                                            20001.0 + i, 10.0 + i) == 1, static_host.LastError()
+        # so spreadom (sklad spreadu, tester.spread): v cene; <= 0 = neznáme, pole chýba
+        assert static_host.SpoolMinuteSpread(h, 1_790_000_180_000, 20003.0, 20005.0, 20002.0, 20004.0, 13.0,
+                                             0.5, 0.75, 0.0) == 1, static_host.LastError()
         assert static_host.SpoolClose(h, "deinit") == 1
     finally:
         static_host.Destroy(h)
@@ -256,8 +266,10 @@ def test_spool_minute_m1(static_host, tmp_path):
     events = [schema.parse_line(line) for line in lines]
     assert [e["seq"] for e in events] == list(range(1, len(events) + 1))
     m1 = [e for e in events if e["k"] == "m1"]
-    assert [(e["bt"], e["o"], e["h"], e["l"], e["c"], e["v"]) for e in m1] == [
+    assert [(e["bt"], e["o"], e["h"], e["l"], e["c"], e["v"]) for e in m1[:3]] == [
         (1_790_000_000_000 + i * 60_000, 20000.0 + i, 20002.0 + i, 19999.0 + i, 20001.0 + i, 10.0 + i) for i in range(3)]
+    assert all("sp" not in e for e in m1[:3])
+    assert (m1[3]["bt"], m1[3]["sp"], m1[3]["spa"], "spx" in m1[3]) == (1_790_000_180_000, 0.5, 0.75, False)
     with pytest.raises(schema.SchemaError):
         schema.validate({"seq": 1, "t": 1, "k": "m1", "bt": 1, "o": 1, "h": 1, "l": 1, "c": 1})   # bez v
 
@@ -536,3 +548,181 @@ def test_restart_nezapise_znova_m1_ani_historicke_bary(static_host, tmp_path):
     _t.sleep(1.1)
     d, bary, m1 = beh("p", 8, 1, 12, tester=True)              # Tester: všetko
     assert len(bary) == 8 and len(m1) == 12
+
+
+# -- denný stop účtu (docs/DAILY_STOP.md) ------------------------------------------------------------ #
+
+def _utc_ms(text: str) -> int:
+    from datetime import datetime, timezone
+    return int(datetime.fromisoformat(text).replace(tzinfo=timezone.utc).timestamp() * 1000)
+
+
+def _reset_daily_stop() -> None:
+    from System import AppDomain
+
+    for asm in AppDomain.CurrentDomain.GetAssemblies():
+        if asm.GetName().Name == "TradeBot":
+            asm.GetType("TradeBot.Core.DailyStop").GetMethod("ResetShared").Invoke(None, None)
+            return
+
+
+def test_denny_stop_zastavi_do_noveho_dna(static_host, tmp_path):
+    _reset_daily_stop()
+    d, acc, ny = str(tmp_path), "mt5-1-Demo", "America/New_York"
+    check = lambda when, eq, pct=4.0: static_host.DailyStopCheck(d, acc, pct, ny, "18:00", _utc_ms(when), eq)
+    assert check("2026-11-25T15:00:00", 100_000.0) == 0      # 10:00 NY, základ dňa 24. 11. (od 18:00 NY)
+    assert check("2026-11-25T15:30:00", 96_001.0) == 0
+    assert check("2026-11-25T16:00:00", 0.0) == 0             # terminál bez equity stav nemení
+    assert check("2026-11-25T16:00:01", 96_000.0) == 1        # presne -4 %
+    assert check("2026-11-25T16:30:00", 99_000.0) == 1        # zotavenie nič nemení - zastavené do konca dňa
+    text = static_host.DailyStopText(d, acc, 4.0, ny, "18:00")
+    assert "ZASTAVENE" in text and "96000.00" in text and "den 20261124" in text
+    state = json.loads((tmp_path / "dailystop_mt5-1-Demo_America-New-York_1800.json").read_text(encoding="utf-8"))
+    assert state["day"] == "20261124" and state["base"] == 100_000.0 and state["stopped"] is True
+    assert check("2026-11-25T22:59:59", 99_000.0) == 1        # 17:59:59 NY
+    assert check("2026-11-25T23:00:00", 95_000.0) == 0        # 18:00 NY: nový deň, nový základ
+    assert check("2026-11-26T12:00:00", 91_201.0) == 0
+    assert check("2026-11-26T12:00:01", 91_200.0) == 1
+
+
+def test_denny_stop_spolocny_pre_ucet_a_cez_restart(static_host, tmp_path):
+    _reset_daily_stop()
+    d, ny = str(tmp_path), "America/New_York"
+    t = _utc_ms("2026-11-25T15:00:00")
+    # dve inštancie na jednom účte: prísnejšia (-2 %) zastaví účet aj druhej (-4 %)
+    assert static_host.DailyStopCheck(d, "nt-Sim101", 4.0, ny, "18:00", t, 50_000.0) == 0
+    assert static_host.DailyStopCheck(d, "nt-Sim101", 2.0, ny, "18:00", t + 1000, 49_000.0) == 1
+    assert static_host.DailyStopCheck(d, "nt-Sim101", 4.0, ny, "18:00", t + 2000, 49_500.0) == 1
+    assert "prisnejsie nastavenie -2 %" in static_host.DailyStopText(d, "nt-Sim101", 4.0, ny, "18:00")
+    # iný účet nič nezdieľa
+    assert static_host.DailyStopCheck(d, "nt-Sim102", 4.0, ny, "18:00", t, 49_000.0) == 0
+    # reštart platformy (nový proces = prázdna pamäť): zastavenie aj základ prídu zo súboru
+    _reset_daily_stop()
+    assert static_host.DailyStopCheck(d, "nt-Sim101", 4.0, ny, "18:00", t + 60_000, 49_900.0) == 1
+    _reset_daily_stop()
+    assert static_host.DailyStopCheck(d, "nt-Sim102", 4.0, ny, "18:00", t + 60_000, 47_100.0) == 0   # základ 49 000
+    assert static_host.DailyStopCheck(d, "nt-Sim102", 4.0, ny, "18:00", t + 61_000, 47_040.0) == 1
+
+
+def test_denny_stop_hranica_dna_a_zle_nastavenie(static_host, tmp_path):
+    _reset_daily_stop()
+    # FTMO: deň od polnoci Europe/Prague (zima UTC+1); tester bez adresára = len pamäť, žiadny súbor
+    check = lambda when, eq: static_host.DailyStopCheck("", "mt5-tester", 5.0, "Europe/Prague", "00:00", _utc_ms(when), eq)
+    assert check("2026-11-25T10:00:00", 10_000.0) == 0
+    assert check("2026-11-25T22:59:00", 9_500.0) == 1          # 23:59 Praha
+    assert check("2026-11-25T23:00:00", 9_500.0) == 0          # 00:00 Praha - nový deň
+    assert not list(tmp_path.iterdir())
+    for pct, zone, time, why in [(0.0, "UTC", "18:00", "percento"), (4.0, "Mars/Olymp", "18:00", "pasmo"),
+                                 (4.0, "UTC", "25:00", "HH:MM"), (4.0, "UTC", "18", "HH:MM")]:
+        assert static_host.DailyStopCheck(str(tmp_path), "a", pct, zone, time, 0, 1.0) == -1
+        assert why in static_host.LastError()
+        assert static_host.DailyStopText(str(tmp_path), "a", pct, zone, time) == ""
+
+
+def test_denny_stop_v2_zaklad_max_balance_equity_a_reset_praha(static_host, tmp_path):
+    """SMERNICA V2 U1: základ dňa = max(balance, equity), predvolene 00:00 Europe/Prague aj cez letný čas."""
+    from System import AppDomain
+
+    _reset_daily_stop()
+    d, acc = str(tmp_path), "mt5-9-Demo"
+    check = lambda when, eq, bal: static_host.DailyStopCheckBal(d, acc, 4.0, "Europe/Prague", "00:00", _utc_ms(when), eq, bal)
+    # otvorená strata cez polnoc: equity 99 000, balance 100 000 -> základ 100 000, hranica 96 000
+    assert check("2026-07-15T08:00:00", 99_000.0, 100_000.0) == 0
+    assert check("2026-07-15T09:00:00", 96_001.0, 100_000.0) == 0
+    assert check("2026-07-15T09:00:01", 96_000.0, 100_000.0) == 1
+    # leto UTC+2: 21:59 UTC je 23:59 Praha (ten istý deň), 22:00 UTC je polnoc -> nový deň
+    assert check("2026-07-15T21:59:00", 96_500.0, 97_000.0) == 1
+    assert check("2026-07-15T22:00:00", 96_500.0, 97_000.0) == 0           # základ 97 000
+    assert check("2026-07-16T10:00:00", 93_121.0, 97_000.0) == 0
+    assert check("2026-07-16T10:00:01", 93_120.0, 97_000.0) == 1
+    # po prechode na zimný čas (25. 10. 2026) je polnoc Praha 23:00 UTC
+    assert check("2026-10-25T22:59:00", 99_000.0, 99_000.0) == 0
+    assert check("2026-10-25T23:00:00", 99_000.0, 99_000.0) == 0
+    text = static_host.DailyStopText(d, acc, 4.0, "Europe/Prague", "00:00")
+    assert "den 20261026" in text and "zaklad 99000.00" in text
+    asm = next(a for a in AppDomain.CurrentDomain.GetAssemblies() if a.GetName().Name == "TradeBot")
+    t = asm.GetType("TradeBot.Core.DailyStopRule")
+    assert t.GetField("DefaultZone").GetValue(None) == "Europe/Prague" and t.GetField("DefaultTime").GetValue(None) == "00:00"
+
+
+def test_denny_stop_zametanie_uctu_raz_az_po_oneskoreni(static_host, tmp_path):
+    _reset_daily_stop()
+    d, acc, z = str(tmp_path), "mt5-7-Demo", "Europe/Prague"
+    t0 = _utc_ms("2026-11-25T10:00:00")
+    assert static_host.DailyStopCheckBal(d, acc, 4.0, z, "00:00", t0, 100_000.0, 100_000.0) == 0
+    assert static_host.DailyStopSweepDue(d, acc, 4.0, z, "00:00", t0) == 0            # nezastavený účet
+    assert static_host.DailyStopCheckBal(d, acc, 4.0, z, "00:00", t0 + 1000, 95_000.0, 100_000.0) == 1
+    # vlastné pozície zatvárajú inštancie samy - zametanie účtu až po 10 s a potom najviac raz za 5 s v procese
+    assert static_host.DailyStopSweepDue(d, acc, 4.0, z, "00:00", t0 + 5000) == 0
+    assert static_host.DailyStopSweepDue(d, acc, 4.0, z, "00:00", t0 + 11_000) == 1
+    assert static_host.DailyStopSweepDue(d, acc, 4.0, z, "00:00", t0 + 12_000) == 0     # iné EA v tom istom termináli
+    assert static_host.DailyStopSweepDue(d, acc, 4.0, z, "00:00", t0 + 16_001) == 1
+
+
+def test_sucasne_riziko_uctu_a_pozicia_bez_sl(static_host):
+    """V2 U1.2/U1.3: súčet rizík do SL ≤ 1,5 % equity; pozícia bez SL > 5 s od fillu sa zavrie."""
+    assert static_host.PositionRisk(20000.0, 19990.0, 2.0, 2.0) == pytest.approx(40.0)      # MNQ 10 b x 2 x 2 $
+    assert static_host.PositionRisk(20000.0, 0.0, 2.0, 2.0) == -1                           # bez SL
+    assert static_host.OpenRiskVerdict(1000.0, 499.0, 100_000.0, 1.5) == ""
+    assert "1500.00" in static_host.OpenRiskVerdict(1000.0, 501.0, 100_000.0, 1.5)
+    assert "bez SL" in static_host.OpenRiskVerdict(-1.0, 10.0, 100_000.0, 1.5)
+    assert "nema SL" in static_host.OpenRiskVerdict(0.0, -1.0, 100_000.0, 1.5)
+    assert static_host.OpenRiskVerdict(-1.0, -1.0, 100_000.0, 0.0) == ""                     # 0 = vypnuté
+    assert static_host.StopOverdue(1_000, 5_999, False) == 0
+    assert static_host.StopOverdue(1_000, 6_000, False) == 1
+    assert static_host.StopOverdue(1_000, 60_000, True) == 0
+
+
+def test_zamok_duplicity_skupiny_uctov(static_host, tmp_path):
+    """V2 U1.4: tá istá stratégia s tým istým profilom na dvoch účtoch skupiny sa nespustí."""
+    from System import String
+    from TradeBot.Core import AccountGuard, DupLock
+
+    assert AccountGuard.GroupOf("222", "mt5-222-S", "111, 222;333") == "grp-111,222"
+    assert AccountGuard.GroupOf("999", "mt5-999-S", "111,222") == "mt5-999-S"
+    path = DupLock.PathOf(str(tmp_path), "grp-111,222", "ibsentrynet", "ZAKLAD_MNQ")
+    ok, other = DupLock.Claim(path, "mt5-111|T1", 1_000_000, String(""))
+    assert ok
+    ok, other = DupLock.Claim(path, "mt5-222|T2", 1_060_000, String(""))
+    assert not ok and other == "mt5-111|T1"
+    ok, _ = DupLock.Claim(path, "mt5-111|T1", 1_070_000, String(""))             # ten istý vlastník (reštart)
+    assert ok
+    ok, _ = DupLock.Claim(path, "mt5-222|T2", 1_070_000 + 120_000, String(""))   # zámok po páde vyprší
+    assert ok
+    name = path.replace("\\", "/").split("/")[-1]
+    DupLock.Release(path, "mt5-111|T1")                                          # cudzí zámok sa neuvoľní
+    assert (tmp_path / name).exists()
+    DupLock.Release(path, "mt5-222|T2")
+    assert not (tmp_path / name).exists()
+
+
+def test_spool_ochrana_uctu_odmietnutie_a_fill_s_typom_prikazu(static_host, tmp_path):
+    """V2 U1.6 a U2: riadky `account_guard`, `reject` a fill s typom príkazu, požadovanou cenou a kurzom pri odoslaní."""
+    from tradebot.live import schema
+
+    h = static_host.Create("ibsnet", "{}", _INST, 3)
+    assert h > 0, static_host.LastError()
+    try:
+        assert static_host.SpoolOpen(h, str(tmp_path), "mt5", "77-Demo", "US100.cash", "p", False) == 1, static_host.LastError()
+        path = static_host.SpoolPath(h)
+        assert static_host.SpoolGuard(h, "daily_stop", "denny stop -4 %", 95_000.0, -1.0) == 1, static_host.LastError()
+        assert static_host.SpoolGuard(h, "risk", "vstup L-1: sucasne riziko", -1.0, 1500.0) == 1
+        assert static_host.SpoolQuote(h, 20000.0, 20002.0, 1_790_000_000_100) == 1
+        assert static_host.SpoolReject(h, 1_790_000_000_200, "L-2", "10015", 19990.0, "Invalid price") == 1, static_host.LastError()
+        assert static_host.SpoolFillEx(h, 1_790_000_000_300, "L-1", True, "", 20002.5, 1.0, True, "limit", 20002.0,
+                                       19999.0, 20001.0, 1_790_000_000_050) == 1, static_host.LastError()
+        assert static_host.SpoolFillEx(h, 1_790_000_100_000, "L-1", False, "Stop loss", 19989.0, 1.0, True, "sl", 19990.0,
+                                       0.0, 0.0, 0) == 1
+        assert static_host.SpoolClose(h, "deinit") == 1
+    finally:
+        static_host.Destroy(h)
+    parts = path.replace("\\", "/").split("/")
+    events = [schema.parse_line(x) for x in (tmp_path / parts[-2] / parts[-1]).read_text(encoding="utf-8").splitlines()]
+    guards = [e for e in events if e["k"] == "account_guard"]
+    assert [(g["what"], g.get("v"), g.get("lim")) for g in guards] == [("daily_stop", 95_000.0, None), ("risk", None, 1500.0)]
+    rej = next(e for e in events if e["k"] == "reject")
+    assert (rej["id"], rej["code"], rej["price"], rej["bid"], rej["ask"], rej["spr"]) == ("L-2", "10015", 19990.0, 20000.0, 20002.0, 2.0)
+    fin, fout = [e for e in events if e["k"] == "fill"]
+    assert (fin["ok"], fin["req"], fin["sb"], fin["sa"], fin["st"], fin["sspr"]) == ("limit", 20002.0, 19999.0, 20001.0, 1_790_000_000_050, 2.0)
+    assert fin["price"] - fin["req"] == pytest.approx(0.5)                                     # sklz
+    assert (fout["ok"], fout["req"]) == ("sl", 19990.0) and "sb" not in fout

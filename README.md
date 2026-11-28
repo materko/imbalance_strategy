@@ -119,6 +119,7 @@ Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCH
 | volať webapp zo skriptu alebo z AI | [docs/API.md](docs/API.md) |
 | pridať ďalšiu stratégiu, zoznam stratégií | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
 | vedieť, kedy stratégia prešla (smernica testovania V2, platí od 27. 11. 2026) | [docs/SMERNICA_TESTOVANIA.md](docs/SMERNICA_TESTOVANIA.md) |
+| zapísať hypotézu a pokus, otvoriť trezor, zistiť N a k (register V2) | [docs/REGISTER.md](docs/REGISTER.md) |
 | naprogramovať V2 (zadanie pre vývojára, debata agentov, merania, snímka automatu) | [docs/audity/2026-11-27-smernica-v2/](docs/audity/2026-11-27-smernica-v2/PRECITAJ_MA.md) |
 | čo tá stratégia je, v čom je dobrá, kde má chyby | [docs/ANALYTIKA.md](docs/ANALYTIKA.md), [docs/TYPY_STRATEGII.md](docs/TYPY_STRATEGII.md) |
 | hľadať parametre (sweep, hyperopt, FreqAI) | [docs/HYPEROPT.md](docs/HYPEROPT.md) |
@@ -130,6 +131,7 @@ Celá cesta dát: [docs/DATA.md](docs/DATA.md), [docs/ARCHITEKTURA.md](docs/ARCH
 | čo adaptér NinjaTradera urobí pri poruche brokera (simulátor) | [docs/SIMULATOR_PORUCH.md](docs/SIMULATOR_PORUCH.md) |
 | jedny pravidlá životného cyklu orderu pre NT, EA a exekútor | [docs/STAV_ORDERU.md](docs/STAV_ORDERU.md) |
 | telemetria bežiacich stratégií (karta Live) | [docs/LIVE.md](docs/LIVE.md) |
+| denný stop účtu (−4 %) v MT5 a NinjaTraderi | [docs/DAILY_STOP.md](docs/DAILY_STOP.md) |
 | zdieľať trhy medzi NT8 a MT5 (návrh) | [docs/FEED.md](docs/FEED.md) |
 | počítať na viac strojoch (hub, agenti, pluginy) | [docs/HUB.md](docs/HUB.md), [deploy/agent/](deploy/agent/README.md) |
 | dáta: archív, importy, nový symbol | [docs/DATA.md](docs/DATA.md) |
@@ -163,8 +165,34 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 
 ---
 
-## Kde sme (2026-11-27)
+## Kde sme (2026-11-28)
 
+- **Ochrana účtu podľa SMERNICE V2 U1/U2** (28. 11.):
+  - **Denný stop −4 %:** od 00:00 Europe/Prague, základ max(balance, equity); zatvorí všetky pozície a príkazy celého
+    účtu a do resetu neobchoduje. Stav prežije reštart.
+  - **Riziko a SL:** súčasné riziko do SL je najviac 1,5 % equity; pozícia bez SL u brokera > 5 s sa zavrie trhom.
+  - **Duplicita:** tá istá stratégia s tým istým profilom na účtoch, ktoré sa sčítavajú, sa nespustí.
+  - **Telemetria:** udalosť `account_guard` a alarm hubu pri inštancii mlčiacej > 30 min počas seansy.
+  - **Platformy:** MT5 EA aj exekútor a NinjaTrader (chart stratégia aj AddOn), C# jadro `AccountGuard`, fasáda
+    verzia 7 ([docs/DAILY_STOP.md](docs/DAILY_STOP.md)).
+  - **Plnenie:** fill nesie typ príkazu, požadovanú cenu a bid/ask pri odoslaní aj pri plnení (čas v ms). Odmietnutý
+    príkaz ide ako `reject` a export obchodov `data/live/trades` má nové stĺpce ([docs/LIVE.md](docs/LIVE.md)).
+- **Spread CFD z histórie brokera (V2 U3)** (28. 11.): skript MT5 `TradeBotSpreadExport` (CopyTicks, spread M1) a
+  `python -m tester.spread history`. Výsledok je p50/p75/p95 po 30-min úsekoch New Yorku, v seanse, pri otvorení,
+  pri správach a mimo seansy, s porovnaním proti tabuľke §3. Živý spread z telemetrie `m1` ide do `data/live/spread/`.
+- **Brány a stav SMERNICE V2 (U8–U10)** (28. 11.):
+  - **Walk-forward:** `tester.walkforward` — 18/24 mes. učenie, 6 mes. test v L, zámok, PF OOS ≥ 1,15, WFE ≥ 0,5,
+    ≥ 75 % kúskov v pluse, stabilita parametrov.
+  - **Brány:** `tester.overfit` — PBO zo 16 blokov mesačného PnL registra ≤ 0,20, haircut Harvey–Liu, Sortino a
+    stav ✅ 🟡 ⏳ ⚠ ❌.
+  - **Robustnosť:** `tester.robust` počíta na L — DSR pri N_eff aj N, 2× náklad, vstup o sviečku neskôr, tercily ATR.
+  - **Webapp:** ukazuje stav a stĺpce V2; „—“ znamená nespočítané, červená nesplnenú bránu, rok A je sivou a poradie
+    ide podľa stavu.
+- **Register pokusov, trezory a zámky** (28. 11., V2 U6 a U7): `tester.register` drží hlavičky hypotéz, pokusy
+  (`tester/register/<hypotéza>.jsonl`), rozpočet 300 konfigurácií a 5 voľných parametrov a `vaults.json` s počiatočným
+  k trezorov (ES 11, ostatné trhy 154–164). Hľadanie (hyperopt, mriežka, matica, checkup) smie len na L trhu a
+  `checkup` aj hyperopt bez prepínača počítajú na L po rokoch. Trezor sa otvára raz cez `cli run --hypothesis … --vault B`
+  a N pre DSR berie `tester.robust --hypothesis` z registra ([docs/REGISTER.md](docs/REGISTER.md)).
 - **IB RETRACE zrušená** (26. 11.): `ibret`, `ibretmgc`, `ibretmym` aj C# kópie sú z repa preč (úrovne mali byť vždy
   zo štatistiky IB, nie pevné v profile); behy sú v `tester/archive/`. Karta **IB** (`tester.initial_balance`) ostáva.
 - **MTK EMAS 1.0** (`mtkemas`, multitrhová, 26. 11.): kĺzavé priemery podľa štúdie Mac mini (iCloud KLZAKY-STUDIA,
@@ -242,7 +270,7 @@ Koncept, čo kam patrí, a podrobná mapa: [docs/DIRECTORIES.md](docs/DIRECTORIE
 - **Správy**: stratégia **SPRÁVY 3.0** (zlato po červených správach USA, Python aj C# jadro) má pre každú správu vlastné
   pravidlo (8 pravidiel, prepínače, ktoré správy obchodovať) a kalendár 12 typov správ v čase New York
   (`tradebot/strategies/spravy/calendar.json`) s prevodom pre každý deň — štítky ukazujú čas SK aj NY.
-  Smernica má od 29. 10. krok 9 Robustnosť (`python -m tester.robust`, len informácia).
+  Smernica mala od 29. 10. krok 9 Robustnosť (`python -m tester.robust`); od 27. 11. platí V2 (brány v kroku 7).
 - **IVB 1.0** (`ivb`): prepis cudzej Rust stratégie (Initial Volatility Breakout, prieraz IB 9:30–10:00 NY pri stlačenom IB
   a náraste objemu) 1 : 1 len na porovnanie; na MNQ 5m s defaultmi predlohy zisková v 5 z 5 okien (PF 1,13–1,60).
 - **Roboquant šablóny** (31. 10.): ďalších sedem prepisov Rust stratégií (`rq_sdk`) — ORB 15/5 (`orb15`), Flash Trigger ORB

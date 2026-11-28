@@ -349,6 +349,9 @@ alebo ruka):
                "instrument":"MNQ 12-26","tf":3,"strategy":"ibsnet","profile":"multicharts_mnq_3m"}]}
 ```
 
+Nepovinné `"daily_stop": {"pct": 4, "zone": "America/New_York", "time": "18:00"}` zapne denný stop účtu
+([DAILY_STOP.md](DAILY_STOP.md)); chart stratégia ho má v skupine vlastností **Denný stop**.
+
 Profil je `TradeBot\profiles\<stratégia>\<profil>.json`, inak `TradeBot\profiles\<profil>.json` (tam ich
 dáva `install`), inak celá cesta; chýbajúci profil = záznam sa preskočí a zaloguje. Supervízor (vlastné
 vlákno, štart 3 s po vzniku Control Center) číta súbor podľa mtime **každé 2 s** a znova pri zmene stavu

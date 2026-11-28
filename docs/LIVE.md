@@ -110,14 +110,16 @@ Freqtrade a graf webapp).
 |---|---|---|
 | `hello` | `schema`, `platform` (`ninjatrader`/`mt5`), `account`, `symbol`, `tf` (min), `strategy` (kľúč enginu), `profile` (názov/cesta), `session`, `host` (meno stroja), `tester` (bool), `config` (celý config enginu), `instrument` (InstrumentSpec ako JSON mostu) | prvý riadok každého súboru session (pri rotácii dňa sa zopakuje) |
 | `bar` | `bt,o,h,l,c,v`, `ready` (bool — engine smie obchodovať), `mb` (bias), `cs` (bool, koniec seansy, len keď true) | každý uzavretý bar grafu, aj pri prehrávaní predhistórie (`ready:false`) — okrem historických barov, ktoré už zapísal predošlý beh inštancie s tým istým profilom a configom (`LiveSpool.ReadPrevious`: chvost posledných `PreviousFiles` súborov); graf jedného behu potom ukáže bary od reštartu, pohľad naprieč behmi ich má z predošlého |
-| `m1` | `bt,o,h,l,c,v` | uzavretý **1m bar symbolu** nezávisle od TF grafu (`LiveSpool.Minute`); po štarte aj predhistória `MinuteBackfill` = 3 dni, ale len minúty za posledným `m1`, ktorý už zapísal predošlý beh inštancie (diera po výpadku sa doplní, duplicity nie — po reštarte 14 inštancií boli `m1` a historické bary ~70 % všetkých udalostí). NT8 stratégia z jemnej série na plnenie (`FillDetailMinutes = 1`), AddOn z vlastného 1m `BarsRequest`, MT5 EA z `CopyRates(PERIOD_M1)` (`StaticHost.SpoolMinute`, fasáda verzie 4). Z nich je sklad živých sviečok `data_live` ([DATA.md §D](DATA.md)) |
-| `order` | `bt`, `ready` + polia `OrderIntent.WriteJson` (`a` entry/cancel/close, `id`, `src`, `dir`, `ot`, `r`, `p{dir,e,sl,tp,q,sd,tr}`, pri vstupe voliteľne `life{cancel_at,close_at,hold_ms}` — [ROUTING.md](ROUTING.md)) | zámer enginu, jeden riadok na zámer |
+| `m1` | `bt,o,h,l,c,v`; voliteľne spread v cene `sp` (sviečka brokera, MT5 `MqlRates.spread` × point), `spa` / `spx` (priemer / maximum ask − bid z tikov minúty, len naživo; `StaticHost.SpoolMinuteSpread`) → sklad `data/live/spread` ([DATA.md §D](DATA.md)) | uzavretý **1m bar symbolu** nezávisle od TF grafu (`LiveSpool.Minute`); po štarte aj predhistória `MinuteBackfill` = 3 dni, ale len minúty za posledným `m1`, ktorý už zapísal predošlý beh inštancie (diera po výpadku sa doplní, duplicity nie — po reštarte 14 inštancií boli `m1` a historické bary ~70 % všetkých udalostí). NT8 stratégia z jemnej série na plnenie (`FillDetailMinutes = 1`), AddOn z vlastného 1m `BarsRequest`, MT5 EA z `CopyRates(PERIOD_M1)` (`StaticHost.SpoolMinute`, fasáda verzie 4). Z nich je sklad živých sviečok `data_live` ([DATA.md §D](DATA.md)) |
+| `order` | `bt`, `ready` + polia `OrderIntent.WriteJson` (`a` entry/cancel/close, `id`, `src`, `dir`, `ot`, `r`, `p{dir,e,sl,tp,q,sd,tr}`, pri vstupe voliteľne `life{cancel_at,close_at,hold_ms}` — [ROUTING.md](ROUTING.md)); pri `ready` voliteľne `bid`, `ask`, `qt` (kurz pri odoslaní, nižšie) | zámer enginu, jeden riadok na zámer |
 | `order` (`a: "modify"`) | `bt`, `ready`, `a: "modify"`, `id` (id vstupu), `p{sl,tp}` (nová hodnota alebo `null` = nemenené), `r` (`trailing` / iný dôvod) | adaptér (nie engine) posunul SL/TP pracujúceho orderu — každý posun trailingu; SL/TP pri vstupe nesie už plán, ten sa nehlási |
 | `event` | `bt` + `StateEvent.WriteJson` (`ts,z,f,to,r`) | prechod stavu zóny |
 | `draw` | `bt`, `d`: pole `DrawCommand` (box/line/label/bg/update/delete), `final` (bool, len pre kresby posledného baru) | keď engine za bar niečo nakreslil |
-| `fill` | `ft` (čas exekúcie ms UTC), `id` (id vstupu), `side` `in`/`out`, `exit` (meno výstupu: NT `Stop loss`/`Profit target`/`tb_close`/`tb_session_end`, MT5 `Stop loss`/`Profit target`/`close`/`manual`/`margin call`, staršie MT5 `sltp`; pri `in` prázdne), `price`, `qty`, `ready` | vyplnenie u brokera (adaptér, nie engine) |
+| `fill` | `ft` (čas exekúcie ms UTC), `id` (id vstupu), `side` `in`/`out`, `exit` (meno výstupu: NT `Stop loss`/`Profit target`/`tb_close`/`tb_session_end`, MT5 `Stop loss`/`Profit target`/`close`/`manual`/`margin call`, staršie MT5 `sltp`; pri `in` prázdne), `price`, `qty`, `ready`; voliteľne `bid`, `ask`, `qt` (kurz pri plnení, nižšie) | vyplnenie u brokera (adaptér, nie engine) |
 | `stat` | `stats` (objekt: `Engine.Stats()` + `adapter_*` počítadlá) | pri ukončení |
 | `note` | `text`, `level` (`info`/`warn`/`error`) | varovania adaptéra (neskorý bar, chyba spoolu…) |
+| `account_guard` | `what` (`daily_stop` / `blocked` / `risk` / `no_sl` / `duplicate` / `off`), `text`, voliteľne `v` a `lim` (equity a hranica, riziko a limit) | ochrana účtu SMERNICE V2 U1 ([DAILY_STOP.md](DAILY_STOP.md)) |
+| `reject` | `rt` (ms UTC), `id`, `code` (MT5 retcode, NT `ErrorCode`), `price` (cena príkazu), `text`, kurz `bid`/`ask`/`qt`/`spr` | broker príkaz odmietol (napr. 10015 invalid price, V2 U2.6) |
 | `hb` | `bars` (barov v session), `lb` (čas posledného baru, 0 = žiadny), `mode` (posledný `control`, keď bol), `pos` / `pos_px` / `pos_of` (pozícia u brokera — nižšie, keď ju adaptér hlási), `route` (stav MT5 exekútora pri smerovaní orderov — `ok`, `no_executor`, `stale` … [ROUTING.md](ROUTING.md)) | **ping** každých 60 s z časovača `LiveSpool` (mimo Strategy Testera/Analyzera), aj keď bary nechodia; **nečísluje `seq`** (nesie posledné pridelené) |
 | `bye` | `reason` | ukončenie stratégie (posledný riadok súboru, keď sa stihne) |
 
@@ -132,6 +134,34 @@ Príklad:
 {"seq":6,"t":1790000180002,"k":"order","bt":1790000000000,"ready":true,"a":"modify","id":"L-4711","p":{"sl":20085,"tp":null},"r":"trailing"}
 {"seq":6,"t":1790000240000,"k":"hb","bars":1,"lb":1789999820000,"mode":"enabled"}
 ```
+
+### Kurz pri odoslaní a plnení (`bid`, `ask`, `qt`, SMERNICA V2 U2)
+
+`fill` nesie od fasády verzie 7 aj:
+- `ok` — typ príkazu: `market` / `limit` / `stop` / `sl` / `tp`;
+- `req` — požadovaná cena (úroveň limitu alebo stopu, cena SL / TP; trh bez nej);
+- `sb`, `sa`, `st`, `sspr` — bid, ask, čas v ms a spread v okamihu **odoslania** vstupu alebo trhového zatvorenia;
+- `spr` — spread `ask − bid` pri fille.
+
+Sklz je `price − req`. Export obchodov do `data/live/trades` ich nesie ako `entry_kind`, `entry_req`, `entry_bid`,
+`entry_ask`, `entry_sbid`, `entry_sask` a `exit_kind`, `exit_req`, `exit_bid`, `exit_ask`. Staré mesiace ich nemajú
+a pri spojení sa nič nezmaže.
+
+Na meranie skutočného spreadu a sklzu nesú riadky `order` (len `ready`, teda zámer, ktorý adaptér naozaj
+pošle) a `fill` posledný kurz symbolu u brokera: `bid`, `ask` a `qt` = čas kotácie v ms UTC. Časy sú
+všetky v ms: `t` = zápis riadku (pri `order` tesne pred odoslaním orderu), `ft` = exekúcia u brokera, `qt` = kotácia.
+Sklz vstupu je `price` fillu proti `ask` (long) / `bid` (short) zámeru, spread `ask − bid`.
+
+| platforma | kurz | čas `qt` | čas `ft` |
+|---|---|---|---|
+| MT5 EA | `SymbolInfoTick` (`StaticHost.SpoolQuote` pred `SpoolBar` a pred každým `SpoolFill`) | `MqlTick.time_msc` | `DEAL_TIME_MSC` (predtým celé sekundy z `DEAL_TIME`) |
+| NT8 AddOn | odber `MarketData` inštrumentu (L1 bid/ask) | čas novšej z dvoch kotácií | `Execution.Time` |
+| NT8 chart stratégia | `GetCurrentBid()` / `GetCurrentAsk()` | čas platformy teraz (NT čas kotácie nedáva) | `Execution.Time` |
+
+Kurz dostane len fill, ktorý práve prišiel: naživo a s časom exekúcie najviac 5 s od teraz (MT5: deal
+z `OnTradeTransaction`). Plnenie prevzaté z histórie (obnova stavu po reštarte, pozícia zavretá počas výpadku)
+je bez kurzu, lebo kurz z teraz by k nemu nepatril. Prehrávanie predhistórie a Tester kurz nepíšu. Polia sú
+voliteľné: starší adaptér ich nepíše a hub, sklad aj webapp ich len prenášajú.
 
 ### Ping (`hb`)
 
@@ -190,6 +220,7 @@ public sealed class LiveSpool : IDisposable {
     public void Bar(Bar bar, EngineOutput output, bool ready, int marketBias);   // bar + order* + event* + draw
     public void FinalDrawings(Bar bar, IList<DrawCommand> drawings);            // draw s final:true
     public void Fill(long execMs, string id, bool entry, string exitName, double price, double qty, bool ready);
+    public void Quote(double bid, double ask, long quoteMs);   // posledný kurz k ďalším order/fill riadkom; bid/ask <= 0 ho zabudne
     public void Modify(long barMs, string id, double? sl, double? tp, string reason, bool ready);  // order a:"modify" (null = nemenené)
     public void Note(string level, string text);
     public void Stats(Dictionary<string, double> stats);
@@ -202,7 +233,7 @@ public sealed class LiveSpool : IDisposable {
 - `StaticHost` (MQL5) dostane: `SpoolOpen(handle, root, platform, account, symbol, profile, tester)`
   → 1/-1 (symbol/tf/strategy/config/instrument pozná zo slotu), `SpoolRealtime(handle, bool)`,
   `SpoolBar(handle, ready)` (posledný bar z `OnBar`), `SpoolFill(handle, execMs, id, entry, exitName,
-  price, qty, ready)`, `SpoolModify(handle, barMs, id, sl, tp, reason, ready)` (MQL nemá nullable:
+  price, qty, ready)`, `SpoolQuote(handle, bid, ask, timeMsc)` (verzia 6), `SpoolModify(handle, barMs, id, sl, tp, reason, ready)` (MQL nemá nullable:
   `sl`/`tp` ≤ 0 = nemenené → `null`), `SpoolNote(handle, level, text)`, `SpoolClose(handle, reason)` (napíše aj
   `stat`), `SpoolPath(handle)`; `Destroy` zavrie spool, ak ostal otvorený. `Version()` → **2**
   (EA kontroluje 2; starú DLL treba preinštalovať).
@@ -793,7 +824,7 @@ sa / padá N min / visí N min / <problém, ktorý plugin sám hlási>` a `🟢 
 - `tester/tests/test_hub.py` — `/api/live/*` cez TestClient, práva tokenov; agent preberá
   `heartbeat_seconds` hubu a strážca spoolu zobudí odosielanie.
 - `tester/tests/test_mt5_static_host.py` — `Spool*` cez reflexiu: súbor vznikne, `hello`+`bar`+`fill`
-  +`order/modify` sú platné podľa `schema.validate`, `Version() == 5`, slot v id inštancie (`InstanceIdSlot`, `SpoolOpenSlot`),
+  +`order/modify` sú platné podľa `schema.validate`, `Version() == 7`, kurz `SpoolQuote` vo `fill`, `account_guard` / `reject` / `fill` s `ok`/`req`/`sb`, slot v id inštancie (`InstanceIdSlot`, `SpoolOpenSlot`),
   1m bary `SpoolMinute` (`m1`), EOD podľa hodín (`EodDue`), obnova rozbitého spoolu po `ReopenSeconds`.
 - `tester/tests/test_livedata.py` — export skladu do `data/live` (1m aj bary grafu, behy z Testera von, nič sa
   neprepíše), čítanie git + hub, `sync_hub`, plugin hubu `livedata` (ponuka mimo gitu, mesačný push do

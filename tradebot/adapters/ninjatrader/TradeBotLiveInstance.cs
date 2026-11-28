@@ -59,6 +59,22 @@ namespace NinjaTrader.NinjaScript.AddOns
         public Dictionary<string, object> Route;
         /// <summary>`Route` ako text - na porovnanie dvoch citani deploy.json.</summary>
         public string RouteText = "";
+        /// <summary>Denny stop uctu (docs/DAILY_STOP.md): `"daily_stop": {"pct": 4, "zone": "America/New_York", "time": "18:00"}`;
+        /// chybajuci zaznam alebo `"on": false` = vypnuty.</summary>
+        public bool DailyStop;
+        public double DailyStopPct = TB.DailyStopRule.DefaultPct;
+        public string DailyStopZone = TB.DailyStopRule.DefaultZone;
+        public string DailyStopTime = TB.DailyStopRule.DefaultTime;
+
+        /// <summary>Sucasne riziko uctu (SMERNICA V2 U1.2): `"max_open_risk_pct"` (predvolene 1,5; 0 = vypnute).</summary>
+        public double MaxOpenRiskPct = TB.AccountGuard.DefaultMaxOpenRiskPct;
+        /// <summary>Ucty, ktore sa scitavaju (kontrola duplicity, V2 U1.4): `"account_groups"` "111,222;333,444".</summary>
+        public string AccountGroups = "";
+
+        public string DailyStopText()
+        {
+            return DailyStop ? DailyStopPct.ToString("R", CultureInfo.InvariantCulture) + "|" + DailyStopZone + "|" + DailyStopTime : "";
+        }
 
         /// <summary>Kluc na porovnanie medzi dvoma citaniami deploy.json.</summary>
         public string Key
@@ -75,14 +91,15 @@ namespace NinjaTrader.NinjaScript.AddOns
         public bool SameInstance(LiveDeployment o)
         {
             return o != null && Id == o.Id && Connection == o.Connection && Account == o.Account && Instrument == o.Instrument
-                && Tf == o.Tf && Strategy == o.Strategy && RouteText == o.RouteText;
+                && Tf == o.Tf && Strategy == o.Strategy && RouteText == o.RouteText && DailyStopText() == o.DailyStopText();
         }
 
         public string Describe()
         {
             return (Id.Length > 0 ? Id + ": " : "") + Strategy + " " + Instrument + " " + Tf + "m na " + Account
                  + " (" + Connection + ", profil '" + Profile + "')"
-                 + (Route != null ? ", ordery -> " + TB.Json.GetString(Route, "to", "?") + " " + TB.Json.GetString(Route, "symbol", "?") : "");
+                 + (Route != null ? ", ordery -> " + TB.Json.GetString(Route, "to", "?") + " " + TB.Json.GetString(Route, "symbol", "?") : "")
+                 + (DailyStop ? ", denny stop -" + DailyStopPct.ToString("0.##", CultureInfo.InvariantCulture) + " %" : "");
         }
 
         /// <summary>Route z deploy.json -> RouteSpec (instancia, NT instrument a TF doplni LiveInstance).</summary>
@@ -115,6 +132,16 @@ namespace NinjaTrader.NinjaScript.AddOns
             dep.Tf = (int)TB.Json.GetDouble(d, "tf", 1);
             dep.Strategy = TB.Json.GetString(d, "strategy", "");
             dep.Profile = TB.Json.GetString(d, "profile", "");
+            Dictionary<string, object> stop = TB.Json.Get(d, "daily_stop") as Dictionary<string, object>;
+            if (stop != null && TB.Json.GetBool(stop, "on", true))
+            {
+                dep.DailyStop = true;
+                dep.DailyStopPct = TB.Json.GetDouble(stop, "pct", TB.DailyStopRule.DefaultPct);
+                dep.DailyStopZone = TB.Json.GetString(stop, "zone", TB.DailyStopRule.DefaultZone);
+                dep.DailyStopTime = TB.Json.GetString(stop, "time", TB.DailyStopRule.DefaultTime);
+            }
+            dep.MaxOpenRiskPct = TB.Json.GetDouble(d, "max_open_risk_pct", TB.AccountGuard.DefaultMaxOpenRiskPct);
+            dep.AccountGroups = TB.Json.GetString(d, "account_groups", "");
             Dictionary<string, object> route = TB.Json.Get(d, "route") as Dictionary<string, object>;
             if (route != null && TB.Json.GetString(route, "via", "") == "mt5")
             {
@@ -211,6 +238,11 @@ namespace NinjaTrader.NinjaScript.AddOns
             /// <summary>Kedy sa TP vyplnil len ciastocne (MinValue = nie): engine ma obchod za uzavrety, zvysok ide von
             /// trhom (PartialTpCheck) - 18. 11. 2026 ostal po TP 2 z 3 jeden kontrakt cely den len so SL.</summary>
             public DateTime TpPartialAt;
+            /// <summary>Od kedy pozicia nema zivy SL bez prerusenia (V2 U1.3: po 5 s zavriet trhom).</summary>
+            public DateTime NoStopFirst;
+            /// <summary>Kurz pri odoslani vstupu a trhoveho zatvorenia (V2 U2) - do `fill` ako sb/sa/st.</summary>
+            public double SendBid, SendAsk, CloseBid, CloseAsk;
+            public long SendQuoteMs, CloseQuoteMs;
         }
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -242,6 +274,13 @@ namespace NinjaTrader.NinjaScript.AddOns
 
         private Account _account;
         private Instrument _inst;
+        // posledny bid/ask instrumentu (MarketData, vlakno NinjaTradera) - do `order` a `fill` riadkov spoolu
+        private readonly object _quoteGate = new object();
+        private MarketData _marketData;
+        private EventHandler<MarketDataEventArgs> _marketDataHandler;
+        private double _bid, _ask;
+        private DateTime _bidTime, _askTime;
+        private readonly Dictionary<long, double[]> _spreadByMinute = new Dictionary<long, double[]>();
         private string _instrumentName = "";
         private string _instance = "";
         private Dictionary<string, object> _config;
@@ -286,6 +325,11 @@ namespace NinjaTrader.NinjaScript.AddOns
         private LiveViewFeed _view;
         /// <summary>Predhistoria je prehrata, dalsie bary su nazivo (ready, stale guard, control kazde 2 s).</summary>
         private bool _live;
+        /// <summary>Denny stop uctu z nasadenia; null = vypnuty (alebo route - tam patri exekutoru v MT5).</summary>
+        private TB.DailyStopRule _dailyStopRule;
+        private TB.DailyStop _dailyStop;
+        /// <summary>Ucet je dnes zastaveny - nove vstupy sa neposielaju, otvorene sa zatvoria.</summary>
+        private bool _dailyStopped;
         private int _chartBars, _htfBars, _engineBars;
         private long _firstBarMs, _lastBarMs;
         private int _staleLogged;
@@ -422,9 +466,128 @@ namespace NinjaTrader.NinjaScript.AddOns
             Note(level, text);
         }
 
-        /// <summary>Fill do spoolu aj do feedu grafu (indikator TradeBotLiveView).</summary>
+        /// <summary>Bid/ask instrumentu z `MarketData` (L1) - bez neho by spool nevedel spread pri odoslani ani pri plneni.
+        /// Chyba odberu instanciu nezastavi: riadky su potom bez kurzu.</summary>
+        private void SubscribeQuotes()
+        {
+            try
+            {
+                _marketDataHandler = OnMarketData;
+                _marketData = new MarketData(_inst);
+                _marketData.Update += _marketDataHandler;
+            }
+            catch (Exception e) { Log("MarketData: " + e.Message); _marketData = null; }
+        }
+
+        private void UnsubscribeQuotes()
+        {
+            try { if (_marketData != null && _marketDataHandler != null) _marketData.Update -= _marketDataHandler; }
+            catch (Exception) { }
+            _marketData = null;
+        }
+
+        private void OnMarketData(object sender, MarketDataEventArgs e)
+        {
+            try
+            {
+                if (e == null) return;
+                lock (_quoteGate)
+                {
+                    if (e.MarketDataType == MarketDataType.Bid) { _bid = e.Price; _bidTime = e.Time; }
+                    else if (e.MarketDataType == MarketDataType.Ask) { _ask = e.Price; _askTime = e.Time; }
+                    else return;
+                    if (_bid <= 0 || _ask <= 0 || _ask < _bid) return;
+                    // spread po minutach (otvorenie minuty v ms UTC -> sucet, pocet, maximum) do `m1`
+                    long minute = ToMs(e.Time) / 60000L * 60000L;
+                    double[] st;
+                    if (!_spreadByMinute.TryGetValue(minute, out st))
+                    {
+                        st = new double[3];
+                        _spreadByMinute[minute] = st;
+                        if (_spreadByMinute.Count > 15)
+                            foreach (long k in new List<long>(_spreadByMinute.Keys))
+                                if (k < minute - 10 * 60000L) _spreadByMinute.Remove(k);
+                    }
+                    double s = _ask - _bid;
+                    st[0] += s; st[1] += 1; if (s > st[2]) st[2] = s;
+                }
+            }
+            catch (Exception) { }
+        }
+
+        /// <summary>Priemer a maximum spreadu z L1 kotacii v minute, ktora zacina `openMs`; 0 = minutu sme nevideli.</summary>
+        private void MinuteSpread(long openMs, out double avg, out double max)
+        {
+            avg = 0; max = 0;
+            lock (_quoteGate)
+            {
+                double[] st;
+                if (!_spreadByMinute.TryGetValue(openMs, out st) || st[1] <= 0) return;
+                avg = st[0] / st[1];
+                max = st[2];
+            }
+        }
+
+        /// <summary>Posledny bid/ask do spoolu (`LiveSpool.Quote`, cas = novsia z dvoch kotacii); `live` = false ho zabudne
+        /// (prehravanie, fill prevzaty z historie - kurz z teraz by k nemu nepatril).</summary>
+        private void SpoolQuote(bool live)
+        {
+            if (_spool == null) return;
+            double bid = 0, ask = 0;
+            long ms = 0;
+            if (live)
+                lock (_quoteGate)
+                    if (_bid > 0 && _ask > 0) { bid = _bid; ask = _ask; ms = ToMs(_bidTime > _askTime ? _bidTime : _askTime); }
+            _spool.Quote(bid, ask, ms);
+        }
+
+        /// <summary>Fill do spoolu aj do feedu grafu (indikator TradeBotLiveView). Kurz dostane len fill, ktory prave
+        /// prisiel (nazivo a cas exekucie najviac 5 s od teraz).</summary>
         private void SpoolFill(long ms, string id, bool entry, string exitName, double price, double qty, bool ready)
         {
+            SpoolFill(ms, id, entry, exitName, price, qty, ready, "", 0, 0, 0, 0);
+        }
+
+        /// <summary>Typ prikazu NT pre `fill` (V2 U2): market / limit / stop.</summary>
+        private static string KindOf(Order o)
+        {
+            if (o == null) return "";
+            if (o.OrderType == OrderType.Market) return "market";
+            if (o.OrderType == OrderType.Limit) return "limit";
+            return "stop";
+        }
+
+        /// <summary>Poziadana cena orderu: limit, inak stop; market 0.</summary>
+        private static double ReqOf(Order o)
+        {
+            if (o == null) return 0;
+            if (o.OrderType == OrderType.Limit) return o.LimitPrice;
+            if (o.OrderType == OrderType.StopMarket || o.OrderType == OrderType.StopLimit) return o.StopPrice;
+            return 0;
+        }
+
+        private void QuoteNow(out double bid, out double ask, out long ms)
+        {
+            lock (_quoteGate)
+            {
+                bid = _bid > 0 && _ask > 0 ? _bid : 0;
+                ask = _bid > 0 && _ask > 0 ? _ask : 0;
+                ms = bid > 0 ? ToMs(_bidTime > _askTime ? _bidTime : _askTime) : 0;
+            }
+        }
+
+        /// <summary>Ochrana uctu do spoolu (`account_guard`, V2 U1.6).</summary>
+        private void Guard(string what, string text, double value, double limit)
+        {
+            if (_spool == null) return;
+            _spool.Guard(what, text, value, limit);
+            SpoolCheck();
+        }
+
+        private void SpoolFill(long ms, string id, bool entry, string exitName, double price, double qty, bool ready,
+                               string kind, double req, double sendBid, double sendAsk, long sendMs)
+        {
+            SpoolQuote(ready && Math.Abs(NowMs() - ms) <= 5000);
             if (_view != null)
             {
                 Tracked t;
@@ -432,7 +595,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (_orders.TryGetValue(id ?? "", out t) && t.Intent.Plan != null) isLong = t.Intent.Plan.Direction == TB.Direction.Long;
                 _view.AddFill(ms, id, entry, isLong, price, qty, exitName);
             }
-            if (_spool != null) { _spool.Fill(ms, id, entry, exitName, price, qty, ready); SpoolCheck(); }
+            if (_spool != null) { _spool.Fill(ms, id, entry, exitName, price, qty, ready, kind, req, sendBid, sendAsk, sendMs); SpoolCheck(); }
         }
 
         /// <summary>Ordery instancie do feedu grafu: cakajuce vstupy a pozicie so SL/TP (feed zmenu pozna sam).</summary>
@@ -544,6 +707,9 @@ namespace NinjaTrader.NinjaScript.AddOns
             catch (Exception e) { Note("error", "strazca SL - " + e.Message); }
             try { if (_live && !Routed) PartialTpCheck(); }
             catch (Exception e) { Note("error", "ciastocny TP - " + e.Message); }
+            try { if (_live) DailyStopCheck(); }
+            catch (Exception e) { NoteThrottled("dailystop", "error", "denny stop - " + e.Message); }
+            DupRefresh();
             try { if (_live) { EodByClock(); FeedWatch(); } }
             catch (Exception e) { Note("error", "strazca feedu / EOD - " + e.Message); }
             try { if (_live && !Routed) OldContractCheck(); }
@@ -604,10 +770,13 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
             _account = WaitAccount(d.Account, 60);
             if (_account == null) return false;
+            if (!DailyStopInit(d)) return false;
             try { _inst = Instrument.GetInstrument(d.Instrument); }
             catch (Exception e) { Log("GetInstrument: " + e.Message); }
             if (_inst == null) { Log("instrument '" + d.Instrument + "' NinjaTrader nepozna"); return false; }
+            if (!DupClaim(d)) return false;
             _instrumentName = _inst.MasterInstrument.Name;
+            SubscribeQuotes();
             _stepMs = d.Tf * 60000L;
             _instance = TB.LiveSpool.InstanceId("ninjatrader", _account.Name, _instrumentName, d.Tf, d.Strategy);
             _statePath = Path.Combine(TradeBotLiveAddOn.StateDir, _instance + ".json");
@@ -885,7 +1054,10 @@ namespace NinjaTrader.NinjaScript.AddOns
                 if (c == null) break;
                 _m1Spooled++;
                 if ((now - c.Time).TotalMinutes > TB.LiveSpool.MinuteBackfill) continue;   // 1m graf ma historie viac
-                _spool.Minute(ToMs(c.Time) - 60000L, c.Open, c.High, c.Low, c.Close, c.Volume);
+                long openMs = ToMs(c.Time) - 60000L;
+                double spa, spx;
+                MinuteSpread(openMs, out spa, out spx);
+                _spool.Minute(openMs, c.Open, c.High, c.Low, c.Close, c.Volume, 0, spa, spx);
             }
             SpoolCheck();
         }
@@ -953,6 +1125,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     Note("warn", "bar " + c.Time.ToString("HH:mm", CultureInfo.InvariantCulture) + " prisiel neskoro ("
                          + (int)(now - c.Time).TotalSeconds + " s) - bez vstupu");
             }
+            SpoolQuote(ready);   // bid/ask pri odoslani zamerov (order riadky)
             if (_spool != null) { _spool.Bar(bar, output, ready, ctx.MarketBias); SpoolCheck(); }
             if (_view != null) _view.Draw(output.Drawings);
             foreach (TB.OrderIntent intent in output.Orders) Apply(intent, ready);
@@ -1233,6 +1406,12 @@ namespace NinjaTrader.NinjaScript.AddOns
                     Log("ENTRY " + intent.OrderId + " zahodeny - rezim " + _controlMode);
                     return;
                 }
+                if (_dailyStopped)
+                {
+                    Log("ENTRY " + intent.OrderId + " zahodeny - denny stop uctu");
+                    Guard("blocked", "vstup " + intent.OrderId + " neodoslany - denny stop uctu", double.NaN, double.NaN);
+                    return;
+                }
                 if (Routed && !RouteTakesEntry())
                 {
                     Note("warn", "ENTRY " + intent.OrderId + " zahodeny - MT5 exekutor: " + _routeState + " (" + _routeDetail + ")");
@@ -1303,7 +1482,16 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
             int qty = (int)Math.Max(1, Math.Round(plan.Qty));
             bool isLong = plan.Direction == TB.Direction.Long;
+            string risk = RiskVerdict(intent, qty);
+            if (risk.Length > 0)
+            {
+                Note("error", "vstup " + id + " neposlany - " + risk + " (max_open_risk_pct, SMERNICA V2 U1.2)");
+                Guard("risk", "vstup " + id + ": " + risk, double.NaN, _account.Get(AccountItem.NetLiquidation, _account.Denomination) * Deployment.MaxOpenRiskPct / 100.0);
+                _orders.Remove(id);
+                return;
+            }
             OrderAction action = isLong ? OrderAction.Buy : OrderAction.SellShort;
+            QuoteNow(out t.SendBid, out t.SendAsk, out t.SendQuoteMs);
             try
             {
                 Order order;
@@ -1320,6 +1508,49 @@ namespace NinjaTrader.NinjaScript.AddOns
                 Note("error", "vstup " + id + " sa neposlal - " + e.Message);
                 _orders.Remove(id);
             }
+        }
+
+        /// <summary>SL pozicie na instrumente: najvzdialenejsi zivy stop order opacnym smerom na ucte; 0 = bez SL.</summary>
+        private double PositionStop(Instrument inst, bool isLong, double avgPrice)
+        {
+            double best = 0;
+            lock (_account.Orders)
+                foreach (Order o in _account.Orders)
+                {
+                    if (!Alive(o) || o.Instrument == null || o.Instrument.FullName != inst.FullName) continue;
+                    if (o.OrderType != OrderType.StopMarket && o.OrderType != OrderType.StopLimit) continue;
+                    if (isLong ? o.OrderAction != OrderAction.Sell : o.OrderAction != OrderAction.BuyToCover) continue;
+                    if (best == 0 || Math.Abs(avgPrice - o.StopPrice) > Math.Abs(avgPrice - best)) best = o.StopPrice;
+                }
+            return best;
+        }
+
+        /// <summary>Sucet rizik do SL vsetkych pozicii uctu (vsetky instrumenty); NaN = niektora nema SL.</summary>
+        private double OpenRisk()
+        {
+            double sum = 0;
+            List<Position> positions = new List<Position>();
+            lock (_account.Positions) positions.AddRange(_account.Positions);
+            foreach (Position p in positions)
+            {
+                if (p.Instrument == null || p.MarketPosition == MarketPosition.Flat || p.Quantity == 0) continue;
+                bool isLong = p.MarketPosition == MarketPosition.Long;
+                double r = TB.AccountGuard.PositionRisk(p.AveragePrice, PositionStop(p.Instrument, isLong, p.AveragePrice), p.Quantity,
+                                                        p.Instrument.MasterInstrument.PointValue);
+                if (double.IsNaN(r)) return double.NaN;
+                sum += r;
+            }
+            return sum;
+        }
+
+        /// <summary>"" = vstup smie ist; inak dovod (`AccountGuard.RiskVerdict`). Len nazivo.</summary>
+        private string RiskVerdict(TB.OrderIntent intent, int qty)
+        {
+            if (!_live || Deployment.MaxOpenRiskPct <= 0) return "";
+            TB.TradePlan plan = intent.Plan;
+            double entry = intent.OrderType == TB.OrderType.Market ? LastTick() : Tick(plan.Entry);
+            double add = TB.AccountGuard.PositionRisk(entry, Tick(plan.StopLoss), qty, _inst.MasterInstrument.PointValue);
+            return TB.AccountGuard.RiskVerdict(OpenRisk(), add, _account.Get(AccountItem.NetLiquidation, _account.Denomination), Deployment.MaxOpenRiskPct);
         }
 
         /// <summary>Limit / stop vstup, pri ktorom je posledny tick uz na alebo za SL planu (long: cena &lt;= SL,
@@ -1397,15 +1628,25 @@ namespace NinjaTrader.NinjaScript.AddOns
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
             {
                 Tracked t = kv.Value;
-                if (!t.Filled || t.OpenQty <= 0 || (t.Closing != null && !t.Protect)) { t.NoStopSince = DateTime.MinValue; continue; }
+                if (!t.Filled || t.OpenQty <= 0 || (t.Closing != null && !t.Protect)) { t.NoStopSince = DateTime.MinValue; t.NoStopFirst = DateTime.MinValue; continue; }
                 if (Alive(t.Sl))
                 {
                     t.NoStopSince = DateTime.MinValue;
+                    t.NoStopFirst = DateTime.MinValue;
                     if (t.Sl.OrderState == OrderState.Accepted || t.Sl.OrderState == OrderState.Working) t.ExitFails = 0;   // broker ho prijal
                     continue;
                 }
                 // vystup sa prave vyplnil - pozicia sa zavrie sama (HandleExecution)
                 if ((t.Sl != null && t.Sl.OrderState == OrderState.Filled) || (t.Tp != null && t.Tp.OrderState == OrderState.Filled)) continue;
+                if (t.NoStopFirst == DateTime.MinValue) t.NoStopFirst = now;
+                if (t.Closing == null && TB.AccountGuard.StopOverdue((long)(t.NoStopFirst - Epoch).TotalMilliseconds, (long)(now - Epoch).TotalMilliseconds, false))
+                {
+                    string why = "pozicia " + kv.Key + " je bez SL u brokera " + (int)(now - t.NoStopFirst).TotalSeconds + " s - zatvaram trhom (SMERNICA V2 U1.3)";
+                    Note("error", why);
+                    Guard("no_sl", why, double.NaN, double.NaN);
+                    RequestClose(kv.Key, t, "tb_close");
+                    continue;
+                }
                 if (t.NoStopSince == DateTime.MinValue) { t.NoStopSince = now; if (!t.Protect) continue; }
                 if (!t.Protect && (now - t.NoStopSince).TotalSeconds < NoStopGraceSeconds) continue;
                 // TP z neuplnej dvojice najprv prec (inak by po novej dvojici stali dva TP)
@@ -1449,6 +1690,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         {
             if (t.CloseSent || t.OpenQty <= 0) return;
             t.CloseSent = true;
+            QuoteNow(out t.CloseBid, out t.CloseAsk, out t.CloseQuoteMs);
             bool isLong = t.Intent.Plan.Direction == TB.Direction.Long;
             try
             {
@@ -1539,7 +1781,7 @@ namespace NinjaTrader.NinjaScript.AddOns
 
         private void ReleaseParked()
         {
-            if (HasOpenPosition() || _controlMode != "enabled") return;
+            if (HasOpenPosition() || _controlMode != "enabled" || _dailyStopped) return;
             // route: ta ista brana ako pre novy vstup (Apply) - pri zlom stave exekutora ostava odlozeny a skusi sa znova
             if (Routed && !RouteTakesEntry()) return;
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
@@ -1660,6 +1902,123 @@ namespace NinjaTrader.NinjaScript.AddOns
                 Drop(kv.Key, t);   // aj SL/TP: zrusi ich a strazi, kym to broker nepotvrdi
             }
             _foreignMs = 0;
+        }
+
+        /// <summary>Denny stop z nasadenia: zle nastavenie instanciu nespusti (nie ticho bez poistky).</summary>
+        private string _dupPath;
+        private DateTime _dupRefreshAt;
+
+        /// <summary>Vlastnik zamku duplicity: ucet a instalacia NinjaTradera (iny instrument, restart = ten isty).</summary>
+        private string DupOwner() { return "nt-" + _account.Name + "|" + Environment.MachineName + "|" + TradeBotLiveAddOn.StateDir; }
+
+        /// <summary>Ten isty kluc strategie s tym istym profilom na inom ucte skupiny (V2 U1.4) - start sa odmietne.</summary>
+        private bool DupClaim(LiveDeployment d)
+        {
+            if (Routed) return true;   // pri smerovani obchoduje MT5 ucet - duplicitu strazi tam EA / hub
+            string group = TB.AccountGuard.GroupOf(_account.Name, "nt-" + _account.Name, d.AccountGroups);
+            string path = TB.DupLock.PathOf(TradeBotLiveAddOn.StateDir, group, d.Strategy, d.Profile);
+            string other;
+            if (!TB.DupLock.Claim(path, DupOwner(), NowMs(), out other))
+            {
+                Log("ERROR: " + d.Strategy + " s profilom " + d.Profile + " uz bezi na ucte skupiny " + group + " (" + other
+                    + ") - start odmietnuty, ucty sa scitavaju (SMERNICA V2 U1.4)");
+                return false;
+            }
+            _dupPath = path;
+            _dupRefreshAt = LiveClock.UtcNow.AddSeconds(30);
+            return true;
+        }
+
+        private void DupRefresh()
+        {
+            if (_dupPath == null || LiveClock.UtcNow < _dupRefreshAt) return;
+            _dupRefreshAt = LiveClock.UtcNow.AddSeconds(30);
+            TB.DupLock.Refresh(_dupPath, DupOwner(), NowMs());
+        }
+
+        private bool DailyStopInit(LiveDeployment d)
+        {
+            _dailyStopRule = null;
+            _dailyStop = null;
+            _dailyStopped = false;
+            _dailyStopOffNoted = false;
+            if (!d.DailyStop) return true;
+            if (d.Route != null)
+            {
+                Log("WARN: denny stop NT uctu sa pri smerovani do MT5 nepouzije - ucet s penazmi je v MT5, stop ma exekutor "
+                    + "(InpDailyStop, denny stop MT5 uctu v hube; docs/DAILY_STOP.md)");
+                return true;
+            }
+            try
+            {
+                _dailyStopRule = new TB.DailyStopRule(d.DailyStopPct, d.DailyStopZone, d.DailyStopTime);
+                _dailyStop = TB.DailyStop.For(TradeBotLiveAddOn.StateDir, "nt-" + _account.Name, _dailyStopRule);
+            }
+            catch (Exception e) { Log("denny stop: " + e.Message + " - instanciu nespustam"); return false; }
+            Log("denny stop uctu " + _dailyStopRule.Describe() + " (" + _dailyStop.Path + ")");
+            return true;
+        }
+
+        /// <summary>
+        /// Denny stop uctu (docs/DAILY_STOP.md): equity uctu (NetLiquidation vratane otvorenych obchodov) do jadra; ked
+        /// je ucet dnes zastaveny (aj inou instanciou), zavri a zrus vsetko svoje a nove vstupy neposielaj.
+        /// </summary>
+        private bool _dailyStopOffNoted;
+
+        private void DailyStopCheck()
+        {
+            if (_dailyStop == null)
+            {
+                if (!_dailyStopOffNoted && !Routed && _spool != null)
+                {
+                    _dailyStopOffNoted = true;
+                    string off = "POZOR: denny stop uctu je vypnuty - ucet " + _account.Name + " nema poistku -4 % (SMERNICA V2 U1; zapni ho pri ucte v hube)";
+                    Note("warn", off);
+                    Guard("off", off, double.NaN, double.NaN);
+                }
+                return;
+            }
+            long nowMs = (long)Math.Round((LiveClock.UtcNow - Epoch).TotalMilliseconds);
+            double equity = _account.Get(AccountItem.NetLiquidation, _account.Denomination);
+            double balance = _account.Get(AccountItem.CashValue, _account.Denomination);
+            bool was = _dailyStopped;
+            _dailyStopped = _dailyStop.Check(_dailyStopRule, nowMs, equity, balance);
+            if (!_dailyStopped)
+            {
+                if (was) Note("info", "denny stop: novy obchodny den - vstupy znova povolene");
+                return;
+            }
+            if (!was)
+            {
+                string text = _dailyStop.Text(_dailyStopRule);
+                Note("warn", text + " - zatvaram a rusim vsetko na ucte");
+                Guard("daily_stop", text, equity, double.NaN);
+            }
+            bool work = false;
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+                if ((kv.Value.Filled && kv.Value.OpenQty > 0 && kv.Value.Closing == null) || !kv.Value.Filled) work = true;
+            if (work) Flatten("tb_daily_stop");
+            if (_dailyStop.SweepDue(nowMs)) FlattenAccount();
+        }
+
+        /// <summary>Denny stop: vsetky pozicie a prikazy uctu prec (vsetky instrumenty a instancie, V2 U1) - az po
+        /// `DailyStop.SweepDelayMs` od zastavenia a najviac raz za `SweepMs` v NinjaTraderi; vlastne zatvara `Flatten`.</summary>
+        private void FlattenAccount()
+        {
+            Dictionary<string, Instrument> insts = new Dictionary<string, Instrument>();
+            lock (_account.Positions)
+                foreach (Position p in _account.Positions)
+                    if (p.Instrument != null && p.MarketPosition != MarketPosition.Flat) insts[p.Instrument.FullName] = p.Instrument;
+            lock (_account.Orders)
+                foreach (Order o in _account.Orders)
+                    if (Alive(o) && o.Instrument != null) insts[o.Instrument.FullName] = o.Instrument;
+            if (insts.Count == 0) return;
+            try
+            {
+                _account.Flatten(new List<Instrument>(insts.Values));
+                Log("denny stop: flatten uctu " + _account.Name + " (" + string.Join(", ", new List<string>(insts.Keys).ToArray()) + ")");
+            }
+            catch (Exception e) { Note("error", "denny stop: flatten uctu zlyhal - " + e.Message); }
         }
 
         /// <summary>
@@ -1865,6 +2224,12 @@ namespace NinjaTrader.NinjaScript.AddOns
         {
             Tracked t;
             string name = o.Name;
+            if (state == OrderState.Rejected && _spool != null)
+            {
+                SpoolQuote(_live);
+                _spool.Reject(NowMs(), name, error.ToString(), ReqOf(o), comment ?? "");
+                SpoolCheck();
+            }
             int dying = DyingIndex(o);
             if (dying >= 0)
             {
@@ -1970,7 +2335,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 t.Parked = false;
                 t.OpenQty += qty;
                 Log("FILL in " + key + " @" + price + " x" + qty);
-                SpoolFill(execMs, key, true, "", price, qty, _live);
+                SpoolFill(execMs, key, true, "", price, qty, _live, KindOf(o), ReqOf(o), t.SendBid, t.SendAsk, t.SendQuoteMs);
                 ParkOthers(key);
                 // pocas zatvarania SL/TP uz nechceme: objem navyse pojde von trhovym vystupom (CloseTimeouts)
                 if (t.Closing == null || t.Protect) EnsureExits(key, t);
@@ -1990,7 +2355,9 @@ namespace NinjaTrader.NinjaScript.AddOns
             string suffix = name.Substring(colon + 1);
             string exitName = ExitName(suffix);
             Log("FILL out " + id + " " + exitName + " @" + price + " x" + qty);
-            SpoolFill(execMs, id, false, exitName, price, qty, _live);
+            bool slTp = suffix == "sl" || suffix == "tp";
+            SpoolFill(execMs, id, false, exitName, price, qty, _live, slTp ? suffix : KindOf(o), ReqOf(o),
+                      slTp ? 0 : t.CloseBid, slTp ? 0 : t.CloseAsk, slTp ? 0 : t.CloseQuoteMs);
             t.OpenQty -= qty;
             if (t.OpenQty > 0)
             {
@@ -2997,6 +3364,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                 }
             }
             catch (Exception) { }
+            UnsubscribeQuotes();
+            if (_dupPath != null) { TB.DupLock.Release(_dupPath, DupOwner()); _dupPath = null; }
             // cakajuce vstupy prec; pozicia ostava aj so svojimi SL/TP (GTC ordery na ucte) - flatten je vec control suboru.
             // Route do MT5: vstupy sa rusia len pri odstraneni nasadenia - restart NT, novy kod ci pad nie su dovod
             // (vstup nesie svoj `life` a exekutor ho dodrzi sam; po navrate ho `sync` znova prevezme).

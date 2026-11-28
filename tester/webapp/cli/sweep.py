@@ -80,6 +80,10 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     from ... import sweep as sweep_mod
 
     params, settings = _prepare(args)
+    from ... import hyperopt as ho
+
+    if (problem := ho.search_problem(settings["timerange"], None, settings["pair"])):
+        raise SystemExit(problem.replace("hyperopt", "mriežka", 1))
     space = {}
     for item in args.param:
         if "=" not in item:
